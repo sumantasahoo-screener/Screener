@@ -1,104 +1,38 @@
-    # === Build HTML view (preserve Excel colors + show only selected columns) ===
-    try:
-        from openpyxl import load_workbook
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>F&O Signals</title>
 
-        # Columns you want in HTML (edit if needed)
-        DISPLAY_COLS = [
-            "UNDERLYING_SYMBOL", "Signal_DATETIME", "Signal Price", "SIGNAL OPTION",
-            "CALL_LTP", "PUT_LTP", "SPOT_LTP", "BASE_SIGNAL", "PRICE ACTION",
-            "ACTION SCORE", "OI_IMB_SIGNAL", "OI_IMB_STRENGTH", "OI_ACTION",
-            "OI_SCORE", "OI_IMB_DIRECTION", "DELTA_ZONE", "IV_ZONE", "THETA_ZONE",
-            "GAMMA_ZONE", "CALL_PCT", "PUT_PCT", "OI_IMBALANCE_PCT",
-            "CALL_SYMBOL", "PUT_SYMBOL", "LOT_Size", "SM_EXPIRY_DATE"
-        ]
+    <!-- FORCE NO CACHE -->
+    <meta http-equiv="Cache-Control" content="no-store" />
 
-        wb2 = load_workbook(OUT, data_only=True)
-        ws2 = wb2.active
+    <!-- AUTO REFRESH EVERY 10 SECONDS -->
+    <script>
+        setInterval(function () {
+            window.location.reload();
+        }, 10000);  // 10000 ms = 10 sec
+    </script>
 
-        # Build header map: excel col idx -> header name
-        header_names = [str(cell.value).strip() if cell.value is not None else "" for cell in ws2[1]]
-        # Determine indexes for DISPLAY_COLS (preserve order in DISPLAY_COLS)
-        col_index_map = {}
-        for idx, h in enumerate(header_names, start=1):
-            if h in DISPLAY_COLS:
-                col_index_map[h] = idx
+    <style>
+        table.dataframe {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 12px;
+        }
+        table.dataframe th, table.dataframe td {
+            border: 1px solid #999;
+            padding: 4px;
+            text-align: center;
+        }
+    </style>
+</head>
 
-        # HTML helpers
-        def _fill_to_hex(cell):
-            try:
-                fill = cell.fill
-                if not fill or fill.fill_type is None:
-                    return None
-                fg = fill.fgColor
-                rgb = None
-                # fgColor can have rgb like 'FF4CAF50' or theme/indexed - handle common case
-                if fg is None:
-                    return None
-                if hasattr(fg, "rgb") and fg.rgb is not None:
-                    rgb = fg.rgb
-                elif hasattr(fg, "index") and fg.index is not None:
-                    # fallback not robust for theme/indexed; return None
-                    rgb = None
-                if not rgb:
-                    return None
-                rgb = str(rgb)
-                # Remove leading alpha if present (8 chars -> take last 6)
-                if len(rgb) == 8:
-                    rgb = rgb[-6:]
-                elif len(rgb) > 6:
-                    rgb = rgb[-6:]
-                return f"#{rgb}"
-            except Exception:
-                return None
+<body>
+    <h2>F&O Signals</h2>
 
-        def _text_color_for_bg(hexcol):
-            # simple brightness check: return white for dark bg, black for light bg
-            try:
-                if not hexcol:
-                    return "#000000"
-                h = hexcol.lstrip('#')
-                r = int(h[0:2], 16); g = int(h[2:4], 16); b = int(h[4:6], 16)
-                brightness = (r*299 + g*587 + b*114) / 1000
-                return "#000000" if brightness > 150 else "#FFFFFF"
-            except Exception:
-                return "#000000"
-
-        # Start table
-        html_rows = []
-        # header row (use DISPLAY_COLS order, but only those present)
-        visible_headers = [c for c in DISPLAY_COLS if c in col_index_map]
-        header_html = "<tr>" + "".join(f"<th>{h}</th>" for h in visible_headers) + "</tr>"
-        html_rows.append(header_html)
-
-        # iterate data rows
-        for r_idx in range(2, ws2.max_row + 1):
-            row_cells = []
-            for h in visible_headers:
-                c_idx = col_index_map[h]
-                cell = ws2.cell(row=r_idx, column=c_idx)
-                v = cell.value
-                text = "" if v is None else str(v)
-                bg = _fill_to_hex(cell)
-                txt_color = _text_color_for_bg(bg)
-                style = ""
-                if bg:
-                    style = f'style="background-color:{bg};color:{txt_color};padding:4px;text-align:center;"'
-                else:
-                    style = 'style="padding:4px;text-align:center;"'
-                row_cells.append(f"<td {style}>{text}</td>")
-            html_rows.append("<tr>" + "".join(row_cells) + "</tr>")
-
-        table_html = '<table border="1" class="dataframe">' + "".join(html_rows) + "</table>"
-
-        # read your template, substitute
-        with open("signal_template.html", "r", encoding="utf-8") as f:
-            tpl = f.read()
-        html_out = tpl.replace("<table border="1" class="dataframe"><tr><th>UNDERLYING_SYMBOL</th><th>Signal_DATETIME</th><th>Signal Price</th><th>SIGNAL OPTION</th><th>CALL_LTP</th><th>PUT_LTP</th><th>SPOT_LTP</th><th>BASE_SIGNAL</th><th>PRICE ACTION</th><th>ACTION SCORE</th><th>OI_IMB_SIGNAL</th><th>OI_IMB_STRENGTH</th><th>OI_ACTION</th><th>OI_SCORE</th><th>OI_IMB_DIRECTION</th><th>DELTA_ZONE</th><th>IV_ZONE</th><th>THETA_ZONE</th><th>GAMMA_ZONE</th><th>CALL_PCT</th><th>PUT_PCT</th><th>OI_IMBALANCE_PCT</th><th>CALL_SYMBOL</th><th>PUT_SYMBOL</th><th>LOT_Size</th><th>SM_EXPIRY_DATE</th></tr><tr><td style="padding:4px;text-align:center;">ASHOKLEY</td><td style="padding:4px;text-align:center;">2025-12-11 16:43:24</td><td style="padding:4px;text-align:center;">3.68</td><td style="padding:4px;text-align:center;">160-CE</td><td style="padding:4px;text-align:center;">3.68</td><td style="padding:4px;text-align:center;">2.86</td><td style="padding:4px;text-align:center;">160.33</td><td style="padding:4px;text-align:center;">Bullish</td><td style="padding:4px;text-align:center;">NO-TRADE</td><td style="padding:4px;text-align:center;">U60</td><td style="padding:4px;text-align:center;">100.0% - Buy</td><td style="padding:4px;text-align:center;">Solid</td><td style="padding:4px;text-align:center;">Short Cover</td><td style="padding:4px;text-align:center;">3</td><td style="padding:4px;text-align:center;">Buy</td><td style="padding:4px;text-align:center;">PE DELTA 43%</td><td style="padding:4px;text-align:center;">PE IV 54%</td><td style="padding:4px;text-align:center;">PE THETA 41%</td><td style="padding:4px;text-align:center;">PE GAMMA 46%</td><td style="padding:4px;text-align:center;">44.2</td><td style="padding:4px;text-align:center;">55.8</td><td style="padding:4px;text-align:center;">100</td><td style="padding:4px;text-align:center;">ASHOKLEY-Dec2025-160-CE - ATM</td><td style="padding:4px;text-align:center;">ASHOKLEY-Dec2025-160-PE - ATM</td><td style="padding:4px;text-align:center;">5000</td><td style="padding:4px;text-align:center;">2025-12-30</td></tr><tr><td style="padding:4px;text-align:center;">ASIANPAINT</td><td style="padding:4px;text-align:center;">2025-12-11 16:43:24</td><td style="padding:4px;text-align:center;">40</td><td style="padding:4px;text-align:center;">2780-PE</td><td style="padding:4px;text-align:center;">48.4</td><td style="padding:4px;text-align:center;">40</td><td style="padding:4px;text-align:center;">2779.4</td><td style="padding:4px;text-align:center;">Bearish</td><td style="padding:4px;text-align:center;">DOWN</td><td style="padding:4px;text-align:center;">D70</td><td style="padding:4px;text-align:center;">100.0% - Sell</td><td style="padding:4px;text-align:center;">Solid</td><td style="padding:4px;text-align:center;">Short Buildup</td><td style="padding:4px;text-align:center;">4</td><td style="padding:4px;text-align:center;">Sell</td><td style="padding:4px;text-align:center;">PE DELTA 45%</td><td style="padding:4px;text-align:center;">PE IV 53%</td><td style="padding:4px;text-align:center;">PE THETA 36%</td><td style="padding:4px;text-align:center;">PE GAMMA 48%</td><td style="padding:4px;text-align:center;">86.9</td><td style="padding:4px;text-align:center;">13.1</td><td style="padding:4px;text-align:center;">100</td><td style="padding:4px;text-align:center;">ASIANPAINT-Dec2025-2780-CE - ATM</td><td style="padding:4px;text-align:center;">ASIANPAINT-Dec2025-2780-PE - ATM</td><td style="padding:4px;text-align:center;">250</td><td style="padding:4px;text-align:center;">2025-12-30</td></tr><tr><td style="padding:4px;text-align:center;">HINDUNILVR</td><td style="padding:4px;text-align:center;">2025-12-11 16:43:24</td><td style="padding:4px;text-align:center;">19.95</td><td style="padding:4px;text-align:center;">2300-PE</td><td style="padding:4px;text-align:center;">38.7</td><td style="padding:4px;text-align:center;">19.95</td><td style="padding:4px;text-align:center;">2305.6</td><td style="padding:4px;text-align:center;">Bearish</td><td style="padding:4px;text-align:center;">NO-TRADE</td><td style="padding:4px;text-align:center;">NO-TRADE</td><td style="padding:4px;text-align:center;">100.0% - Sell</td><td style="padding:4px;text-align:center;">Solid</td><td style="padding:4px;text-align:center;">Long Buildup</td><td style="padding:4px;text-align:center;">4</td><td style="padding:4px;text-align:center;">Sell</td><td style="padding:4px;text-align:center;">PE DELTA 39%</td><td style="padding:4px;text-align:center;">PE IV 53%</td><td style="padding:4px;text-align:center;">PE THETA 31%</td><td style="padding:4px;text-align:center;">PE GAMMA 48%</td><td style="padding:4px;text-align:center;">98.8</td><td style="padding:4px;text-align:center;">1.2</td><td style="padding:4px;text-align:center;">100</td><td style="padding:4px;text-align:center;">HINDUNILVR-Dec2025-2300-CE - ATM</td><td style="padding:4px;text-align:center;">HINDUNILVR-Dec2025-2300-PE - ATM</td><td style="padding:4px;text-align:center;">300</td><td style="padding:4px;text-align:center;">2025-12-30</td></tr><tr><td style="padding:4px;text-align:center;">ICICIBANK</td><td style="padding:4px;text-align:center;">2025-12-11 16:43:24</td><td style="padding:4px;text-align:center;">13.8</td><td style="padding:4px;text-align:center;">1360-PE</td><td style="padding:4px;text-align:center;">21.25</td><td style="padding:4px;text-align:center;">13.8</td><td style="padding:4px;text-align:center;">1360</td><td style="padding:4px;text-align:center;">Bearish</td><td style="padding:4px;text-align:center;">NO-TRADE</td><td style="padding:4px;text-align:center;">D60</td><td style="padding:4px;text-align:center;">44.9% - Sell</td><td style="padding:4px;text-align:center;">No-trade</td><td style="padding:4px;text-align:center;">Short Buildup</td><td style="padding:4px;text-align:center;">4</td><td style="padding:4px;text-align:center;">Sell</td><td style="padding:4px;text-align:center;">PE DELTA 43%</td><td style="padding:4px;text-align:center;">PE IV 51%</td><td style="padding:4px;text-align:center;">PE THETA 30%</td><td style="padding:4px;text-align:center;">PE GAMMA 49%</td><td style="padding:4px;text-align:center;">72.4</td><td style="padding:4px;text-align:center;">27.6</td><td style="padding:4px;text-align:center;">44.9</td><td style="padding:4px;text-align:center;">ICICIBANK-Dec2025-1360-CE - ATM</td><td style="padding:4px;text-align:center;">ICICIBANK-Dec2025-1360-PE - ATM</td><td style="padding:4px;text-align:center;">700</td><td style="padding:4px;text-align:center;">2025-12-30</td></tr><tr><td style="padding:4px;text-align:center;">NIFTY</td><td style="padding:4px;text-align:center;">2025-12-11 16:43:24</td><td style="padding:4px;text-align:center;">115.6</td><td style="padding:4px;text-align:center;">25900-CE</td><td style="padding:4px;text-align:center;">115.6</td><td style="padding:4px;text-align:center;">86.2</td><td style="padding:4px;text-align:center;">25898.55</td><td style="padding:4px;text-align:center;">Bullish</td><td style="padding:4px;text-align:center;">UP</td><td style="padding:4px;text-align:center;">U80</td><td style="padding:4px;text-align:center;">100.0% - Buy</td><td style="padding:4px;text-align:center;">Solid</td><td style="padding:4px;text-align:center;">Short Cover</td><td style="padding:4px;text-align:center;">3</td><td style="padding:4px;text-align:center;">Buy</td><td style="padding:4px;text-align:center;">PE DELTA 45%</td><td style="padding:4px;text-align:center;">PE IV 51%</td><td style="padding:4px;text-align:center;">PE THETA 32%</td><td style="padding:4px;text-align:center;">PE GAMMA 49%</td><td style="padding:4px;text-align:center;">43.3</td><td style="padding:4px;text-align:center;">56.7</td><td style="padding:4px;text-align:center;">100</td><td style="padding:4px;text-align:center;">NIFTY-Dec2025-25900-CE - ATM</td><td style="padding:4px;text-align:center;">NIFTY-Dec2025-25900-PE - ATM</td><td style="padding:4px;text-align:center;">75</td><td style="padding:4px;text-align:center;">2025-12-16</td></tr><tr><td style="padding:4px;text-align:center;">SBIN</td><td style="padding:4px;text-align:center;">2025-12-11 16:43:24</td><td style="padding:4px;text-align:center;">12.75</td><td style="padding:4px;text-align:center;">965-CE</td><td style="padding:4px;text-align:center;">12.75</td><td style="padding:4px;text-align:center;">12.85</td><td style="padding:4px;text-align:center;">963.25</td><td style="padding:4px;text-align:center;">Bullish</td><td style="padding:4px;text-align:center;">NO-TRADE</td><td style="padding:4px;text-align:center;">NO-TRADE</td><td style="padding:4px;text-align:center;">6.3% - Buy</td><td style="padding:4px;text-align:center;">No-trade</td><td style="padding:4px;text-align:center;">Long Buildup</td><td style="padding:4px;text-align:center;">4</td><td style="padding:4px;text-align:center;">Buy</td><td style="padding:4px;text-align:center;">PE DELTA 46%</td><td style="padding:4px;text-align:center;">PE IV 55%</td><td style="padding:4px;text-align:center;">PE THETA 36%</td><td style="padding:4px;text-align:center;">PE GAMMA 45%</td><td style="padding:4px;text-align:center;">53.1</td><td style="padding:4px;text-align:center;">46.9</td><td style="padding:4px;text-align:center;">6.3</td><td style="padding:4px;text-align:center;">SBIN-Dec2025-965-CE - ATM</td><td style="padding:4px;text-align:center;">SBIN-Dec2025-965-PE - ATM</td><td style="padding:4px;text-align:center;">750</td><td style="padding:4px;text-align:center;">2025-12-30</td></tr></table>", table_html)
-
-        # write to your repo output path (same as before)
-        out_path = "D:/ScreenerGIT/Screener/signal.html"
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(html_out)
-
-    except Exception as e:
-        print("HTML build error:", e)
+    <div style="width: 100%; overflow-x: auto; font-size: 11px;">
+        <table border="1" class="dataframe"><tr><th>UNDERLYING_SYMBOL</th><th>Signal_DATETIME</th><th>Signal Price</th><th>SIGNAL OPTION</th><th>CALL_LTP</th><th>PUT_LTP</th><th>SPOT_LTP</th><th>BASE_SIGNAL</th><th>PRICE ACTION</th><th>ACTION SCORE</th><th>OI_IMB_SIGNAL</th><th>OI_IMB_STRENGTH</th><th>OI_ACTION</th><th>OI_SCORE</th><th>OI_IMB_DIRECTION</th><th>DELTA_ZONE</th><th>IV_ZONE</th><th>THETA_ZONE</th><th>GAMMA_ZONE</th><th>CALL_PCT</th><th>PUT_PCT</th><th>OI_IMBALANCE_PCT</th><th>CALL_SYMBOL</th><th>PUT_SYMBOL</th><th>LOT_Size</th><th>SM_EXPIRY_DATE</th></tr><tr><td style="padding:4px;text-align:center;">ASHOKLEY</td><td style="padding:4px;text-align:center;">2025-12-11 16:44:17</td><td style="padding:4px;text-align:center;">3.68</td><td style="padding:4px;text-align:center;">160-CE</td><td style="padding:4px;text-align:center;">3.68</td><td style="padding:4px;text-align:center;">2.86</td><td style="padding:4px;text-align:center;">160.33</td><td style="padding:4px;text-align:center;">Bullish</td><td style="padding:4px;text-align:center;">NO-TRADE</td><td style="padding:4px;text-align:center;">U60</td><td style="padding:4px;text-align:center;">100.0% - Buy</td><td style="padding:4px;text-align:center;">Solid</td><td style="padding:4px;text-align:center;">Short Cover</td><td style="padding:4px;text-align:center;">3</td><td style="padding:4px;text-align:center;">Buy</td><td style="padding:4px;text-align:center;">PE DELTA 43%</td><td style="padding:4px;text-align:center;">PE IV 54%</td><td style="padding:4px;text-align:center;">PE THETA 41%</td><td style="padding:4px;text-align:center;">PE GAMMA 46%</td><td style="padding:4px;text-align:center;">44.2</td><td style="padding:4px;text-align:center;">55.8</td><td style="padding:4px;text-align:center;">100</td><td style="padding:4px;text-align:center;">ASHOKLEY-Dec2025-160-CE - ATM</td><td style="padding:4px;text-align:center;">ASHOKLEY-Dec2025-160-PE - ATM</td><td style="padding:4px;text-align:center;">5000</td><td style="padding:4px;text-align:center;">2025-12-30</td></tr><tr><td style="padding:4px;text-align:center;">ASIANPAINT</td><td style="padding:4px;text-align:center;">2025-12-11 16:44:17</td><td style="padding:4px;text-align:center;">40</td><td style="padding:4px;text-align:center;">2780-PE</td><td style="padding:4px;text-align:center;">48.4</td><td style="padding:4px;text-align:center;">40</td><td style="padding:4px;text-align:center;">2779.4</td><td style="padding:4px;text-align:center;">Bearish</td><td style="padding:4px;text-align:center;">DOWN</td><td style="padding:4px;text-align:center;">D70</td><td style="padding:4px;text-align:center;">100.0% - Sell</td><td style="padding:4px;text-align:center;">Solid</td><td style="padding:4px;text-align:center;">Short Buildup</td><td style="padding:4px;text-align:center;">4</td><td style="padding:4px;text-align:center;">Sell</td><td style="padding:4px;text-align:center;">PE DELTA 45%</td><td style="padding:4px;text-align:center;">PE IV 53%</td><td style="padding:4px;text-align:center;">PE THETA 36%</td><td style="padding:4px;text-align:center;">PE GAMMA 48%</td><td style="padding:4px;text-align:center;">86.9</td><td style="padding:4px;text-align:center;">13.1</td><td style="padding:4px;text-align:center;">100</td><td style="padding:4px;text-align:center;">ASIANPAINT-Dec2025-2780-CE - ATM</td><td style="padding:4px;text-align:center;">ASIANPAINT-Dec2025-2780-PE - ATM</td><td style="padding:4px;text-align:center;">250</td><td style="padding:4px;text-align:center;">2025-12-30</td></tr><tr><td style="padding:4px;text-align:center;">HINDUNILVR</td><td style="padding:4px;text-align:center;">2025-12-11 16:44:17</td><td style="padding:4px;text-align:center;">19.95</td><td style="padding:4px;text-align:center;">2300-PE</td><td style="padding:4px;text-align:center;">38.7</td><td style="padding:4px;text-align:center;">19.95</td><td style="padding:4px;text-align:center;">2305.6</td><td style="padding:4px;text-align:center;">Bearish</td><td style="padding:4px;text-align:center;">NO-TRADE</td><td style="padding:4px;text-align:center;">NO-TRADE</td><td style="padding:4px;text-align:center;">100.0% - Sell</td><td style="padding:4px;text-align:center;">Solid</td><td style="padding:4px;text-align:center;">Long Buildup</td><td style="padding:4px;text-align:center;">4</td><td style="padding:4px;text-align:center;">Sell</td><td style="padding:4px;text-align:center;">PE DELTA 39%</td><td style="padding:4px;text-align:center;">PE IV 53%</td><td style="padding:4px;text-align:center;">PE THETA 31%</td><td style="padding:4px;text-align:center;">PE GAMMA 48%</td><td style="padding:4px;text-align:center;">98.8</td><td style="padding:4px;text-align:center;">1.2</td><td style="padding:4px;text-align:center;">100</td><td style="padding:4px;text-align:center;">HINDUNILVR-Dec2025-2300-CE - ATM</td><td style="padding:4px;text-align:center;">HINDUNILVR-Dec2025-2300-PE - ATM</td><td style="padding:4px;text-align:center;">300</td><td style="padding:4px;text-align:center;">2025-12-30</td></tr><tr><td style="padding:4px;text-align:center;">ICICIBANK</td><td style="padding:4px;text-align:center;">2025-12-11 16:44:17</td><td style="padding:4px;text-align:center;">13.8</td><td style="padding:4px;text-align:center;">1360-PE</td><td style="padding:4px;text-align:center;">21.25</td><td style="padding:4px;text-align:center;">13.8</td><td style="padding:4px;text-align:center;">1360</td><td style="padding:4px;text-align:center;">Bearish</td><td style="padding:4px;text-align:center;">NO-TRADE</td><td style="padding:4px;text-align:center;">D60</td><td style="padding:4px;text-align:center;">44.9% - Sell</td><td style="padding:4px;text-align:center;">No-trade</td><td style="padding:4px;text-align:center;">Short Buildup</td><td style="padding:4px;text-align:center;">4</td><td style="padding:4px;text-align:center;">Sell</td><td style="padding:4px;text-align:center;">PE DELTA 43%</td><td style="padding:4px;text-align:center;">PE IV 51%</td><td style="padding:4px;text-align:center;">PE THETA 30%</td><td style="padding:4px;text-align:center;">PE GAMMA 49%</td><td style="padding:4px;text-align:center;">72.4</td><td style="padding:4px;text-align:center;">27.6</td><td style="padding:4px;text-align:center;">44.9</td><td style="padding:4px;text-align:center;">ICICIBANK-Dec2025-1360-CE - ATM</td><td style="padding:4px;text-align:center;">ICICIBANK-Dec2025-1360-PE - ATM</td><td style="padding:4px;text-align:center;">700</td><td style="padding:4px;text-align:center;">2025-12-30</td></tr><tr><td style="padding:4px;text-align:center;">NIFTY</td><td style="padding:4px;text-align:center;">2025-12-11 16:44:17</td><td style="padding:4px;text-align:center;">115.6</td><td style="padding:4px;text-align:center;">25900-CE</td><td style="padding:4px;text-align:center;">115.6</td><td style="padding:4px;text-align:center;">86.2</td><td style="padding:4px;text-align:center;">25898.55</td><td style="padding:4px;text-align:center;">Bullish</td><td style="padding:4px;text-align:center;">UP</td><td style="padding:4px;text-align:center;">U80</td><td style="padding:4px;text-align:center;">100.0% - Buy</td><td style="padding:4px;text-align:center;">Solid</td><td style="padding:4px;text-align:center;">Short Cover</td><td style="padding:4px;text-align:center;">3</td><td style="padding:4px;text-align:center;">Buy</td><td style="padding:4px;text-align:center;">PE DELTA 45%</td><td style="padding:4px;text-align:center;">PE IV 51%</td><td style="padding:4px;text-align:center;">PE THETA 32%</td><td style="padding:4px;text-align:center;">PE GAMMA 49%</td><td style="padding:4px;text-align:center;">43.3</td><td style="padding:4px;text-align:center;">56.7</td><td style="padding:4px;text-align:center;">100</td><td style="padding:4px;text-align:center;">NIFTY-Dec2025-25900-CE - ATM</td><td style="padding:4px;text-align:center;">NIFTY-Dec2025-25900-PE - ATM</td><td style="padding:4px;text-align:center;">75</td><td style="padding:4px;text-align:center;">2025-12-16</td></tr><tr><td style="padding:4px;text-align:center;">SBIN</td><td style="padding:4px;text-align:center;">2025-12-11 16:44:17</td><td style="padding:4px;text-align:center;">12.75</td><td style="padding:4px;text-align:center;">965-CE</td><td style="padding:4px;text-align:center;">12.75</td><td style="padding:4px;text-align:center;">12.85</td><td style="padding:4px;text-align:center;">963.25</td><td style="padding:4px;text-align:center;">Bullish</td><td style="padding:4px;text-align:center;">NO-TRADE</td><td style="padding:4px;text-align:center;">NO-TRADE</td><td style="padding:4px;text-align:center;">6.3% - Buy</td><td style="padding:4px;text-align:center;">No-trade</td><td style="padding:4px;text-align:center;">Long Buildup</td><td style="padding:4px;text-align:center;">4</td><td style="padding:4px;text-align:center;">Buy</td><td style="padding:4px;text-align:center;">PE DELTA 46%</td><td style="padding:4px;text-align:center;">PE IV 55%</td><td style="padding:4px;text-align:center;">PE THETA 36%</td><td style="padding:4px;text-align:center;">PE GAMMA 45%</td><td style="padding:4px;text-align:center;">53.1</td><td style="padding:4px;text-align:center;">46.9</td><td style="padding:4px;text-align:center;">6.3</td><td style="padding:4px;text-align:center;">SBIN-Dec2025-965-CE - ATM</td><td style="padding:4px;text-align:center;">SBIN-Dec2025-965-PE - ATM</td><td style="padding:4px;text-align:center;">750</td><td style="padding:4px;text-align:center;">2025-12-30</td></tr></table>
+    </div>
+</body>
+</html>
