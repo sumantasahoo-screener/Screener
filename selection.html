@@ -7,18 +7,17 @@
 
 <style>
 :root{
-  /* Lite dark palette */
-  --bg:#0f141a;          /* page */
-  --card:#141a21;        /* table card */
-  --head:#1b2330;        /* header row */
-  --line:#2a3442;        /* separators */
-  --text:#e9eef5;        /* primary text */
-  --muted:#a9b4c2;       /* secondary text */
+  --bg:#0f141a;
+  --card:#141a21;
+  --head:#1b2330;
+  --line:#2a3442;
+  --vline:rgba(255,255,255,.08); /* NEW vertical line */
+  --text:#e9eef5;
+  --muted:#a9b4c2;
 
-  --blue:#4ea1ff;        /* accent */
+  --blue:#4ea1ff;
   --green:#3fbf7f;
   --red:#ff6b6b;
-  --gold:#f3c969;
 }
 
 *{box-sizing:border-box}
@@ -39,24 +38,30 @@ body{
   box-shadow:0 6px 18px rgba(0,0,0,.35);
 }
 
-/* TABLE */
 table{
   width:100%;
   border-collapse:separate;
   border-spacing:0;
-  min-width:1100px; /* mobile scroll guarantee */
+  min-width:1100px;
 }
 
 /* HEADER */
 thead th{
-  position:sticky; top:0;
+  position:sticky;
+  top:0;
   background:linear-gradient(180deg,#1e2735,#1b2330);
   color:#f6f9ff;
   font-weight:600;
   font-size:12px;
   padding:9px 12px;
-  border-bottom:1px solid var(--line);
   white-space:nowrap;
+
+  border-bottom:1px solid var(--line);
+  border-right:1px solid var(--vline); /* COLUMN DIVIDE */
+}
+
+thead th:last-child{
+  border-right:none;
 }
 
 /* BODY */
@@ -64,13 +69,23 @@ tbody td{
   padding:9px 12px;
   font-size:12px;
   color:var(--text);
-  border-bottom:1px solid rgba(42,52,66,.6);
   white-space:nowrap;
+
+  border-bottom:1px solid rgba(42,52,66,.6);
+  border-right:1px solid var(--vline); /* COLUMN DIVIDE */
 }
 
-/* Zebra (very subtle) */
-tbody tr:nth-child(even){ background:rgba(255,255,255,.02) }
-tbody tr:hover{ background:rgba(78,161,255,.06) }
+tbody td:last-child{
+  border-right:none;
+}
+
+/* Zebra */
+tbody tr:nth-child(even){
+  background:rgba(255,255,255,.02);
+}
+tbody tr:hover{
+  background:rgba(78,161,255,.06);
+}
 
 /* Tags */
 .tag{
@@ -79,28 +94,29 @@ tbody tr:hover{ background:rgba(78,161,255,.06) }
   border-radius:6px;
   font-weight:600;
   font-size:11px;
-  letter-spacing:.2px;
 }
 
 .buy{ color:var(--green); background:rgba(63,191,127,.12); }
 .sell{ color:var(--red); background:rgba(255,107,107,.12); }
 
 .strong-buy{
+  background:#3fbf7f;
   color:#0c1b14;
-  background:linear-gradient(180deg,#4fd39a,#2fa873);
-  box-shadow:0 0 0 1px rgba(0,0,0,.15) inset;
 }
 .strong-sell{
+  background:#ff6b6b;
   color:#2a0b0b;
-  background:linear-gradient(180deg,#ff9a9a,#ff6b6b);
-  box-shadow:0 0 0 1px rgba(0,0,0,.15) inset;
 }
 
-/* Mobile tune */
+/* Mobile */
 @media(max-width:600px){
-  thead th, tbody td{ font-size:11px; padding:7px 9px; }
+  thead th, tbody td{
+    font-size:11px;
+    padding:7px 9px;
+  }
 }
 </style>
+
 </head>
 
 <body>
