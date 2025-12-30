@@ -8,7 +8,11 @@
 <title>Spurt Data</title>
 
 <style>
-body { margin: 0; font-family: Arial; background: #fff; }
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #fff;
+}
 
 .header {
     position: sticky;
@@ -75,7 +79,6 @@ tr:hover { background: #f2f2f2; }
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    flex-shrink: 0;
 }
 
 .s3 { background: #00c853; }
@@ -90,7 +93,7 @@ tr:hover { background: #f2f2f2; }
 
 <div class="header">
     <b>Spurt Data</b><br>
-    Scan Time: 30-12-2025 16:31
+    Scan Time: 30-12-2025 16:37
 </div>
 
 <div class="search">
@@ -553,26 +556,26 @@ tr:hover { background: #f2f2f2; }
 </div>
 
 <script>
-let lastModified = null;
+let lastHash = null;
 
 async function checkUpdate() {
     try {
-        const res = await fetch(window.location.href, {
-            method: "HEAD",
+        const res = await fetch(window.location.href + "?t=" + Date.now(), {
             cache: "no-store"
         });
 
-        const modified = res.headers.get("Last-Modified");
+        const text = await res.text();
+        const hash = text.length;
 
-        if (lastModified && modified !== lastModified) {
+        if (lastHash && hash !== lastHash) {
             location.reload();
         }
 
-        lastModified = modified;
+        lastHash = hash;
     } catch (e) {}
 }
 
-setInterval(checkUpdate, 10000);
+setInterval(checkUpdate, 15000);
 </script>
 
 </body>
