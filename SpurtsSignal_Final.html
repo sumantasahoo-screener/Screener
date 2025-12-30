@@ -8,110 +8,55 @@
 <title>Spurt Data</title>
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial;
-    background: #fff;
-}
-
-.header {
-    position: sticky;
-    top: 0;
-    background: #fff;
-    padding: 8px;
-    border-bottom: 1px solid #ccc;
-    z-index: 1000;
-}
-
+body { margin: 0; font-family: Arial; background: #fff; }
+.header { position: sticky; top: 0; background: #fff; padding: 8px; border-bottom: 1px solid #ccc; z-index: 1000; }
 .search { margin: 8px; }
-
-.group {
-    margin: 12px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-}
-
-.group-header {
-    padding: 6px 10px;
-    font-weight: bold;
-}
-
+.group { margin: 12px; border: 1px solid #ccc; border-radius: 10px; }
+.group-header { padding: 6px 10px; font-weight: bold; }
 .bull { background: #e6f4ea; }
 .bear { background: #fdeaea; }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-}
-
-th, td {
-    padding: 6px;
-    border-bottom: 1px solid #ddd;
-    text-align: center;
-    white-space: nowrap;
-}
-
-th {
-    position: sticky;
-    top: 0;
-    background: #fff;
-}
-
-td:first-child, th:first-child {
-    position: sticky;
-    left: 0;
-    background: #fff;
-}
-
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 6px; border-bottom: 1px solid #ddd; text-align: center; white-space: nowrap; }
+th { position: sticky; top: 0; background: #fff; }
+td:first-child, th:first-child { position: sticky; left: 0; background: #fff; }
 tr:hover { background: #f2f2f2; }
 
-.strength-cell {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-}
-
+.strength-cell { display: flex; align-items: center; justify-content: center; gap: 6px; }
 .strength-value { min-width: 14px; }
-
-.strength-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-}
+.strength-dot { width: 10px; height: 10px; border-radius: 50%; }
 
 .s3 { background: #00c853; }
 .s2 { background: #7be495; }
 .s-2 { background: #ff8a80; }
 .s-3 { background: #d50000; }
-
 </style>
 </head>
 
 <body>
 
 <div class="header">
-    <b>Spurt Data</b><br>
-    Scan Time: 30-12-2025 16:38
+<b>Spurt Data</b><br>
+Scan Time: 30-12-2025 16:43
 </div>
 
 <div class="search">
-    <input type="text" id="search" placeholder="Search..." onkeyup="filterTable()">
+<input type="text" id="search" placeholder="Search..." onkeyup="filterTable()">
 </div>
 
 <div class="group">
-    <div class="group-header bull">BULL (24)</div>
-    <table>
-        <thead>
-            <tr>
-                <th>Symbol</th><th>Expiry</th><th>DIRECTION</th><th>STRENGTH</th>
-                <th>OI Recent</th><th>OI Pre</th><th>Chng in OI</th>
-                <th>Chng in OI %</th><th>FUT LTP</th>
-                <th>Prev Close</th><th>% LTP Chng</th>
-            </tr>
-        </thead>
-        <tbody>
+<div class="group-header bull">BULL (24)</div>
+<table>
+<thead>
+<tr>
+<th>Symbol</th><th>Expiry</th><th>DIRECTION</th><th>STRENGTH</th>
+<th>OI Recent</th><th>OI Pre</th><th>Chng in OI</th>
+<th>Chng in OI %</th><th>FUT LTP</th>
+<th>Prev Close</th><th>% LTP Chng</th>
+</tr>
+</thead>
+<tbody>
+
         <tr>
             <td>ADANIENT</td>
             <td>27 JAN</td>
@@ -519,22 +464,24 @@ tr:hover { background: #f2f2f2; }
             <td>593.6</td>
             <td>2.55</td>
         </tr>
-        </tbody>
-    </table>
+        
+</tbody>
+</table>
 </div>
 
 <div class="group">
-    <div class="group-header bear">BEAR (1)</div>
-    <table>
-        <thead>
-            <tr>
-                <th>Symbol</th><th>Expiry</th><th>DIRECTION</th><th>STRENGTH</th>
-                <th>OI Recent</th><th>OI Pre</th><th>Chng in OI</th>
-                <th>Chng in OI %</th><th>FUT LTP</th>
-                <th>Prev Close</th><th>% LTP Chng</th>
-            </tr>
-        </thead>
-        <tbody>
+<div class="group-header bear">BEAR (1)</div>
+<table>
+<thead>
+<tr>
+<th>Symbol</th><th>Expiry</th><th>DIRECTION</th><th>STRENGTH</th>
+<th>OI Recent</th><th>OI Pre</th><th>Chng in OI</th>
+<th>Chng in OI %</th><th>FUT LTP</th>
+<th>Prev Close</th><th>% LTP Chng</th>
+</tr>
+</thead>
+<tbody>
+
         <tr>
             <td>RELIANCE</td>
             <td>27 JAN</td>
@@ -551,8 +498,9 @@ tr:hover { background: #f2f2f2; }
             <td>1556.0</td>
             <td>-0.19</td>
         </tr>
-        </tbody>
-    </table>
+        
+</tbody>
+</table>
 </div>
 
 <script>
@@ -560,7 +508,7 @@ let lastHash = null;
 
 async function checkUpdate() {
     try {
-        const res = await fetch(window.location.href + "?t=" + Date.now(), {
+        const res = await fetch(window.location.href + "?v=" + Date.now(), {
             cache: "no-store"
         });
 
@@ -575,7 +523,7 @@ async function checkUpdate() {
     } catch (e) {}
 }
 
-setInterval(checkUpdate, 15000);
+setInterval(checkUpdate, 2000);
 </script>
 
 </body>
