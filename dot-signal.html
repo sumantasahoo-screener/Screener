@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>F&O Signals</title>
+
+  <!-- FORCE NO CACHE -->
+  <meta http-equiv="Cache-Control" content="no-store" />
+
+  <!-- AUTO REFRESH: incremental update (updates only table, preserves view) -->
+  <script>
+    async function fetchAndUpdateTable(){
+      try{
+        // fetch current page HTML (no-cache)
+        const res = await fetch(window.location.href, {cache: "no-store"});
+        if(!res.ok) throw new Error("fetch failed: " + res.status);
+        const text = await res.text();
+
+        // parse into a DOM, extract .table-wrap
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, "text/html");
+        const newWrap = doc.querySelector(".table-wrap");
+        const curWrap = document.querySelector(".table-wrap");
+        if(!newWrap || !curWrap) return;
+
+        // preserve scroll positions
+        const pageScrollY = window.scrollY || window.pageYOffset;
+        const wrapScrollLeft = curWrap.scrollLeft || 0;
+
+        // replace only inner HTML of the table-wrap
+        curWrap.innerHTML = newWrap.innerHTML;
+
+        // small delay then restore scrolls so layout stabilizes
+        setTimeout(() => {
+          window.scrollTo(0, pageScrollY);
+          curWrap.scrollLeft = wrapScrollLeft;
+        }, 50);
+      }catch(err){
+        // silent failure (won't break UI)
+        console.warn("Table update failed:", err);
+      }
+    }
+
+    // run once on load (optional) and then every 10s
+    window.addEventListener("load", () => {
+      // initial quick fetch so data is fresh on open
+      fetchAndUpdateTable();
+      // periodic incremental updates
+      setInterval(fetchAndUpdateTable, 10000);
+    });
+  </script>
+
+
+  <style>
+	
+	/* FINAL FIX: SYMBOL column for sticky rows */
+	table.dataframe tr.sticky-row td.col-SYMBOL {
+	  position: sticky;
+	  left: 0;        /* horizontal freeze */
+	  top: 24px;      /* SAME as sticky-row top */
+	  z-index: 45;
+	  background: #d9d9d9;
+	}
+
+	/* second sticky row (BANKNIFTY) */
+	table.dataframe tr.sticky-row + tr.sticky-row td.col-SYMBOL {
+	  top: 74px;
+	}
+
+	/* Sticky rows always on top */
+	table.dataframe tr.sticky-row {
+	  position: sticky;
+	  top: 0;
+	  z-index: 50;
+	  background: #f3f3f3;
+	}
+
+	/* SYMBOL cell for sticky rows */
+	table.dataframe tr.sticky-row td.col-SYMBOL {
+	  position: sticky;
+	  left: 0;
+	  top: 24px;
+	  z-index: 60;
+	  background: #d9d9d9;
+	}
+
+	/* BANKNIFTY second row offset */
+	table.dataframe tr.sticky-row + tr.sticky-row {
+	  top: 60px;
+	}
+	table.dataframe tr.sticky-row + tr.sticky-row td.col-SYMBOL {
+	  top: 60px;
+	}
+
+	/* NON-sticky SYMBOL cells go BELOW sticky rows */
+	table.dataframe td.col-SYMBOL {
+	  z-index: 10;
+	  background: #ffffff;
+	}
+																																																									
+
+
+																																																										
+  
+	/* MOBILE: hide top header while scrolling (CSS-only) */
+	@media (max-width: 720px) {
+	  .header-row {
+		position: sticky;
+		top: 8px;
+		z-index: 50;
+	  }
+
+	  /* when user scrolls the table, header can be pushed out of view */
+	  .table-wrap {
+		scroll-margin-top: 0;
+	  }
+	}
+
+	/* ===== Pills & soft badges ===== */
+.pill {
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:10px;   /* micro-pill 10px */
+  font-weight:700;
+  font-size:12px;
+  line-height:1;
+  white-space:nowrap;
+  vertical-align:middle;
+}
+/* ===== SIGNAL column : Premium Slab (NEW) ===== */
+.signal-slab {
+  display:inline-flex;
+  align-items:center;
+  position:relative;
+  min-width: 60px;          /* same visual weight as Signal Price */
+  height: 24px;
+  font-weight:700;
+  font-size:12px;
+  line-height:1;
+  background:#1f1f1f;       /* premium dark base */
+  color:#ffffff;
+  border-radius:4px;        /* NOT pill */
+  overflow:hidden;
+  /* NEW: thin black border */
+  border: 1px solid #ffffff;
+}
+
+/* left color strip */
+.signal-slab .slab-strip {
+  width:4px;
+  height:100%;
+  flex-shrink:0;
+}
+
+/* text area (SIGNAL only) */
+.signal-slab .slab-text {
+  padding:0 8px;
+  white-space:nowrap;
+  font-weight:700;
+}
+
+/* ===== SIGNAL slab : CLEAN FINAL LOGIC ===== */
+
+/* LEFT STRIP — always black */
+.signal-slab .slab-strip {
+  background: #000000;
+}
+
+/* BACKGROUND by logic (ONLY place where color changes) */
+.signal-slab.buy  { background:#60CC65; }
+.signal-slab.sell { background:#F43656; }
+.signal-slab.nt   { background:#2b2b2b; }
+
+/* SIGNAL slab border (thin, premium) */
+.signal-slab {
+  border: 1px solid #A19375;
+}
+
+/* TEXT — always white, crisp */
+.signal-slab .slab-text {
+  color: #ffffff;
+  font-weight:700;
+  text-shadow: none;
+}
+
+
+
+/* nt tone (outline feel but slab stays premium) */
+.signal-slab.nt {
+  background:#2b2b2b;
+  color:#cfd8dc;
+}
+
+
+/* GLOBAL pill variants (unchanged behavior) */
+.pill.buy  { background:#60CC65; color:#ffffff; border: none; }
+.pill.sell { background:#F43656; color:#ffffff; border: none; }
+/* No-Trade = outline style */
+.pill.nt   { background:transparent; color:#8EA7AB; border:1px solid #8EA7AB; }
+.pill.default { background:#f2f4f6; color:#111; border:1px solid #e1e5e8; }
+
+/* ===== Signal Price : Price-Tag Ribbon (NEW, isolated) ===== */
+.price-tag {
+  display:inline-block;
+  position:relative;
+  padding:4px 12px 4px 16px;   /* left space for hole */
+  font-weight:700;
+  font-size:12px;
+  line-height:1;
+  white-space:nowrap;
+  vertical-align:middle;
+
+  /* shape */
+  border-radius:4px;
+  clip-path: polygon(
+    10px 0%,
+    100% 0%,
+    100% 100%,
+    10px 100%,
+    0% 50%
+  );
+}
+/* ===== Signal Price : Fixed Width Lock (STEP-3) ===== */
+.price-tag {
+  min-width: 32px;          /* fixed visual width */
+  text-align: center;       /* text centered inside tag */
+  justify-content: center;
+}
+
+
+
+
+/* small hole on left (price tag feel) */
+.price-tag .tag-hole {
+  position:absolute;
+  left:6px;
+  top:50%;
+  width:5px;
+  height:5px;
+  margin-top:-2.5px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.8);
+}
+
+/* color behavior inherited via inline style or extra class */
+.price-tag.buy  { background:#60CC65; color:#ffffff; }
+.price-tag.sell { background:#F43656; color:#ffffff; }
+.price-tag.nt   {
+  background:transparent;
+  color:#8EA7AB;
+  border:1px solid #ffffff;
+}
+
+
+/* --- Zone-specific override: only for DELTA/IV/THETA/GAMMA columns --- */
+/* Make zone pills text-color (no solid fill), smaller, subtle border */
+.col-DELTA_ZONE .pill.buy,
+.col-IV_ZONE    .pill.buy,
+.col-THETA_ZONE .pill.buy,
+.col-GAMMA_ZONE .pill.buy {
+  background: transparent !important;
+  color: #2E8B3A !important;         /* softer green text */
+  border: 1px solid rgba(46,139,58,0.14) !important;
+  padding:3px 8px !important;
+  font-size:11px !important;
+}
+
+.col-DELTA_ZONE .pill.sell,
+.col-IV_ZONE    .pill.sell,
+.col-THETA_ZONE .pill.sell,
+.col-GAMMA_ZONE .pill.sell {
+  background: transparent !important;
+  color: #C94141 !important;         /* softer red text */
+  border: 1px solid rgba(201,65,65,0.14) !important;
+  padding:3px 8px !important;
+  font-size:11px !important;
+}
+
+/* No-trade/neutral in zones: muted outline */
+.col-DELTA_ZONE .pill.nt,
+.col-IV_ZONE    .pill.nt,
+.col-THETA_ZONE .pill.nt,
+.col-GAMMA_ZONE .pill.nt {
+  background: transparent !important;
+  color: #8EA7AB !important;
+  border: 1px solid rgba(142,167,171,0.12) !important;
+  padding:3px 8px !important;
+  font-size:11px !important;
+}
+
+/* keep small subtle inset for zone pills */
+.col-DELTA_ZONE .pill,
+.col-IV_ZONE    .pill,
+.col-THETA_ZONE .pill,
+.col-GAMMA_ZONE .pill {
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
+}
+
+/* Soft-badge unchanged */
+.soft-badge {
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:8px;
+  font-weight:600;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+
+/* soft-badge for numeric/zone cells (if used later) */
+.soft-badge {
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:8px;
+  font-weight:600;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+/* small alignment tweak */
+.col-SYMBOL, .col-Signal_TIME { text-align:left; padding-left:8px; white-space:nowrap; }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 10px;
+      background: #fff;
+      color: #111;
+    }
+
+    h2 {
+      margin: 5px 0 10px;
+      font-size: 20px;
+    }
+
+    .table-wrap {
+	  width: 100%;
+	  max-height: 85vh;           /* REQUIRED: vertical scroll container */
+	  overflow-x: auto;           /* horizontal scroll */
+	  overflow-y: auto;           /* REQUIRED for sticky header */
+	  -webkit-overflow-scrolling: touch;
+	  margin-top: 0;
+	  border-radius: 6px;
+	  padding-right: 12px;        /* for SYMBOL freeze navbar */
+	}
+
+
+
+    /* Base table */
+    table.dataframe {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 750px;
+      font-size: 13px;
+      background: #fff;
+    }
+
+    table.dataframe th,
+    table.dataframe td {
+      border: 1px solid #ccc;
+      padding: 6px 8px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* table header sticky (stays visible on vertical scroll) */
+    table.dataframe th {
+	  background: #404040;
+	  color: #fff;
+	  font-weight: 600;
+	  position: sticky;
+	  top: 0;                 /* 🔒 mobile+rotate buffer */
+	  z-index: 30;
+	  transform: translateZ(0); /* force own paint layer */
+	}
+	
+	/* ===== STICKY INDEX ROWS (NIFTY / BANKNIFTY) ===== */
+	table.dataframe tr.sticky-row {
+	  position: sticky;
+	  top: 24px;              /* header ke niche */
+	  z-index: 25;
+	  background: #f3f3f3;
+	}
+
+	/* SYMBOL column + sticky row overlap fix */
+	table.dataframe tr.sticky-row .col-SYMBOL {
+	  background: #d9d9d9;
+	  z-index: 35;
+	}
+
+	/* second sticky row (BANKNIFTY) thoda niche */
+	table.dataframe tr.sticky-row + tr.sticky-row {
+	  top: 60px;
+	}
+
+
+    /* Freeze first column (SYMBOL) on horizontal scroll */
+    /* Ensure your generated table marks the SYMBOL <th> and its <td>s with class="col-SYMBOL" */
+    .col-SYMBOL {
+      position: -webkit-sticky;
+      position: sticky;
+      left: 0;
+      z-index: 30;                /* strong so it sits above headers/cells */
+      background: #DBDBDB;        /* chosen light grey */
+      border-right: 1px solid #b5b5b5; /* slightly darker border for separation */
+      text-align: left;
+      padding-left: 8px;
+      white-space: nowrap;
+	  font-weight: 700;   /* 👈 ONLY THIS */
+    }
+
+    /* Make sure the SYMBOL header cell visually matches others while staying sticky */
+    table.dataframe th.col-SYMBOL {
+	  z-index: 40;                 /* td.col-SYMBOL se upar */
+	  background: #404040;         /* header bg match */
+	  border-right: 1px solid #b5b5b5;
+	  transform: translateZ(0);    /* repaint lock */
+	}
+
+    /* Ensure sticky SYMBOL doesn't overlap scrollbar on small screens */
+    .table-wrap { overflow-x: auto; padding-right: 12px; }
+
+		/* ===== COLUMN CONTROL (STABLE) ===== */
+
+		/* PC / DEFAULT : 20 columns */
+		table.dataframe th:nth-child(n+21),
+		table.dataframe td:nth-child(n+21) {
+		  display: none;
+		}
+
+		/* MOBILE : 11 columns */
+		@media (max-width: 720px) {
+		  table.dataframe th,
+		  table.dataframe td {
+			padding: 5px 6px;
+			font-size: 12px;
+		  }
+
+		  table.dataframe th:nth-child(n+14),
+		  table.dataframe td:nth-child(n+14) {
+			display: none;
+		  }
+
+		  .table-wrap {
+			max-height: 75vh;
+			overflow-y: auto;
+			-webkit-overflow-scrolling: touch;
+		  }
+		}
+
+
+    /* Header row: title + edu-text + legend (buttons) */
+	.header-row {
+	  display: flex;
+	  align-items: center;
+	  gap: 10px;       /* ~8-12px gap as requested */
+	  flex-wrap: nowrap;
+	  margin: 6px 0 12px;
+	}
+
+	/* Title rectangle — subtle lighter background, same radius as pills */
+	.title-rect {
+	  padding: 6px 12px;      /* adjust vertical padding to match button height */
+	  border-radius: 10px;    /* same as pill radius */
+	  font-weight: 700;
+	  font-size: 20px;        /* keep visible; vertical height adjusted by padding */
+	  line-height: 1;         /* ensure visual center */
+	  background: #f7fbff;    /* subtle lighter tone */
+	  color: #111;
+	  white-space: nowrap;
+	  display: inline-flex;
+	  align-items: center;
+	  box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+	}
+
+	/* Small educational note placed to the right of title */
+	.edu-text {
+	  font-size: 13px;
+	  color: #5f6b72;
+	  white-space: nowrap;
+	}
+
+	/* Legend (buttons) kept compact and inline */
+	.legend {
+	  display: flex;
+	  gap: 8px;
+	  margin: 0;
+	  align-items: center;
+	}
+
+	.lg-item {
+	  padding: 6px 10px;
+	  border-radius: 10px;   /* keep same pill radius */
+	  font-weight: bold;
+	  color: #fff;
+	  font-size: 13px;
+	}
+
+	.lg-bull { background:#60CC65; }    /* BUY */
+	.lg-bear { background:#F43656; }    /* SELL */
+	.lg-grey { background:#8EA7AB; }    /* No-Trade */
+	
+		/* ===== FULL ROW BACKGROUND FOR STICKY INDEX (NIFTY / BANKNIFTY) ===== */
+	table.dataframe tr.sticky-row td {
+	  background: #C7E1EB;      /* same light grey across row */
+	}
+
+	/* keep SYMBOL column slightly darker for separation */
+	table.dataframe tr.sticky-row td.col-SYMBOL {
+	  background: #C7E1EB;
+	}
+	/* FULL ROW background for sticky index rows */
+	/*table.dataframe tr.sticky-row td {
+	  /*background: #BFD7E3 !important;   /* light grey – row highlight */
+	/*}
+	
+	/* ===== RED SEPARATOR LINE for NIFTY & BANKNIFTY ===== */
+	table.dataframe tr.sticky-row {
+	  border-bottom: 2px solid #d32f2f; /* red bottom line */
+	}
+	/* Other symbols (non NIFTY/BANKNIFTY) */
+	table.dataframe tr:not(.sticky-row) td.col-SYMBOL {
+	  background: #ffffff;   /* ya halka grey */
+	}
+	table.dataframe tr:not(.sticky-row) td {
+	  background: #ffffff;
+	}
+
+    /* MAKE ALL TABLE TEXT BOLD */
+	table.dataframe th,
+	table.dataframe td {
+	  font-weight: 700;
+	}
+	
+	#scanTimeValue {
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    display: inline-block;
+    transform: scale(0.9);
+}
+
+	
+	
+
+
+  </style>
+</head>
+
+<body>
+   <!-- SCAN TIME BAR (ALWAYS VISIBLE) -->
+	<!-- SCAN TIME BAR (STICKS WITH TABLE) -->
+	<th colspan="100" style="
+		position: sticky;
+		top: 0;
+		z-index: 100;
+		background: #f3f3f3;
+		font-weight: 900;
+		font-size: 11px;
+		letter-spacing: 0.3px;
+		text-transform: uppercase;
+		text-align: center;
+		padding: 3px 8px;
+		border: none;
+		white-space: nowrap;
+	">
+		<span style="font-size:11px;font-weight:900;">SCAN-TIME :</span> <span id="scanTimeValue">--</span>
+		<span id="scanStatus" style="margin-left:6px;"></span>
+	  </th>
+	</tr>
+
+
+
+
+	<script>
+	(function () {
+	  function updateScanTime() {
+		const table = document.querySelector("table.dataframe");
+		if (!table) return;
+
+		const headers = Array.from(table.querySelectorAll("th"));
+		const scanIndex = headers.findIndex(h =>
+		  h.textContent.trim().toUpperCase() === "SCAN-TIME"
+		);
+		if (scanIndex === -1) return;
+
+		const firstRow = table.querySelector("tbody tr");
+		if (!firstRow) return;
+
+		const cells = firstRow.querySelectorAll("td");
+		if (!cells[scanIndex]) return;
+
+		const scanEl = document.getElementById("scanTimeValue");
+		scanEl.innerHTML =
+		  scanEl.textContent = cells[scanIndex].innerText.trim();
+		// ===== SIGNAL TIME VALIDITY LOGIC =====
+		const now = new Date();
+		const scanText = scanEl.textContent.trim();
+
+		// format: DD/MM/YY HH:MM
+		const parts = scanText.split(" ");
+		if (parts.length === 2) {
+		  const [d, t] = parts;
+		  const [dd, mm, yy] = d.split("/").map(Number);
+		  const [hh, min] = t.split(":").map(Number);
+
+		  const scanDate = new Date(2000 + yy, mm - 1, dd, hh, min);
+		  const diffMin = (now - scanDate) / 60000;
+
+		  const statusEl = document.getElementById("scanStatus");
+		  if (statusEl) {
+			if (diffMin <= 4) {
+			  statusEl.textContent = "FRESH";
+			  statusEl.style.background = "#1db954";
+			} else if (diffMin <= 7) {
+			  statusEl.textContent = "ACTIVE";
+			  statusEl.style.background = "#1e90ff";
+			} else {
+			  statusEl.textContent = "INACTIVE";
+			  statusEl.style.background = "#e53935";
+			}
+
+			statusEl.style.color = "#fff";
+			statusEl.style.fontWeight = "600";
+			statusEl.style.fontSize = "11px";
+			statusEl.style.lineHeight = "1";
+			statusEl.style.padding = "2px 8px";
+		  }
+		}
+
+		scanEl.style.fontSize = "11px";
+		scanEl.style.fontWeight = "900";
+		scanEl.style.letterSpacing = "0.3px";
+
+	  }
+
+	  window.addEventListener("load", updateScanTime);
+	  setInterval(updateScanTime, 3000);
+	})();
+	</script>
+
+
+  <div class="table-wrap">
+    
+        <script>
+        (function(){
+          const KEY = "signal_auth_ok";
+          if (sessionStorage.getItem(KEY) === "1") return;
+
+          const pwd = prompt("Enter password:");
+          if (pwd !== "9999") {
+            document.documentElement.innerHTML = "";
+          } else {
+            sessionStorage.setItem(KEY, "1");
+          }
+        })();
+        </script>
+        <table border="1" class="dataframe"><thead><tr><th class="col-SYMBOL">SYMBOL</th><th class="col-SPOT_LTP">SPOT_LTP</th><th class="col-SIGNAL">SIGNAL</th><th class="col-PRICE_ACTION">PRICE ACTION</th><th class="col-ACT-SCORE">ACT-SCORE</th><th class="col-IMB-%">IMB-%</th><th class="col-IMB-SIGNAL">IMB-SIGNAL</th><th class="col-IMB-ACTION">IMB-ACTION</th><th class="col-IMB-SCORE">IMB-SCORE</th><th class="col-IMB-DIR">IMB-DIR</th><th class="col-SIGNAL_OPTION">SIGNAL OPTION</th><th class="col-Signal_Price">Signal Price</th><th class="col-LOT_Size">LOT_Size</th><th class="col-CALL_PCT">CALL_PCT</th><th class="col-PUT_PCT">PUT_PCT</th><th class="col-OI_IMBALANCE_PCT">OI_IMBALANCE_PCT</th><th class="col-IV_ZONE">IV_ZONE</th><th class="col-DELTA_ZONE">DELTA_ZONE</th><th class="col-GAMMA_ZONE">GAMMA_ZONE</th><th class="col-THETA_ZONE">THETA_ZONE</th><th class="col-CALL_LTP">CALL_LTP</th><th class="col-CALL_SYMBOL">CALL_SYMBOL</th><th class="col-PUT_SYMBOL">PUT_SYMBOL</th><th class="col-PUT_LTP">PUT_LTP</th><th class="col-LOT_Size">LOT_Size</th><th class="col-SCAN-TIME">SCAN-TIME</th></tr></thead><tbody>
+<tr class="sticky-row"><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">NIFTY</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">26128.65</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Buy</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;">↔&nbsp;NO-TRADE</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#9E9E9E;display:inline-block;"></span><span style="color:#9E9E9E;font-weight:600;">NEUTRAL</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">75.2% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill buy">Strong</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">26150-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>115.1</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">65</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">12.4</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">87.6</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">75.2</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE IV 52%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 46%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE GAMMA 49%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 25%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">115.1</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">NIFTY-Jan2026-26150-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">NIFTY-Jan2026-26150-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">83.9</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">65</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr class="sticky-row"><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">BANKNIFTY</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">59604.55</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;">↔&nbsp;NO-TRADE</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#9E9E9E;display:inline-block;"></span><span style="color:#9E9E9E;font-weight:600;">NEUTRAL</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">48.6% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">59600-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>805</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">30</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">25.7</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">74.3</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">48.6</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 55%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 39%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 45%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 22%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">805</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">BANKNIFTY-Jan2026-59600-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">BANKNIFTY-Jan2026-59600-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">490.55</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">30</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">ABCAPITAL</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">356.3</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;">↔&nbsp;NO-TRADE</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#7EDC9B;display:inline-block;"></span><span style="color:#7EDC9B;font-weight:600;">U60</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">100.0% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill buy">Solid</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">355-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>11.85</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">3100</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">21.4</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">78.6</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">100</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 51%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 42%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 37%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">11.85</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">ABCAPITAL-Jan2026-355-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">ABCAPITAL-Jan2026-355-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">7.85</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">3100</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;background:#60CC65;color:#FFFFFF;">ADANIENT</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">2238.4</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Bearish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-weight:600;">↑&nbsp;UP</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#7EDC9B;display:inline-block;"></span><span style="color:#7EDC9B;font-weight:600;">U70</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">21.3% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">2240-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>53.45</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">309</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">60.7</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">39.3</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">21.3</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 52%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 45%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 48%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 37%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">63</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">ADANIENT-Jan2026-2240-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">ADANIENT-Jan2026-2240-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">53.45</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">309</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">ADANIGREEN</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">1015.3</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;">↔&nbsp;NO-TRADE</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#9E9E9E;display:inline-block;"></span><span style="color:#9E9E9E;font-weight:600;">NEUTRAL</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">6.2% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">1020-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>34.15</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">600</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">46.9</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">53.1</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">6.2</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 42%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 46%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 36%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">34.15</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">ADANIGREEN-Jan2026-1020-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">ADANIGREEN-Jan2026-1020-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">31.4</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">600</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">ADANIPORTS</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">1469.6</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;">↔&nbsp;NO-TRADE</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#9E9E9E;display:inline-block;"></span><span style="color:#9E9E9E;font-weight:600;">NEUTRAL</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">6.8% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">1460-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>40.75</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">475</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">46.6</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">53.4</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">6.8</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 51%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 40%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 32%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">40.75</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">ADANIPORTS-Jan2026-1460-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">ADANIPORTS-Jan2026-1460-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">22.2</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">475</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">ALKEM</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">5498.5</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Bearish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;">↔&nbsp;NO-TRADE</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#9E9E9E;display:inline-block;"></span><span style="color:#9E9E9E;font-weight:600;">NEUTRAL</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">29.6% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">5500-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>101.1</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">125</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">64.8</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">35.2</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">29.6</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE IV 58%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 47%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE GAMMA 49%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 29%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">122.4</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">ALKEM-Jan2026-5500-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">ALKEM-Jan2026-5500-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">101.1</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">125</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">ASHOKLEY</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">178.88</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-weight:600;">↓&nbsp;DOWN</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E53935;display:inline-block;"></span><span style="color:#E53935;font-weight:600;">D80</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">16.9% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#026ADB;color:#fff;font-weight:600;text-align:center;">SC</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">179-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>4.05</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">5000</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">41.5</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">58.5</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">16.9</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 73%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 41%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 29%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE THETA 38%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">4.05</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">ASHOKLEY-Jan2026-179-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">ASHOKLEY-Jan2026-179-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">5.96</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">5000</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">AXISBANK</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">1270.6</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-weight:600;">↑&nbsp;UP</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#1FA64B;display:inline-block;"></span><span style="color:#1FA64B;font-weight:600;">U80</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">13.1% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">1270-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag" style="background:#60CC65;color:#FFFFFF;font-weight:700;"><span class="tag-hole"></span>26.9</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">625</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">43.5</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">56.5</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">13.1</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 54%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 43%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 47%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 34%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">26.9</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">AXISBANK-Jan2026-1270-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">AXISBANK-Jan2026-1270-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">22</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">625</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">BAJAJFINSV</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">2035.8</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Bearish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;">↔&nbsp;NO-TRADE</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#9E9E9E;display:inline-block;"></span><span style="color:#9E9E9E;font-weight:600;">NEUTRAL</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">22.2% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#F43656;color:#fff;font-weight:600;text-align:center;">S</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">2040-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>41.75</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">250</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">61.1</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">38.9</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">22.2</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 55%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 45%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 46%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 37%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">45</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">BAJAJFINSV-Jan2026-2040-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">BAJAJFINSV-Jan2026-2040-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">41.75</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">250</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;background:#60CC65;color:#FFFFFF;">BAJAJHLDNG</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">11329</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Sell</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-weight:600;">↓&nbsp;DOWN</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E53935;display:inline-block;"></span><span style="color:#E53935;font-weight:600;">D80</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">71.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill sell">Strong</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#B0B0B0;color:#fff;font-weight:600;text-align:center;">N</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">11300-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag" style="background:#F43656;color:#FFFFFF;font-weight:700;"><span class="tag-hole"></span>258.9</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">50</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">85.5</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">14.5</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">71</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 39%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 47%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 35%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">374.85</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">BAJAJHLDNG-Jan2026-11300-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">BAJAJHLDNG-Jan2026-11300-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">258.9</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">50</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">BAJFINANCE</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;">986</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Bearish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;">↔&nbsp;NO-TRADE</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#7EDC9B;display:inline-block;"></span><span style="color:#7EDC9B;font-weight:600;">U60</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">15.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#F43656;color:#fff;font-weight:600;text-align:center;">S</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">990-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>24.75</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">750</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">57.5</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">42.5</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">15</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt"></span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 47%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 50%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 36%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">27.8</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">BAJFINANCE-Jan2026-990-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">BAJFINANCE-Jan2026-990-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">24.75</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">750</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">BEL</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">399.45</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;">↔&nbsp;NO-TRADE</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#7EDC9B;display:inline-block;"></span><span style="color:#7EDC9B;font-weight:600;">U60</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">100.0% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill buy">Solid</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#026ADB;color:#fff;font-weight:600;text-align:center;">SC</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">400-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>10.95</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">1425</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">53.6</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">46.4</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">100</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 51%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 45%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 35%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">10.95</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">BEL-Jan2026-400-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">BEL-Jan2026-400-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">8.8</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">1425</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">BHARTIARTL</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">2106.2</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Bearish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;">↔&nbsp;NO-TRADE</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#7EDC9B;display:inline-block;"></span><span style="color:#7EDC9B;font-weight:600;">U60</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">5.3% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">2100-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>24.35</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">475</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">52.7</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">47.3</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">5.3</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 52%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 40%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 28%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">44.6</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">BHARTIARTL-Jan2026-2100-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">BHARTIARTL-Jan2026-2100-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">24.35</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">475</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">DIXON</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">12096</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;">↔&nbsp;NO-TRADE</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#7EDC9B;display:inline-block;"></span><span style="color:#7EDC9B;font-weight:600;">U60</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">30.4% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#B0B0B0;color:#fff;font-weight:600;text-align:center;">N</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">12100-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>546.4</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">50</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">34.8</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">65.2</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">30.4</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 51%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 46%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 42%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">546.4</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">DIXON-Jan2026-12100-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">DIXON-Jan2026-12100-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">503.95</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">50</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">DMART</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">3776.1</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Sell</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-weight:600;">↓&nbsp;DOWN</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#F4A3A3;display:inline-block;"></span><span style="color:#F4A3A3;font-weight:600;">D70</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">70.8% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill sell">Strong</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">3800-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>115</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">150</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">85.4</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">14.6</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">70.8</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE IV 55%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 49%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE GAMMA 50%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 34%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">110</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">DMART-Jan2026-3800-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">DMART-Jan2026-3800-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">115</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">150</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">EICHERMOT</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">7313.5</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-weight:600;">↑&nbsp;UP</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#1FA64B;display:inline-block;"></span><span style="color:#1FA64B;font-weight:600;">U90</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">57.9% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill" style="background:linear-gradient(to right, #60CC65 50%, transparent 50%);color:#000;">Strengthening</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#026ADB;color:#fff;font-weight:600;text-align:center;">SC</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">7300-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag" style="background:#60CC65;color:#FFFFFF;font-weight:700;"><span class="tag-hole"></span>172</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">100</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">21.1</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">78.9</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">57.9</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 58%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 42%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 43%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 40%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">172</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">EICHERMOT-Jan2026-7300-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">EICHERMOT-Jan2026-7300-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">135.5</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">100</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">GRASIM</span><span style="margin-left:6px;font-weight:700;color:#c40000;">▾15L</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;">2828.9</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-weight:600;">↓&nbsp;DOWN</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#F4A3A3;display:inline-block;"></span><span style="color:#F4A3A3;font-weight:600;">D70</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">16.5% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#F43656;color:#fff;font-weight:600;text-align:center;">S</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">2820-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>65.9</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">250</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">41.8</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">58.2</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">16.5</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 59%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 41%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 45%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 41%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">65.9</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">GRASIM-Jan2026-2820-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">GRASIM-Jan2026-2820-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">39.9</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">250</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">HDFCBANK</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">992</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Bearish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-weight:600;">↓&nbsp;DOWN</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#F4A3A3;display:inline-block;"></span><span style="color:#F4A3A3;font-weight:600;">D70</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">11.5% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">990-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>12.95</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">550</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">55.8</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">44.2</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">11.5</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 52%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 41%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 48%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 30%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">21.2</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">HDFCBANK-Jan2026-990-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">HDFCBANK-Jan2026-990-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">12.95</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">550</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">HEROMOTOCO</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">5769.5</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;">↔&nbsp;NO-TRADE</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#9E9E9E;display:inline-block;"></span><span style="color:#9E9E9E;font-weight:600;">NEUTRAL</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">100.0% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill buy">Solid</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">5750-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>160</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">150</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">11.5</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">88.5</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">100</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 54%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 42%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 47%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 38%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">160</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">HEROMOTOCO-Jan2026-5750-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">HEROMOTOCO-Jan2026-5750-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">114.9</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">150</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">ICICIBANK</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#C94141;font-weight:600;">1342.6</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Bearish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-weight:600;">↓&nbsp;DOWN</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E53935;display:inline-block;"></span><span style="color:#E53935;font-weight:600;">D80</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">13.7% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#F43656;color:#fff;font-weight:600;text-align:center;">S</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">1340-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag" style="background:#F43656;color:#FFFFFF;font-weight:700;"><span class="tag-hole"></span>18.1</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">700</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">56.8</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">43.2</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">13.7</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 52%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 41%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 30%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">29.45</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">ICICIBANK-Jan2026-1340-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">ICICIBANK-Jan2026-1340-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">18.1</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">700</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">INDUSINDBK</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">865.4</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Bearish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-weight:600;">↑&nbsp;UP</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#7EDC9B;display:inline-block;"></span><span style="color:#7EDC9B;font-weight:600;">U70</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">38.7% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">870-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>25.1</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">700</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">69.4</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">30.6</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">38.7</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 53%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 47%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 47%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 40%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">24.4</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">INDUSINDBK-Jan2026-870-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">INDUSINDBK-Jan2026-870-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">25.1</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">700</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">KOTAKBANK</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">2204.1</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Bearish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-weight:600;">↑&nbsp;UP</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#1FA64B;display:inline-block;"></span><span style="color:#1FA64B;font-weight:600;">U90</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">11.1% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">2200-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>36.7</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">400</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">55.6</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">44.4</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">11.1</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 56%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 42%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 45%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 36%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">48.45</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">KOTAKBANK-Jan2026-2200-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">KOTAKBANK-Jan2026-2200-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">36.7</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">400</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">LT</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">4080.8</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-weight:600;">↑&nbsp;UP</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#7EDC9B;display:inline-block;"></span><span style="color:#7EDC9B;font-weight:600;">U70</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">12.4% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">4080-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag" style="background:#D9CF93;color:#006400;font-weight:700;"><span class="tag-hole"></span>84.5</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">175</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">43.8</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">56.2</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">12.4</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 52%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 42%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 48%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 30%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">84.5</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">LT-Jan2026-4080-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">LT-Jan2026-4080-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">55.6</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">175</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">M&amp;M</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">3712.3</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-weight:600;">↑&nbsp;UP</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#1FA64B;display:inline-block;"></span><span style="color:#1FA64B;font-weight:600;">U90</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">37.1% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#026ADB;color:#fff;font-weight:600;text-align:center;">SC</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">3700-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag" style="background:#60CC65;color:#FFFFFF;font-weight:700;"><span class="tag-hole"></span>103.6</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">200</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">31.5</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">68.5</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">37.1</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 51%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 42%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 34%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">103.6</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">M&amp;M-Jan2026-3700-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">M&amp;M-Jan2026-3700-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">66.35</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">200</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;background:#60CC65;color:#FFFFFF;">MARUTI</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">16705</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-weight:600;">↑&nbsp;UP</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#7EDC9B;display:inline-block;"></span><span style="color:#7EDC9B;font-weight:600;">U70</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">13.7% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">16700-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag" style="background:#D9CF93;color:#006400;font-weight:700;"><span class="tag-hole"></span>373.85</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">50</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">43.2</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">56.8</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">13.7</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 52%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 43%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 32%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">373.85</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">MARUTI-Jan2026-16700-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">MARUTI-Jan2026-16700-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">273.3</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">50</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">PREMIERENE</span><span style="margin-left:6px;font-weight:700;color:#c40000;">▾15L</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;">841</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Bearish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-weight:600;">↓&nbsp;DOWN</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E53935;display:inline-block;"></span><span style="color:#E53935;font-weight:600;">D80</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">16.5% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#B0B0B0;color:#fff;font-weight:600;text-align:center;">N</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">840-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag" style="background:#F43656;color:#FFFFFF;font-weight:700;"><span class="tag-hole"></span>34.95</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">575</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">58.2</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">41.8</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">16.5</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE DELTA 43%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE GAMMA 44%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE THETA 45%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">36</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">PREMIERENE-Jan2026-840-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">PREMIERENE-Jan2026-840-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">34.95</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">575</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">SAIL</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">146.92</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;">↔&nbsp;NO-TRADE</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#9E9E9E;display:inline-block;"></span><span style="color:#9E9E9E;font-weight:600;">NEUTRAL</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">5.5% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">147-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>6.02</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">4700</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">47.2</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">52.8</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">5.5</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt"></span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 45%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 50%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 40%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">6.02</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">SAIL-Jan2026-147-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">SAIL-Jan2026-147-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">4.93</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">4700</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">SBIN</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">982.95</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;">↔&nbsp;NO-TRADE</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#9E9E9E;display:inline-block;"></span><span style="color:#9E9E9E;font-weight:600;">NEUTRAL</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">27.9% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#2E8B57;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">985-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>16.7</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">750</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">36.1</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">63.9</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">27.9</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 56%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 44%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 45%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 32%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">16.7</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">SBIN-Jan2026-985-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">SBIN-Jan2026-985-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">14.75</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">750</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">SUNPHARMA</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;">1719.7</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Bearish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;">↔&nbsp;NO-TRADE</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#7EDC9B;display:inline-block;"></span><span style="color:#7EDC9B;font-weight:600;">U60</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">51.6% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill" style="background:linear-gradient(to right, #F43656 50%, transparent 50%);color:#7A0101;">Strengthening</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#F43656;color:#fff;font-weight:600;text-align:center;">S</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">1720-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>22.95</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">350</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">75.8</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">24.2</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">51.6</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 42%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 46%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 31%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">32.15</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">SUNPHARMA-Jan2026-1720-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">SUNPHARMA-Jan2026-1720-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">22.95</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">350</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">SWIGGY</span><span style="margin-left:6px;font-weight:700;color:#c40000;">▾15L</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;">385.9</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Bearish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-weight:600;">↓&nbsp;DOWN</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E53935;display:inline-block;"></span><span style="color:#E53935;font-weight:600;">D80</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">1.7% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#B0B0B0;color:#fff;font-weight:600;text-align:center;">N</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">385-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag" style="background:#F43656;color:#FFFFFF;font-weight:700;"><span class="tag-hole"></span>11</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">1300</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">50.8</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">49.2</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">1.7</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE DELTA 49%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE GAMMA 45%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 47%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">15.8</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">SWIGGY-Jan2026-385-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">SWIGGY-Jan2026-385-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">11</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">1300</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">TMPV</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">367.6</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Bearish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-weight:600;">↑&nbsp;UP</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#1FA64B;display:inline-block;"></span><span style="color:#1FA64B;font-weight:600;">U90</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">8.5% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#60CC65;color:#fff;font-weight:600;text-align:center;">L</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#C0392B;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">370-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>10.5</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">800</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">54.3</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">45.7</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">8.5</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 44%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 47%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 35%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">10.55</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">TMPV-Jan2026-370-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">TMPV-Jan2026-370-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">10.5</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">800</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">UPL</span><span style="margin-left:6px;font-weight:700;color:#0aa80a;">▴15H</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;">793.75</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab buy"><span class="slab-strip"></span><span class="slab-text">Bullish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-weight:600;">↓&nbsp;DOWN</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E53935;display:inline-block;"></span><span style="color:#E53935;font-weight:600;">D90</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#60CC65;font-weight:600;font-size:12px;">59.9% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #60CC65 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill" style="background:linear-gradient(to right, #60CC65 50%, transparent 50%);color:#000;">Strengthening</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#026ADB;color:#fff;font-weight:600;text-align:center;">SC</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;font-weight:600;">↑</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#2E8B57;font-size:14px;">●</span><span style="margin-left:6px;">790-CE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag nt"><span class="tag-hole"></span>24.8</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">1355</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">20.1</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">79.9</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">59.9</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 51%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 42%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 36%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">24.8</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">UPL-Jan2026-790-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">UPL-Jan2026-790-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">16.7</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">1355</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:center;"><span style="display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #BDBDBD;">WAAREEENER</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;">2963.1</span></span></td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span class="signal-slab sell"><span class="slab-strip"></span><span class="slab-text">Bearish</span></span></td><td class="col-PRICE_ACTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-weight:600;">↓&nbsp;DOWN</span></td><td class="col-ACT-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E53935;display:inline-block;"></span><span style="color:#E53935;font-weight:600;">D80</span></span></td><td class="col-IMB-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F43656;font-weight:600;font-size:12px;">25.3% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F43656 0%, #e0e0e0 0%);"></div></div></td><td class="col-IMB-SIGNAL" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-IMB-ACTION" style="padding:6px;text-align:center;"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:4px;background:#B0B0B0;color:#fff;font-weight:600;text-align:center;">N</span></td><td class="col-IMB-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:7px;height:7px;margin:1px;border-radius:50%;background:#9E9E9E;"></span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;font-weight:600;">↓</span></td><td class="col-SIGNAL_OPTION" style="padding:6px;text-align:center;"><span style="color:#C0392B;font-size:14px;">●</span><span style="margin-left:6px;">2950-PE</span></td><td class="col-Signal_Price" style="padding:6px;text-align:center;"><span class="price-tag" style="background:#F43656;color:#FFFFFF;font-weight:700;"><span class="tag-hole"></span>94.95</span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">175</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">62.6</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">37.4</td><td class="col-OI_IMBALANCE_PCT" style="padding:4px;text-align:center;">25.3</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 47%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE GAMMA 49%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE THETA 43%</span></td><td class="col-CALL_LTP" style="padding:4px;text-align:center;">121</td><td class="col-CALL_SYMBOL" style="padding:4px;text-align:center;">WAAREEENER-Jan2026-2950-CE - ATM</td><td class="col-PUT_SYMBOL" style="padding:4px;text-align:center;">WAAREEENER-Jan2026-2950-PE - ATM</td><td class="col-PUT_LTP" style="padding:4px;text-align:center;">94.95</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">175</td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">31/12/25 18:58</td></tr>
+</tbody></table>
+  </div>
+		<script>
+		  (function () {
+			const header = document.querySelector('.header-row');
+			const wrap = document.querySelector('.table-wrap');
+			if (!header || !wrap) return;
+
+			let lastScroll = 0;
+
+			wrap.addEventListener('scroll', function () {
+			  const current = wrap.scrollTop;
+
+			  if (current > lastScroll && current > 20) {
+				header.style.display = 'none';   // scroll down → hide
+			  } else {
+				header.style.display = '';       // scroll up → show
+			  }
+
+			  lastScroll = current;
+			});
+		  })();
+</script>
+
+
+
+<script>
+  (function () {
+    const wrap = document.querySelector('.table-wrap');
+    if (!wrap) return;
+
+    let scrollTimer = null;
+    let refreshPaused = false;
+
+    // expose flags for auto-refresh logic
+    window.__SCROLLING__ = false;
+
+    wrap.addEventListener('scroll', function () {
+      // user is scrolling
+      window.__SCROLLING__ = true;
+      refreshPaused = true;
+
+      // reset timer on every scroll
+      if (scrollTimer) clearTimeout(scrollTimer);
+
+      scrollTimer = setTimeout(function () {
+        // scrolling stopped
+        window.__SCROLLING__ = false;
+        refreshPaused = false;
+      }, 300); // 300ms = scroll stop
+    });
+
+    // hook: auto-refresh guard
+    const _origSetInterval = window.setInterval;
+    window.setInterval = function (fn, t) {
+      return _origSetInterval(function () {
+        if (!refreshPaused) {
+          fn();
+        }
+      }, t);
+    };
+  })();
+</script>
+		<div style="position:fixed;bottom:12px;left:50%;
+            transform:translateX(-50%);
+            z-index:9999;display:flex;gap:6px;align-items:center;">
+
+
+		  <!-- Rotate : symbol + transparent -->
+		  <button id="rotateBtn"
+			title="Rotate View"
+			style="width:34px;height:34px;
+				   border-radius:8px;
+				   border:1px solid #999;
+				   background:rgba(64,64,64,0.25);
+				   color:#fff;
+				   font-size:16px;
+				   font-weight:700;
+				   cursor:pointer;">
+			⟳
+		  </button>
+
+		  <!-- Manual Overview : symbol + transparent -->
+		  <a href="FareValue.html" target="_blank"
+			 title="Overview Manual"
+			 style="width:34px;height:34px;
+					display:flex;align-items:center;justify-content:center;
+					border-radius:8px;
+					border:1px solid #999;
+					background:rgba(64,64,64,0.25);
+					color:#fff;
+					font-size:15px;
+					font-weight:700;
+					text-decoration:none;">
+			ⓘ
+		  </a>
+
+		  <!-- Manual Detail : symbol + transparent -->
+		  <a href="SpurtsSignal_Final.html" target="_blank"
+			 title="Detailed Manual"
+			 style="width:34px;height:34px;
+					display:flex;align-items:center;justify-content:center;
+					border-radius:8px;
+					border:1px solid #999;
+					background:rgba(64,64,64,0.25);
+					color:#fff;
+					font-size:15px;
+					font-weight:700;
+					text-decoration:none;">
+			☰
+		  </a>
+
+		</div>
+
+
+
+		<script>
+		(function () {
+		  const btn = document.getElementById('rotateBtn');
+		  const wrap = document.querySelector('.table-wrap');
+		  if (!btn || !wrap) return;
+
+		  let rotated = false;
+
+		  btn.addEventListener('click', function () {
+			rotated = !rotated;
+			if (rotated) {
+			  wrap.style.transform = 'rotate(90deg) translateY(-100%)';
+			  wrap.style.transformOrigin = 'top left';
+			  wrap.style.width = '100vh';
+			  wrap.style.height = '100vw';
+			  wrap.style.overflow = 'auto';
+			} else {
+			  wrap.style.transform = '';
+			  wrap.style.transformOrigin = '';
+			  wrap.style.width = '';
+			  wrap.style.height = '';
+			  wrap.style.overflow = '';
+			}
+		  });
+		})();
+		</script>
+
+	
+		
+		<script>
+		(function () {
+		  const header = document.querySelector('.header-row');
+		  const wrap = document.querySelector('.table-wrap');
+		  if (!header) return;
+
+		  let hideUntil = 0;
+		  const HIDE_FOR_MS = 5 * 60 * 1000;
+
+		  function onScroll() {
+			const now = Date.now();
+			if (now > hideUntil) hideUntil = now + HIDE_FOR_MS;
+			if (now < hideUntil) header.style.display = 'none';
+		  }
+
+		  /* PC: table scroll */
+		  if (wrap) {
+			wrap.addEventListener('scroll', onScroll, { passive: true });
+		  }
+
+		  /* MOBILE: window scroll */
+		  window.addEventListener('scroll', onScroll, { passive: true });
+
+		  /* Safety lock */
+		  setInterval(function () {
+			if (Date.now() < hideUntil) {
+			  header.style.display = 'none';
+			}
+		  }, 500);
+		})();
+		</script>
+
+
+		<script>
+		(function () {
+		  const root = document.documentElement;
+		  let fsUntil = 0;
+		  const FS_FOR_MS = 5 * 60 * 1000;
+
+		  function enterFS() {
+			if (!document.fullscreenElement) {
+			  if (root.requestFullscreen) root.requestFullscreen().catch(()=>{});
+			}
+		  }
+
+		  function onScrollFS() {
+			const now = Date.now();
+			if (now > fsUntil) {
+			  fsUntil = now + FS_FOR_MS;
+			  enterFS();          // scroll start → fullscreen
+			}
+		  }
+
+		  window.addEventListener('scroll', onScrollFS, { passive: true });
+
+		  setInterval(function () {
+			if (Date.now() < fsUntil) {
+			  enterFS();          // keep fullscreen for 5 min
+			}
+		  }, 1000);
+		})();
+		</script>
+		<script>
+		(function () {
+		  const scan = document.getElementById("scan-time-bar");
+		  const wrap = document.querySelector(".table-wrap");
+		  if (!scan || !wrap) return;
+
+		  wrap.addEventListener("scroll", function () {
+			scan.style.transform = `translateX(${-wrap.scrollLeft}px)`;
+		  });
+		})();
+		</script>
+
+		
+
+</body>
+</html>
