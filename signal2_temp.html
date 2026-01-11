@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>F&O Signals Other</title>
+
+  <!-- FORCE NO CACHE -->
+  <meta http-equiv="Cache-Control" content="no-store" />
+
+  <!-- AUTO REFRESH: incremental update (updates only table, preserves view) -->
+  <script>
+    async function fetchAndUpdateTable(){
+      try{
+        // fetch current page HTML (no-cache)
+        const res = await fetch(window.location.href, {cache: "no-store"});
+        if(!res.ok) throw new Error("fetch failed: " + res.status);
+        const text = await res.text();
+
+        // parse into a DOM, extract .table-wrap
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, "text/html");
+        const newWrap = doc.querySelector(".table-wrap");
+        const curWrap = document.querySelector(".table-wrap");
+        if(!newWrap || !curWrap) return;
+
+        // preserve scroll positions
+        const pageScrollY = window.scrollY || window.pageYOffset;
+        const wrapScrollLeft = curWrap.scrollLeft || 0;
+
+        // replace only inner HTML of the table-wrap
+        curWrap.innerHTML = newWrap.innerHTML;
+
+        // small delay then restore scrolls so layout stabilizes
+        setTimeout(() => {
+          window.scrollTo(0, pageScrollY);
+          curWrap.scrollLeft = wrapScrollLeft;
+        }, 50);
+      }catch(err){
+        // silent failure (won't break UI)
+        console.warn("Table update failed:", err);
+      }
+    }
+
+    // run once on load (optional) and then every 10s
+    window.addEventListener("load", () => {
+      // initial quick fetch so data is fresh on open
+      fetchAndUpdateTable();
+      // periodic incremental updates
+      setInterval(fetchAndUpdateTable, 10000);
+    });
+  </script>
+
+
+  <style>
+	
+	/* FINAL FIX: SYMBOL column for sticky rows */
+	table.dataframe tr.sticky-row td.col-SYMBOL {
+	  position: sticky;
+	  left: 0;        /* horizontal freeze */
+	  top: 24px;      /* SAME as sticky-row top */
+	  z-index: 45;
+	  background: #d9d9d9;
+	}
+
+	/* second sticky row (BANKNIFTY) */
+	table.dataframe tr.sticky-row + tr.sticky-row td.col-SYMBOL {
+	  top: 74px;
+	}
+
+	/* Sticky rows always on top */
+	table.dataframe tr.sticky-row {
+	  position: sticky;
+	  top: 0;
+	  z-index: 50;
+	  background: #f3f3f3;
+	}
+
+	/* SYMBOL cell for sticky rows */
+	table.dataframe tr.sticky-row td.col-SYMBOL {
+	  position: sticky;
+	  left: 0;
+	  top: 24px;
+	  z-index: 60;
+	  background: #d9d9d9;
+	}
+
+	/* BANKNIFTY second row offset */
+	table.dataframe tr.sticky-row + tr.sticky-row {
+	  top: 60px;
+	}
+	table.dataframe tr.sticky-row + tr.sticky-row td.col-SYMBOL {
+	  top: 60px;
+	}
+
+	/* NON-sticky SYMBOL cells go BELOW sticky rows */
+	table.dataframe td.col-SYMBOL {
+	  z-index: 10;
+	  background: #ffffff;
+	}
+																																																									
+
+
+																																																										
+  
+	/* MOBILE: hide top header while scrolling (CSS-only) */
+	@media (max-width: 720px) {
+	  .header-row {
+		position: sticky;
+		top: 8px;
+		z-index: 50;
+	  }
+
+	  /* when user scrolls the table, header can be pushed out of view */
+	  .table-wrap {
+		scroll-margin-top: 0;
+	  }
+	}
+
+	/* ===== Pills & soft badges ===== */
+.pill {
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:10px;   /* micro-pill 10px */
+  font-weight:700;
+  font-size:12px;
+  line-height:1;
+  white-space:nowrap;
+  vertical-align:middle;
+}
+/* ===== SIGNAL column : Premium Slab (NEW) ===== */
+.signal-slab {
+  display:inline-flex;
+  align-items:center;
+  position:relative;
+  min-width: 60px;          /* same visual weight as Signal Price */
+  height: 24px;
+  font-weight:700;
+  font-size:12px;
+  line-height:1;
+  background:#1f1f1f;       /* premium dark base */
+  color:#ffffff;
+  border-radius:4px;        /* NOT pill */
+  overflow:hidden;
+  /* NEW: thin black border */
+  border: 1px solid #ffffff;
+}
+
+/* left color strip */
+.signal-slab .slab-strip {
+  width:4px;
+  height:100%;
+  flex-shrink:0;
+}
+
+/* text area (SIGNAL only) */
+.signal-slab .slab-text {
+  padding:0 8px;
+  white-space:nowrap;
+  font-weight:700;
+}
+
+/* ===== SIGNAL slab : CLEAN FINAL LOGIC ===== */
+
+/* LEFT STRIP — always black */
+.signal-slab .slab-strip {
+  background: #000000;
+}
+
+/* BACKGROUND by logic (ONLY place where color changes) */
+.signal-slab.buy  { background:#60CC65; }
+.signal-slab.sell { background:#F43656; }
+.signal-slab.nt   { background:#2b2b2b; }
+
+/* SIGNAL slab border (thin, premium) */
+.signal-slab {
+  border: 1px solid #A19375;
+}
+
+/* TEXT — always white, crisp */
+.signal-slab .slab-text {
+  color: #ffffff;
+  font-weight:700;
+  text-shadow: none;
+}
+
+
+
+/* nt tone (outline feel but slab stays premium) */
+.signal-slab.nt {
+  background:#2b2b2b;
+  color:#cfd8dc;
+}
+
+
+/* GLOBAL pill variants (unchanged behavior) */
+.pill.buy  { background:#60CC65; color:#ffffff; border: none; }
+.pill.sell { background:#F43656; color:#ffffff; border: none; }
+/* No-Trade = outline style */
+.pill.nt   { background:transparent; color:#8EA7AB; border:1px solid #8EA7AB; }
+.pill.default { background:#f2f4f6; color:#111; border:1px solid #e1e5e8; }
+
+/* ===== Signal Price : Price-Tag Ribbon (NEW, isolated) ===== */
+.price-tag {
+  display:inline-block;
+  position:relative;
+  padding:4px 12px 4px 16px;   /* left space for hole */
+  font-weight:700;
+  font-size:12px;
+  line-height:1;
+  white-space:nowrap;
+  vertical-align:middle;
+
+  /* shape */
+  border-radius:4px;
+  clip-path: polygon(
+    10px 0%,
+    100% 0%,
+    100% 100%,
+    10px 100%,
+    0% 50%
+  );
+}
+/* ===== Signal Price : Fixed Width Lock (STEP-3) ===== */
+.price-tag {
+  min-width: 32px;          /* fixed visual width */
+  text-align: center;       /* text centered inside tag */
+  justify-content: center;
+}
+
+
+
+
+/* small hole on left (price tag feel) */
+.price-tag .tag-hole {
+  position:absolute;
+  left:6px;
+  top:50%;
+  width:5px;
+  height:5px;
+  margin-top:-2.5px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.8);
+}
+
+/* color behavior inherited via inline style or extra class */
+.price-tag.buy  { background:#60CC65; color:#ffffff; }
+.price-tag.sell { background:#F43656; color:#ffffff; }
+.price-tag.nt   {
+  background:transparent;
+  color:#8EA7AB;
+  border:1px solid #ffffff;
+}
+
+
+/* --- Zone-specific override: only for DELTA/IV/THETA/GAMMA columns --- */
+/* Make zone pills text-color (no solid fill), smaller, subtle border */
+.col-DELTA_ZONE .pill.buy,
+.col-IV_ZONE    .pill.buy,
+.col-THETA_ZONE .pill.buy,
+.col-GAMMA_ZONE .pill.buy {
+  background: transparent !important;
+  color: #2E8B3A !important;         /* softer green text */
+  border: 1px solid rgba(46,139,58,0.14) !important;
+  padding:3px 8px !important;
+  font-size:11px !important;
+}
+
+.col-DELTA_ZONE .pill.sell,
+.col-IV_ZONE    .pill.sell,
+.col-THETA_ZONE .pill.sell,
+.col-GAMMA_ZONE .pill.sell {
+  background: transparent !important;
+  color: #C94141 !important;         /* softer red text */
+  border: 1px solid rgba(201,65,65,0.14) !important;
+  padding:3px 8px !important;
+  font-size:11px !important;
+}
+
+/* No-trade/neutral in zones: muted outline */
+.col-DELTA_ZONE .pill.nt,
+.col-IV_ZONE    .pill.nt,
+.col-THETA_ZONE .pill.nt,
+.col-GAMMA_ZONE .pill.nt {
+  background: transparent !important;
+  color: #8EA7AB !important;
+  border: 1px solid rgba(142,167,171,0.12) !important;
+  padding:3px 8px !important;
+  font-size:11px !important;
+}
+
+/* keep small subtle inset for zone pills */
+.col-DELTA_ZONE .pill,
+.col-IV_ZONE    .pill,
+.col-THETA_ZONE .pill,
+.col-GAMMA_ZONE .pill {
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
+}
+
+/* Soft-badge unchanged */
+.soft-badge {
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:8px;
+  font-weight:600;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+
+/* soft-badge for numeric/zone cells (if used later) */
+.soft-badge {
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:8px;
+  font-weight:600;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+/* small alignment tweak */
+.col-SYMBOL, .col-Signal_TIME { text-align:left; padding-left:8px; white-space:nowrap; }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 10px;
+      background: #fff;
+      color: #111;
+    }
+
+    h2 {
+      margin: 5px 0 10px;
+      font-size: 20px;
+    }
+
+    .table-wrap {
+	  width: 100%;
+	  max-height: 85vh;           /* REQUIRED: vertical scroll container */
+	  overflow-x: auto;           /* horizontal scroll */
+	  overflow-y: auto;           /* REQUIRED for sticky header */
+	  -webkit-overflow-scrolling: touch;
+	  margin-top: 0;
+	  border-radius: 6px;
+	  padding-right: 12px;        /* for SYMBOL freeze navbar */
+	}
+
+
+
+    /* Base table */
+    table.dataframe {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 750px;
+      font-size: 13px;
+      background: #fff;
+    }
+
+    table.dataframe th,
+    table.dataframe td {
+      border: 1px solid #ccc;
+      padding: 6px 8px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* table header sticky (stays visible on vertical scroll) */
+    table.dataframe th {
+	  background: #446144;
+	  color: #fff;
+	  font-weight: 600;
+	  position: sticky;
+	  top: 0;                 /* 🔒 mobile+rotate buffer */
+	  z-index: 30;
+	  transform: translateZ(0); /* force own paint layer */
+	}
+	
+	/* ===== STICKY INDEX ROWS (NIFTY / BANKNIFTY) ===== */
+	table.dataframe tr.sticky-row {
+	  position: sticky;
+	  top: 24px;              /* header ke niche */
+	  z-index: 25;
+	  background: #f3f3f3;
+	}
+
+	/* SYMBOL column + sticky row overlap fix */
+	table.dataframe tr.sticky-row .col-SYMBOL {
+	  background: #d9d9d9;
+	  z-index: 35;
+	}
+
+	/* second sticky row (BANKNIFTY) thoda niche */
+	table.dataframe tr.sticky-row + tr.sticky-row {
+	  top: 60px;
+	}
+
+
+    /* Freeze first column (SYMBOL) on horizontal scroll */
+    /* Ensure your generated table marks the SYMBOL <th> and its <td>s with class="col-SYMBOL" */
+    .col-SYMBOL {
+      position: -webkit-sticky;
+      position: sticky;
+      left: 0;
+      z-index: 30;                /* strong so it sits above headers/cells */
+      background: #DBDBDB;        /* chosen light grey */
+      border-right: 1px solid #b5b5b5; /* slightly darker border for separation */
+      text-align: left;
+      padding-left: 8px;
+      white-space: nowrap;
+	  font-weight: 700;   /* 👈 ONLY THIS */
+    }
+
+    /* Make sure the SYMBOL header cell visually matches others while staying sticky */
+    table.dataframe th.col-SYMBOL {
+	  z-index: 40;                 /* td.col-SYMBOL se upar */
+	  background: #446144;         /* header bg match */
+	  border-right: 1px solid #b5b5b5;
+	  transform: translateZ(0);    /* repaint lock */
+	}
+
+    /* Ensure sticky SYMBOL doesn't overlap scrollbar on small screens */
+    .table-wrap { overflow-x: auto; padding-right: 12px; }
+
+		/* ===== PC Mobile View ===== */
+
+		/* PC / DEFAULT : 20 columns */
+		table.dataframe th:nth-child(n+16),
+		table.dataframe td:nth-child(n+16) {
+		  display: none;
+		}
+
+		/* MOBILE : 11 columns */
+		@media (max-width: 720px) {
+		  table.dataframe th,
+		  table.dataframe td {
+			padding: 5px 6px;
+			font-size: 12px;
+		  }
+
+		  table.dataframe th:nth-child(n+14),
+		  table.dataframe td:nth-child(n+14) {
+			display: none;
+		  }
+
+		  .table-wrap {
+			max-height: 75vh;
+			overflow-y: auto;
+			-webkit-overflow-scrolling: touch;
+		  }
+		}
+
+
+    /* Header row: title + edu-text + legend (buttons) */
+	.header-row {
+	  display: flex;
+	  align-items: center;
+	  gap: 10px;       /* ~8-12px gap as requested */
+	  flex-wrap: nowrap;
+	  margin: 6px 0 12px;
+	}
+
+	/* Title rectangle — subtle lighter background, same radius as pills */
+	.title-rect {
+	  padding: 6px 12px;      /* adjust vertical padding to match button height */
+	  border-radius: 10px;    /* same as pill radius */
+	  font-weight: 700;
+	  font-size: 20px;        /* keep visible; vertical height adjusted by padding */
+	  line-height: 1;         /* ensure visual center */
+	  background: #f7fbff;    /* subtle lighter tone */
+	  color: #111;
+	  white-space: nowrap;
+	  display: inline-flex;
+	  align-items: center;
+	  box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+	}
+
+	/* Small educational note placed to the right of title */
+	.edu-text {
+	  font-size: 13px;
+	  color: #5f6b72;
+	  white-space: nowrap;
+	}
+
+	/* Legend (buttons) kept compact and inline */
+	.legend {
+	  display: flex;
+	  gap: 8px;
+	  margin: 0;
+	  align-items: center;
+	}
+
+	.lg-item {
+	  padding: 6px 10px;
+	  border-radius: 10px;   /* keep same pill radius */
+	  font-weight: bold;
+	  color: #fff;
+	  font-size: 13px;
+	}
+
+	.lg-bull { background:#60CC65; }    /* BUY */
+	.lg-bear { background:#F43656; }    /* SELL */
+	.lg-grey { background:#8EA7AB; }    /* No-Trade */
+	
+		/* ===== FULL ROW BACKGROUND FOR STICKY INDEX (NIFTY / BANKNIFTY) ===== */
+	table.dataframe tr.sticky-row td {
+	  background: #C7E1EB;      /* same light grey across row */
+	}
+
+	/* keep SYMBOL column slightly darker for separation */
+	table.dataframe tr.sticky-row td.col-SYMBOL {
+	  background: #C7E1EB;
+	}
+	/* FULL ROW background for sticky index rows */
+	/*table.dataframe tr.sticky-row td {
+	  /*background: #BFD7E3 !important;   /* light grey – row highlight */
+	/*}
+	
+	/* ===== RED SEPARATOR LINE for NIFTY & BANKNIFTY ===== */
+	table.dataframe tr.sticky-row {
+	  border-bottom: 2px solid #d32f2f; /* red bottom line */
+	}
+	/* Other symbols (non NIFTY/BANKNIFTY) */
+	table.dataframe tr:not(.sticky-row) td.col-SYMBOL {
+	  background: #ffffff;   /* ya halka grey */
+	}
+	table.dataframe tr:not(.sticky-row) td {
+	  background: #ffffff;
+	}
+
+    /* MAKE ALL TABLE TEXT BOLD */
+	table.dataframe th,
+	table.dataframe td {
+	  font-weight: 700;
+	}
+	
+	#scanTimeValue {
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    display: inline-block;
+    transform: scale(0.9);
+}
+    /* SIG-TIME column ke blank cells */
+	td.col-SIG_TIME:empty::before {
+	  content: "◷";
+	  color: #ffffff;
+	  font-size: 10px;
+
+	  background: #E3DFDE;   /* light grey */
+	  padding: 1px 4px;
+	  border-radius: 10px;
+	}
+	
+	
+
+
+  </style>
+</head>
+
+<body>
+   <!-- SCAN TIME BAR (ALWAYS VISIBLE) -->
+	<!-- SCAN TIME BAR (STICKS WITH TABLE) -->
+	<th colspan="100" style="
+		position: sticky;
+		top: 0;
+		z-index: 100;
+		background: #f3f3f3;
+		font-weight: 900;
+		font-size: 11px;
+		letter-spacing: 0.3px;
+		text-transform: uppercase;
+		text-align: center;
+		padding: 3px 8px;
+		border: none;
+		white-space: nowrap;
+	">
+		<span style="font-size:11px;font-weight:900;">SCAN-TIME :</span> <span id="scanTimeValue">--</span>
+		<span id="scanStatus" style="margin-left:6px;"></span>
+		<span id="screenTag"
+			  style="
+				margin-left:3px;
+				background:#000000;
+				color:#FFFFFF;
+				font-size:10px;
+				font-weight:bold;
+				padding:2px 6px;
+				border-radius:0px;
+				line-height:1;
+			  ">
+		  S2
+		</span>
+
+	  </th>
+	</tr>
+
+
+
+
+	<script>
+	(function () {
+	  function updateScanTime() {
+		const table = document.querySelector("table.dataframe");
+		if (!table) return;
+
+		const headers = Array.from(table.querySelectorAll("th"));
+		const scanIndex = headers.findIndex(h =>
+		  h.textContent.trim().toUpperCase() === "SCAN-TIME"
+		);
+		if (scanIndex === -1) return;
+
+		const firstRow = table.querySelector("tbody tr");
+		if (!firstRow) return;
+
+		const cells = firstRow.querySelectorAll("td");
+		if (!cells[scanIndex]) return;
+
+		const scanEl = document.getElementById("scanTimeValue");
+		scanEl.innerHTML =
+		  scanEl.textContent = cells[scanIndex].innerText.trim();
+		// ===== SIGNAL TIME VALIDITY LOGIC =====
+		const now = new Date();
+		const scanText = scanEl.textContent.trim();
+
+		// format: DD/MM/YY HH:MM
+		const parts = scanText.split(" ");
+		if (parts.length === 2) {
+		  const [d, t] = parts;
+		  const [dd, mm, yy] = d.split("/").map(Number);
+		  const [hh, min] = t.split(":").map(Number);
+
+		  const scanDate = new Date(2000 + yy, mm - 1, dd, hh, min);
+		  const diffMin = (now - scanDate) / 60000;
+
+		  const statusEl = document.getElementById("scanStatus");
+		  if (statusEl) {
+			if (diffMin <= 4) {
+			  statusEl.textContent = "FRESH";
+			  statusEl.style.background = "#1db954";
+			} else if (diffMin <= 5) {
+			  statusEl.textContent = "ACTIVE";
+			  statusEl.style.background = "#1e90ff";
+			} else {
+			  const mins = Math.floor(diffMin);
+			  statusEl.textContent = `${mins} MIN PASSED`;
+			  statusEl.style.background = "#e53935";
+			}
+
+			statusEl.style.color = "#fff";
+			statusEl.style.fontWeight = "600";
+			statusEl.style.fontSize = "11px";
+			statusEl.style.lineHeight = "1";
+			statusEl.style.padding = "2px 8px";
+		  }
+		}
+
+		scanEl.style.fontSize = "11px";
+		scanEl.style.fontWeight = "900";
+		scanEl.style.letterSpacing = "0.3px";
+
+		}
+
+		window.addEventListener("load", updateScanTime);
+		setInterval(updateScanTime, 3000);
+		})();
+		</script>
+
+
+
+  <div class="table-wrap">
+    
+        <script>
+        (function(){
+          const KEY = "signal_auth_ok";
+          if (sessionStorage.getItem(KEY) === "1") return;
+
+          const pwd = prompt("Enter password:");
+          if (pwd !== "9999") {
+            document.documentElement.innerHTML = "";
+          } else {
+            sessionStorage.setItem(KEY, "1");
+          }
+        })();
+        </script>
+        <table border="1" class="dataframe"><thead><tr><th class="col-SYMBOL">SYMBOL</th><th class="col-SIG-TIME">SIG-TIME</th><th class="col-PRICE">PRICE</th><th class="col-BUILD-%">BUILD-%</th><th class="col-SPOT_LTP">SPOT_LTP</th><th class="col-Diff">Diff</th><th class="col-SIGNAL">SIGNAL</th><th class="col-15M_H_L">15M H/L</th><th class="col-INDICATOR">INDICATOR</th><th class="col-IND-SCORE">IND-SCORE</th><th class="col-CE_PE">CE/PE</th><th class="col-BLD-SIGNAL">BLD-SIGNAL</th><th class="col-BUILDUP">BUILDUP</th><th class="col-BLD-SCORE">BLD-SCORE</th><th class="col-LOT_Size">LOT_Size</th><th class="col-GAMMA_ZONE">GAMMA_ZONE</th><th class="col-CALL_PCT">CALL_PCT</th><th class="col-PUT_PCT">PUT_PCT</th><th class="col-IV_ZONE">IV_ZONE</th><th class="col-DELTA_ZONE">DELTA_ZONE</th><th class="col-IMB-DIR">IMB-DIR</th><th class="col-SCAN-TIME">SCAN-TIME</th><th class="col-SM_EXPIRY_DATE">SM_EXPIRY_DATE</th></tr></thead><tbody>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">AMBER</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#F52727;">00:55</td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#F43656;margin-right:4px;"></span>149.8</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">6329.5</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-2.62%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-weight:600;font-size:11px;">↓ DOWN</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D70</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">6300-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">100</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE GAMMA 49%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">30.2</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">69.8</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE IV 54%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 44%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">AMBUJACEM</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>11.65</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#12AB05;font-weight:600;font-size:12px;">42.2% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #12AB05 42.2%, #e0e0e0 42.2%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">536.95</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-1.78%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #0AA311;color:#0AA311;background:transparent;">Bullish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-weight:600;font-size:11px;">↓ DOWN</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E53935;display:inline-block;"></span><span style="color:#E53935;font-weight:600;font-size:11px;">D80</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#60CC65;font-size:14px;">●</span><span style="margin-left:6px;">535-CE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#9E9E9E;font-weight:400;">No-trade</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">1050</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 48%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">28.9</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">71.1</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE IV 51%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 43%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#60CC65;font-size:14px;font-weight:600;">↑</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">ASIANPAINT</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>66.95</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#12AB05;font-weight:600;font-size:12px;">100.0% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #12AB05 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;font-size:11px;">2825.5</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#02B50B;font-size:11px;font-weight:700;">1.28%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #0AA311;color:#0AA311;background:transparent;">Bullish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> </span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> Neutral</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D60</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#60CC65;font-size:14px;">●</span><span style="margin-left:6px;">2820-CE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#4CAF50;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#0476DE;color:#fff;font-weight:600;font-size:11px;">SC</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">250</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 48%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">34.7</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">65.3</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 52%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 40%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#60CC65;font-size:14px;font-weight:600;">↑</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">AUROPHARMA</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>29.1</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">1198.7</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-0.61%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> </span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> Neutral</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#9E9E9E;display:inline-block;"></span><span style="color:#9E9E9E;font-weight:600;font-size:11px;">NEUTRAL</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">1200-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">550</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 48%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">41.7</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">58.3</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 53%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 48%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">BAJAJ</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>155.45</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">9562.5</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-2.03%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> Neutral</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D60</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">9600-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">75</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">17.9</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">82.1</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 51%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 47%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">BAJAJHLDNG</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#F52727;">00:55</td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#C94141;margin-right:4px;"></span>257.2<span style="font-size:16px;font-weight:900;color:#C94141;padding-left:4px;">★</span></td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">51.9% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 51.9%, #e0e0e0 51.9%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">11043</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-1.41%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-weight:600;font-size:11px;">↓ DOWN</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E53935;display:inline-block;"></span><span style="color:#E53935;font-weight:600;font-size:11px;">D80</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">11000-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Building</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">50</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE GAMMA 50%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">76</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">24</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE IV 51%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 43%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">BDL</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#F52727;">00:55</td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#F43656;margin-right:4px;"></span>50.4</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">52.3% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 52.3%, #e0e0e0 52.3%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">1520.5</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-0.76%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-weight:600;font-size:11px;">↓ DOWN</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D70</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">1520-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Building</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">350</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">76.1</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">23.9</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 51%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 46%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;background:#60CC65;color:#FFFFFF;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">BEL</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>8.85</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#12AB05;font-weight:600;font-size:12px;">86.6% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #12AB05 86.6%, #e0e0e0 86.6%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;font-size:11px;">418.65</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#02B50B;font-size:11px;font-weight:700;">0.4%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #0AA311;color:#0AA311;background:transparent;">Bullish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> </span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-weight:600;font-size:11px;">↓ DOWN</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D70</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#60CC65;font-size:14px;">●</span><span style="margin-left:6px;">420-CE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#4CAF50;font-weight:400;">Strong+</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#0476DE;color:#fff;font-weight:600;font-size:11px;">SC</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">1425</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">6.7</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">93.3</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 51%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 49%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#60CC65;font-size:14px;font-weight:600;">↑</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">BHEL</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#F52727;">00:55</td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#C94141;margin-right:4px;"></span>11.65<span style="font-size:16px;font-weight:900;color:#C94141;padding-left:4px;">★</span></td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">39.3% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 39.3%, #e0e0e0 39.3%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">274.25</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-1.7%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> </span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-weight:600;font-size:11px;">↓ DOWN</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E53935;display:inline-block;"></span><span style="color:#E53935;font-weight:600;font-size:11px;">D80</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">275-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#9E9E9E;font-weight:400;">No-trade</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">2625</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 50%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">69.7</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">30.3</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt"></span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 50%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">COLPAL</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>41.35</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#12AB05;font-weight:600;font-size:12px;">75.3% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #12AB05 75.3%, #e0e0e0 75.3%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;font-size:11px;">2056</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#02B50B;font-size:11px;font-weight:700;">0.67%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #0AA311;color:#0AA311;background:transparent;">Buy</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> </span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> Neutral</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#55D97D;display:inline-block;"></span><span style="color:#55D97D;font-weight:600;font-size:11px;">U60</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#60CC65;font-size:14px;">●</span><span style="margin-left:6px;">2060-CE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#4CAF50;font-weight:400;">Strong</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#0476DE;color:#fff;font-weight:600;font-size:11px;">SC</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">225</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 48%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">87.6</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">12.4</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 52%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 45%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#60CC65;font-size:14px;font-weight:600;">↑</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">DIXON</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#F52727;">00:55</td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#F43656;margin-right:4px;"></span>430.8</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">11902</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-0.65%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> </span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-weight:600;font-size:11px;">↓ DOWN</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D70</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">11900-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE048A;color:#fff;font-weight:600;font-size:11px;">LU</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">50</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 48%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">11.2</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">88.8</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 52%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 47%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">DMART</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>95.1</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">11.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 11.0%, #e0e0e0 11.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;font-size:11px;">3801.3</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#02B50B;font-size:11px;font-weight:700;">0.19%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> </span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#02B50B;font-weight:600;font-size:11px;">↑ UP</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#1FA64B;display:inline-block;"></span><span style="color:#1FA64B;font-weight:600;font-size:11px;">U80</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">3800-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#9E9E9E;font-weight:400;">No-trade</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">150</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 47%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">55.5</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">44.5</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 53%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 44%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">EICHERMOT</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>122.65</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">7507</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-0.99%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> Neutral</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#9E9E9E;display:inline-block;"></span><span style="color:#9E9E9E;font-weight:600;font-size:11px;">NEUTRAL</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">7500-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">100</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 45%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">52.4</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">47.6</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 56%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 43%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">HEROMOTOCO</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>91.55</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">5773</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-1.32%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> Neutral</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#9E9E9E;display:inline-block;"></span><span style="color:#9E9E9E;font-weight:600;font-size:11px;">NEUTRAL</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">5750-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">150</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 48%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">86.5</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">13.5</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 52%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 41%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">IEX</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#F52727;">00:55</td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#F43656;margin-right:4px;"></span>4.94</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">138.36</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-7.82%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-weight:600;font-size:11px;">↓ DOWN</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D70</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">138-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">3750</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 47%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">93.4</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">6.6</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 53%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 43%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">KAYNES</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>172</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">91.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 91.0%, #e0e0e0 91.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">3659.5</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-1.49%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> Neutral</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D60</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">3650-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong+</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">100</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 50%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">95.5</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">4.5</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE IV 51%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 45%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">M&amp;M</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>70.25</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">3677.3</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-0.94%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> Neutral</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D60</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">3700-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">200</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 48%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">96.9</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">3.1</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 52%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 49%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">MARUTI</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>216.1</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">16501</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-0.97%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> Neutral</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#9E9E9E;display:inline-block;"></span><span style="color:#9E9E9E;font-weight:600;font-size:11px;">NEUTRAL</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">16500-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">50</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">74.6</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">25.4</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 51%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 44%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">MOTHERSON</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>2.87</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">115.64</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-2.0%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> Neutral</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#9E9E9E;display:inline-block;"></span><span style="color:#9E9E9E;font-weight:600;font-size:11px;">NEUTRAL</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">116-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">6150</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 48%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">86.3</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">13.7</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 53%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 46%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">PATANJALI</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#F52727;">00:55</td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#F43656;margin-right:4px;"></span>12.2</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">551.15</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-1.58%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-weight:600;font-size:11px;">↓ DOWN</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D70</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">550-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">900</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 50%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">32</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">68</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE IV 52%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 46%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">PGEL</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#F52727;">00:55</td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#F43656;margin-right:4px;"></span>19.9</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">595.7</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-1.64%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-weight:600;font-size:11px;">↓ DOWN</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D70</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">600-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">950</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 48%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">67.9</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">32.1</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 52%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 49%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;background:#60CC65;color:#FFFFFF;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">RELIANCE</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>28.85</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;font-size:11px;">1475.3</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#02B50B;font-size:11px;font-weight:700;">0.7%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> </span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#02B50B;font-weight:600;font-size:11px;">↑ UP</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#1FA64B;display:inline-block;"></span><span style="color:#1FA64B;font-weight:600;font-size:11px;">U90</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">1480-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#12AB05;color:#fff;font-weight:600;font-size:11px;">L</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">500</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 47%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">71.1</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">28.9</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 54%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 47%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">TATACONSUM</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>20.1</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">1175.9</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-1.79%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> Neutral</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D60</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">1180-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">550</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">39.2</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">60.8</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt"></span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 45%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">TRENT</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#F52727;">00:55</td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#F43656;margin-right:4px;"></span>76.5</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">3972.9</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-0.18%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> </span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-weight:600;font-size:11px;">↓ DOWN</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D70</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">3950-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">100</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">86.8</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">13.2</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 52%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 41%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">TVSMOTOR</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>63.1</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">3759.2</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-1.07%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> Neutral</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D60</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">3760-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE048A;color:#fff;font-weight:600;font-size:11px;">LU</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">175</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 46%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">56.5</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">43.5</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE IV 54%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 43%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">VBL</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#F52727;">00:55</td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#C94141;margin-right:4px;"></span>10.5<span style="font-size:16px;font-weight:900;color:#C94141;padding-left:4px;">★</span></td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">100.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 100.0%, #e0e0e0 100.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">489</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-1.41%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-weight:600;font-size:11px;">↓ DOWN</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E53935;display:inline-block;"></span><span style="color:#E53935;font-weight:600;font-size:11px;">D80</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">490-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Strong++</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">1125</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE GAMMA 49%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">30</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">70</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE IV 51%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 47%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">WAAREEENER</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>99.25</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">53.0% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 53.0%, #e0e0e0 53.0%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">2544.6</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-1.64%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> Neutral</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#9E9E9E;display:inline-block;"></span><span style="color:#9E9E9E;font-weight:600;font-size:11px;">NEUTRAL</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">2550-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F44336;font-weight:400;">Building</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#F44336;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">175</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE GAMMA 49%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">76.5</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">23.5</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE IV 58%</span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 47%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">ZYDUSLIFE</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>21.45</td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#12AB05;font-weight:600;font-size:12px;">53.2% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #12AB05 53.2%, #e0e0e0 53.2%);"></div></div></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#C94141;font-weight:600;font-size:11px;">894.9</span></span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#F43656;font-size:11px;font-weight:700;">-1.33%</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #0AA311;color:#0AA311;background:transparent;">Bullish</span></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#CC0627;font-weight:600;font-size:11px;">▼ 15L</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-weight:600;font-size:11px;">↓ DOWN</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D70</span></span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#60CC65;font-size:14px;">●</span><span style="margin-left:6px;">890-CE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#4CAF50;font-weight:400;">Building</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;background:#DE0B0B;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td><td class="col-LOT_Size" style="padding:4px;text-align:center;">900</td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE GAMMA 49%</span></td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">23.4</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">76.6</td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt"></span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill sell">PE DELTA 42%</span></td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#60CC65;font-size:14px;font-weight:600;">↑</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">11/01/26 12:22</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td></tr>
+</tbody></table>
+  </div>
+		<script>
+		  (function () {
+			const header = document.querySelector('.header-row');
+			const wrap = document.querySelector('.table-wrap');
+			if (!header || !wrap) return;
+
+			let lastScroll = 0;
+
+			wrap.addEventListener('scroll', function () {
+			  const current = wrap.scrollTop;
+
+			  if (current > lastScroll && current > 20) {
+				header.style.display = 'none';   // scroll down → hide
+			  } else {
+				header.style.display = '';       // scroll up → show
+			  }
+
+			  lastScroll = current;
+			});
+		  })();
+</script>
+
+
+
+<script>
+  (function () {
+    const wrap = document.querySelector('.table-wrap');
+    if (!wrap) return;
+
+    let scrollTimer = null;
+    let refreshPaused = false;
+
+    // expose flags for auto-refresh logic
+    window.__SCROLLING__ = false;
+
+    wrap.addEventListener('scroll', function () {
+      // user is scrolling
+      window.__SCROLLING__ = true;
+      refreshPaused = true;
+
+      // reset timer on every scroll
+      if (scrollTimer) clearTimeout(scrollTimer);
+
+      scrollTimer = setTimeout(function () {
+        // scrolling stopped
+        window.__SCROLLING__ = false;
+        refreshPaused = false;
+      }, 300); // 300ms = scroll stop
+    });
+
+    // hook: auto-refresh guard
+    const _origSetInterval = window.setInterval;
+    window.setInterval = function (fn, t) {
+      return _origSetInterval(function () {
+        if (!refreshPaused) {
+          fn();
+        }
+      }, t);
+    };
+  })();
+</script>
+		<div style="position:fixed;bottom:12px;left:50%;
+            transform:translateX(-50%);
+            z-index:9999;display:flex;gap:6px;align-items:center;">
+
+
+		  <!-- Rotate : symbol + transparent -->
+		  <button id="rotateBtn"
+			title="Rotate View"
+			style="
+				width:24px;
+				height:24px;
+				border-radius:8px;
+				border:1px solid #0078ff;
+				background:#0078ff;
+				display:flex;
+				align-items:center;
+				justify-content:center;
+				color:#ffffff;
+				font-size:18px;
+				line-height:1;
+				padding:0;
+				cursor:pointer;
+			">
+			<span style="transform:translateY(1px);">↻</span>
+		</button>
+
+		  
+		  
+		  <!-- Spurt Data -->
+			<a href="SpurtsSignal_Final.html" target="_blank"
+			   title="Sputrs Data"
+			   style="
+				 width:24px;
+				 height:24px;
+				 display:flex;
+				 align-items:center;
+				 justify-content:center;
+				 border-radius:8px;
+				 border:1px solid #8a2be2;
+				 background:rgba(138,43,226,0.85);
+				 color:#ffffff;
+				 font-size:16px;
+				 font-weight:800;
+				 text-decoration:none;
+			   ">
+			  S
+			</a>
+			
+			<!-- Fut Oi -->
+			<a href="SpurtsSignal_UL.html" target="_blank"
+			   title="Underline Data"
+			   style="
+				 width:24px;
+				 height:24px;
+				 display:flex;
+				 align-items:center;
+				 justify-content:center;
+				 border-radius:8px;
+				 border:1px solid #F52757;
+				 background:#F52757;
+				 color:#ffffff;
+				 font-size:16px;
+				 font-weight:800;
+				 text-decoration:none;
+			   ">
+			  s
+			</a>
+			<!-- Fare Falue -->
+		<a href="FareValue.html" target="_blank"
+		   title="Fare F&o"
+		   style="
+			 width:24px;height:24px;
+			 display:flex;align-items:center;justify-content:center;
+			 border-radius:8px;
+			 border:1px solid #1faa00;
+			 background:rgba(0,180,0,0.85);
+			 color:#ffffff;
+			 font-size:16px;
+			 font-weight:800;
+			 text-decoration:none;
+		   ">
+		  F
+		</a>
+		<!-- Fare Value All -->
+			<a href="commingsoon.html" target="_blank"
+			   title="FareValue All NSE"
+			   style="
+				 width:24px;
+				 height:24px;
+				 display:flex;
+				 align-items:center;
+				 justify-content:center;
+				 border-radius:8px;
+				 border:1px solid #025073;
+				 background:#025073;
+				 color:#ffffff;
+				 font-size:16px;
+				 font-weight:800;
+				 text-decoration:none;
+			   ">
+			  f
+			</a>
+			
+			<!-- Intrady Screener -->
+			<a href="signal.html" target="_blank"
+			   title="F&O Signals Part-1"
+			   style="
+				 width:100px;
+				 height:24px;
+				 display:flex;
+				 align-items:center;
+				 justify-content:center;
+				 border-radius:8px;
+				 border:1px solid #8a2be2;
+				 background:rgba(44,217,24,0.85);
+				 color:#ffffff;
+				 font-size:16px;
+				 font-weight:800;
+				 text-decoration:none;
+			   ">
+			  Screener 1
+			</a>
+		
+			
+
+		  
+
+		</div>
+
+
+
+		<script>
+		(function () {
+		  const btn = document.getElementById('rotateBtn');
+		  const wrap = document.querySelector('.table-wrap');
+		  if (!btn || !wrap) return;
+
+		  let rotated = false;
+
+		  btn.addEventListener('click', function () {
+			rotated = !rotated;
+			if (rotated) {
+			  wrap.style.transform = 'rotate(90deg) translateY(-100%)';
+			  wrap.style.transformOrigin = 'top left';
+			  wrap.style.width = '100vh';
+			  wrap.style.height = '100vw';
+			  wrap.style.overflow = 'auto';
+			} else {
+			  wrap.style.transform = '';
+			  wrap.style.transformOrigin = '';
+			  wrap.style.width = '';
+			  wrap.style.height = '';
+			  wrap.style.overflow = '';
+			}
+		  });
+		})();
+		</script>
+
+	
+		
+		<script>
+		(function () {
+		  const header = document.querySelector('.header-row');
+		  const wrap = document.querySelector('.table-wrap');
+		  if (!header) return;
+
+		  let hideUntil = 0;
+		  const HIDE_FOR_MS = 5 * 60 * 1000;
+
+		  function onScroll() {
+			const now = Date.now();
+			if (now > hideUntil) hideUntil = now + HIDE_FOR_MS;
+			if (now < hideUntil) header.style.display = 'none';
+		  }
+
+		  /* PC: table scroll */
+		  if (wrap) {
+			wrap.addEventListener('scroll', onScroll, { passive: true });
+		  }
+
+		  /* MOBILE: window scroll */
+		  window.addEventListener('scroll', onScroll, { passive: true });
+
+		  /* Safety lock */
+		  setInterval(function () {
+			if (Date.now() < hideUntil) {
+			  header.style.display = 'none';
+			}
+		  }, 500);
+		})();
+		</script>
+
+
+		<script>
+		(function () {
+		  const root = document.documentElement;
+		  let fsUntil = 0;
+		  const FS_FOR_MS = 5 * 60 * 1000;
+
+		  function enterFS() {
+			if (!document.fullscreenElement) {
+			  if (root.requestFullscreen) root.requestFullscreen().catch(()=>{});
+			}
+		  }
+
+		  function onScrollFS() {
+			const now = Date.now();
+			if (now > fsUntil) {
+			  fsUntil = now + FS_FOR_MS;
+			  enterFS();          // scroll start → fullscreen
+			}
+		  }
+
+		  window.addEventListener('scroll', onScrollFS, { passive: true });
+
+		  setInterval(function () {
+			if (Date.now() < fsUntil) {
+			  enterFS();          // keep fullscreen for 5 min
+			}
+		  }, 1000);
+		})();
+		</script>
+		<script>
+		(function () {
+		  const scan = document.getElementById("scan-time-bar");
+		  const wrap = document.querySelector(".table-wrap");
+		  if (!scan || !wrap) return;
+
+		  wrap.addEventListener("scroll", function () {
+			scan.style.transform = `translateX(${-wrap.scrollLeft}px)`;
+		  });
+		})();
+		</script>
+		
+		<!-- ===== SORT: ACTIVE ON TOP + A→Z (STICKY SAFE) ===== -->
+		<!-- ===== ACTIVE SORT BUTTON (MOBILE + PC SAFE) ===== -->
+		
+
+		<script>
+		/* ===== helper: insert after last sticky row ===== */
+		function afterStickyAnchor(tbody){
+		  const stickies = tbody.querySelectorAll("tr.sticky-row");
+		  if (stickies.length === 0) return tbody.firstChild;
+		  return stickies[stickies.length - 1].nextSibling;
+		}
+
+		/* ===== DEFAULT SORT: SYMBOL A→Z ===== */
+		function sortSymbolAZ(){
+		  const table = document.querySelector("table.dataframe");
+		  if (!table) return;
+		  const tbody = table.tBodies[0];
+		  if (!tbody) return;
+
+		  const normal = Array.from(tbody.querySelectorAll("tr:not(.sticky-row)"));
+
+		  normal.sort((a, b) => {
+			const aS = a.querySelector(".col-SYMBOL")?.innerText.trim() || "";
+			const bS = b.querySelector(".col-SYMBOL")?.innerText.trim() || "";
+			return aS.localeCompare(bS);
+		  });
+
+		  const anchor = afterStickyAnchor(tbody);
+		  normal.forEach(r => tbody.insertBefore(r, anchor));
+		}
+
+		/* ===== ACTIVE ON TOP (SIG-TIME NON-BLANK) ===== */
+		function sortActiveOnTop(){
+		  const table = document.querySelector("table.dataframe");
+		  if (!table) return;
+		  const tbody = table.tBodies[0];
+		  if (!tbody) return;
+
+		  const normal = Array.from(tbody.querySelectorAll("tr:not(.sticky-row)"));
+
+		  normal.sort((a, b) => {
+			const aT = a.querySelector(".col-SIG_TIME")?.innerText.trim();
+			const bT = b.querySelector(".col-SIG_TIME")?.innerText.trim();
+			if (aT && !bT) return -1;
+			if (!aT && bT) return 1;
+			return 0;
+		  });
+
+		  const anchor = afterStickyAnchor(tbody);
+		  normal.forEach(r => tbody.insertBefore(r, anchor));
+		}
+
+		/* ===== BUTTON CLICK (NOW SYMBOL A→Z) ===== */
+		document.getElementById("sortActiveBtn")
+		  ?.addEventListener("click", sortSymbolAZ);
+
+		/* ===== AUTO REFRESH SAFE HOOK ===== */
+		if (typeof window.fetchAndUpdateTable === "function") {
+		  const _orig = window.fetchAndUpdateTable;
+		  window.fetchAndUpdateTable = async function(){
+			await _orig();          // original refresh (unchanged)
+			sortActiveOnTop();     // refresh ke baad ACTIVE rows on top
+		  };
+		}
+
+		/* ===== INITIAL LOAD (DEFAULT = ACTIVE ON TOP) ===== */
+		window.addEventListener("load", sortActiveOnTop);
+
+		</script>
+
+</body>
+</html>
