@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Spurt Data</title>
+
+<style>
+body { margin: 0; font-family: Arial; background: #fff; }
+.header { position: sticky; top: 0; background: #fff; padding: 8px; border-bottom: 1px solid #ccc; z-index: 1000; }
+.search { margin: 8px; }
+.group { margin: 12px; border: 1px solid #ccc; border-radius: 10px; }
+.group-header { padding: 6px 10px; font-weight: bold; }
+.bull { background: #e6f4ea; }
+.bear { background: #fdeaea; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 6px; border-bottom: 1px solid #ddd; text-align: center; white-space: nowrap; }
+th { position: sticky; top: 0; background: #fff; }
+td:first-child, th:first-child { position: sticky; left: 0; background: #fff; }
+tr:hover { background: #f2f2f2; }
+
+.strength-cell { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.strength-value { min-width: 14px; }
+.strength-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+.s3 { background: #00c853; }
+.s2 { background: #7be495; }
+.s-2 { background: #ff8a80; }
+.s-3 { background: #d50000; }
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<b>Spurt Data</b><br>
+Scan Time: 13-01-2026 09:46
+</div>
+
+<div class="search">
+<input type="text" id="search" placeholder="Search..." onkeyup="filterTable()">
+</div>
+
+<div class="group">
+<div class="group-header bull">BULL (1)</div>
+<table>
+<thead>
+<tr>
+<th>Symbol</th><th>Expiry</th><th>DIRECTION</th><th>STRENGTH</th>
+<th>OI Recent</th><th>OI Pre</th><th>Chng in OI</th>
+<th>Chng in OI %</th><th>FUT LTP</th>
+<th>Prev Close</th><th>% LTP Chng</th>
+</tr>
+</thead>
+<tbody>
+
+        <tr>
+            <td>VEDL</td>
+            <td>27 JAN</td>
+            <td>BULL</td>
+            <td class="strength-cell">
+                <span class="strength-value">0</span>
+                <span class="strength-dot s0"></span>
+            </td>
+            <td>73600</td>
+            <td>73911</td>
+            <td>-311</td>
+            <td>-0.42</td>
+            <td>633.85</td>
+            <td>629.6</td>
+            <td>0.68</td>
+        </tr>
+        
+</tbody>
+</table>
+</div>
+
+<div class="group">
+<div class="group-header bear">BEAR (0)</div>
+<table>
+<thead>
+<tr>
+<th>Symbol</th><th>Expiry</th><th>DIRECTION</th><th>STRENGTH</th>
+<th>OI Recent</th><th>OI Pre</th><th>Chng in OI</th>
+<th>Chng in OI %</th><th>FUT LTP</th>
+<th>Prev Close</th><th>% LTP Chng</th>
+</tr>
+</thead>
+<tbody>
+
+</tbody>
+</table>
+</div>
+
+<script>
+let lastHash = null;
+
+async function checkUpdate() {
+    try {
+        const res = await fetch(window.location.href + "?v=" + Date.now(), {
+            cache: "no-store"
+        });
+
+        const text = await res.text();
+        const hash = text.length;
+
+        if (lastHash && hash !== lastHash) {
+            location.reload();
+        }
+
+        lastHash = hash;
+    } catch (e) {}
+}
+
+setInterval(checkUpdate, 2000);
+</script>
+
+</body>
+</html>
