@@ -25,10 +25,18 @@ body {
   padding:14px 18px;
   background:linear-gradient(180deg,#0c1535,#060b1c);
   border-bottom:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
-.header b { font-size:18px; }
-.header span { color:var(--muted); font-size:12px; }
+.header-left b { font-size:18px; }
+.header-left span { color:var(--muted); font-size:12px; }
+
+.header-right {
+  font-size:12px;
+  color:var(--muted);
+}
 
 .search { padding:14px 18px; }
 .search input {
@@ -73,6 +81,7 @@ table {
   width:100%;
   border-collapse:collapse;
   font-size:13px;
+  table-layout:fixed;
 }
 
 th,td {
@@ -88,21 +97,12 @@ th {
   font-weight:500;
 }
 
-tr:hover {
-  background:rgba(255,255,255,.03);
-}
-
-.symbol {
-  font-weight:600;
-  letter-spacing:.3px;
-}
-
-.strength {
-  font-weight:600;
-}
+.symbol { font-weight:600; letter-spacing:.3px; }
+.strength { font-weight:600; }
 
 @media(max-width:768px) {
   table { display:block; overflow-x:auto; }
+  th,td { min-width:110px; }
   .group { margin:14px; }
 }
 </style>
@@ -111,8 +111,11 @@ tr:hover {
 <body>
 
 <div class="header">
-<b>Spurt Data</b><br>
-<span>Scan Time: 14-01-2026 12:01</span>
+  <div class="header-left">
+    <b>Spurt Data</b><br>
+    <span>Scan Time: 14-01-2026 12:04</span>
+  </div>
+  <div class="header-right" id="elapsed"></div>
 </div>
 
 <div class="search">
@@ -137,13 +140,13 @@ tr:hover {
             <td>27 JAN</td>
             <td>BULL</td>
             <td class="strength">1</td>
-            <td>124121</td>
+            <td>124151</td>
             <td>117419</td>
-            <td>6702</td>
-            <td>5.71</td>
-            <td>1303.0</td>
+            <td>6732</td>
+            <td>5.73</td>
+            <td>1303.4</td>
             <td>1266.4</td>
-            <td>2.89</td>
+            <td>2.92</td>
         </tr>
         
         <tr>
@@ -151,13 +154,13 @@ tr:hover {
             <td>27 JAN</td>
             <td>BULL</td>
             <td class="strength">0</td>
-            <td>89696</td>
+            <td>89684</td>
             <td>90322</td>
-            <td>-626</td>
-            <td>-0.69</td>
-            <td>11.18</td>
+            <td>-638</td>
+            <td>-0.71</td>
+            <td>11.2</td>
             <td>10.83</td>
-            <td>3.23</td>
+            <td>3.42</td>
         </tr>
         
         <tr>
@@ -165,13 +168,13 @@ tr:hover {
             <td>27 JAN</td>
             <td>BULL</td>
             <td class="strength">1</td>
-            <td>53345</td>
+            <td>53358</td>
             <td>48675</td>
-            <td>4670</td>
-            <td>9.59</td>
-            <td>250.62</td>
+            <td>4683</td>
+            <td>9.62</td>
+            <td>250.75</td>
             <td>244.01</td>
-            <td>2.71</td>
+            <td>2.76</td>
         </tr>
         
 </tbody>
@@ -196,17 +199,17 @@ tr:hover {
 </div>
 
 <script>
-let lastHash=null;
-async function checkUpdate(){
-  try{
-    const r=await fetch(location.href+"?v="+Date.now(),{cache:"no-store"});
-    const t=await r.text();
-    const h=t.length;
-    if(lastHash&&h!==lastHash)location.reload();
-    lastHash=h;
-  }catch(e){}
+const scanTime = new Date("2026-01-14T12:04:00");
+
+function updateElapsed() {
+  const now = new Date();
+  const diff = Math.floor((now - scanTime) / 60000);
+  document.getElementById("elapsed").innerText =
+    diff <= 0 ? "just now" : diff + " minutes passed";
 }
-setInterval(checkUpdate,2000);
+
+updateElapsed();
+setInterval(updateElapsed,60000);
 </script>
 
 </body>
