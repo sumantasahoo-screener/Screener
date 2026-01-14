@@ -8,66 +8,103 @@
 
 <style>
 :root {
-  --bg:#0b1220;
-  --card:#111a2e;
-  --border:#1f2a44;
-  --text:#e5e7eb;
-  --muted:#9ca3af;
-  --bull:#22c55e;
-  --bear:#ef4444;
+  --bg1:#050b18;
+  --bg2:#0a1430;
+  --card:#0e1a3a;
+  --card2:#0b1630;
+  --border:#1f2e55;
+  --text:#e6ebff;
+  --muted:#9fb0e0;
+  --bull:#3ddc97;
+  --bear:#ff6b6b;
 }
-* { box-sizing:border-box; }
-body {
+
+*{box-sizing:border-box}
+
+body{
   margin:0;
-  font-family:Arial;
-  background:radial-gradient(1200px 600px at top,#0f1a33,#070b16);
+  font-family:Inter,Segoe UI,Arial;
+  background:radial-gradient(1200px 600px at top,var(--bg2),var(--bg1));
   color:var(--text);
 }
-.header {
-  position:sticky;top:0;z-index:10;
-  background:linear-gradient(180deg,#0f172a,#0b1220);
-  padding:12px 16px;border-bottom:1px solid var(--border);
-}
-.search { margin:12px; }
-.search input {
-  width:100%;padding:10px 12px;
-  background:#0b1220;border:1px solid var(--border);
-  border-radius:10px;color:var(--text);
-}
-.group {
-  margin:16px;border:1px solid var(--border);
-  border-radius:16px;overflow:hidden;
-  background:linear-gradient(180deg,#111a2e,#0b1220);
-}
-.group-header { padding:10px 14px;font-weight:bold; }
-.group-header.bull { border-left:4px solid var(--bull); }
-.group-header.bear { border-left:4px solid var(--bear); }
 
-table { width:100%;border-collapse:collapse;font-size:13px; }
-th,td {
-  padding:8px 10px;text-align:center;
-  border-bottom:1px solid #1b2540;white-space:nowrap;
+.header{
+  position:sticky;top:0;z-index:20;
+  padding:14px 18px;
+  background:linear-gradient(180deg,#0e1b3f,#070f24);
+  border-bottom:1px solid var(--border);
 }
-th {
+
+.header b{font-size:18px;letter-spacing:.4px}
+.header span{color:var(--muted);font-size:12px}
+
+.search{padding:14px 18px}
+.search input{
+  width:100%;
+  padding:11px 14px;
+  border-radius:12px;
+  background:linear-gradient(180deg,#0b1634,#08102a);
+  border:1px solid var(--border);
+  color:var(--text);
+}
+
+.group{
+  margin:18px;
+  border-radius:18px;
+  background:linear-gradient(180deg,var(--card),var(--card2));
+  border:1px solid var(--border);
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
+  overflow:hidden;
+}
+
+.group-header{
+  padding:12px 16px;
+  font-weight:600;
+  letter-spacing:.6px;
+  background:linear-gradient(90deg,rgba(255,255,255,.04),transparent);
+}
+
+.group-header.bull{border-left:4px solid var(--bull)}
+.group-header.bear{border-left:4px solid var(--bear)}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+
+th,td{
+  padding:10px 12px;
+  text-align:center;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  white-space:nowrap;
+}
+
+th{
   position:sticky;top:0;
-  background:#0f172a;color:var(--muted);
+  background:#0b1533;
+  color:var(--muted);
+  font-weight:500;
 }
-td:first-child,th:first-child {
-  position:sticky;left:0;background:#0f172a;
-}
-tr:hover { background:#0f1a33; }
 
-.strength-cell {
-  display:flex;align-items:center;gap:6px;justify-content:center;
+td:first-child,th:first-child{
+  position:sticky;left:0;
+  background:#0b1533;
 }
-.strength-dot { width:10px;height:10px;border-radius:50%; }
-.s3 { background:#22c55e; }
-.s2 { background:#4ade80; }
-.s-2 { background:#fca5a5; }
-.s-3 { background:#ef4444; }
 
-@media(max-width:768px) {
-  table { display:block;overflow-x:auto; }
+tr:hover{background:rgba(255,255,255,.035)}
+
+.symbol{font-weight:600;letter-spacing:.3px}
+
+.strength-cell{display:flex;align-items:center;gap:6px;justify-content:center}
+.strength-dot{width:9px;height:9px;border-radius:50%}
+.s1{background:#7dd3fc}
+.s0{background:#94a3b8}
+.s-1{background:#fca5a5}
+.s2{background:#34d399}
+.s3{background:#22c55e}
+.s-2{background:#fb7185}
+.s-3{background:#ef4444}
+
+@media(max-width:768px){
+  table{display:block;overflow-x:auto}
+  .group{margin:14px}
 }
 </style>
 </head>
@@ -76,7 +113,7 @@ tr:hover { background:#0f1a33; }
 
 <div class="header">
 <b>Spurt Data</b><br>
-<span style="color:#9ca3af">Scan Time: 14-01-2026 11:26</span>
+<span>Scan Time: 14-01-2026 11:31</span>
 </div>
 
 <div class="search">
@@ -84,118 +121,84 @@ tr:hover { background:#0f1a33; }
 </div>
 
 <div class="group">
-<div class="group-header bull">BULL (6)</div>
+<div class="group-header bull">BULL (4)</div>
 <table>
 <thead>
 <tr>
-<th>Symbol</th><th>Expiry</th><th>DIRECTION</th><th>STRENGTH</th>
-<th>OI Recent</th><th>OI Pre</th><th>Chng in OI</th>
-<th>Chng in OI %</th><th>FUT LTP</th>
-<th>Prev Close</th><th>% LTP Chng</th>
+<th>Symbol</th><th>Expiry</th><th>DIR</th><th>STR</th>
+<th>OI Recent</th><th>OI Pre</th><th>Δ OI</th>
+<th>Δ OI %</th><th>FUT LTP</th>
+<th>Prev Close</th><th>% Chng</th>
 </tr>
 </thead>
 <tbody>
 
         <tr>
-            <td>AXISBANK</td>
+            <td class="symbol">AXISBANK</td>
             <td>27 JAN</td>
             <td>BULL</td>
             <td class="strength-cell">
                 <span>1</span>
                 <span class="strength-dot s1"></span>
             </td>
-            <td>122984</td>
+            <td>123075</td>
             <td>117419</td>
-            <td>5565</td>
-            <td>4.74</td>
-            <td>1304.5</td>
+            <td>5656</td>
+            <td>4.82</td>
+            <td>1308.7</td>
             <td>1266.4</td>
-            <td>3.01</td>
+            <td>3.34</td>
         </tr>
         
         <tr>
-            <td>BANKNIFTY</td>
+            <td class="symbol">HINDALCO</td>
             <td>27 JAN</td>
             <td>BULL</td>
             <td class="strength-cell">
                 <span>0</span>
                 <span class="strength-dot s0"></span>
             </td>
-            <td>41152</td>
-            <td>39952</td>
-            <td>1200</td>
-            <td>3.0</td>
-            <td>59790.0</td>
-            <td>59755.2</td>
-            <td>0.06</td>
-        </tr>
-        
-        <tr>
-            <td>DIXON</td>
-            <td>27 JAN</td>
-            <td>BULL</td>
-            <td class="strength-cell">
-                <span>0</span>
-                <span class="strength-dot s0"></span>
-            </td>
-            <td>55370</td>
-            <td>54133</td>
-            <td>1237</td>
-            <td>2.29</td>
-            <td>11340.0</td>
-            <td>11282.0</td>
-            <td>0.51</td>
-        </tr>
-        
-        <tr>
-            <td>HINDALCO</td>
-            <td>27 JAN</td>
-            <td>BULL</td>
-            <td class="strength-cell">
-                <span>0</span>
-                <span class="strength-dot s0"></span>
-            </td>
-            <td>78755</td>
+            <td>78981</td>
             <td>76672</td>
-            <td>2083</td>
-            <td>2.72</td>
-            <td>959.3</td>
+            <td>2309</td>
+            <td>3.01</td>
+            <td>954.3</td>
             <td>936.6</td>
-            <td>2.42</td>
+            <td>1.89</td>
         </tr>
         
         <tr>
-            <td>ONGC</td>
+            <td class="symbol">IDEA</td>
+            <td>27 JAN</td>
+            <td>BULL</td>
+            <td class="strength-cell">
+                <span>0</span>
+                <span class="strength-dot s0"></span>
+            </td>
+            <td>89780</td>
+            <td>90322</td>
+            <td>-542</td>
+            <td>-0.6</td>
+            <td>11.22</td>
+            <td>10.83</td>
+            <td>3.6</td>
+        </tr>
+        
+        <tr>
+            <td class="symbol">ONGC</td>
             <td>27 JAN</td>
             <td>BULL</td>
             <td class="strength-cell">
                 <span>1</span>
                 <span class="strength-dot s1"></span>
             </td>
-            <td>53014</td>
+            <td>53199</td>
             <td>48675</td>
-            <td>4339</td>
-            <td>8.91</td>
-            <td>249.5</td>
+            <td>4524</td>
+            <td>9.29</td>
+            <td>250.31</td>
             <td>244.01</td>
-            <td>2.25</td>
-        </tr>
-        
-        <tr>
-            <td>VEDL</td>
-            <td>27 JAN</td>
-            <td>BULL</td>
-            <td class="strength-cell">
-                <span>0</span>
-                <span class="strength-dot s0"></span>
-            </td>
-            <td>72952</td>
-            <td>71422</td>
-            <td>1530</td>
-            <td>2.14</td>
-            <td>676.25</td>
-            <td>636.95</td>
-            <td>6.17</td>
+            <td>2.58</td>
         </tr>
         
 </tbody>
@@ -203,49 +206,32 @@ tr:hover { background:#0f1a33; }
 </div>
 
 <div class="group">
-<div class="group-header bear">BEAR (1)</div>
+<div class="group-header bear">BEAR (0)</div>
 <table>
 <thead>
 <tr>
-<th>Symbol</th><th>Expiry</th><th>DIRECTION</th><th>STRENGTH</th>
-<th>OI Recent</th><th>OI Pre</th><th>Chng in OI</th>
-<th>Chng in OI %</th><th>FUT LTP</th>
-<th>Prev Close</th><th>% LTP Chng</th>
+<th>Symbol</th><th>Expiry</th><th>DIR</th><th>STR</th>
+<th>OI Recent</th><th>OI Pre</th><th>Δ OI</th>
+<th>Δ OI %</th><th>FUT LTP</th>
+<th>Prev Close</th><th>% Chng</th>
 </tr>
 </thead>
 <tbody>
 
-        <tr>
-            <td>ITC</td>
-            <td>27 JAN</td>
-            <td>BEAR</td>
-            <td class="strength-cell">
-                <span>0</span>
-                <span class="strength-dot s0"></span>
-            </td>
-            <td>132275</td>
-            <td>132623</td>
-            <td>-348</td>
-            <td>-0.26</td>
-            <td>335.25</td>
-            <td>335.4</td>
-            <td>-0.04</td>
-        </tr>
-        
 </tbody>
 </table>
 </div>
 
 <script>
-let lastHash = null;
-async function checkUpdate() {
-  try {
-    const res = await fetch(location.href + "?v=" + Date.now(), { cache:"no-store" });
-    const text = await res.text();
-    const hash = text.length;
-    if(lastHash && hash !== lastHash) location.reload();
-    lastHash = hash;
-  } catch(e) {}
+let lastHash=null;
+async function checkUpdate(){
+  try{
+    const r=await fetch(location.href+"?v="+Date.now(),{cache:"no-store"});
+    const t=await r.text();
+    const h=t.length;
+    if(lastHash&&h!==lastHash)location.reload();
+    lastHash=h;
+  }catch(e){}
 }
 setInterval(checkUpdate,2000);
 </script>
