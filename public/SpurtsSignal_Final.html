@@ -8,102 +8,103 @@
 
 <style>
 :root {
-  --bg:#050812;
+  --bg1:#050b18;
+  --bg2:#0a1430;
+  --card:#0e1a3a;
+  --card2:#0b1630;
+  --border:#1f2e55;
   --text:#e6ebff;
-  --muted:#a0accf;
-  --border:#1f2a44;
+  --muted:#9fb0e0;
+  --bull:#3ddc97;
+  --bear:#ff6b6b;
 }
 
-body {
+*{box-sizing:border-box}
+
+body{
   margin:0;
   font-family:Inter,Segoe UI,Arial;
-  background:radial-gradient(1200px 600px at top,#0b1226,#04060d);
+  background:radial-gradient(1200px 600px at top,var(--bg2),var(--bg1));
   color:var(--text);
 }
 
-.header {
+.header{
+  position:sticky;top:0;z-index:20;
   padding:14px 18px;
-  background:linear-gradient(180deg,#0c1535,#060b1c);
+  background:linear-gradient(180deg,#0e1b3f,#070f24);
   border-bottom:1px solid var(--border);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
 }
 
-.header-left b { font-size:18px; }
-.header-left span { color:var(--muted); font-size:12px; }
+.header b{font-size:18px;letter-spacing:.4px}
+.header span{color:var(--muted);font-size:12px}
 
-.header-right {
-  font-size:12px;
-  color:var(--muted);
-}
-
-.search { padding:14px 18px; }
-.search input {
+.search{padding:14px 18px}
+.search input{
   width:100%;
   padding:11px 14px;
   border-radius:12px;
-  background:#070d22;
+  background:linear-gradient(180deg,#0b1634,#08102a);
   border:1px solid var(--border);
   color:var(--text);
 }
 
-.group {
+.group{
   margin:18px;
   border-radius:18px;
+  background:linear-gradient(180deg,var(--card),var(--card2));
   border:1px solid var(--border);
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
   overflow:hidden;
 }
 
-.group.bull {
-  background:linear-gradient(180deg,#0f2a2a,#081818);
-}
-
-.group.bear {
-  background:linear-gradient(180deg,#2a1414,#160808);
-}
-
-.group-header {
+.group-header{
   padding:12px 16px;
   font-weight:600;
   letter-spacing:.6px;
+  background:linear-gradient(90deg,rgba(255,255,255,.04),transparent);
 }
 
-.group-header.bull {
-  background:linear-gradient(90deg,rgba(34,197,94,.18),transparent);
-}
+.group-header.bull{border-left:4px solid var(--bull)}
+.group-header.bear{border-left:4px solid var(--bear)}
 
-.group-header.bear {
-  background:linear-gradient(90deg,rgba(239,68,68,.18),transparent);
-}
+table{width:100%;border-collapse:collapse;font-size:13px}
 
-table {
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
-  table-layout:fixed;
-}
-
-th,td {
+th,td{
   padding:10px 12px;
   text-align:center;
   border-bottom:1px solid rgba(255,255,255,.06);
   white-space:nowrap;
 }
 
-th {
-  background:rgba(0,0,0,.25);
+th{
+  position:sticky;top:0;
+  background:#0b1533;
   color:var(--muted);
   font-weight:500;
 }
 
-.symbol { font-weight:600; letter-spacing:.3px; }
-.strength { font-weight:600; }
+td:first-child,th:first-child{
+  position:sticky;left:0;
+  background:#0b1533;
+}
 
-@media(max-width:768px) {
-  table { display:block; overflow-x:auto; }
-  th,td { min-width:110px; }
-  .group { margin:14px; }
+tr:hover{background:rgba(255,255,255,.035)}
+
+.symbol{font-weight:600;letter-spacing:.3px}
+
+.strength-cell{display:flex;align-items:center;gap:6px;justify-content:center}
+.strength-dot{width:9px;height:9px;border-radius:50%}
+.s1{background:#7dd3fc}
+.s0{background:#94a3b8}
+.s-1{background:#fca5a5}
+.s2{background:#34d399}
+.s3{background:#22c55e}
+.s-2{background:#fb7185}
+.s-3{background:#ef4444}
+
+@media(max-width:768px){
+  table{display:block;overflow-x:auto}
+  .group{margin:14px}
 }
 </style>
 </head>
@@ -111,19 +112,16 @@ th {
 <body>
 
 <div class="header">
-  <div class="header-left">
-    <b>Spurt Data</b><br>
-    <span>Scan Time: 14-01-2026 12:06</span>
-  </div>
-  <div class="header-right" id="elapsed"></div>
+<b>Spurt Data</b><br>
+<span>Scan Time: 14-01-2026 12:09</span>
 </div>
 
 <div class="search">
 <input type="text" placeholder="Search...">
 </div>
 
-<div class="group bull">
-<div class="group-header bull">BULL (3)</div>
+<div class="group">
+<div class="group-header bull">BULL (4)</div>
 <table>
 <thead>
 <tr>
@@ -139,49 +137,75 @@ th {
             <td class="symbol">AXISBANK</td>
             <td>27 JAN</td>
             <td>BULL</td>
-            <td class="strength">1</td>
-            <td>124157</td>
+            <td class="strength-cell">
+                <span>1</span>
+                <span class="strength-dot s1"></span>
+            </td>
+            <td>124131</td>
             <td>117419</td>
-            <td>6738</td>
-            <td>5.74</td>
-            <td>1302.9</td>
+            <td>6712</td>
+            <td>5.72</td>
+            <td>1302.0</td>
             <td>1266.4</td>
-            <td>2.88</td>
+            <td>2.81</td>
         </tr>
         
         <tr>
             <td class="symbol">IDEA</td>
             <td>27 JAN</td>
             <td>BULL</td>
-            <td class="strength">0</td>
+            <td class="strength-cell">
+                <span>0</span>
+                <span class="strength-dot s0"></span>
+            </td>
             <td>89690</td>
             <td>90322</td>
             <td>-632</td>
             <td>-0.7</td>
-            <td>11.18</td>
+            <td>11.19</td>
             <td>10.83</td>
-            <td>3.23</td>
+            <td>3.32</td>
+        </tr>
+        
+        <tr>
+            <td class="symbol">NIFTY</td>
+            <td>27 JAN</td>
+            <td>BULL</td>
+            <td class="strength-cell">
+                <span>0</span>
+                <span class="strength-dot s0"></span>
+            </td>
+            <td>261338</td>
+            <td>261988</td>
+            <td>-650</td>
+            <td>-0.25</td>
+            <td>25823.9</td>
+            <td>25790.8</td>
+            <td>0.13</td>
         </tr>
         
         <tr>
             <td class="symbol">ONGC</td>
             <td>27 JAN</td>
             <td>BULL</td>
-            <td class="strength">1</td>
-            <td>53378</td>
+            <td class="strength-cell">
+                <span>1</span>
+                <span class="strength-dot s1"></span>
+            </td>
+            <td>53399</td>
             <td>48675</td>
-            <td>4703</td>
-            <td>9.66</td>
-            <td>250.63</td>
+            <td>4724</td>
+            <td>9.71</td>
+            <td>250.52</td>
             <td>244.01</td>
-            <td>2.71</td>
+            <td>2.67</td>
         </tr>
         
 </tbody>
 </table>
 </div>
 
-<div class="group bear">
+<div class="group">
 <div class="group-header bear">BEAR (0)</div>
 <table>
 <thead>
@@ -199,17 +223,17 @@ th {
 </div>
 
 <script>
-const scanTime = new Date("2026-01-14T12:06:00");
-
-function updateElapsed() {
-  const now = new Date();
-  const diff = Math.floor((now - scanTime) / 60000);
-  document.getElementById("elapsed").innerText =
-    diff <= 0 ? "just now" : diff + " minutes passed";
+let lastHash=null;
+async function checkUpdate(){
+  try{
+    const r=await fetch(location.href+"?v="+Date.now(),{cache:"no-store"});
+    const t=await r.text();
+    const h=t.length;
+    if(lastHash&&h!==lastHash)location.reload();
+    lastHash=h;
+  }catch(e){}
 }
-
-updateElapsed();
-setInterval(updateElapsed,60000);
+setInterval(checkUpdate,2000);
 </script>
 
 </body>
