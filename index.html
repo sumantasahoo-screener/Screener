@@ -1,419 +1,217 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>F&O Screener Dashboard</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>F&O Screener Hub</title>
 
-  <!-- Basic reset + font -->
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  min-height:100vh;
+  background:
+    radial-gradient(1200px at 10% -10%, #22c55e33, transparent 40%),
+    radial-gradient(900px at 110% 10%, #3b82f633, transparent 45%),
+    linear-gradient(180deg,#020617,#020617);
+  color:#e5e7eb;
+  padding:16px;
+}
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top left, #1f2937 0, #020617 55%);
-      color: #e5e7eb;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
+.shell{
+  max-width:1000px;
+  margin:auto;
+  background:rgba(2,6,23,.85);
+  backdrop-filter:blur(18px);
+  border-radius:22px;
+  padding:18px;
+  box-shadow:0 30px 80px rgba(0,0,0,.85);
+  border:1px solid rgba(148,163,184,.18);
+}
 
-    .shell {
-      width: 100%;
-      max-width: 960px;
-      background: rgba(15,23,42,0.95);
-      border-radius: 18px;
-      box-shadow:
-        0 18px 45px rgba(0,0,0,0.7),
-        0 0 0 1px rgba(148,163,184,0.25);
-      padding: 22px 22px 18px;
-      backdrop-filter: blur(16px);
-    }
+.shell-header{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+}
 
-    .shell-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 18px;
-      border-bottom: 1px solid rgba(55,65,81,0.7);
-      padding-bottom: 10px;
-    }
+.app-title{
+  font-size:20px;
+  font-weight:900;
+  letter-spacing:.1em;
+  background:linear-gradient(90deg,#22c55e,#3b82f6,#f97316);
+  -webkit-background-clip:text;
+  color:transparent;
+}
 
-    .title-block {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+.app-sub{font-size:12px;color:#9ca3af}
 
-    .app-title {
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #e5e7eb;
-    }
+.status-pill{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 14px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:700;
+  background:linear-gradient(135deg,#22c55e33,#22c55e11);
+  border:1px solid #22c55e66;
+}
 
-    .app-sub {
-      font-size: 12px;
-      color: #9ca3af;
-    }
+.status-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:#22c55e;
+  box-shadow:0 0 10px #22c55e;
+}
 
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(22,163,74,0.1);
-      border: 1px solid rgba(34,197,94,0.5);
-      font-size: 11px;
-      color: #bbf7d0;
-      font-weight: 600;
-    }
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:16px;
+}
 
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 8px rgba(34,197,94,0.9);
-    }
+.card{
+  position:relative;
+  border-radius:20px;
+  padding:16px;
+  background:
+    radial-gradient(400px at -20% -30%,rgba(255,255,255,.08),transparent 40%),
+    linear-gradient(160deg,rgba(15,23,42,.95),rgba(2,6,23,.95));
+  border:1px solid rgba(148,163,184,.25);
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  transition:.25s ease;
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-bottom: 8px;
-    }
+.card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 20px 50px rgba(0,0,0,.7);
+}
 
-    @media (max-width: 780px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-      .shell {
-        padding: 18px 16px 14px;
-      }
-      .shell-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
+.card--accent-1{border-color:#22c55e}
+.card--accent-2{border-color:#3b82f6}
+.card--accent-3{border-color:#f97316}
 
-    .card {
-      position: relative;
-      border-radius: 14px;
-      padding: 14px 13px 12px;
-      background: radial-gradient(circle at top left, rgba(15,118,110,0.28), rgba(15,23,42,0.95));
-      border: 1px solid rgba(148,163,184,0.4);
-      box-shadow:
-        0 14px 30px rgba(15,23,42,0.8),
-        inset 0 0 0 1px rgba(15,23,42,0.7);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-height: 140px;
-    }
+.card-label{
+  font-size:10px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:#9ca3af;
+}
 
-    .card--accent-1 {
-      background: radial-gradient(circle at top left, rgba(22,163,74,0.3), rgba(15,23,42,0.95));
-      border-color: rgba(34,197,94,0.6);
-    }
+.card-title{
+  font-size:17px;
+  font-weight:800;
+}
 
-    .card--accent-2 {
-      background: radial-gradient(circle at top left, rgba(59,130,246,0.3), rgba(15,23,42,0.95));
-      border-color: rgba(59,130,246,0.6);
-    }
+.card-body{
+  font-size:13px;
+  line-height:1.55;
+  color:#d1d5db;
+}
 
-    .card--accent-3 {
-      background: radial-gradient(circle at top left, rgba(249,115,22,0.3), rgba(15,23,42,0.95));
-      border-color: rgba(249,115,22,0.6);
-    }
+.meta-row{
+  margin-top:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
+.tag{
+  font-size:10px;
+  padding:3px 9px;
+  border-radius:999px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(148,163,184,.35);
+}
 
-    .card-title-block {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
+.open-btn{
+  padding:7px 16px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  text-decoration:none;
+  color:#020617;
+  background:linear-gradient(135deg,#22c55e,#3b82f6);
+}
 
-    .card-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: #9ca3af;
-    }
+.open-btn:hover{
+  filter:brightness(1.1);
+}
 
-    .card-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: #e5e7eb;
-    }
-
-    .chip {
-      align-self: flex-start;
-      font-size: 11px;
-      padding: 3px 7px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.6);
-      color: #e5e7eb;
-      background: rgba(15,23,42,0.7);
-    }
-
-    .card-body {
-      font-size: 12px;
-      color: #d1d5db;
-      line-height: 1.5;
-      margin-bottom: 12px;
-    }
-
-    .meta-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      font-size: 10px;
-    }
-
-    .tag {
-      padding: 2px 6px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.5);
-      color: #9ca3af;
-      background: rgba(15,23,42,0.8);
-    }
-
-    .pill-mini {
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 600;
-    }
-
-    .pill-bull {
-      background: rgba(34,197,94,0.15);
-      color: #bbf7d0;
-      border: 1px solid rgba(34,197,94,0.7);
-    }
-
-    .pill-bear {
-      background: rgba(239,68,68,0.12);
-      color: #fecaca;
-      border: 1px solid rgba(239,68,68,0.6);
-    }
-
-    .open-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.7);
-      background: rgba(15,23,42,0.9);
-      color: #e5e7eb;
-      font-size: 12px;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.12s ease-out;
-      min-width: 0;
-      white-space: nowrap;
-    }
-
-    .open-btn span {
-      font-size: 13px;
-    }
-
-    .open-btn:hover {
-      background: #e5e7eb;
-      color: #020617;
-      border-color: transparent;
-      transform: translateY(-1px);
-      box-shadow: 0 8px 20px rgba(15,23,42,0.7);
-    }
-
-    .footer {
-      margin-top: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      color: #6b7280;
-    }
-
-    .footer span strong {
-      color: #e5e7eb;
-      font-weight: 600;
-    }
-
-    .legend {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .legend-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 2px 6px;
-      border-radius: 999px;
-      border: 1px solid rgba(55,65,81,0.7);
-      font-size: 10px;
-    }
-
-    .dot-bull {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #22c55e;
-    }
-
-    .dot-bear {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #ef4444;
-    }
-
-    .dot-nt {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #6b7280;
-    }
-  </style>
+.footer{
+  margin-top:18px;
+  font-size:11px;
+  color:#9ca3af;
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:8px;
+}
+</style>
 </head>
 
 <body>
-  <div class="shell">
-    <header class="shell-header">
-      <div class="title-block">
-        <div class="app-title">F&O Screener Hub</div>
-        <div class="app-sub">Bank / IT | Intraday options | Futures OI spurts</div>
-      </div>
-      <div class="status-pill">
-        <span class="status-dot"></span>
-        <span>Live scan during market hours</span>
-      </div>
-    </header>
+<div class="shell">
 
-    <main class="grid">
-      <!-- Screener 1 -->
-      <section class="card card--accent-1">
-        <div class="card-header">
-          <div class="card-title-block">
-            <div class="card-label">Primary dashboard</div>
-            <div class="card-title">Screener 1</div>
-          </div>
-          <div class="chip">Signal Set S1</div>
-        </div>
+<header class="shell-header">
+  <div style="display:flex;align-items:center;gap:12px;">
+  <div class="app-title">F&O Screener Hub</div>
+  <span style="
+    font-size:11px;
+    font-weight:800;
+    padding:4px 10px;
+    border-radius:999px;
+    background:linear-gradient(135deg,#22c55e,#3b82f6);
+    color:#020617;
+    letter-spacing:.12em;
+  ">LINK-3</span>
+</div>
+<div class="app-sub">Intraday · Options · Futures OI</div>
+  <div class="status-pill"><span class="status-dot"></span>LIVE SCAN</div>
+</header>
 
-        <div class="card-body">
-          Focus on bank & IT F&O contracts with full **signal**, buildup, and options zone view. Designed for first read of intraday opportunities.
-        </div>
+<main class="grid">
+  <section class="card card--accent-1">
+    <div class="card-label">Primary</div>
+    <div class="card-title">Screener 1</div>
+    <div class="card-body">Bank & IT contracts with full signal and options zones.</div>
+    <div class="meta-row">
+      <span class="tag">Options</span>
+      <a class="open-btn" href="https://screener-epd.pages.dev/public/signal" target="_blank">OPEN ↗</a>
+    </div>
+  </section>
 
-        <div class="meta-row">
-          <div class="tags">
-            <span class="tag">Bank & IT</span>
-            <span class="tag">Options</span>
-            <span class="tag">Delta / IV zones</span>
-          </div>
-          <a class="open-btn" href="https://screener-epd.pages.dev/public/signal" target="_blank" rel="noopener">
-            <span>Open</span> ↗
-          </a>
-        </div>
-      </section>
+  <section class="card card--accent-2">
+    <div class="card-label">Secondary</div>
+    <div class="card-title">Screener 2</div>
+    <div class="card-body">Extended universe for confirmation trades.</div>
+    <div class="meta-row">
+      <span class="tag">Intraday</span>
+      <a class="open-btn" href="https://screener-epd.pages.dev/public/signal2" target="_blank">OPEN ↗</a>
+    </div>
+  </section>
 
-      <!-- Screener 2 -->
-      <section class="card card--accent-2">
-        <div class="card-header">
-          <div class="card-title-block">
-            <div class="card-label">Secondary dashboard</div>
-            <div class="card-title">Screener 2</div>
-          </div>
-          <div class="chip">Signal Set S2</div>
-        </div>
+  <section class="card card--accent-3">
+    <div class="card-label">Futures</div>
+    <div class="card-title">Spurt Data</div>
+    <div class="card-body">OI spurts showing aggressive bull or bear bias.</div>
+    <div class="meta-row">
+      <span class="tag">Momentum</span>
+      <a class="open-btn" href="https://screener-epd.pages.dev/public/SpurtsSignal_Final" target="_blank">OPEN ↗</a>
+    </div>
+  </section>
+</main>
 
-        <div class="card-body">
-          Extended intraday view to track additional F&O names with the same structure as Screener 1, tuned for confirmation and cross-checking.
-        </div>
+<footer class="footer">
+  <span>Premium gradient · Glass UI</span>
+  <span>Mobile-first</span>
+</footer>
 
-        <div class="meta-row">
-          <div class="tags">
-            <span class="tag">Intraday</span>
-            <span class="tag">F&O universe</span>
-            <span class="tag">Confirmation</span>
-          </div>
-          <a class="open-btn" href="https://screener-epd.pages.dev/public/signal2" target="_blank" rel="noopener">
-            <span>Open</span> ↗
-          </a>
-        </div>
-      </section>
-
-      <!-- Spurt Data -->
-      <section class="card card--accent-3">
-        <div class="card-header">
-          <div class="card-title-block">
-            <div class="card-label">Futures OI</div>
-            <div class="card-title">Spurt Data</div>
-          </div>
-          <div class="chip">Trend bias</div>
-        </div>
-
-        <div class="card-body">
-          Futures open interest spurt table to catch strong intraday shifts in **bull** or **bear** positioning, with OI change and price move.
-        </div>
-
-        <div class="meta-row">
-          <div class="tags">
-            <span class="tag">Futures OI</span>
-            <span class="tag">Bull / Bear</span>
-            <span class="tag">Momentum</span>
-          </div>
-          <a class="open-btn" href="https://screener-epd.pages.dev/public/SpurtsSignal_Final" target="_blank" rel="noopener">
-            <span>Open</span> ↗
-          </a>
-        </div>
-      </section>
-    </main>
-
-    <footer class="footer">
-      <span>Created for <strong>F&O intraday workflow</strong></span>
-      <div class="legend">
-        <div class="legend-item">
-          <span class="dot-bull"></span>
-          <span>Bullish bias</span>
-        </div>
-        <div class="legend-item">
-          <span class="dot-bear"></span>
-          <span>Bearish bias</span>
-        </div>
-        <div class="legend-item">
-          <span class="dot-nt"></span>
-          <span>No-trade / neutral</span>
-        </div>
-      </div>
-    </footer>
-  </div>
+</div>
 </body>
 </html>
