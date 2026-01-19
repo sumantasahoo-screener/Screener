@@ -10,21 +10,22 @@
 <style>
 :root {
   --bg-light:#f4f6f9;
-  --bg-dark:#1e1f22;
+  --bg-dark:#1b1c1f;
   --card-light:#ffffff;
-  --card-dark:#2a2b2f;
+  --card-dark:#242529;
   --text-light:#111;
-  --text-dark:#e6e6e6;
+  --text-dark:#f1f1f1;
   --muted-light:#6c757d;
-  --muted-dark:#9aa0a6;
-  --header-dark:#0d1b2a;
+  --muted-dark:#b0b3b8;
+  --header:#0d1b2a;
 }
 
 body {
   background:var(--bg-light);
   color:var(--text-light);
-  font-family:Inter, sans-serif;
-  transition:0.3s;
+  font-family:Inter, system-ui, sans-serif;
+  font-weight:400;
+  transition:.3s;
 }
 
 body.dark {
@@ -33,35 +34,68 @@ body.dark {
 }
 
 .header {
-  background:var(--header-dark);
+  background:var(--header);
   color:#fff;
-  padding:16px 24px;
+  padding:14px 24px;
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
 
+.toggle {
+  cursor:pointer;
+  border:1px solid #fff;
+  padding:4px 12px;
+  border-radius:20px;
+  font-size:.85rem;
+}
+
+.stock-card {
+  margin-bottom:36px;
+}
+
+.news-grid {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:16px;
+}
+
+@media (max-width:1400px) {
+  .news-grid { grid-template-columns:repeat(4,1fr); }
+}
+@media (max-width:1100px) {
+  .news-grid { grid-template-columns:repeat(3,1fr); }
+}
+@media (max-width:768px) {
+  .news-grid { grid-template-columns:repeat(2,1fr); }
+}
+
 .news-card {
-  border-radius:14px;
-  padding:16px;
   background:var(--card-light);
+  border-radius:14px;
+  padding:14px;
   box-shadow:0 6px 16px rgba(0,0,0,0.08);
   height:100%;
-  transition:0.3s;
 }
 
 body.dark .news-card {
   background:var(--card-dark);
-  box-shadow:0 6px 18px rgba(0,0,0,0.4);
+  box-shadow:0 6px 20px rgba(0,0,0,0.45);
 }
 
 .news-card a {
   text-decoration:none;
-  font-weight:600;
+  font-weight:500;
+  font-size:.95rem;
+}
+
+body.dark .news-card a {
+  color:#4da3ff;
 }
 
 .news-meta {
-  font-size:.85rem;
+  margin-top:6px;
+  font-size:.8rem;
   color:var(--muted-light);
 }
 
@@ -69,16 +103,9 @@ body.dark .news-meta {
   color:var(--muted-dark);
 }
 
-.stock-card {
-  margin-bottom:40px;
-}
-
-.toggle {
-  cursor:pointer;
-  font-size:.9rem;
-  border:1px solid #fff;
-  padding:4px 10px;
-  border-radius:20px;
+footer {
+  opacity:.6;
+  font-size:.85rem;
 }
 </style>
 </head>
@@ -88,7 +115,7 @@ body.dark .news-meta {
 <div class="header">
   <div>
     <h4 class="mb-0">📊 F&O News Feed</h4>
-    <small>Last Updated: 2026-01-19 23:03 IST</small>
+    <small>Last Updated: 2026-01-19 23:10 IST</small>
   </div>
   <div class="toggle" onclick="toggleTheme()">Light / Dark</div>
 </div>
@@ -471,9 +498,9 @@ body.dark .news-meta {
         
         <div class="col-12 col-md-6 col-lg-4">
             <div class="card news-card p-3 h-100">
-                <a href="https://news.google.com/rss/articles/CBMi-wFBVV95cUxNSE5hRkhwZGlUVy14T2N3VHpFTXdqamhVb2hzQVZmTUJTVlAwY0VXVmVOUF9heXZkUUM2bnJuYkdMa1dRRVV0eWZWVmpHRnl4VW1WZVdQa0tGMXFjcXB2ck9Lcmh3WkNnSHVKX2dVTUFyY1pxcmJzUFVYeVFZMWNMQzBfcWRyT0U2SmlvUXU3OE90QTJOanpES0ZLbHloaEI3RGhmUUFaT2ZGQm1BbGRzOXhYdWxvVG02OGN6S2dDSkRXdTZsN0d4MnRNdl94eFdKb3hLMWZIaE53OVR2RkNBWl9GeVYzZEhUZVo5MzdzdGNTR2ZENWZaZFJVb9IB-wFBVV95cUxNSE5hRkhwZGlUVy14T2N3VHpFTXdqamhVb2hzQVZmTUJTVlAwY0VXVmVOUF9heXZkUUM2bnJuYkdMa1dRRVV0eWZWVmpHRnl4VW1WZVdQa0tGMXFjcXB2ck9Lcmh3WkNnSHVKX2dVTUFyY1pxcmJzUFVYeVFZMWNMQzBfcWRyT0U2SmlvUXU3OE90QTJOanpES0ZLbHloaEI3RGhmUUFaT2ZGQm1BbGRzOXhYdWxvVG02OGN6S2dDSkRXdTZsN0d4MnRNdl94eFdKb3hLMWZIaE53OVR2RkNBWl9GeVYzZEhUZVo5MzdzdGNTR2ZENWZaZFJVbw?oc=5" target="_blank">RBL Bank Q3 FY26 Results: Net profit rises 5.5x to Rs 214 crore; asset quality improves, NII grows 5% - Moneycontrol</a>
-                <div class="news-meta">Google News 2026-01-17 13:22</div>
-                <p><a href="https://news.google.com/rss/articles/CBMi-wFBVV95cUxNSE5hRkhwZGlUVy14T2N3VHpFTXdqamhVb2hzQVZmTUJTVlAwY0VXVmVOUF9heXZkUUM2bnJuYkdMa1dRRVV0eWZWVmpHRnl4VW1WZVdQa0tGMXFjcXB2ck9Lcmh3WkNnSHVKX2dVTUFyY1pxcmJzUFVYeVFZMWNMQzBfcWRyT0U2SmlvUXU3OE90QTJOanpES0ZLbHloaEI3RGhmUUFaT2ZGQm1BbGRzOXhYdWxvVG02OGN6S2dDSkRXdTZsN0d4MnRNdl94eFdKb3hLMWZIaE53OVR2RkNBWl9GeVYzZEhUZVo5MzdzdGNTR2ZENWZaZFJVb9IB-wFBVV95cUxNSE5hRkhwZGlUVy14T2N3VHpFTXdqamhVb2hzQVZmTUJTVlAwY0VXVmVOUF9heXZkUUM2bnJuYkdMa1dRRVV0eWZWVmpHRnl4VW1WZVdQa0tGMXFjcXB2ck9Lcmh3WkNnSHVKX2dVTUFyY1pxcmJzUFVYeVFZMWNMQzBfcWRyT0U2SmlvUXU3OE90QTJOanpES0ZLbHloaEI3RGhmUUFaT2ZGQm1BbGRzOXhYdWxvVG02OGN6S2dDSkRXdTZsN0d4MnRNdl94eFdKb3hLMWZIaE53OVR2RkNBWl9GeVYzZEhUZVo5MzdzdGNTR2ZENWZaZFJVbw?oc=5" target="_blank">RBL Bank Q3 FY26 Results: Net profit rises 5.5x to Rs 214 crore; asset quality improves, NII grows 5%</a>&nbsp;&nbsp;<font color="#6f6f6f">Moneycontrol</font></p>
+                <a href="https://news.google.com/rss/articles/CBMixAFBVV95cUxQWVZ3RkQ1eWx1b29zaUdxSW5JUzB4Z1JoWkc3TTBZRlpXV1VKRDBwN0JWTVZOb0QxU0tyQ1ZnWXlKVHN3OF9icGFxTTRpRHUxU0l4SFN2UVAwMTcwRmI1SkZrY1VCZUxRdHV6RHRkZVlHRDZ5Y0Z0N2J0SnlfUDQyUloxemlid1NwUE9HTEE0eW1BTzV5TFZ4U1VnUU5qZWhlM0VEVjJTYVl5dlhSdFVGUFhtajlLeF9JQ1RSd2M5ZS1KSWF50gHKAUFVX3lxTE5sV1lkSlVSZUlSbURXcjBLTkZYVUlNYXNHcXpPWXhkSjlWbTNIX2dBNU5lODJCc1RGX1lvQTRfS1JKOEx5NnVRd2pKdGJ3N2kzRnFkMlZNOTlIcUtmeTFVYUM5a0ViNy1KXzNEcmVIRjJ5dDZ2UFVDYWtETksxbGRpa2FXS3NVa0dyUEVURmltQVFZTkJubkxFaExweW1KcnU1NzdMTGljZG1YeHBrdlpfY25zaXpUckM5YVJGdzRPUHpEMW0xb3BKWlE?oc=5" target="_blank">Approval for Emirates NBD’s capital infusion expected by Q1 FY27: RBL Bank MD - Mint</a>
+                <div class="news-meta">Google News 2026-01-17 13:39</div>
+                <p><a href="https://news.google.com/rss/articles/CBMixAFBVV95cUxQWVZ3RkQ1eWx1b29zaUdxSW5JUzB4Z1JoWkc3TTBZRlpXV1VKRDBwN0JWTVZOb0QxU0tyQ1ZnWXlKVHN3OF9icGFxTTRpRHUxU0l4SFN2UVAwMTcwRmI1SkZrY1VCZUxRdHV6RHRkZVlHRDZ5Y0Z0N2J0SnlfUDQyUloxemlid1NwUE9HTEE0eW1BTzV5TFZ4U1VnUU5qZWhlM0VEVjJTYVl5dlhSdFVGUFhtajlLeF9JQ1RSd2M5ZS1KSWF50gHKAUFVX3lxTE5sV1lkSlVSZUlSbURXcjBLTkZYVUlNYXNHcXpPWXhkSjlWbTNIX2dBNU5lODJCc1RGX1lvQTRfS1JKOEx5NnVRd2pKdGJ3N2kzRnFkMlZNOTlIcUtmeTFVYUM5a0ViNy1KXzNEcmVIRjJ5dDZ2UFVDYWtETksxbGRpa2FXS3NVa0dyUEVURmltQVFZTkJubkxFaExweW1KcnU1NzdMTGljZG1YeHBrdlpfY25zaXpUckM5YVJGdzRPUHpEMW0xb3BKWlE?oc=5" target="_blank">Approval for Emirates NBD’s capital infusion expected by Q1 FY27: RBL Bank MD</a>&nbsp;&nbsp;<font color="#6f6f6f">Mint</font></p>
             </div>
         </div>
         
@@ -588,6 +615,29 @@ body.dark .news-meta {
     </div>
     
     <div class="stock-card">
+        <h5>Waaree Energies Limited (WAAREEENER)</h5>
+        <div class="row g-3">
+            
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card news-card p-3 h-100">
+                <a href="https://news.google.com/rss/articles/CBMiwgFBVV95cUxOV3ZDcDVsN0daaGhhNUZQUktfYzJHeTZrbUFqUXdsY1Y3WDhLS2NlT2RHTkEybVVTM3pGYnRzdHhYRXdaYXpKRlVLMXRTM25ZOERfOUlEM2RzWHdIWk9pcWhVenhxZzI3OTljdnViMGZJRzZ5V1N0enhFck9lMDN3eW95azBsbjNxeWlCT2E0MEY0YUs3bUQtR0pMTV9UaW0xS3dWbmI3YUdqc2JURGg0UDdpUVY3NTJKZmg5NWlmOGRGQQ?oc=5" target="_blank">Waaree Energies Secures Major Solar Module Orders Worth 2,210 MW - scanx.trade</a>
+                <div class="news-meta">Google News 2026-01-19 19:00</div>
+                <p><a href="https://news.google.com/rss/articles/CBMiwgFBVV95cUxOV3ZDcDVsN0daaGhhNUZQUktfYzJHeTZrbUFqUXdsY1Y3WDhLS2NlT2RHTkEybVVTM3pGYnRzdHhYRXdaYXpKRlVLMXRTM25ZOERfOUlEM2RzWHdIWk9pcWhVenhxZzI3OTljdnViMGZJRzZ5V1N0enhFck9lMDN3eW95azBsbjNxeWlCT2E0MEY0YUs3bUQtR0pMTV9UaW0xS3dWbmI3YUdqc2JURGg0UDdpUVY3NTJKZmg5NWlmOGRGQQ?oc=5" target="_blank">Waaree Energies Secures Major Solar Module Orders Worth 2,210 MW</a>&nbsp;&nbsp;<font color="#6f6f6f">scanx.trade</font></p>
+            </div>
+        </div>
+        
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card news-card p-3 h-100">
+                <a href="https://news.google.com/rss/articles/CBMi5wFBVV95cUxQSm85UGFPeUROSjRiRU9DWHdFMHh1YUN6ZkhMYXJBM1UwdzZLZmU2TElkaTFlY0NTQllIRFFXempOLXFYNEx1NHgtMXBmQzc2ekxMWEJQVzBRY1FKa0xoTlpJeEhNSWZXcTlLNGpJWXVsSWxONnVIVEp2c2lTNFd4VEhJcm44MWctN19TSXI3S1ZOMEtRODFzbDFwQ1hNSmFBck13NF9waGN3YzFZbXhXNlRiRmZTMXpNQXpHc1V5V2QtVlVHdE1RYm42dmIwWWRVcU9YUGc2UUlEMEpLZ3RfbVNpQ2IwZWc?oc=5" target="_blank">Waaree Energies Secures Major Solar Module Orders Worth 210 MW for India and 2000 MW for USA - scanx.trade</a>
+                <div class="news-meta">Google News 2026-01-19 19:04</div>
+                <p><a href="https://news.google.com/rss/articles/CBMi5wFBVV95cUxQSm85UGFPeUROSjRiRU9DWHdFMHh1YUN6ZkhMYXJBM1UwdzZLZmU2TElkaTFlY0NTQllIRFFXempOLXFYNEx1NHgtMXBmQzc2ekxMWEJQVzBRY1FKa0xoTlpJeEhNSWZXcTlLNGpJWXVsSWxONnVIVEp2c2lTNFd4VEhJcm44MWctN19TSXI3S1ZOMEtRODFzbDFwQ1hNSmFBck13NF9waGN3YzFZbXhXNlRiRmZTMXpNQXpHc1V5V2QtVlVHdE1RYm42dmIwWWRVcU9YUGc2UUlEMEpLZ3RfbVNpQ2IwZWc?oc=5" target="_blank">Waaree Energies Secures Major Solar Module Orders Worth 210 MW for India and 2000 MW for USA</a>&nbsp;&nbsp;<font color="#6f6f6f">scanx.trade</font></p>
+            </div>
+        </div>
+        
+        </div>
+    </div>
+    
+    <div class="stock-card">
         <h5>Wipro Limited (WIPRO)</h5>
         <div class="row g-3">
             
@@ -612,7 +662,7 @@ body.dark .news-meta {
     
 </div>
 
-<footer class="text-center py-3" style="opacity:.7">
+<footer class="text-center py-3">
   News sourced from public feeds
 </footer>
 
