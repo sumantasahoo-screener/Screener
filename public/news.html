@@ -36,10 +36,23 @@ body.dark {
 .header {
   background:var(--header);
   color:#fff;
-  padding:14px 24px;
+  padding:10px 24px;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  position:sticky;
+  top:0;
+  z-index:1000;
+}
+
+.header-left h4 {
+  font-size:1.1rem;
+  margin:0;
+}
+
+.search-box {
+  width:260px;
+  font-size:.85rem;
 }
 
 .toggle {
@@ -47,17 +60,24 @@ body.dark {
   border:1px solid #fff;
   padding:4px 12px;
   border-radius:20px;
-  font-size:.85rem;
+  font-size:.8rem;
+  margin-left:10px;
 }
 
 .stock-card {
-  margin-bottom:36px;
+  margin-bottom:32px;
+}
+
+.stock-card h5 {
+  font-size:1rem;
+  font-weight:500;
+  margin-bottom:10px;
 }
 
 .news-grid {
   display:grid;
   grid-template-columns:repeat(5,1fr);
-  gap:16px;
+  gap:12px;
 }
 
 @media (max-width:1400px) {
@@ -72,21 +92,22 @@ body.dark {
 
 .news-card {
   background:var(--card-light);
-  border-radius:14px;
-  padding:14px;
-  box-shadow:0 6px 16px rgba(0,0,0,0.08);
+  border-radius:12px;
+  padding:10px 12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
   height:100%;
 }
 
 body.dark .news-card {
   background:var(--card-dark);
-  box-shadow:0 6px 20px rgba(0,0,0,0.45);
+  box-shadow:0 6px 18px rgba(0,0,0,0.45);
 }
 
 .news-card a {
   text-decoration:none;
   font-weight:500;
-  font-size:.95rem;
+  font-size:.88rem;
+  line-height:1.35;
 }
 
 body.dark .news-card a {
@@ -94,8 +115,8 @@ body.dark .news-card a {
 }
 
 .news-meta {
-  margin-top:6px;
-  font-size:.8rem;
+  margin-top:4px;
+  font-size:.75rem;
   color:var(--muted-light);
 }
 
@@ -105,7 +126,7 @@ body.dark .news-meta {
 
 footer {
   opacity:.6;
-  font-size:.85rem;
+  font-size:.8rem;
 }
 </style>
 </head>
@@ -113,14 +134,23 @@ footer {
 <body>
 
 <div class="header">
-  <div>
-    <h4 class="mb-0">📊 F&O News Feed</h4>
-    <small>Last Updated: 2026-01-19 23:10 IST</small>
+  <div class="header-left">
+    <h4>📊 F&O News Feed</h4>
+    <small>Last Updated: 2026-01-19 23:14 IST</small>
   </div>
-  <div class="toggle" onclick="toggleTheme()">Light / Dark</div>
+
+  <div class="d-flex align-items-center">
+    <input
+      type="text"
+      class="form-control form-control-sm search-box"
+      placeholder="Search stock…"
+      onkeyup="searchStock(this.value)"
+    >
+    <div class="toggle" onclick="toggleTheme()">Light / Dark</div>
+  </div>
 </div>
 
-<div class="container-fluid px-4 my-4">
+<div class="container-fluid px-4 my-4" id="content">
   
     <div class="stock-card">
         <h5>AU Small Finance Bank Limited (AUBANK)</h5>
@@ -669,6 +699,18 @@ footer {
 <script>
 function toggleTheme() {
   document.body.classList.toggle("dark");
+}
+
+function searchStock(text) {
+  text = text.toLowerCase();
+  const cards = document.querySelectorAll(".stock-card");
+  for (const c of cards) {
+    const title = c.querySelector("h5").innerText.toLowerCase();
+    if (title.includes(text)) {
+      c.scrollIntoView({behavior:"smooth", block:"start"});
+      break;
+    }
+  }
 }
 </script>
 
