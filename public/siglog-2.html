@@ -8,30 +8,28 @@
 <style>
 :root {
   --bg-main: #020617;
-  --bg-elevated: #020617;
+  --bg-card: #020617;
   --border-subtle: #1f2937;
   --text-primary: #f9fafb;
-  --text-muted: #6b7280;
+  --text-muted: #9ca3af;
   --accent: #38bdf8;
-  --accent-soft: rgba(56,189,248,0.12);
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
-  padding: 0;
-  background:
-    radial-gradient(circle at 0% 0%, rgba(56,189,248,0.15), transparent 55%),
-    radial-gradient(circle at 100% 100%, rgba(94,234,212,0.14), transparent 55%),
-    var(--bg-main);
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #0f172a, #020617 55%, #000 100%);
   color: var(--text-primary);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-.container-custom {
+.page-wrap {
+  width: 100%;
   max-width: 1480px;
   padding: 24px 16px 32px;
 }
@@ -40,14 +38,9 @@ body {
   border-radius: 18px;
   border: 1px solid rgba(31,41,55,0.95);
   background: radial-gradient(circle at top left, rgba(15,23,42,0.96), rgba(2,6,23,0.98));
-  box-shadow:
-    0 22px 80px rgba(0,0,0,0.95),
-    0 0 0 1px rgba(15,23,42,0.9);
-  backdrop-filter: blur(12px);
+  box-shadow: 0 18px 70px rgba(0,0,0,0.9);
   overflow: hidden;
 }
-
-/* Top bar */
 
 .app-header {
   padding: 14px 20px;
@@ -55,9 +48,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background:
-    linear-gradient(120deg, rgba(15,23,42,0.96), rgba(15,23,42,0.96)),
-    radial-gradient(circle at 0 0, rgba(59,130,246,0.4), transparent 60%);
 }
 
 .app-title {
@@ -96,11 +86,9 @@ body {
   color: var(--text-muted);
 }
 
-.app-meta span {
-  display: block;
+.app-meta div + div {
+  margin-top: 2px;
 }
-
-/* Content */
 
 .app-body {
   padding: 14px 20px 18px;
@@ -123,13 +111,13 @@ body {
   color: var(--text-muted);
 }
 
-.badge-soft-accent {
+.badge-soft {
   font-size: 0.7rem;
-  background: var(--accent-soft);
+  background: rgba(56,189,248,0.12);
   color: #e0f2fe;
   border-radius: 999px;
-  padding: 0.1rem 0.55rem;
-  border: 1px solid rgba(56,189,248,0.5);
+  padding: 0.1rem 0.6rem;
+  border: 1px solid rgba(56,189,248,0.6);
 }
 
 .sig-table thead th {
@@ -149,23 +137,15 @@ body {
   color: var(--text-primary);
   padding-top: 0.4rem;
   padding-bottom: 0.4rem;
+  background-color: #020617;
 }
 
 .sig-table tbody tr:hover td {
-  background: rgba(17,24,39,0.95);
+  background-color: #111827;
 }
 
 .sig-table tbody tr:last-child td {
   border-bottom-color: transparent;
-}
-
-.sig-table tbody tr td:nth-child(1),
-.sig-table tbody tr td:nth-child(2) {
-  white-space: nowrap;
-}
-
-.sig-table tbody tr td:nth-child(7) {
-  text-align: center;
 }
 
 .text-mono {
@@ -181,10 +161,7 @@ body {
   justify-content: space-between;
   font-size: 0.72rem;
   color: var(--text-muted);
-  background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(2,6,23,1));
 }
-
-/* Signal pill styles */
 
 .pill {
   display: inline-flex;
@@ -196,40 +173,42 @@ body {
   font-size: 0.72rem;
   font-weight: 600;
   border: 1px solid rgba(31,41,55,1);
-  box-shadow: 0 0 0 1px rgba(15,23,42,0.8);
 }
 
 .pill-buy {
-  background: radial-gradient(circle at 0 0, rgba(16,185,129,0.25), rgba(22,163,74,0.15));
+  background: rgba(22,163,74,0.25);
   color: #bbf7d0;
   border-color: rgba(21,128,61,0.9);
 }
 
 .pill-sell {
-  background: radial-gradient(circle at 0 0, rgba(239,68,68,0.16), rgba(127,29,29,0.28));
+  background: rgba(239,68,68,0.25);
   color: #fecaca;
   border-color: rgba(127,29,29,0.95);
 }
 
 .pill-strong-buy {
-  background: radial-gradient(circle at 0 0, rgba(16,185,129,0.35), rgba(5,150,105,0.26));
+  background: rgba(16,185,129,0.35);
   color: #a7f3d0;
   border-color: rgba(4,120,87,0.95);
 }
 
 .pill-strong-sell {
-  background: radial-gradient(circle at 0 0, rgba(248,113,113,0.24), rgba(127,29,29,0.4));
+  background: rgba(248,113,113,0.35);
   color: #fee2e2;
   border-color: rgba(127,29,29,1);
 }
 
 .pill-neutral {
-  background: rgba(55,65,81,0.7);
+  background: rgba(75,85,99,0.9);
   color: #e5e7eb;
-  border-color: rgba(75,85,99,0.95);
+  border-color: rgba(55,65,81,0.95);
 }
 
 @media (max-width: 900px) {
+  body {
+    align-items: stretch;
+  }
   .app-header {
     flex-direction: column;
     align-items: flex-start;
@@ -242,7 +221,7 @@ body {
 </style>
 </head>
 <body>
-<div class="container-custom">
+<div class="page-wrap">
   <div class="app-shell">
     <header class="app-header">
       <div class="app-title">
@@ -253,8 +232,9 @@ body {
         </div>
       </div>
       <div class="app-meta">
-        <span>Last trading date: <span class="text-mono">2026-01-21</span></span>
-        <span id="now">View time: –</span>
+        <div>Last trading date: <span class="text-mono">2026-01-21</span></div>
+        <div>Scan time: <span class="text-mono">2026-01-21 14:07:32</span></div>
+        <div id="now">View time: –</div>
       </div>
     </header>
 
@@ -264,9 +244,7 @@ body {
           <div class="section-title">Signals</div>
           <div class="section-subtitle">Latest entries from signallog file</div>
         </div>
-        <div>
-          <span class="badge-soft-accent">Live generated HTML</span>
-        </div>
+        <span class="badge-soft">Live generated HTML</span>
       </div>
 
       <div class="table-responsive">
@@ -694,6 +672,78 @@ body {
       <td>NaN</td>
       <td>NaN</td>
     </tr>
+    <tr>
+      <td>2026-01-21 14:07:30</td>
+      <td>HEROMOTOCO</td>
+      <td>2026-01-27</td>
+      <td>5500</td>
+      <td>PE</td>
+      <td>60.00</td>
+      <td>Strong Sell</td>
+      <td>5517.50</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>2026-01-21 14:07:32</td>
+      <td>PATANJALI</td>
+      <td>2026-01-27</td>
+      <td>495</td>
+      <td>PE</td>
+      <td>7.00</td>
+      <td>Sell</td>
+      <td>494.35</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>2026-01-21 14:07:30</td>
+      <td>RELIANCE</td>
+      <td>2026-01-27</td>
+      <td>1410</td>
+      <td>CE</td>
+      <td>11.10</td>
+      <td>Strong Buy</td>
+      <td>1407.00</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>2026-01-21 14:07:29</td>
+      <td>AMBUJACEM</td>
+      <td>2026-01-27</td>
+      <td>535</td>
+      <td>PE</td>
+      <td>5.05</td>
+      <td>Strong Sell</td>
+      <td>536.90</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>2026-01-21 14:07:28</td>
+      <td>ASIANPAINT</td>
+      <td>2026-01-27</td>
+      <td>2660</td>
+      <td>PE</td>
+      <td>23.10</td>
+      <td>Sell</td>
+      <td>2666.30</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>2026-01-21 14:07:29</td>
+      <td>BEL</td>
+      <td>2026-01-27</td>
+      <td>400</td>
+      <td>PE</td>
+      <td>4.45</td>
+      <td>Strong Sell</td>
+      <td>400.75</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
   </tbody>
 </table>
       </div>
@@ -744,7 +794,7 @@ body {
       cell.innerHTML = `<span class="pill ${cls}">${cell.textContent.trim()}</span>`;
     }
 
-    // Datetime column ko mono font
+    // Datetime ko mono font
     const dtIdx = 0;
     for (const row of rows) {
       const c = row.cells[dtIdx];
