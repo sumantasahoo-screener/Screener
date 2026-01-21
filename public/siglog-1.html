@@ -96,7 +96,7 @@ body {
 
 .section-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   margin-bottom: 10px;
 }
@@ -118,6 +118,27 @@ body {
   border-radius: 999px;
   padding: 0.1rem 0.6rem;
   border: 1px solid rgba(56,189,248,0.6);
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-input {
+  background-color: #020617;
+  border-radius: 999px;
+  border: 1px solid #334155;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  padding: 0.25rem 0.75rem;
+  min-width: 180px;
+}
+
+.search-input::placeholder {
+  color: #6b7280;
+  font-size: 0.75rem;
 }
 
 .sig-table thead th {
@@ -211,6 +232,9 @@ body {
   .app-meta {
     text-align: left;
   }
+  .search-box {
+    margin-top: 8px;
+  }
 }
 </style>
 </head>
@@ -238,7 +262,10 @@ body {
           <div class="section-title">Signals</div>
           <div class="section-subtitle">Logbook file: log-21012026.xlsx</div>
         </div>
-        <span class="badge-soft">Live generated HTML</span>
+        <div class="search-box">
+          <input id="searchInput" class="search-input" type="text"
+                 placeholder="Search symbol (e.g. MANAPPURAM)">
+        </div>
       </div>
 
       <div class="table-responsive">
@@ -8421,36 +8448,57 @@ body {
 
     const headerCells = table.tHead?.rows[0]?.cells || [];
     let signalIdx = -1;
+    let symbolIdx = -1;
+
     for (let i = 0; i < headerCells.length; i++) {
       const txt = headerCells[i].textContent.trim().toLowerCase();
-      if (txt === "signal type") {
-        signalIdx = i;
-        break;
-      }
+      if (txt === "signal type") signalIdx = i;
+      if (txt === "symbol") symbolIdx = i;
     }
-    if (signalIdx === -1) return;
 
     const rows = table.tBodies[0].rows;
-    for (const row of rows) {
-      const cell = row.cells[signalIdx];
-      if (!cell) continue;
-      const value = cell.textContent.trim().toLowerCase();
-      let cls = "";
-      if (value === "buy") cls = "pill-buy";
-      else if (value === "sell") cls = "pill-sell";
-      else if (value === "strong buy") cls = "pill-strong-buy";
-      else if (value === "strong sell") cls = "pill-strong-sell";
-      else cls = "";
 
-      if (cls) {
-        cell.innerHTML = `<span class="pill ${cls}">${cell.textContent.trim()}</span>`;
+    // Signal pills
+    if (signalIdx !== -1) {
+      for (const row of rows) {
+        const cell = row.cells[signalIdx];
+        if (!cell) continue;
+        const value = cell.textContent.trim().toLowerCase();
+        let cls = "";
+        if (value === "buy") cls = "pill-buy";
+        else if (value === "sell") cls = "pill-sell";
+        else if (value === "strong buy") cls = "pill-strong-buy";
+        else if (value === "strong sell") cls = "pill-strong-sell";
+
+        if (cls) {
+          cell.innerHTML = `<span class="pill ${cls}">${cell.textContent.trim()}</span>`;
+        }
       }
     }
 
+    // Datetime ko mono font
     const dtIdx = 0;
     for (const row of rows) {
       const c = row.cells[dtIdx];
       if (c) c.classList.add("text-mono");
+    }
+
+    // === Search filter by Symbol ===
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput && symbolIdx !== -1) {
+      searchInput.addEventListener("input", () => {
+        const q = searchInput.value.trim().toLowerCase();
+        for (const row of rows) {
+          const cell = row.cells[symbolIdx];
+          if (!cell) continue;
+          const sym = cell.textContent.trim().toLowerCase();
+          if (!q || sym.includes(q)) {
+            row.style.display = "";
+          } else {
+            row.style.display = "none";
+          }
+        }
+      });
     }
   });
 </script>
