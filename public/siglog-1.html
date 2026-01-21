@@ -31,7 +31,7 @@ body {
 .page-wrap {
   width: 100%;
   max-width: 1480px;
-  padding: 24px 16px 32px;
+  padding: 24px 8px 32px;
 }
 
 .app-shell {
@@ -43,11 +43,12 @@ body {
 }
 
 .app-header {
-  padding: 14px 20px;
+  padding: 12px 16px;
   border-bottom: 1px solid rgba(31,41,55,0.95);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .app-title {
@@ -91,14 +92,15 @@ body {
 }
 
 .app-body {
-  padding: 14px 20px 18px;
+  padding: 10px 10px 14px;
 }
 
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
+  gap: 8px;
 }
 
 .section-title {
@@ -109,15 +111,6 @@ body {
 .section-subtitle {
   font-size: 0.75rem;
   color: var(--text-muted);
-}
-
-.badge-soft {
-  font-size: 0.7rem;
-  background: rgba(56,189,248,0.12);
-  color: #e0f2fe;
-  border-radius: 999px;
-  padding: 0.1rem 0.6rem;
-  border: 1px solid rgba(56,189,248,0.6);
 }
 
 .search-box {
@@ -133,7 +126,7 @@ body {
   color: var(--text-primary);
   font-size: 0.78rem;
   padding: 0.25rem 0.75rem;
-  min-width: 180px;
+  min-width: 160px;
 }
 
 .search-input::placeholder {
@@ -141,23 +134,35 @@ body {
   font-size: 0.75rem;
 }
 
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.sig-table {
+  margin-bottom: 0;
+  width: 100%;
+  min-width: 900px;
+}
+
 .sig-table thead th {
-  background: transparent;
+  background: #020617;
   border-bottom: 1px solid rgba(31,41,55,0.95);
   color: #9ca3af;
   font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.08em;
   padding-top: 0.45rem;
   padding-bottom: 0.45rem;
+  white-space: nowrap;
 }
 
 .sig-table tbody tr td {
   border-bottom: 1px solid rgba(15,23,42,0.95);
   font-size: 0.78rem;
   color: var(--text-primary);
-  padding-top: 0.4rem;
-  padding-bottom: 0.4rem;
+  padding-top: 0.38rem;
+  padding-bottom: 0.38rem;
   background-color: #020617;
 }
 
@@ -175,11 +180,13 @@ body {
 }
 
 .footer {
-  padding: 8px 20px 10px;
+  padding: 8px 16px 10px;
   border-top: 1px solid rgba(15,23,42,0.95);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
   font-size: 0.72rem;
   color: var(--text-muted);
 }
@@ -188,7 +195,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 68px;
+  min-width: 72px;
   padding: 0.12rem 0.55rem;
   border-radius: 999px;
   font-size: 0.72rem;
@@ -220,20 +227,93 @@ body {
   border-color: rgba(127,29,29,1);
 }
 
+/* Sticky header + first column (Symbol) */
+.sig-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.sig-table thead th:nth-child(1),
+.sig-table tbody td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background-color: #020617;
+}
+
+.sig-table thead th:nth-child(1) {
+  z-index: 4;
+}
+
+.sig-table tbody td:nth-child(1) {
+  font-weight: 600;
+}
+
+/* Column alignment:
+   1 Symbol -> left
+   2 Datetime -> mono center
+   3 Signal Type -> center
+   4 SPOT_LTP -> right
+   5 Expiry -> center
+   6 Strike -> center
+   7 Option Type -> center
+   8 PRICE -> right
+   9 Exit Price -> right
+   10 Exit Time -> center
+*/
+.sig-table thead th:nth-child(1),
+.sig-table tbody td:nth-child(1) {
+  text-align: left;
+}
+
+.sig-table thead th:nth-child(2),
+.sig-table tbody td:nth-child(2),
+.sig-table thead th:nth-child(3),
+.sig-table tbody td:nth-child(3),
+.sig-table thead th:nth-child(5),
+.sig-table tbody td:nth-child(5),
+.sig-table thead th:nth-child(6),
+.sig-table tbody td:nth-child(6),
+.sig-table thead th:nth-child(7),
+.sig-table tbody td:nth-child(7),
+.sig-table thead th:nth-child(10),
+.sig-table tbody td:nth-child(10) {
+  text-align: center;
+}
+
+.sig-table thead th:nth-child(4),
+.sig-table tbody td:nth-child(4),
+.sig-table thead th:nth-child(8),
+.sig-table tbody td:nth-child(8),
+.sig-table thead th:nth-child(9),
+.sig-table tbody td:nth-child(9) {
+  text-align: right;
+}
+
 @media (max-width: 900px) {
   body {
     align-items: stretch;
   }
+  .page-wrap {
+    padding: 12px 4px 20px;
+  }
   .app-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 6px;
   }
   .app-meta {
     text-align: left;
   }
-  .search-box {
-    margin-top: 8px;
+  .app-body {
+    padding: 8px 8px 10px;
+  }
+  .sig-table {
+    font-size: 0.76rem;
+  }
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>
@@ -252,6 +332,7 @@ body {
       <div class="app-meta">
         <div>Last trading date: <span class="text-mono">2026-01-21</span></div>
         <div>Scan time: <span class="text-mono">2026-01-21 15:35:38</span></div>
+        <div>HTML gen time: <span class="text-mono">2026-01-21 22:05:51</span></div>
         <div id="now">View time: –</div>
       </div>
     </header>
@@ -268,1832 +349,1832 @@ body {
         </div>
       </div>
 
-      <div class="table-responsive">
+      <div class="table-wrap">
         <table class="dataframe table table-borderless table-hover table-sm align-middle sig-table">
   <thead>
     <tr style="text-align: center;">
-      <th>Datetime</th>
       <th>Symbol</th>
+      <th>Datetime</th>
+      <th>Signal Type</th>
+      <th>SPOT_LTP at signal</th>
       <th>Expiry</th>
       <th>Strike</th>
       <th>Option Type</th>
       <th>PRICE</th>
-      <th>Signal Type</th>
-      <th>SPOT_LTP at signal</th>
       <th>Exit Price</th>
       <th>Exit Time</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>2026-01-21 09:21:06</td>
       <td>MANAPPURAM</td>
+      <td>2026-01-21 09:21:06</td>
+      <td>Sell</td>
+      <td>301.85</td>
       <td>2026-01-27</td>
       <td>302.5-PE</td>
       <td>PE</td>
       <td>6.45</td>
-      <td>Sell</td>
-      <td>301.85</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 09:21:06</td>
       <td>PERSISTENT</td>
+      <td>2026-01-21 09:21:06</td>
+      <td>Sell</td>
+      <td>6199.00</td>
       <td>2026-01-27</td>
       <td>6200-PE</td>
       <td>PE</td>
       <td>149.35</td>
-      <td>Sell</td>
-      <td>6199.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 09:21:06</td>
       <td>HCLTECH</td>
+      <td>2026-01-21 09:21:06</td>
+      <td>Sell</td>
+      <td>1685.80</td>
       <td>2026-01-27</td>
       <td>1680-PE</td>
       <td>PE</td>
       <td>17.25</td>
-      <td>Sell</td>
-      <td>1685.80</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 09:21:06</td>
       <td>ICICIBANK</td>
+      <td>2026-01-21 09:21:06</td>
+      <td>Sell</td>
+      <td>1368.20</td>
       <td>2026-01-27</td>
       <td>1370-PE</td>
       <td>PE</td>
       <td>12.10</td>
-      <td>Sell</td>
-      <td>1368.20</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 09:21:07</td>
       <td>BANKNIFTY</td>
+      <td>2026-01-21 09:21:07</td>
+      <td>Strong Sell</td>
+      <td>59353.10</td>
       <td>2026-01-27</td>
       <td>59400-PE</td>
       <td>PE</td>
       <td>305.15</td>
-      <td>Strong Sell</td>
-      <td>59353.10</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 09:21:07</td>
       <td>BSE</td>
+      <td>2026-01-21 09:21:07</td>
+      <td>Sell</td>
+      <td>2659.90</td>
       <td>2026-01-27</td>
       <td>2650-PE</td>
       <td>PE</td>
       <td>40.00</td>
-      <td>Sell</td>
-      <td>2659.90</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 09:25:45</td>
       <td>HDFCBANK</td>
+      <td>2026-01-21 09:25:45</td>
+      <td>Sell</td>
+      <td>928.65</td>
       <td>2026-01-27</td>
       <td>930-PE</td>
       <td>PE</td>
       <td>7.80</td>
-      <td>Sell</td>
-      <td>928.65</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 09:25:46</td>
       <td>ABCAPITAL</td>
+      <td>2026-01-21 09:25:46</td>
+      <td>Sell</td>
+      <td>354.00</td>
       <td>2026-01-27</td>
       <td>355-PE</td>
       <td>PE</td>
       <td>4.75</td>
-      <td>Sell</td>
-      <td>354.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 09:25:46</td>
       <td>MCX</td>
+      <td>2026-01-21 09:25:46</td>
+      <td>Buy</td>
+      <td>2410.00</td>
       <td>2026-01-27</td>
       <td>2400-CE</td>
       <td>CE</td>
       <td>61.70</td>
-      <td>Buy</td>
-      <td>2410.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 09:38:04</td>
       <td>INFY</td>
+      <td>2026-01-21 09:38:04</td>
+      <td>Sell</td>
+      <td>1645.20</td>
       <td>2026-01-27</td>
       <td>1640-PE</td>
       <td>PE</td>
       <td>10.35</td>
-      <td>Sell</td>
-      <td>1645.20</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 09:50:39</td>
       <td>PERSISTENT</td>
+      <td>2026-01-21 09:50:39</td>
+      <td>Strong Sell</td>
+      <td>6061.00</td>
       <td>2026-01-27</td>
       <td>6100-PE</td>
       <td>PE</td>
       <td>138.70</td>
-      <td>Strong Sell</td>
-      <td>6061.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:03:36</td>
       <td>PERSISTENT</td>
+      <td>2026-01-21 10:03:36</td>
+      <td>Sell</td>
+      <td>6121.50</td>
       <td>2026-01-27</td>
       <td>6100-PE</td>
       <td>PE</td>
       <td>119.05</td>
-      <td>Sell</td>
-      <td>6121.50</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:15:51</td>
       <td>ABCAPITAL</td>
+      <td>2026-01-21 10:15:51</td>
+      <td>Strong Sell</td>
+      <td>351.30</td>
       <td>2026-01-27</td>
       <td>350-PE</td>
       <td>PE</td>
       <td>4.60</td>
-      <td>Strong Sell</td>
-      <td>351.30</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:15:51</td>
       <td>BSE</td>
+      <td>2026-01-21 10:15:51</td>
+      <td>Strong Sell</td>
+      <td>2629.90</td>
       <td>2026-01-27</td>
       <td>2650-PE</td>
       <td>PE</td>
       <td>57.25</td>
-      <td>Strong Sell</td>
-      <td>2629.90</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:15:51</td>
       <td>CDSL</td>
+      <td>2026-01-21 10:15:51</td>
+      <td>Sell</td>
+      <td>1325.20</td>
       <td>2026-01-27</td>
       <td>1320-PE</td>
       <td>PE</td>
       <td>19.40</td>
-      <td>Sell</td>
-      <td>1325.20</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:15:51</td>
       <td>AUBANK</td>
+      <td>2026-01-21 10:15:51</td>
+      <td>Sell</td>
+      <td>976.90</td>
       <td>2026-01-27</td>
       <td>980-PE</td>
       <td>PE</td>
       <td>16.55</td>
-      <td>Sell</td>
-      <td>976.90</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:15:51</td>
       <td>LTF</td>
+      <td>2026-01-21 10:15:51</td>
+      <td>Sell</td>
+      <td>280.85</td>
       <td>2026-01-27</td>
       <td>280-PE</td>
       <td>PE</td>
       <td>5.35</td>
-      <td>Sell</td>
-      <td>280.85</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:15:52</td>
       <td>SAMMAANCAP</td>
+      <td>2026-01-21 10:15:52</td>
+      <td>Sell</td>
+      <td>137.91</td>
       <td>2026-01-27</td>
       <td>137.5-PE</td>
       <td>PE</td>
       <td>1.56</td>
-      <td>Sell</td>
-      <td>137.91</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:21:59</td>
       <td>FEDERALBNK</td>
+      <td>2026-01-21 10:21:59</td>
+      <td>Sell</td>
+      <td>272.20</td>
       <td>2026-01-27</td>
       <td>272.5-PE</td>
       <td>PE</td>
       <td>3.25</td>
-      <td>Sell</td>
-      <td>272.20</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:21:59</td>
       <td>HDFCBANK</td>
+      <td>2026-01-21 10:21:59</td>
+      <td>Strong Sell</td>
+      <td>926.60</td>
       <td>2026-01-27</td>
       <td>925-PE</td>
       <td>PE</td>
       <td>6.85</td>
-      <td>Strong Sell</td>
-      <td>926.60</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:22:00</td>
       <td>IRFC</td>
+      <td>2026-01-21 10:22:00</td>
+      <td>Sell</td>
+      <td>115.28</td>
       <td>2026-01-27</td>
       <td>115-PE</td>
       <td>PE</td>
       <td>1.80</td>
-      <td>Sell</td>
-      <td>115.28</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:22:00</td>
       <td>BANDHANBNK</td>
+      <td>2026-01-21 10:22:00</td>
+      <td>Sell</td>
+      <td>140.00</td>
       <td>2026-01-27</td>
       <td>140-PE</td>
       <td>PE</td>
       <td>3.27</td>
-      <td>Sell</td>
-      <td>140.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:22:00</td>
       <td>ICICIBANK</td>
+      <td>2026-01-21 10:22:00</td>
+      <td>Strong Sell</td>
+      <td>1349.00</td>
       <td>2026-01-27</td>
       <td>1350-PE</td>
       <td>PE</td>
       <td>12.35</td>
-      <td>Strong Sell</td>
-      <td>1349.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:22:00</td>
       <td>AXISBANK</td>
+      <td>2026-01-21 10:22:00</td>
+      <td>Strong Sell</td>
+      <td>1283.30</td>
       <td>2026-01-27</td>
       <td>1280-PE</td>
       <td>PE</td>
       <td>12.00</td>
-      <td>Strong Sell</td>
-      <td>1283.30</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:22:01</td>
       <td>PFC</td>
+      <td>2026-01-21 10:22:01</td>
+      <td>Strong Sell</td>
+      <td>355.20</td>
       <td>2026-01-27</td>
       <td>355-PE</td>
       <td>PE</td>
       <td>4.15</td>
-      <td>Strong Sell</td>
-      <td>355.20</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:22:01</td>
       <td>PERSISTENT</td>
+      <td>2026-01-21 10:22:01</td>
+      <td>Strong Sell</td>
+      <td>6110.50</td>
       <td>2026-01-27</td>
       <td>6100-PE</td>
       <td>PE</td>
       <td>104.85</td>
-      <td>Strong Sell</td>
-      <td>6110.50</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:22:01</td>
       <td>RBLBANK</td>
+      <td>2026-01-21 10:22:01</td>
+      <td>Strong Sell</td>
+      <td>296.95</td>
       <td>2026-01-27</td>
       <td>295-PE</td>
       <td>PE</td>
       <td>2.95</td>
-      <td>Strong Sell</td>
-      <td>296.95</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:22:01</td>
       <td>MANAPPURAM</td>
+      <td>2026-01-21 10:22:01</td>
+      <td>Strong Sell</td>
+      <td>297.70</td>
       <td>2026-01-27</td>
       <td>297.5-PE</td>
       <td>PE</td>
       <td>5.70</td>
-      <td>Strong Sell</td>
-      <td>297.70</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:22:01</td>
       <td>RECLTD</td>
+      <td>2026-01-21 10:22:01</td>
+      <td>Sell</td>
+      <td>356.10</td>
       <td>2026-01-27</td>
       <td>355-PE</td>
       <td>PE</td>
       <td>4.35</td>
-      <td>Sell</td>
-      <td>356.10</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:22:02</td>
       <td>MCX</td>
+      <td>2026-01-21 10:22:02</td>
+      <td>Strong Sell</td>
+      <td>2358.00</td>
       <td>2026-01-27</td>
       <td>2360-PE</td>
       <td>PE</td>
       <td>61.50</td>
-      <td>Strong Sell</td>
-      <td>2358.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:22:02</td>
       <td>SAMMAANCAP</td>
+      <td>2026-01-21 10:22:02</td>
+      <td>Strong Sell</td>
+      <td>138.07</td>
       <td>2026-01-27</td>
       <td>137.5-PE</td>
       <td>PE</td>
       <td>1.56</td>
-      <td>Strong Sell</td>
-      <td>138.07</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:22:02</td>
       <td>LTF</td>
+      <td>2026-01-21 10:22:02</td>
+      <td>Strong Sell</td>
+      <td>280.65</td>
       <td>2026-01-27</td>
       <td>280-PE</td>
       <td>PE</td>
       <td>5.45</td>
-      <td>Strong Sell</td>
-      <td>280.65</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:22:02</td>
       <td>AUBANK</td>
+      <td>2026-01-21 10:22:02</td>
+      <td>Strong Sell</td>
+      <td>976.85</td>
       <td>2026-01-27</td>
       <td>980-PE</td>
       <td>PE</td>
       <td>16.40</td>
-      <td>Strong Sell</td>
-      <td>976.85</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:22:02</td>
       <td>CDSL</td>
+      <td>2026-01-21 10:22:02</td>
+      <td>Strong Sell</td>
+      <td>1328.80</td>
       <td>2026-01-27</td>
       <td>1320-PE</td>
       <td>PE</td>
       <td>16.95</td>
-      <td>Strong Sell</td>
-      <td>1328.80</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:28:27</td>
       <td>INFY</td>
+      <td>2026-01-21 10:28:27</td>
+      <td>Strong Sell</td>
+      <td>1644.20</td>
       <td>2026-01-27</td>
       <td>1640-PE</td>
       <td>PE</td>
       <td>9.30</td>
-      <td>Strong Sell</td>
-      <td>1644.20</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:28:27</td>
       <td>FEDERALBNK</td>
+      <td>2026-01-21 10:28:27</td>
+      <td>Strong Sell</td>
+      <td>272.30</td>
       <td>2026-01-27</td>
       <td>272.5-PE</td>
       <td>PE</td>
       <td>3.05</td>
-      <td>Strong Sell</td>
-      <td>272.30</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:28:28</td>
       <td>TATAELXSI</td>
+      <td>2026-01-21 10:28:28</td>
+      <td>Strong Sell</td>
+      <td>5366.50</td>
       <td>2026-01-27</td>
       <td>5350-PE</td>
       <td>PE</td>
       <td>72.85</td>
-      <td>Strong Sell</td>
-      <td>5366.50</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:28:28</td>
       <td>INDUSINDBK</td>
+      <td>2026-01-21 10:28:28</td>
+      <td>Strong Sell</td>
+      <td>908.05</td>
       <td>2026-01-27</td>
       <td>910-PE</td>
       <td>PE</td>
       <td>17.80</td>
-      <td>Strong Sell</td>
-      <td>908.05</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:28:28</td>
       <td>HCLTECH</td>
+      <td>2026-01-21 10:28:28</td>
+      <td>Strong Sell</td>
+      <td>1678.50</td>
       <td>2026-01-27</td>
       <td>1680-PE</td>
       <td>PE</td>
       <td>17.85</td>
-      <td>Strong Sell</td>
-      <td>1678.50</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:34:51</td>
       <td>IRFC</td>
+      <td>2026-01-21 10:34:51</td>
+      <td>Strong Sell</td>
+      <td>115.28</td>
       <td>2026-01-27</td>
       <td>115-PE</td>
       <td>PE</td>
       <td>1.91</td>
-      <td>Strong Sell</td>
-      <td>115.28</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:34:52</td>
       <td>PFC</td>
+      <td>2026-01-21 10:34:52</td>
+      <td>Sell</td>
+      <td>356.30</td>
       <td>2026-01-27</td>
       <td>357.5-PE</td>
       <td>PE</td>
       <td>5.35</td>
-      <td>Sell</td>
-      <td>356.30</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:41:05</td>
       <td>INFY</td>
+      <td>2026-01-21 10:41:05</td>
+      <td>Sell</td>
+      <td>1645.40</td>
       <td>2026-01-27</td>
       <td>1640-PE</td>
       <td>PE</td>
       <td>8.20</td>
-      <td>Sell</td>
-      <td>1645.40</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:41:06</td>
       <td>BANDHANBNK</td>
+      <td>2026-01-21 10:41:06</td>
+      <td>Strong Sell</td>
+      <td>139.87</td>
       <td>2026-01-27</td>
       <td>140-PE</td>
       <td>PE</td>
       <td>3.21</td>
-      <td>Strong Sell</td>
-      <td>139.87</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:41:07</td>
       <td>HCLTECH</td>
+      <td>2026-01-21 10:41:07</td>
+      <td>Sell</td>
+      <td>1676.60</td>
       <td>2026-01-27</td>
       <td>1680-PE</td>
       <td>PE</td>
       <td>17.80</td>
-      <td>Sell</td>
-      <td>1676.60</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:41:08</td>
       <td>RECLTD</td>
+      <td>2026-01-21 10:41:08</td>
+      <td>Strong Sell</td>
+      <td>355.25</td>
       <td>2026-01-27</td>
       <td>355-PE</td>
       <td>PE</td>
       <td>5.00</td>
-      <td>Strong Sell</td>
-      <td>355.25</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:41:08</td>
       <td>PFC</td>
+      <td>2026-01-21 10:41:08</td>
+      <td>Strong Sell</td>
+      <td>355.30</td>
       <td>2026-01-27</td>
       <td>355-PE</td>
       <td>PE</td>
       <td>4.20</td>
-      <td>Strong Sell</td>
-      <td>355.30</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:47:34</td>
       <td>HCLTECH</td>
+      <td>2026-01-21 10:47:34</td>
+      <td>Strong Sell</td>
+      <td>1676.90</td>
       <td>2026-01-27</td>
       <td>1680-PE</td>
       <td>PE</td>
       <td>18.40</td>
-      <td>Strong Sell</td>
-      <td>1676.90</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:47:34</td>
       <td>WIPRO</td>
+      <td>2026-01-21 10:47:34</td>
+      <td>Strong Sell</td>
+      <td>240.00</td>
       <td>2026-01-27</td>
       <td>240-PE</td>
       <td>PE</td>
       <td>2.35</td>
-      <td>Strong Sell</td>
-      <td>240.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:53:52</td>
       <td>INFY</td>
+      <td>2026-01-21 10:53:52</td>
+      <td>Strong Sell</td>
+      <td>1642.30</td>
       <td>2026-01-27</td>
       <td>1640-PE</td>
       <td>PE</td>
       <td>10.00</td>
-      <td>Strong Sell</td>
-      <td>1642.30</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 10:53:53</td>
       <td>TCS</td>
+      <td>2026-01-21 10:53:53</td>
+      <td>Sell</td>
+      <td>3098.10</td>
       <td>2026-01-27</td>
       <td>3100-PE</td>
       <td>PE</td>
       <td>26.60</td>
-      <td>Sell</td>
-      <td>3098.10</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:00:34</td>
       <td>BANDHANBNK</td>
+      <td>2026-01-21 11:00:34</td>
+      <td>Sell</td>
+      <td>138.48</td>
       <td>2026-01-27</td>
       <td>137.5-PE</td>
       <td>PE</td>
       <td>2.84</td>
-      <td>Sell</td>
-      <td>138.48</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:06:58</td>
       <td>SBIN</td>
+      <td>2026-01-21 11:06:58</td>
+      <td>Strong Sell</td>
+      <td>1026.85</td>
       <td>2026-01-27</td>
       <td>1025-PE</td>
       <td>PE</td>
       <td>8.35</td>
-      <td>Strong Sell</td>
-      <td>1026.85</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:07:00</td>
       <td>NIFTY</td>
+      <td>2026-01-21 11:07:00</td>
+      <td>Strong Sell</td>
+      <td>24990.05</td>
       <td>2026-01-27</td>
       <td>25000-PE</td>
       <td>PE</td>
       <td>154.70</td>
-      <td>Strong Sell</td>
-      <td>24990.05</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:13:31</td>
       <td>KOTAKBANK</td>
+      <td>2026-01-21 11:13:31</td>
+      <td>Strong Sell</td>
+      <td>418.20</td>
       <td>2026-01-27</td>
       <td>417.5-PE</td>
       <td>PE</td>
       <td>6.00</td>
-      <td>Strong Sell</td>
-      <td>418.20</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:19:46</td>
       <td>HDFCBANK</td>
+      <td>2026-01-21 11:19:46</td>
+      <td>Sell</td>
+      <td>923.25</td>
       <td>2026-01-27</td>
       <td>925-PE</td>
       <td>PE</td>
       <td>9.00</td>
-      <td>Sell</td>
-      <td>923.25</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:19:47</td>
       <td>HCLTECH</td>
+      <td>2026-01-21 11:19:47</td>
+      <td>Sell</td>
+      <td>1675.80</td>
       <td>2026-01-27</td>
       <td>1680-PE</td>
       <td>PE</td>
       <td>17.80</td>
-      <td>Sell</td>
-      <td>1675.80</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:19:47</td>
       <td>BSE</td>
+      <td>2026-01-21 11:19:47</td>
+      <td>Sell</td>
+      <td>2629.90</td>
       <td>2026-01-27</td>
       <td>2650-PE</td>
       <td>PE</td>
       <td>56.50</td>
-      <td>Sell</td>
-      <td>2629.90</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:26:08</td>
       <td>INFY</td>
+      <td>2026-01-21 11:26:08</td>
+      <td>Sell</td>
+      <td>1641.40</td>
       <td>2026-01-27</td>
       <td>1640-PE</td>
       <td>PE</td>
       <td>10.80</td>
-      <td>Sell</td>
-      <td>1641.40</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:26:09</td>
       <td>MANAPPURAM</td>
+      <td>2026-01-21 11:26:09</td>
+      <td>Sell</td>
+      <td>298.75</td>
       <td>2026-01-27</td>
       <td>297.5-PE</td>
       <td>PE</td>
       <td>4.80</td>
-      <td>Sell</td>
-      <td>298.75</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:26:09</td>
       <td>HCLTECH</td>
+      <td>2026-01-21 11:26:09</td>
+      <td>Strong Sell</td>
+      <td>1675.70</td>
       <td>2026-01-27</td>
       <td>1680-PE</td>
       <td>PE</td>
       <td>17.80</td>
-      <td>Strong Sell</td>
-      <td>1675.70</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:26:10</td>
       <td>BSE</td>
+      <td>2026-01-21 11:26:10</td>
+      <td>Strong Sell</td>
+      <td>2629.30</td>
       <td>2026-01-27</td>
       <td>2650-PE</td>
       <td>PE</td>
       <td>57.55</td>
-      <td>Strong Sell</td>
-      <td>2629.30</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:32:22</td>
       <td>BANDHANBNK</td>
+      <td>2026-01-21 11:32:22</td>
+      <td>Strong Sell</td>
+      <td>139.48</td>
       <td>2026-01-27</td>
       <td>140-PE</td>
       <td>PE</td>
       <td>3.35</td>
-      <td>Strong Sell</td>
-      <td>139.48</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:32:22</td>
       <td>TATAELXSI</td>
+      <td>2026-01-21 11:32:22</td>
+      <td>Sell</td>
+      <td>5356.00</td>
       <td>2026-01-27</td>
       <td>5350-PE</td>
       <td>PE</td>
       <td>72.90</td>
-      <td>Sell</td>
-      <td>5356.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:38:33</td>
       <td>MANAPPURAM</td>
+      <td>2026-01-21 11:38:33</td>
+      <td>Strong Sell</td>
+      <td>297.60</td>
       <td>2026-01-27</td>
       <td>297.5-PE</td>
       <td>PE</td>
       <td>6.10</td>
-      <td>Strong Sell</td>
-      <td>297.60</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:44:38</td>
       <td>TATAELXSI</td>
+      <td>2026-01-21 11:44:38</td>
+      <td>Strong Sell</td>
+      <td>5351.00</td>
       <td>2026-01-27</td>
       <td>5350-PE</td>
       <td>PE</td>
       <td>69.65</td>
-      <td>Strong Sell</td>
-      <td>5351.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:50:44</td>
       <td>RECLTD</td>
+      <td>2026-01-21 11:50:44</td>
+      <td>Sell</td>
+      <td>352.35</td>
       <td>2026-01-27</td>
       <td>352.5-PE</td>
       <td>PE</td>
       <td>5.20</td>
-      <td>Sell</td>
-      <td>352.35</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:56:36</td>
       <td>RECLTD</td>
+      <td>2026-01-21 11:56:36</td>
+      <td>Strong Sell</td>
+      <td>352.20</td>
       <td>2026-01-27</td>
       <td>352.5-PE</td>
       <td>PE</td>
       <td>5.45</td>
-      <td>Strong Sell</td>
-      <td>352.20</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:56:36</td>
       <td>HCLTECH</td>
+      <td>2026-01-21 11:56:36</td>
+      <td>Sell</td>
+      <td>1675.40</td>
       <td>2026-01-27</td>
       <td>1680-PE</td>
       <td>PE</td>
       <td>16.80</td>
-      <td>Sell</td>
-      <td>1675.40</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 11:56:37</td>
       <td>SAMMAANCAP</td>
+      <td>2026-01-21 11:56:37</td>
+      <td>Sell</td>
+      <td>137.65</td>
       <td>2026-01-27</td>
       <td>137.5-PE</td>
       <td>PE</td>
       <td>1.56</td>
-      <td>Sell</td>
-      <td>137.65</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:02:28</td>
       <td>NIFTY</td>
+      <td>2026-01-21 12:02:28</td>
+      <td>Sell</td>
+      <td>25050.75</td>
       <td>2026-01-27</td>
       <td>25050-PE</td>
       <td>PE</td>
       <td>137.00</td>
-      <td>Sell</td>
-      <td>25050.75</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:08:40</td>
       <td>AXISBANK</td>
+      <td>2026-01-21 12:08:40</td>
+      <td>Sell</td>
+      <td>1275.10</td>
       <td>2026-01-27</td>
       <td>1280-PE</td>
       <td>PE</td>
       <td>15.85</td>
-      <td>Sell</td>
-      <td>1275.10</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:08:40</td>
       <td>PERSISTENT</td>
+      <td>2026-01-21 12:08:40</td>
+      <td>Sell</td>
+      <td>6103.00</td>
       <td>2026-01-27</td>
       <td>6100-PE</td>
       <td>PE</td>
       <td>95.00</td>
-      <td>Sell</td>
-      <td>6103.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:14:53</td>
       <td>WIPRO</td>
+      <td>2026-01-21 12:14:53</td>
+      <td>Sell</td>
+      <td>238.80</td>
       <td>2026-01-27</td>
       <td>240-PE</td>
       <td>PE</td>
       <td>2.75</td>
-      <td>Sell</td>
-      <td>238.80</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:14:53</td>
       <td>SBIN</td>
+      <td>2026-01-21 12:14:53</td>
+      <td>Sell</td>
+      <td>1027.80</td>
       <td>2026-01-27</td>
       <td>1030-PE</td>
       <td>PE</td>
       <td>9.15</td>
-      <td>Sell</td>
-      <td>1027.80</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:14:53</td>
       <td>AXISBANK</td>
+      <td>2026-01-21 12:14:53</td>
+      <td>Strong Sell</td>
+      <td>1274.70</td>
       <td>2026-01-27</td>
       <td>1270-PE</td>
       <td>PE</td>
       <td>11.55</td>
-      <td>Strong Sell</td>
-      <td>1274.70</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:20:59</td>
       <td>YESBANK</td>
+      <td>2026-01-21 12:20:59</td>
+      <td>Buy</td>
+      <td>21.85</td>
       <td>2026-01-27</td>
       <td>22-CE</td>
       <td>CE</td>
       <td>0.24</td>
-      <td>Buy</td>
-      <td>21.85</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:20:59</td>
       <td>TCS</td>
+      <td>2026-01-21 12:20:59</td>
+      <td>Strong Buy</td>
+      <td>3128.00</td>
       <td>2026-01-27</td>
       <td>3120-CE</td>
       <td>CE</td>
       <td>32.85</td>
-      <td>Strong Buy</td>
-      <td>3128.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:21:00</td>
       <td>BANKNIFTY</td>
+      <td>2026-01-21 12:21:00</td>
+      <td>Sell</td>
+      <td>58771.05</td>
       <td>2026-01-27</td>
       <td>58800-PE</td>
       <td>PE</td>
       <td>341.50</td>
-      <td>Sell</td>
-      <td>58771.05</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:27:12</td>
       <td>KOTAKBANK</td>
+      <td>2026-01-21 12:27:12</td>
+      <td>Sell</td>
+      <td>419.10</td>
       <td>2026-01-27</td>
       <td>420-PE</td>
       <td>PE</td>
       <td>6.35</td>
-      <td>Sell</td>
-      <td>419.10</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:27:13</td>
       <td>AXISBANK</td>
+      <td>2026-01-21 12:27:13</td>
+      <td>Sell</td>
+      <td>1277.60</td>
       <td>2026-01-27</td>
       <td>1280-PE</td>
       <td>PE</td>
       <td>14.10</td>
-      <td>Sell</td>
-      <td>1277.60</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:33:18</td>
       <td>HDFCBANK</td>
+      <td>2026-01-21 12:33:18</td>
+      <td>Strong Sell</td>
+      <td>924.20</td>
       <td>2026-01-27</td>
       <td>925-PE</td>
       <td>PE</td>
       <td>8.10</td>
-      <td>Strong Sell</td>
-      <td>924.20</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:33:18</td>
       <td>BANDHANBNK</td>
+      <td>2026-01-21 12:33:18</td>
+      <td>Sell</td>
+      <td>139.55</td>
       <td>2026-01-27</td>
       <td>140-PE</td>
       <td>PE</td>
       <td>3.18</td>
-      <td>Sell</td>
-      <td>139.55</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:33:20</td>
       <td>TCS</td>
+      <td>2026-01-21 12:33:20</td>
+      <td>Buy</td>
+      <td>3127.00</td>
       <td>2026-01-27</td>
       <td>3120-CE</td>
       <td>CE</td>
       <td>29.45</td>
-      <td>Buy</td>
-      <td>3127.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:39:48</td>
       <td>ICICIBANK</td>
+      <td>2026-01-21 12:39:48</td>
+      <td>Sell</td>
+      <td>1348.60</td>
       <td>2026-01-27</td>
       <td>1350-PE</td>
       <td>PE</td>
       <td>9.55</td>
-      <td>Sell</td>
-      <td>1348.60</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:46:06</td>
       <td>TCS</td>
+      <td>2026-01-21 12:46:06</td>
+      <td>Strong Buy</td>
+      <td>3135.30</td>
       <td>2026-01-27</td>
       <td>3140-CE</td>
       <td>CE</td>
       <td>24.00</td>
-      <td>Strong Buy</td>
-      <td>3135.30</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:52:23</td>
       <td>TCS</td>
+      <td>2026-01-21 12:52:23</td>
+      <td>Buy</td>
+      <td>3131.90</td>
       <td>2026-01-27</td>
       <td>3140-CE</td>
       <td>CE</td>
       <td>22.20</td>
-      <td>Buy</td>
-      <td>3131.90</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:58:44</td>
       <td>FEDERALBNK</td>
+      <td>2026-01-21 12:58:44</td>
+      <td>Strong Buy</td>
+      <td>276.15</td>
       <td>2026-01-27</td>
       <td>275-CE</td>
       <td>CE</td>
       <td>4.20</td>
-      <td>Strong Buy</td>
-      <td>276.15</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 12:58:45</td>
       <td>YESBANK</td>
+      <td>2026-01-21 12:58:45</td>
+      <td>Strong Buy</td>
+      <td>21.92</td>
       <td>2026-01-27</td>
       <td>22-CE</td>
       <td>CE</td>
       <td>0.28</td>
-      <td>Strong Buy</td>
-      <td>21.92</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:05:08</td>
       <td>NIFTY</td>
+      <td>2026-01-21 13:05:08</td>
+      <td>Strong Buy</td>
+      <td>25273.50</td>
       <td>2026-01-27</td>
       <td>25250-CE</td>
       <td>CE</td>
       <td>216.05</td>
-      <td>Strong Buy</td>
-      <td>25273.50</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:11:28</td>
       <td>KOTAKBANK</td>
+      <td>2026-01-21 13:11:28</td>
+      <td>Strong Buy</td>
+      <td>424.80</td>
       <td>2026-01-27</td>
       <td>425-CE</td>
       <td>CE</td>
       <td>6.60</td>
-      <td>Strong Buy</td>
-      <td>424.80</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:11:29</td>
       <td>YESBANK</td>
+      <td>2026-01-21 13:11:29</td>
+      <td>Buy</td>
+      <td>21.98</td>
       <td>2026-01-27</td>
       <td>22-CE</td>
       <td>CE</td>
       <td>0.29</td>
-      <td>Buy</td>
-      <td>21.98</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:11:29</td>
       <td>SBIN</td>
+      <td>2026-01-21 13:11:29</td>
+      <td>Buy</td>
+      <td>1033.05</td>
       <td>2026-01-27</td>
       <td>1035-CE</td>
       <td>CE</td>
       <td>7.45</td>
-      <td>Buy</td>
-      <td>1033.05</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:18:03</td>
       <td>KOTAKBANK</td>
+      <td>2026-01-21 13:18:03</td>
+      <td>Buy</td>
+      <td>423.10</td>
       <td>2026-01-27</td>
       <td>422.5-CE</td>
       <td>CE</td>
       <td>7.05</td>
-      <td>Buy</td>
-      <td>423.10</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:24:22</td>
       <td>FEDERALBNK</td>
+      <td>2026-01-21 13:24:22</td>
+      <td>Buy</td>
+      <td>275.80</td>
       <td>2026-01-27</td>
       <td>275-CE</td>
       <td>CE</td>
       <td>4.00</td>
-      <td>Buy</td>
-      <td>275.80</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:24:23</td>
       <td>YESBANK</td>
+      <td>2026-01-21 13:24:23</td>
+      <td>Strong Buy</td>
+      <td>21.92</td>
       <td>2026-01-27</td>
       <td>22-CE</td>
       <td>CE</td>
       <td>0.25</td>
-      <td>Strong Buy</td>
-      <td>21.92</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:24:23</td>
       <td>KOTAKBANK</td>
+      <td>2026-01-21 13:24:23</td>
+      <td>Strong Buy</td>
+      <td>422.90</td>
       <td>2026-01-27</td>
       <td>422.5-CE</td>
       <td>CE</td>
       <td>6.80</td>
-      <td>Strong Buy</td>
-      <td>422.90</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:24:24</td>
       <td>RBLBANK</td>
+      <td>2026-01-21 13:24:24</td>
+      <td>Buy</td>
+      <td>299.45</td>
       <td>2026-01-27</td>
       <td>300-CE</td>
       <td>CE</td>
       <td>3.55</td>
-      <td>Buy</td>
-      <td>299.45</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:30:46</td>
       <td>TATAELXSI</td>
+      <td>2026-01-21 13:30:46</td>
+      <td>Sell</td>
+      <td>5349.00</td>
       <td>2026-01-27</td>
       <td>5350-PE</td>
       <td>PE</td>
       <td>69.00</td>
-      <td>Sell</td>
-      <td>5349.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:30:46</td>
       <td>KOTAKBANK</td>
+      <td>2026-01-21 13:30:46</td>
+      <td>Buy</td>
+      <td>422.20</td>
       <td>2026-01-27</td>
       <td>422.5-CE</td>
       <td>CE</td>
       <td>6.80</td>
-      <td>Buy</td>
-      <td>422.20</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:37:03</td>
       <td>FEDERALBNK</td>
+      <td>2026-01-21 13:37:03</td>
+      <td>Strong Buy</td>
+      <td>275.55</td>
       <td>2026-01-27</td>
       <td>275-CE</td>
       <td>CE</td>
       <td>3.80</td>
-      <td>Strong Buy</td>
-      <td>275.55</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:37:04</td>
       <td>WIPRO</td>
+      <td>2026-01-21 13:37:04</td>
+      <td>Strong Sell</td>
+      <td>239.25</td>
       <td>2026-01-27</td>
       <td>240-PE</td>
       <td>PE</td>
       <td>2.70</td>
-      <td>Strong Sell</td>
-      <td>239.25</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:37:04</td>
       <td>TATAELXSI</td>
+      <td>2026-01-21 13:37:04</td>
+      <td>Strong Sell</td>
+      <td>5347.50</td>
       <td>2026-01-27</td>
       <td>5350-PE</td>
       <td>PE</td>
       <td>73.60</td>
-      <td>Strong Sell</td>
-      <td>5347.50</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:43:31</td>
       <td>FEDERALBNK</td>
+      <td>2026-01-21 13:43:31</td>
+      <td>Buy</td>
+      <td>275.35</td>
       <td>2026-01-27</td>
       <td>275-CE</td>
       <td>CE</td>
       <td>3.80</td>
-      <td>Buy</td>
-      <td>275.35</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:43:32</td>
       <td>BANDHANBNK</td>
+      <td>2026-01-21 13:43:32</td>
+      <td>Strong Sell</td>
+      <td>139.19</td>
       <td>2026-01-27</td>
       <td>140-PE</td>
       <td>PE</td>
       <td>3.55</td>
-      <td>Strong Sell</td>
-      <td>139.19</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:50:05</td>
       <td>IRFC</td>
+      <td>2026-01-21 13:50:05</td>
+      <td>Sell</td>
+      <td>114.84</td>
       <td>2026-01-27</td>
       <td>115-PE</td>
       <td>PE</td>
       <td>1.72</td>
-      <td>Sell</td>
-      <td>114.84</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:50:07</td>
       <td>RECLTD</td>
+      <td>2026-01-21 13:50:07</td>
+      <td>Sell</td>
+      <td>355.10</td>
       <td>2026-01-27</td>
       <td>355-PE</td>
       <td>PE</td>
       <td>4.95</td>
-      <td>Sell</td>
-      <td>355.10</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:50:07</td>
       <td>RBLBANK</td>
+      <td>2026-01-21 13:50:07</td>
+      <td>Sell</td>
+      <td>296.40</td>
       <td>2026-01-27</td>
       <td>295-PE</td>
       <td>PE</td>
       <td>3.45</td>
-      <td>Sell</td>
-      <td>296.40</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:56:27</td>
       <td>BSE</td>
+      <td>2026-01-21 13:56:27</td>
+      <td>Sell</td>
+      <td>2640.00</td>
       <td>2026-01-27</td>
       <td>2650-PE</td>
       <td>PE</td>
       <td>53.25</td>
-      <td>Sell</td>
-      <td>2640.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:56:28</td>
       <td>MCX</td>
+      <td>2026-01-21 13:56:28</td>
+      <td>Sell</td>
+      <td>2327.00</td>
       <td>2026-01-27</td>
       <td>2320-PE</td>
       <td>PE</td>
       <td>49.70</td>
-      <td>Sell</td>
-      <td>2327.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 13:56:28</td>
       <td>ABCAPITAL</td>
+      <td>2026-01-21 13:56:28</td>
+      <td>Sell</td>
+      <td>349.25</td>
       <td>2026-01-27</td>
       <td>350-PE</td>
       <td>PE</td>
       <td>5.25</td>
-      <td>Sell</td>
-      <td>349.25</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:02:32</td>
       <td>RECLTD</td>
+      <td>2026-01-21 14:02:32</td>
+      <td>Strong Sell</td>
+      <td>354.15</td>
       <td>2026-01-27</td>
       <td>355-PE</td>
       <td>PE</td>
       <td>6.00</td>
-      <td>Strong Sell</td>
-      <td>354.15</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:02:32</td>
       <td>IRFC</td>
+      <td>2026-01-21 14:02:32</td>
+      <td>Strong Sell</td>
+      <td>114.55</td>
       <td>2026-01-27</td>
       <td>115-PE</td>
       <td>PE</td>
       <td>1.95</td>
-      <td>Strong Sell</td>
-      <td>114.55</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:02:32</td>
       <td>SBIN</td>
+      <td>2026-01-21 14:02:32</td>
+      <td>Strong Sell</td>
+      <td>1027.60</td>
       <td>2026-01-27</td>
       <td>1030-PE</td>
       <td>PE</td>
       <td>8.55</td>
-      <td>Strong Sell</td>
-      <td>1027.60</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:02:33</td>
       <td>MCX</td>
+      <td>2026-01-21 14:02:33</td>
+      <td>Strong Sell</td>
+      <td>2322.00</td>
       <td>2026-01-27</td>
       <td>2320-PE</td>
       <td>PE</td>
       <td>53.60</td>
-      <td>Strong Sell</td>
-      <td>2322.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:08:51</td>
       <td>ABCAPITAL</td>
+      <td>2026-01-21 14:08:51</td>
+      <td>Strong Sell</td>
+      <td>346.15</td>
       <td>2026-01-27</td>
       <td>345-PE</td>
       <td>PE</td>
       <td>4.35</td>
-      <td>Strong Sell</td>
-      <td>346.15</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:08:51</td>
       <td>AUBANK</td>
+      <td>2026-01-21 14:08:51</td>
+      <td>Sell</td>
+      <td>998.15</td>
       <td>2026-01-27</td>
       <td>1000-PE</td>
       <td>PE</td>
       <td>14.50</td>
-      <td>Sell</td>
-      <td>998.15</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:08:51</td>
       <td>BSE</td>
+      <td>2026-01-21 14:08:51</td>
+      <td>Strong Sell</td>
+      <td>2624.60</td>
       <td>2026-01-27</td>
       <td>2600-PE</td>
       <td>PE</td>
       <td>33.15</td>
-      <td>Strong Sell</td>
-      <td>2624.60</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:15:09</td>
       <td>WIPRO</td>
+      <td>2026-01-21 14:15:09</td>
+      <td>Sell</td>
+      <td>239.00</td>
       <td>2026-01-27</td>
       <td>240-PE</td>
       <td>PE</td>
       <td>2.75</td>
-      <td>Sell</td>
-      <td>239.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:15:10</td>
       <td>RBLBANK</td>
+      <td>2026-01-21 14:15:10</td>
+      <td>Strong Sell</td>
+      <td>295.00</td>
       <td>2026-01-27</td>
       <td>295-PE</td>
       <td>PE</td>
       <td>4.05</td>
-      <td>Strong Sell</td>
-      <td>295.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:15:11</td>
       <td>BSE</td>
+      <td>2026-01-21 14:15:11</td>
+      <td>Sell</td>
+      <td>2624.00</td>
       <td>2026-01-27</td>
       <td>2600-PE</td>
       <td>PE</td>
       <td>36.25</td>
-      <td>Sell</td>
-      <td>2624.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:21:35</td>
       <td>LTF</td>
+      <td>2026-01-21 14:21:35</td>
+      <td>Sell</td>
+      <td>279.90</td>
       <td>2026-01-27</td>
       <td>280-PE</td>
       <td>PE</td>
       <td>4.00</td>
-      <td>Sell</td>
-      <td>279.90</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:21:35</td>
       <td>BSE</td>
+      <td>2026-01-21 14:21:35</td>
+      <td>Strong Sell</td>
+      <td>2622.00</td>
       <td>2026-01-27</td>
       <td>2600-PE</td>
       <td>PE</td>
       <td>29.35</td>
-      <td>Strong Sell</td>
-      <td>2622.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:27:42</td>
       <td>PFC</td>
+      <td>2026-01-21 14:27:42</td>
+      <td>Sell</td>
+      <td>355.65</td>
       <td>2026-01-27</td>
       <td>355-PE</td>
       <td>PE</td>
       <td>4.25</td>
-      <td>Sell</td>
-      <td>355.65</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:33:53</td>
       <td>PFC</td>
+      <td>2026-01-21 14:33:53</td>
+      <td>Strong Sell</td>
+      <td>355.00</td>
       <td>2026-01-27</td>
       <td>355-PE</td>
       <td>PE</td>
       <td>4.55</td>
-      <td>Strong Sell</td>
-      <td>355.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:40:35</td>
       <td>IRFC</td>
+      <td>2026-01-21 14:40:35</td>
+      <td>Sell</td>
+      <td>114.65</td>
       <td>2026-01-27</td>
       <td>115-PE</td>
       <td>PE</td>
       <td>1.91</td>
-      <td>Sell</td>
-      <td>114.65</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:40:35</td>
       <td>FEDERALBNK</td>
+      <td>2026-01-21 14:40:35</td>
+      <td>Strong Buy</td>
+      <td>274.90</td>
       <td>2026-01-27</td>
       <td>275-CE</td>
       <td>CE</td>
       <td>3.35</td>
-      <td>Strong Buy</td>
-      <td>274.90</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:40:35</td>
       <td>HDFCBANK</td>
+      <td>2026-01-21 14:40:35</td>
+      <td>Sell</td>
+      <td>922.30</td>
       <td>2026-01-27</td>
       <td>920-PE</td>
       <td>PE</td>
       <td>7.00</td>
-      <td>Sell</td>
-      <td>922.30</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:40:36</td>
       <td>RBLBANK</td>
+      <td>2026-01-21 14:40:36</td>
+      <td>Sell</td>
+      <td>296.05</td>
       <td>2026-01-27</td>
       <td>295-PE</td>
       <td>PE</td>
       <td>3.60</td>
-      <td>Sell</td>
-      <td>296.05</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:40:36</td>
       <td>RECLTD</td>
+      <td>2026-01-21 14:40:36</td>
+      <td>Sell</td>
+      <td>353.00</td>
       <td>2026-01-27</td>
       <td>352.5-PE</td>
       <td>PE</td>
       <td>5.05</td>
-      <td>Sell</td>
-      <td>353.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:40:36</td>
       <td>SBIN</td>
+      <td>2026-01-21 14:40:36</td>
+      <td>Sell</td>
+      <td>1027.50</td>
       <td>2026-01-27</td>
       <td>1025-PE</td>
       <td>PE</td>
       <td>6.30</td>
-      <td>Sell</td>
-      <td>1027.50</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:40:37</td>
       <td>ABCAPITAL</td>
+      <td>2026-01-21 14:40:37</td>
+      <td>Sell</td>
+      <td>347.25</td>
       <td>2026-01-27</td>
       <td>345-PE</td>
       <td>PE</td>
       <td>4.10</td>
-      <td>Sell</td>
-      <td>347.25</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:46:33</td>
       <td>HDFCBANK</td>
+      <td>2026-01-21 14:46:33</td>
+      <td>Strong Sell</td>
+      <td>921.20</td>
       <td>2026-01-27</td>
       <td>920-PE</td>
       <td>PE</td>
       <td>7.55</td>
-      <td>Strong Sell</td>
-      <td>921.20</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:46:35</td>
       <td>CDSL</td>
+      <td>2026-01-21 14:46:35</td>
+      <td>Sell</td>
+      <td>1331.50</td>
       <td>2026-01-27</td>
       <td>1340-PE</td>
       <td>PE</td>
       <td>22.55</td>
-      <td>Sell</td>
-      <td>1331.50</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:46:36</td>
       <td>MCX</td>
+      <td>2026-01-21 14:46:36</td>
+      <td>Sell</td>
+      <td>2321.00</td>
       <td>2026-01-27</td>
       <td>2320-PE</td>
       <td>PE</td>
       <td>52.00</td>
-      <td>Sell</td>
-      <td>2321.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:58:58</td>
       <td>INDUSINDBK</td>
+      <td>2026-01-21 14:58:58</td>
+      <td>Buy</td>
+      <td>907.80</td>
       <td>2026-01-27</td>
       <td>910-CE</td>
       <td>CE</td>
       <td>16.95</td>
-      <td>Buy</td>
-      <td>907.80</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:58:58</td>
       <td>HCLTECH</td>
+      <td>2026-01-21 14:58:58</td>
+      <td>Strong Buy</td>
+      <td>1682.60</td>
       <td>2026-01-27</td>
       <td>1680-CE</td>
       <td>CE</td>
       <td>13.60</td>
-      <td>Strong Buy</td>
-      <td>1682.60</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 14:59:00</td>
       <td>MANAPPURAM</td>
+      <td>2026-01-21 14:59:00</td>
+      <td>Sell</td>
+      <td>296.80</td>
       <td>2026-01-27</td>
       <td>297.5-PE</td>
       <td>PE</td>
       <td>6.05</td>
-      <td>Sell</td>
-      <td>296.80</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 15:05:07</td>
       <td>MANAPPURAM</td>
+      <td>2026-01-21 15:05:07</td>
+      <td>Strong Sell</td>
+      <td>296.70</td>
       <td>2026-01-27</td>
       <td>297.5-PE</td>
       <td>PE</td>
       <td>5.95</td>
-      <td>Strong Sell</td>
-      <td>296.70</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 15:05:07</td>
       <td>BSE</td>
+      <td>2026-01-21 15:05:07</td>
+      <td>Sell</td>
+      <td>2635.00</td>
       <td>2026-01-27</td>
       <td>2650-PE</td>
       <td>PE</td>
       <td>53.85</td>
-      <td>Sell</td>
-      <td>2635.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 15:11:09</td>
       <td>INDUSINDBK</td>
+      <td>2026-01-21 15:11:09</td>
+      <td>Strong Buy</td>
+      <td>908.00</td>
       <td>2026-01-27</td>
       <td>910-CE</td>
       <td>CE</td>
       <td>16.00</td>
-      <td>Strong Buy</td>
-      <td>908.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 15:11:10</td>
       <td>BSE</td>
+      <td>2026-01-21 15:11:10</td>
+      <td>Strong Sell</td>
+      <td>2633.20</td>
       <td>2026-01-27</td>
       <td>2650-PE</td>
       <td>PE</td>
       <td>54.30</td>
-      <td>Strong Sell</td>
-      <td>2633.20</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 15:11:10</td>
       <td>ABCAPITAL</td>
+      <td>2026-01-21 15:11:10</td>
+      <td>Strong Sell</td>
+      <td>346.95</td>
       <td>2026-01-27</td>
       <td>345-PE</td>
       <td>PE</td>
       <td>4.55</td>
-      <td>Strong Sell</td>
-      <td>346.95</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 15:11:11</td>
       <td>MCX</td>
+      <td>2026-01-21 15:11:11</td>
+      <td>Strong Sell</td>
+      <td>2319.00</td>
       <td>2026-01-27</td>
       <td>2320-PE</td>
       <td>PE</td>
       <td>54.50</td>
-      <td>Strong Sell</td>
-      <td>2319.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 15:17:17</td>
       <td>HCLTECH</td>
+      <td>2026-01-21 15:17:17</td>
+      <td>Buy</td>
+      <td>1685.00</td>
       <td>2026-01-27</td>
       <td>1680-CE</td>
       <td>CE</td>
       <td>15.25</td>
-      <td>Buy</td>
-      <td>1685.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 15:23:22</td>
       <td>INDUSINDBK</td>
+      <td>2026-01-21 15:23:22</td>
+      <td>Buy</td>
+      <td>907.05</td>
       <td>2026-01-27</td>
       <td>910-CE</td>
       <td>CE</td>
       <td>15.80</td>
-      <td>Buy</td>
-      <td>907.05</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 15:23:23</td>
       <td>ABCAPITAL</td>
+      <td>2026-01-21 15:23:23</td>
+      <td>Sell</td>
+      <td>346.00</td>
       <td>2026-01-27</td>
       <td>345-PE</td>
       <td>PE</td>
       <td>4.65</td>
-      <td>Sell</td>
-      <td>346.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 15:29:32</td>
       <td>HDFCBANK</td>
+      <td>2026-01-21 15:29:32</td>
+      <td>Sell</td>
+      <td>919.60</td>
       <td>2026-01-27</td>
       <td>920-PE</td>
       <td>PE</td>
       <td>6.40</td>
-      <td>Sell</td>
-      <td>919.60</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 15:29:33</td>
       <td>ICICIBANK</td>
+      <td>2026-01-21 15:29:33</td>
+      <td>Strong Sell</td>
+      <td>1345.80</td>
       <td>2026-01-27</td>
       <td>1350-PE</td>
       <td>PE</td>
       <td>13.75</td>
-      <td>Strong Sell</td>
-      <td>1345.80</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 15:29:35</td>
       <td>BSE</td>
+      <td>2026-01-21 15:29:35</td>
+      <td>Sell</td>
+      <td>2627.20</td>
       <td>2026-01-27</td>
       <td>2650-PE</td>
       <td>PE</td>
       <td>55.70</td>
-      <td>Sell</td>
-      <td>2627.20</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 15:29:35</td>
       <td>ABCAPITAL</td>
+      <td>2026-01-21 15:29:35</td>
+      <td>Strong Sell</td>
+      <td>345.75</td>
       <td>2026-01-27</td>
       <td>345-PE</td>
       <td>PE</td>
       <td>4.50</td>
-      <td>Strong Sell</td>
-      <td>345.75</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>2026-01-21 15:35:38</td>
       <td>ABCAPITAL</td>
+      <td>2026-01-21 15:35:38</td>
+      <td>Sell</td>
+      <td>346.00</td>
       <td>2026-01-27</td>
       <td>345-PE</td>
       <td>PE</td>
       <td>4.25</td>
-      <td>Sell</td>
-      <td>346.00</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
@@ -2104,6 +2185,7 @@ body {
 
     <footer class="footer">
       <span>Generated by <span class="text-mono">build_siglog.py</span></span>
+      <span>Generated at: <span class="text-mono">2026-01-21 22:05:51</span></span>
       <span>Powered by <span class="text-mono">FNOScreener</span></span>
     </footer>
   </div>
@@ -2153,8 +2235,8 @@ body {
       }
     }
 
-    // Datetime ko mono font
-    const dtIdx = 0;
+    // Datetime column ko mono font
+    const dtIdx = 1;  // 2nd column (0-based index 1)
     for (const row of rows) {
       const c = row.cells[dtIdx];
       if (c) c.classList.add("text-mono");
