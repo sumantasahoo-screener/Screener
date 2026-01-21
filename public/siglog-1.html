@@ -199,12 +199,6 @@ body {
   border-color: rgba(127,29,29,1);
 }
 
-.pill-neutral {
-  background: rgba(75,85,99,0.9);
-  color: #e5e7eb;
-  border-color: rgba(55,65,81,0.95);
-}
-
 @media (max-width: 900px) {
   body {
     align-items: stretch;
@@ -8441,13 +8435,16 @@ body {
       const cell = row.cells[signalIdx];
       if (!cell) continue;
       const value = cell.textContent.trim().toLowerCase();
-      let cls = "pill-neutral";
+      let cls = "";
       if (value === "buy") cls = "pill-buy";
       else if (value === "sell") cls = "pill-sell";
       else if (value === "strong buy") cls = "pill-strong-buy";
       else if (value === "strong sell") cls = "pill-strong-sell";
+      else cls = "";
 
-      cell.innerHTML = `<span class="pill ${cls}">${cell.textContent.trim()}</span>`;
+      if (cls) {
+        cell.innerHTML = `<span class="pill ${cls}">${cell.textContent.trim()}</span>`;
+      }
     }
 
     const dtIdx = 0;
