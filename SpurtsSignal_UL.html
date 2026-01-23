@@ -1,71 +1,151 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Spurt Underline Data</title>
-
-<style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 8px 10px;
-}
-
-h1 {
-    font-size: 18px;
-    margin: 0;
-}
-
-p {
-    font-size: 12px;
-    margin: 2px 0 8px 0;
-}
-
-h2 {
-    font-size: 15px;
-    margin: 14px 0 4px 0;
-    padding: 4px 6px;
-    border-radius: 4px;
-}
-
-.h-long { background:#eaf6ee; border:1px solid #cfe8d8; }
-.h-short { background:#fdecec; border:1px solid #f2caca; }
-.h-acc { background:#f2f2f2; border:1px solid #d6d6d6; }
-
-.signal-table {
-    width:100%;
-    border-collapse:collapse;
-    table-layout:auto;
-    margin-bottom:8px;
-}
-
-.signal-table th,
-.signal-table td {
-    border:1px solid #e0e0e0;
-    padding:4px 6px;
-    font-size:12px;
-    text-align:center;
-    white-space:normal;
-}
-
-@media (max-width:768px) {
-    .signal-table {
-        display:block;
-        overflow-x:auto;
-        white-space:nowrap;
-    }
-}
-</style>
-
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spurt Underline Data</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f0f7fa 0%, #e1f2f8 100%);
+            color: #2c3e50;
+            padding: 20px;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        .scan-date {
+            font-size: 0.95rem;
+            color: #5a6c7d;
+            font-weight: 500;
+        }
+        .section {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(79, 172, 254, 0.15);
+            border: 1px solid rgba(79, 172, 254, 0.2);
+            margin-bottom: 24px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .section:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(79, 172, 254, 0.25);
+        }
+        .h-long {
+            border-left: 5px solid #26de81;
+        }
+        .h-short {
+            border-left: 5px solid #fc427b;
+        }
+        .h-acc {
+            border-left: 5px solid #fdcb6e;
+        }
+        .section h2 {
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            padding: 20px 24px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+        .signal-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+        }
+        .signal-table th {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 16px 12px;
+            text-align: center;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .signal-table td {
+            padding: 14px 12px;
+            text-align: center;
+            border-bottom: 1px solid rgba(79, 172, 254, 0.1);
+            transition: background-color 0.2s ease;
+        }
+        .signal-table tr:hover td {
+            background: rgba(79, 172, 254, 0.05);
+        }
+        .signal-table tr:last-child td {
+            border-bottom: none;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+            .signal-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+            .section h2 {
+                padding: 16px 20px;
+            }
+            .signal-table th,
+            .signal-table td {
+                min-width: 80px;
+                padding: 12px 8px;
+            }
+        }
+        @media (max-width: 480px) {
+            .section {
+                margin-bottom: 20px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<h1>Spurt Underline Data</h1>
-<p>Scan Date: 23-01-2026 08:39</p>
-
-<h2 class='h-long'>LONG</h2><p>No data</p>
-<h2 class='h-short'>SHORT</h2><p>No data</p>
-<h2 class='h-acc'>ACCUMULATION</h2><p>No data</p>
-
+    <div class="header">
+        <h1>Spurt Underline Data</h1>
+        <p class="scan-date">Scan Date: 23-01-2026 08:43</p>
+    </div>
+    
+        <div class="section h-long">
+            <h2>LONG</h2>
+            <p>No data</p>
+        </div>
+        
+    
+        <div class="section h-short">
+            <h2>SHORT</h2>
+            <p>No data</p>
+        </div>
+        
+    
+        <div class="section h-acc">
+            <h2>ACCUMULATION</h2>
+            <p>No data</p>
+        </div>
+        
 </body>
 </html>
