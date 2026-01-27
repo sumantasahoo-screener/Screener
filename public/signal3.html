@@ -18,19 +18,12 @@
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, "text/html");
-        const newWrap = doc.querySelector(".table-wrap");
-        const curWrap = document.querySelector(".table-wrap");
-        if(!newWrap || !curWrap) return;
+        const newWrap = doc.querySelector(".card-grid");
+		const curWrap = document.querySelector(".card-grid");
+		if(!newWrap || !curWrap) return;
 
-        const pageScrollY   = window.scrollY || window.pageYOffset;
-        const wrapScrollLeft = curWrap.scrollLeft || 0;
+		curWrap.innerHTML = newWrap.innerHTML;
 
-        curWrap.innerHTML = newWrap.innerHTML;
-
-        setTimeout(() => {
-          window.scrollTo(0, pageScrollY);
-          curWrap.scrollLeft = wrapScrollLeft;
-        }, 50);
       }catch(err){
         console.warn("Table update failed:", err);
       }
@@ -46,202 +39,158 @@
 :root{
   --bg-main:#eefaf2;
   --bg-elevated:#f4fff8;
-  --bg-elevated-soft:#daf2e4;
-  --bg-header:#cfeedd;
-  --bg-header-chip:#bfe6d2;
-  --bg-sticky-index:#b3dfc8;
-  --bg-symbol-freeze:#cfeedd;
+  --bg-panel:#ffffff;
 
   --border-subtle:#9ed3b7;
-  --border-strong:#6fb897;
 
   --text-main:#0f3b2a;
-  --text-muted:#2f6f55;
   --text-soft:#5a9b80;
 
-  --accent-up:#22c55e;
-  --accent-down:#dc2626;
-  --accent-nt:#5a9b80;
+  --green:#22c55e;
+  --red:#ef4444;
+  --yellow:#facc15;
 
-  --accent-buy:#4ade80;
-  --accent-sell:#f87171;
-  --accent-strong:#16a34a;
-
-  --scan-fresh:#22c55e;
-  --scan-active:#16a34a;
-  --scan-old:#f59e0b;
-  --scan-bad:#b91c1c;
-
-  --btn-rotate:#16a34a;
-  --btn-spurts:#22c55e;
-  --btn-munna:#84cc16;
-
-  --shadow-soft:0 8px 22px rgba(40,120,80,.22);
+  --shadow-soft:0 10px 26px rgba(20,80,50,.18);
 }
+
+/* BASE */
 
 *{box-sizing:border-box;}
 
 body{
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
   margin:10px;
   background:linear-gradient(180deg,#f7fffb,#eefaf2);
   color:var(--text-main);
 }
 
-h2{margin:5px 0 10px;font-size:20px;color:var(--text-main);}
+/* GRID */
 
-.header-row{display:flex;align-items:center;gap:10px;margin:6px 0 12px;position:relative;z-index:60;}
+.card-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:1fr 1fr;
+  gap:16px;
+  height:90vh;
+}
 
-.title-rect{
-  padding:6px 12px;border-radius:10px;font-weight:700;font-size:18px;
-  background:linear-gradient(135deg,#e9fff3,#cfeedd);
-  color:var(--text-main);
+/* CARD */
+
+.trade-card{
+  background:var(--bg-panel);
+  border-radius:18px;
   border:1px solid var(--border-subtle);
   box-shadow:var(--shadow-soft);
+  padding:14px 18px;
+  display:flex;
+  flex-direction:column;
 }
 
-.edu-text{font-size:13px;color:var(--text-soft);}
-.legend{display:flex;gap:8px;}
+/* HEADER */
 
-.lg-item{
-  padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px;
-  background:#d9f5e6;color:var(--text-main);
-  border:1px solid var(--border-subtle);
-}
-
-.lg-bull{background:#bbf7d0;}
-.lg-bear{background:#fecaca;}
-.lg-grey{background:#86c9aa;color:#fff;}
-
-.table-wrap{
-  width:100%;max-height:85vh;overflow:auto;border-radius:12px;
-  padding-right:12px;background:var(--bg-elevated);
-  box-shadow:var(--shadow-soft);
-  border:1px solid var(--border-subtle);
-}
-
-table.dataframe{border-collapse:collapse;width:100%;min-width:750px;font-size:13px;color:var(--text-main);}
-
-table.dataframe th,
-table.dataframe td{
-  border:1px solid var(--border-subtle);
-  padding:6px 8px;text-align:center;
-  background:#fbfffd;font-weight:600;
-}
-
-table.dataframe tbody tr:nth-child(even) td{background:var(--bg-main);}
-table.dataframe tr:hover td{background:#d7f3e3;}
-
-table.dataframe th{
-  background:linear-gradient(180deg,#dff7ea,#bfe6d2);
-  color:var(--text-main);
-  font-weight:800;position:sticky;top:0;z-index:30;
-  font-size:11px;letter-spacing:.05em;text-transform:uppercase;
-  border-bottom:2px solid var(--border-strong);
-}
-
-table.dataframe tr.sticky-row{
-  position:sticky;top:40px;z-index:90;
-  background:linear-gradient(180deg,#dff7ea,#bfe6d2);
-  border-bottom:1px solid var(--border-strong);
-}
-
-table.dataframe tr.sticky-row td{
-  background:linear-gradient(180deg,#dff7ea,#bfe6d2)!important;
+.card-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
   font-weight:800;
 }
 
-table.dataframe tr.sticky-row td.col-SYMBOL{
-  position:sticky;left:0;top:40px;z-index:95;
-  background:linear-gradient(180deg,#dff7ea,#bfe6d2)!important;
-  box-shadow:1px 0 0 var(--border-strong);
+.card-symbol{font-size:20px;}
+.card-exp{font-size:12px;color:var(--text-soft);}
+
+.badge-buy{background:var(--green);color:#fff;padding:4px 10px;border-radius:8px;}
+.badge-sell{background:var(--red);color:#fff;padding:4px 10px;border-radius:8px;}
+.badge-nt{background:#ddd;color:#333;padding:4px 10px;border-radius:8px;}
+
+/* PRICE ZONE */
+
+.price-zone{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:10px 0;
 }
 
-table.dataframe tr.sticky-row + tr.sticky-row{top:76px;}
-table.dataframe tr.sticky-row + tr.sticky-row td.col-SYMBOL{top:76px;}
-
-.col-SYMBOL{
-  position:sticky;left:0;z-index:30;background:inherit;
-  border-right:1px solid var(--border-subtle);
-  text-align:left;padding-left:8px;font-weight:700;
+.spot{
+  font-size:34px;
+  font-weight:900;
 }
 
-table.dataframe th.col-SYMBOL{
-  z-index:70;
-  background:linear-gradient(180deg,#dff7ea,#bfe6d2);
+.option-line{
+  font-size:14px;
+  font-weight:700;
 }
 
-table.dataframe th:nth-child(n+14),
-table.dataframe td:nth-child(n+14){display:none;}
+/* RIGHT RAIL */
 
-
-
-td.col-QCP span{color:var(--text-main)!important;}
-
-.signal-slab{
-  display:inline-flex;align-items:center;min-width:60px;height:24px;
-  font-weight:700;background:#d9f5e6;color:var(--text-main);
-  border-radius:4px;border:1px solid var(--border-subtle);
-  box-shadow:var(--shadow-soft);
+.analytics{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:8px;
 }
 
-.signal-slab.buy{background:#bbf7d0;}
-.signal-slab.sell{background:#fecaca;}
-.signal-slab.nt{background:#d9f5e6;color:var(--text-soft);}
+/* OI BARS */
 
-.price-tag{
-  display:inline-flex;padding:4px 12px 4px 16px;font-weight:700;
-  border-radius:4px;background:#d9f5e6;color:var(--text-main);
-  box-shadow:var(--shadow-soft);border:1px solid var(--border-subtle);
+.oi-box{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
 }
 
-.price-tag.buy{background:#bbf7d0;}
-.price-tag.sell{background:#fecaca;}
-.price-tag.nt{background:transparent;color:var(--text-soft);border:1px dashed var(--border-strong);}
+.oi-row{
+  height:10px;
+  border-radius:6px;
+  background:#eee;
+  position:relative;
+  overflow:hidden;
+}
+
+.oi-call{background:linear-gradient(90deg,#fff,var(--green));}
+.oi-put{background:linear-gradient(90deg,var(--red),#fff);}
+
+/* PA STREAK */
+
+.pa-row{
+  display:flex;
+  gap:4px;
+}
+
+.pa-up{width:12px;height:12px;background:var(--green);border-radius:3px;}
+.pa-down{width:12px;height:12px;background:var(--red);border-radius:3px;}
+.pa-flat{width:12px;height:12px;background:#ccc;border-radius:3px;}
+
+/* MINI CHART */
+
+.mini-chart{
+  height:80px;
+  background:linear-gradient(180deg,#ecfdf5,#fff);
+  border-radius:10px;
+  margin-top:8px;
+}
+
+/* FLOATING CONTROLS KEEP */
 
 .floating-controls{
-  position:fixed;bottom:12px;left:12px;z-index:9999;
-  display:flex;gap:6px;backdrop-filter:blur(8px);
+  position:fixed;
+  bottom:12px;
+  left:12px;
+  z-index:9999;
+  display:flex;
+  gap:6px;
 }
 
 .ctrl-btn,
 .ctrl-link{
-  width:32px;height:32px;border-radius:10px;
+  width:34px;
+  height:34px;
+  border-radius:10px;
   border:1px solid var(--border-subtle);
-  display:flex;align-items:center;justify-content:center;
-  font-weight:800;color:var(--text-main);
-  background:var(--bg-elevated);
-  box-shadow:var(--shadow-soft);transition:.15s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  background:#fff;
 }
-
-.ctrl-btn:hover,
-.ctrl-link:hover{transform:translateY(-2px) scale(1.04);}
-
-table.dataframe tbody tr:not(.sticky-row):nth-child(even) td{
-  background:var(--bg-main);
-}
-
-table.dataframe tbody tr:not(.sticky-row):nth-child(even):hover td{
-  background:#FEEBE7;
-}
-
-table.dataframe tbody tr:not(.sticky-row):nth-child(odd):hover td{
-  background:#ABEFF5;
-}
-
-
-:root{--sticky-top:36px;--sticky-h:36px;}
-
-table.dataframe tr.sticky-row{top:36px!important;}
-table.dataframe tr.sticky-row + tr.sticky-row{top:78px!important;}
-
-table.dataframe tr.sticky-row + tr.sticky-row td.col-SYMBOL{
-  top:calc(var(--sticky-top) + var(--sticky-h));
-}
-
-#rotateBtn{background:var(--btn-rotate);color:#fff;}
-.ctrl-spurts{background:var(--btn-spurts);color:#fff;}
-.ctrl-munna{width:110px;background:var(--btn-munna);font-size:14px;color:#fff;}
 </style>
 
 
@@ -273,163 +222,63 @@ table.dataframe tr.sticky-row + tr.sticky-row td.col-SYMBOL{
   </th>
   </tr>
 
-  <script>
-    (function () {
-      function updateScanTime() {
-        const table = document.querySelector("table.dataframe");
-        if (!table) return;
+<script>
+(function () {
 
-        const headers = Array.from(table.querySelectorAll("th"));
-        const scanIndex = headers.findIndex(h =>
-          h.textContent.trim().toUpperCase() === "SCAN-TIME"
-        );
-        if (scanIndex === -1) return;
+  // ===== SCAN TIME (card based, table free) =====
+  function updateScanTimeFromCards(){
+    const firstCard = document.querySelector(".trade-card");
+    if(!firstCard) return;
 
-        const firstRow = table.querySelector("tbody tr");
-        if (!firstRow) return;
+    const scanVal = firstCard.getAttribute("data-scan-time");
+    if(!scanVal) return;
 
-        const cells = firstRow.querySelectorAll("td");
-        if (!cells[scanIndex]) return;
+    const scanEl = document.getElementById("scanTimeValue");
+    const statusEl = document.getElementById("scanStatus");
 
-        const scanEl = document.getElementById("scanTimeValue");
-        scanEl.innerHTML =
-          scanEl.textContent = cells[scanIndex].innerText.trim();
+    scanEl.textContent = scanVal;
 
-        const now = new Date();
-        const scanText = scanEl.textContent.trim();
-        const parts = scanText.split(" ");
-        if (parts.length === 2) {
-          const [d, t] = parts;
-          const [dd, mm, yy] = d.split("/").map(Number);
-          const [hh, min] = t.split(":").map(Number);
+    const now = new Date();
+    const parts = scanVal.split(" ");
+    if(parts.length !== 2) return;
 
-          const scanDate = new Date(2000 + yy, mm - 1, dd, hh, min);
-          const diffMin = (now - scanDate) / 60000;
+    const [d,t] = parts;
+    const [dd,mm,yy] = d.split("/").map(Number);
+    const [hh,min] = t.split(":").map(Number);
 
-          const statusEl = document.getElementById("scanStatus");
-          if (statusEl) {
-            const mins = Math.floor(diffMin);
-            if (diffMin <= 4) {
-              statusEl.textContent = "FRESH";
-              statusEl.style.background = "#16a34a";
-            } else if (diffMin <= 5) {
-              statusEl.textContent = "ACTIVE";
-              statusEl.style.background = "#0284c7";
-            } else if (diffMin <= 12) {
-              statusEl.textContent = mins + " MIN";
-              statusEl.style.background = "#ea580c";
-            } else {
-              statusEl.textContent = mins + " MIN";
-              statusEl.style.background = "#b91c1c";
-            }
+    const scanDate = new Date(2000+yy,mm-1,dd,hh,min);
+    const diffMin = (now - scanDate)/60000;
 
-            statusEl.style.color = "#fff";
-            statusEl.style.fontWeight = "600";
-            statusEl.style.fontSize = "11px";
-            statusEl.style.lineHeight = "1";
-            statusEl.style.padding = "2px 8px";
-          }
-        }
+    let bg = "#b91c1c", txt="OLD";
+    if(diffMin<=4){bg="#16a34a";txt="FRESH";}
+    else if(diffMin<=5){bg="#0284c7";txt="ACTIVE";}
+    else if(diffMin<=12){bg="#ea580c";txt=Math.floor(diffMin)+" MIN";}
 
-        scanEl.style.fontSize = "11px";
-        scanEl.style.fontWeight = "900";
-        scanEl.style.letterSpacing = "0.3px";
-      }
+    if(statusEl){
+      statusEl.textContent = txt;
+      statusEl.style.background = bg;
+      statusEl.style.color="#fff";
+      statusEl.style.fontSize="11px";
+      statusEl.style.padding="2px 8px";
+    }
+  }
 
-      window.addEventListener("load", updateScanTime);
-      setInterval(updateScanTime, 3000);
-    })();
-  </script>
+  window.addEventListener("load", updateScanTimeFromCards);
+  setInterval(updateScanTimeFromCards,3000);
 
-  <div class="table-wrap">
-    
-        <script>
-        (function(){
-          const KEY = "signal_auth_ok";
-          if (sessionStorage.getItem(KEY) === "1") return;
+})();
+</script>
 
-          const pwd = prompt("Enter password:");
-          if (pwd !== "9999") {
-            document.documentElement.innerHTML = "";
-          } else {
-            sessionStorage.setItem(KEY, "1");
-          }
-        })();
-        </script>
-        <table border="1" class="dataframe"><thead><tr><th class="col-SYMBOL">SYMBOL</th><th class="col-SIG-TIME">SIG-TIME</th><th class="col-INDICATOR">INDICATOR</th><th class="col-BUILD-%">BUILD-%</th><th class="col-BUILDUP">BUILDUP</th><th class="col-SPOT_LTP">SPOT_LTP</th><th class="col-PRICE">PRICE</th><th class="col-CE_PE">CE/PE</th><th class="col-BLD-SIGNAL">BLD-SIGNAL</th><th class="col-CANDLE">CANDLE</th><th class="col-15M_H_L">15M H/L</th><th class="col-TRND-CNDL">TRND-CNDL</th><th class="col-QCP">QCP</th><th class="col-IND-SCORE">IND-SCORE</th><th class="col-DELTA_ZONE">DELTA_ZONE</th><th class="col-GAMMA_ZONE">GAMMA_ZONE</th><th class="col-THETA_ZONE">THETA_ZONE</th><th class="col-IV_ZONE">IV_ZONE</th><th class="col-Diff">Diff</th><th class="col-LOT_Size">LOT_Size</th><th class="col-SIGNAL">SIGNAL</th><th class="col-Diff">Diff</th><th class="col-CALL_PCT">CALL_PCT</th><th class="col-PUT_PCT">PUT_PCT</th><th class="col-IMB-DIR">IMB-DIR</th><th class="col-SCAN-TIME">SCAN-TIME</th><th class="col-SM_EXPIRY_DATE">SM_EXPIRY_DATE</th><th class="col-BLD-SCORE">BLD-SCORE</th></tr></thead><tbody>
-<tr class="sticky-row"><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">NIFTY</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-INDICATOR" style="padding:6px;text-align:center;vertical-align:middle;"><div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="display:flex;"><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#E0E0E0;"></span></div><span style="font-size:11px;font-weight:600;color:#12AB05;">UP 90%<svg width='14' height='14' viewBox='0 0 24 24' style='vertical-align:middle' fill='#d97706' xmlns='http://www.w3.org/2000/svg'><path d='M12 2L1 21h22L12 2z'/><rect x='11' y='8' width='2' height='7' fill='#fff'/><rect x='11' y='17' width='2' height='2' fill='#fff'/></svg></span></div></td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">4.9% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 4.9%, #e0e0e0 4.9%);"></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:30px;border-radius:3px;background:#A34860;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;font-size:11px;">25175.4</span></span></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>24.5</td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">25200-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#9E9E9E;font-weight:400;">No-trade</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span></div></div></td><td class="col-CANDLE" style="text-align:center;"><div style="width:14px;height:28px;position:relative;margin:4px auto;"><div style="position:absolute;left:9.5px;top:0;height:5.155047875020904px;width:1px;background:#12AB05;"></div><div style="position:absolute;left:4px;top:5.155047875020904px;height:10.540567780951005px;width:12px;background:#12AB05;"></div><div style="position:absolute;left:9.5px;top:15.69561565597191px;height:12.30438434402809px;width:1px;background:#12AB05;"></div></div></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#0AA311;font-weight:600;font-size:11px;">▲ 15H</span></td><td class="col-Trnd_Cndl" style="padding:4px;text-align:center;"><div style="display:flex;justify-content:center;"><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#F52727;"></div><div style="position:absolute;left:2px;top:0.24918642491880372px;height:22.013947001394385px;width:10px;background:#F52727;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#F52727;"></div><div style="position:absolute;left:2px;top:8.22600561272204px;height:4.871842843779232px;width:10px;background:#F52727;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#12AB05;"></div><div style="position:absolute;left:2px;top:9.03266430539159px;height:2px;width:10px;background:#12AB05;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#F52727;"></div><div style="position:absolute;left:2px;top:0.2726943067811364px;height:20.17937870180093px;width:10px;background:#F52727;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#F52727;"></div><div style="position:absolute;left:2px;top:0.030198175527004975px;height:10.206983328090327px;width:10px;background:#F52727;"></div></div></div></td><td class="col-QCP" style="padding:2px;text-align:center;">1.673</td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#1FA64B;display:inline-block;"></span><span style="color:#1FA64B;font-weight:600;font-size:11px;">U90</span></span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE DELTA 2%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE GAMMA 40%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE THETA 1%</span></td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#02B50B;font-size:11px;font-weight:700;">0.45%</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">65</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#02B50B;font-size:11px;font-weight:700;">0.45%</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">52.5</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">47.5</td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">27/01/26 21:34</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#F43656;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td></tr>
-<tr class="sticky-row"><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">BANKNIFTY</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#12AB05;">21:30 <span style="font-size:12px;margin-left:2px;color:#12AB05;">🔔</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;vertical-align:middle;"><div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="display:flex;"><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#E0E0E0;"></span></div><span style="font-size:11px;font-weight:600;color:#12AB05;">UP 90%<svg width='14' height='14' viewBox='0 0 24 24' style='vertical-align:middle' fill='#d97706' xmlns='http://www.w3.org/2000/svg'><path d='M12 2L1 21h22L12 2z'/><rect x='11' y='8' width='2' height='7' fill='#fff'/><rect x='11' y='17' width='2' height='2' fill='#fff'/></svg></span></div></td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#12AB05;font-weight:600;font-size:12px;">2.8% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #12AB05 2.8%, #e0e0e0 2.8%);"></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:30px;border-radius:3px;background:#A34860;color:#fff;font-weight:600;font-size:11px;">S</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;font-size:11px;">59205.45</span></span></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1FA64B;margin-right:4px;"></span>6.45<span style="font-size:16px;font-weight:900;color:#1FA64B;padding-left:4px;">★</span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#60CC65;font-size:14px;">●</span><span style="margin-left:6px;">59200-CE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#9E9E9E;font-weight:400;">No-trade</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span></div></div></td><td class="col-CANDLE" style="text-align:center;"><div style="width:14px;height:28px;position:relative;margin:4px auto;"><div style="position:absolute;left:9.5px;top:0;height:4.421567865744702px;width:1px;background:#12AB05;"></div><div style="position:absolute;left:4px;top:4.421567865744702px;height:18.260585813068033px;width:12px;background:#12AB05;"></div><div style="position:absolute;left:9.5px;top:22.682153678812735px;height:5.317846321187265px;width:1px;background:#12AB05;"></div></div></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#0AA311;font-weight:600;font-size:11px;">▲ 15H</span></td><td class="col-Trnd_Cndl" style="padding:4px;text-align:center;"><div style="display:flex;justify-content:center;"><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#F52727;"></div><div style="position:absolute;left:2px;top:2.1633931113008793px;height:18.94790777113582px;width:10px;background:#F52727;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#12AB05;"></div><div style="position:absolute;left:2px;top:11.935204319712089px;height:2px;width:10px;background:#12AB05;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#F52727;"></div><div style="position:absolute;left:2px;top:6.270288770053446px;height:7.016727272727213px;width:10px;background:#F52727;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#F52727;"></div><div style="position:absolute;left:2px;top:4.806426608413714px;height:15.126206750757607px;width:10px;background:#F52727;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#F52727;"></div><div style="position:absolute;left:2px;top:0.6644570091634416px;height:9.44979528173151px;width:10px;background:#F52727;"></div></div></div></td><td class="col-QCP" style="padding:2px;text-align:center;">1.6507</td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#1FA64B;display:inline-block;"></span><span style="color:#1FA64B;font-weight:600;font-size:11px;">U90</span></span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE DELTA 2%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE GAMMA 49%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE THETA 1%</span></td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#02B50B;font-size:11px;font-weight:700;">1.44%</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">30</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #0AA311;color:#0AA311;background:transparent;">Bullish</span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#02B50B;font-size:11px;font-weight:700;">1.44%</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">48.6</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">51.4</td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#60CC65;font-size:14px;font-weight:600;">↑</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">27/01/26 21:34</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#60CC65;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td></tr>
-<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">SBIN</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#12AB05;">21:34 <span style="font-size:12px;margin-left:2px;color:#12AB05;">🔔</span></td><td class="col-INDICATOR" style="padding:6px;text-align:center;vertical-align:middle;"><div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="display:flex;"><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#12AB05;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#E0E0E0;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#E0E0E0;"></span></div><span style="font-size:11px;font-weight:600;color:#12AB05;">UP 80%</span></div></td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#12AB05;font-weight:600;font-size:12px;">68.6% - Buy</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #12AB05 68.6%, #e0e0e0 68.6%);"></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:30px;border-radius:3px;background:#653980;color:#fff;font-weight:600;font-size:11px;">LU</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#2E8B3A;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;font-size:11px;">1053.15</span></span></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1FA64B;margin-right:4px;"></span>0.05<span style="font-size:16px;font-weight:900;color:#1FA64B;padding-left:4px;">★</span></td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#60CC65;font-size:14px;">●</span><span style="margin-left:6px;">1055-CE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#4CAF50;font-weight:400;">Building</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#4CAF50;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span></div></div></td><td class="col-CANDLE" style="text-align:center;"><div style="width:14px;height:28px;position:relative;margin:4px auto;"><div style="position:absolute;left:9.5px;top:0;height:2.09292929292919px;width:1px;background:#12AB05;"></div><div style="position:absolute;left:4px;top:2.09292929292919px;height:21.55151515151536px;width:12px;background:#12AB05;"></div><div style="position:absolute;left:9.5px;top:23.644444444444552px;height:4.355555555555448px;width:1px;background:#12AB05;"></div></div></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#0AA311;font-weight:600;font-size:11px;">▲ 15H</span></td><td class="col-Trnd_Cndl" style="padding:4px;text-align:center;"><div style="display:flex;justify-content:center;"><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#F52727;"></div><div style="position:absolute;left:2px;top:0.9635036496349536px;height:19.62043795620439px;width:10px;background:#F52727;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#12AB05;"></div><div style="position:absolute;left:2px;top:8.000000000000085px;height:14.937062937062805px;width:10px;background:#12AB05;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#F52727;"></div><div style="position:absolute;left:2px;top:11.096774193548324px;height:4.322580645161194px;width:10px;background:#F52727;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#F52727;"></div><div style="position:absolute;left:2px;top:15.514511873350887px;height:4.2427440633244125px;width:10px;background:#F52727;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#12AB05;"></div><div style="position:absolute;left:2px;top:12.99999999999967px;height:8.500000000000309px;width:10px;background:#12AB05;"></div></div></div></td><td class="col-QCP" style="padding:2px;text-align:center;">2.3266</td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#1FA64B;display:inline-block;"></span><span style="color:#1FA64B;font-weight:600;font-size:11px;">U80</span></span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE DELTA 6%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE GAMMA 45%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE THETA 9%</span></td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#02B50B;font-size:11px;font-weight:700;">1.84%</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">750</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #0AA311;color:#0AA311;background:transparent;">Bullish</span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#02B50B;font-size:11px;font-weight:700;">1.84%</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">84.3</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">15.7</td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#60CC65;font-size:14px;font-weight:600;">↑</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">27/01/26 21:34</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td></tr>
-<tr><td class="col-SYMBOL" style="padding:4px;text-align:left;width:55px;max-width:152px;"><span style="display:inline-block;padding:1px 10px;min-width:72px;text-align:center;border-radius:6px;border:1px solid #BDBDBD;font-size:11px;font-weight:600;"><span style="font-size:12px;font-weight:400;font-family:Arial,sans-serif;letter-spacing:0.5px;">RELIANCE</span></span></td><td class="col-SIG_TIME" style="padding:2px 0;text-align:center;font-size:10px;white-space:nowrap;width:40px;color:#9E9E9E;"></td><td class="col-INDICATOR" style="padding:6px;text-align:center;vertical-align:middle;"><div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="display:flex;"><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#F43656;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#F43656;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#F43656;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#F43656;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#F43656;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#F43656;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#E0E0E0;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#E0E0E0;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#E0E0E0;"></span><span style="display:inline-block;width:5px;height:12px;margin:0 1px;border-radius:1px;background:#E0E0E0;"></span></div><span style="font-size:11px;font-weight:600;color:#F43656;">DN 60%<span style='color:#facc15'>👁️</span></span></div></td><td class="col-BUILD-%" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#F52727;font-weight:600;font-size:12px;">35.8% - Sell</div><div style="width:70px;height:4px;margin:4px auto 0;background:linear-gradient(to right, #F52727 35.8%, #e0e0e0 35.8%);"></div></div></td><td class="col-BUILDUP" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:30px;border-radius:3px;background:#653980;color:#fff;font-weight:600;font-size:11px;">LU</span></td><td class="col-SPOT_LTP" style="padding:4px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C94141;display:inline-block;"></span><span style="color:#2E8B3A;font-weight:600;font-size:11px;">1380.5</span></span></td><td class="col-PRICE" style="padding:2px;text-align:center;font-size:11px;"><span class="px-square" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#BDBDBD;margin-right:4px;"></span>0.05</td><td class="col-CE_PE" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;">●</span><span style="margin-left:6px;">1380-PE</span></td><td class="col-BLD-SIGNAL" style="padding:6px;text-align:center;"><div style="display:flex;flex-direction:column;align-items:center;"><div style="color:#9E9E9E;font-weight:400;">No-trade</div><div><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin:1px;border-radius:2px;background:#E0E0E0;"></span></div></div></td><td class="col-CANDLE" style="text-align:center;"><div style="width:14px;height:28px;position:relative;margin:4px auto;"><div style="position:absolute;left:9.5px;top:0;height:13.169491525423672px;width:1px;background:#12AB05;"></div><div style="position:absolute;left:4px;top:13.169491525423672px;height:2px;width:12px;background:#12AB05;"></div><div style="position:absolute;left:9.5px;top:15.169491525423672px;height:12.830508474576328px;width:1px;background:#12AB05;"></div></div></td><td class="col-15M_H_L" style="padding:4px;text-align:center;"><span style="color:#8A8A8A;font-weight:600;font-size:11px;"> </span></td><td class="col-Trnd_Cndl" style="padding:4px;text-align:center;"><div style="display:flex;justify-content:center;"><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#F52727;"></div><div style="position:absolute;left:2px;top:4.8000000000000425px;height:14.492307692307733px;width:10px;background:#F52727;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#F52727;"></div><div style="position:absolute;left:2px;top:9.208163265306212px;height:7.444897959183584px;width:10px;background:#F52727;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#12AB05;"></div><div style="position:absolute;left:2px;top:4.9924812030076176px;height:9.082706766917218px;width:10px;background:#12AB05;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#F52727;"></div><div style="position:absolute;left:2px;top:4.89230769230765px;height:15.415384615384657px;width:10px;background:#F52727;"></div></div><div style="width:14px;height:28px;position:relative;margin:0 3px;"><div style="position:absolute;left:6.5px;top:0;height:24.0px;width:1px;background:#F52727;"></div><div style="position:absolute;left:2px;top:0.0px;height:18.77378435517972px;width:10px;background:#F52727;"></div></div></div></td><td class="col-QCP" style="padding:2px;text-align:center;"><span style="display:inline-block;padding:2px 6px;background:transparent;border:2px solid #6DB562;color:#CFCFCF;font-weight:700;font-size:11px;">1.3894</span></td><td class="col-IND-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#E85D5D;display:inline-block;"></span><span style="color:#E85D5D;font-weight:600;font-size:11px;">D60</span></span></td><td class="col-DELTA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE DELTA 31%</span></td><td class="col-GAMMA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE GAMMA 25%</span></td><td class="col-THETA_ZONE" style="padding:6px;text-align:center;"><span class="pill buy">CE THETA 9%</span></td><td class="col-IV_ZONE" style="padding:6px;text-align:center;"><span class="pill nt">No-trade</span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#02B50B;font-size:11px;font-weight:700;">0.04%</td><td class="col-LOT_Size" style="padding:4px;text-align:center;">500</td><td class="col-SIGNAL" style="padding:6px;text-align:center;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #CC0627;color:#CC0627;background:transparent;">Bearish</span></td><td class="col-Diff" style="padding:2px;text-align:center;color:#02B50B;font-size:11px;font-weight:700;">0.04%</td><td class="col-CALL_PCT" style="padding:4px;text-align:center;">32.1</td><td class="col-PUT_PCT" style="padding:4px;text-align:center;">67.9</td><td class="col-IMB-DIR" style="padding:6px;text-align:center;"><span style="color:#F43656;font-size:14px;font-weight:600;">↓</span></td><td class="col-SCAN-TIME" style="padding:4px;text-align:center;">27/01/26 21:34</td><td class="col-SM_EXPIRY_DATE" style="padding:4px;text-align:center;">2026-01-27</td><td class="col-BLD-SCORE" style="padding:6px;text-align:center;"><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#BDBDBD;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span><span style="display:inline-block;width:10px;height:6px;margin-right:2px;border-radius:2px;background:#E0E0E0;"></span></td></tr>
-</tbody></table>
-  </div>
+<div class="card-grid">
 
-  <script>
-    (function () {
-      const header = document.querySelector('.header-row');
-      const wrap = document.querySelector('.table-wrap');
-      if (!header || !wrap) return;
+  <div class="trade-card" id="card-1"></div>
+  <div class="trade-card" id="card-2"></div>
 
-      let lastScroll = 0;
+  <div class="trade-card" id="card-3"></div>
+  <div class="trade-card" id="card-4"></div>
 
-      wrap.addEventListener('scroll', function () {
-        const current = wrap.scrollTop;
+</div>
 
-        if (current > lastScroll && current > 20) {
-          header.style.display = 'none';
-        } else {
-          header.style.display = '';
-        }
-
-        lastScroll = current;
-      });
-    })();
-  </script>
-
-  <script>
-	  (function () {
-		const header = document.querySelector('.header-row');
-		const wrap = document.querySelector('.table-wrap');
-		if (!header || !wrap) return;
-
-		let lastScroll = 0;
-
-		wrap.addEventListener('scroll', function () {
-		  const current = wrap.scrollTop;
-
-		  if (current > lastScroll && current > 20) {
-			header.style.display = 'none';
-		  } else {
-			header.style.display = '';
-		  }
-
-		  lastScroll = current;
-		});
-	  })();
-	</script>
-
-	<script>
-	  (function () {
-		const wrap = document.querySelector('.table-wrap');
-		if (!wrap) return;
-
-		let scrollTimer = null;
-		window.__SCROLLING__ = false;
-
-		wrap.addEventListener('scroll', function () {
-		  window.__SCROLLING__ = true;
-
-		  if (scrollTimer) clearTimeout(scrollTimer);
-
-		  scrollTimer = setTimeout(function () {
-			window.__SCROLLING__ = false;
-		  }, 300);
-		});
-
-		/* ❌ REMOVED global setInterval override
-		   ✔️ auto refresh will now work normally */
-	  })();
-	</script>
 
   <div class="floating-controls">
     <button id="rotateBtn"
@@ -471,161 +320,52 @@ table.dataframe tr.sticky-row + tr.sticky-row td.col-SYMBOL{
   </div>
 
   <script>
-    (function () {
-      const btn = document.getElementById('rotateBtn');
-      const wrap = document.querySelector('.table-wrap');
-      if (!btn || !wrap) return;
+(function () {
 
-      let rotated = false;
+  const grid = document.querySelector(".card-grid");
+  if (!grid) return;
 
-      btn.addEventListener('click', function () {
-        rotated = !rotated;
-        if (rotated) {
-          wrap.style.transform = 'rotate(90deg) translateY(-100%)';
-          wrap.style.transformOrigin = 'top left';
-          wrap.style.width = '100vh';
-          wrap.style.height = '100vw';
-          wrap.style.overflow = 'auto';
-        } else {
-          wrap.style.transform = '';
-          wrap.style.transformOrigin = '';
-          wrap.style.width = '';
-          wrap.style.height = '';
-          wrap.style.overflow = '';
-        }
-      });
-    })();
-  </script>
-
-  <script>
-    (function () {
-      const header = document.querySelector('.header-row');
-      const wrap = document.querySelector('.table-wrap');
-      if (!header) return;
-
-      let hideUntil = 0;
-      const HIDE_FOR_MS = 5 * 60 * 1000;
-
-      function onScroll() {
-        const now = Date.now();
-        if (now > hideUntil) hideUntil = now + HIDE_FOR_MS;
-        if (now < hideUntil) header.style.display = 'none';
+  // ROTATE CARD GRID
+  const btn = document.getElementById("rotateBtn");
+  if (btn) {
+    let rotated = false;
+    btn.addEventListener("click", function () {
+      rotated = !rotated;
+      if (rotated) {
+        grid.style.transform = "rotate(90deg) translateY(-100%)";
+        grid.style.transformOrigin = "top left";
+        grid.style.width = "100vh";
+        grid.style.height = "100vw";
+      } else {
+        grid.style.transform = "";
+        grid.style.transformOrigin = "";
+        grid.style.width = "";
+        grid.style.height = "";
       }
+    });
+  }
 
-      if (wrap) {
-        wrap.addEventListener('scroll', onScroll, { passive: true });
-      }
+  // AUTO FULLSCREEN ON INTERACTION
+  let fsUntil = 0;
+  const FS_FOR_MS = 5 * 60 * 1000;
 
-      window.addEventListener('scroll', onScroll, { passive: true });
-
-      setInterval(function () {
-        if (Date.now() < hideUntil) {
-          header.style.display = 'none';
-        }
-      }, 500);
-    })();
-  </script>
-
-  <script>
-    (function () {
-      const root = document.documentElement;
-      let fsUntil = 0;
-      const FS_FOR_MS = 5 * 60 * 1000;
-
-      function enterFS() {
-        if (!document.fullscreenElement) {
-          if (root.requestFullscreen) root.requestFullscreen().catch(()=>{});
-        }
-      }
-
-      function onScrollFS() {
-        const now = Date.now();
-        if (now > fsUntil) {
-          fsUntil = now + FS_FOR_MS;
-          enterFS();
-        }
-      }
-
-      window.addEventListener('scroll', onScrollFS, { passive: true });
-
-      setInterval(function () {
-        if (Date.now() < fsUntil) {
-          enterFS();
-        }
-      }, 1000);
-    })();
-  </script>
-
-  <script>
-    (function () {
-      const scan = document.getElementById("scan-time-bar");
-      const wrap = document.querySelector(".table-wrap");
-      if (!scan || !wrap) return;
-
-      wrap.addEventListener("scroll", function () {
-        scan.style.transform = `translateX(${-wrap.scrollLeft}px)`;
-      });
-    })();
-  </script>
-
-  <script>
-    function afterStickyAnchor(tbody){
-      const stickies = tbody.querySelectorAll("tr.sticky-row");
-      if (stickies.length === 0) return tbody.firstChild;
-      return stickies[stickies.length - 1].nextSibling;
+  function enterFS() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(()=>{});
     }
+  }
 
-    function sortSymbolAZ(){
-      const table = document.querySelector("table.dataframe");
-      if (!table) return;
-      const tbody = table.tBodies[0];
-      if (!tbody) return;
-
-      const normal = Array.from(tbody.querySelectorAll("tr:not(.sticky-row)"));
-
-      normal.sort((a, b) => {
-        const aS = a.querySelector(".col-SYMBOL")?.innerText.trim() || "";
-        const bS = b.querySelector(".col-SYMBOL")?.innerText.trim() || "";
-        return aS.localeCompare(bS);
-      });
-
-      const anchor = afterStickyAnchor(tbody);
-      normal.forEach(r => tbody.insertBefore(r, anchor));
+  window.addEventListener("scroll", () => {
+    const now = Date.now();
+    if (now > fsUntil) {
+      fsUntil = now + FS_FOR_MS;
+      enterFS();
     }
+  }, { passive:true });
 
-    function sortActiveOnTop(){
-      const table = document.querySelector("table.dataframe");
-      if (!table) return;
-      const tbody = table.tBodies[0];
-      if (!tbody) return;
+})();
+</script>
 
-      const normal = Array.from(tbody.querySelectorAll("tr:not(.sticky-row)"));
-
-      normal.sort((a, b) => {
-        const aT = a.querySelector(".col-SIG_TIME")?.innerText.trim();
-        const bT = b.querySelector(".col-SIG_TIME")?.innerText.trim();
-        if (aT && !bT) return -1;
-        if (!aT && bT) return 1;
-        return 0;
-      });
-
-      const anchor = afterStickyAnchor(tbody);
-      normal.forEach(r => tbody.insertBefore(r, anchor));
-    }
-
-    document.getElementById("sortActiveBtn")
-      ?.addEventListener("click", sortSymbolAZ);
-
-    if (typeof window.fetchAndUpdateTable === "function") {
-      const _orig = window.fetchAndUpdateTable;
-      window.fetchAndUpdateTable = async function(){
-        await _orig();
-        sortActiveOnTop();
-      };
-    }
-
-    window.addEventListener("load", sortActiveOnTop);
-  </script>
 
 </body>
 </html>
