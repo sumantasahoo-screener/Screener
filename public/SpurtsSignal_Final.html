@@ -7,21 +7,19 @@
 
 <style>
 :root {
-  --bg:#f4f7fb;
+  --bg:#f5f7fb;
   --panel:#ffffff;
-  --panel-2:#f1f5fb;
-  --border:#dbe3f0;
-
-  --text:#1f2a44;
-  --muted:#6b7a99;
-
+  --panel-2:#f1f4fa;
+  --border:#d6dfef;
+  --text:#1e293b;
+  --muted:#64748b;
   --bull:#16a34a;
   --bear:#dc2626;
+  --header-dark:#0f172a;
+  --header-soft:#1e293b;
 }
 
-* {
-  box-sizing:border-box;
-}
+* { box-sizing:border-box; }
 
 body {
   margin:0;
@@ -32,45 +30,34 @@ body {
 
 .header {
   padding:14px 18px;
-  background:#ffffff;
-  border-bottom:1px solid var(--border);
+  background:linear-gradient(90deg,var(--header-dark),var(--header-soft));
+  color:#fff;
+  border-bottom:1px solid #0b1220;
   display:flex;
   justify-content:space-between;
   align-items:center;
   flex-wrap:wrap;
 }
 
-.header b {
-  font-size:1.05rem;
-  font-weight:600;
-}
-
-#elapsed {
-  font-size:12px;
-  color:var(--muted);
-}
+.header b { font-size:1.1rem; font-weight:600; }
+#elapsed { font-size:12px; opacity:.75; }
 
 .group {
   margin:14px;
-  border-radius:12px;
+  border-radius:14px;
   border:1px solid var(--border);
   overflow:hidden;
   background:var(--panel);
+  box-shadow:0 6px 18px rgba(15,23,42,.06);
 }
 
-.group.bull {
-  border-left:5px solid var(--bull);
-}
-
-.group.bear {
-  border-left:5px solid var(--bear);
-}
+.group.bull { border-left:5px solid var(--bull); }
+.group.bear { border-left:5px solid var(--bear); }
 
 .group-header {
-  padding:10px 14px;
+  padding:12px 16px;
   font-weight:600;
-  background:var(--panel-2);
-  letter-spacing:.3px;
+  letter-spacing:.4px;
 }
 
 .group-header.bull {
@@ -85,6 +72,11 @@ body {
   border-bottom:1px solid #fca5a5;
 }
 
+.table-wrap {
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
 table {
   width:100%;
   border-collapse:collapse;
@@ -92,80 +84,51 @@ table {
 }
 
 th,td {
-  padding:10px 12px;
+  padding:11px 12px;
   text-align:center;
   border-bottom:1px solid #edf2fa;
   white-space:nowrap;
 }
 
 th {
-  background:#f7f9fd;
+  background:#f8fafc;
   color:var(--muted);
   font-weight:600;
   position:sticky;
   top:0;
-  z-index:5;
+  z-index:4;
 }
 
-tbody tr:nth-child(even) td {
-  background:#fafcff;
+tbody tr:nth-child(even) td { background:#fafcff; }
+tbody tr:hover td { background:#eef4ff; }
+
+.symbol { font-weight:600; }
+.type { font-weight:600; color:#2563eb; }
+.strength { font-weight:700; }
+.expiry { font-weight:600; color:#ca8a04; }
+
+.pos { color:var(--bull); font-weight:600; }
+.neg { color:var(--bear); font-weight:600; }
+
+@media (max-width:900px) {
+  .group { margin:10px; }
 }
 
-tbody tr:hover td {
-  background:#eef4ff;
+@media (max-width:700px) {
+  th,td { padding:9px 10px; font-size:12px; }
+  .header { padding:12px 14px; }
 }
 
-.symbol {
-  font-weight:600;
-}
-
-.type {
-  font-weight:600;
-  color:#2563eb;
-}
-
-.strength {
-  font-weight:700;
-}
-
-.expiry {
-  font-weight:600;
-  color:#ca8a04;
-}
-
-@media (max-width: 900px) {
-  .group {
-    margin:10px;
-  }
-}
-
-@media (max-width: 700px) {
-  table {
-    display:block;
-    overflow-x:auto;
-  }
-
-  th,td {
-    padding:8px 10px;
-    font-size:12px;
-  }
-
-  .header {
-    padding:12px 14px;
-  }
-}
-
-@media (max-width: 480px) {
+@media (max-width:480px) {
   .header {
     flex-direction:column;
     align-items:flex-start;
+    gap:6px;
   }
-
-  .group-header {
-    font-size:0.9rem;
-  }
+  .group-header { font-size:.9rem; }
 }
 </style>
+
 
 
 
@@ -177,7 +140,7 @@ tbody tr:hover td {
 <div class="header">
   <div>
     <b>Spurt Data</b><br>
-    <span>Scan Time: 27-01-2026 14:41</span>
+    <span>Scan Time: 27-01-2026 14:49</span>
   </div>
   <div id="elapsed"></div>
 </div>
@@ -200,13 +163,13 @@ tbody tr:hover td {
             <td class="strength">3</td>
             <td>BULL</td>
             <td class="expiry">27 JAN 2026</td>
-            <td>96143</td>
+            <td>96021</td>
             <td>82752</td>
-            <td>13391</td>
-            <td>16.18</td>
-            <td>919.7</td>
+            <td>13269</td>
+            <td>16.03</td>
+            <td>919.4</td>
             <td>916.6</td>
-            <td>0.34</td>
+            <td>0.31</td>
         </tr>
         
         <tr>
@@ -215,13 +178,13 @@ tbody tr:hover td {
             <td class="strength">3</td>
             <td>BULL</td>
             <td class="expiry">27 JAN 2026</td>
-            <td>27842</td>
+            <td>27932</td>
             <td>13954</td>
-            <td>13888</td>
-            <td>99.53</td>
-            <td>1310.6</td>
+            <td>13978</td>
+            <td>100.17</td>
+            <td>1311.6</td>
             <td>1259.6</td>
-            <td>4.05</td>
+            <td>4.13</td>
         </tr>
         
         <tr>
@@ -230,13 +193,13 @@ tbody tr:hover td {
             <td class="strength">3</td>
             <td>BULL</td>
             <td class="expiry">24 FEB 2026</td>
-            <td>427627</td>
+            <td>428521</td>
             <td>370442</td>
-            <td>57185</td>
-            <td>15.44</td>
-            <td>925.95</td>
+            <td>58079</td>
+            <td>15.68</td>
+            <td>925.75</td>
             <td>921.65</td>
-            <td>0.47</td>
+            <td>0.44</td>
         </tr>
         
         <tr>
@@ -245,13 +208,13 @@ tbody tr:hover td {
             <td class="strength">3</td>
             <td>BULL</td>
             <td class="expiry">24 FEB 2026</td>
-            <td>234654</td>
+            <td>237569</td>
             <td>180684</td>
-            <td>53970</td>
-            <td>29.87</td>
-            <td>25279.9</td>
+            <td>56885</td>
+            <td>31.48</td>
+            <td>25290.0</td>
             <td>25202.6</td>
-            <td>0.31</td>
+            <td>0.35</td>
         </tr>
         
         <tr>
@@ -260,11 +223,11 @@ tbody tr:hover td {
             <td class="strength">3</td>
             <td>BULL</td>
             <td class="expiry">24 FEB 2026</td>
-            <td>166010</td>
+            <td>165975</td>
             <td>140991</td>
-            <td>25019</td>
-            <td>17.75</td>
-            <td>1366.6</td>
+            <td>24984</td>
+            <td>17.72</td>
+            <td>1366.7</td>
             <td>1351.9</td>
             <td>1.09</td>
         </tr>
@@ -275,133 +238,13 @@ tbody tr:hover td {
             <td class="strength">3</td>
             <td>BULL</td>
             <td class="expiry">24 FEB 2026</td>
-            <td>65422</td>
+            <td>65805</td>
             <td>49864</td>
-            <td>15558</td>
-            <td>31.2</td>
-            <td>254.55</td>
+            <td>15941</td>
+            <td>31.97</td>
+            <td>254.3</td>
             <td>253.95</td>
-            <td>0.24</td>
-        </tr>
-        
-        <tr>
-            <td class="symbol">RECLTD</td>
-            <td class="type">FUT</td>
-            <td class="strength">3</td>
-            <td>BULL</td>
-            <td class="expiry">24 FEB 2026</td>
-            <td>51633</td>
-            <td>39920</td>
-            <td>11713</td>
-            <td>29.34</td>
-            <td>360.5</td>
-            <td>359.2</td>
-            <td>0.36</td>
-        </tr>
-        
-        <tr>
-            <td class="symbol">TRENT</td>
-            <td class="type">FUT</td>
-            <td class="strength">3</td>
-            <td>BULL</td>
-            <td class="expiry">24 FEB 2026</td>
-            <td>73777</td>
-            <td>59333</td>
-            <td>14444</td>
-            <td>24.34</td>
-            <td>3807.1</td>
-            <td>3772.0</td>
-            <td>0.93</td>
-        </tr>
-        
-        <tr>
-            <td class="symbol">AXISBANK</td>
-            <td class="type">FUT</td>
-            <td class="strength">3</td>
-            <td>BULL</td>
-            <td class="expiry">24 FEB 2026</td>
-            <td>132307</td>
-            <td>114402</td>
-            <td>17905</td>
-            <td>15.65</td>
-            <td>1319.1</td>
-            <td>1266.0</td>
-            <td>4.19</td>
-        </tr>
-        
-        <tr>
-            <td class="symbol">BEL</td>
-            <td class="type">FUT</td>
-            <td class="strength">3</td>
-            <td>BULL</td>
-            <td class="expiry">24 FEB 2026</td>
-            <td>76213</td>
-            <td>63469</td>
-            <td>12744</td>
-            <td>20.08</td>
-            <td>416.05</td>
-            <td>411.7</td>
-            <td>1.06</td>
-        </tr>
-        
-        <tr>
-            <td class="symbol">HAL</td>
-            <td class="type">FUT</td>
-            <td class="strength">3</td>
-            <td>BULL</td>
-            <td class="expiry">24 FEB 2026</td>
-            <td>53365</td>
-            <td>40339</td>
-            <td>13026</td>
-            <td>32.29</td>
-            <td>4324.2</td>
-            <td>4303.0</td>
-            <td>0.49</td>
-        </tr>
-        
-        <tr>
-            <td class="symbol">LT</td>
-            <td class="type">FUT</td>
-            <td class="strength">3</td>
-            <td>BULL</td>
-            <td class="expiry">24 FEB 2026</td>
-            <td>79498</td>
-            <td>66027</td>
-            <td>13471</td>
-            <td>20.4</td>
-            <td>3790.4</td>
-            <td>3761.8</td>
-            <td>0.76</td>
-        </tr>
-        
-        <tr>
-            <td class="symbol">ADANIGREEN</td>
-            <td class="type">FUT</td>
-            <td class="strength">3</td>
-            <td>BULL</td>
-            <td class="expiry">24 FEB 2026</td>
-            <td>36228</td>
-            <td>25393</td>
-            <td>10835</td>
-            <td>42.67</td>
-            <td>797.1</td>
-            <td>776.3</td>
-            <td>2.68</td>
-        </tr>
-        
-        <tr>
-            <td class="symbol">INDIGO</td>
-            <td class="type">FUT</td>
-            <td class="strength">3</td>
-            <td>BULL</td>
-            <td class="expiry">24 FEB 2026</td>
-            <td>53778</td>
-            <td>41092</td>
-            <td>12686</td>
-            <td>30.87</td>
-            <td>4776.5</td>
-            <td>4720.0</td>
-            <td>1.2</td>
+            <td>0.14</td>
         </tr>
         
         <tr>
@@ -410,28 +253,88 @@ tbody tr:hover td {
             <td class="strength">3</td>
             <td>BULL</td>
             <td class="expiry">24 FEB 2026</td>
-            <td>88630</td>
+            <td>89070</td>
             <td>76989</td>
-            <td>11641</td>
-            <td>15.12</td>
-            <td>1054.55</td>
+            <td>12081</td>
+            <td>15.69</td>
+            <td>1056.7</td>
             <td>1035.7</td>
-            <td>1.82</td>
+            <td>2.03</td>
         </tr>
         
         <tr>
-            <td class="symbol">POWERGRID</td>
+            <td class="symbol">TRENT</td>
             <td class="type">FUT</td>
             <td class="strength">3</td>
             <td>BULL</td>
             <td class="expiry">24 FEB 2026</td>
-            <td>47777</td>
-            <td>36400</td>
-            <td>11377</td>
-            <td>31.26</td>
-            <td>252.3</td>
-            <td>252.1</td>
-            <td>0.08</td>
+            <td>74168</td>
+            <td>59333</td>
+            <td>14835</td>
+            <td>25.0</td>
+            <td>3804.4</td>
+            <td>3772.0</td>
+            <td>0.86</td>
+        </tr>
+        
+        <tr>
+            <td class="symbol">AXISBANK</td>
+            <td class="type">FUT</td>
+            <td class="strength">3</td>
+            <td>BULL</td>
+            <td class="expiry">24 FEB 2026</td>
+            <td>132423</td>
+            <td>114402</td>
+            <td>18021</td>
+            <td>15.75</td>
+            <td>1319.9</td>
+            <td>1266.0</td>
+            <td>4.26</td>
+        </tr>
+        
+        <tr>
+            <td class="symbol">INDIGO</td>
+            <td class="type">FUT</td>
+            <td class="strength">3</td>
+            <td>BULL</td>
+            <td class="expiry">24 FEB 2026</td>
+            <td>53950</td>
+            <td>41092</td>
+            <td>12858</td>
+            <td>31.29</td>
+            <td>4785.0</td>
+            <td>4720.0</td>
+            <td>1.38</td>
+        </tr>
+        
+        <tr>
+            <td class="symbol">HAL</td>
+            <td class="type">FUT</td>
+            <td class="strength">3</td>
+            <td>BULL</td>
+            <td class="expiry">24 FEB 2026</td>
+            <td>53689</td>
+            <td>40339</td>
+            <td>13350</td>
+            <td>33.09</td>
+            <td>4323.2</td>
+            <td>4303.0</td>
+            <td>0.47</td>
+        </tr>
+        
+        <tr>
+            <td class="symbol">LT</td>
+            <td class="type">FUT</td>
+            <td class="strength">3</td>
+            <td>BULL</td>
+            <td class="expiry">24 FEB 2026</td>
+            <td>79692</td>
+            <td>66027</td>
+            <td>13665</td>
+            <td>20.7</td>
+            <td>3796.0</td>
+            <td>3761.8</td>
+            <td>0.91</td>
         </tr>
         
         <tr>
@@ -440,13 +343,73 @@ tbody tr:hover td {
             <td class="strength">3</td>
             <td>BULL</td>
             <td class="expiry">24 FEB 2026</td>
-            <td>67538</td>
+            <td>67751</td>
             <td>57677</td>
-            <td>9861</td>
-            <td>17.1</td>
-            <td>962.3</td>
+            <td>10074</td>
+            <td>17.47</td>
+            <td>963.2</td>
             <td>952.45</td>
-            <td>1.03</td>
+            <td>1.13</td>
+        </tr>
+        
+        <tr>
+            <td class="symbol">BEL</td>
+            <td class="type">FUT</td>
+            <td class="strength">3</td>
+            <td>BULL</td>
+            <td class="expiry">24 FEB 2026</td>
+            <td>76439</td>
+            <td>63469</td>
+            <td>12970</td>
+            <td>20.44</td>
+            <td>416.1</td>
+            <td>411.7</td>
+            <td>1.07</td>
+        </tr>
+        
+        <tr>
+            <td class="symbol">POWERGRID</td>
+            <td class="type">FUT</td>
+            <td class="strength">3</td>
+            <td>BULL</td>
+            <td class="expiry">24 FEB 2026</td>
+            <td>48167</td>
+            <td>36400</td>
+            <td>11767</td>
+            <td>32.33</td>
+            <td>252.4</td>
+            <td>252.1</td>
+            <td>0.12</td>
+        </tr>
+        
+        <tr>
+            <td class="symbol">RECLTD</td>
+            <td class="type">FUT</td>
+            <td class="strength">3</td>
+            <td>BULL</td>
+            <td class="expiry">24 FEB 2026</td>
+            <td>51743</td>
+            <td>39920</td>
+            <td>11823</td>
+            <td>29.62</td>
+            <td>360.05</td>
+            <td>359.2</td>
+            <td>0.24</td>
+        </tr>
+        
+        <tr>
+            <td class="symbol">ADANIGREEN</td>
+            <td class="type">FUT</td>
+            <td class="strength">3</td>
+            <td>BULL</td>
+            <td class="expiry">24 FEB 2026</td>
+            <td>36372</td>
+            <td>25393</td>
+            <td>10979</td>
+            <td>43.24</td>
+            <td>800.5</td>
+            <td>776.3</td>
+            <td>3.12</td>
         </tr>
         
         <tr>
@@ -455,13 +418,13 @@ tbody tr:hover td {
             <td class="strength">2</td>
             <td>BULL</td>
             <td class="expiry">24 FEB 2026</td>
-            <td>162512</td>
+            <td>162769</td>
             <td>143101</td>
-            <td>19411</td>
-            <td>13.56</td>
-            <td>1691.9</td>
+            <td>19668</td>
+            <td>13.74</td>
+            <td>1691.7</td>
             <td>1680.8</td>
-            <td>0.66</td>
+            <td>0.65</td>
         </tr>
         
 </tbody>
@@ -469,7 +432,7 @@ tbody tr:hover td {
 </div>
 
 <div class="group bear">
-<div class="group-header bear">BEAR (0)</div>
+<div class="group-header bear">BEAR (1)</div>
 <table>
 <thead>
 <tr>
@@ -480,12 +443,27 @@ tbody tr:hover td {
 </thead>
 <tbody>
 
+        <tr>
+            <td class="symbol">RELIANCE</td>
+            <td class="type">FUT</td>
+            <td class="strength">-3</td>
+            <td>BEAR</td>
+            <td class="expiry">24 FEB 2026</td>
+            <td>211087</td>
+            <td>163633</td>
+            <td>47454</td>
+            <td>29.0</td>
+            <td>1389.5</td>
+            <td>1394.5</td>
+            <td>-0.36</td>
+        </tr>
+        
 </tbody>
 </table>
 </div>
 
 <script>
-const scanTime = new Date("2026-01-27T14:41:00");
+const scanTime = new Date("2026-01-27T14:49:00");
 function updateElapsed(){
   const diff=Math.floor((new Date()-scanTime)/60000);
   document.getElementById("elapsed").innerText =
