@@ -7,39 +7,79 @@
 
 <style>
 :root{
---bg:#0b1220;--panel:#0f172a;--border:rgba(255,255,255,.08);
---text:#e5e7eb;--muted:#94a3b8;
---bull:#22c55e;--bear:#ef4444;--accent:#38bdf8;
+--bg:#f6f8fc;
+--panel:rgba(255,255,255,.75);
+--border:rgba(15,23,42,.12);
+--text:#0f172a;
+--muted:#64748b;
+--bull:#16a34a;
+--bear:#dc2626;
+--accent:#2563eb;
 }
+
 *{box-sizing:border-box}
-body{margin:0;font-family:Inter,system-ui;
-background:radial-gradient(circle at top,#111827,#020617);color:var(--text);}
 
-.header{padding:18px 24px;display:flex;justify-content:space-between;
-background:linear-gradient(90deg,#020617,#0f172a);border-bottom:1px solid var(--border);}
+body{
+margin:0;
+font-family:Inter,Segoe UI,Arial;
+background:linear-gradient(180deg,#eef2ff,#f8fafc);
+color:var(--text);
+}
 
-.group{margin:20px;border-radius:18px;border:1px solid var(--border);
-background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));}
+.header{
+padding:18px 26px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:rgba(255,255,255,.9);
+backdrop-filter:blur(14px);
+border-bottom:1px solid var(--border);
+}
+
+.group{
+margin:18px;
+border-radius:18px;
+background:var(--panel);
+backdrop-filter:blur(18px);
+border:1px solid var(--border);
+box-shadow:0 20px 40px rgba(15,23,42,.12);
+overflow:hidden;
+}
 
 .group.bull{border-left:6px solid var(--bull)}
 .group.bear{border-left:6px solid var(--bear)}
 
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:13px;border-bottom:1px solid rgba(255,255,255,.06);text-align:center}
-th{color:var(--muted);background:rgba(255,255,255,.04);position:sticky;top:0}
+h3{margin:0;padding:14px 20px;font-size:.9rem;letter-spacing:.5px}
 
-tbody tr:hover{background:rgba(56,189,248,.08)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+
+th,td{
+padding:13px;
+border-bottom:1px solid rgba(15,23,42,.08);
+text-align:center;
+}
+
+th{
+background:rgba(248,250,252,.9);
+color:var(--muted);
+font-weight:600;
+position:sticky;
+top:0;
+}
+
+tbody tr:hover{background:rgba(37,99,235,.06)}
 
 .symbol{font-weight:700}
 .type{color:var(--accent);font-weight:700}
-.expiry{color:#facc15;font-weight:600}
+.expiry{color:#a16207;font-weight:600}
+
 </style>
 </head>
 
 <body>
 
 <div class="header">
-<div><b>Spurt Scanner</b><br><span>Scan: 27-01-2026 16:00</span></div>
+<div><b>Spurt Scanner</b><br><span>Scan: 27-01-2026 16:02</span></div>
 <div id="elapsed"></div>
 </div>
 
@@ -366,12 +406,13 @@ tbody tr:hover{background:rgba(56,189,248,.08)}
 </div>
 
 <script>
-const scanTime=new Date("2026-01-27T16:00:00");
+const scanTime=new Date("2026-01-27T16:02:00");
 function updateElapsed(){
 const diff=Math.floor((new Date()-scanTime)/60000);
 document.getElementById("elapsed").innerText=
 diff<=0?"just now":diff+" mins ago";}
-updateElapsed();setInterval(updateElapsed,60000);
+updateElapsed();
+setInterval(updateElapsed,60000);
 setInterval(()=>location.reload(),60000);
 </script>
 
