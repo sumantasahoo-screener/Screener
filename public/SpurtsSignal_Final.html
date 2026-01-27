@@ -3,160 +3,242 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spurt Data</title>
+<title>Spurt Signals - Premium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root {
-  --bg:#f5f7fb;
-  --panel:#ffffff;
-  --panel-2:#f1f4fa;
-  --border:#d6dfef;
-  --text:#1e293b;
-  --muted:#64748b;
-  --bull:#16a34a;
-  --bear:#dc2626;
-  --header-dark:#0f172a;
-  --header-soft:#1e293b;
+  --bg-primary: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  --bg-secondary: #f8fafc;
+  --glass-bg: rgba(255,255,255,0.25);
+  --glass-border: rgba(255,255,255,0.18);
+  --glass-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --bull-primary: #10b981;
+  --bull-secondary: #34d399;
+  --bear-primary: #ef4444;
+  --bear-secondary: #f87171;
+  --accent: #3b82f6;
 }
 
-* { box-sizing:border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  margin:0;
-  font-family:Inter,Segoe UI,Arial,sans-serif;
-  background:var(--bg);
-  color:var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .header {
-  padding:14px 18px;
-  background:linear-gradient(90deg,var(--header-dark),var(--header-soft));
-  color:#fff;
-  border-bottom:1px solid #0b1220;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  flex-wrap:wrap;
+  position: sticky;
+  top: 0;
+  background: rgba(15,23,42,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  box-shadow: var(--glass-shadow);
 }
 
-.header b { font-size:1.1rem; font-weight:600; }
-#elapsed { font-size:12px; opacity:.75; }
+.header-title {
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  font-weight: 700;
+  background: linear-gradient(135deg, #60a5fa, #a5b4fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.scan-info {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+#elapsed {
+  background: rgba(255,255,255,0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  font-weight: 500;
+}
 
 .group {
-  margin:14px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  overflow:hidden;
-  background:var(--panel);
-  box-shadow:0 6px 18px rgba(15,23,42,.06);
+  margin: 2rem;
+  border-radius: 24px;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-border);
 }
 
-.group.bull { border-left:5px solid var(--bull); }
-.group.bear { border-left:5px solid var(--bear); }
+.group:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.group.bull {
+  background: rgba(16,185,129,0.15);
+  border-left: 6px solid var(--bull-primary);
+}
+
+.group.bear {
+  background: rgba(239,68,68,0.15);
+  border-left: 6px solid var(--bear-primary);
+}
 
 .group-header {
-  padding:12px 16px;
-  font-weight:600;
-  letter-spacing:.4px;
+  padding: 1.5rem 2rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .group-header.bull {
-  color:#14532d;
-  background:linear-gradient(90deg,#bbf7d0,#ecfdf5);
-  border-bottom:1px solid #86efac;
+  background: linear-gradient(135deg, var(--bull-primary), var(--bull-secondary));
+  color: white;
+  box-shadow: 0 4px 20px rgba(16,185,129,0.3);
 }
 
 .group-header.bear {
-  color:#7f1d1d;
-  background:linear-gradient(90deg,#fee2e2,#fff5f5);
-  border-bottom:1px solid #fca5a5;
+  background: linear-gradient(135deg, var(--bear-primary), var(--bear-secondary));
+  color: white;
+  box-shadow: 0 4px 20px rgba(239,68,68,0.3);
 }
 
-.table-wrap {
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
+.count-badge {
+  background: rgba(255,255,255,0.2);
+  padding: 0.375rem 1rem;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 table {
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
-}
-
-th,td {
-  padding:11px 12px;
-  text-align:center;
-  border-bottom:1px solid #edf2fa;
-  white-space:nowrap;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  background: rgba(255,255,255,0.1);
 }
 
 th {
-  background:#f8fafc;
-  color:var(--muted);
-  font-weight:600;
-  position:sticky;
-  top:0;
-  z-index:4;
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  padding: 1rem 1.25rem;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.025em;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
 }
 
-tbody tr:nth-child(even) td { background:#fafcff; }
-tbody tr:hover td { background:#eef4ff; }
-
-.symbol { font-weight:600; }
-.type { font-weight:600; color:#2563eb; }
-.strength { font-weight:700; }
-.expiry { font-weight:600; color:#ca8a04; }
-
-.pos { color:var(--bull); font-weight:600; }
-.neg { color:var(--bear); font-weight:600; }
-
-@media (max-width:900px) {
-  .group { margin:10px; }
+td {
+  padding: 1rem 1.25rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  transition: all 0.2s ease;
 }
 
-@media (max-width:700px) {
-  th,td { padding:9px 10px; font-size:12px; }
-  .header { padding:12px 14px; }
+tbody tr {
+  background: rgba(255,255,255,0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@media (max-width:480px) {
-  .header {
-    flex-direction:column;
-    align-items:flex-start;
-    gap:6px;
-  }
-  .group-header { font-size:.9rem; }
+tbody tr:hover {
+  background: rgba(255,255,255,0.15);
+  transform: scale(1.01);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.symbol, .type {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.strength {
+  font-weight: 800;
+  font-size: 1.1em;
+}
+
+.expiry {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.pos {
+  color: var(--bull-primary) !important;
+  font-weight: 700;
+}
+
+.neg {
+  color: var(--bear-primary) !important;
+  font-weight: 700;
+}
+
+@media (max-width: 1024px) {
+  .group { margin: 1.5rem; }
+}
+
+@media (max-width: 768px) {
+  .header { padding: 1rem; }
+  .group-header { padding: 1.25rem 1.5rem; font-size: 1rem; }
+  th, td { padding: 0.875rem 1rem; font-size: 0.8rem; }
+}
+
+@media (max-width: 480px) {
+  .header { flex-direction: column; gap: 0.75rem; text-align: center; }
+  .group { margin: 1rem; }
+  .group-header { flex-direction: column; gap: 0.5rem; }
 }
 </style>
-
-
-
-
-
 </head>
 
 <body>
-
 <div class="header">
-  <div>
-    <b>Spurt Data</b><br>
-    <span>Scan Time: 27-01-2026 15:46</span>
+  <div class="header-title">🚀 Spurt Signals</div>
+  <div class="scan-info">
+    <div>Scan: 27-01-2026 15:54</div>
+    <div id="elapsed"></div>
   </div>
-  <div id="elapsed"></div>
 </div>
 
 <div class="group bull">
-<div class="group-header bull">BULL (16)</div>
-<table>
-<thead>
-<tr>
-<th>Symbol</th><th>TYPE</th><th>STR</th><th>DIR</th><th>EXPIRY</th>
-<th>OI Recent</th><th>OI Pre</th><th>Δ OI</th>
-<th>Δ OI %</th><th>LTP</th><th>Prev</th><th>% Chg</th>
-</tr>
-</thead>
-<tbody>
-
+  <div class="group-header bull">
+    <span>📈 BULL SIGNALS</span>
+    <span class="count-badge">(16)</span>
+  </div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Symbol</th><th>Type</th><th>STR</th><th>DIR</th><th>Expiry</th>
+          <th>OI Recent</th><th>OI Pre</th><th>ΔOI</th><th>ΔOI%</th>
+          <th>LTP</th><th>Prev</th><th>%Chg</th>
+        </tr>
+      </thead>
+      <tbody>
+        
         <tr>
             <td class="symbol">AXISBANK</td>
             <td class="type">FUT</td>
@@ -165,11 +247,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">27 JAN 2026</td>
             <td>28418</td>
             <td>13954</td>
-            <td>14464</td>
-            <td>103.65</td>
+            <td class="pos">14464</td>
+            <td class="pos">103.65</td>
             <td>1319.5</td>
             <td>1259.6</td>
-            <td>4.76</td>
+            <td class="pos">4.76</td>
         </tr>
         
         <tr>
@@ -180,11 +262,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>251752</td>
             <td>180684</td>
-            <td>71068</td>
-            <td>39.33</td>
+            <td class="pos">71068</td>
+            <td class="pos">39.33</td>
             <td>25427.2</td>
             <td>25202.6</td>
-            <td>0.89</td>
+            <td class="pos">0.89</td>
         </tr>
         
         <tr>
@@ -195,11 +277,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>434323</td>
             <td>370442</td>
-            <td>63881</td>
-            <td>17.24</td>
+            <td class="pos">63881</td>
+            <td class="pos">17.24</td>
             <td>934.0</td>
             <td>921.65</td>
-            <td>1.34</td>
+            <td class="pos">1.34</td>
         </tr>
         
         <tr>
@@ -210,11 +292,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>67521</td>
             <td>49864</td>
-            <td>17657</td>
-            <td>35.41</td>
+            <td class="pos">17657</td>
+            <td class="pos">35.41</td>
             <td>258.3</td>
             <td>253.95</td>
-            <td>1.71</td>
+            <td class="pos">1.71</td>
         </tr>
         
         <tr>
@@ -225,11 +307,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>167780</td>
             <td>140991</td>
-            <td>26789</td>
-            <td>19.0</td>
+            <td class="pos">26789</td>
+            <td class="pos">19.0</td>
             <td>1371.2</td>
             <td>1351.9</td>
-            <td>1.43</td>
+            <td class="pos">1.43</td>
         </tr>
         
         <tr>
@@ -240,11 +322,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>91477</td>
             <td>76989</td>
-            <td>14488</td>
-            <td>18.82</td>
+            <td class="pos">14488</td>
+            <td class="pos">18.82</td>
             <td>1057.1</td>
             <td>1035.7</td>
-            <td>2.07</td>
+            <td class="pos">2.07</td>
         </tr>
         
         <tr>
@@ -255,11 +337,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>54567</td>
             <td>41092</td>
-            <td>13475</td>
-            <td>32.79</td>
+            <td class="pos">13475</td>
+            <td class="pos">32.79</td>
             <td>4801.0</td>
             <td>4720.0</td>
-            <td>1.72</td>
+            <td class="pos">1.72</td>
         </tr>
         
         <tr>
@@ -270,11 +352,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>134571</td>
             <td>114402</td>
-            <td>20169</td>
-            <td>17.63</td>
+            <td class="pos">20169</td>
+            <td class="pos">17.63</td>
             <td>1328.0</td>
             <td>1266.0</td>
-            <td>4.9</td>
+            <td class="pos">4.9</td>
         </tr>
         
         <tr>
@@ -285,11 +367,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>164987</td>
             <td>143101</td>
-            <td>21886</td>
-            <td>15.29</td>
+            <td class="pos">21886</td>
+            <td class="pos">15.29</td>
             <td>1699.9</td>
             <td>1680.8</td>
-            <td>1.14</td>
+            <td class="pos">1.14</td>
         </tr>
         
         <tr>
@@ -300,11 +382,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>78463</td>
             <td>63469</td>
-            <td>14994</td>
-            <td>23.62</td>
+            <td class="pos">14994</td>
+            <td class="pos">23.62</td>
             <td>418.9</td>
             <td>411.7</td>
-            <td>1.75</td>
+            <td class="pos">1.75</td>
         </tr>
         
         <tr>
@@ -315,11 +397,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>55039</td>
             <td>40339</td>
-            <td>14700</td>
-            <td>36.44</td>
+            <td class="pos">14700</td>
+            <td class="pos">36.44</td>
             <td>4373.9</td>
             <td>4303.0</td>
-            <td>1.65</td>
+            <td class="pos">1.65</td>
         </tr>
         
         <tr>
@@ -330,11 +412,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>81578</td>
             <td>66027</td>
-            <td>15551</td>
-            <td>23.55</td>
+            <td class="pos">15551</td>
+            <td class="pos">23.55</td>
             <td>3816.5</td>
             <td>3761.8</td>
-            <td>1.45</td>
+            <td class="pos">1.45</td>
         </tr>
         
         <tr>
@@ -345,11 +427,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>76275</td>
             <td>59333</td>
-            <td>16942</td>
-            <td>28.55</td>
+            <td class="pos">16942</td>
+            <td class="pos">28.55</td>
             <td>3843.0</td>
             <td>3772.0</td>
-            <td>1.88</td>
+            <td class="pos">1.88</td>
         </tr>
         
         <tr>
@@ -360,11 +442,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>52896</td>
             <td>39920</td>
-            <td>12976</td>
-            <td>32.51</td>
+            <td class="pos">12976</td>
+            <td class="pos">32.51</td>
             <td>363.1</td>
             <td>359.2</td>
-            <td>1.09</td>
+            <td class="pos">1.09</td>
         </tr>
         
         <tr>
@@ -375,11 +457,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>50218</td>
             <td>36400</td>
-            <td>13818</td>
-            <td>37.96</td>
+            <td class="pos">13818</td>
+            <td class="pos">37.96</td>
             <td>253.3</td>
             <td>252.1</td>
-            <td>0.48</td>
+            <td class="pos">0.48</td>
         </tr>
         
         <tr>
@@ -390,29 +472,34 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>111099</td>
             <td>96849</td>
-            <td>14250</td>
-            <td>14.71</td>
+            <td class="pos">14250</td>
+            <td class="pos">14.71</td>
             <td>3188.5</td>
             <td>3175.1</td>
-            <td>0.42</td>
+            <td class="pos">0.42</td>
         </tr>
         
-</tbody>
-</table>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <div class="group bear">
-<div class="group-header bear">BEAR (4)</div>
-<table>
-<thead>
-<tr>
-<th>Symbol</th><th>TYPE</th><th>STR</th><th>DIR</th><th>EXPIRY</th>
-<th>OI Recent</th><th>OI Pre</th><th>Δ OI</th>
-<th>Δ OI %</th><th>LTP</th><th>Prev</th><th>% Chg</th>
-</tr>
-</thead>
-<tbody>
-
+  <div class="group-header bear">
+    <span>📉 BEAR SIGNALS</span>
+    <span class="count-badge">(4)</span>
+  </div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Symbol</th><th>Type</th><th>STR</th><th>DIR</th><th>Expiry</th>
+          <th>OI Recent</th><th>OI Pre</th><th>ΔOI</th><th>ΔOI%</th>
+          <th>LTP</th><th>Prev</th><th>%Chg</th>
+        </tr>
+      </thead>
+      <tbody>
+        
         <tr>
             <td class="symbol">RELIANCE</td>
             <td class="type">FUT</td>
@@ -421,11 +508,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>218404</td>
             <td>163633</td>
-            <td>54771</td>
-            <td>33.47</td>
+            <td class="neg">54771</td>
+            <td class="neg">33.47</td>
             <td>1394.0</td>
             <td>1394.5</td>
-            <td>-0.04</td>
+            <td class="neg">-0.04</td>
         </tr>
         
         <tr>
@@ -436,11 +523,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>111573</td>
             <td>89550</td>
-            <td>22023</td>
-            <td>24.59</td>
+            <td class="neg">22023</td>
+            <td class="neg">24.59</td>
             <td>1994.8</td>
             <td>1997.8</td>
-            <td>-0.15</td>
+            <td class="neg">-0.15</td>
         </tr>
         
         <tr>
@@ -451,11 +538,11 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>96072</td>
             <td>74281</td>
-            <td>21791</td>
-            <td>29.34</td>
+            <td class="neg">21791</td>
+            <td class="neg">29.34</td>
             <td>9.96</td>
             <td>9.99</td>
-            <td>-0.3</td>
+            <td class="neg">-0.3</td>
         </tr>
         
         <tr>
@@ -466,28 +553,32 @@ tbody tr:hover td { background:#eef4ff; }
             <td class="expiry">24 FEB 2026</td>
             <td>111384</td>
             <td>67738</td>
-            <td>43646</td>
-            <td>64.43</td>
+            <td class="neg">43646</td>
+            <td class="neg">64.43</td>
             <td>321.75</td>
             <td>324.2</td>
-            <td>-0.76</td>
+            <td class="neg">-0.76</td>
         </tr>
         
-</tbody>
-</table>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <script>
-const scanTime = new Date("2026-01-27T15:46:00");
-function updateElapsed(){
-  const diff=Math.floor((new Date()-scanTime)/60000);
-  document.getElementById("elapsed").innerText =
-    diff<=0?"just now":diff+" minutes passed";
+const scanTime = new Date("2026-01-27T15:54:00");
+function updateElapsed() {
+  const now = new Date();
+  const diff = Math.floor((now - scanTime) / 60000);
+  const elapsed = document.getElementById("elapsed");
+  elapsed.textContent = diff <= 0 ? "Live" : `${diff}m ago`;
+  elapsed.style.background = diff <= 5 ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
 }
 updateElapsed();
-setInterval(updateElapsed,60000);
-setInterval(()=>location.reload(),60000);
-</script>
+setInterval(updateElapsed, 30000);
 
+// Auto-refresh every 60s
+setTimeout(() => location.reload(), 60000);
+</script>
 </body>
 </html>
