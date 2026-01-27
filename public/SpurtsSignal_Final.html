@@ -8,15 +8,25 @@
 <style>
 :root {
   --bg:#050812;
+  --panel:#0b1226;
+  --panel-soft:#0e1633;
   --text:#e6ebff;
-  --muted:#a0accf;
+  --muted:#9aa7cc;
   --border:#1f2a44;
+
+  --bull:#22c55e;
+  --bear:#ef4444;
+}
+
+* {
+  box-sizing:border-box;
 }
 
 body {
   margin:0;
   font-family:Inter,Segoe UI,Arial;
-  background:radial-gradient(1200px 600px at top,#0b1226,#04060d);
+  background:
+    radial-gradient(1200px 600px at top,#0b1226,#04060d);
   color:var(--text);
 }
 
@@ -26,29 +36,62 @@ body {
   border-bottom:1px solid var(--border);
   display:flex;
   justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.header b {
+  font-size:1.05rem;
 }
 
 .group {
-  margin:18px;
+  margin:16px;
   border-radius:18px;
   border:1px solid var(--border);
   overflow:hidden;
+  background:var(--panel);
+  box-shadow:0 10px 40px rgba(0,0,0,.45);
 }
 
-.group.bull { background:linear-gradient(180deg,#0f2a2a,#081818); }
-.group.bear { background:linear-gradient(180deg,#2a1414,#160808); }
+.group.bull {
+  background:
+    linear-gradient(180deg,rgba(34,197,94,.10),transparent),
+    var(--panel);
+}
+
+.group.bear {
+  background:
+    linear-gradient(180deg,rgba(239,68,68,.12),transparent),
+    var(--panel);
+}
 
 .group-header {
   padding:12px 16px;
-  font-weight:600;
+  font-weight:700;
+  letter-spacing:.4px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  backdrop-filter:blur(6px);
 }
 
 .group-header.bull {
-  background:linear-gradient(90deg,rgba(34,197,94,.18),transparent);
+  background:linear-gradient(
+    90deg,
+    rgba(34,197,94,.35),
+    transparent
+  );
+  color:#86efac;
 }
 
 .group-header.bear {
-  background:linear-gradient(90deg,rgba(239,68,68,.18),transparent);
+  background:linear-gradient(
+    90deg,
+    rgba(239,68,68,.35),
+    transparent
+  );
+  color:#fca5a5;
 }
 
 table {
@@ -61,24 +104,84 @@ th,td {
   padding:10px 12px;
   text-align:center;
   border-bottom:1px solid rgba(255,255,255,.06);
+  white-space:nowrap;
 }
 
 th {
-  background:rgba(0,0,0,.25);
+  background:rgba(0,0,0,.35);
   color:var(--muted);
+  font-weight:600;
+  position:sticky;
+  top:0;
+  z-index:5;
 }
 
-.symbol { font-weight:600; }
-.strength { font-weight:700; }
+tbody tr:hover td {
+  background:rgba(255,255,255,.05);
+}
+
+.symbol {
+  font-weight:700;
+}
+
+.strength {
+  font-weight:800;
+  font-size:14px;
+}
+
 .type {
   font-weight:700;
   color:#93c5fd;
 }
+
 .expiry {
   font-weight:600;
   color:#facc15;
 }
+
+#elapsed {
+  font-size:12px;
+  color:var(--muted);
+}
+
+@media (max-width: 900px) {
+  .group {
+    margin:12px;
+  }
+}
+
+@media (max-width: 700px) {
+  table {
+    display:block;
+    overflow-x:auto;
+  }
+
+  th,td {
+    padding:8px 10px;
+    font-size:12px;
+  }
+
+  .header {
+    padding:12px 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .group-header {
+    font-size:0.9rem;
+  }
+
+  .strength {
+    font-size:13px;
+  }
+}
 </style>
+
 </head>
 
 <body>
@@ -86,7 +189,7 @@ th {
 <div class="header">
   <div>
     <b>Spurt Data</b><br>
-    <span>Scan Time: 27-01-2026 14:11</span>
+    <span>Scan Time: 27-01-2026 14:12</span>
   </div>
   <div id="elapsed"></div>
 </div>
@@ -469,7 +572,7 @@ th {
 </div>
 
 <script>
-const scanTime = new Date("2026-01-27T14:11:00");
+const scanTime = new Date("2026-01-27T14:12:00");
 function updateElapsed(){
   const diff=Math.floor((new Date()-scanTime)/60000);
   document.getElementById("elapsed").innerText =
