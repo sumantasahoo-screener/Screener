@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TEST SCREENER</title>
+
+  <!-- FORCE NO CACHE -->
+  <meta http-equiv="Cache-Control" content="no-store" />
+
+  <!-- AUTO REFRESH: incremental update (updates only table, preserves view) -->
+  <script>
+    async function fetchAndUpdateTable(){
+      try{
+        const res = await fetch(window.location.href, {cache: "no-store"});
+        if(!res.ok) throw new Error("fetch failed: " + res.status);
+        const text = await res.text();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, "text/html");
+        const newWrap = doc.querySelector(".card-grid");
+		const curWrap = document.querySelector(".card-grid");
+		if(!newWrap || !curWrap) return;
+
+		curWrap.innerHTML = newWrap.innerHTML;
+
+      }catch(err){
+        console.warn("Table update failed:", err);
+      }
+    }
+
+    window.addEventListener("load", () => {
+      fetchAndUpdateTable();
+      setInterval(fetchAndUpdateTable, 10000);
+    });
+  </script>
+
+<style>
+:root{
+  --bg-main:#eefaf2;
+  --bg-elevated:#f4fff8;
+  --bg-panel:#ffffff;
+
+  --border-subtle:#9ed3b7;
+
+  --text-main:#0f3b2a;
+  --text-soft:#5a9b80;
+
+  --green:#22c55e;
+  --red:#ef4444;
+  --yellow:#facc15;
+
+  --shadow-soft:0 10px 26px rgba(20,80,50,.18);
+}
+
+/* BASE */
+
+*{box-sizing:border-box;}
+
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  margin:10px;
+  background:linear-gradient(180deg,#f7fffb,#eefaf2);
+  color:var(--text-main);
+}
+
+/* GRID */
+
+.card-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:1fr 1fr;
+  gap:16px;
+  height:90vh;
+}
+
+/* CARD */
+
+.trade-card{
+  background:var(--bg-panel);
+  border-radius:18px;
+  border:1px solid var(--border-subtle);
+  box-shadow:var(--shadow-soft);
+  padding:14px 18px;
+  display:flex;
+  flex-direction:column;
+}
+
+/* HEADER */
+
+.card-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-weight:800;
+}
+
+.card-symbol{font-size:20px;}
+.card-exp{font-size:12px;color:var(--text-soft);}
+
+.badge-buy{background:var(--green);color:#fff;padding:4px 10px;border-radius:8px;}
+.badge-sell{background:var(--red);color:#fff;padding:4px 10px;border-radius:8px;}
+.badge-nt{background:#ddd;color:#333;padding:4px 10px;border-radius:8px;}
+
+/* PRICE ZONE */
+
+.price-zone{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:10px 0;
+}
+
+.spot{
+  font-size:34px;
+  font-weight:900;
+}
+
+.option-line{
+  font-size:14px;
+  font-weight:700;
+}
+
+/* RIGHT RAIL */
+
+.analytics{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:8px;
+}
+
+/* OI BARS */
+
+.oi-box{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+}
+
+.oi-row{
+  height:10px;
+  border-radius:6px;
+  background:#eee;
+  position:relative;
+  overflow:hidden;
+}
+
+.oi-call{background:linear-gradient(90deg,#fff,var(--green));}
+.oi-put{background:linear-gradient(90deg,var(--red),#fff);}
+
+/* PA STREAK */
+
+.pa-row{
+  display:flex;
+  gap:4px;
+}
+
+.pa-up{width:12px;height:12px;background:var(--green);border-radius:3px;}
+.pa-down{width:12px;height:12px;background:var(--red);border-radius:3px;}
+.pa-flat{width:12px;height:12px;background:#ccc;border-radius:3px;}
+
+/* MINI CHART */
+
+.mini-chart{
+  height:80px;
+  background:linear-gradient(180deg,#ecfdf5,#fff);
+  border-radius:10px;
+  margin-top:8px;
+}
+
+/* FLOATING CONTROLS KEEP */
+
+.floating-controls{
+  position:fixed;
+  bottom:12px;
+  left:12px;
+  z-index:9999;
+  display:flex;
+  gap:6px;
+}
+
+.ctrl-btn,
+.ctrl-link{
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  border:1px solid var(--border-subtle);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  background:#fff;
+}
+</style>
+
+
+
+
+
+
+</head>
+<body>
+
+  <!-- SCAN TIME BAR (STICKY) -->
+  <th colspan="100" class="scan-bar-cell">
+    <span style="font-size:11px;font-weight:900;">SCAN-TIME :</span>
+    <span id="scanTimeValue">--</span>
+    <span id="scanStatus" style="margin-left:6px;"></span>
+    <span id="screenTag"
+      style="
+        margin-left:3px;
+        background:#000000;
+        color:#FFFFFF;
+        font-size:10px;
+        font-weight:bold;
+        padding:2px 6px;
+        border-radius:0px;
+        line-height:1;
+      ">
+      TEST SCREENER
+    </span>
+  </th>
+  </tr>
+
+<script>
+(function () {
+
+  // ===== SCAN TIME (card based, table free) =====
+  function updateScanTimeFromCards(){
+    const firstCard = document.querySelector(".trade-card");
+    if(!firstCard) return;
+
+    const scanVal = firstCard.getAttribute("data-scan-time");
+    if(!scanVal) return;
+
+    const scanEl = document.getElementById("scanTimeValue");
+    const statusEl = document.getElementById("scanStatus");
+
+    scanEl.textContent = scanVal;
+
+    const now = new Date();
+    const parts = scanVal.split(" ");
+    if(parts.length !== 2) return;
+
+    const [d,t] = parts;
+    const [dd,mm,yy] = d.split("/").map(Number);
+    const [hh,min] = t.split(":").map(Number);
+
+    const scanDate = new Date(2000+yy,mm-1,dd,hh,min);
+    const diffMin = (now - scanDate)/60000;
+
+    let bg = "#b91c1c", txt="OLD";
+    if(diffMin<=4){bg="#16a34a";txt="FRESH";}
+    else if(diffMin<=5){bg="#0284c7";txt="ACTIVE";}
+    else if(diffMin<=12){bg="#ea580c";txt=Math.floor(diffMin)+" MIN";}
+
+    if(statusEl){
+      statusEl.textContent = txt;
+      statusEl.style.background = bg;
+      statusEl.style.color="#fff";
+      statusEl.style.fontSize="11px";
+      statusEl.style.padding="2px 8px";
+    }
+  }
+
+  window.addEventListener("load", updateScanTimeFromCards);
+  setInterval(updateScanTimeFromCards,3000);
+
+})();
+</script>
+
+<div class="card-grid">
+            <div class="trade-card" id="card-1" data-scan-time="2026-01-28 11:35:17">
+              
+            <div class="card-head">
+              <div>
+                <div class="card-symbol">NIFTY</div>
+                <div class="card-exp">2026-02-03</div>
+              </div>
+              <div class="badge-nt">Bullish</div>
+            </div>
+            
+              
+            <div class="price-zone">
+              <div class="spot">25339</div>
+              <div class="option-line"><div style="display: flex; align-items: center; gap: 6px;">
+    <div style="width: 16px; height: 16px; background: #BDBDBD; border-radius: 2px;"></div>
+    <span style="font-size: 12px; font-weight: 500; color: #333;">242.2 (Neutral)</span>
+</div></div>
+            </div>
+            
+              <div class="mini-chart"></div>
+            </div>
+            
+            <div class="trade-card" id="card-2" data-scan-time="2026-01-28 11:35:17">
+              
+            <div class="card-head">
+              <div>
+                <div class="card-symbol">BANKNIFTY</div>
+                <div class="card-exp">2026-02-24</div>
+              </div>
+              <div class="badge-nt">Bullish</div>
+            </div>
+            
+              
+            <div class="price-zone">
+              <div class="spot">59636</div>
+              <div class="option-line"><div style="display: flex; align-items: center; gap: 6px;">
+    <div style="width: 16px; height: 16px; background: #BDBDBD; border-radius: 2px;"></div>
+    <span style="font-size: 12px; font-weight: 500; color: #333;">1085.65 (Neutral)</span>
+</div></div>
+            </div>
+            
+              <div class="mini-chart"></div>
+            </div>
+            
+            <div class="trade-card" id="card-3" data-scan-time="2026-01-28 11:35:17">
+              
+            <div class="card-head">
+              <div>
+                <div class="card-symbol">RELIANCE</div>
+                <div class="card-exp">2026-02-24</div>
+              </div>
+              <div class="badge-nt">Bullish</div>
+            </div>
+            
+              
+            <div class="price-zone">
+              <div class="spot">1401.6</div>
+              <div class="option-line"><div style="display: flex; align-items: center; gap: 6px;">
+    <div style="width: 16px; height: 16px; background: #60CC65; border-radius: 2px;"></div>
+    <span style="font-size: 12px; font-weight: 500; color: #333;">39.05 (Buy)</span>
+</div></div>
+            </div>
+            
+              <div class="mini-chart"></div>
+            </div>
+            
+            <div class="trade-card" id="card-4" data-scan-time="2026-01-28 11:35:17">
+              
+            <div class="card-head">
+              <div>
+                <div class="card-symbol">SBIN</div>
+                <div class="card-exp">2026-02-24</div>
+              </div>
+              <div class="badge-nt">Bullish</div>
+            </div>
+            
+              
+            <div class="price-zone">
+              <div class="spot">1061.9</div>
+              <div class="option-line"><div style="display: flex; align-items: center; gap: 6px;">
+    <div style="width: 16px; height: 16px; background: #1FA64B; border-radius: 2px;"></div>
+    <span style="font-size: 12px; font-weight: 500; color: #333;">33 (Strong Buy)</span>
+</div></div>
+            </div>
+            
+              <div class="mini-chart"></div>
+            </div>
+            </div>
+
+
+
+  <div class="floating-controls">
+    <button id="rotateBtn"
+      title="Rotate View"
+      class="ctrl-btn">
+      <span style="transform:translateY(1px);">↻</span>
+    </button>
+
+    <a href="SpurtsSignal_Final.html" target="_blank"
+      title="Spurts Data"
+      class="ctrl-link ctrl-spurts">
+      🌊
+    </a>
+
+    <a href="signal2.html"
+      title="F&O Signals Part-2"
+      class="ctrl-link ctrl-munna">
+      Other
+    </a>
+	
+	 <a href="news.html" target="_blank"
+      title="News"
+      class="ctrl-btn">
+      📡
+    </a>
+	
+	<a href="siglog-Bank IT.html" target="_blank"
+      title="Log"
+      class="ctrl-btn">
+      📜
+    </a>
+	<a href="Importantlink.html" target="_blank"
+      title="Link"
+      class="ctrl-link ctrl-spurts">
+      🌐
+    </a>
+	
+	
+  </div>
+
+  <script>
+(function () {
+
+  const grid = document.querySelector(".card-grid");
+  if (!grid) return;
+
+  // ROTATE CARD GRID
+  const btn = document.getElementById("rotateBtn");
+  if (btn) {
+    let rotated = false;
+    btn.addEventListener("click", function () {
+      rotated = !rotated;
+      if (rotated) {
+        grid.style.transform = "rotate(90deg) translateY(-100%)";
+        grid.style.transformOrigin = "top left";
+        grid.style.width = "100vh";
+        grid.style.height = "100vw";
+      } else {
+        grid.style.transform = "";
+        grid.style.transformOrigin = "";
+        grid.style.width = "";
+        grid.style.height = "";
+      }
+    });
+  }
+
+  // AUTO FULLSCREEN ON INTERACTION
+  let fsUntil = 0;
+  const FS_FOR_MS = 5 * 60 * 1000;
+
+  function enterFS() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(()=>{});
+    }
+  }
+
+  window.addEventListener("scroll", () => {
+    const now = Date.now();
+    if (now > fsUntil) {
+      fsUntil = now + FS_FOR_MS;
+      enterFS();
+    }
+  }, { passive:true });
+
+})();
+</script>
+
+
+</body>
+</html>
