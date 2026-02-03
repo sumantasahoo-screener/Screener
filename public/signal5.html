@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCALPER</title>
+<style>
+:root{
+  --bg:#050912;
+  --card:#141c2f;
+  --panel:#1e2740;
+  --panel2:#232d4a;
+  --border:rgba(255,255,255,.08);
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+  --green:#22c55e;
+  --red:#ef4444;
+  --blue:#3b82f6;
+  --amber:#facc15;
+}
+*{box-sizing:border-box}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #FFFFFF;  /* Gradient ki jagah solid dark blue-black color */
+  font-family: system-ui;
+  color: var(--text);
+  overflow: hidden;
+}
+
+.scroll-wrap{
+  height:100vh;
+  overflow-y:auto;
+  scroll-snap-type:y mandatory;
+}
+
+
+/* ===== SCAN BAR ===== */
+
+.scan-inline{
+  display:flex;
+  gap:10px;
+  font-size:11px;
+  font-weight:800;
+  opacity:.9;
+}
+.scan-tag{
+  background:black;
+  padding:2px 6px;
+  border-radius:4px;
+  font-size:11px;
+}
+/* ===== GRID ===== */
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:8px;
+}
+.page-block{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  grid-template-rows:repeat(2,1fr);
+  gap:4px;
+  scroll-snap-align:start;
+  height:100vh;
+}
+
+
+.trade-card{
+  background:linear-gradient(180deg,#18223a,#0f1628);
+  border-radius:18px;
+  padding:6px;
+
+  border:1px solid rgba(255,255,255,0.32);
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.10),
+    0 12px 40px rgba(0,0,0,.7),
+    0 0 0 1px rgba(255,255,255,0.20);
+
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+
+  height:100%;
+  overflow:visible;
+  margin:0;
+}
+
+
+
+/* ===== HEADER ===== */
+
+.card-head.split-head{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  padding:6px 6px;
+  min-height:32px;
+}
+
+.head-center{
+  text-align:center;
+}
+
+.head-center .spot{
+  font-size:22px;
+  line-height:1;
+}
+
+.head-right{
+  justify-self:end;
+}
+.badge-buy,
+.badge-sell,
+.badge-nt{
+  padding:3px 8px;
+  border-radius:6px;
+  font-weight:800;
+  font-size:12px;
+}
+.badge-buy{background:#22c55e;}
+.badge-sell{background:#ef4444;}
+.badge-nt{background:#9ca3af;}
+/* ===== INDICATOR GRID ===== */
+.indicator-stack.two-col{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  align-items:stretch;
+  flex:1;
+  min-height:0;
+}
+
+/* ===== LEFT STACK ===== */
+.empty-slot{
+  background:var(--panel2);
+  border-radius:14px;
+  border:1px dashed var(--border);
+}
+.chart-part{
+  background:#020617;
+  border-radius:12px;
+  overflow:hidden;
+  padding:3px;
+}
+/* ===== MINI SVG ===== */
+.mini-chart{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:stretch;
+}
+
+/* ===== RIGHT STACK ===== */
+.right-col{
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr);
+  gap:6px;
+}
+
+.indicator-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:repeat(4,1.1fr);
+  gap:6px;
+  min-height:0;
+}
+
+
+/* ===== INNER ===== */
+}
+.tall-chart{
+  height:110px;
+}
+.sub-block{
+  background:var(--panel);
+  border-radius:10px;
+  padding:8px;
+  font-size:12px;
+  border:1px solid var(--border);
+  min-height:48px;
+}
+.sub-block:nth-of-type(2){
+  min-height:70px;
+}
+.dual-slot{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+.mini-box{
+  background:var(--panel);
+  border-radius:12px;
+  padding:6px;
+  font-size:13px;
+  text-align:center;
+  border:1px solid var(--border);
+  min-height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+/* ===== OI ===== */
+.oi-title{font-size:12px;color:var(--muted)}
+.oi-row{
+  height:14px;
+  margin:6px 0;
+  border-radius:0;
+  background:#374151;
+  position:relative;
+  overflow:hidden;
+}
+/* BASE TOTAL OI COLOR */
+.oi-call{background:var(--green)}
+.oi-put{background:var(--red)}
+/* CHANGE IN OI OVERLAY */
+.oi-row::after{
+  content:"";
+  position:absolute;
+  right:0;
+  top:0;
+  height:100%;
+  width:0%;
+  background:transparent;
+}
+.oi-row.pos-change.ce::after{
+  width:var(--chg-pct);
+  background:#15803d;
+}
+.oi-row.pos-change.pe::after{
+  width:var(--chg-pct);
+  background:#b91c1c;
+}
+.oi-row.neg-change.ce::after{
+  width:var(--chg-pct);
+  background:#ffffff;
+  outline:2px solid #15803d;
+}
+.oi-row.neg-change.pe::after{
+  width:var(--chg-pct);
+  background:#ffffff;
+  outline:2px solid #b91c1c;
+}
+.oi-box{position:relative}
+.oi-atm-float-wrap{
+  position:absolute;
+  right:-5px;
+  top:50%;
+  transform:translateY(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+}
+.oi-atm-float{
+  color:#FFF;
+  font-weight:900;
+  font-size:12px;
+  padding:2px 6px;
+  border-radius:4px;
+}
+.atm-arrow{
+  width:0;
+  height:0;
+  border-left:6px solid transparent;
+  border-right:6px solid transparent;
+}
+.atm-arrow.up{
+  border-bottom:10px solid #ffffff;
+}
+.atm-arrow.down{
+  border-top:10px solid #ffffff;
+}
+/* ===== PA ===== */
+.pa-row{display:flex;gap:4px;}
+.pa-up{
+  width:9px;height:9px;
+  clip-path:polygon(50% 0,100% 100%,0 100%);
+  background:var(--green);
+}
+.pa-down{
+  width:9px;height:9px;
+  clip-path:polygon(0 0,100% 0,50% 100%);
+  background:var(--red);
+}
+.indicator-stack.two-col{
+  flex:1;
+}
+.candle-block{
+  flex:1;
+  min-height:0;
+}
+
+.chart-part.tall-chart{
+  height:120px !important;
+  flex-shrink:0;
+}
+/* ===== OHLC SPLIT PANEL ===== */
+.ohlc-top,
+.ohlc-mid,
+.ohlc-bottom{
+  background:var(--panel);
+  border-radius:8px;
+  padding:6px;
+  border:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.ohlc-bottom{
+  overflow:visible;
+}
+.ohlc-bottom .ohlc-title{
+  text-align:center;
+}
+.ohlc-title{
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:2px;
+  text-align:center;
+  position:relative;
+  color:#BFC1C7;
+  padding-bottom:1px;
+  border-bottom:none;
+}
+.ohlc-title::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:0;
+  width:55%;
+  height:1px;
+  background:rgba(255,255,255,0.15);
+  transform:translateX(-50%);
+}
+
+.ohlc-row{
+  display:flex;
+  gap:8px;
+  font-weight:700;
+}
+.day-candle-slot{
+  flex:1;
+  background:#020617;
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.sub-block.split-ohlc > div{
+  min-height:0 !important;
+}
+/* ===== OHLC COLUMN SPLIT (FINAL) ===== */
+.split-ohlc{
+  display:grid;
+  grid-template-columns:38% 40% 18%;
+  grid-template-rows:1fr;
+  min-height:90px;
+  height:auto;
+  column-gap:6px;
+  row-gap:0;
+}
+.split-ohlc .ohlc-top{
+  grid-column:1;
+  grid-row:1;
+}
+.split-ohlc .ohlc-mid{
+  grid-column:2;
+  grid-row:1;
+}
+.split-ohlc .ohlc-bottom{
+  grid-column:3;
+  grid-row:1;
+}
+.split-bu-qcp{
+  display:grid !important;
+  grid-template-columns:1fr 1fr;
+  align-items:center;
+}
+.split-bu-qcp .bu-right{
+  text-align:right;
+}
+.bu-box{
+  min-width:22px;
+  height:22px;
+  border-radius:6px;
+  font-size:11px;
+  font-weight:900;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.bu-box.lu{background:pink;color:#000;}
+.bu-box.s{background:#ef4444;color:#fff;}
+.bu-box.sc{background:#86efac;color:#000;}
+.bu-box.l{background:#22c55e;color:#000;}
+.bu-box.n{background:#9ca3af;color:#000;}
+
+.split-bu-qcp .center{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+.qcp-box{
+  background:#1e293b;
+  border:1px solid rgba(255,255,255,.15);
+  padding:3px 8px;
+  border-radius:8px;
+  font-size:11px;
+  font-weight:800;
+}
+/* ===== OI Imbalace ===== */
+.oi-imb-dotbar{
+  display:grid;
+  grid-template-columns:repeat(40,1fr);
+  gap:2px;
+  width:70%;
+  justify-content:start;
+}
+
+.oi-dot{
+  height:16px;
+  background:#ffffff;
+}
+.oi-dot.buy{background:#22c55e;}
+.oi-dot.sell{background:#ef4444;}
+.oi-dot.neutral{background:#ffffff;}
+
+.inner-block{
+  background:var(--panel2);
+  border-radius:14px;
+  padding:4px 6px;
+  border:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.oi-imb-text{
+  font-size:12px;
+  font-weight:800;
+}
+.oi-imb-bar-wrap{
+  width:100%;
+  height:12px;
+  background:#ffffff;
+  border-radius:0;
+  overflow:hidden;
+}
+.oi-imb-bar{
+  height:100%;
+  width:calc(var(--pct) * 1%);
+  border-radius:0;
+}
+/* ===== Expiry Box ===== */
+.expiry-box{
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.expiry-box .expiry-title{
+  font-weight:700;
+}
+.expiry-box .expiry-date{
+  font-weight:800;
+  font-size:13px;
+}
+/* ===== Header ===== */
+.header-right-stack{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.head-left{
+  font-size:14px;
+  font-weight:700;
+  color:#05ADAB;
+}
+.head-center{
+  font-size:12px;
+  font-weight:800;
+}
+.signal-badge{
+  padding:2px 6px;
+  border-radius:5px;
+  font-weight:800;
+  font-size:11px;
+}
+
+.with-divider{
+  grid-template-columns:1fr auto 1fr !important;
+}
+
+.bu-divider{
+  width:1px;
+  height:60%;
+  background:rgba(255,255,255,.25);
+  justify-self:center;
+}
+/* ===== OPTION ===== */
+.opt-strike-box{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  text-align:center;
+}
+
+.os-divider{
+  width:1px;
+  height:60%;
+  background:rgba(255,255,255,.25);
+}
+
+.os-title{
+  font-size:11px;
+  opacity:.8;
+}
+
+.os-val{
+  font-size:13px;
+  font-weight:800;
+}
+/* ===== volume===== */
+.vol-blue-light{color:#86EBE9;}
+.vol-blue-dark{color:#02C7C4;}
+
+.vol-pink-light{color:#F5CBE0;}
+.vol-pink-dark{color:#be185d;}
+
+.vol-flat{color:#9ca3af;}
+
+/* ===== Greeks Zone===== */
+
+.zone-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:1fr 1fr;
+  gap:1px;
+}
+
+.zone-box{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:0;
+}
+
+.zone-title{
+  background:var(--panel);
+  color:var(--text);
+  font-weight:600;
+  font-size:11px;
+  padding:10px;
+  text-align:center;
+}
+
+.zone-values{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  align-items:center;
+  text-align:center;
+  padding:10px 10px;
+  font-size:12px;
+  font-weight:600;
+  width:100%;
+}
+
+/* ===== Trend===== */
+
+.price-trend-box{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.pt-left{
+  width:65%;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  align-items:flex-start;
+}
+
+.pt-divider{
+  width:1px;
+  height:70%;
+  background:rgba(255,255,255,.25);
+}
+
+.pt-right{
+  width:30%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.pt-right-title{
+  font-size:12px;
+  font-weight:800;
+  opacity:.9;
+}
+
+
+
+.pt-title{
+  font-size:11px;
+  font-weight:800;
+  opacity:.9;
+}
+
+.pt-bar-wrap{
+  width:100%;
+  height:6px;
+  background:#374151;
+  border-radius:6px;
+  overflow:hidden;
+}
+
+.pt-bar{
+  height:100%;
+  width:0%;
+  background:#9ca3af;
+  border-radius:6px;
+  transition:width .3s ease;
+}
+
+.pt-text{
+  font-size:12px;
+  font-weight:800;
+}
+
+.zone-ce{color:var(--green);}
+.zone-pe{color:var(--red);}
+
+.oi-imb-bar.buy{background:#22c55e;}
+.oi-imb-bar.sell{background:#ef4444;}
+.oi-imb-bar.neutral{background:#B0B0B0;}
+
+/* ===== IMB===== */
+.oi-imb-row{
+  display:grid;
+  grid-template-columns:65% 5% 30%;
+  align-items:center;
+}
+
+.oi-imb-main{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.oi-imb-divider{
+  width:1px;
+  height:60%;
+  background:rgba(255,255,255,.25);
+  justify-self:center;
+}
+
+/* ============================
+   📱 MOBILE SCROLL FIX (CHROME)
+   ============================ */
+
+@media screen and (max-width:768px){
+
+  body{
+    overflow:auto !important;
+  }
+
+  .scroll-wrap{
+    width:100%;
+  }
+}
+
+
+/* ---- PORTRAIT ---- */
+@media screen and (max-width:768px) and (orientation:portrait){
+
+  .scroll-wrap{
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+  }
+
+  .page-block{
+    width:100%;
+    height:auto;
+  }
+}
+
+
+/* ---- LANDSCAPE ---- */
+@media screen and (max-width:768px) and (orientation:landscape){
+
+  .scroll-wrap{
+    display:flex;
+    flex-direction:row;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+  }
+
+  .page-block{
+    width:100%;
+    min-width:100%;
+
+</style>
+</head>
+<body>
+<div class="scroll-wrap"><div class="page-block"><div class="trade-card" id="card-1" data-scan-time="2026-02-03 13:44:18">
+            <div class="card-head split-head">
+          <div class="head-left header-left-stack">
+            <span class="sym">NIFTY</span>
+            <span class="hdr-divider" style="color:#facc15;">|</span>
+            <span class="spot-val" style="color:#ffffff;">25792.95</span>
+            <span class="hdr-divider" style="color:#facc15;">|</span>
+            <span class="prev-close"></span>
+          </div>
+
+              <div class="head-right header-right-stack">
+                <span class="scan-time">
+                  SCAN-TIME 
+                  <span class="hdr-divider" style="color:#facc15;">|</span> 
+                  2026-02-03 <span class='hdr-divider' style='color:#facc15;'>|</span> 13:44:18
+                </span>
+                <span class="signal-badge badge-buy">Bullish</span>
+              </div>
+            </div>
+
+            <div class="indicator-stack two-col"><div class="inner-block candle-block"><div class="chart-part tall-chart"><div class="mini-chart"><svg viewBox="0 0 300 100" width="100%" height="100%" preserveAspectRatio="none"><line x1="0" y1="4" x2="0" y2="79" stroke="#ef4444" stroke-width="1" /><rect x="-2" y="8" width="4" height="65" fill="#ef4444" /><line x1="4" y1="66" x2="4" y2="74" stroke="#ef4444" stroke-width="1" /><rect x="2" y="73" width="4" height="2" fill="#ef4444" /><line x1="8" y1="72" x2="8" y2="79" stroke="#ef4444" stroke-width="1" /><rect x="6" y="73" width="4" height="3" fill="#ef4444" /><line x1="12" y1="75" x2="12" y2="81" stroke="#ef4444" stroke-width="1" /><rect x="10" y="77" width="4" height="4" fill="#ef4444" /><line x1="16" y1="77" x2="16" y2="82" stroke="#22c55e" stroke-width="1" /><rect x="14" y="78" width="4" height="2" fill="#22c55e" /><line x1="20" y1="78" x2="20" y2="85" stroke="#ef4444" stroke-width="1" /><rect x="18" y="78" width="4" height="6" fill="#ef4444" /><line x1="24" y1="78" x2="24" y2="91" stroke="#22c55e" stroke-width="1" /><rect x="22" y="78" width="4" height="6" fill="#22c55e" /><line x1="28" y1="76" x2="28" y2="84" stroke="#ef4444" stroke-width="1" /><rect x="26" y="78" width="4" height="6" fill="#ef4444" /><line x1="32" y1="81" x2="32" y2="88" stroke="#ef4444" stroke-width="1" /><rect x="30" y="83" width="4" height="4" fill="#ef4444" /><line x1="36" y1="84" x2="36" y2="88" stroke="#ef4444" stroke-width="1" /><rect x="34" y="87" width="4" height="2" fill="#ef4444" /><line x1="40" y1="87" x2="40" y2="96" stroke="#ef4444" stroke-width="1" /><rect x="38" y="88" width="4" height="2" fill="#ef4444" /><line x1="44" y1="90" x2="44" y2="95" stroke="#ef4444" stroke-width="1" /><rect x="42" y="90" width="4" height="2" fill="#ef4444" /><line x1="48" y1="80" x2="48" y2="91" stroke="#22c55e" stroke-width="1" /><rect x="46" y="81" width="4" height="10" fill="#22c55e" /><line x1="52" y1="76" x2="52" y2="81" stroke="#22c55e" stroke-width="1" /><rect x="50" y="77" width="4" height="4" fill="#22c55e" /><line x1="56" y1="75" x2="56" y2="78" stroke="#ef4444" stroke-width="1" /><rect x="54" y="77" width="4" height="2" fill="#ef4444" /><line x1="60" y1="72" x2="60" y2="79" stroke="#22c55e" stroke-width="1" /><rect x="58" y="73" width="4" height="5" fill="#22c55e" /><line x1="64" y1="72" x2="64" y2="74" stroke="#22c55e" stroke-width="1" /><rect x="62" y="73" width="4" height="2" fill="#22c55e" /><line x1="68" y1="72" x2="68" y2="75" stroke="#ef4444" stroke-width="1" /><rect x="66" y="73" width="4" height="2" fill="#ef4444" /><line x1="72" y1="74" x2="72" y2="80" stroke="#ef4444" stroke-width="1" /><rect x="70" y="75" width="4" height="4" fill="#ef4444" /><line x1="76" y1="79" x2="76" y2="82" stroke="#22c55e" stroke-width="1" /><rect x="74" y="79" width="4" height="2" fill="#22c55e" /><line x1="80" y1="75" x2="80" y2="79" stroke="#22c55e" stroke-width="1" /><rect x="78" y="77" width="4" height="2" fill="#22c55e" /><line x1="84" y1="73" x2="84" y2="77" stroke="#22c55e" stroke-width="1" /><rect x="82" y="75" width="4" height="2" fill="#22c55e" /><line x1="88" y1="74" x2="88" y2="78" stroke="#ef4444" stroke-width="1" /><rect x="86" y="75" width="4" height="3" fill="#ef4444" /><line x1="92" y1="76" x2="92" y2="79" stroke="#22c55e" stroke-width="1" /><rect x="90" y="77" width="4" height="2" fill="#22c55e" /><line x1="96" y1="75" x2="96" y2="78" stroke="#ef4444" stroke-width="1" /><rect x="94" y="77" width="4" height="2" fill="#ef4444" /><line x1="100" y1="74" x2="100" y2="78" stroke="#22c55e" stroke-width="1" /><rect x="98" y="75" width="4" height="3" fill="#22c55e" /><line x1="104" y1="71" x2="104" y2="75" stroke="#22c55e" stroke-width="1" /><rect x="102" y="73" width="4" height="2" fill="#22c55e" /><line x1="108" y1="67" x2="108" y2="74" stroke="#22c55e" stroke-width="1" /><rect x="106" y="67" width="4" height="6" fill="#22c55e" /><line x1="112" y1="66" x2="112" y2="70" stroke="#ef4444" stroke-width="1" /><rect x="110" y="67" width="4" height="2" fill="#ef4444" /><line x1="116" y1="67" x2="116" y2="69" stroke="#22c55e" stroke-width="1" /><rect x="114" y="68" width="4" height="2" fill="#22c55e" /><line x1="120" y1="67" x2="120" y2="71" stroke="#ef4444" stroke-width="1" /><rect x="118" y="68" width="4" height="2" fill="#ef4444" /><line x1="124" y1="69" x2="124" y2="71" stroke="#22c55e" stroke-width="1" /><rect x="122" y="70" width="4" height="2" fill="#22c55e" /><line x1="128" y1="68" x2="128" y2="70" stroke="#22c55e" stroke-width="1" /><rect x="126" y="68" width="4" height="2" fill="#22c55e" /><line x1="132" y1="68" x2="132" y2="72" stroke="#ef4444" stroke-width="1" /><rect x="130" y="68" width="4" height="4" fill="#ef4444" /><line x1="136" y1="70" x2="136" y2="73" stroke="#22c55e" stroke-width="1" /><rect x="134" y="71" width="4" height="2" fill="#22c55e" /><line x1="140" y1="69" x2="140" y2="71" stroke="#22c55e" stroke-width="1" /><rect x="138" y="70" width="4" height="2" fill="#22c55e" /><line x1="144" y1="70" x2="144" y2="72" stroke="#ef4444" stroke-width="1" /><rect x="142" y="70" width="4" height="2" fill="#ef4444" /><line x1="148" y1="70" x2="148" y2="73" stroke="#ef4444" stroke-width="1" /><rect x="146" y="71" width="4" height="2" fill="#ef4444" /><line x1="152" y1="73" x2="152" y2="77" stroke="#ef4444" stroke-width="1" /><rect x="150" y="73" width="4" height="3" fill="#ef4444" /><line x1="156" y1="73" x2="156" y2="77" stroke="#22c55e" stroke-width="1" /><rect x="154" y="75" width="4" height="2" fill="#22c55e" /><line x1="160" y1="75" x2="160" y2="79" stroke="#ef4444" stroke-width="1" /><rect x="158" y="75" width="4" height="2" fill="#ef4444" /><line x1="164" y1="74" x2="164" y2="76" stroke="#22c55e" stroke-width="1" /><rect x="162" y="75" width="4" height="2" fill="#22c55e" /><line x1="168" y1="75" x2="168" y2="77" stroke="#ef4444" stroke-width="1" /><rect x="166" y="75" width="4" height="2" fill="#ef4444" /><line x1="172" y1="75" x2="172" y2="77" stroke="#22c55e" stroke-width="1" /><rect x="170" y="76" width="4" height="2" fill="#22c55e" /><line x1="176" y1="74" x2="176" y2="76" stroke="#22c55e" stroke-width="1" /><rect x="174" y="75" width="4" height="2" fill="#22c55e" /></svg></div></div>
+                    <div class="sub-block split-ohlc">
+
+                      <div class="ohlc-left-stack">
+
+                        <div class="ohlc-top">
+                          <div class="ohlc-title">15M FIRST</div>
+                          <div style="
+                            display:flex;
+                            flex-direction:column;
+                            align-items:center;
+                            justify-content:center;
+                            height:100%;
+                            gap:8px;
+                            font-weight:700;
+                          ">
+                            <div>H: 26341.2</div>
+                            <div>L: 25763.9</div>
+                          </div>
+                        </div>
+
+                        <div class="ohlc-mid">
+                          <div class="ohlc-title">DAY</div>
+                          <div style="
+                            display:flex;
+                            flex-direction:column;
+                            align-items:center;
+                            justify-content:center;
+                            height:100%;
+                            gap:4px;
+                            font-weight:700;
+                          ">
+                            <div>O:26308.05</div>
+                            <div>H:26341.2</div>
+                            <div>L:25641.3</div>
+                            <div>LTP:25792.95</div>
+                          </div>
+                        </div>
+
+                      </div>
+                      <div class="zone-grid">
+
+                        <div class="zone-box iv">
+                          <div class="zone-title">IV Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">48</span>
+                            <span class="zone-pe">52</span>
+                          </div>
+                        </div>
+
+                        <div class="zone-box delta">
+                          <div class="zone-title">DELTA Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">48</span>
+                            <span class="zone-pe">52</span>
+                          </div>
+                        </div>
+
+                        <div class="zone-box gamma">
+                          <div class="zone-title">GAMMA Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">51</span>
+                            <span class="zone-pe">49</span>
+                          </div>
+                        </div>
+
+                        <div class="zone-box theta">
+                          <div class="zone-title">THETA Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">50</span>
+                            <span class="zone-pe">50</span>
+                          </div>
+                        </div>
+
+                      </div>
+  
+
+
+                      <div class="ohlc-bottom">
+                        <div class="ohlc-title">D CNDL</div>
+                        <div class="day-candle-slot">
+                          <div class="day-candle-svg"><svg viewBox="0 0 40 70" width="100%" height="100%" preserveAspectRatio="none"><line x1="20" y1="18" x2="20" y2="52" stroke="#ef4444" stroke-width="2"/><rect x="14" y="19" width="12" height="25" fill="#ef4444"/></svg></div>
+                        </div>
+                      </div>
+
+                    </div>
+
+
+                        
+
+                    <div class="dual-slot">
+                      <div class="mini-box price-trend-box"
+                           style="display:flex;
+                                  align-items:center;
+                                  justify-content:space-between;">
+
+                        <div class="pt-left"
+                             style="display:flex;
+                                    flex-direction:column;
+                                    align-items:center;
+                                    justify-content:center;
+                                    width:65%;">
+
+                          <div class="pt-title" style="text-align:center;">PRICE TREND</div>
+
+                          <div class="pt-bar-wrap" style="width:70%;">
+                            <div class="pt-bar" style="width:20%;background:var(--red);"></div>
+                          </div>
+
+                          <div class="pt-text" style="text-align:center;">DN TREND 20%</div>
+                        </div>
+
+                        <div class="pt-divider"></div>
+
+                        <div class="pt-right"
+                             style="display:flex;
+                                    flex-direction:column;
+                                    align-items:center;
+                                    justify-content:center;
+                                    width:30%;">
+
+                          <div style="font-size:18px;font-weight:900;color:white;">↓</div>
+
+                        </div>
+
+                      </div>
+
+
+                      <div class="mini-box">Final Signal</div></div></div><div class="right-col"><div class="inner-block oi-panel"><div class="oi-title">OI Panel</div><div class="oi-box"><div class="oi-row oi-call ce pos-change" data-leg="CE_OTM" style="--chg-pct:45%;width:86%;"></div><div class="oi-row oi-put  pe pos-change" data-leg="PE_ITM" style="--chg-pct:49%;width:23%;"></div><div class="oi-row oi-call ce pos-change" data-leg="CE_ATM" style="--chg-pct:38%;width:44%;"></div><div class="oi-row oi-put  pe pos-change" data-leg="PE_ATM" style="--chg-pct:49%;width:43%;"></div><div class="oi-row oi-call ce pos-change" data-leg="CE_ITM" style="--chg-pct:5%;width:18%;"></div><div class="oi-row oi-put  pe pos-change" data-leg="PE_OTM" style="--chg-pct:49%;width:100%;"></div>
+                    <div class="oi-atm-float-wrap">
+                      <div class="atm-arrow up"></div>
+                      <div class="oi-atm-float">25800</div>
+                      <div class="atm-arrow down"></div>
+                    </div>
+                    </div></div><div class="indicator-grid">
+                      <div class="inner-block indicator-row opt-strike-box">
+                        <div class="os-col">
+                          <div class="os-title">Strike</div>
+                          <div class="os-val">25800</div>
+                        </div>
+                        <div class="os-divider"></div>
+                        <div class="os-col">
+                          <div class="os-title">Price</div>
+                          <div class="os-val">54.35</div>
+                        </div>
+                      </div>
+                      
+                      <div class="inner-block indicator-row expiry-box">
+                        <div class="expiry-title">EXPIRY</div>
+                        <div class="expiry-date">2026-02-03</div>
+                      </div>
+                      <div class="inner-block indicator-row split-bu-qcp with-divider"><div class="bu-left center"><div class="bu-title">BUILD</div><span class="bu-box l">L</span></div><div class="bu-divider"></div><div class="bu-right"><span class="qcp-box">QCP:1.2716</span></div></div>
+                      <div class="inner-block indicator-row oi-imb-row">
+
+                        <div class="oi-imb-main"
+                             style="display:flex;
+                                    flex-direction:column;
+                                    align-items:center;
+                                    justify-content:center;
+                                    width:100%;">
+
+                          <div class="oi-imb-text"
+                               style="text-align:center;">
+                            18.3% - Buy (IMB)
+                          </div>
+
+                          <div class="oi-imb-dotbar"
+                               style="justify-content:center;">
+                            <span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span><span class="oi-dot "></span>
+                          </div>
+
+                        </div>
+
+
+                        <div class="oi-imb-divider"></div>
+
+                        <div class="oi-imb-right"
+                             style="display:flex;
+                                    align-items:center;
+                                    justify-content:center;">
+
+                          <div class="oi-imb-right-value"
+                               style="display:flex;
+                                      align-items:center;
+                                      justify-content:center;
+                                      width:100%;
+                                      font-size:18px;
+                                      font-weight:900;">
+                            ↑
+                          </div>
+
+                        </div>
+
+                      </div>
+                      <div class="inner-block indicator-row"
+                           style="display:grid;
+                                  grid-template-columns:1fr auto 1fr;
+                                  align-items:center;
+                                  min-height:42px;">
+
+                           <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                             <div style="font-size:11px;opacity:.7;">EMA 21</div>
+                             <div style="font-size:16px;font-weight:800;">25803.71</div>
+                           </div>
+
+                           <div style="width:1px;height:28px;background:rgba(255,255,255,0.25);"></div>
+
+                           <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                             <div style="font-size:11px;opacity:.7;">VWAP 5M</div>
+                             <div style="font-size:16px;font-weight:800;">25819.01</div>
+                           </div>
+
+                         </div>
+                      <div class="inner-block indicator-row opt-strike-box">
+                        <div class="os-col">
+                          <div class="os-title">VOL</div>
+                          <div class="os-val vol-pink-dark">285218</div>
+                        </div>
+                        <div class="os-divider"></div>
+                        <div class="os-col">
+                          <div class="os-title">AVG</div>
+                          <div class="os-val vol-flat">4692817</div>
+                        </div>
+                      </div>
+
+                      <div class="inner-block indicator-row"
+                          style="display:grid;
+                                 grid-template-columns:1fr auto 1fr;
+                                 align-items:center;
+                                 min-height:42px;">
+
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">RSI 5M</div>
+                            <div class="vol-flat" style="font-size:16px;font-weight:800;">48.05</div>
+                          </div>
+
+                          <div style="width:1px;height:28px;background:rgba(255,255,255,0.25);"></div>
+
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">Trend</div>
+                            <div class="vol-flat" style="font-size:18px;font-weight:900;">↑</div>
+                          </div>
+
+
+                        </div><div class="inner-block indicator-row"
+                          style="display:grid;
+                                 grid-template-columns:1fr auto 1fr;
+                                 align-items:center;
+                                 min-height:42px;">
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">MACD 15M</div>
+                            <div class="vol-blue-dark" style="font-size:16px;font-weight:800;">3.19</div>
+                          </div>
+
+                          <div style="width:1px;height:28px;background:rgba(255,255,255,0.25);"></div>
+
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">Trend</div>
+                            <div class="vol-blue-dark" style="font-size:18px;font-weight:900;">↑</div>
+                          </div>
+
+
+                        </div></div></div></div></div><div class="trade-card" id="card-2" data-scan-time="2026-02-03 13:44:18">
+            <div class="card-head split-head">
+          <div class="head-left header-left-stack">
+            <span class="sym">BANKNIFTY</span>
+            <span class="hdr-divider" style="color:#facc15;">|</span>
+            <span class="spot-val" style="color:#ffffff;">60121.45</span>
+            <span class="hdr-divider" style="color:#facc15;">|</span>
+            <span class="prev-close"></span>
+          </div>
+
+              <div class="head-right header-right-stack">
+                <span class="scan-time">
+                  SCAN-TIME 
+                  <span class="hdr-divider" style="color:#facc15;">|</span> 
+                  2026-02-03 <span class='hdr-divider' style='color:#facc15;'>|</span> 13:44:18
+                </span>
+                <span class="signal-badge badge-buy">Bullish</span>
+              </div>
+            </div>
+
+            <div class="indicator-stack two-col"><div class="inner-block candle-block"><div class="chart-part tall-chart"><div class="mini-chart"><svg viewBox="0 0 300 100" width="100%" height="100%" preserveAspectRatio="none"><line x1="0" y1="4" x2="0" y2="85" stroke="#ef4444" stroke-width="1" /><rect x="-2" y="20" width="4" height="63" fill="#ef4444" /><line x1="4" y1="77" x2="4" y2="85" stroke="#22c55e" stroke-width="1" /><rect x="2" y="79" width="4" height="4" fill="#22c55e" /><line x1="8" y1="78" x2="8" y2="82" stroke="#ef4444" stroke-width="1" /><rect x="6" y="79" width="4" height="2" fill="#ef4444" /><line x1="12" y1="77" x2="12" y2="82" stroke="#ef4444" stroke-width="1" /><rect x="10" y="79" width="4" height="3" fill="#ef4444" /><line x1="16" y1="80" x2="16" y2="84" stroke="#22c55e" stroke-width="1" /><rect x="14" y="82" width="4" height="2" fill="#22c55e" /><line x1="20" y1="81" x2="20" y2="89" stroke="#ef4444" stroke-width="1" /><rect x="18" y="82" width="4" height="6" fill="#ef4444" /><line x1="24" y1="83" x2="24" y2="96" stroke="#22c55e" stroke-width="1" /><rect x="22" y="84" width="4" height="4" fill="#22c55e" /><line x1="28" y1="80" x2="28" y2="85" stroke="#ef4444" stroke-width="1" /><rect x="26" y="83" width="4" height="2" fill="#ef4444" /><line x1="32" y1="83" x2="32" y2="86" stroke="#ef4444" stroke-width="1" /><rect x="30" y="85" width="4" height="2" fill="#ef4444" /><line x1="36" y1="83" x2="36" y2="86" stroke="#ef4444" stroke-width="1" /><rect x="34" y="85" width="4" height="2" fill="#ef4444" /><line x1="40" y1="86" x2="40" y2="91" stroke="#ef4444" stroke-width="1" /><rect x="38" y="86" width="4" height="2" fill="#ef4444" /><line x1="44" y1="87" x2="44" y2="91" stroke="#ef4444" stroke-width="1" /><rect x="42" y="87" width="4" height="4" fill="#ef4444" /><line x1="48" y1="85" x2="48" y2="91" stroke="#22c55e" stroke-width="1" /><rect x="46" y="86" width="4" height="5" fill="#22c55e" /><line x1="52" y1="82" x2="52" y2="86" stroke="#22c55e" stroke-width="1" /><rect x="50" y="83" width="4" height="3" fill="#22c55e" /><line x1="56" y1="81" x2="56" y2="84" stroke="#ef4444" stroke-width="1" /><rect x="54" y="83" width="4" height="2" fill="#ef4444" /><line x1="60" y1="79" x2="60" y2="83" stroke="#22c55e" stroke-width="1" /><rect x="58" y="79" width="4" height="4" fill="#22c55e" /><line x1="64" y1="76" x2="64" y2="79" stroke="#22c55e" stroke-width="1" /><rect x="62" y="77" width="4" height="2" fill="#22c55e" /><line x1="68" y1="76" x2="68" y2="79" stroke="#ef4444" stroke-width="1" /><rect x="66" y="77" width="4" height="2" fill="#ef4444" /><line x1="72" y1="78" x2="72" y2="81" stroke="#ef4444" stroke-width="1" /><rect x="70" y="79" width="4" height="2" fill="#ef4444" /><line x1="76" y1="79" x2="76" y2="81" stroke="#22c55e" stroke-width="1" /><rect x="74" y="79" width="4" height="2" fill="#22c55e" /><line x1="80" y1="77" x2="80" y2="79" stroke="#22c55e" stroke-width="1" /><rect x="78" y="78" width="4" height="2" fill="#22c55e" /><line x1="84" y1="75" x2="84" y2="79" stroke="#22c55e" stroke-width="1" /><rect x="82" y="78" width="4" height="2" fill="#22c55e" /><line x1="88" y1="77" x2="88" y2="81" stroke="#ef4444" stroke-width="1" /><rect x="86" y="78" width="4" height="3" fill="#ef4444" /><line x1="92" y1="79" x2="92" y2="82" stroke="#22c55e" stroke-width="1" /><rect x="90" y="80" width="4" height="2" fill="#22c55e" /><line x1="96" y1="78" x2="96" y2="80" stroke="#ef4444" stroke-width="1" /><rect x="94" y="80" width="4" height="2" fill="#ef4444" /><line x1="100" y1="77" x2="100" y2="80" stroke="#22c55e" stroke-width="1" /><rect x="98" y="77" width="4" height="3" fill="#22c55e" /><line x1="104" y1="76" x2="104" y2="79" stroke="#ef4444" stroke-width="1" /><rect x="102" y="77" width="4" height="2" fill="#ef4444" /><line x1="108" y1="74" x2="108" y2="79" stroke="#22c55e" stroke-width="1" /><rect x="106" y="74" width="4" height="4" fill="#22c55e" /><line x1="112" y1="74" x2="112" y2="76" stroke="#ef4444" stroke-width="1" /><rect x="110" y="74" width="4" height="2" fill="#ef4444" /><line x1="116" y1="75" x2="116" y2="76" stroke="#ef4444" stroke-width="1" /><rect x="114" y="75" width="4" height="2" fill="#ef4444" /><line x1="120" y1="75" x2="120" y2="79" stroke="#ef4444" stroke-width="1" /><rect x="118" y="76" width="4" height="2" fill="#ef4444" /><line x1="124" y1="77" x2="124" y2="79" stroke="#ef4444" stroke-width="1" /><rect x="122" y="78" width="4" height="2" fill="#ef4444" /><line x1="128" y1="76" x2="128" y2="79" stroke="#22c55e" stroke-width="1" /><rect x="126" y="77" width="4" height="2" fill="#22c55e" /><line x1="132" y1="76" x2="132" y2="78" stroke="#ef4444" stroke-width="1" /><rect x="130" y="77" width="4" height="2" fill="#ef4444" /><line x1="136" y1="76" x2="136" y2="78" stroke="#22c55e" stroke-width="1" /><rect x="134" y="77" width="4" height="2" fill="#22c55e" /><line x1="140" y1="76" x2="140" y2="78" stroke="#ef4444" stroke-width="1" /><rect x="138" y="77" width="4" height="2" fill="#ef4444" /><line x1="144" y1="77" x2="144" y2="79" stroke="#22c55e" stroke-width="1" /><rect x="142" y="78" width="4" height="2" fill="#22c55e" /><line x1="148" y1="77" x2="148" y2="80" stroke="#ef4444" stroke-width="1" /><rect x="146" y="78" width="4" height="2" fill="#ef4444" /><line x1="152" y1="79" x2="152" y2="84" stroke="#ef4444" stroke-width="1" /><rect x="150" y="80" width="4" height="3" fill="#ef4444" /><line x1="156" y1="79" x2="156" y2="84" stroke="#22c55e" stroke-width="1" /><rect x="154" y="81" width="4" height="2" fill="#22c55e" /><line x1="160" y1="79" x2="160" y2="83" stroke="#ef4444" stroke-width="1" /><rect x="158" y="81" width="4" height="2" fill="#ef4444" /><line x1="164" y1="80" x2="164" y2="82" stroke="#22c55e" stroke-width="1" /><rect x="162" y="81" width="4" height="2" fill="#22c55e" /><line x1="168" y1="80" x2="168" y2="82" stroke="#ef4444" stroke-width="1" /><rect x="166" y="80" width="4" height="2" fill="#ef4444" /><line x1="172" y1="80" x2="172" y2="82" stroke="#22c55e" stroke-width="1" /><rect x="170" y="81" width="4" height="2" fill="#22c55e" /><line x1="176" y1="79" x2="176" y2="81" stroke="#22c55e" stroke-width="1" /><rect x="174" y="80" width="4" height="2" fill="#22c55e" /></svg></div></div>
+                    <div class="sub-block split-ohlc">
+
+                      <div class="ohlc-left-stack">
+
+                        <div class="ohlc-top">
+                          <div class="ohlc-title">15M FIRST</div>
+                          <div style="
+                            display:flex;
+                            flex-direction:column;
+                            align-items:center;
+                            justify-content:center;
+                            height:100%;
+                            gap:8px;
+                            font-weight:700;
+                          ">
+                            <div>H: 61764.85</div>
+                            <div>L: 60015.3</div>
+                          </div>
+                        </div>
+
+                        <div class="ohlc-mid">
+                          <div class="ohlc-title">DAY</div>
+                          <div style="
+                            display:flex;
+                            flex-direction:column;
+                            align-items:center;
+                            justify-content:center;
+                            height:100%;
+                            gap:4px;
+                            font-weight:700;
+                          ">
+                            <div>O:61411.2</div>
+                            <div>H:61764.85</div>
+                            <div>L:59793.2</div>
+                            <div>LTP:60121.45</div>
+                          </div>
+                        </div>
+
+                      </div>
+                      <div class="zone-grid">
+
+                        <div class="zone-box iv">
+                          <div class="zone-title">IV Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">44</span>
+                            <span class="zone-pe">56</span>
+                          </div>
+                        </div>
+
+                        <div class="zone-box delta">
+                          <div class="zone-title">DELTA Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">44</span>
+                            <span class="zone-pe">56</span>
+                          </div>
+                        </div>
+
+                        <div class="zone-box gamma">
+                          <div class="zone-title">GAMMA Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">56</span>
+                            <span class="zone-pe">44</span>
+                          </div>
+                        </div>
+
+                        <div class="zone-box theta">
+                          <div class="zone-title">THETA Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">66</span>
+                            <span class="zone-pe">34</span>
+                          </div>
+                        </div>
+
+                      </div>
+  
+
+
+                      <div class="ohlc-bottom">
+                        <div class="ohlc-title">D CNDL</div>
+                        <div class="day-candle-slot">
+                          <div class="day-candle-svg"><svg viewBox="0 0 40 70" width="100%" height="100%" preserveAspectRatio="none"><line x1="20" y1="18" x2="20" y2="52" stroke="#ef4444" stroke-width="2"/><rect x="14" y="24" width="12" height="22" fill="#ef4444"/></svg></div>
+                        </div>
+                      </div>
+
+                    </div>
+
+
+                        
+
+                    <div class="dual-slot">
+                      <div class="mini-box price-trend-box"
+                           style="display:flex;
+                                  align-items:center;
+                                  justify-content:space-between;">
+
+                        <div class="pt-left"
+                             style="display:flex;
+                                    flex-direction:column;
+                                    align-items:center;
+                                    justify-content:center;
+                                    width:65%;">
+
+                          <div class="pt-title" style="text-align:center;">PRICE TREND</div>
+
+                          <div class="pt-bar-wrap" style="width:70%;">
+                            <div class="pt-bar" style="width:20%;background:var(--red);"></div>
+                          </div>
+
+                          <div class="pt-text" style="text-align:center;">DN TREND 20%</div>
+                        </div>
+
+                        <div class="pt-divider"></div>
+
+                        <div class="pt-right"
+                             style="display:flex;
+                                    flex-direction:column;
+                                    align-items:center;
+                                    justify-content:center;
+                                    width:30%;">
+
+                          <div style="font-size:18px;font-weight:900;color:white;">↓</div>
+
+                        </div>
+
+                      </div>
+
+
+                      <div class="mini-box">Final Signal</div></div></div><div class="right-col"><div class="inner-block oi-panel"><div class="oi-title">OI Panel</div><div class="oi-box"><div class="oi-row oi-call ce pos-change" data-leg="CE_OTM" style="--chg-pct:30%;width:24%;"></div><div class="oi-row oi-put  pe pos-change" data-leg="PE_ITM" style="--chg-pct:43%;width:21%;"></div><div class="oi-row oi-call ce pos-change" data-leg="CE_ATM" style="--chg-pct:30%;width:9%;"></div><div class="oi-row oi-put  pe pos-change" data-leg="PE_ATM" style="--chg-pct:41%;width:11%;"></div><div class="oi-row oi-call ce neg-change" data-leg="CE_ITM" style="--chg-pct:20%;width:57%;"></div><div class="oi-row oi-put  pe pos-change" data-leg="PE_OTM" style="--chg-pct:22%;width:100%;"></div>
+                    <div class="oi-atm-float-wrap">
+                      <div class="atm-arrow up"></div>
+                      <div class="oi-atm-float">60100</div>
+                      <div class="atm-arrow down"></div>
+                    </div>
+                    </div></div><div class="indicator-grid">
+                      <div class="inner-block indicator-row opt-strike-box">
+                        <div class="os-col">
+                          <div class="os-title">Strike</div>
+                          <div class="os-val">60100</div>
+                        </div>
+                        <div class="os-divider"></div>
+                        <div class="os-col">
+                          <div class="os-title">Price</div>
+                          <div class="os-val">880</div>
+                        </div>
+                      </div>
+                      
+                      <div class="inner-block indicator-row expiry-box">
+                        <div class="expiry-title">EXPIRY</div>
+                        <div class="expiry-date">2026-02-24</div>
+                      </div>
+                      <div class="inner-block indicator-row split-bu-qcp with-divider"><div class="bu-left center"><div class="bu-title">BUILD</div><span class="bu-box l">L</span></div><div class="bu-divider"></div><div class="bu-right"><span class="qcp-box">QCP:1.262</span></div></div>
+                      <div class="inner-block indicator-row oi-imb-row">
+
+                        <div class="oi-imb-main"
+                             style="display:flex;
+                                    flex-direction:column;
+                                    align-items:center;
+                                    justify-content:center;
+                                    width:100%;">
+
+                          <div class="oi-imb-text"
+                               style="text-align:center;">
+                            100.0% - Buy (IMB)
+                          </div>
+
+                          <div class="oi-imb-dotbar"
+                               style="justify-content:center;">
+                            <span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span>
+                          </div>
+
+                        </div>
+
+
+                        <div class="oi-imb-divider"></div>
+
+                        <div class="oi-imb-right"
+                             style="display:flex;
+                                    align-items:center;
+                                    justify-content:center;">
+
+                          <div class="oi-imb-right-value"
+                               style="display:flex;
+                                      align-items:center;
+                                      justify-content:center;
+                                      width:100%;
+                                      font-size:18px;
+                                      font-weight:900;">
+                            ↑
+                          </div>
+
+                        </div>
+
+                      </div>
+                      <div class="inner-block indicator-row"
+                           style="display:grid;
+                                  grid-template-columns:1fr auto 1fr;
+                                  align-items:center;
+                                  min-height:42px;">
+
+                           <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                             <div style="font-size:11px;opacity:.7;">EMA 21</div>
+                             <div style="font-size:16px;font-weight:800;">60131.96</div>
+                           </div>
+
+                           <div style="width:1px;height:28px;background:rgba(255,255,255,0.25);"></div>
+
+                           <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                             <div style="font-size:11px;opacity:.7;">VWAP 5M</div>
+                             <div style="font-size:16px;font-weight:800;">60224.25</div>
+                           </div>
+
+                         </div>
+                      <div class="inner-block indicator-row opt-strike-box">
+                        <div class="os-col">
+                          <div class="os-title">VOL</div>
+                          <div class="os-val vol-pink-dark">209082</div>
+                        </div>
+                        <div class="os-divider"></div>
+                        <div class="os-col">
+                          <div class="os-title">AVG</div>
+                          <div class="os-val vol-flat">1946480.35</div>
+                        </div>
+                      </div>
+
+                      <div class="inner-block indicator-row"
+                          style="display:grid;
+                                 grid-template-columns:1fr auto 1fr;
+                                 align-items:center;
+                                 min-height:42px;">
+
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">RSI 5M</div>
+                            <div class="vol-flat" style="font-size:16px;font-weight:800;">48.67</div>
+                          </div>
+
+                          <div style="width:1px;height:28px;background:rgba(255,255,255,0.25);"></div>
+
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">Trend</div>
+                            <div class="vol-flat" style="font-size:18px;font-weight:900;">↑</div>
+                          </div>
+
+
+                        </div><div class="inner-block indicator-row"
+                          style="display:grid;
+                                 grid-template-columns:1fr auto 1fr;
+                                 align-items:center;
+                                 min-height:42px;">
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">MACD 15M</div>
+                            <div class="vol-blue-dark" style="font-size:16px;font-weight:800;">2.82</div>
+                          </div>
+
+                          <div style="width:1px;height:28px;background:rgba(255,255,255,0.25);"></div>
+
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">Trend</div>
+                            <div class="vol-blue-dark" style="font-size:18px;font-weight:900;">↑</div>
+                          </div>
+
+
+                        </div></div></div></div></div><div class="trade-card" id="card-3" data-scan-time="2026-02-03 13:44:17">
+            <div class="card-head split-head">
+          <div class="head-left header-left-stack">
+            <span class="sym">HDFCBANK</span>
+            <span class="hdr-divider" style="color:#facc15;">|</span>
+            <span class="spot-val" style="color:#ffffff;">950.9</span>
+            <span class="hdr-divider" style="color:#facc15;">|</span>
+            <span class="prev-close"></span>
+          </div>
+
+              <div class="head-right header-right-stack">
+                <span class="scan-time">
+                  SCAN-TIME 
+                  <span class="hdr-divider" style="color:#facc15;">|</span> 
+                  2026-02-03 <span class='hdr-divider' style='color:#facc15;'>|</span> 13:44:17
+                </span>
+                <span class="signal-badge badge-buy">Bullish</span>
+              </div>
+            </div>
+
+            <div class="indicator-stack two-col"><div class="inner-block candle-block"><div class="chart-part tall-chart"><div class="mini-chart"><svg viewBox="0 0 300 100" width="100%" height="100%" preserveAspectRatio="none"><line x1="0" y1="4" x2="0" y2="96" stroke="#ef4444" stroke-width="1" /><rect x="-2" y="23" width="4" height="65" fill="#ef4444" /><line x1="4" y1="76" x2="4" y2="91" stroke="#22c55e" stroke-width="1" /><rect x="2" y="77" width="4" height="11" fill="#22c55e" /><line x1="8" y1="77" x2="8" y2="83" stroke="#ef4444" stroke-width="1" /><rect x="6" y="77" width="4" height="3" fill="#ef4444" /><line x1="12" y1="80" x2="12" y2="91" stroke="#ef4444" stroke-width="1" /><rect x="10" y="80" width="4" height="10" fill="#ef4444" /><line x1="16" y1="86" x2="16" y2="92" stroke="#22c55e" stroke-width="1" /><rect x="14" y="88" width="4" height="2" fill="#22c55e" /><line x1="20" y1="86" x2="20" y2="93" stroke="#ef4444" stroke-width="1" /><rect x="18" y="88" width="4" height="3" fill="#ef4444" /><line x1="24" y1="86" x2="24" y2="95" stroke="#22c55e" stroke-width="1" /><rect x="22" y="86" width="4" height="5" fill="#22c55e" /><line x1="28" y1="84" x2="28" y2="91" stroke="#ef4444" stroke-width="1" /><rect x="26" y="87" width="4" height="3" fill="#ef4444" /><line x1="32" y1="87" x2="32" y2="91" stroke="#ef4444" stroke-width="1" /><rect x="30" y="90" width="4" height="2" fill="#ef4444" /><line x1="36" y1="87" x2="36" y2="91" stroke="#22c55e" stroke-width="1" /><rect x="34" y="88" width="4" height="2" fill="#22c55e" /><line x1="40" y1="85" x2="40" y2="92" stroke="#22c55e" stroke-width="1" /><rect x="38" y="86" width="4" height="2" fill="#22c55e" /><line x1="44" y1="85" x2="44" y2="91" stroke="#ef4444" stroke-width="1" /><rect x="42" y="86" width="4" height="5" fill="#ef4444" /><line x1="48" y1="84" x2="48" y2="91" stroke="#22c55e" stroke-width="1" /><rect x="46" y="85" width="4" height="6" fill="#22c55e" /><line x1="52" y1="82" x2="52" y2="85" stroke="#22c55e" stroke-width="1" /><rect x="50" y="82" width="4" height="3" fill="#22c55e" /><line x1="56" y1="81" x2="56" y2="85" stroke="#ef4444" stroke-width="1" /><rect x="54" y="82" width="4" height="2" fill="#ef4444" /><line x1="60" y1="81" x2="60" y2="85" stroke="#22c55e" stroke-width="1" /><rect x="58" y="81" width="4" height="2" fill="#22c55e" /><line x1="64" y1="80" x2="64" y2="84" stroke="#ef4444" stroke-width="1" /><rect x="62" y="81" width="4" height="2" fill="#ef4444" /><line x1="68" y1="81" x2="68" y2="85" stroke="#ef4444" stroke-width="1" /><rect x="66" y="83" width="4" height="2" fill="#ef4444" /><line x1="72" y1="84" x2="72" y2="86" stroke="#ef4444" stroke-width="1" /><rect x="70" y="85" width="4" height="2" fill="#ef4444" /><line x1="76" y1="84" x2="76" y2="87" stroke="#22c55e" stroke-width="1" /><rect x="74" y="84" width="4" height="2" fill="#22c55e" /><line x1="80" y1="81" x2="80" y2="84" stroke="#22c55e" stroke-width="1" /><rect x="78" y="82" width="4" height="2" fill="#22c55e" /><line x1="84" y1="81" x2="84" y2="84" stroke="#ef4444" stroke-width="1" /><rect x="82" y="82" width="4" height="2" fill="#ef4444" /><line x1="88" y1="83" x2="88" y2="85" stroke="#ef4444" stroke-width="1" /><rect x="86" y="84" width="4" height="2" fill="#ef4444" /><line x1="92" y1="84" x2="92" y2="86" stroke="#ef4444" stroke-width="1" /><rect x="90" y="85" width="4" height="2" fill="#ef4444" /><line x1="96" y1="84" x2="96" y2="86" stroke="#ef4444" stroke-width="1" /><rect x="94" y="85" width="4" height="2" fill="#ef4444" /><line x1="100" y1="84" x2="100" y2="86" stroke="#22c55e" stroke-width="1" /><rect x="98" y="84" width="4" height="2" fill="#22c55e" /><line x1="104" y1="82" x2="104" y2="86" stroke="#ef4444" stroke-width="1" /><rect x="102" y="84" width="4" height="2" fill="#ef4444" /><line x1="108" y1="79" x2="108" y2="86" stroke="#22c55e" stroke-width="1" /><rect x="106" y="79" width="4" height="6" fill="#22c55e" /><line x1="112" y1="79" x2="112" y2="82" stroke="#ef4444" stroke-width="1" /><rect x="110" y="79" width="4" height="2" fill="#ef4444" /><line x1="116" y1="79" x2="116" y2="80" stroke="#22c55e" stroke-width="1" /><rect x="114" y="79" width="4" height="2" fill="#22c55e" /><line x1="120" y1="79" x2="120" y2="82" stroke="#ef4444" stroke-width="1" /><rect x="118" y="79" width="4" height="2" fill="#ef4444" /><line x1="124" y1="79" x2="124" y2="81" stroke="#22c55e" stroke-width="1" /><rect x="122" y="80" width="4" height="2" fill="#22c55e" /><line x1="128" y1="80" x2="128" y2="81" stroke="#ef4444" stroke-width="1" /><rect x="126" y="80" width="4" height="2" fill="#ef4444" /><line x1="132" y1="80" x2="132" y2="82" stroke="#ef4444" stroke-width="1" /><rect x="130" y="81" width="4" height="2" fill="#ef4444" /><line x1="136" y1="79" x2="136" y2="83" stroke="#22c55e" stroke-width="1" /><rect x="134" y="80" width="4" height="2" fill="#22c55e" /><line x1="140" y1="79" x2="140" y2="81" stroke="#22c55e" stroke-width="1" /><rect x="138" y="79" width="4" height="2" fill="#22c55e" /><line x1="144" y1="79" x2="144" y2="81" stroke="#ef4444" stroke-width="1" /><rect x="142" y="79" width="4" height="2" fill="#ef4444" /><line x1="148" y1="79" x2="148" y2="82" stroke="#ef4444" stroke-width="1" /><rect x="146" y="81" width="4" height="2" fill="#ef4444" /><line x1="152" y1="82" x2="152" y2="85" stroke="#ef4444" stroke-width="1" /><rect x="150" y="82" width="4" height="3" fill="#ef4444" /><line x1="156" y1="83" x2="156" y2="85" stroke="#22c55e" stroke-width="1" /><rect x="154" y="84" width="4" height="2" fill="#22c55e" /><line x1="160" y1="83" x2="160" y2="87" stroke="#22c55e" stroke-width="1" /><rect x="158" y="84" width="4" height="2" fill="#22c55e" /><line x1="164" y1="83" x2="164" y2="86" stroke="#ef4444" stroke-width="1" /><rect x="162" y="84" width="4" height="2" fill="#ef4444" /><line x1="168" y1="85" x2="168" y2="87" stroke="#ef4444" stroke-width="1" /><rect x="166" y="85" width="4" height="2" fill="#ef4444" /><line x1="172" y1="84" x2="172" y2="86" stroke="#22c55e" stroke-width="1" /><rect x="170" y="85" width="4" height="2" fill="#22c55e" /><line x1="176" y1="85" x2="176" y2="85" stroke="#22c55e" stroke-width="1" /><rect x="174" y="85" width="4" height="2" fill="#22c55e" /></svg></div></div>
+                    <div class="sub-block split-ohlc">
+
+                      <div class="ohlc-left-stack">
+
+                        <div class="ohlc-top">
+                          <div class="ohlc-title">15M FIRST</div>
+                          <div style="
+                            display:flex;
+                            flex-direction:column;
+                            align-items:center;
+                            justify-content:center;
+                            height:100%;
+                            gap:8px;
+                            font-weight:700;
+                          ">
+                            <div>H: 994</div>
+                            <div>L: 945</div>
+                          </div>
+                        </div>
+
+                        <div class="ohlc-mid">
+                          <div class="ohlc-title">DAY</div>
+                          <div style="
+                            display:flex;
+                            flex-direction:column;
+                            align-items:center;
+                            justify-content:center;
+                            height:100%;
+                            gap:4px;
+                            font-weight:700;
+                          ">
+                            <div>O:983.75</div>
+                            <div>H:994</div>
+                            <div>L:945</div>
+                            <div>LTP:950.9</div>
+                          </div>
+                        </div>
+
+                      </div>
+                      <div class="zone-grid">
+
+                        <div class="zone-box iv">
+                          <div class="zone-title">IV Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">46</span>
+                            <span class="zone-pe">54</span>
+                          </div>
+                        </div>
+
+                        <div class="zone-box delta">
+                          <div class="zone-title">DELTA Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">46</span>
+                            <span class="zone-pe">54</span>
+                          </div>
+                        </div>
+
+                        <div class="zone-box gamma">
+                          <div class="zone-title">GAMMA Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">53</span>
+                            <span class="zone-pe">47</span>
+                          </div>
+                        </div>
+
+                        <div class="zone-box theta">
+                          <div class="zone-title">THETA Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">65</span>
+                            <span class="zone-pe">35</span>
+                          </div>
+                        </div>
+
+                      </div>
+  
+
+
+                      <div class="ohlc-bottom">
+                        <div class="ohlc-title">D CNDL</div>
+                        <div class="day-candle-slot">
+                          <div class="day-candle-svg"><svg viewBox="0 0 40 70" width="100%" height="100%" preserveAspectRatio="none"><line x1="20" y1="18" x2="20" y2="52" stroke="#ef4444" stroke-width="2"/><rect x="14" y="25" width="12" height="22" fill="#ef4444"/></svg></div>
+                        </div>
+                      </div>
+
+                    </div>
+
+
+                        
+
+                    <div class="dual-slot">
+                      <div class="mini-box price-trend-box"
+                           style="display:flex;
+                                  align-items:center;
+                                  justify-content:space-between;">
+
+                        <div class="pt-left"
+                             style="display:flex;
+                                    flex-direction:column;
+                                    align-items:center;
+                                    justify-content:center;
+                                    width:65%;">
+
+                          <div class="pt-title" style="text-align:center;">PRICE TREND</div>
+
+                          <div class="pt-bar-wrap" style="width:70%;">
+                            <div class="pt-bar" style="width:20%;background:var(--red);"></div>
+                          </div>
+
+                          <div class="pt-text" style="text-align:center;">DN TREND 20%</div>
+                        </div>
+
+                        <div class="pt-divider"></div>
+
+                        <div class="pt-right"
+                             style="display:flex;
+                                    flex-direction:column;
+                                    align-items:center;
+                                    justify-content:center;
+                                    width:30%;">
+
+                          <div style="font-size:18px;font-weight:900;color:white;">↑↓</div>
+
+                        </div>
+
+                      </div>
+
+
+                      <div class="mini-box">Final Signal</div></div></div><div class="right-col"><div class="inner-block oi-panel"><div class="oi-title">OI Panel</div><div class="oi-box"><div class="oi-row oi-call ce pos-change" data-leg="CE_OTM" style="--chg-pct:18%;width:83%;"></div><div class="oi-row oi-put  pe pos-change" data-leg="PE_ITM" style="--chg-pct:25%;width:32%;"></div><div class="oi-row oi-call ce neg-change" data-leg="CE_ATM" style="--chg-pct:0%;width:100%;"></div><div class="oi-row oi-put  pe pos-change" data-leg="PE_ATM" style="--chg-pct:20%;width:47%;"></div><div class="oi-row oi-call ce neg-change" data-leg="CE_ITM" style="--chg-pct:29%;width:87%;"></div><div class="oi-row oi-put  pe pos-change" data-leg="PE_OTM" style="--chg-pct:5%;width:54%;"></div>
+                    <div class="oi-atm-float-wrap">
+                      <div class="atm-arrow up"></div>
+                      <div class="oi-atm-float">950</div>
+                      <div class="atm-arrow down"></div>
+                    </div>
+                    </div></div><div class="indicator-grid">
+                      <div class="inner-block indicator-row opt-strike-box">
+                        <div class="os-col">
+                          <div class="os-title">Strike</div>
+                          <div class="os-val">950</div>
+                        </div>
+                        <div class="os-divider"></div>
+                        <div class="os-col">
+                          <div class="os-title">Price</div>
+                          <div class="os-val">17.25</div>
+                        </div>
+                      </div>
+                      
+                      <div class="inner-block indicator-row expiry-box">
+                        <div class="expiry-title">EXPIRY</div>
+                        <div class="expiry-date">2026-02-24</div>
+                      </div>
+                      <div class="inner-block indicator-row split-bu-qcp with-divider"><div class="bu-left center"><div class="bu-title">BUILD</div><span class="bu-box sc">SC</span></div><div class="bu-divider"></div><div class="bu-right"><span class="qcp-box">QCP:2.4817</span></div></div>
+                      <div class="inner-block indicator-row oi-imb-row">
+
+                        <div class="oi-imb-main"
+                             style="display:flex;
+                                    flex-direction:column;
+                                    align-items:center;
+                                    justify-content:center;
+                                    width:100%;">
+
+                          <div class="oi-imb-text"
+                               style="text-align:center;">
+                            100.0% - Buy (IMB)
+                          </div>
+
+                          <div class="oi-imb-dotbar"
+                               style="justify-content:center;">
+                            <span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span>
+                          </div>
+
+                        </div>
+
+
+                        <div class="oi-imb-divider"></div>
+
+                        <div class="oi-imb-right"
+                             style="display:flex;
+                                    align-items:center;
+                                    justify-content:center;">
+
+                          <div class="oi-imb-right-value"
+                               style="display:flex;
+                                      align-items:center;
+                                      justify-content:center;
+                                      width:100%;
+                                      font-size:18px;
+                                      font-weight:900;">
+                            ↑
+                          </div>
+
+                        </div>
+
+                      </div>
+                      <div class="inner-block indicator-row"
+                           style="display:grid;
+                                  grid-template-columns:1fr auto 1fr;
+                                  align-items:center;
+                                  min-height:42px;">
+
+                           <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                             <div style="font-size:11px;opacity:.7;">EMA 21</div>
+                             <div style="font-size:16px;font-weight:800;">951.4</div>
+                           </div>
+
+                           <div style="width:1px;height:28px;background:rgba(255,255,255,0.25);"></div>
+
+                           <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                             <div style="font-size:11px;opacity:.7;">VWAP 5M</div>
+                             <div style="font-size:16px;font-weight:800;">955.53</div>
+                           </div>
+
+                         </div>
+                      <div class="inner-block indicator-row opt-strike-box">
+                        <div class="os-col">
+                          <div class="os-title">VOL</div>
+                          <div class="os-val vol-pink-dark">15263</div>
+                        </div>
+                        <div class="os-divider"></div>
+                        <div class="os-col">
+                          <div class="os-title">AVG</div>
+                          <div class="os-val vol-flat">297894.05</div>
+                        </div>
+                      </div>
+
+                      <div class="inner-block indicator-row"
+                          style="display:grid;
+                                 grid-template-columns:1fr auto 1fr;
+                                 align-items:center;
+                                 min-height:42px;">
+
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">RSI 5M</div>
+                            <div class="vol-flat" style="font-size:16px;font-weight:800;">47.48</div>
+                          </div>
+
+                          <div style="width:1px;height:28px;background:rgba(255,255,255,0.25);"></div>
+
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">Trend</div>
+                            <div class="vol-flat" style="font-size:18px;font-weight:900;">↑</div>
+                          </div>
+
+
+                        </div><div class="inner-block indicator-row"
+                          style="display:grid;
+                                 grid-template-columns:1fr auto 1fr;
+                                 align-items:center;
+                                 min-height:42px;">
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">MACD 15M</div>
+                            <div class="vol-flat" style="font-size:16px;font-weight:800;">0.04</div>
+                          </div>
+
+                          <div style="width:1px;height:28px;background:rgba(255,255,255,0.25);"></div>
+
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">Trend</div>
+                            <div class="vol-flat" style="font-size:18px;font-weight:900;">↑</div>
+                          </div>
+
+
+                        </div></div></div></div></div><div class="trade-card" id="card-4" data-scan-time="2026-02-03 13:44:17">
+            <div class="card-head split-head">
+          <div class="head-left header-left-stack">
+            <span class="sym">RELIANCE</span>
+            <span class="hdr-divider" style="color:#facc15;">|</span>
+            <span class="spot-val" style="color:#ffffff;">1445</span>
+            <span class="hdr-divider" style="color:#facc15;">|</span>
+            <span class="prev-close"></span>
+          </div>
+
+              <div class="head-right header-right-stack">
+                <span class="scan-time">
+                  SCAN-TIME 
+                  <span class="hdr-divider" style="color:#facc15;">|</span> 
+                  2026-02-03 <span class='hdr-divider' style='color:#facc15;'>|</span> 13:44:17
+                </span>
+                <span class="signal-badge badge-buy">Bullish</span>
+              </div>
+            </div>
+
+            <div class="indicator-stack two-col"><div class="inner-block candle-block"><div class="chart-part tall-chart"><div class="mini-chart"><svg viewBox="0 0 300 100" width="100%" height="100%" preserveAspectRatio="none"><line x1="0" y1="4" x2="0" y2="92" stroke="#ef4444" stroke-width="1" /><rect x="-2" y="30" width="4" height="45" fill="#ef4444" /><line x1="4" y1="74" x2="4" y2="86" stroke="#ef4444" stroke-width="1" /><rect x="2" y="75" width="4" height="5" fill="#ef4444" /><line x1="8" y1="77" x2="8" y2="85" stroke="#22c55e" stroke-width="1" /><rect x="6" y="78" width="4" height="2" fill="#22c55e" /><line x1="12" y1="78" x2="12" y2="84" stroke="#ef4444" stroke-width="1" /><rect x="10" y="78" width="4" height="5" fill="#ef4444" /><line x1="16" y1="81" x2="16" y2="87" stroke="#ef4444" stroke-width="1" /><rect x="14" y="83" width="4" height="2" fill="#ef4444" /><line x1="20" y1="84" x2="20" y2="96" stroke="#ef4444" stroke-width="1" /><rect x="18" y="86" width="4" height="7" fill="#ef4444" /><line x1="24" y1="77" x2="24" y2="94" stroke="#22c55e" stroke-width="1" /><rect x="22" y="78" width="4" height="16" fill="#22c55e" /><line x1="28" y1="74" x2="28" y2="79" stroke="#ef4444" stroke-width="1" /><rect x="26" y="78" width="4" height="2" fill="#ef4444" /><line x1="32" y1="77" x2="32" y2="84" stroke="#ef4444" stroke-width="1" /><rect x="30" y="78" width="4" height="4" fill="#ef4444" /><line x1="36" y1="78" x2="36" y2="83" stroke="#22c55e" stroke-width="1" /><rect x="34" y="81" width="4" height="2" fill="#22c55e" /><line x1="40" y1="80" x2="40" y2="87" stroke="#ef4444" stroke-width="1" /><rect x="38" y="81" width="4" height="2" fill="#ef4444" /><line x1="44" y1="80" x2="44" y2="85" stroke="#22c55e" stroke-width="1" /><rect x="42" y="80" width="4" height="2" fill="#22c55e" /><line x1="48" y1="74" x2="48" y2="81" stroke="#22c55e" stroke-width="1" /><rect x="46" y="76" width="4" height="5" fill="#22c55e" /><line x1="52" y1="68" x2="52" y2="77" stroke="#22c55e" stroke-width="1" /><rect x="50" y="69" width="4" height="7" fill="#22c55e" /><line x1="56" y1="60" x2="56" y2="69" stroke="#22c55e" stroke-width="1" /><rect x="54" y="68" width="4" height="2" fill="#22c55e" /><line x1="60" y1="66" x2="60" y2="70" stroke="#ef4444" stroke-width="1" /><rect x="58" y="68" width="4" height="2" fill="#ef4444" /><line x1="64" y1="67" x2="64" y2="70" stroke="#ef4444" stroke-width="1" /><rect x="62" y="69" width="4" height="2" fill="#ef4444" /><line x1="68" y1="66" x2="68" y2="70" stroke="#22c55e" stroke-width="1" /><rect x="66" y="66" width="4" height="3" fill="#22c55e" /><line x1="72" y1="64" x2="72" y2="77" stroke="#ef4444" stroke-width="1" /><rect x="70" y="65" width="4" height="9" fill="#ef4444" /><line x1="76" y1="73" x2="76" y2="78" stroke="#ef4444" stroke-width="1" /><rect x="74" y="74" width="4" height="2" fill="#ef4444" /><line x1="80" y1="72" x2="80" y2="78" stroke="#22c55e" stroke-width="1" /><rect x="78" y="75" width="4" height="2" fill="#22c55e" /><line x1="84" y1="68" x2="84" y2="75" stroke="#22c55e" stroke-width="1" /><rect x="82" y="69" width="4" height="6" fill="#22c55e" /><line x1="88" y1="68" x2="88" y2="74" stroke="#ef4444" stroke-width="1" /><rect x="86" y="70" width="4" height="4" fill="#ef4444" /><line x1="92" y1="74" x2="92" y2="79" stroke="#22c55e" stroke-width="1" /><rect x="90" y="75" width="4" height="2" fill="#22c55e" /><line x1="96" y1="70" x2="96" y2="77" stroke="#22c55e" stroke-width="1" /><rect x="94" y="74" width="4" height="2" fill="#22c55e" /><line x1="100" y1="72" x2="100" y2="75" stroke="#22c55e" stroke-width="1" /><rect x="98" y="74" width="4" height="2" fill="#22c55e" /><line x1="104" y1="70" x2="104" y2="75" stroke="#22c55e" stroke-width="1" /><rect x="102" y="71" width="4" height="2" fill="#22c55e" /><line x1="108" y1="63" x2="108" y2="73" stroke="#22c55e" stroke-width="1" /><rect x="106" y="64" width="4" height="7" fill="#22c55e" /><line x1="112" y1="63" x2="112" y2="69" stroke="#ef4444" stroke-width="1" /><rect x="110" y="64" width="4" height="2" fill="#ef4444" /><line x1="116" y1="64" x2="116" y2="70" stroke="#ef4444" stroke-width="1" /><rect x="114" y="65" width="4" height="5" fill="#ef4444" /><line x1="120" y1="68" x2="120" y2="73" stroke="#ef4444" stroke-width="1" /><rect x="118" y="69" width="4" height="3" fill="#ef4444" /><line x1="124" y1="72" x2="124" y2="76" stroke="#ef4444" stroke-width="1" /><rect x="122" y="72" width="4" height="2" fill="#ef4444" /><line x1="128" y1="72" x2="128" y2="74" stroke="#ef4444" stroke-width="1" /><rect x="126" y="73" width="4" height="2" fill="#ef4444" /><line x1="132" y1="73" x2="132" y2="80" stroke="#ef4444" stroke-width="1" /><rect x="130" y="73" width="4" height="6" fill="#ef4444" /><line x1="136" y1="77" x2="136" y2="82" stroke="#22c55e" stroke-width="1" /><rect x="134" y="78" width="4" height="2" fill="#22c55e" /><line x1="140" y1="75" x2="140" y2="79" stroke="#22c55e" stroke-width="1" /><rect x="138" y="76" width="4" height="2" fill="#22c55e" /><line x1="144" y1="76" x2="144" y2="80" stroke="#ef4444" stroke-width="1" /><rect x="142" y="76" width="4" height="2" fill="#ef4444" /><line x1="148" y1="77" x2="148" y2="79" stroke="#22c55e" stroke-width="1" /><rect x="146" y="78" width="4" height="2" fill="#22c55e" /><line x1="152" y1="78" x2="152" y2="84" stroke="#ef4444" stroke-width="1" /><rect x="150" y="79" width="4" height="3" fill="#ef4444" /><line x1="156" y1="79" x2="156" y2="83" stroke="#22c55e" stroke-width="1" /><rect x="154" y="82" width="4" height="2" fill="#22c55e" /><line x1="160" y1="81" x2="160" y2="85" stroke="#ef4444" stroke-width="1" /><rect x="158" y="83" width="4" height="2" fill="#ef4444" /><line x1="164" y1="80" x2="164" y2="84" stroke="#22c55e" stroke-width="1" /><rect x="162" y="82" width="4" height="2" fill="#22c55e" /><line x1="168" y1="79" x2="168" y2="83" stroke="#22c55e" stroke-width="1" /><rect x="166" y="80" width="4" height="2" fill="#22c55e" /><line x1="172" y1="78" x2="172" y2="82" stroke="#22c55e" stroke-width="1" /><rect x="170" y="79" width="4" height="2" fill="#22c55e" /><line x1="176" y1="77" x2="176" y2="79" stroke="#22c55e" stroke-width="1" /><rect x="174" y="78" width="4" height="2" fill="#22c55e" /></svg></div></div>
+                    <div class="sub-block split-ohlc">
+
+                      <div class="ohlc-left-stack">
+
+                        <div class="ohlc-top">
+                          <div class="ohlc-title">15M FIRST</div>
+                          <div style="
+                            display:flex;
+                            flex-direction:column;
+                            align-items:center;
+                            justify-content:center;
+                            height:100%;
+                            gap:8px;
+                            font-weight:700;
+                          ">
+                            <div>H: 1489.5</div>
+                            <div>L: 1436.9</div>
+                          </div>
+                        </div>
+
+                        <div class="ohlc-mid">
+                          <div class="ohlc-title">DAY</div>
+                          <div style="
+                            display:flex;
+                            flex-direction:column;
+                            align-items:center;
+                            justify-content:center;
+                            height:100%;
+                            gap:4px;
+                            font-weight:700;
+                          ">
+                            <div>O:1473.9</div>
+                            <div>H:1489.5</div>
+                            <div>L:1435</div>
+                            <div>LTP:1445</div>
+                          </div>
+                        </div>
+
+                      </div>
+                      <div class="zone-grid">
+
+                        <div class="zone-box iv">
+                          <div class="zone-title">IV Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">43</span>
+                            <span class="zone-pe">57</span>
+                          </div>
+                        </div>
+
+                        <div class="zone-box delta">
+                          <div class="zone-title">DELTA Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">43</span>
+                            <span class="zone-pe">57</span>
+                          </div>
+                        </div>
+
+                        <div class="zone-box gamma">
+                          <div class="zone-title">GAMMA Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">56</span>
+                            <span class="zone-pe">44</span>
+                          </div>
+                        </div>
+
+                        <div class="zone-box theta">
+                          <div class="zone-title">THETA Z</div>
+                          <div class="zone-values">
+                            <span class="zone-ce">60</span>
+                            <span class="zone-pe">40</span>
+                          </div>
+                        </div>
+
+                      </div>
+  
+
+
+                      <div class="ohlc-bottom">
+                        <div class="ohlc-title">D CNDL</div>
+                        <div class="day-candle-slot">
+                          <div class="day-candle-svg"><svg viewBox="0 0 40 70" width="100%" height="100%" preserveAspectRatio="none"><line x1="20" y1="18" x2="20" y2="52" stroke="#ef4444" stroke-width="2"/><rect x="14" y="27" width="12" height="18" fill="#ef4444"/></svg></div>
+                        </div>
+                      </div>
+
+                    </div>
+
+
+                        
+
+                    <div class="dual-slot">
+                      <div class="mini-box price-trend-box"
+                           style="display:flex;
+                                  align-items:center;
+                                  justify-content:space-between;">
+
+                        <div class="pt-left"
+                             style="display:flex;
+                                    flex-direction:column;
+                                    align-items:center;
+                                    justify-content:center;
+                                    width:65%;">
+
+                          <div class="pt-title" style="text-align:center;">PRICE TREND</div>
+
+                          <div class="pt-bar-wrap" style="width:70%;">
+                            <div class="pt-bar" style="width:70%;background:var(--red);"></div>
+                          </div>
+
+                          <div class="pt-text" style="text-align:center;">DN TREND 70%</div>
+                        </div>
+
+                        <div class="pt-divider"></div>
+
+                        <div class="pt-right"
+                             style="display:flex;
+                                    flex-direction:column;
+                                    align-items:center;
+                                    justify-content:center;
+                                    width:30%;">
+
+                          <div style="font-size:18px;font-weight:900;color:white;">↑↓</div>
+
+                        </div>
+
+                      </div>
+
+
+                      <div class="mini-box">Final Signal</div></div></div><div class="right-col"><div class="inner-block oi-panel"><div class="oi-title">OI Panel</div><div class="oi-box"><div class="oi-row oi-call ce neg-change" data-leg="CE_OTM" style="--chg-pct:10%;width:100%;"></div><div class="oi-row oi-put  pe pos-change" data-leg="PE_ITM" style="--chg-pct:25%;width:46%;"></div><div class="oi-row oi-call ce neg-change" data-leg="CE_ATM" style="--chg-pct:10%;width:35%;"></div><div class="oi-row oi-put  pe pos-change" data-leg="PE_ATM" style="--chg-pct:34%;width:22%;"></div><div class="oi-row oi-call ce neg-change" data-leg="CE_ITM" style="--chg-pct:84%;width:36%;"></div><div class="oi-row oi-put  pe pos-change" data-leg="PE_OTM" style="--chg-pct:22%;width:61%;"></div>
+                    <div class="oi-atm-float-wrap">
+                      <div class="atm-arrow up"></div>
+                      <div class="oi-atm-float">1440</div>
+                      <div class="atm-arrow down"></div>
+                    </div>
+                    </div></div><div class="indicator-grid">
+                      <div class="inner-block indicator-row opt-strike-box">
+                        <div class="os-col">
+                          <div class="os-title">Strike</div>
+                          <div class="os-val">1440</div>
+                        </div>
+                        <div class="os-divider"></div>
+                        <div class="os-col">
+                          <div class="os-title">Price</div>
+                          <div class="os-val">29.55</div>
+                        </div>
+                      </div>
+                      
+                      <div class="inner-block indicator-row expiry-box">
+                        <div class="expiry-title">EXPIRY</div>
+                        <div class="expiry-date">2026-02-24</div>
+                      </div>
+                      <div class="inner-block indicator-row split-bu-qcp with-divider"><div class="bu-left center"><div class="bu-title">BUILD</div><span class="bu-box sc">SC</span></div><div class="bu-divider"></div><div class="bu-right"><span class="qcp-box">QCP:2.359</span></div></div>
+                      <div class="inner-block indicator-row oi-imb-row">
+
+                        <div class="oi-imb-main"
+                             style="display:flex;
+                                    flex-direction:column;
+                                    align-items:center;
+                                    justify-content:center;
+                                    width:100%;">
+
+                          <div class="oi-imb-text"
+                               style="text-align:center;">
+                            100.0% - Buy (IMB)
+                          </div>
+
+                          <div class="oi-imb-dotbar"
+                               style="justify-content:center;">
+                            <span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span><span class="oi-dot buy"></span>
+                          </div>
+
+                        </div>
+
+
+                        <div class="oi-imb-divider"></div>
+
+                        <div class="oi-imb-right"
+                             style="display:flex;
+                                    align-items:center;
+                                    justify-content:center;">
+
+                          <div class="oi-imb-right-value"
+                               style="display:flex;
+                                      align-items:center;
+                                      justify-content:center;
+                                      width:100%;
+                                      font-size:18px;
+                                      font-weight:900;">
+                            ↑
+                          </div>
+
+                        </div>
+
+                      </div>
+                      <div class="inner-block indicator-row"
+                           style="display:grid;
+                                  grid-template-columns:1fr auto 1fr;
+                                  align-items:center;
+                                  min-height:42px;">
+
+                           <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                             <div style="font-size:11px;opacity:.7;">EMA 21</div>
+                             <div style="font-size:16px;font-weight:800;">1445.68</div>
+                           </div>
+
+                           <div style="width:1px;height:28px;background:rgba(255,255,255,0.25);"></div>
+
+                           <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                             <div style="font-size:11px;opacity:.7;">VWAP 5M</div>
+                             <div style="font-size:16px;font-weight:800;">1448.98</div>
+                           </div>
+
+                         </div>
+                      <div class="inner-block indicator-row opt-strike-box">
+                        <div class="os-col">
+                          <div class="os-title">VOL</div>
+                          <div class="os-val vol-pink-dark">7987</div>
+                        </div>
+                        <div class="os-divider"></div>
+                        <div class="os-col">
+                          <div class="os-title">AVG</div>
+                          <div class="os-val vol-flat">123541.35</div>
+                        </div>
+                      </div>
+
+                      <div class="inner-block indicator-row"
+                          style="display:grid;
+                                 grid-template-columns:1fr auto 1fr;
+                                 align-items:center;
+                                 min-height:42px;">
+
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">RSI 5M</div>
+                            <div class="vol-flat" style="font-size:16px;font-weight:800;">48.37</div>
+                          </div>
+
+                          <div style="width:1px;height:28px;background:rgba(255,255,255,0.25);"></div>
+
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">Trend</div>
+                            <div class="vol-flat" style="font-size:18px;font-weight:900;">↑</div>
+                          </div>
+
+
+                        </div><div class="inner-block indicator-row"
+                          style="display:grid;
+                                 grid-template-columns:1fr auto 1fr;
+                                 align-items:center;
+                                 min-height:42px;">
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">MACD 15M</div>
+                            <div class="vol-flat" style="font-size:16px;font-weight:800;">-0.33</div>
+                          </div>
+
+                          <div style="width:1px;height:28px;background:rgba(255,255,255,0.25);"></div>
+
+                          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;">
+                            <div style="font-size:11px;opacity:.7;">Trend</div>
+                            <div class="vol-flat" style="font-size:18px;font-weight:900;">↑</div>
+                          </div>
+
+
+                        </div></div></div></div></div></div></div>
+<script>
+(function(){
+
+let lastTag=null;
+
+function updateScanTimeFromCards(){
+  const first=document.querySelector(".trade-card");
+  if(!first) return;
+
+  const t=first.getAttribute("data-scan-time");
+  if(!t) return;
+
+  const el=document.getElementById("scanTimeValue");
+  if(el) el.textContent=t;
+}
+
+async function checkForUpdate(){
+  try{
+    const r=await fetch(location.href,{method:"HEAD",cache:"no-store"});
+    const tag=r.headers.get("etag")||r.headers.get("last-modified");
+
+    if(tag && lastTag && tag!==lastTag){
+      location.reload();
+    }
+    lastTag=tag;
+  }catch(e){}
+}
+
+window.addEventListener("load",()=>{
+  updateScanTimeFromCards();
+  checkForUpdate();
+  setInterval(checkForUpdate,10000);
+  setInterval(updateScanTimeFromCards,4000);
+});
+
+})();
+</script>
+
+</body>
+</html>
