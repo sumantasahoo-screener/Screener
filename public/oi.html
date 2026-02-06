@@ -267,12 +267,19 @@ function render(){
     var row=document.createElement("div");
     row.className="row"+(r.STRIKE_TXT===atm?" atm":"");
     row.onmouseenter = function(){
-      console.log("hover:", r.STRIKE_TXT);
+      const rbox = row.getBoundingClientRect();
+      const gbox = document.getElementById("grid").getBoundingClientRect();
+
+      hoverLine.style.top =
+        (rbox.top - gbox.top + rbox.height/2) + "px";
+
+      hoverLine.style.display = "block";
     };
 
     row.onmouseleave = function(){
-      console.log("leave:", r.STRIKE_TXT);
+      hoverLine.style.display = "none";
     };
+
 
 
     row.innerHTML =
