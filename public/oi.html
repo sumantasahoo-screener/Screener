@@ -263,45 +263,41 @@ function render(){
 
         var ceBasePct = pct(ceOI);
         var peBasePct = pct(peOI);
+
         var ceTotPct  = pct(ceTot);
         var peTotPct  = pct(peTot);
 
-        var ceAddPct  = ceCh > 0 ? (ceTotPct - ceBasePct) : 0;
-        var peAddPct  = peCh > 0 ? (peTotPct - peBasePct) : 0;
+        var ceAddPct = ceCh>0 ? (ceTotPct-ceBasePct) : 0;
+        var peAddPct = peCh>0 ? (peTotPct-peBasePct) : 0;
 
-        var ceCutPct  = ceCh < 0 ? (ceBasePct - ceTotPct) : 0;
-        var peCutPct  = peCh < 0 ? (peBasePct - peTotPct) : 0;
+        var ceCutPct = ceCh<0 ? (ceBasePct-ceTotPct) : 0;
+        var peCutPct = peCh<0 ? (peBasePct-peTotPct) : 0;
 
-        function clamp(x){
-            return Math.max(0, Math.min(80, x));
-        }
+        function clamp(x){ return Math.max(0,Math.min(80,x)); }
 
-        ceBasePct = clamp(ceBasePct);
-        peBasePct = clamp(peBasePct);
-        ceTotPct  = clamp(ceTotPct);
-        peTotPct  = clamp(peTotPct);
-        ceAddPct  = clamp(ceAddPct);
-        peAddPct  = clamp(peAddPct);
-        ceCutPct  = clamp(ceCutPct);
-        peCutPct  = clamp(peCutPct);
+        ceBasePct=clamp(ceBasePct); peBasePct=clamp(peBasePct);
+        ceTotPct =clamp(ceTotPct);  peTotPct =clamp(peTotPct);
+        ceAddPct =clamp(ceAddPct);  peAddPct =clamp(peAddPct);
+        ceCutPct =clamp(ceCutPct);  peCutPct =clamp(peCutPct);
 
         var row=document.createElement("div");
         row.className="row"+(r.STRIKE_TXT===atm?" atm":"");
 
-        row.onmouseenter = function(){
-          const rbox = row.getBoundingClientRect();
-          const gbox = document.getElementById("grid").getBoundingClientRect();
-          hoverLine.style.top = (rbox.top - gbox.top + rbox.height/2) + "px";
-          hoverLine.style.display = "block";
+        row.onmouseenter=function(){
+          const rbox=row.getBoundingClientRect();
+          const gbox=document.getElementById("grid").getBoundingClientRect();
+          hoverLine.style.top=(rbox.top-gbox.top+rbox.height/2)+"px";
+          hoverLine.style.display="block";
         };
 
-        row.onmouseleave = function(){
-          hoverLine.style.display = "none";
+        row.onmouseleave=function(){
+          hoverLine.style.display="none";
         };
 
-        row.innerHTML =
+        row.innerHTML=
           '<div class="totWrap"><div class="box"><div class="stack">'+
 
+            // CE
             '<div style="position:relative;height:18px;width:80%;">'+
               '<div class="bar ce" style="position:absolute;left:0;width:'+ceBasePct+'%"></div>'+
               (ceCh>0
@@ -312,6 +308,7 @@ function render(){
                 : '')+
             '</div>'+
 
+            // PE
             '<div style="position:relative;height:18px;width:80%;margin-top:4px;">'+
               '<div class="bar pe" style="position:absolute;left:0;width:'+peBasePct+'%"></div>'+
               (peCh>0
@@ -337,6 +334,7 @@ function render(){
         leftCol.appendChild(row);
 
     });
+
 
 
 }
