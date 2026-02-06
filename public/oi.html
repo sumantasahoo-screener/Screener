@@ -140,12 +140,11 @@ select{background:#111;color:white;border:1px solid #555}
 
 
 /* bars */
-.bar{ height:18px; background:white; box-sizing:border-box; }
-.ce{ background:#00ff6a; }
-.pe{ background:#ff4040; }
+.bar{ height:18px; border:.1px solid; background:white; box-sizing:border-box; }
+.ce{ border-color:#00ff6a; }
+.pe{ border-color:#ff4040; }
 .deep.ce{ background:#00aa55 }
 .deep.pe{ background:#aa0000 }
-
 
 .r{ margin-left:auto }
 .l{ margin-right:auto }
@@ -233,14 +232,13 @@ function render(){
   var atm=obj.atm;
 
   var idx = rows.findIndex(r=>r.STRIKE_TXT===atm);
-  var half = Math.floor(VISIBLE/2);
+  var half = Math.floor(15/2);
   var win = rows.slice(Math.max(0,idx-half), idx+half+1);
-
 
   var maxTot = Math.max(1, ...rows.map(x =>
     Math.max(
-      (x["OI_CE"]||0) + Math.abs(x["Change In OI_CE"]||0),
-      (x["OI_PE"]||0) + Math.abs(x["Change In OI_PE"]||0)
+      Math.abs((x["OI_CE"]||0)+(x["Change In OI_CE"]||0)),
+      Math.abs((x["OI_PE"]||0)+(x["Change In OI_PE"]||0))
     )
   ));
 
@@ -251,26 +249,20 @@ function render(){
     )
   ));
 
-
-
   win.forEach(function(r){
 
 
-    var ceBase = (r["OI_CE"]||0);
-    var peBase = (r["OI_PE"]||0);
+    var ceTot = (r["OI_CE"]||0) + (r["Change In OI_CE"]||0);
+    var peTot = (r["OI_PE"]||0) + (r["Change In OI_PE"]||0);
 
     var ceCh = (r["Change In OI_CE"]||0);
     var peCh = (r["Change In OI_PE"]||0);
 
-    var ceTot = ceBase + Math.abs(ceCh);
-    var peTot = peBase + Math.abs(peCh);
+    var ceTotPct = (Math.abs(ceTot) / maxTot) * 80;
+    var peTotPct = (Math.abs(peTot) / maxTot) * 80;
 
-    var ceBasePct = (ceBase / maxTot) * 80;
-    var peBasePct = (peBase / maxTot) * 80;
-
-    var ceChPct  = (Math.abs(ceCh) / maxTot) * 80;
-    var peChPct  = (Math.abs(peCh) / maxTot) * 80;
-
+    var ceChPct  = (Math.abs(ceCh) / maxCh) * 80;
+    var peChPct  = (Math.abs(peCh) / maxCh) * 80;
 
     var row=document.createElement("div");
     row.className="row"+(r.STRIKE_TXT===atm?" atm":"");
@@ -292,15 +284,11 @@ function render(){
 
     row.innerHTML =
           '<div class="totWrap"><div class="box"><div class="stack">'+
-          '<div class="bar ce" style="width:'+ceBasePct+'%"></div>'+
-          '<div class="bar ce '+(ceCh>=0?"deep":"")+'" style="width:'+ceChPct+'%;background:'+(ceCh<0?"white":"")+'"></div>'+
-
-          '<div class="bar pe" style="width:'+peBasePct+'%"></div>'+
-          '<div class="bar pe '+(peCh>=0?"deep":"")+'" style="width:'+peChPct+'%;background:'+(peCh<0?"white":"")+'"></div>'+
+          '<div class="bar ce '+(ceTot>0?"deep":"")+'" style="width:'+ceTotPct+'%"></div>'+
+          '<div class="bar pe '+(peTot>0?"deep":"")+'" style="width:'+peTotPct+'%"></div>'+
           '</div></div></div>'+
-
+                  
           '<div class="strike">'+r.STRIKE_TXT+'</div>'+
-
           '<div class="box">'+
             '<div class="chgInner">'+
               '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
@@ -309,10 +297,8 @@ function render(){
 
               '<div class="bar pe deep" style="left:50%;top:24px;width:'+peChPct+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
 
-
             '</div>'+
           '</div>';
-
 
 
     leftCol.appendChild(row);
