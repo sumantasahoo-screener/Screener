@@ -249,61 +249,87 @@ function render(){
     )
   ));
 
-  win.forEach(function(r){
+    win.forEach(function(r){
 
+        var ceOI = (r["OI_CE"]||0);
+        var peOI = (r["OI_PE"]||0);
 
-    var ceTot = (r["OI_CE"]||0) + (r["Change In OI_CE"]||0);
-    var peTot = (r["OI_PE"]||0) + (r["Change In OI_PE"]||0);
+        var ceCh = (r["Change In OI_CE"]||0);
+        var peCh = (r["Change In OI_PE"]||0);
 
-    var ceCh = (r["Change In OI_CE"]||0);
-    var peCh = (r["Change In OI_PE"]||0);
+        var ceTot = ceOI + ceCh;
+        var peTot = peOI + peCh;
 
-    var ceTotPct = (Math.abs(ceTot) / maxTot) * 80;
-    var peTotPct = (Math.abs(peTot) / maxTot) * 80;
+        var ceTotPct = (Math.abs(ceTot) / maxTot) * 80;
+        var peTotPct = (Math.abs(peTot) / maxTot) * 80;
 
-    var ceChPct  = (Math.abs(ceCh) / maxCh) * 80;
-    var peChPct  = (Math.abs(peCh) / maxCh) * 80;
+        var ceBasePct = (Math.abs(ceOI) / maxTot) * 80;
+        var peBasePct = (Math.abs(peOI) / maxTot) * 80;
 
-    var row=document.createElement("div");
-    row.className="row"+(r.STRIKE_TXT===atm?" atm":"");
-    row.onmouseenter = function(){
-      const rbox = row.getBoundingClientRect();
-      const gbox = document.getElementById("grid").getBoundingClientRect();
+        var ceDeltaPct = Math.abs(ceCh) / maxTot * 80;
+        var peDeltaPct = Math.abs(peCh) / maxTot * 80;
 
-      hoverLine.style.top =
-        (rbox.top - gbox.top + rbox.height/2) + "px";
+        var ceChPct  = (Math.abs(ceCh) / maxCh) * 80;
+        var peChPct  = (Math.abs(peCh) / maxCh) * 80;
 
-      hoverLine.style.display = "block";
-    };
+        var row=document.createElement("div");
+        row.className="row"+(r.STRIKE_TXT===atm?" atm":"");
 
-    row.onmouseleave = function(){
-      hoverLine.style.display = "none";
-    };
+        row.onmouseenter = function(){
+          const rbox = row.getBoundingClientRect();
+          const gbox = document.getElementById("grid").getBoundingClientRect();
 
+          hoverLine.style.top =
+            (rbox.top - gbox.top + rbox.height/2) + "px";
 
+          hoverLine.style.display = "block";
+        };
 
-    row.innerHTML =
-          '<div class="totWrap"><div class="box"><div class="stack">'+
-          '<div class="bar ce '+(ceTot>0?"deep":"")+'" style="width:'+ceTotPct+'%"></div>'+
-          '<div class="bar pe '+(peTot>0?"deep":"")+'" style="width:'+peTotPct+'%"></div>'+
-          '</div></div></div>'+
-                  
-          '<div class="strike">'+r.STRIKE_TXT+'</div>'+
-          '<div class="box">'+
-            '<div class="chgInner">'+
-              '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
+        row.onmouseleave = function(){
+          hoverLine.style.display = "none";
+        };
 
-              '<div class="bar ce deep" style="left:50%;top:4px;width:'+ceChPct+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+        row.innerHTML =
+              '<div class="totWrap"><div class="box"><div class="stack">'+
 
-              '<div class="bar pe deep" style="left:50%;top:24px;width:'+peChPct+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+              '<div style="position:relative;width:100%">'+
+                '<div class="bar ce" style="width:'+ceBasePct+'%"></div>'+
+                (ceCh>0
+                  ? '<div class="bar ce deep" style="position:absolute;left:'+ceBasePct+'%;width:'+ceDeltaPct+'%"></div>'
+                  : ceCh<0
+                    ? '<div class="bar" style="position:absolute;left:'+(ceBasePct-ceDeltaPct)+'%;width:'+ceDeltaPct+'%;background:white;border:2px solid white"></div>'
+                    : ''
+                )+
+              '</div>'+
 
-            '</div>'+
-          '</div>';
+              '<div style="position:relative;width:100%">'+
+                '<div class="bar pe" style="width:'+peBasePct+'%"></div>'+
+                (peCh>0
+                  ? '<div class="bar pe deep" style="position:absolute;left:'+peBasePct+'%;width:'+peDeltaPct+'%"></div>'
+                  : peCh<0
+                    ? '<div class="bar" style="position:absolute;left:'+(peBasePct-peDeltaPct)+'%;width:'+peDeltaPct+'%;background:white;border:2px solid white"></div>'
+                    : ''
+                )+
+              '</div>'+
 
+              '</div></div></div>'+
+                      
+              '<div class="strike">'+r.STRIKE_TXT+'</div>'+
+              '<div class="box">'+
+                '<div class="chgInner">'+
+                  '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
 
-    leftCol.appendChild(row);
+                  '<div class="bar ce deep" style="left:50%;top:4px;width:'+ceChPct+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
 
-  });
+                  '<div class="bar pe deep" style="left:50%;top:24px;width:'+peChPct+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+
+                '</div>'+
+              '</div>';
+
+        leftCol.appendChild(row);
+
+      });
+
 }
 </script>
 
