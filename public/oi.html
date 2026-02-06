@@ -267,13 +267,19 @@ function render(){
         var ceTotPct  = pct(ceTot);
         var peTotPct  = pct(peTot);
 
-        var ceDrawBase = ceCh<0 ? ceTotPct : ceBasePct;
-        var peDrawBase = peCh<0 ? peTotPct : peBasePct;
-
         var ceAddPct = ceCh>0 ? (ceTotPct-ceBasePct) : 0;
         var peAddPct = peCh>0 ? (peTotPct-peBasePct) : 0;
 
+        var ceCutPct = ceCh<0 ? (ceBasePct-ceTotPct) : 0;
+        var peCutPct = peCh<0 ? (peBasePct-peTotPct) : 0;
+
         function clamp(x){ return Math.max(0,Math.min(100,x)); }
+
+        ceBasePct=clamp(ceBasePct); peBasePct=clamp(peBasePct);
+        ceTotPct =clamp(ceTotPct);  peTotPct =clamp(peTotPct);
+        ceAddPct =clamp(ceAddPct);  peAddPct =clamp(peAddPct);
+        ceCutPct =clamp(ceCutPct);  peCutPct =clamp(peCutPct);
+
 
         ceDrawBase=clamp(ceDrawBase); peDrawBase=clamp(peDrawBase);
         ceAddPct=clamp(ceAddPct); peAddPct=clamp(peAddPct);
