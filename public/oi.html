@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+:root{ --mid:80px; } /* central column width - change once if needed */
+
+html,body{
+  margin:0;height:100%;background:#0b0f14;color:white;font-family:Arial;
+  box-sizing:border-box;
+}
+*,*::before,*::after{box-sizing:inherit}
+
+/* screen container */
+#screen{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  padding:20px;
+}
+/* centered grid with controlled width */
+#grid{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  max-width:1200px; /* keep centered width */
+  width:100%;
+  margin:0 auto;
+  position:relative;
+}
+/* outline frames that follow exact same math as grid columns */
+#grid::before,
+#grid::after{
+  content:"";
+  position:absolute;
+  top:100px;
+  bottom:100px;
+  width:calc((100% - var(--mid)) / 2);
+  border:2px solid white;
+  pointer-events:none;
+}
+#grid::before{ left:0; }
+#grid::after { right:0; }
+
+/* each visual row: left column | center strike | right column */
+.row{
+  display:grid;
+  grid-template-columns:1fr var(--mid) 1fr;
+  min-height:18px;
+  padding:0;
+  gap:0px;
+  box-sizing:border-box;
+}
+/* ATM row visual markers */
+.row.atm{
+  border-top:2px dotted orange;
+  border-bottom:2px dotted orange;
+}
+
+
+/* topbar */
+.topbar{
+  padding:6px;
+  border-bottom:1px solid #444;
+  display:flex;
+  gap:12px;
+  justify-content:center;
+}
+
+select{background:#111;color:white;border:1px solid #555}
+
+/* header titles above the grid (keeps same container width and columns) */
+.outerRowHeader{
+  display:grid;
+  grid-template-columns:1fr var(--mid) 1fr;
+  max-width:1200px;
+  width:100%;
+  margin:0 auto 8px auto;
+}
+.outerBoxTitle{
+  text-align:center;
+  font-size:13px;
+  opacity:.8;
+  border:1px solid #666;
+  padding:6px 0;
+}
+
+/* stacking & boxes */
+.stack{
+  display:flex;
+  flex-direction:column;
+  gap:1px;
+}
+
+.box{
+  border:none;
+  padding:6px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  width:100%;
+}
+.boxTitle{ text-align:center; font-size:12px; margin-bottom:4px; opacity:.8; }
+
+.totWrap, .chgWrap{
+  height:100%;
+  display:flex;
+  align-items:center;
+  padding:4px;
+  box-sizing:border-box;
+}
+.chgWrap{ width:100%; border:1px solid #666; }
+
+.chgInner{
+  position:relative;
+  width:100%;
+  height:42px;
+  overflow:hidden;
+  padding:0;
+}
+
+.chgInner .bar{
+  position:absolute;
+  height:16px;
+}
+
+
+/* bars */
+.bar{ height:18px; border:2px solid; background:white; box-sizing:border-box; }
+.ce{ border-color:#00ff6a; }
+.pe{ border-color:#ff4040; }
+.deep.ce{ background:#00aa55 }
+.deep.pe{ background:#aa0000 }
+
+.r{ margin-left:auto }
+.l{ margin-right:auto }
+
+.strike{ text-align:center; font-weight:bold; color:#fff; }
+
+
+.stack { gap:0px !important; }
+.box { padding:2px !important; }
+.totWrap, .chgWrap { padding:1px !important; }
+
+
+
+
+</style>
+
+</head>
+
+<body>
+<div id="screen">
+
+<div class="topbar">
+  <select id="ul"></select>
+  <select id="exp"></select>
+</div>
+
+<div class="outerRowHeader">
+  <div class="outerBoxTitle">TOTAL OI</div>
+  <div></div>
+  <div class="outerBoxTitle">CHANGE IN OI</div>
+</div>
+<div id="grid">
+  <div id="leftCol"></div>
+  <div id="rightCol"></div>
+</div>
+</div>
+
+<script>
+const DATA = {"ASHOKLEY": {"2026-02-24": {"atm": 200.0, "table": [{"STRIKE_TXT": 182.5, "Change In OI_CE": 0.0, "Change In OI_PE": 15000.0, "OI_CE": 0.0, "OI_PE": 870000.0}, {"STRIKE_TXT": 185.0, "Change In OI_CE": 0.0, "Change In OI_PE": -180000.0, "OI_CE": 0.0, "OI_PE": 3445000.0}, {"STRIKE_TXT": 187.5, "Change In OI_CE": 0.0, "Change In OI_PE": 5000.0, "OI_CE": 0.0, "OI_PE": 1095000.0}, {"STRIKE_TXT": 188.0, "Change In OI_CE": 0.0, "Change In OI_PE": 0.0, "OI_CE": 415000.0, "OI_PE": 0.0}, {"STRIKE_TXT": 190.0, "Change In OI_CE": -80000.0, "Change In OI_PE": 55000.0, "OI_CE": 2315000.0, "OI_PE": 3505000.0}, {"STRIKE_TXT": 192.0, "Change In OI_CE": 0.0, "Change In OI_PE": 0.0, "OI_CE": 510000.0, "OI_PE": 0.0}, {"STRIKE_TXT": 192.5, "Change In OI_CE": 0.0, "Change In OI_PE": 15000.0, "OI_CE": 895000.0, "OI_PE": 1105000.0}, {"STRIKE_TXT": 195.0, "Change In OI_CE": -10000.0, "Change In OI_PE": -30000.0, "OI_CE": 1855000.0, "OI_PE": 2420000.0}, {"STRIKE_TXT": 196.0, "Change In OI_CE": 0.0, "Change In OI_PE": 0.0, "OI_CE": 380000.0, "OI_PE": 0.0}, {"STRIKE_TXT": 197.5, "Change In OI_CE": 30000.0, "Change In OI_PE": 25000.0, "OI_CE": 920000.0, "OI_PE": 710000.0}, {"STRIKE_TXT": 200.0, "Change In OI_CE": 385000.0, "Change In OI_PE": 95000.0, "OI_CE": 5885000.0, "OI_PE": 3345000.0}, {"STRIKE_TXT": 202.5, "Change In OI_CE": -40000.0, "Change In OI_PE": -5000.0, "OI_CE": 1960000.0, "OI_PE": 580000.0}, {"STRIKE_TXT": 205.0, "Change In OI_CE": 405000.0, "Change In OI_PE": -30000.0, "OI_CE": 6045000.0, "OI_PE": 585000.0}, {"STRIKE_TXT": 207.5, "Change In OI_CE": 35000.0, "Change In OI_PE": 0.0, "OI_CE": 1225000.0, "OI_PE": 100000.0}, {"STRIKE_TXT": 210.0, "Change In OI_CE": 490000.0, "Change In OI_PE": 0.0, "OI_CE": 6280000.0, "OI_PE": 400000.0}, {"STRIKE_TXT": 212.5, "Change In OI_CE": 45000.0, "Change In OI_PE": 0.0, "OI_CE": 595000.0, "OI_PE": 360000.0}, {"STRIKE_TXT": 215.0, "Change In OI_CE": 165000.0, "Change In OI_PE": 0.0, "OI_CE": 3355000.0, "OI_PE": 390000.0}, {"STRIKE_TXT": 217.5, "Change In OI_CE": -10000.0, "Change In OI_PE": 0.0, "OI_CE": 1220000.0, "OI_PE": 20000.0}]}}, "NIFTY": {"2026-02-10": {"atm": 25500.0, "table": [{"STRIKE_TXT": 25150.0, "Change In OI_CE": 3900, "Change In OI_PE": 606645, "OI_CE": 88855, "OI_PE": 1839695}, {"STRIKE_TXT": 25200.0, "Change In OI_CE": 53300, "Change In OI_PE": 1285960, "OI_CE": 627705, "OI_PE": 5664945}, {"STRIKE_TXT": 25250.0, "Change In OI_CE": 62855, "Change In OI_PE": 1237405, "OI_CE": 161655, "OI_PE": 2724085}, {"STRIKE_TXT": 25300.0, "Change In OI_CE": 382005, "Change In OI_PE": 2500875, "OI_CE": 1198990, "OI_PE": 6217965}, {"STRIKE_TXT": 25350.0, "Change In OI_CE": 196365, "Change In OI_PE": 1781390, "OI_CE": 326950, "OI_PE": 3433300}, {"STRIKE_TXT": 25400.0, "Change In OI_CE": 1174810, "Change In OI_PE": 5186220, "OI_CE": 1940315, "OI_PE": 9836320}, {"STRIKE_TXT": 25450.0, "Change In OI_CE": 1039935, "Change In OI_PE": 2242110, "OI_CE": 1239680, "OI_PE": 3896035}, {"STRIKE_TXT": 25500.0, "Change In OI_CE": 6733805, "Change In OI_PE": 6815250, "OI_CE": 9087520, "OI_PE": 13126100}, {"STRIKE_TXT": 25550.0, "Change In OI_CE": 7279285, "Change In OI_PE": 4549155, "OI_CE": 7886320, "OI_PE": 6629155}, {"STRIKE_TXT": 25600.0, "Change In OI_CE": 13013780, "Change In OI_PE": 3207165, "OI_CE": 16834350, "OI_PE": 7864545}, {"STRIKE_TXT": 25650.0, "Change In OI_CE": 5411250, "Change In OI_PE": 57395, "OI_CE": 9159605, "OI_PE": 3145610}, {"STRIKE_TXT": 25700.0, "Change In OI_CE": 7901530, "Change In OI_PE": -285610, "OI_CE": 16815565, "OI_PE": 4206865}, {"STRIKE_TXT": 25750.0, "Change In OI_CE": 3012035, "Change In OI_PE": -39975, "OI_CE": 7783620, "OI_PE": 1525810}, {"STRIKE_TXT": 25800.0, "Change In OI_CE": 4660695, "Change In OI_PE": -686595, "OI_CE": 16052465, "OI_PE": 3471455}, {"STRIKE_TXT": 25850.0, "Change In OI_CE": 2563535, "Change In OI_PE": -33410, "OI_CE": 6084130, "OI_PE": 502710}]}}};
+
+const ulSel = document.getElementById("ul");
+const expSel = document.getElementById("exp");
+const leftCol = document.getElementById("leftCol");
+const rightCol = document.getElementById("rightCol");
+
+Object.keys(DATA).forEach(function(k){
+  var o=document.createElement("option");
+  o.text=k; o.value=k;
+  ulSel.add(o);
+});
+
+ulSel.onchange = function(){
+  expSel.innerHTML="";
+  Object.keys(DATA[ulSel.value]).forEach(function(e){
+    var o=document.createElement("option");
+    o.text=e; o.value=e;
+    expSel.add(o);
+  });
+  expSel.selectedIndex=0;
+  render();
+};
+
+expSel.onchange = render;
+
+ulSel.selectedIndex=0;
+ulSel.onchange();
+
+function render(){
+  leftCol.innerHTML="";
+  rightCol.innerHTML="";
+
+  var ul=ulSel.value, exp=expSel.value;
+  var obj=DATA[ul][exp];
+  var rows=obj.table;
+  var atm=obj.atm;
+
+  var idx = rows.findIndex(r=>r.STRIKE_TXT===atm);
+  var half = Math.floor(15/2);
+  var win = rows.slice(Math.max(0,idx-half), idx+half+1);
+
+  var maxTot = Math.max(1, ...rows.map(x =>
+    Math.max(
+      Math.abs((x["OI_CE"]||0)+(x["Change In OI_CE"]||0)),
+      Math.abs((x["OI_PE"]||0)+(x["Change In OI_PE"]||0))
+    )
+  ));
+
+  var maxCh = Math.max(1, ...rows.map(x =>
+    Math.max(
+      Math.abs(x["Change In OI_CE"]||0),
+      Math.abs(x["Change In OI_PE"]||0)
+    )
+  ));
+
+  win.forEach(function(r){
+
+
+    var ceTot = (r["OI_CE"]||0) + (r["Change In OI_CE"]||0);
+    var peTot = (r["OI_PE"]||0) + (r["Change In OI_PE"]||0);
+
+    var ceCh = (r["Change In OI_CE"]||0);
+    var peCh = (r["Change In OI_PE"]||0);
+
+    var ceTotPct = (Math.abs(ceTot) / maxTot) * 80;
+    var peTotPct = (Math.abs(peTot) / maxTot) * 80;
+
+    var ceChPct  = (Math.abs(ceCh) / maxCh) * 80;
+    var peChPct  = (Math.abs(peCh) / maxCh) * 80;
+
+    var row=document.createElement("div");
+    row.className="row"+(r.STRIKE_TXT===atm?" atm":"");
+
+    row.innerHTML =
+          '<div class="totWrap"><div class="box"><div class="stack">'+
+          '<div class="bar ce '+(ceTot>0?"deep":"")+'" style="width:'+ceTotPct+'%"></div>'+
+          '<div class="bar pe '+(peTot>0?"deep":"")+'" style="width:'+peTotPct+'%"></div>'+
+          '</div></div></div>'+
+                  
+          '<div class="strike">'+r.STRIKE_TXT+'</div>'+
+          '<div class="box">'+
+            '<div class="chgInner">'+
+              '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
+
+              '<div class="bar ce deep" style="left:50%;top:4px;width:'+ceChPct+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+
+              '<div class="bar pe deep" style="left:50%;top:24px;width:'+peChPct+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+
+            '</div>'+
+          '</div>';
+
+
+    leftCol.appendChild(row);
+
+  });
+}
+</script>
+
+</body>
+</html>
