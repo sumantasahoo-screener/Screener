@@ -237,10 +237,11 @@ function render(){
 
   var maxTot = Math.max(1, ...rows.map(x =>
     Math.max(
-      Math.abs((x["OI_CE"]||0)+(x["Change In OI_CE"]||0)),
-      Math.abs((x["OI_PE"]||0)+(x["Change In OI_PE"]||0))
+      Math.abs(x["OI_CE"]||0) + Math.abs(x["Change In OI_CE"]||0),
+      Math.abs(x["OI_PE"]||0) + Math.abs(x["Change In OI_PE"]||0)
     )
   ));
+
 
   var maxCh = Math.max(1, ...rows.map(x =>
     Math.max(
@@ -256,8 +257,8 @@ function render(){
         var ceCh = Number(r["Change In OI_CE"]||0);
         var peCh = Number(r["Change In OI_PE"]||0);
 
-        var ceTot = ceOI + ceCh;
-        var peTot = peOI + peCh;
+        var ceTot = ceOI + Math.abs(ceCh);
+        var peTot = peOI + Math.abs(peCh);
 
         function pct(v){ return (Math.abs(v) / maxTot) * 100; }
 
@@ -299,18 +300,19 @@ function render(){
 
             // CE
             '<div style="position:relative;height:18px;width:100%;">'+
-              '<div class="bar ce" style="position:absolute;left:0;width:'+(ceCh<0?ceTotPct:ceBasePct)+'%"></div>'+
+              '<div class="bar ce" style="position:absolute;left:0;width:'+ceBasePct+'%"></div>'+
               (ceCh>0
                 ? '<div class="bar ce deep" style="position:absolute;left:'+ceBasePct+'%;width:'+ceAddPct+'%"></div>'
-                : '')+
+                : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:white;border:2px solid white"></div>')+
             '</div>'+
 
             '<div style="position:relative;height:18px;width:100%;margin-top:4px;">'+
-              '<div class="bar pe" style="position:absolute;left:0;width:'+(peCh<0?peTotPct:peBasePct)+'%"></div>'+
+              '<div class="bar pe" style="position:absolute;left:0;width:'+peBasePct+'%"></div>'+
               (peCh>0
                 ? '<div class="bar pe deep" style="position:absolute;left:'+peBasePct+'%;width:'+peAddPct+'%"></div>'
-                : '')+
+                : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:white;border:2px solid white"></div>')+
             '</div>'+
+
 
 
 
