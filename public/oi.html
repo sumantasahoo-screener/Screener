@@ -199,7 +199,6 @@ const leftCol = document.getElementById("leftCol");
 const rightCol = document.getElementById("rightCol");
 const hoverLine = document.getElementById("hoverLine");
 
-
 Object.keys(DATA).forEach(function(k){
   var o=document.createElement("option");
   o.text=k; o.value=k;
@@ -235,108 +234,104 @@ function render(){
   var half = Math.floor(15/2);
   var win = rows.slice(Math.max(0,idx-half), idx+half+1);
 
-  var maxTot = Math.max(1, ...rows.map(x =>
+  // ---- SCALE ONLY WINDOW ----
+  var maxTot = Math.max(1, ...win.map(x =>
     Math.max(
       Math.abs(x["OI_CE"]||0) + Math.abs(x["Change In OI_CE"]||0),
       Math.abs(x["OI_PE"]||0) + Math.abs(x["Change In OI_PE"]||0)
     )
   ));
 
-
-  var maxCh = Math.max(1, ...rows.map(x =>
+  var maxCh = Math.max(1, ...win.map(x =>
     Math.max(
       Math.abs(x["Change In OI_CE"]||0),
       Math.abs(x["Change In OI_PE"]||0)
     )
   ));
 
-    win.forEach(function(r){
+  win.forEach(function(r){
 
-        var ceOI = Number(r["OI_CE"]||0);
-        var peOI = Number(r["OI_PE"]||0);
-        var ceCh = Number(r["Change In OI_CE"]||0);
-        var peCh = Number(r["Change In OI_PE"]||0);
+    var ceOI = Number(r["OI_CE"]||0);
+    var peOI = Number(r["OI_PE"]||0);
+    var ceCh = Number(r["Change In OI_CE"]||0);
+    var peCh = Number(r["Change In OI_PE"]||0);
 
-        var ceTot = ceOI + Math.abs(ceCh);
-        var peTot = peOI + Math.abs(peCh);
+    // ---- TOTAL ALWAYS = OI + |CHANGE| ----
+    var ceTot = ceOI + Math.abs(ceCh);
+    var peTot = peOI + Math.abs(peCh);
 
-        function pct(v){ return (Math.abs(v) / maxTot) * 100; }
+    function pct(v){ return (Math.abs(v) / maxTot) * 100; }
 
-        var ceBasePct = pct(ceOI);
-        var peBasePct = pct(peOI);
+    var ceBasePct = pct(ceOI);
+    var peBasePct = pct(peOI);
 
-        var ceTotPct  = pct(ceTot);
-        var peTotPct  = pct(peTot);
+    var ceTotPct  = pct(ceTot);
+    var peTotPct  = pct(peTot);
 
-        var ceAddPct = ceCh>0 ? (ceTotPct-ceBasePct) : 0;
-        var peAddPct = peCh>0 ? (peTotPct-peBasePct) : 0;
+    var ceAddPct = ceCh>0 ? (ceTotPct-ceBasePct) : 0;
+    var peAddPct = peCh>0 ? (peTotPct-peBasePct) : 0;
 
-        var ceCutPct = ceCh<0 ? (ceBasePct-ceTotPct) : 0;
-        var peCutPct = peCh<0 ? (peBasePct-peTotPct) : 0;
+    // ---- WHITE PART = TOTAL - OI ----
+    var ceCutPct = ceCh<0 ? (ceTotPct-ceBasePct) : 0;
+    var peCutPct = peCh<0 ? (peTotPct-peBasePct) : 0;
 
-        function clamp(x){ return Math.max(0,Math.min(100,x)); }
+    function clamp(x){ return Math.max(0,Math.min(100,x)); }
 
-        ceBasePct=clamp(ceBasePct); peBasePct=clamp(peBasePct);
-        ceTotPct =clamp(ceTotPct);  peTotPct =clamp(peTotPct);
-        ceAddPct =clamp(ceAddPct);  peAddPct =clamp(peAddPct);
-        ceCutPct =clamp(ceCutPct);  peCutPct =clamp(peCutPct);
+    ceBasePct=clamp(ceBasePct); peBasePct=clamp(peBasePct);
+    ceTotPct =clamp(ceTotPct);  peTotPct =clamp(peTotPct);
+    ceAddPct =clamp(ceAddPct);  peAddPct =clamp(peAddPct);
+    ceCutPct =clamp(ceCutPct);  peCutPct =clamp(peCutPct);
 
-        var row=document.createElement("div");
-        row.className="row"+(r.STRIKE_TXT===atm?" atm":"");
+    var row=document.createElement("div");
+    row.className="row"+(r.STRIKE_TXT===atm?" atm":"");
 
-        row.onmouseenter=function(){
-          const rbox=row.getBoundingClientRect();
-          const gbox=document.getElementById("grid").getBoundingClientRect();
-          hoverLine.style.top=(rbox.top-gbox.top+rbox.height/2)+"px";
-          hoverLine.style.display="block";
-        };
+    row.onmouseenter=function(){
+      const rbox=row.getBoundingClientRect();
+      const gbox=document.getElementById("grid").getBoundingClientRect();
+      hoverLine.style.top=(rbox.top-gbox.top+rbox.height/2)+"px";
+      hoverLine.style.display="block";
+    };
 
-        row.onmouseleave=function(){
-          hoverLine.style.display="none";
-        };
+    row.onmouseleave=function(){
+      hoverLine.style.display="none";
+    };
 
-        row.innerHTML=
-          '<div class="totWrap"><div class="box"><div class="stack">'+
+    row.innerHTML=
+      '<div class="totWrap"><div class="box"><div class="stack">'+
 
-            // CE
-            '<div style="position:relative;height:18px;width:100%;">'+
-              '<div class="bar ce" style="position:absolute;left:0;width:'+ceBasePct+'%"></div>'+
-              (ceCh>0
-                ? '<div class="bar ce deep" style="position:absolute;left:'+ceBasePct+'%;width:'+ceAddPct+'%"></div>'
-                : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:white;border:2px solid white"></div>')+
-            '</div>'+
+        // CE
+        '<div style="position:relative;height:18px;width:100%;">'+
+          '<div class="bar ce" style="position:absolute;left:0;width:'+ceBasePct+'%"></div>'+
+          (ceCh>0
+            ? '<div class="bar ce deep" style="position:absolute;left:'+ceBasePct+'%;width:'+ceAddPct+'%"></div>'
+            : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:white;border:2px solid white"></div>')+
+        '</div>'+
 
-            '<div style="position:relative;height:18px;width:100%;margin-top:4px;">'+
-              '<div class="bar pe" style="position:absolute;left:0;width:'+peBasePct+'%"></div>'+
-              (peCh>0
-                ? '<div class="bar pe deep" style="position:absolute;left:'+peBasePct+'%;width:'+peAddPct+'%"></div>'
-                : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:white;border:2px solid white"></div>')+
-            '</div>'+
+        // PE
+        '<div style="position:relative;height:18px;width:100%;margin-top:4px;">'+
+          '<div class="bar pe" style="position:absolute;left:0;width:'+peBasePct+'%"></div>'+
+          (peCh>0
+            ? '<div class="bar pe deep" style="position:absolute;left:'+peBasePct+'%;width:'+peAddPct+'%"></div>'
+            : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:white;border:2px solid white"></div>')+
+        '</div>'+
 
+      '</div></div></div>'+
 
+      '<div class="strike">'+r.STRIKE_TXT+'</div>'+
 
+      '<div class="box">'+
+        '<div class="chgInner">'+
+          '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
+          '<div class="bar ce deep" style="left:50%;top:4px;width:'+((Math.abs(ceCh)/maxCh)*80)+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+          '<div class="bar pe deep" style="left:50%;top:24px;width:'+((Math.abs(peCh)/maxCh)*80)+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+        '</div>'+
+      '</div>';
 
-          '</div></div></div>'+
+    leftCol.appendChild(row);
 
-          '<div class="strike">'+r.STRIKE_TXT+'</div>'+
-
-          '<div class="box">'+
-            '<div class="chgInner">'+
-              '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
-              '<div class="bar ce deep" style="left:50%;top:4px;width:'+((Math.abs(ceCh)/maxCh)*80)+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
-              '<div class="bar pe deep" style="left:50%;top:24px;width:'+((Math.abs(peCh)/maxCh)*80)+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
-            '</div>'+
-          '</div>';
-
-        leftCol.appendChild(row);
-
-
-    });
-
-
-
+  });
 }
 </script>
-
 </body>
+
 </html>
