@@ -195,6 +195,10 @@ select{background:#111;color:white;border:1px solid #555}
 .box { padding:2px !important; }
 .totWrap, .chgWrap { padding:1px !important; }
 
+.strike{
+  position:relative;
+  z-index:500;
+}
 
 
 
@@ -336,7 +340,6 @@ function render(){
     row.onmouseenter=function(e){
       const rbox=row.getBoundingClientRect();
       const strikeBox=row.querySelector(".strike").getBoundingClientRect();
-
       const gridBox=document.getElementById("grid").getBoundingClientRect();
 
       hoverLine.style.top=(rbox.top-gridBox.top+rbox.height/2)+"px";
@@ -356,8 +359,8 @@ function render(){
         tipL.style.lineHeight="1.4";
         tipL.style.color="white";
         tipL.style.pointerEvents="none";
-        tipL.style.zIndex="200";
-        tipL.style.minWidth="150px";
+        tipL.style.zIndex="300";
+        tipL.style.minWidth="160px";
         document.body.appendChild(tipL);
       }
 
@@ -372,8 +375,8 @@ function render(){
         tipR.style.lineHeight="1.4";
         tipR.style.color="white";
         tipR.style.pointerEvents="none";
-        tipR.style.zIndex="200";
-        tipR.style.minWidth="150px";
+        tipR.style.zIndex="300";
+        tipR.style.minWidth="160px";
         document.body.appendChild(tipR);
       }
 
@@ -392,12 +395,11 @@ function render(){
       const strikeLeft  = strikeBox.left;
       const strikeRight = strikeBox.right;
 
-      /* LEFT = mirror of RIGHT */
-      tipL.style.left = (strikeLeft - tipL.offsetWidth - 12) + "px";
+      /* PUSH FARTHER OUT */
+      tipL.style.left = (strikeLeft - tipL.offsetWidth - 30) + "px";
       tipL.style.top  = yPos + "px";
 
-      /* RIGHT */
-      tipR.style.left = (strikeRight + 12) + "px";
+      tipR.style.left = (strikeRight + 30) + "px";
       tipR.style.top  = yPos + "px";
 
       tipL.style.display="block";
