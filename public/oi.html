@@ -335,9 +335,11 @@ function render(){
 
     row.onmouseenter=function(e){
       const rbox=row.getBoundingClientRect();
-      const gbox=document.getElementById("grid").getBoundingClientRect();
+      const strikeBox=row.querySelector(".strike").getBoundingClientRect();
 
-      hoverLine.style.top=(rbox.top-gbox.top+rbox.height/2)+"px";
+      const gridBox=document.getElementById("grid").getBoundingClientRect();
+
+      hoverLine.style.top=(rbox.top-gridBox.top+rbox.height/2)+"px";
       hoverLine.style.display="block";
 
       let tipL=document.getElementById("strikeTipLeft");
@@ -348,13 +350,14 @@ function render(){
         tipL.id="strikeTipLeft";
         tipL.style.position="absolute";
         tipL.style.background="#102018";
-        tipL.style.border="1px solid #00ff6a";
+        tipL.style.border="2px solid #00ff6a";
         tipL.style.padding="6px 8px";
         tipL.style.fontSize="11px";
         tipL.style.lineHeight="1.4";
         tipL.style.color="white";
         tipL.style.pointerEvents="none";
         tipL.style.zIndex="200";
+        tipL.style.minWidth="140px";
         document.body.appendChild(tipL);
       }
 
@@ -363,13 +366,14 @@ function render(){
         tipR.id="strikeTipRight";
         tipR.style.position="absolute";
         tipR.style.background="#1a1020";
-        tipR.style.border="1px solid #ff00ff";
+        tipR.style.border="2px solid #ff00ff";
         tipR.style.padding="6px 8px";
         tipR.style.fontSize="11px";
         tipR.style.lineHeight="1.4";
         tipR.style.color="white";
         tipR.style.pointerEvents="none";
         tipR.style.zIndex="200";
+        tipR.style.minWidth="140px";
         document.body.appendChild(tipR);
       }
 
@@ -383,13 +387,15 @@ function render(){
         'CE: '+(ceCh>=0?'+':'')+ceCh+'<br>'+
         'PE: '+(peCh>=0?'+':'')+peCh;
 
-      const midX = rbox.left + rbox.width/2;
-      const yPos = rbox.top + rbox.height/2 - 18;
+      const yPos = rbox.top + rbox.height/2 - 20;
 
-      tipL.style.left = (midX - tipL.offsetWidth - 12) + "px";
+      const strikeLeft  = strikeBox.left;
+      const strikeRight = strikeBox.right;
+
+      tipL.style.left = (strikeLeft - tipL.offsetWidth - 10) + "px";
       tipL.style.top  = yPos + "px";
 
-      tipR.style.left = (midX + 12) + "px";
+      tipR.style.left = (strikeRight + 10) + "px";
       tipR.style.top  = yPos + "px";
 
       tipL.style.display="block";
@@ -405,6 +411,7 @@ function render(){
       if(tipL) tipL.style.display="none";
       if(tipR) tipR.style.display="none";
     };
+
 
 
 
