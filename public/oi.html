@@ -282,6 +282,34 @@ function render(){
   var idx = rows.findIndex(r=>r.STRIKE_TXT===atm);
   var half = Math.floor(15/2);
   var win = rows.slice(Math.max(0,idx-half), idx+half+1);
+  /* ---- HEADER PCR CALC ---- */
+
+  let totCE = 0, totPE = 0;
+  let chCE = 0, chPE = 0;
+
+  win.forEach(r=>{
+    const ceOI = Number(r["OI_CE"]||0);
+    const peOI = Number(r["OI_PE"]||0);
+    const ceCh = Number(r["Change In OI_CE"]||0);
+    const peCh = Number(r["Change In OI_PE"]||0);
+
+    totCE += ceOI + Math.abs(ceCh);
+    totPE += peOI + Math.abs(peCh);
+
+    chCE += Math.abs(ceCh);
+    chPE += Math.abs(peCh);
+  });
+
+  const pcrTot = totCE ? (totPE/totCE).toFixed(2) : "0.00";
+  const pcrCh  = chCE  ? (chPE/chCE).toFixed(2)  : "0.00";
+
+  document.getElementById("pcrTotal").innerText =
+    "PCR: " + pcrTot;
+
+  document.getElementById("pcrChange").innerText =
+    "PCR: " + pcrCh;
+
+  
 
   // ---- SCALE ONLY WINDOW ----
   var maxTot = Math.max(1, ...win.map(x =>
