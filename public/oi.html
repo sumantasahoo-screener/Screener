@@ -322,49 +322,49 @@ function render(){
     var row=document.createElement("div");
     row.className="row"+(r.STRIKE_TXT===atm?" atm":"");
 
+    var strikeHTML =
+      '<div class="strike">'+
+        '<div class="stkPrice">'+r.STRIKE_TXT+'</div>'+
+        '<div class="stkInfo" style="display:none;font-size:11px;margin-top:4px;line-height:1.3;">'+
+          'CE: '+ceOI+' ('+(ceCh>=0?'+':'')+ceCh+')<br>'+
+          'PE: '+peOI+' ('+(peCh>=0?'+':'')+peCh+')<br>'+
+          'ΔCE: '+(ceCh>=0?'+':'')+ceCh+
+          ' &nbsp; ΔPE: '+(peCh>=0?'+':'')+peCh+
+        '</div>'+
+      '</div>';
+
     row.onmouseenter=function(){
       const rbox=row.getBoundingClientRect();
       const gbox=document.getElementById("grid").getBoundingClientRect();
       hoverLine.style.top=(rbox.top-gbox.top+rbox.height/2)+"px";
       hoverLine.style.display="block";
+
+      var info=row.querySelector(".stkInfo");
+      if(info) info.style.display="block";
     };
 
     row.onmouseleave=function(){
       hoverLine.style.display="none";
+
+      var info=row.querySelector(".stkInfo");
+      if(info) info.style.display="none";
     };
 
     row.innerHTML=
       '<div class="totWrap"><div class="box"><div class="stack">'+
-
-        // CE
-        '<div style="position:relative;height:18px;width:100%;">'+
-          '<div class="bar ce" style="position:absolute;left:0;width:'+ceBasePct+'%"></div>'+
-          (ceCh>0
-            ? '<div class="bar ce deep" style="position:absolute;left:'+ceBasePct+'%;width:'+ceAddPct+'%"></div>'
-            : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:white;border:2px solid white"></div>')+
-        '</div>'+
-
-        // PE
-        '<div style="position:relative;height:18px;width:100%;margin-top:4px;">'+
-          '<div class="bar pe" style="position:absolute;left:0;width:'+peBasePct+'%"></div>'+
-          (peCh>0
-            ? '<div class="bar pe deep" style="position:absolute;left:'+peBasePct+'%;width:'+peAddPct+'%"></div>'
-            : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:white;border:2px solid white"></div>')+
-        '</div>'+
-
+      ...
       '</div></div></div>'+
 
-      '<div class="strike">'+r.STRIKE_TXT+'</div>'+
+      strikeHTML+
 
       '<div class="box">'+
         '<div class="chgInner">'+
-          '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
-          '<div class="bar chg-ce" style="left:50%;top:4px;width:'+((Math.abs(ceCh)/maxCh)*80)+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
-          '<div class="bar chg-pe" style="left:50%;top:24px;width:'+((Math.abs(peCh)/maxCh)*80)+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+          ...
         '</div>'+
       '</div>';
 
     leftCol.appendChild(row);
+
 
   });
 }
