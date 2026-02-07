@@ -340,41 +340,72 @@ function render(){
       hoverLine.style.top=(rbox.top-gbox.top+rbox.height/2)+"px";
       hoverLine.style.display="block";
 
-      let tip=document.getElementById("strikeTooltip");
+      let tipL=document.getElementById("strikeTipLeft");
+      let tipR=document.getElementById("strikeTipRight");
 
-      if(!tip){
-        tip=document.createElement("div");
-        tip.id="strikeTooltip";
-        tip.style.position="absolute";
-        tip.style.background="#111";
-        tip.style.border="1px solid #ffd000";
-        tip.style.padding="6px 8px";
-        tip.style.fontSize="11px";
-        tip.style.lineHeight="1.4";
-        tip.style.color="white";
-        tip.style.pointerEvents="none";
-        tip.style.zIndex="200";
-        document.body.appendChild(tip);
+      if(!tipL){
+        tipL=document.createElement("div");
+        tipL.id="strikeTipLeft";
+        tipL.style.position="absolute";
+        tipL.style.background="#102018";
+        tipL.style.border="1px solid #00ff6a";
+        tipL.style.padding="6px 8px";
+        tipL.style.fontSize="11px";
+        tipL.style.lineHeight="1.4";
+        tipL.style.color="white";
+        tipL.style.pointerEvents="none";
+        tipL.style.zIndex="200";
+        document.body.appendChild(tipL);
       }
 
-      tip.innerHTML=
-        'STRIKE: '+r.STRIKE_TXT+'<br>'+
-        'CE: '+ceOI+' ('+(ceCh>=0?'+':'')+ceCh+')<br>'+
-        'PE: '+peOI+' ('+(peCh>=0?'+':'')+peCh+')<br>'+
-        'ΔCE: '+(ceCh>=0?'+':'')+ceCh+
-        ' &nbsp; ΔPE: '+(peCh>=0?'+':'')+peCh;
+      if(!tipR){
+        tipR=document.createElement("div");
+        tipR.id="strikeTipRight";
+        tipR.style.position="absolute";
+        tipR.style.background="#1a1020";
+        tipR.style.border="1px solid #ff00ff";
+        tipR.style.padding="6px 8px";
+        tipR.style.fontSize="11px";
+        tipR.style.lineHeight="1.4";
+        tipR.style.color="white";
+        tipR.style.pointerEvents="none";
+        tipR.style.zIndex="200";
+        document.body.appendChild(tipR);
+      }
 
-      tip.style.left=(rbox.left + rbox.width/2 - 40)+"px";
-      tip.style.top=(rbox.top - 10)+"px";
-      tip.style.display="block";
+      tipL.innerHTML=
+        'TOTAL OI<br>'+
+        'CE: '+ceOI+' ('+(ceCh>=0?'+':'')+ceCh+')<br>'+
+        'PE: '+peOI+' ('+(peCh>=0?'+':'')+peCh+')';
+
+      tipR.innerHTML=
+        'CHANGE IN OI<br>'+
+        'CE: '+(ceCh>=0?'+':'')+ceCh+'<br>'+
+        'PE: '+(peCh>=0?'+':'')+peCh;
+
+      const midX = rbox.left + rbox.width/2;
+      const yPos = rbox.top + rbox.height/2 - 18;
+
+      tipL.style.left = (midX - tipL.offsetWidth - 12) + "px";
+      tipL.style.top  = yPos + "px";
+
+      tipR.style.left = (midX + 12) + "px";
+      tipR.style.top  = yPos + "px";
+
+      tipL.style.display="block";
+      tipR.style.display="block";
     };
 
     row.onmouseleave=function(){
       hoverLine.style.display="none";
 
-      const tip=document.getElementById("strikeTooltip");
-      if(tip) tip.style.display="none";
+      const tipL=document.getElementById("strikeTipLeft");
+      const tipR=document.getElementById("strikeTipRight");
+
+      if(tipL) tipL.style.display="none";
+      if(tipR) tipR.style.display="none";
     };
+
 
 
     row.innerHTML=
