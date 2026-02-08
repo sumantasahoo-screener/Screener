@@ -228,7 +228,7 @@ select{background:#111;color:white;border:1px solid #555}
   <div class="outerBoxTitle" id="chgHeader">
     CHANGE IN OI<br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-08(<span style="color:#27F2F5;font-weight:bold">14:57:54</span>)
+      Scan: 2026-02-08(<span style="color:#27F2F5;font-weight:bold">15:01:02</span>)
     </span><br>
     <span id="pcrChange" style="font-size:11px;opacity:.85"></span>
   </div>
@@ -532,23 +532,24 @@ function render(){
 }
 </script>
 <script>
-let lastModified = null;
+let lastScanText =
+  document.querySelector("#chgHeader span").innerText;
 
 async function checkUpdate(){
   try{
-    const r = await fetch(location.href, { method:"HEAD", cache:"no-store" });
-    const lm = r.headers.get("Last-Modified");
+    const r = await fetch(location.href, { cache:"no-store" });
+    const t = await r.text();
+    const m = t.match(/Scan:\s*([0-9\-: ]+)/);
 
-    if(lastModified && lm && lm !== lastModified){
-      location.reload(true);
+    if(m && m[1] !== lastScanText){
+      document.open();
+      document.write(t);
+      document.close();
     }
-
-    lastModified = lm;
   }catch(e){}
 }
 
 setInterval(checkUpdate, 5000);
-checkUpdate();
 </script>
 
 
