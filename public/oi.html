@@ -228,7 +228,7 @@ select{background:#111;color:white;border:1px solid #555}
   <div class="outerBoxTitle" id="chgHeader">
     CHANGE IN OI<br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-08(<span style="color:#27F2F5;font-weight:bold">15:28:22</span>)
+      Scan: 2026-02-08(<span style="color:#27F2F5;font-weight:bold">16:02:09</span>)
     </span><br>
     <span id="pcrChange" style="font-size:11px;opacity:.85"></span>
   </div>
@@ -292,10 +292,16 @@ function render(){
 
   var rows=obj.table;
   var atm=obj.atm;
+  var ltp=obj.ltp;
+
+  var ltpStrike = rows.reduce((a,b)=>
+    Math.abs(b.STRIKE_TXT-ltp) < Math.abs(a.STRIKE_TXT-ltp) ? b : a
+  );
 
   var idx = rows.findIndex(r=>r.STRIKE_TXT===atm);
   var half = Math.floor(15/2);
   var win = rows.slice(Math.max(0,idx-half), idx+half+1);
+
   /* ---- HEADER PCR CALC ---- */
 
   let totCE = 0, totPE = 0;
@@ -528,6 +534,32 @@ function render(){
       '</div>';
 
     leftCol.appendChild(row);
+
+    if(r.STRIKE_TXT===ltpStrike.STRIKE_TXT){
+      row.style.position="relative";
+
+      const ltpLine=document.createElement("div");
+      ltpLine.style.position="absolute";
+      ltpLine.style.left="-3000px";
+      ltpLine.style.right="-3000px";
+      ltpLine.style.top="50%";
+      ltpLine.style.borderTop="2px solid orange";
+      ltpLine.style.pointerEvents="none";
+      ltpLine.style.zIndex="20";
+
+      const ltpLbl=document.createElement("div");
+      ltpLbl.innerText="LTP "+ltp.toFixed(2);
+      ltpLbl.style.position="absolute";
+      ltpLbl.style.left="-160px";
+      ltpLbl.style.top="-9px";
+      ltpLbl.style.color="orange";
+      ltpLbl.style.fontWeight="bold";
+      ltpLbl.style.fontSize="12px";
+
+      row.appendChild(ltpLine);
+      row.appendChild(ltpLbl);
+    }
+
 
 
 
