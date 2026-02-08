@@ -228,7 +228,7 @@ select{background:#111;color:white;border:1px solid #555}
   <div class="outerBoxTitle" id="chgHeader">
     CHANGE IN OI<br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-08(<span style="color:#27F2F5;font-weight:bold">09:44:32</span>)
+      Scan: 2026-02-08(<span style="color:#27F2F5;font-weight:bold">09:54:21</span>)
     </span><br>
     <span id="pcrChange" style="font-size:11px;opacity:.85"></span>
   </div>
@@ -239,7 +239,9 @@ select{background:#111;color:white;border:1px solid #555}
 
 
 <div id="grid">
-  <div id="hoverLine" class="hoverLine"></div>
+  <div id="hoverLineTop" class="hoverLine"></div>
+  <div id="hoverLineBottom" class="hoverLine"></div>
+
   <div id="leftCol"></div>
   <div id="midCol"></div>
   <div id="rightCol"></div>
@@ -388,8 +390,17 @@ function render(){
       const strikeBox=row.querySelector(".strike").getBoundingClientRect();
       const gridBox=document.getElementById("grid").getBoundingClientRect();
 
-      hoverLine.style.top=(rbox.top-gridBox.top+rbox.height/2)+"px";
-      hoverLine.style.display="block";
+      const topLine=document.getElementById("hoverLineTop");
+      const botLine=document.getElementById("hoverLineBottom");
+
+      const topPos = rbox.top - gridBox.top;
+      const botPos = rbox.bottom - gridBox.top;
+
+      topLine.style.top = topPos + "px";
+      botLine.style.top = botPos + "px";
+
+      topLine.style.display="block";
+      botLine.style.display="block";
 
       let tipL=document.getElementById("strikeTipLeft");
       let tipR=document.getElementById("strikeTipRight");
@@ -462,7 +473,11 @@ function render(){
     };
 
     row.onmouseleave=function(){
-      hoverLine.style.display="none";
+      const topLine=document.getElementById("hoverLineTop");
+      const botLine=document.getElementById("hoverLineBottom");
+
+      if(topLine) topLine.style.display="none";
+      if(botLine) botLine.style.display="none";
 
       const tipL=document.getElementById("strikeTipLeft");
       const tipR=document.getElementById("strikeTipRight");
@@ -470,6 +485,7 @@ function render(){
       if(tipL) tipL.style.display="none";
       if(tipR) tipR.style.display="none";
     };
+
 
 
 
