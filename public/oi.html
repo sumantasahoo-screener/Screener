@@ -2,43 +2,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
-
-
-:root{
-  --mid:clamp(48px,12vw,80px);
-}
+:root{ --mid:80px; } /* central column width - change once if needed */
 
 html,body{
-  margin:0;
-  height:100%;
-  background:#0b0f14;
-  color:white;
-  font-family:Arial;
+  margin:0;height:100%;background:#0b0f14;color:white;font-family:Arial;
   box-sizing:border-box;
 }
 *,*::before,*::after{box-sizing:inherit}
 
 /* screen container */
 #screen{
-  min-height:100vh;
+  height:100vh;
   display:flex;
   flex-direction:column;
-  padding:10px;
+  padding:20px;
 }
-
-/* centered grid */
+/* centered grid with controlled width */
 #grid{
   flex:1;
   display:flex;
   flex-direction:column;
   justify-content:center;
-  max-width:100%;
+  max-width:1200px; /* keep centered width */
   width:100%;
   margin:0 auto;
   position:relative;
-  overflow-x:auto;
 }
 
 .hoverLine{
@@ -57,72 +46,68 @@ html,body{
 #grid::after{
   content:"";
   position:absolute;
-  top:clamp(18px,4vw,40px);
-  bottom:clamp(18px,4vw,40px);
+  top:40px;        /* was 100px */
+  bottom:40px;     /* was 100px */
   width:calc((100% - var(--mid)) / 2);
   border:2px solid white;
   pointer-events:none;
 }
 
-#grid::before{ left:0 }
-#grid::after{ right:0 }
+#grid::before{ left:0; }
+#grid::after { right:0; }
 
-/* each visual row */
+/* each visual row: left column | center strike | right column */
 .row{
   display:grid;
-  grid-template-columns:minmax(120px,1fr) var(--mid) minmax(120px,1fr);
-  min-height:16px;
+  grid-template-columns:1fr var(--mid) 1fr;
+  min-height:18px;
   padding:0;
-  gap:0;
+  gap:0px;
+  box-sizing:border-box;
 }
-
-/* ATM row */
+/* ATM row visual markers */
 .row.atm{
   border-top:2px dotted orange;
   border-bottom:2px dotted orange;
 }
+
 
 /* topbar */
 .topbar{
   padding:6px;
   border-bottom:1px solid #444;
   display:flex;
-  gap:8px;
+  gap:12px;
   justify-content:center;
-  flex-wrap:wrap;
 }
 
-select{
-  background:#111;
-  color:white;
-  border:1px solid #555;
-}
+select{background:#111;color:white;border:1px solid #555}
 
-/* header titles */
+/* header titles above the grid (keeps same container width and columns) */
 .outerRowHeader{
   display:grid;
   grid-template-columns:1fr var(--mid) 1fr;
-  max-width:100%;
+  max-width:1200px;
   width:100%;
-  margin:0 auto 6px auto;
+  margin:0 auto 8px auto;
 }
-
 .outerBoxTitle{
   text-align:center;
-  font-size:12px;
+  font-size:13px;
   opacity:.8;
   border:1px solid #666;
-  padding:4px 0;
+  padding:6px 0;
+}
+/* MIDDLE GAP VISUAL DEBUG */
+.midBox{
+  border:2px dashed yellow !important;
 }
 
-.midBox{ border:2px dashed yellow !important }
-
-/* center column outline */
 #midCol{
   position:absolute;
   left:50%;
-  top:clamp(18px,4vw,40px);
-  bottom:clamp(18px,4vw,40px);
+  top:40px;
+  bottom:40px;
   width:var(--mid);
   transform:translateX(-50%);
   border:2px dashed yellow;
@@ -130,113 +115,94 @@ select{
 }
 
 
-/* stacks */
+/* stacking & boxes */
 .stack{
   display:flex;
   flex-direction:column;
-  gap:0;
+  gap:1px;
 }
 
 .box{
   border:none;
-  padding:2px;
+  padding:6px;
   display:flex;
   flex-direction:column;
   justify-content:center;
   width:100%;
 }
+.boxTitle{ text-align:center; font-size:12px; margin-bottom:4px; opacity:.8; }
 
-.totWrap,.chgWrap{
+.totWrap, .chgWrap{
   height:100%;
   display:flex;
   align-items:center;
-  padding:1px;
+  padding:4px;
+  box-sizing:border-box;
 }
-
-.chgWrap{
-  width:100%;
-  border:1px solid #666;
-}
+.chgWrap{ width:100%; border:1px solid #666; }
 
 .chgInner{
   position:relative;
   width:100%;
-  height:32px;
+  height:40px;
   overflow:hidden;
+  padding:0;
 }
 
 .chgInner .bar{
   position:absolute;
-  height:12px;
+  height:16px;
 }
 
+
 /* bars */
-.bar{ height:14px }
+.bar{
+  height:18px;
+  border:none;
+  box-sizing:border-box;
+}
 
-.ce{ background:#00ff6a }
-.pe{ background:#ff4040 }
+.ce{ background:#00ff6a; }      /* base CE = green */
+.pe{ background:#ff4040; }      /* base PE = red  */
 
-.deep.ce{ background:#00aa55 }
-.deep.pe{ background:#aa0000 }
+.deep.ce{ background:#00aa55 }  /* CE increase */
+.deep.pe{ background:#aa0000 }  /* PE increase */
 
-.chg-ce{ background:#17D16B }
-.chg-pe{ background:#D11743 }
+/* CHANGE IN OI ONLY COLORS */
+.chg-ce{
+  background:#17D16B;   /* blue */
+}
+
+.chg-pe{
+  background:#D11743;   /* magenta */
+}
+
+
+
+.r{ margin-left:auto }
+.l{ margin-right:auto }
 
 .strike{
   text-align:center;
   font-weight:bold;
   color:#fff;
-  margin-top:6px;
-  font-size:11px;
+  margin-top:14px;   /* pushes it slightly downward */
+}
+
+
+
+.stack { gap:0px !important; }
+.box { padding:2px !important; }
+.totWrap, .chgWrap { padding:1px !important; }
+
+.strike{
   position:relative;
   z-index:500;
 }
 
-/* MOBILE BREAKPOINT */
-@media (max-width:720px){
 
-  :root{ --mid:44px }
-
-  #grid::before,
-  #grid::after,
-  #midCol{
-    display:none;
-  }
-
-  .row{
-    grid-template-columns:1fr var(--mid) 1fr;
-    min-height:14px;
-  }
-
-  .outerBoxTitle{
-    font-size:11px;
-    padding:3px 0;
-  }
-
-  .strike{
-    font-size:10px;
-    margin-top:4px;
-  }
-
-  .chgInner{ height:26px }
-  .bar{ height:12px }
-}
-
-/* EXTRA SMALL */
-@media (max-width:480px){
-
-  :root{ --mid:38px }
-
-  #screen{ padding:6px }
-
-  select{ font-size:11px }
-
-  .row{ min-height:12px }
-
-}
 
 </style>
-
 
 </head>
 
@@ -262,7 +228,7 @@ select{
   <div class="outerBoxTitle" id="chgHeader">
     CHANGE IN OI<br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-09(<span style="color:#27F2F5;font-weight:bold">21:25:35</span>)
+      Scan: 2026-02-09(<span style="color:#27F2F5;font-weight:bold">21:30:17</span>)
     </span><br>
     <span id="pcrChange" style="font-size:11px;opacity:.85"></span>
   </div>
@@ -442,8 +408,7 @@ function render(){
         '</div>'+
       '</div>';
 
-    function showTips(){
-
+    row.onmouseenter=function(e){
       const rbox=row.getBoundingClientRect();
       const strikeBox=row.querySelector(".strike").getBoundingClientRect();
       const gridBox=document.getElementById("grid").getBoundingClientRect();
@@ -454,12 +419,11 @@ function render(){
       const topPos = rbox.top - gridBox.top;
       const botPos = rbox.bottom - gridBox.top;
 
-      if(topLine && botLine){
-        topLine.style.top = topPos + "px";
-        botLine.style.top = botPos + "px";
-        topLine.style.display="block";
-        botLine.style.display="block";
-      }
+      topLine.style.top = topPos + "px";
+      botLine.style.top = botPos + "px";
+
+      topLine.style.display="block";
+      botLine.style.display="block";
 
       let tipL=document.getElementById("strikeTipLeft");
       let tipR=document.getElementById("strikeTipRight");
@@ -467,7 +431,7 @@ function render(){
       if(!tipL){
         tipL=document.createElement("div");
         tipL.id="strikeTipLeft";
-        tipL.style.position="fixed";
+        tipL.style.position="absolute";
         tipL.style.background="#102018";
         tipL.style.border="2px solid #00ff6a";
         tipL.style.padding="6px 8px";
@@ -476,14 +440,14 @@ function render(){
         tipL.style.color="white";
         tipL.style.pointerEvents="none";
         tipL.style.zIndex="300";
-        tipL.style.minWidth="140px";
+        tipL.style.minWidth="160px";
         document.body.appendChild(tipL);
       }
 
       if(!tipR){
         tipR=document.createElement("div");
         tipR.id="strikeTipRight";
-        tipR.style.position="fixed";
+        tipR.style.position="absolute";
         tipR.style.background="#1a1020";
         tipR.style.border="2px solid #ff00ff";
         tipR.style.padding="6px 8px";
@@ -492,36 +456,50 @@ function render(){
         tipR.style.color="white";
         tipR.style.pointerEvents="none";
         tipR.style.zIndex="300";
-        tipR.style.minWidth="140px";
+        tipR.style.minWidth="160px";
         document.body.appendChild(tipR);
       }
 
-      tipL.innerHTML=
-        r.STRIKE_TXT+'<br>'+
-        'CE: '+ceOI+' ('+(ceCh>=0?'+':'')+ceCh+')<br>'+
-        'PE: '+peOI+' ('+(peCh>=0?'+':'')+peCh+')';
+    tipL.innerHTML=
+      r.STRIKE_TXT+'<br>'+
+      'CE: '+ceOI+' ('+(ceCh>=0?'+':'')+ceCh+')<br>'+
+      'PE: '+peOI+' ('+(peCh>=0?'+':'')+peCh+')';
+
 
       tipR.innerHTML=
         'CHANGE IN OI<br>'+
         'CE: '+(ceCh>=0?'+':'')+ceCh+'<br>'+
         'PE: '+(peCh>=0?'+':'')+peCh;
 
-      const gap = 8;
+    const strikeLeft  = strikeBox.left;
+    const strikeRight = strikeBox.right;
 
-      const rowCenterY = rbox.top + rbox.height / 2;
+    /* STRICT: stick to strike edges, never overlap */
+    const gap = 8;
+    const leftExtra = 160;
 
-      tipL.style.top = (rowCenterY - tipL.offsetHeight / 2) + "px";
-      tipR.style.top = (rowCenterY - tipR.offsetHeight / 2) + "px";
+    /* vertical center minus small upward offset */
+    const rowCenterY = rbox.top + rbox.height / 2;
+    const upShift = 30;
 
-      tipL.style.left = "8px";
-      tipR.style.left = (window.innerWidth - tipR.offsetWidth - 8) + "px";
+    tipL.style.top = (rowCenterY - tipL.offsetHeight / 2 - upShift) + "px";
+    tipR.style.top = (rowCenterY - tipR.offsetHeight / 2 - upShift) + "px";
+
+    tipL.style.left =
+      (strikeLeft - tipL.offsetWidth - gap - leftExtra) + "px";
+
+    tipR.style.left =
+      (strikeRight + gap) + "px";
+
+
+
+
 
       tipL.style.display="block";
       tipR.style.display="block";
-    }
+    };
 
-    function hideTips(){
-
+    row.onmouseleave=function(){
       const topLine=document.getElementById("hoverLineTop");
       const botLine=document.getElementById("hoverLineBottom");
 
@@ -533,20 +511,7 @@ function render(){
 
       if(tipL) tipL.style.display="none";
       if(tipR) tipR.style.display="none";
-    }
-
-    row.onmouseenter=showTips;
-    row.onmouseleave=hideTips;
-
-    row.ontouchstart=function(e){
-      e.preventDefault();
-      showTips();
     };
-
-    row.ontouchend=function(){
-      hideTips();
-    };
-
 
 
 
@@ -556,18 +521,18 @@ function render(){
     row.innerHTML=
       '<div class="totWrap"><div class="box"><div class="stack">'+
 
-        '<div class="totRow">'+
-          '<div class="bar ce" style="width:'+ceBasePct+'%"></div>'+
+        '<div style="position:relative;height:18px;width:100%;">'+
+          '<div class="bar ce" style="position:absolute;left:0;width:'+ceBasePct+'%"></div>'+
           (ceCh>0
-            ? '<div class="bar ce deep" style="left:'+ceBasePct+'%;width:'+ceAddPct+'%"></div>'
-            : '<div class="bar cut" style="left:'+ceBasePct+'%;width:'+ceCutPct+'%"></div>')+
+            ? '<div class="bar ce deep" style="position:absolute;left:'+ceBasePct+'%;width:'+ceAddPct+'%"></div>'
+            : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:white;border:2px solid white"></div>')+
         '</div>'+
 
-        '<div class="totRow peRow">'+
-          '<div class="bar pe" style="width:'+peBasePct+'%"></div>'+
+        '<div style="position:relative;height:18px;width:100%;margin-top:4px;">'+
+          '<div class="bar pe" style="position:absolute;left:0;width:'+peBasePct+'%"></div>'+
           (peCh>0
-            ? '<div class="bar pe deep" style="left:'+peBasePct+'%;width:'+peAddPct+'%"></div>'
-            : '<div class="bar cut" style="left:'+peBasePct+'%;width:'+peCutPct+'%"></div>')+
+            ? '<div class="bar pe deep" style="position:absolute;left:'+peBasePct+'%;width:'+peAddPct+'%"></div>'
+            : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:white;border:2px solid white"></div>')+
         '</div>'+
 
       '</div></div></div>'+
@@ -576,12 +541,11 @@ function render(){
 
       '<div class="box">'+
         '<div class="chgInner">'+
-          '<div class="midLine"></div>'+
-          '<div class="bar chg-ce" style="width:'+((Math.abs(ceCh)/maxCh)*80)+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
-          '<div class="bar chg-pe" style="width:'+((Math.abs(peCh)/maxCh)*80)+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+          '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
+          '<div class="bar chg-ce" style="left:50%;top:0px;width:'+((Math.abs(ceCh)/maxCh)*80)+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+          '<div class="bar chg-pe" style="left:50%;top:20px;width:'+((Math.abs(peCh)/maxCh)*80)+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
         '</div>'+
       '</div>';
-
 
     leftCol.appendChild(row);
 
@@ -600,15 +564,18 @@ function render(){
       const ltpLbl=document.createElement("div");
       ltpLbl.innerText="LTP "+ltp.toFixed(2);
       ltpLbl.style.position="absolute";
-      ltpLbl.style.left="50%";
+      ltpLbl.style.left="42%";
       ltpLbl.style.top="50%";
       ltpLbl.style.transform="translate(-50%,-50%)";
       ltpLbl.style.color="white";
       ltpLbl.style.fontWeight="bold";
-      ltpLbl.style.fontSize="11px";
+      ltpLbl.style.fontSize="12px";
       ltpLbl.style.background="#0b0f14";
       ltpLbl.style.padding="2px 6px";
       ltpLbl.style.zIndex="25";
+
+
+
 
       row.appendChild(ltpLine);
       row.appendChild(ltpLbl);
