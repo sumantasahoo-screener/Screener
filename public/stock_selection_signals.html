@@ -1,363 +1,304 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Stock Selection Signals</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --bg-main: #020617;
-      --bg-card: #020617;
-      --border-subtle: rgba(148,163,184,0.3);
-      --text-main: #e5e7eb;
-      --text-muted: #9ca3af;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #020617;
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 1100px;
-    }
-
-    .card {
-      background: var(--bg-card);
-      border-radius: 18px;
-      border: 1px solid var(--border-subtle);
-      padding: 18px 18px 22px;
-      box-shadow: 0 20px 40px rgba(15,23,42,0.8);
-    }
-
-    .header {
-      margin-bottom: 14px;
-    }
-
-    .title {
-      font-size: 1.6rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-    }
-
-    .subtitle {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    .table-wrapper {
-      margin-top: 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(51,65,85,0.9);
-      overflow: hidden;
-      background: #020617;
-    }
-
-    .table-scroll {
-      width: 100%;
-      overflow-x: auto;
-      scrollbar-width: thin;
-    }
-
-    .table-scroll::-webkit-scrollbar {
-      height: 6px;
-    }
-
-    .table-scroll::-webkit-scrollbar-thumb {
-      background: rgba(148,163,184,0.7);
-      border-radius: 999px;
-    }
-
-    table.data-table {
-      width: 100%;
-      border-collapse: collapse;
-      border-spacing: 0;
-      font-size: 0.8rem;
-      color: var(--text-main);
-    }
-
-    table.data-table thead tr {
-      background: #020617;
-    }
-
-    table.data-table th {
-      padding: 8px 10px;
-      text-align: left;
-      font-weight: 500;
-      font-size: 0.7rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      border-bottom: 1px solid rgba(51,65,85,0.9);
-      white-space: nowrap;
-    }
-
-    table.data-table td {
-      padding: 7px 10px;
-      border-bottom: 1px solid rgba(30,41,59,0.8);
-      font-size: 0.8rem;
-    }
-
-    table.data-table tbody tr:last-child td {
-      border-bottom: none;
-    }
-
-    table.data-table tbody tr:hover td {
-      background: rgba(15,23,42,0.85);
-    }
-
-    @media (max-width: 768px) {
-      .card {
-        padding: 14px 12px 18px;
-      }
-      .title {
-        font-size: 1.3rem;
-      }
-      table.data-table th,
-      table.data-table td {
-        padding: 6px 8px;
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<title>Stock Selection</title>
+<style>
+body{background:#020617;color:white;font-family:Arial}
+.block{border:2px solid #0284c7;margin:18px}
+.block h2{background:#0284c7;margin:0;padding:10px;text-align:center}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{background:#0ea5e9}
+.tbl th,.tbl td{border:1px solid #1e293b;padding:6px;text-align:center}
+.footer{text-align:center;color:#9ca3af;margin:14px}
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <div class="header">
-        <div class="title">STOCK SELECTION</div>
-        <div class="subtitle">From Different Source</div>
-      </div>
-      <div class="table-wrapper">
-        <div class="table-scroll">
-          <style type="text/css">
-#T_6bc79_row0_col2, #T_6bc79_row1_col2, #T_6bc79_row2_col2, #T_6bc79_row3_col2, #T_6bc79_row4_col2, #T_6bc79_row5_col2, #T_6bc79_row6_col2, #T_6bc79_row7_col2, #T_6bc79_row10_col2, #T_6bc79_row11_col2, #T_6bc79_row12_col2 {
-  font-weight: 500;
-  text-align: center;
-  color: #22c55e;
-}
-#T_6bc79_row8_col2, #T_6bc79_row9_col2, #T_6bc79_row13_col2 {
-  font-weight: 500;
-  text-align: center;
-  color: #f97373;
-}
-#T_6bc79_row14_col2 {
-  font-weight: 500;
-  text-align: center;
-  color: #e5e7eb;
-}
-#T_6bc79_row15_col0, #T_6bc79_row15_col1, #T_6bc79_row15_col3, #T_6bc79_row15_col4, #T_6bc79_row15_col5, #T_6bc79_row15_col6, #T_6bc79_row15_col7 {
-  background: #000814;
-  border-top: 2px solid rgba(148,163,184,0.7);
-  border-bottom: 2px solid rgba(148,163,184,0.7);
-  font-weight: 600;
-}
-#T_6bc79_row15_col2 {
-  font-weight: 500;
-  text-align: center;
-  color: #e5e7eb;
-  background: #000814;
-  border-top: 2px solid rgba(148,163,184,0.7);
-  border-bottom: 2px solid rgba(148,163,184,0.7);
-  font-weight: 600;
-}
-</style>
-<table id="T_6bc79" class="data-table">
+
+<div class="block">
+<h2>INTRADY STOCK SELECTION</h2>
+<table border="1" class="dataframe tbl">
   <thead>
-    <tr>
-      <th id="T_6bc79_level0_col0" class="col_heading level0 col0" >SYMBOL</th>
-      <th id="T_6bc79_level0_col1" class="col_heading level0 col1" >FOR DATE</th>
-      <th id="T_6bc79_level0_col2" class="col_heading level0 col2" >SIGNAL TYPE</th>
-      <th id="T_6bc79_level0_col3" class="col_heading level0 col3" >SOURCE</th>
-      <th id="T_6bc79_level0_col4" class="col_heading level0 col4" >LTP</th>
-      <th id="T_6bc79_level0_col5" class="col_heading level0 col5" >REASON</th>
-      <th id="T_6bc79_level0_col6" class="col_heading level0 col6" >IM RESISTANCE</th>
-      <th id="T_6bc79_level0_col7" class="col_heading level0 col7" >IM SUPPORT</th>
+    <tr style="text-align: right;">
+      <th>SYMBOL</th>
+      <th>FOR DATE</th>
+      <th>SIGNAL TYPE</th>
+      <th>SOURCE</th>
+      <th>LTP</th>
+      <th>REASON</th>
+      <th>IM RESISTANCE</th>
+      <th>IM SUPPORT</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td id="T_6bc79_row0_col0" class="data row0 col0" >PREMIERENE</td>
-      <td id="T_6bc79_row0_col1" class="data row0 col1" >02-10-2026</td>
-      <td id="T_6bc79_row0_col2" class="data row0 col2" >BULLISH</td>
-      <td id="T_6bc79_row0_col3" class="data row0 col3" >TRAP INDICATIOR</td>
-      <td id="T_6bc79_row0_col4" class="data row0 col4" >806.400000</td>
-      <td id="T_6bc79_row0_col5" class="data row0 col5" >CALL WRITER TRAP</td>
-      <td id="T_6bc79_row0_col6" class="data row0 col6" >820</td>
-      <td id="T_6bc79_row0_col7" class="data row0 col7" >800</td>
+      <td>PREMIERENE</td>
+      <td>02-10-2026</td>
+      <td>BULLISH</td>
+      <td>TRAP INDICATIOR</td>
+      <td>806.4</td>
+      <td>CALL WRITER TRAP</td>
+      <td>820</td>
+      <td>800</td>
     </tr>
     <tr>
-      <td id="T_6bc79_row1_col0" class="data row1 col0" >JUBLFOOD</td>
-      <td id="T_6bc79_row1_col1" class="data row1 col1" >02-10-2026</td>
-      <td id="T_6bc79_row1_col2" class="data row1 col2" >BULLISH</td>
-      <td id="T_6bc79_row1_col3" class="data row1 col3" >TRIGERS</td>
-      <td id="T_6bc79_row1_col4" class="data row1 col4" >548.350000</td>
-      <td id="T_6bc79_row1_col5" class="data row1 col5" >CALL WRITER TRAP</td>
-      <td id="T_6bc79_row1_col6" class="data row1 col6" >550</td>
-      <td id="T_6bc79_row1_col7" class="data row1 col7" >540</td>
+      <td>JUBLFOOD</td>
+      <td>02-10-2026</td>
+      <td>BULLISH</td>
+      <td>TRIGERS</td>
+      <td>548.35</td>
+      <td>CALL WRITER TRAP</td>
+      <td>550</td>
+      <td>540</td>
     </tr>
     <tr>
-      <td id="T_6bc79_row2_col0" class="data row2 col0" >Cholamandalam</td>
-      <td id="T_6bc79_row2_col1" class="data row2 col1" >02-10-2026</td>
-      <td id="T_6bc79_row2_col2" class="data row2 col2" >BULLISH</td>
-      <td id="T_6bc79_row2_col3" class="data row2 col3" >TRIGERS</td>
-      <td id="T_6bc79_row2_col4" class="data row2 col4" >1770.200000</td>
-      <td id="T_6bc79_row2_col5" class="data row2 col5" >CALL WRITER TRAP</td>
-      <td id="T_6bc79_row2_col6" class="data row2 col6" >1800</td>
-      <td id="T_6bc79_row2_col7" class="data row2 col7" >1700</td>
+      <td>Cholamandalam</td>
+      <td>02-10-2026</td>
+      <td>BULLISH</td>
+      <td>TRIGERS</td>
+      <td>1770.2</td>
+      <td>CALL WRITER TRAP</td>
+      <td>1800</td>
+      <td>1700</td>
     </tr>
     <tr>
-      <td id="T_6bc79_row3_col0" class="data row3 col0" >BHARATFORG</td>
-      <td id="T_6bc79_row3_col1" class="data row3 col1" >02-10-2026</td>
-      <td id="T_6bc79_row3_col2" class="data row3 col2" >BULLISH</td>
-      <td id="T_6bc79_row3_col3" class="data row3 col3" >TRIGERS</td>
-      <td id="T_6bc79_row3_col4" class="data row3 col4" >1590.400000</td>
-      <td id="T_6bc79_row3_col5" class="data row3 col5" >CALL WRITER TRAP</td>
-      <td id="T_6bc79_row3_col6" class="data row3 col6" >1600</td>
-      <td id="T_6bc79_row3_col7" class="data row3 col7" >1500</td>
+      <td>BHARATFORG</td>
+      <td>02-10-2026</td>
+      <td>BULLISH</td>
+      <td>TRIGERS</td>
+      <td>1590.4</td>
+      <td>CALL WRITER TRAP</td>
+      <td>1600</td>
+      <td>1500</td>
     </tr>
     <tr>
-      <td id="T_6bc79_row4_col0" class="data row4 col0" >INOXWIND</td>
-      <td id="T_6bc79_row4_col1" class="data row4 col1" >02-10-2026</td>
-      <td id="T_6bc79_row4_col2" class="data row4 col2" >BULLISH</td>
-      <td id="T_6bc79_row4_col3" class="data row4 col3" >TRIGERS</td>
-      <td id="T_6bc79_row4_col4" class="data row4 col4" >111.070000</td>
-      <td id="T_6bc79_row4_col5" class="data row4 col5" >CALL WRITER TRAP</td>
-      <td id="T_6bc79_row4_col6" class="data row4 col6" >110</td>
-      <td id="T_6bc79_row4_col7" class="data row4 col7" >110</td>
+      <td>INOXWIND</td>
+      <td>02-10-2026</td>
+      <td>BULLISH</td>
+      <td>TRIGERS</td>
+      <td>111.07</td>
+      <td>CALL WRITER TRAP</td>
+      <td>110</td>
+      <td>110</td>
     </tr>
     <tr>
-      <td id="T_6bc79_row5_col0" class="data row5 col0" >LTF</td>
-      <td id="T_6bc79_row5_col1" class="data row5 col1" >02-10-2026</td>
-      <td id="T_6bc79_row5_col2" class="data row5 col2" >BULLISH</td>
-      <td id="T_6bc79_row5_col3" class="data row5 col3" >TRIGERS</td>
-      <td id="T_6bc79_row5_col4" class="data row5 col4" >296.850000</td>
-      <td id="T_6bc79_row5_col5" class="data row5 col5" >CALL WRITER TRAP</td>
-      <td id="T_6bc79_row5_col6" class="data row5 col6" >300</td>
-      <td id="T_6bc79_row5_col7" class="data row5 col7" >300</td>
+      <td>LTF</td>
+      <td>02-10-2026</td>
+      <td>BULLISH</td>
+      <td>TRIGERS</td>
+      <td>296.85</td>
+      <td>CALL WRITER TRAP</td>
+      <td>300</td>
+      <td>300</td>
     </tr>
     <tr>
-      <td id="T_6bc79_row6_col0" class="data row6 col0" >SRF</td>
-      <td id="T_6bc79_row6_col1" class="data row6 col1" >02-10-2026</td>
-      <td id="T_6bc79_row6_col2" class="data row6 col2" >BULLISH</td>
-      <td id="T_6bc79_row6_col3" class="data row6 col3" >TRIGERS</td>
-      <td id="T_6bc79_row6_col4" class="data row6 col4" >2986.700000</td>
-      <td id="T_6bc79_row6_col5" class="data row6 col5" >CALL WRITER TRAP</td>
-      <td id="T_6bc79_row6_col6" class="data row6 col6" >3000</td>
-      <td id="T_6bc79_row6_col7" class="data row6 col7" >2800</td>
+      <td>SRF</td>
+      <td>02-10-2026</td>
+      <td>BULLISH</td>
+      <td>TRIGERS</td>
+      <td>2986.7</td>
+      <td>CALL WRITER TRAP</td>
+      <td>3000</td>
+      <td>2800</td>
     </tr>
     <tr>
-      <td id="T_6bc79_row7_col0" class="data row7 col0" >MANAPPURAM</td>
-      <td id="T_6bc79_row7_col1" class="data row7 col1" >02-10-2026</td>
-      <td id="T_6bc79_row7_col2" class="data row7 col2" >BULLISH</td>
-      <td id="T_6bc79_row7_col3" class="data row7 col3" >TRIGERS</td>
-      <td id="T_6bc79_row7_col4" class="data row7 col4" >306.700000</td>
-      <td id="T_6bc79_row7_col5" class="data row7 col5" >CALL WRITER TRAP</td>
-      <td id="T_6bc79_row7_col6" class="data row7 col6" >300</td>
-      <td id="T_6bc79_row7_col7" class="data row7 col7" >290</td>
+      <td>MANAPPURAM</td>
+      <td>02-10-2026</td>
+      <td>BULLISH</td>
+      <td>TRIGERS</td>
+      <td>306.7</td>
+      <td>CALL WRITER TRAP</td>
+      <td>300</td>
+      <td>290</td>
     </tr>
     <tr>
-      <td id="T_6bc79_row8_col0" class="data row8 col0" >BANKINDIA</td>
-      <td id="T_6bc79_row8_col1" class="data row8 col1" >02-10-2026</td>
-      <td id="T_6bc79_row8_col2" class="data row8 col2" >BEARISH</td>
-      <td id="T_6bc79_row8_col3" class="data row8 col3" >TRIGERS</td>
-      <td id="T_6bc79_row8_col4" class="data row8 col4" >168.410000</td>
-      <td id="T_6bc79_row8_col5" class="data row8 col5" >NEAR RESITANCE</td>
-      <td id="T_6bc79_row8_col6" class="data row8 col6" >170</td>
-      <td id="T_6bc79_row8_col7" class="data row8 col7" >170</td>
+      <td>BANKINDIA</td>
+      <td>02-10-2026</td>
+      <td>BEARISH</td>
+      <td>TRIGERS</td>
+      <td>168.41</td>
+      <td>NEAR RESITANCE</td>
+      <td>170</td>
+      <td>170</td>
     </tr>
     <tr>
-      <td id="T_6bc79_row9_col0" class="data row9 col0" >TATATECH</td>
-      <td id="T_6bc79_row9_col1" class="data row9 col1" >02-10-2026</td>
-      <td id="T_6bc79_row9_col2" class="data row9 col2" >BEARISH</td>
-      <td id="T_6bc79_row9_col3" class="data row9 col3" >TRAP INDICATIOR</td>
-      <td id="T_6bc79_row9_col4" class="data row9 col4" >619.150000</td>
-      <td id="T_6bc79_row9_col5" class="data row9 col5" >PUT WRITER TRAP</td>
-      <td id="T_6bc79_row9_col6" class="data row9 col6" >650</td>
-      <td id="T_6bc79_row9_col7" class="data row9 col7" >620</td>
+      <td>TATATECH</td>
+      <td>02-10-2026</td>
+      <td>BEARISH</td>
+      <td>TRAP INDICATIOR</td>
+      <td>619.15</td>
+      <td>PUT WRITER TRAP</td>
+      <td>650</td>
+      <td>620</td>
     </tr>
     <tr>
-      <td id="T_6bc79_row10_col0" class="data row10 col0" >TITAN</td>
-      <td id="T_6bc79_row10_col1" class="data row10 col1" >02-10-2026</td>
-      <td id="T_6bc79_row10_col2" class="data row10 col2" >BULLISH</td>
-      <td id="T_6bc79_row10_col3" class="data row10 col3" >CHATGPT</td>
-      <td id="T_6bc79_row10_col4" class="data row10 col4" >4297.800000</td>
-      <td id="T_6bc79_row10_col5" class="data row10 col5" >Steady Upside</td>
-      <td id="T_6bc79_row10_col6" class="data row10 col6" >4300</td>
-      <td id="T_6bc79_row10_col7" class="data row10 col7" >4200</td>
+      <td>TITAN</td>
+      <td>02-10-2026</td>
+      <td>BULLISH</td>
+      <td>CHATGPT</td>
+      <td>4297.8</td>
+      <td>STEADY UPSIDE</td>
+      <td>4300</td>
+      <td>4200</td>
     </tr>
     <tr>
-      <td id="T_6bc79_row11_col0" class="data row11 col0" >TATA STEEL</td>
-      <td id="T_6bc79_row11_col1" class="data row11 col1" >02-10-2026</td>
-      <td id="T_6bc79_row11_col2" class="data row11 col2" >BULLISH</td>
-      <td id="T_6bc79_row11_col3" class="data row11 col3" >CHATGPT</td>
-      <td id="T_6bc79_row11_col4" class="data row11 col4" >202</td>
-      <td id="T_6bc79_row11_col5" class="data row11 col5" >VOLUME BREAKOUT</td>
-      <td id="T_6bc79_row11_col6" class="data row11 col6" >200</td>
-      <td id="T_6bc79_row11_col7" class="data row11 col7" >200</td>
+      <td>TATA STEEL</td>
+      <td>02-10-2026</td>
+      <td>BULLISH</td>
+      <td>CHATGPT</td>
+      <td>202</td>
+      <td>VOLUME BREAKOUT</td>
+      <td>200</td>
+      <td>200</td>
     </tr>
     <tr>
-      <td id="T_6bc79_row12_col0" class="data row12 col0" >SBIN</td>
-      <td id="T_6bc79_row12_col1" class="data row12 col1" >02-10-2026</td>
-      <td id="T_6bc79_row12_col2" class="data row12 col2" >BULLISH</td>
-      <td id="T_6bc79_row12_col3" class="data row12 col3" >CHATGPT</td>
-      <td id="T_6bc79_row12_col4" class="data row12 col4" >1146</td>
-      <td id="T_6bc79_row12_col5" class="data row12 col5" >BULLISH MOMEMTUM</td>
-      <td id="T_6bc79_row12_col6" class="data row12 col6" >1140</td>
-      <td id="T_6bc79_row12_col7" class="data row12 col7" >1140</td>
+      <td>INFOSYS</td>
+      <td>02-10-2026</td>
+      <td>BEARISH</td>
+      <td>CHATGPT</td>
+      <td>1497.2</td>
+      <td>SECTOR PRESSURE</td>
+      <td>1500</td>
+      <td>1500</td>
     </tr>
     <tr>
-      <td id="T_6bc79_row13_col0" class="data row13 col0" >INFOSYS</td>
-      <td id="T_6bc79_row13_col1" class="data row13 col1" >02-10-2026</td>
-      <td id="T_6bc79_row13_col2" class="data row13 col2" >BEARISH</td>
-      <td id="T_6bc79_row13_col3" class="data row13 col3" >CHATGPT</td>
-      <td id="T_6bc79_row13_col4" class="data row13 col4" >1497.200000</td>
-      <td id="T_6bc79_row13_col5" class="data row13 col5" >SECTOR PRESSURE</td>
-      <td id="T_6bc79_row13_col6" class="data row13 col6" >1500</td>
-      <td id="T_6bc79_row13_col7" class="data row13 col7" >1500</td>
+      <td>STOCK OF THE DAY</td>
+      <td></td>
+      <td>NAN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
     </tr>
     <tr>
-      <td id="T_6bc79_row14_col0" class="data row14 col0" >SYMBOL</td>
-      <td id="T_6bc79_row14_col1" class="data row14 col1" ></td>
-      <td id="T_6bc79_row14_col2" class="data row14 col2" >R1</td>
-      <td id="T_6bc79_row14_col3" class="data row14 col3" >R2</td>
-      <td id="T_6bc79_row14_col4" class="data row14 col4" >R3</td>
-      <td id="T_6bc79_row14_col5" class="data row14 col5" >S1</td>
-      <td id="T_6bc79_row14_col6" class="data row14 col6" >S2</td>
-      <td id="T_6bc79_row14_col7" class="data row14 col7" >S3</td>
+      <td>SYMBOL</td>
+      <td></td>
+      <td>SIGNAL TYPE</td>
+      <td>SOURCE</td>
+      <td>LTP</td>
+      <td>REASON</td>
+      <td>IM RESISTANCE</td>
+      <td>IM SUPPORT</td>
     </tr>
     <tr>
-      <td id="T_6bc79_row15_col0" class="data row15 col0" >NIFTY</td>
-      <td id="T_6bc79_row15_col1" class="data row15 col1" >01-01-1970</td>
-      <td id="T_6bc79_row15_col2" class="data row15 col2" >25910</td>
-      <td id="T_6bc79_row15_col3" class="data row15 col3" >25963</td>
-      <td id="T_6bc79_row15_col4" class="data row15 col4" >26030</td>
-      <td id="T_6bc79_row15_col5" class="data row15 col5" >25823</td>
-      <td id="T_6bc79_row15_col6" class="data row15 col6" >25780</td>
-      <td id="T_6bc79_row15_col7" class="data row15 col7" >25693</td>
+      <td>AMBER</td>
+      <td>02-10-2026</td>
+      <td>BULLISH</td>
+      <td>INTERNET SOURCE</td>
+      <td>1146</td>
+      <td>RESULT IMPACT</td>
+      <td>1140</td>
+      <td>1140</td>
+    </tr>
+    <tr>
+      <td>BSE</td>
+      <td></td>
+      <td>NAN</td>
+      <td>INTERNET SOURCE</td>
+      <td>NaN</td>
+      <td>RESULT IMPACT</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>SUPPORT RESISTANCE</td>
+      <td></td>
+      <td>NAN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>SYMBOL</td>
+      <td></td>
+      <td>R1</td>
+      <td>R2</td>
+      <td>R3</td>
+      <td>S1</td>
+      <td>S2</td>
+      <td>S3</td>
+    </tr>
+    <tr>
+      <td>NIFTY</td>
+      <td>01-01-1970</td>
+      <td>25910</td>
+      <td>25963</td>
+      <td>26030</td>
+      <td>25823</td>
+      <td>25780</td>
+      <td>25693</td>
     </tr>
   </tbody>
 </table>
+</div>
 
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="block">
+<h2>STOCK OF THE DAY</h2>
+<table border="1" class="dataframe tbl">
+  <thead>
+    <tr style="text-align: right;">
+      <th>SYMBOL</th>
+      <th>FOR DATE</th>
+      <th>SIGNAL TYPE</th>
+      <th>SOURCE</th>
+      <th>LTP</th>
+      <th>REASON</th>
+      <th>IM RESISTANCE</th>
+      <th>IM SUPPORT</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>SBIN</td>
+      <td>02-10-2026</td>
+      <td>BULLISH</td>
+      <td>CHATGPT</td>
+      <td>1146</td>
+      <td>BULLISH MOMEMTUM</td>
+      <td>1140</td>
+      <td>1140</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="block">
+<h2>SUPPORT RESISTANCE</h2>
+<table border="1" class="dataframe tbl">
+  <thead>
+    <tr style="text-align: right;">
+      <th>SYMBOL</th>
+      <th>LTP</th>
+      <th>R1</th>
+      <th>R2</th>
+      <th>R3</th>
+      <th>S1</th>
+      <th>S2</th>
+      <th>S3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>NIFTY</td>
+      <td>25867.3</td>
+      <td>25910</td>
+      <td>25963</td>
+      <td>26030</td>
+      <td>25823</td>
+      <td>25780</td>
+      <td>25693</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="footer">
+Excel Updated : 10-02-2026 08:29:53
+</div>
+
 </body>
 </html>
