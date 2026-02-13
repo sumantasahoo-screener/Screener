@@ -24,7 +24,7 @@ html,body{
   display:flex;
   flex-direction:column;
   justify-content:center;
-  max-width:1500px; /* keep centered width */
+  max-width:1200px; /* keep centered width */
   width:100%;
   margin:0 auto;
   position:relative;
@@ -46,16 +46,15 @@ html,body{
 #grid::after{
   content:"";
   position:absolute;
-  top:40px;
-  bottom:40px;
-  width:calc((100% - var(--mid)) / 2.5); /* (1fr of 1fr+1fr+0.5fr) */
+  top:40px;        /* was 100px */
+  bottom:40px;     /* was 100px */
+  width:calc((100% - var(--mid)) / 2);
   border:2px solid white;
   pointer-events:none;
 }
 
 #grid::before{ left:0; }
 #grid::after { right:0; }
-
 
 /* each visual row: left column | center strike | right column */
 .row{
@@ -66,7 +65,6 @@ html,body{
   gap:0px;
   box-sizing:border-box;
 }
-
 /* ATM row visual markers */
 .row.atm{
   border-top:2px dotted orange;
@@ -88,12 +86,11 @@ select{background:#111;color:white;border:1px solid #555}
 /* header titles above the grid (keeps same container width and columns) */
 .outerRowHeader{
   display:grid;
-  grid-template-columns:1fr var(--mid) 1fr 0.5fr;
-  max-width:1500px;
+  grid-template-columns:1fr var(--mid) 1fr;
+  max-width:1200px;
   width:100%;
   margin:0 auto 8px auto;
 }
-
 .outerBoxTitle{
   text-align:center;
   font-size:13px;
@@ -108,14 +105,14 @@ select{background:#111;color:white;border:1px solid #555}
 
 #midCol{
   position:absolute;
+  left:50%;
   top:40px;
   bottom:40px;
-  left:calc((100% - var(--mid)) / 2.5);
   width:var(--mid);
+  transform:translateX(-50%);
   border:2px dashed yellow;
   pointer-events:none;
 }
-
 
 
 /* stacking & boxes */
@@ -202,8 +199,6 @@ select{background:#111;color:white;border:1px solid #555}
   position:relative;
   z-index:500;
 }
-
-
 
 /* ================= MOBILE ONLY ADDITIONS ================= */
 
@@ -341,7 +336,6 @@ select{background:#111;color:white;border:1px solid #555}
 }
 
 
-
 </style>
 
 </head>
@@ -368,16 +362,11 @@ select{background:#111;color:white;border:1px solid #555}
   <div class="outerBoxTitle" id="chgHeader">
     CHANGE IN OI<br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-13(<span style="color:#27F2F5;font-weight:bold">22:06:48</span>)
+      Scan: 2026-02-13(<span style="color:#27F2F5;font-weight:bold">22:13:15</span>)
     </span><br>
     <span id="pcrChange" style="font-size:11px;opacity:.85"></span>
   </div>
-
-  <div class="outerBoxTitle" id="deltaHeader">
-    10-MIN DELTA
-  </div>
 </div>
-
 
 
 
@@ -387,15 +376,10 @@ select{background:#111;color:white;border:1px solid #555}
   <div id="hoverLineTop" class="hoverLine"></div>
   <div id="hoverLineBottom" class="hoverLine"></div>
 
-  <div id="rowWrap">
-    <div id="leftCol"></div>
-    <div id="midCol"></div>
-    <div id="rightCol"></div>
-
-  </div>
+  <div id="leftCol"></div>
+  <div id="midCol"></div>
+  <div id="rightCol"></div>
 </div>
-
-
 
 
 </div>
@@ -405,10 +389,10 @@ const DATA = {"AMBER": {"2026-02-24": {"atm": 7700.0, "ltp": 7734.5, "prev1_mPCR
 
 const ulSel = document.getElementById("ul");
 const expSel = document.getElementById("exp");
-const leftCol  = document.getElementById("leftCol");
+const leftCol = document.getElementById("leftCol");
 const rightCol = document.getElementById("rightCol");
-
 const hoverLine = document.getElementById("hoverLine");
+
 Object.keys(DATA).forEach(function(k){
   var o=document.createElement("option");
   o.text=k; o.value=k;
@@ -443,8 +427,6 @@ if(st.ul && DATA[st.ul]){
 function render(){
   leftCol.innerHTML="";
   rightCol.innerHTML="";
-
-
 
   var ul=ulSel.value, exp=expSel.value;
   var obj=DATA[ul][exp];
@@ -697,16 +679,9 @@ function render(){
           '<div class="bar chg-ce" style="left:50%;top:0px;width:'+((Math.abs(ceCh)/maxCh)*80)+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
           '<div class="bar chg-pe" style="left:50%;top:20px;width:'+((Math.abs(peCh)/maxCh)*80)+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
         '</div>'+
-      '</div>'+
-
-      /* 10-MIN DELTA COLUMN (placeholder for now) */
-
-
+      '</div>';
 
     leftCol.appendChild(row);
-
-
-
 
     if(r.STRIKE_TXT===ltpStrike.STRIKE_TXT){
       row.style.position="relative";
