@@ -46,13 +46,12 @@ html,body{
 #grid::after{
   content:"";
   position:absolute;
-  top:40px;
-  bottom:40px;
-  width:calc((100% - var(--mid)) * 1fr / (1fr + 1fr + 0.5fr));
+  top:40px;        /* was 100px */
+  bottom:40px;     /* was 100px */
+  width:calc((100% - var(--mid)) / 2);
   border:2px solid white;
   pointer-events:none;
 }
-
 
 #grid::before{ left:0; }
 #grid::after { right:0; }
@@ -60,13 +59,12 @@ html,body{
 /* each visual row: left column | center strike | right column */
 .row{
   display:grid;
-  grid-template-columns:1fr var(--mid) 1fr 0.5fr;
+  grid-template-columns:1fr var(--mid) 1fr;
   min-height:18px;
   padding:0;
   gap:0px;
   box-sizing:border-box;
 }
-
 /* ATM row visual markers */
 .row.atm{
   border-top:2px dotted orange;
@@ -88,12 +86,11 @@ select{background:#111;color:white;border:1px solid #555}
 /* header titles above the grid (keeps same container width and columns) */
 .outerRowHeader{
   display:grid;
-  grid-template-columns:1fr var(--mid) 1fr 0.5fr;
+  grid-template-columns:1fr var(--mid) 1fr;
   max-width:1200px;
   width:100%;
   margin:0 auto 8px auto;
 }
-
 .outerBoxTitle{
   text-align:center;
   font-size:13px;
@@ -365,16 +362,11 @@ select{background:#111;color:white;border:1px solid #555}
   <div class="outerBoxTitle" id="chgHeader">
     CHANGE IN OI<br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-13(<span style="color:#27F2F5;font-weight:bold">18:58:21</span>)
+      Scan: 2026-02-13(<span style="color:#27F2F5;font-weight:bold">20:39:08</span>)
     </span><br>
     <span id="pcrChange" style="font-size:11px;opacity:.85"></span>
   </div>
-
-  <div class="outerBoxTitle" id="deltaHeader">
-    10-MIN DELTA
-  </div>
 </div>
-
 
 
 
@@ -509,18 +501,6 @@ function render(){
     var peOI = Number(r["OI_PE"]||0);
     var ceCh = Number(r["Change In OI_CE"]||0);
     var peCh = Number(r["Change In OI_PE"]||0);
-
-    var ceDelta = 0;
-    var peDelta = 0;
-
-    if(r["SYMBOL_TYPE"] === "CE"){
-      ceDelta = Number(r["DELTA_FROM_LAST2"]||0);
-    }
-    if(r["SYMBOL_TYPE"] === "PE"){
-      peDelta = Number(r["DELTA_FROM_LAST2"]||0);
-    }
-
-
 
     // ---- TOTAL ALWAYS = OI + |CHANGE| ----
     var ceTot = ceOI + Math.abs(ceCh);
@@ -699,17 +679,7 @@ function render(){
           '<div class="bar chg-ce" style="left:50%;top:0px;width:'+((Math.abs(ceCh)/maxCh)*80)+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
           '<div class="bar chg-pe" style="left:50%;top:20px;width:'+((Math.abs(peCh)/maxCh)*80)+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
         '</div>'+
-      '</div>'+
-
-      '<div class="box">'+
-        '<div class="chgInner">'+
-          '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
-          '<div class="bar" style="background:#1E90FF;left:50%;top:0px;width:'+((Math.abs(ceDelta)/maxCh)*80)+'%;transform:'+(ceDelta>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
-          '<div class="bar" style="background:#FF00FF;left:50%;top:20px;width:'+((Math.abs(peDelta)/maxCh)*80)+'%;transform:'+(peDelta>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
-        '</div>'+
       '</div>';
-
-
 
     leftCol.appendChild(row);
 
