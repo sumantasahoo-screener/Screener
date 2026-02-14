@@ -365,7 +365,7 @@ select{background:#111;color:white;border:1px solid #555}
       (LAST 2 SCAN DELTA)
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-14(<span style="color:#27F2F5;font-weight:bold">14:00:56</span>)
+      Scan: 2026-02-14(<span style="color:#27F2F5;font-weight:bold">14:03:26</span>)
     </span><br>
     <span id="pcrChange" style="font-size:11px;opacity:.85"></span>
   </div>
@@ -477,19 +477,22 @@ function render(){
     " | prev1: " + obj.prev1_mPCR +
     " | prev2: " + obj.prev2_mPCR;
 
-  let biasLabel = "BALANCED";
+    let biasLabel = "BALANCED";
+    let biasColor = "white";
 
-  if (Number(pcrCh) > 1.2) {
-    biasLabel = "LONG PRESSURE";
-  } else if (Number(pcrCh) < 0.8) {
-    biasLabel = "SHORT PRESSURE";
-  }
+    if (Number(pcrCh) > 1.2) {
+      biasLabel = "LONG PRESSURE";
+      biasColor = "#00ff6a";
+    } else if (Number(pcrCh) < 0.8) {
+      biasLabel = "SHORT PRESSURE";
+      biasColor = "#ff4040";
+    }
 
-  document.getElementById("pcrChange").innerText =
-    "cPCR: " + pcrCh +
-    " | " + biasLabel +
-    " | prev1: " + obj.prev1_cPCR +
-    " | prev2: " + obj.prev2_cPCR;
+    document.getElementById("pcrChange").innerHTML =
+      "cPCR: " + pcrCh +
+      " | <span style='color:" + biasColor + ";font-weight:bold'>" + biasLabel + "</span>" +
+      " | prev1: " + obj.prev1_cPCR +
+      " | prev2: " + obj.prev2_cPCR;
 
 
 
