@@ -88,17 +88,44 @@ letter-spacing:1px;
 }
 
 /* ===== TABLE ===== */
-table{
+/* ===== MOBILE STACK VIEW ===== */
+@media (max-width:768px){
+
+table, thead, tbody, th, td, tr{
+display:block;
 width:100%;
-border-collapse:collapse;
-font-size:13.6px;
 }
 
-th,td{
-padding:14px 16px;
-border-bottom:1px solid rgba(0,0,0,.06);
-text-align:center;
+thead{
+display:none;
 }
+
+tr{
+margin-bottom:14px;
+background:#ffffff;
+border:1px solid rgba(0,0,0,.08);
+border-radius:12px;
+padding:10px;
+box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+
+td{
+display:flex;
+justify-content:space-between;
+padding:6px 8px;
+border:none;
+font-size:12px;
+}
+
+td::before{
+content:attr(data-label);
+font-weight:600;
+color:#6b7c8f;
+}
+
+}
+
+
 
 /* HEADER */
 th{
@@ -141,7 +168,7 @@ background:rgba(190,220,245,.7);
 <div class="header">
 <div class="header-center">
 <b>Spurt Data</b>
-<span>Scan: 14-02-2026 23:15</span>
+<span>Scan: 14-02-2026 23:25</span>
 <span id="elapsed"></span>
 </div>
 </div>
@@ -185,40 +212,42 @@ background:rgba(190,220,245,.7);
 </tr></thead><tbody>
 
 <tr>
-<td class="symbol">HDFCBANK</td>
-<td class="expiry">30 MAR 2026</td>
-<td class="strength">-3</td>
-<td class="type">FUT</td>
-<td>BEAR</td>
-<td>70316</td>
-<td>58701</td>
-<td>11615</td>
-<td>19.79</td>
-<td>912.6</td>
-<td>929.3</td>
-<td>-1.8</td>
+<td class="symbol" data-label="Symbol">HDFCBANK</td>
+<td class="expiry" data-label="Expiry">30 MAR 2026</td>
+<td class="strength" data-label="Strength">-3</td>
+<td class="type" data-label="Type">FUT</td>
+<td data-label="Direction">BEAR</td>
+<td data-label="OI Recent">70316</td>
+<td data-label="OI Pre">58701</td>
+<td data-label="Chng in OI">11615</td>
+<td data-label="Chng in OI %">19.79</td>
+<td data-label="LTP">912.6</td>
+<td data-label="Prev Close">929.3</td>
+<td data-label="% LTP Chng">-1.8</td>
+
 </tr>
 
 <tr>
-<td class="symbol">NIFTY</td>
-<td class="expiry">24 FEB 2026</td>
-<td class="strength">-1</td>
-<td class="type">FUT</td>
-<td>BEAR</td>
-<td>248805</td>
-<td>235335</td>
-<td>13470</td>
-<td>5.72</td>
-<td>25481.0</td>
-<td>25858.2</td>
-<td>-1.46</td>
+<td class="symbol" data-label="Symbol">NIFTY</td>
+<td class="expiry" data-label="Expiry">24 FEB 2026</td>
+<td class="strength" data-label="Strength">-1</td>
+<td class="type" data-label="Type">FUT</td>
+<td data-label="Direction">BEAR</td>
+<td data-label="OI Recent">248805</td>
+<td data-label="OI Pre">235335</td>
+<td data-label="Chng in OI">13470</td>
+<td data-label="Chng in OI %">5.72</td>
+<td data-label="LTP">25481.0</td>
+<td data-label="Prev Close">25858.2</td>
+<td data-label="% LTP Chng">-1.46</td>
+
 </tr>
 
 </tbody></table>
 </div>
 
 <script>
-const scanTime=new Date("2026-02-14T23:15:00");
+const scanTime=new Date("2026-02-14T23:25:00");
 function updateElapsed(){
 const diff=Math.floor((new Date()-scanTime)/60000);
 document.getElementById("elapsed").innerText=
