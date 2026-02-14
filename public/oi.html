@@ -365,7 +365,7 @@ select{background:#111;color:white;border:1px solid #555}
       (LAST 2 SCAN DELTA)
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-14(<span style="color:#27F2F5;font-weight:bold">11:16:34</span>)
+      Scan: 2026-02-14(<span style="color:#27F2F5;font-weight:bold">11:22:24</span>)
     </span><br>
     <span id="pcrChange" style="font-size:11px;opacity:.85"></span>
   </div>
@@ -504,13 +504,13 @@ function render(){
 
     var ceOI = Number(r["OI_CE"]||0);
     var peOI = Number(r["OI_PE"]||0);
-    var ceCh = Number(r["DELTA_FROM_LAST2_CE"]||0);
-    var peCh = Number(r["DELTA_FROM_LAST2_PE"]||0);
+    var ceCh = Number(r["Change In OI_CE"]||0);
+    var peCh = Number(r["Change In OI_PE"]||0);
 
+    // ---- TOTAL = OI + Change In OI (RAW) ----
+    var ceTot = ceOI + ceCh;
+    var peTot = peOI + peCh;
 
-    // ---- TOTAL ALWAYS = OI + |CHANGE| ----
-    var ceTot = ceOI + Math.abs(ceCh);
-    var peTot = peOI + Math.abs(peCh);
 
     function pct(v){ return (Math.abs(v) / maxTot) * 100; }
 
