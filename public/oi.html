@@ -365,7 +365,7 @@ select{background:#111;color:white;border:1px solid #555}
       (LAST 2 SCAN DELTA)
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-14(<span style="color:#27F2F5;font-weight:bold">14:03:26</span>)
+      Scan: 2026-02-14(<span style="color:#27F2F5;font-weight:bold">14:14:59</span>)
     </span><br>
     <span id="pcrChange" style="font-size:11px;opacity:.85"></span>
   </div>
@@ -472,10 +472,23 @@ function render(){
   const pcrTot = totCE ? (totPE/totCE).toFixed(2) : "0.00";
   const pcrCh  = chCE  ? (chPE/chCE).toFixed(2)  : "0.00";
 
-  document.getElementById("pcrTotal").innerText =
-    "mPCR: " + pcrTot +
-    " | prev1: " + obj.prev1_mPCR +
-    " | prev2: " + obj.prev2_mPCR;
+    let mBiasLabel = "BALANCED";
+    let mBiasColor = "white";
+
+    if (Number(pcrTot) > 1.2) {
+      mBiasLabel = "LONG BIAS";
+      mBiasColor = "#00ff6a";
+    } else if (Number(pcrTot) < 0.8) {
+      mBiasLabel = "SHORT BIAS";
+      mBiasColor = "#ff4040";
+    }
+
+    document.getElementById("pcrTotal").innerHTML =
+      "mPCR: " + pcrTot +
+      " | <span style='color:" + mBiasColor + ";font-weight:bold'>" + mBiasLabel + "</span>" +
+      " | prev1: " + obj.prev1_mPCR +
+      " | prev2: " + obj.prev2_mPCR;
+
 
     let biasLabel = "BALANCED";
     let biasColor = "white";
