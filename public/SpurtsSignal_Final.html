@@ -8,8 +8,8 @@
 <style>
 :root {
   --bg-page:#e5edf6;
-  --bg-header:#dbe5f2;
   --bg-body:#f4f7fb;
+
   --card:#ffffff;
   --border-soft:rgba(15,23,42,.08);
   --text-main:#111827;
@@ -30,21 +30,23 @@
   --gold:#fbbf24;
 }
 
-* { box-sizing:border-box; }
+* {
+  box-sizing:border-box;
+}
 
 html,body {
   margin:0;
   padding:0;
-  background:linear-gradient(180deg,var(--bg-page),var(--bg-body));
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color:var(--text-main);
   -webkit-font-smoothing:antialiased;
 }
 
-body {
+.page-shell{
+  min-height:100vh;
   display:flex;
   flex-direction:column;
-  align-items:stretch;
+  background:linear-gradient(180deg,var(--bg-page),var(--bg-body));
 }
 
 .page-wrap {
@@ -53,14 +55,17 @@ body {
   padding:12px 12px 32px;
 }
 
-/* ===== HEADER ===== */
+/* ===== HEADER (sticky) ===== */
 .header {
-  margin:12px 0 8px;
+  position:sticky;
+  top:0;
+  z-index:40;
+  margin:0;
   padding:16px 18px;
-  border-radius:18px;
+  border-radius:0 0 18px 18px;
   background:linear-gradient(180deg,#e5edf7,#d1deee);
-  box-shadow:0 12px 28px rgba(15,23,42,.18);
-  border:1px solid rgba(148,163,184,.35);
+  box-shadow:0 6px 18px rgba(15,23,42,.18);
+  border-bottom:1px solid rgba(148,163,184,.35);
   display:flex;
   justify-content:center;
   align-items:center;
@@ -102,7 +107,7 @@ body {
   position:relative;
 }
 
-/* separate container so table can scroll inside but card stays full-width */
+/* separate container so table scrolls inside */
 .group-inner {
   width:100%;
 }
@@ -163,7 +168,7 @@ body {
   color:var(--bear-dark);
 }
 
-/* NEUTRAL / ACCUMULATION = blue ready future use */
+/* NEUTRAL / ACCUMULATION = blue (future use) */
 .group.neutral .group-header-strip {
   background:linear-gradient(180deg,var(--neu-main),var(--neu-dark));
 }
@@ -247,13 +252,12 @@ tbody tr:hover {
 @media (max-width:768px) {
 
   .page-wrap {
-    padding:8px 8px 24px;
+    padding:12px 8px 24px;
   }
 
   .header {
-    margin:8px 0 6px;
     padding:12px 14px;
-    border-radius:16px;
+    border-radius:0 0 16px 16px;
   }
 
   .header-center b {
@@ -298,116 +302,119 @@ tbody tr:hover {
 </head>
 
 <body>
-<div class="page-wrap">
+<div class="page-shell">
 
-<div class="header">
-  <div class="header-center">
-    <b>Spurt Data</b>
-    <span>Scan: 15-02-2026 10:46</span>
-    <span id="elapsed"></span>
-  </div>
-</div>
-
-<div class="group bull">
-  <div class="group-header-strip"></div>
-  <h3 class="group-title">
-    LONG (0)
-    <span class="group-pill">Trend Up</span>
-  </h3>
-  <div class="group-inner">
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Symbol</th>
-            <th>Expiry</th>
-            <th>Strength</th>
-            <th>Type</th>
-            <th>Direction</th>
-            <th>OI Recent</th>
-            <th>OI Pre</th>
-            <th>Chng in OI</th>
-            <th>Chng in OI %</th>
-            <th>LTP</th>
-            <th>Prev Close</th>
-            <th>% LTP Chng</th>
-          </tr>
-        </thead>
-        <tbody>
-          
-        </tbody>
-      </table>
+  <div class="header">
+    <div class="header-center">
+      <b>Spurt Data</b>
+      <span>Scan: 15-02-2026 10:51</span>
+      <span id="elapsed"></span>
     </div>
   </div>
-</div>
 
-<div class="group bear">
-  <div class="group-header-strip"></div>
-  <h3 class="group-title">
-    SHORT (2)
-    <span class="group-pill">Trend Down</span>
-  </h3>
-  <div class="group-inner">
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Symbol</th>
-            <th>Expiry</th>
-            <th>Strength</th>
-            <th>Type</th>
-            <th>Direction</th>
-            <th>OI Recent</th>
-            <th>OI Pre</th>
-            <th>Chng in OI</th>
-            <th>Chng in OI %</th>
-            <th>LTP</th>
-            <th>Prev Close</th>
-            <th>% LTP Chng</th>
-          </tr>
-        </thead>
-        <tbody>
-          
+  <div class="page-wrap">
+
+    <div class="group bull">
+      <div class="group-header-strip"></div>
+      <h3 class="group-title">
+        LONG (0)
+        <span class="group-pill">Trend Up</span>
+      </h3>
+      <div class="group-inner">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Expiry</th>
+                <th>Strength</th>
+                <th>Type</th>
+                <th>Direction</th>
+                <th>OI Recent</th>
+                <th>OI Pre</th>
+                <th>Chng in OI</th>
+                <th>Chng in OI %</th>
+                <th>LTP</th>
+                <th>Prev Close</th>
+                <th>% LTP Chng</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="group bear">
+      <div class="group-header-strip"></div>
+      <h3 class="group-title">
+        SHORT (2)
+        <span class="group-pill">Trend Down</span>
+      </h3>
+      <div class="group-inner">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Expiry</th>
+                <th>Strength</th>
+                <th>Type</th>
+                <th>Direction</th>
+                <th>OI Recent</th>
+                <th>OI Pre</th>
+                <th>Chng in OI</th>
+                <th>Chng in OI %</th>
+                <th>LTP</th>
+                <th>Prev Close</th>
+                <th>% LTP Chng</th>
+              </tr>
+            </thead>
+            <tbody>
+              
 <tr>
-<td class="symbol">HDFCBANK</td>
-<td class="expiry">30 MAR 2026</td>
-<td class="strength">-3</td>
-<td class="type">FUT</td>
-<td>BEAR</td>
-<td>70316</td>
-<td>58701</td>
-<td>11615</td>
-<td>19.79</td>
-<td>912.6</td>
-<td>929.3</td>
-<td>-1.8</td>
+  <td class="symbol">HDFCBANK</td>
+  <td class="expiry">30 MAR 2026</td>
+  <td class="strength">-3</td>
+  <td class="type">FUT</td>
+  <td>BEAR</td>
+  <td>70316</td>
+  <td>58701</td>
+  <td>11615</td>
+  <td>19.79</td>
+  <td>912.6</td>
+  <td>929.3</td>
+  <td>-1.8</td>
 </tr>
 
 <tr>
-<td class="symbol">NIFTY</td>
-<td class="expiry">24 FEB 2026</td>
-<td class="strength">-1</td>
-<td class="type">FUT</td>
-<td>BEAR</td>
-<td>248805</td>
-<td>235335</td>
-<td>13470</td>
-<td>5.72</td>
-<td>25481.0</td>
-<td>25858.2</td>
-<td>-1.46</td>
+  <td class="symbol">NIFTY</td>
+  <td class="expiry">24 FEB 2026</td>
+  <td class="strength">-1</td>
+  <td class="type">FUT</td>
+  <td>BEAR</td>
+  <td>248805</td>
+  <td>235335</td>
+  <td>13470</td>
+  <td>5.72</td>
+  <td>25481.0</td>
+  <td>25858.2</td>
+  <td>-1.46</td>
 </tr>
 
-        </tbody>
-      </table>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-</div><!-- /page-wrap -->
+  </div><!-- /page-wrap -->
+</div><!-- /page-shell -->
 
 <script>
-const scanTime = new Date("2026-02-15T10:46:00");
+const scanTime = new Date("2026-02-15T10:51:00");
 function updateElapsed(){
   const diff = Math.floor((new Date() - scanTime)/60000);
   document.getElementById("elapsed").innerText =
