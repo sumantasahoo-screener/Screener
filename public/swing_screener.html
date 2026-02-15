@@ -1,192 +1,305 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>F&O Swing</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 
+/* === GLOBAL RESET === */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* === THEME COLORS (Lighter Dark) === */
+/* Background: slate-900 → slate-800 type palette [web:28] */
+:root {
+    --bg-main: #0b1220;
+    --bg-elevated: #111827;
+    --bg-elevated-soft: #111827;
+    --bg-header: #020617;
+    --border-subtle: #1f2937;
+    --text-main: #e5e7eb;
+    --text-muted: #9ca3af;
+    --text-soft: #cbd5f5;
+    --accent-green: #22c55e;
+    --accent-red: #f97373;
+    --accent-blue: #3b82f6;
+    --accent-blue-soft: #60a5fa;
+    --row-hover: #1f2937;
+}
+
+/* === LAYOUT === */
 body {
-    margin:0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(145deg,#0f172a,#020617);
-    color:#e2e8f0;
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: radial-gradient(circle at top left, #1f2937 0, var(--bg-main) 45%, #020617 100%);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
 }
 
 .header {
-    padding:25px;
+    padding: 20px 20px 10px 20px;
+    background: linear-gradient(135deg, #020617, #020617 40%, #020617 100%);
+    border-bottom: 1px solid var(--border-subtle);
 }
 
 .header h1 {
-    margin:0;
-    font-size:26px;
-    font-weight:600;
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #f9fafb;
+    letter-spacing: 0.02em;
 }
 
 .updated {
-    font-size:13px;
-    color:#94a3b8;
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--text-muted);
 }
 
 .cards {
-    display:flex;
-    gap:20px;
-    padding:20px;
+    display: flex;
+    gap: 16px;
+    padding: 16px 20px 8px 20px;
+    flex-wrap: wrap;
 }
-
-@media (max-width:768px) {
-    .cards {
-        flex-direction:column;
-    }
-}
-
 
 .card {
-    flex:1;
-    background:#111827;
-    border-radius:12px;
-    padding:20px;
-    text-align:center;
-    box-shadow:0 4px 20px rgba(0,0,0,0.4);
+    flex: 1;
+    min-width: 150px;
+    background: var(--bg-elevated);
+    border-radius: 12px;
+    padding: 16px 18px;
+    text-align: left;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+
+.card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.18), transparent 55%);
+    opacity: 0.95;
+    pointer-events: none;
 }
 
 .card h3 {
-    margin:0;
-    font-weight:500;
-    font-size:14px;
-    color:#94a3b8;
+    margin: 0;
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
 
 .card p {
-    margin:8px 0 0 0;
-    font-size:24px;
-    font-weight:bold;
+    margin: 8px 0 0 0;
+    font-size: 24px;
+    font-weight: 700;
 }
 
-.green { color:#22c55e; }
-.red { color:#ef4444; }
+.green { color: var(--accent-green); }
+.red { color: var(--accent-red); }
 
-.table-container {
-    padding:20px;
+/* === SEARCH === */
+.search-box {
+    margin: 10px 20px 0 20px;
 }
-.table-container {
-    padding:20px;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
+
+.search-box input {
+    width: 100%;
+    max-width: 360px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    outline: none;
+    background-color: #020617;
+    color: var(--text-main);
+    font-size: 14px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.5);
 }
+
+.search-box input::placeholder {
+    color: #6b7280;
+}
+
+/* === TABLE === */
+.table-container {
+    padding: 16px 20px 24px 20px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 table {
-    width:100%;
-    min-width:700px;
-    border-collapse:collapse;
-    background:#0f172a;
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-elevated-soft);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+thead {
+    position: sticky;
+    top: 0;
+    z-index: 5;
 }
 
 th {
-    padding:12px;
-    font-size:13px;
-    background:#111827;
-    color:#94a3b8;
-    position:sticky;
-    top:0;
-    cursor:pointer;
-    text-align:left;
-    white-space:nowrap;
+    padding: 10px 10px;
+    font-size: 13px;
+    background: #020617;
+    color: var(--text-soft);
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border-subtle);
+    position: sticky;
+    top: 0;
 }
 
 th.right {
-    text-align:right;
+    text-align: right;
 }
 
 th::after {
     content:" ⬍";
-    margin-left:6px;
-    font-size:11px;
-    opacity:0.6;
+    margin-left: 6px;
+    font-size: 10px;
+    opacity: 0.55;
 }
 
 td {
-    padding:10px;
-    font-size:13px;
-    border-bottom:1px solid #1f2937;
-    white-space:nowrap;
-    text-align:center;
+    padding: 9px 10px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+    white-space: nowrap;
+    text-align: center;
 }
 
-tr:hover {
-    background:#1e293b;
+tr:nth-child(even) td {
+    background: rgba(15, 23, 42, 0.9);
+}
+
+tr:nth-child(odd) td {
+    background: rgba(15, 23, 42, 0.75);
+}
+
+tr:hover td {
+    background: var(--row-hover);
 }
 
 .symbol {
-    font-weight:600;
-    color:#f8fafc;
+    font-weight: 600;
+    color: #f9fafb;
+    letter-spacing: 0.03em;
 }
-
 
 .right {
-    text-align:center !important;
+    text-align: center !important;
 }
 
+/* === BADGES === */
 .signal-badge {
-    display:inline-block;
-    padding:4px 10px;
-    font-size:11px;
-    font-weight:600;
-    border-radius:6px;
-    text-align:center;
-    min-width:75px;
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 999px;
+    text-align: center;
+    min-width: 80px;
+    letter-spacing: 0.03em;
 }
 
 .buy-badge {
-    background:#16a34a;
-    color:white;
+    background: linear-gradient(135deg, #22c55e, #4ade80);
+    color: #022c22;
 }
 
 .sell-badge {
-    background:#dc2626;
-    color:white;
+    background: linear-gradient(135deg, #f97373, #ef4444);
+    color: #450a0a;
 }
+
 .smart-badge {
-    background:#2563eb;
-    color:white;
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    color: #eff6ff;
 }
 
 .aggressive-badge {
-    background:#93c5fd;
-    color:#0f172a;
+    background: rgba(129, 140, 248, 0.2);
+    color: #e0e7ff;
+    border: 1px solid rgba(129, 140, 248, 0.6);
 }
 
-
-
-.search-box {
-    margin:15px 20px;
-}
-
-.search-box input {
-    width:100%;
-    max-width:300px;
-    padding:8px 12px;
-    border-radius:6px;
-    border:none;
-    outline:none;
-}
-
-@media (max-width:768px) {
-    th, td {
-        padding:8px;
-        font-size:12px;
-    }
-
-    .card p {
-        font-size:18px;
+/* === RESPONSIVE (MOBILE) === */
+@media (max-width: 768px) {
+    .header {
+        padding: 16px 14px 8px 14px;
     }
 
     .header h1 {
-        font-size:20px;
+        font-size: 20px;
+    }
+
+    .updated {
+        font-size: 12px;
+    }
+
+    .cards {
+        flex-direction: column;
+        padding: 12px 14px 6px 14px;
+        gap: 10px;
+    }
+
+    .card {
+        padding: 12px 14px;
+    }
+
+    .card p {
+        font-size: 20px;
+    }
+
+    .table-container {
+        padding: 10px 10px 18px 10px;
+    }
+
+    th, td {
+        padding: 8px 8px;
+        font-size: 3.2vw;  /* responsive text size on mobile [web:15] */
+    }
+
+    .search-box {
+        margin: 8px 14px 0 14px;
+    }
+
+    .search-box input {
+        max-width: 100%;
+        font-size: 14px;
+    }
+
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    th, td {
+        font-size: 3.6vw;
+    }
+
+    .header h1 {
+        font-size: 18px;
+    }
+
+    .card p {
+        font-size: 18px;
     }
 }
-
-
 
 </style>
 </head>
@@ -194,18 +307,27 @@ tr:hover {
 <body>
 
 <div class="header">
-<h1>F&O Stock Selection</h1>
-<div class="updated">Last Updated: 2026-02-14 23:10:02.840463</div>
+  <h1>F&O Stock Selection</h1>
+  <div class="updated">Last Updated: 2026-02-15 11:53:25.629931</div>
 </div>
 
 <div class="cards">
-<div class="card"><h3>Total Stocks</h3><p>73</p></div>
-<div class="card"><h3>Swing Buy</h3><p class="green">42</p></div>
-<div class="card"><h3>Swing Sell</h3><p class="red">31</p></div>
-
+  <div class="card">
+    <h3>Total Stocks</h3>
+    <p>73</p>
+  </div>
+  <div class="card">
+    <h3>Swing Buy</h3>
+    <p class="green">42</p>
+  </div>
+  <div class="card">
+    <h3>Swing Sell</h3>
+    <p class="red">31</p>
+  </div>
 </div>
+
 <div class="search-box">
-<input type="text" id="tableSearch" onkeyup="filterTable()" placeholder="Search...">
+  <input type="text" id="tableSearch" onkeyup="filterTable()" placeholder="Search...">
 </div>
 
 <div class="table-container">
@@ -252,7 +374,6 @@ function filterTable() {
   });
 }
 </script>
-
 
 </body>
 </html>
