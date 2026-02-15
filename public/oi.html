@@ -360,7 +360,7 @@ select{
       (LAST 2 SCAN DELTA)
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-15(<span style="color:#27F2F5;font-weight:bold">20:50:44</span>)
+      Scan: 2026-02-15(<span style="color:#27F2F5;font-weight:bold">20:59:53</span>)
     </span><br>
     <span id="pcrChange" style="font-size:11px;opacity:.85"></span>
   </div>
@@ -527,7 +527,6 @@ function render(){
 
   win.slice().reverse().forEach(function(r){
 
-
     var ceOI = Number(r["OI_CE"]||0);
     var peOI = Number(r["OI_PE"]||0);
     var ceCh = Number(r["DELTA_FROM_LAST2_CE"]||0);
@@ -539,7 +538,6 @@ function render(){
     // ---- TOTAL = OI + Change In OI (RAW) ----
     var ceTot = ceOI + ceRaw;
     var peTot = peOI + peRaw;
-
 
     function pct(v){ return (Math.abs(v) / maxTot) * 100; }
 
@@ -554,8 +552,6 @@ function render(){
 
     var ceCutPct = ceRaw<0 ? (Math.abs(ceRaw) / maxTot) * 100 : 0;
     var peCutPct = peRaw<0 ? (Math.abs(peRaw) / maxTot) * 100 : 0;
-
-
 
     function clamp(x){ return Math.max(0,Math.min(100,x)); }
 
@@ -630,41 +626,33 @@ function render(){
         document.body.appendChild(tipR);
       }
 
-    tipL.innerHTML=
-      r.STRIKE_TXT+'<br>'+
-      'CE: '+ceOI+' ('+(ceRaw>=0?'+':'')+ceRaw+')<br>'+
-      'PE: '+peOI+' ('+(peRaw>=0?'+':'')+peRaw+')';
-
-
+      tipL.innerHTML=
+        r.STRIKE_TXT+'<br>'+
+        'CE: '+ceOI+' ('+(ceRaw>=0?'+':'')+ceRaw+')<br>'+
+        'PE: '+peOI+' ('+(peRaw>=0?'+':'')+peRaw+')';
 
       tipR.innerHTML=
         'CHANGE IN OI<br>'+
         'CE: '+(ceCh>=0?'+':'')+ceCh+'<br>'+
         'PE: '+(peCh>=0?'+':'')+peCh;
 
-    const strikeLeft  = strikeBox.left;
-    const strikeRight = strikeBox.right;
+      const strikeLeft  = strikeBox.left;
+      const strikeRight = strikeBox.right;
 
-    /* STRICT: stick to strike edges, never overlap */
-    const gap = 8;
-    const leftExtra = 160;
+      const gap = 8;
+      const leftExtra = 160;
 
-    /* vertical center minus small upward offset */
-    const rowCenterY = rbox.top + rbox.height / 2;
-    const upShift = 30;
+      const rowCenterY = rbox.top + rbox.height / 2;
+      const upShift = 30;
 
-    tipL.style.top = (rowCenterY - tipL.offsetHeight / 2 - upShift) + "px";
-    tipR.style.top = (rowCenterY - tipR.offsetHeight / 2 - upShift) + "px";
+      tipL.style.top = (rowCenterY - tipL.offsetHeight / 2 - upShift) + "px";
+      tipR.style.top = (rowCenterY - tipR.offsetHeight / 2 - upShift) + "px";
 
-    tipL.style.left =
-      (strikeLeft - tipL.offsetWidth - gap - leftExtra) + "px";
+      tipL.style.left =
+        (strikeLeft - tipL.offsetWidth - gap - leftExtra) + "px";
 
-    tipR.style.left =
-      (strikeRight + gap) + "px";
-
-
-
-
+      tipR.style.left =
+        (strikeRight + gap) + "px";
 
       tipL.style.display="block";
       tipR.style.display="block";
@@ -684,41 +672,73 @@ function render(){
       if(tipR) tipR.style.display="none";
     };
 
+    // simple mobile flag
+    var isMobile = window.innerWidth <= 600;
 
+    if(!isMobile){
 
+      // ===== DESKTOP MARKUP (unchanged) =====
+      row.innerHTML=
+        '<div class="totWrap"><div class="box"><div class="stack">'+
 
+          '<div style="position:relative;height:18px;width:100%;">'+
+            '<div class="bar ce" style="position:absolute;left:0;width:'+ceBasePct+'%"></div>'+
+            (ceRaw>0
+              ? '<div class="bar ce deep" style="position:absolute;left:'+ceBasePct+'%;width:'+ceAddPct+'%"></div>'
+              : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:white;border:2px solid white"></div>')+
+          '</div>'+
 
+          '<div style="position:relative;height:18px;width:100%;margin-top:4px;">'+
+            '<div class="bar pe" style="position:absolute;left:0;width:'+peBasePct+'%"></div>'+
+            (peRaw>0
+              ? '<div class="bar pe deep" style="position:absolute;left:'+peBasePct+'%;width:'+peAddPct+'%"></div>'
+              : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:white;border:2px solid white"></div>')+
+          '</div>'+
 
-    row.innerHTML=
-      '<div class="totWrap"><div class="box"><div class="stack">'+
+        '</div></div></div>'+
 
-        '<div style="position:relative;height:18px;width:100%;">'+
-          '<div class="bar ce" style="position:absolute;left:0;width:'+ceBasePct+'%"></div>'+
-          (ceRaw>0
-            ? '<div class="bar ce deep" style="position:absolute;left:'+ceBasePct+'%;width:'+ceAddPct+'%"></div>'
-            : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:white;border:2px solid white"></div>')+
-        '</div>'+
+        strikeHTML+
 
-        '<div style="position:relative;height:18px;width:100%;margin-top:4px;">'+
-          '<div class="bar pe" style="position:absolute;left:0;width:'+peBasePct+'%"></div>'+
-          (peRaw>0
-            ? '<div class="bar pe deep" style="position:absolute;left:'+peBasePct+'%;width:'+peAddPct+'%"></div>'
-            : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:white;border:2px solid white"></div>')+
-        '</div>'+
+        '<div class="box">'+
+          '<div class="chgInner">'+
+            '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
+            '<div class="bar chg-ce" style="left:50%;top:0px;width:'+((Math.abs(ceCh)/maxCh)*45)+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+            '<div class="bar chg-pe" style="left:50%;top:20px;width:'+((Math.abs(peCh)/maxCh)*45)+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+          '</div>'+
+        '</div>';
 
-      '</div></div></div>'+
+    } else {
 
+      // ===== MOBILE MARKUP (more compact, stacked text inside same grid) =====
+      row.innerHTML=
+        '<div class="totWrap"><div class="box"><div class="stack">'+
 
-      strikeHTML+
+          '<div style="position:relative;height:16px;width:100%;">'+
+            '<div class="bar ce" style="position:absolute;left:0;width:'+ceBasePct+'%"></div>'+
+            (ceRaw>0
+              ? '<div class="bar ce deep" style="position:absolute;left:'+ceBasePct+'%;width:'+ceAddPct+'%"></div>'
+              : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:white;border:1px solid white"></div>')+
+          '</div>'+
 
-      '<div class="box">'+
-        '<div class="chgInner">'+
-          '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
-          '<div class="bar chg-ce" style="left:50%;top:0px;width:'+((Math.abs(ceCh)/maxCh)*45)+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
-          '<div class="bar chg-pe" style="left:50%;top:20px;width:'+((Math.abs(peCh)/maxCh)*45)+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+          '<div style="position:relative;height:16px;width:100%;margin-top:2px;">'+
+            '<div class="bar pe" style="position:absolute;left:0;width:'+peBasePct+'%"></div>'+
+            (peRaw>0
+              ? '<div class="bar pe deep" style="position:absolute;left:'+peBasePct+'%;width:'+peAddPct+'%"></div>'
+              : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:white;border:1px solid white"></div>')+
+          '</div>'+
 
-        '</div>'+
-      '</div>';
+        '</div></div></div>'+
+
+        strikeHTML+
+
+        '<div class="box">'+
+          '<div class="chgInner" style="height:30px;">'+
+            '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
+            '<div class="bar chg-ce" style="left:50%;top:2px;width:'+((Math.abs(ceCh)/maxCh)*45)+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+            '<div class="bar chg-pe" style="left:50%;top:16px;width:'+((Math.abs(peCh)/maxCh)*45)+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+          '</div>'+
+        '</div>';
+    }
 
     leftCol.appendChild(row);
 
@@ -747,17 +767,12 @@ function render(){
       ltpLbl.style.padding="2px 6px";
       ltpLbl.style.zIndex="25";
 
-
-
-
       row.appendChild(ltpLine);
       row.appendChild(ltpLbl);
     }
 
-
-
-
   });
+
 }
 </script>
 <script>
