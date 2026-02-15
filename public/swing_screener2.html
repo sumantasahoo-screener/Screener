@@ -1,181 +1,310 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Swing All</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F&O Swing</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 
+/* === GLOBAL RESET === */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* === THEME COLORS (Lighter Dark) === */
+:root {
+    --bg-main: #0b1220;
+    --bg-elevated: #111827;
+    --bg-elevated-soft: #111827;
+    --bg-header: #020617;
+    --border-subtle: #1f2937;
+    --text-main: #e5e7eb;
+    --text-muted: #9ca3af;
+    --text-soft: #cbd5f5;
+    --accent-green: #22c55e;
+    --accent-red: #f97373;
+    --accent-blue: #3b82f6;
+    --accent-blue-soft: #60a5fa;
+    --row-hover: #1f2937;
+}
+
+/* === LAYOUT === */
 body {
-    margin:0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(145deg,#0f172a,#020617);
-    color:#e2e8f0;
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: radial-gradient(circle at top left, #1f2937 0, var(--bg-main) 45%, #020617 100%);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
 }
 
 .header {
-    padding:25px;
+    padding: 20px 20px 10px 20px;
+    background: linear-gradient(135deg, #020617, #020617 40%, #020617 100%);
+    border-bottom: 1px solid var(--border-subtle);
 }
 
 .header h1 {
-    margin:0;
-    font-size:26px;
-    font-weight:600;
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #f9fafb;
+    letter-spacing: 0.02em;
 }
 
 .updated {
-    font-size:13px;
-    color:#94a3b8;
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* Sirf time/date ka color */
+.time-value {
+    color: #38bdf8;
+    font-weight: 500;
 }
 
 .cards {
-    display:flex;
-    gap:20px;
-    padding:20px;
+    display: flex;
+    gap: 16px;
+    padding: 16px 20px 8px 20px;
+    flex-wrap: wrap;
 }
-
-@media (max-width:768px) {
-    .cards {
-        flex-direction:column;
-    }
-}
-
 
 .card {
-    flex:1;
-    background:#111827;
-    border-radius:12px;
-    padding:20px;
-    text-align:center;
-    box-shadow:0 4px 20px rgba(0,0,0,0.4);
+    flex: 1;
+    min-width: 150px;
+    background: var(--bg-elevated);
+    border-radius: 12px;
+    padding: 16px 18px;
+    text-align: left;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+
+.card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.18), transparent 55%);
+    opacity: 0.95;
+    pointer-events: none;
 }
 
 .card h3 {
-    margin:0;
-    font-weight:500;
-    font-size:14px;
-    color:#94a3b8;
+    margin: 0;
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
 
 .card p {
-    margin:8px 0 0 0;
-    font-size:24px;
-    font-weight:bold;
+    margin: 8px 0 0 0;
+    font-size: 24px;
+    font-weight: 700;
 }
 
-.green { color:#22c55e; }
-.red { color:#ef4444; }
+.green { color: var(--accent-green); }
+.red { color: var(--accent-red); }
 
-.table-container {
-    padding:20px;
+/* === SEARCH === */
+.search-box {
+    margin: 10px 20px 0 20px;
 }
-.table-container {
-    padding:20px;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
+
+.search-box input {
+    width: 100%;
+    max-width: 360px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    outline: none;
+    background-color: #020617;
+    color: var(--text-main);
+    font-size: 14px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.5);
 }
+
+.search-box input::placeholder {
+    color: #6b7280;
+}
+
+/* === TABLE === */
+.table-container {
+    padding: 16px 20px 24px 20px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 table {
-    width:100%;
-    min-width:700px;
-    border-collapse:collapse;
-    background:#0f172a;
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-elevated-soft);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 th {
-    padding:12px;
-    font-size:13px;
-    background:#111827;
-    color:#94a3b8;
-    position:sticky;
-    top:0;
-    cursor:pointer;
-    text-align:left;
-    white-space:nowrap;
+    padding: 10px 10px;
+    font-size: 13px;
+    background: #020617;
+    color: var(--text-soft);
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border-subtle);
+    position: sticky;
+    top: 0;
+    z-index: 11;
 }
 
 th.right {
-    text-align:right;
+    text-align: right;
 }
 
 th::after {
     content:" ⬍";
-    margin-left:6px;
-    font-size:11px;
-    opacity:0.6;
+    margin-left: 6px;
+    font-size: 10px;
+    opacity: 0.55;
 }
 
 td {
-    padding:10px;
-    font-size:13px;
-    border-bottom:1px solid #1f2937;
-    white-space:nowrap;
-    text-align:center;
+    padding: 9px 10px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+    white-space: nowrap;
+    text-align: center;
 }
 
-tr:hover {
-    background:#1e293b;
+tr:nth-child(even) td {
+    background: rgba(15, 23, 42, 0.9);
+}
+
+tr:nth-child(odd) td {
+    background: rgba(15, 23, 42, 0.75);
+}
+
+tr:hover td {
+    background: var(--row-hover);
 }
 
 .symbol {
-    font-weight:600;
-    color:#f8fafc;
+    font-weight: 600;
+    color: #f9fafb;
+    letter-spacing: 0.03em;
 }
-
 
 .right {
-    text-align:center !important;
+    text-align: center !important;
 }
 
+/* === BADGES === */
 .signal-badge {
-    display:inline-block;
-    padding:4px 10px;
-    font-size:11px;
-    font-weight:600;
-    border-radius:6px;
-    text-align:center;
-    min-width:75px;
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 999px;
+    text-align: center;
+    min-width: 80px;
+    letter-spacing: 0.03em;
 }
 
 .buy-badge {
-    background:#16a34a;
-    color:white;
+    background: linear-gradient(135deg, #22c55e, #4ade80);
+    color: #022c22;
 }
 
 .sell-badge {
-    background:#dc2626;
-    color:white;
+    background: linear-gradient(135deg, #f97373, #ef4444);
+    color: #450a0a;
 }
 
-.search-box {
-    margin:15px 20px;
+.smart-badge {
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    color: #eff6ff;
 }
 
-.search-box input {
-    width:100%;
-    max-width:300px;
-    padding:8px 12px;
-    border-radius:6px;
-    border:none;
-    outline:none;
+.aggressive-badge {
+    background: rgba(129, 140, 248, 0.2);
+    color: #e0e7ff;
+    border: 1px solid rgba(129, 140, 248, 0.6);
 }
 
-@media (max-width:768px) {
-    th, td {
-        padding:8px;
-        font-size:12px;
-    }
-
-    .card p {
-        font-size:18px;
+/* === RESPONSIVE (MOBILE) === */
+@media (max-width: 768px) {
+    .header {
+        padding: 16px 14px 8px 14px;
     }
 
     .header h1 {
-        font-size:20px;
+        font-size: 20px;
+    }
+
+    .updated {
+        font-size: 12px;
+    }
+
+    .cards {
+        flex-direction: column;
+        padding: 12px 14px 6px 14px;
+        gap: 10px;
+    }
+
+    .card {
+        padding: 12px 14px;
+    }
+
+    .card p {
+        font-size: 20px;
+    }
+
+    .table-container {
+        padding: 10px 10px 18px 10px;
+    }
+
+    th, td {
+        padding: 8px 8px;
+        font-size: 3.2vw;
+    }
+
+    .search-box {
+        margin: 8px 14px 0 14px;
+    }
+
+    .search-box input {
+        max-width: 100%;
+        font-size: 14px;
     }
 }
 
+@media (max-width: 480px) {
+    th, td {
+        font-size: 3.6vw;
+    }
 
+    .header h1 {
+        font-size: 18px;
+    }
+
+    .card p {
+        font-size: 18px;
+    }
+}
 
 </style>
 </head>
@@ -183,25 +312,36 @@ tr:hover {
 <body>
 
 <div class="header">
-<h1>Swing Find Screener</h1>
-<div class="updated">Last Updated: 2026-02-14 16:27:48.430309</div>
+  <h1>F&O Stock Selection</h1>
+  <div class="updated">
+    Last Updated: (<span class="time-value">2026-02-16 00:11:25</span>)
+  </div>
 </div>
 
 <div class="cards">
-<div class="card"><h3>Total Stocks</h3><p>158</p></div>
-<div class="card"><h3>Swing Buy</h3><p class="green">96</p></div>
-<div class="card"><h3>Swing Sell</h3><p class="red">62</p></div>
-
+  <div class="card">
+    <h3>Total Stocks</h3>
+    <p>158</p>
+  </div>
+  <div class="card">
+    <h3>Swing Buy</h3>
+    <p class="green">96</p>
+  </div>
+  <div class="card">
+    <h3>Swing Sell</h3>
+    <p class="red">62</p>
+  </div>
 </div>
+
 <div class="search-box">
-<input type="text" id="tableSearch" onkeyup="filterTable()" placeholder="Search...">
+  <input type="text" id="tableSearch" onkeyup="filterTable()" placeholder="Search...">
 </div>
 
 <div class="table-container">
 <table>
 <thead>
 <tr>
-<th onclick="sortTable(this)">SYMBOL NAME</th><th onclick="sortTable(this)">SWING_SIGNAL</th><th class="right" onclick="sortTable(this)">LTP</th><th onclick="sortTable(this)">DAILY RSI</th><th onclick="sortTable(this)">DAILY MACD</th><th onclick="sortTable(this)">DAILY MACD SIGNAL</th><th onclick="sortTable(this)">DAILY EMA21</th><th onclick="sortTable(this)">DAILY EMA50</th><th onclick="sortTable(this)">DAILY VOLUME RATIO</th></tr></thead><tbody><tr><td><span class="symbol">FINPIPE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>188.00</td><td>71.43</td><td>2.58</td><td>1.42</td><td>177.15</td><td>173.77</td><td>28.27</td></tr><tr><td><span class="symbol">AXISBNKETF</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>617.85</td><td>69.69</td><td>3.16</td><td>1.67</td><td>616.05</td><td>613.55</td><td>1.16</td></tr><tr><td><span class="symbol">LINCOLN</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>635.20</td><td>85.35</td><td>17.58</td><td>2.94</td><td>491.82</td><td>483.40</td><td>77.65</td></tr><tr><td><span class="symbol">CENTEXT</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>22.20</td><td>60.67</td><td>-0.02</td><td>-0.09</td><td>21.87</td><td>21.82</td><td>2.27</td></tr><tr><td><span class="symbol">PETRONET</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>289.85</td><td>63.83</td><td>5.37</td><td>4.44</td><td>292.24</td><td>284.97</td><td>1.21</td></tr><tr><td><span class="symbol">GINNIFILA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>39.80</td><td>68.41</td><td>0.66</td><td>0.02</td><td>39.69</td><td>39.31</td><td>4.25</td></tr><tr><td><span class="symbol">VARDHACRLC</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>37.27</td><td>66.96</td><td>0.24</td><td>-0.00</td><td>37.75</td><td>37.74</td><td>3.03</td></tr><tr><td><span class="symbol">BANKIETF</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>61.70</td><td>71.53</td><td>0.34</td><td>0.17</td><td>61.30</td><td>61.03</td><td>3.51</td></tr><tr><td><span class="symbol">SKYGOLD</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>368.80</td><td>70.35</td><td>4.65</td><td>-0.55</td><td>327.24</td><td>326.01</td><td>18.62</td></tr><tr><td><span class="symbol">TORNTPOWER</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>1462.20</td><td>69.24</td><td>32.61</td><td>22.28</td><td>1384.73</td><td>1349.58</td><td>1.34</td></tr><tr><td><span class="symbol">RUCHIRA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>111.80</td><td>82.65</td><td>1.84</td><td>0.62</td><td>120.88</td><td>119.83</td><td>1.26</td></tr><tr><td><span class="symbol">GPIL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>258.80</td><td>65.54</td><td>1.48</td><td>0.10</td><td>255.53</td><td>253.82</td><td>2.14</td></tr><tr><td><span class="symbol">ZIMLAB</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>71.54</td><td>59.97</td><td>0.78</td><td>0.52</td><td>73.45</td><td>72.52</td><td>1.37</td></tr><tr><td><span class="symbol">MBAPL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>464.45</td><td>87.22</td><td>13.44</td><td>7.32</td><td>431.73</td><td>420.23</td><td>1.92</td></tr><tr><td><span class="symbol">BLKASHYAP</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>50.42</td><td>63.46</td><td>1.17</td><td>0.42</td><td>51.38</td><td>51.18</td><td>1.45</td></tr><tr><td><span class="symbol">CONSOFINVT</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>235.00</td><td>81.30</td><td>17.98</td><td>10.78</td><td>195.37</td><td>180.66</td><td>1.20</td></tr><tr><td><span class="symbol">WANBURY</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>255.50</td><td>79.33</td><td>12.29</td><td>5.42</td><td>234.72</td><td>229.74</td><td>1.43</td></tr><tr><td><span class="symbol">GANDHITUBE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>800.00</td><td>67.69</td><td>16.64</td><td>2.85</td><td>761.37</td><td>756.76</td><td>1.34</td></tr><tr><td><span class="symbol">LTFOODS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>430.50</td><td>76.44</td><td>12.83</td><td>5.71</td><td>391.25</td><td>384.35</td><td>1.47</td></tr><tr><td><span class="symbol">IRB</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>43.95</td><td>81.52</td><td>0.74</td><td>0.29</td><td>42.35</td><td>41.95</td><td>1.38</td></tr><tr><td><span class="symbol">EDELWEISS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>122.00</td><td>76.16</td><td>3.28</td><td>0.89</td><td>111.10</td><td>109.27</td><td>1.16</td></tr><tr><td><span class="symbol">SAHYADRI</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>259.45</td><td>65.79</td><td>3.56</td><td>0.80</td><td>253.57</td><td>252.32</td><td>3.82</td></tr><tr><td><span class="symbol">FORTIS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>919.00</td><td>76.18</td><td>5.33</td><td>-4.09</td><td>877.67</td><td>877.33</td><td>1.39</td></tr><tr><td><span class="symbol">ARIES</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>350.00</td><td>75.16</td><td>4.83</td><td>0.87</td><td>322.61</td><td>321.35</td><td>6.11</td></tr><tr><td><span class="symbol">NDLVENTURE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>100.27</td><td>70.86</td><td>2.60</td><td>1.18</td><td>93.87</td><td>91.62</td><td>2.77</td></tr><tr><td><span class="symbol">DIVGIITTS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>750.00</td><td>74.72</td><td>12.63</td><td>7.01</td><td>618.19</td><td>607.23</td><td>2.22</td></tr><tr><td><span class="symbol">ASTRAL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>1601.00</td><td>84.47</td><td>32.70</td><td>18.82</td><td>1487.80</td><td>1459.24</td><td>2.36</td></tr><tr><td><span class="symbol">LEXUS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>35.00</td><td>74.91</td><td>1.67</td><td>0.49</td><td>27.91</td><td>26.94</td><td>6.11</td></tr><tr><td><span class="symbol">GODREJAGRO</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>652.00</td><td>81.17</td><td>11.62</td><td>0.75</td><td>562.97</td><td>562.49</td><td>40.29</td></tr><tr><td><span class="symbol">SMSPHARMA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>336.75</td><td>80.67</td><td>2.12</td><td>-0.83</td><td>320.74</td><td>320.68</td><td>9.75</td></tr><tr><td><span class="symbol">TVSSRICHAK</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>4322.00</td><td>77.48</td><td>72.63</td><td>9.15</td><td>4167.67</td><td>4153.57</td><td>25.93</td></tr><tr><td><span class="symbol">TIIL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>2508.00</td><td>83.15</td><td>78.59</td><td>24.36</td><td>2216.35</td><td>2179.55</td><td>8.96</td></tr><tr><td><span class="symbol">UNITEDTEA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>498.00</td><td>84.14</td><td>7.95</td><td>6.15</td><td>480.52</td><td>469.16</td><td>1.46</td></tr><tr><td><span class="symbol">DBREALTY</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>124.80</td><td>70.18</td><td>4.21</td><td>0.97</td><td>116.36</td><td>115.52</td><td>2.40</td></tr><tr><td><span class="symbol">CCAVENUE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>18.80</td><td>71.06</td><td>0.64</td><td>0.33</td><td>17.12</td><td>16.73</td><td>1.29</td></tr><tr><td><span class="symbol">PTCIL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>18230.00</td><td>66.10</td><td>125.80</td><td>42.72</td><td>18034.22</td><td>17901.82</td><td>1.44</td></tr><tr><td><span class="symbol">JAYBARMARU</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>103.00</td><td>77.92</td><td>3.07</td><td>0.51</td><td>93.52</td><td>91.49</td><td>4.14</td></tr><tr><td><span class="symbol">GPTINFRA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>123.00</td><td>79.44</td><td>2.61</td><td>0.08</td><td>107.95</td><td>106.90</td><td>4.94</td></tr><tr><td><span class="symbol">TVSSCS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>131.02</td><td>85.48</td><td>2.67</td><td>-0.49</td><td>105.92</td><td>105.67</td><td>4.97</td></tr><tr><td><span class="symbol">PRINCEPIPE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>265.75</td><td>75.92</td><td>5.49</td><td>1.70</td><td>252.86</td><td>250.22</td><td>1.20</td></tr><tr><td><span class="symbol">IOC</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>176.72</td><td>80.07</td><td>4.36</td><td>2.46</td><td>169.38</td><td>166.74</td><td>1.49</td></tr><tr><td><span class="symbol">AMBIKCO</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>1376.00</td><td>71.08</td><td>34.06</td><td>21.21</td><td>1292.67</td><td>1270.28</td><td>1.99</td></tr><tr><td><span class="symbol">CHEMPLASTS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>320.00</td><td>84.01</td><td>13.08</td><td>4.94</td><td>275.33</td><td>266.50</td><td>2.52</td></tr><tr><td><span class="symbol">ACUTAAS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>2024.00</td><td>81.12</td><td>95.12</td><td>75.92</td><td>1900.02</td><td>1793.64</td><td>1.20</td></tr><tr><td><span class="symbol">BANKNIFTY1</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>623.45</td><td>71.27</td><td>3.31</td><td>1.61</td><td>619.27</td><td>616.66</td><td>4.74</td></tr><tr><td><span class="symbol">SANSERA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>2226.10</td><td>86.82</td><td>89.79</td><td>40.22</td><td>1884.21</td><td>1805.18</td><td>1.63</td></tr><tr><td><span class="symbol">KROSS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>216.25</td><td>69.33</td><td>5.23</td><td>4.14</td><td>204.08</td><td>196.09</td><td>2.26</td></tr><tr><td><span class="symbol">APLAPOLLO</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>2249.70</td><td>85.97</td><td>94.90</td><td>79.11</td><td>2108.67</td><td>1985.07</td><td>2.05</td></tr><tr><td><span class="symbol">AKG</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>14.39</td><td>88.30</td><td>0.49</td><td>0.43</td><td>13.82</td><td>13.22</td><td>2.00</td></tr><tr><td><span class="symbol">BANKBETA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>62.02</td><td>70.05</td><td>0.33</td><td>0.16</td><td>61.77</td><td>61.53</td><td>5.35</td></tr><tr><td><span class="symbol">JGCHEM</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>380.60</td><td>80.73</td><td>10.95</td><td>0.44</td><td>346.53</td><td>345.47</td><td>1.81</td></tr><tr><td><span class="symbol">MUKKA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>24.98</td><td>70.18</td><td>0.50</td><td>0.19</td><td>23.75</td><td>23.62</td><td>3.57</td></tr><tr><td><span class="symbol">MUNJALSHOW</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>131.59</td><td>97.48</td><td>3.01</td><td>0.93</td><td>124.40</td><td>122.88</td><td>2.24</td></tr><tr><td><span class="symbol">AVL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>505.05</td><td>67.69</td><td>5.31</td><td>2.04</td><td>499.16</td><td>498.01</td><td>1.30</td></tr><tr><td><span class="symbol">ESSARSHPNG</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>30.20</td><td>76.47</td><td>1.04</td><td>0.37</td><td>27.38</td><td>27.02</td><td>1.86</td></tr><tr><td><span class="symbol">APEX</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>431.00</td><td>81.14</td><td>31.07</td><td>20.08</td><td>335.50</td><td>304.78</td><td>6.39</td></tr><tr><td><span class="symbol">FLAIR</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>323.00</td><td>65.32</td><td>1.31</td><td>0.18</td><td>307.79</td><td>305.24</td><td>7.55</td></tr><tr><td><span class="symbol">HAPPYFORGE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>1293.00</td><td>79.31</td><td>26.88</td><td>6.83</td><td>1117.75</td><td>1099.79</td><td>7.35</td></tr><tr><td><span class="symbol">ASHOKLEY</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>204.70</td><td>71.17</td><td>6.92</td><td>5.87</td><td>197.26</td><td>187.59</td><td>2.02</td></tr><tr><td><span class="symbol">KIRLOSENG</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>1371.00</td><td>78.40</td><td>29.94</td><td>7.45</td><td>1204.51</td><td>1185.01</td><td>23.23</td></tr><tr><td><span class="symbol">CANTABIL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>305.45</td><td>70.30</td><td>7.46</td><td>6.47</td><td>294.08</td><td>283.27</td><td>1.42</td></tr><tr><td><span class="symbol">LUMAXIND</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>6163.50</td><td>75.75</td><td>189.25</td><td>-13.04</td><td>5416.55</td><td>5390.68</td><td>2.31</td></tr><tr><td><span class="symbol">JITFINFRA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>374.25</td><td>80.94</td><td>14.06</td><td>3.74</td><td>282.34</td><td>275.42</td><td>3.33</td></tr><tr><td><span class="symbol">KINGFA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>4259.40</td><td>64.53</td><td>67.00</td><td>53.64</td><td>4315.64</td><td>4198.55</td><td>1.92</td></tr><tr><td><span class="symbol">ROLEXRINGS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>137.30</td><td>84.57</td><td>3.15</td><td>0.50</td><td>128.38</td><td>127.78</td><td>2.38</td></tr><tr><td><span class="symbol">ICICIB22</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>123.47</td><td>72.26</td><td>1.97</td><td>1.38</td><td>120.96</td><td>118.93</td><td>1.72</td></tr><tr><td><span class="symbol">ICICIBANK</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>1415.50</td><td>68.86</td><td>9.78</td><td>4.40</td><td>1389.10</td><td>1379.87</td><td>1.27</td></tr><tr><td><span class="symbol">MOTHERSON</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>130.99</td><td>82.56</td><td>3.29</td><td>1.05</td><td>120.29</td><td>118.88</td><td>1.83</td></tr><tr><td><span class="symbol">SCI</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>263.90</td><td>84.59</td><td>11.77</td><td>5.07</td><td>234.19</td><td>226.23</td><td>4.18</td></tr><tr><td><span class="symbol">UNIMECH</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>935.00</td><td>69.39</td><td>28.12</td><td>12.26</td><td>936.00</td><td>921.26</td><td>1.98</td></tr><tr><td><span class="symbol">VOLTAS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>1521.30</td><td>75.56</td><td>27.99</td><td>6.70</td><td>1419.87</td><td>1403.70</td><td>1.75</td></tr><tr><td><span class="symbol">WSTCSTPAPR</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>430.00</td><td>67.38</td><td>9.87</td><td>4.72</td><td>421.22</td><td>414.50</td><td>2.19</td></tr><tr><td><span class="symbol">LYPSAGEMS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>5.99</td><td>77.85</td><td>0.17</td><td>0.07</td><td>5.24</td><td>5.10</td><td>2.97</td></tr><tr><td><span class="symbol">GILT5YBEES</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>64.01</td><td>65.31</td><td>0.12</td><td>0.09</td><td>63.74</td><td>63.60</td><td>1.48</td></tr><tr><td><span class="symbol">BBOX</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>540.30</td><td>75.34</td><td>13.51</td><td>4.47</td><td>534.17</td><td>525.73</td><td>5.14</td></tr><tr><td><span class="symbol">SDL26BEES</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>136.49</td><td>54.49</td><td>0.18</td><td>0.13</td><td>135.91</td><td>135.66</td><td>5.06</td></tr><tr><td><span class="symbol">CARRARO</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>564.90</td><td>74.80</td><td>12.79</td><td>3.40</td><td>537.94</td><td>533.28</td><td>5.41</td></tr><tr><td><span class="symbol">PRECWIRE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>258.01</td><td>73.22</td><td>8.36</td><td>4.33</td><td>248.05</td><td>241.96</td><td>2.54</td></tr><tr><td><span class="symbol">FIBERWEB</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>46.29</td><td>80.04</td><td>2.56</td><td>1.72</td><td>39.65</td><td>37.60</td><td>2.92</td></tr><tr><td><span class="symbol">ELGIEQUIP</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>507.85</td><td>80.52</td><td>12.75</td><td>4.50</td><td>470.25</td><td>467.42</td><td>7.48</td></tr><tr><td><span class="symbol">GROWW</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>172.00</td><td>61.27</td><td>3.49</td><td>3.35</td><td>168.31</td><td>162.14</td><td>1.28</td></tr><tr><td><span class="symbol">WAKEFIT</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>214.00</td><td>82.05</td><td>5.71</td><td>1.64</td><td>188.87</td><td>186.66</td><td>1.47</td></tr><tr><td><span class="symbol">ICICIAMC</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>3007.90</td><td>71.87</td><td>97.88</td><td>90.10</td><td>2942.28</td><td>2812.20</td><td>1.17</td></tr><tr><td><span class="symbol">PARKHOSPS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>175.90</td><td>66.20</td><td>4.32</td><td>2.44</td><td>157.35</td><td>153.30</td><td>1.94</td></tr><tr><td><span class="symbol">GKSL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>110.50</td><td>80.60</td><td>2.40</td><td>1.31</td><td>107.13</td><td>105.37</td><td>1.49</td></tr><tr><td><span class="symbol">EICHERMOT</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>8067.00</td><td>76.19</td><td>84.45</td><td>1.27</td><td>7308.90</td><td>7252.73</td><td>2.14</td></tr><tr><td><span class="symbol">GATEWAY</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>58.76</td><td>64.27</td><td>1.09</td><td>0.54</td><td>60.19</td><td>59.65</td><td>1.71</td></tr><tr><td><span class="symbol">ENERGY</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>35.79</td><td>74.15</td><td>0.53</td><td>0.29</td><td>35.58</td><td>35.22</td><td>1.26</td></tr><tr><td><span class="symbol">CHEMBONDCH</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>157.29</td><td>65.50</td><td>3.08</td><td>0.61</td><td>151.77</td><td>151.57</td><td>1.20</td></tr><tr><td><span class="symbol">SGMART</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>415.25</td><td>76.57</td><td>16.93</td><td>8.02</td><td>376.10</td><td>361.92</td><td>2.61</td></tr><tr><td><span class="symbol">RNBDENIMS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>178.25</td><td>100.00</td><td>10.99</td><td>9.72</td><td>157.67</td><td>143.64</td><td>2.30</td></tr><tr><td><span class="symbol">ADVANCE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>138.40</td><td>62.40</td><td>2.57</td><td>2.00</td><td>130.80</td><td>127.86</td><td>3.83</td></tr><tr><td><span class="symbol">TMCV</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>484.15</td><td>69.99</td><td>15.37</td><td>12.70</td><td>456.82</td><td>433.67</td><td>1.28</td></tr><tr><td><span class="symbol">BELRISE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>186.26</td><td>71.52</td><td>4.63</td><td>2.45</td><td>177.04</td><td>172.28</td><td>1.26</td></tr><tr><td><span class="symbol">PASHUPATI</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>903.15</td><td>88.85</td><td>11.16</td><td>1.43</td><td>821.23</td><td>818.03</td><td>6.76</td></tr><tr><td><span class="symbol">GULPOLY</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td class='right'>163.00</td><td>83.76</td><td>3.51</td><td>-0.52</td><td>139.38</td><td>138.27</td><td>1.72</td></tr><tr><td><span class="symbol">PERSISTENT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>5473.00</td><td>24.12</td><td>-157.33</td><td>-98.92</td><td>6016.39</td><td>6159.01</td><td>2.17</td></tr><tr><td><span class="symbol">QUAL30IETF</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>21.58</td><td>42.86</td><td>-0.11</td><td>-0.10</td><td>21.62</td><td>21.74</td><td>1.25</td></tr><tr><td><span class="symbol">LTIM</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>5124.50</td><td>26.24</td><td>-166.05</td><td>-106.24</td><td>5797.93</td><td>5973.92</td><td>1.56</td></tr><tr><td><span class="symbol">ABBOTINDIA</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>26500.00</td><td>37.10</td><td>-259.96</td><td>-228.76</td><td>27375.43</td><td>27663.84</td><td>2.30</td></tr><tr><td><span class="symbol">ITBETA</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>340.30</td><td>17.45</td><td>-9.43</td><td>-4.82</td><td>384.14</td><td>391.73</td><td>7.29</td></tr><tr><td><span class="symbol">ITIETF</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>36.07</td><td>17.71</td><td>-1.00</td><td>-0.51</td><td>40.54</td><td>41.34</td><td>3.61</td></tr><tr><td><span class="symbol">UNIECOM</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>100.99</td><td>30.96</td><td>-3.37</td><td>-3.32</td><td>105.59</td><td>110.26</td><td>1.67</td></tr><tr><td><span class="symbol">FLEXITUFF</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>9.70</td><td>30.37</td><td>-0.81</td><td>-0.80</td><td>10.64</td><td>11.95</td><td>2.84</td></tr><tr><td><span class="symbol">IREDA</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>123.73</td><td>45.77</td><td>-2.37</td><td>-2.10</td><td>130.65</td><td>133.25</td><td>1.21</td></tr><tr><td><span class="symbol">CLEDUCATE</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>49.05</td><td>19.72</td><td>-6.87</td><td>-4.54</td><td>67.89</td><td>74.65</td><td>3.34</td></tr><tr><td><span class="symbol">ITBEES</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>36.30</td><td>17.79</td><td>-0.99</td><td>-0.51</td><td>40.60</td><td>41.40</td><td>4.68</td></tr><tr><td><span class="symbol">ITETF</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>34.40</td><td>16.60</td><td>-0.95</td><td>-0.49</td><td>38.69</td><td>39.45</td><td>3.58</td></tr><tr><td><span class="symbol">ZEELEARN</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>6.12</td><td>27.47</td><td>-0.21</td><td>-0.19</td><td>6.44</td><td>6.71</td><td>1.50</td></tr><tr><td><span class="symbol">INDIGOPNTS</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>971.50</td><td>33.83</td><td>-41.72</td><td>-41.41</td><td>1060.90</td><td>1121.20</td><td>1.28</td></tr><tr><td><span class="symbol">SHARIABEES</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>486.89</td><td>24.72</td><td>-3.91</td><td>-2.06</td><td>510.66</td><td>513.40</td><td>2.92</td></tr><tr><td><span class="symbol">GOKUL</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>31.70</td><td>8.65</td><td>-1.34</td><td>-1.02</td><td>35.67</td><td>37.31</td><td>1.71</td></tr><tr><td><span class="symbol">HDFCGROWTH</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>121.00</td><td>35.79</td><td>-1.09</td><td>-1.06</td><td>126.37</td><td>127.70</td><td>2.88</td></tr><tr><td><span class="symbol">OFSS</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>6630.00</td><td>13.77</td><td>-179.57</td><td>-89.22</td><td>7523.52</td><td>7686.37</td><td>2.47</td></tr><tr><td><span class="symbol">ZENSARTECH</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>586.00</td><td>17.88</td><td>-27.63</td><td>-19.95</td><td>656.59</td><td>686.58</td><td>1.55</td></tr><tr><td><span class="symbol">MPSLTD</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>1473.00</td><td>32.96</td><td>-77.17</td><td>-58.10</td><td>1769.89</td><td>1860.88</td><td>5.03</td></tr><tr><td><span class="symbol">NIFTYQLITY</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>21.49</td><td>45.48</td><td>-0.11</td><td>-0.10</td><td>21.84</td><td>21.96</td><td>1.44</td></tr><tr><td><span class="symbol">INDORAMA</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>39.00</td><td>41.46</td><td>-1.34</td><td>-1.19</td><td>41.82</td><td>43.78</td><td>2.37</td></tr><tr><td><span class="symbol">ITADD</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>34.46</td><td>15.65</td><td>-0.93</td><td>-0.47</td><td>38.72</td><td>39.46</td><td>5.08</td></tr><tr><td><span class="symbol">INFY</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>1369.00</td><td>13.49</td><td>-47.36</td><td>-22.63</td><td>1565.66</td><td>1597.93</td><td>2.74</td></tr><tr><td><span class="symbol">FSL</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>254.00</td><td>22.70</td><td>-11.75</td><td>-9.13</td><td>304.97</td><td>319.32</td><td>2.22</td></tr><tr><td><span class="symbol">HDFCQUAL</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>61.00</td><td>43.02</td><td>-0.30</td><td>-0.24</td><td>59.60</td><td>59.87</td><td>1.23</td></tr><tr><td><span class="symbol">KAYA</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>315.15</td><td>27.29</td><td>-9.67</td><td>-7.62</td><td>351.49</td><td>357.86</td><td>1.61</td></tr><tr><td><span class="symbol">HDFCNIFIT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>34.62</td><td>16.37</td><td>-0.95</td><td>-0.49</td><td>39.04</td><td>39.80</td><td>3.43</td></tr><tr><td><span class="symbol">FIVESTAR</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>439.90</td><td>27.47</td><td>-24.72</td><td>-23.88</td><td>469.80</td><td>505.60</td><td>3.08</td></tr><tr><td><span class="symbol">KANSAINER</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>201.00</td><td>26.98</td><td>-5.96</td><td>-3.44</td><td>220.84</td><td>225.33</td><td>1.22</td></tr><tr><td><span class="symbol">KAMOPAINTS</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>4.98</td><td>12.60</td><td>-0.29</td><td>-0.25</td><td>5.62</td><td>5.96</td><td>2.38</td></tr><tr><td><span class="symbol">INFOMEDIA</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>4.89</td><td>46.34</td><td>-0.13</td><td>-0.12</td><td>5.88</td><td>6.07</td><td>5.17</td></tr><tr><td><span class="symbol">CYIENT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>999.00</td><td>37.72</td><td>-23.24</td><td>-12.78</td><td>1108.09</td><td>1128.85</td><td>1.20</td></tr><tr><td><span class="symbol">UGROCAP</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>135.30</td><td>39.81</td><td>-6.68</td><td>-5.70</td><td>148.60</td><td>157.57</td><td>1.51</td></tr><tr><td><span class="symbol">ELECTHERM</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>735.00</td><td>43.20</td><td>-22.42</td><td>-21.12</td><td>803.99</td><td>829.24</td><td>4.26</td></tr><tr><td><span class="symbol">BERGEPAINT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>460.50</td><td>23.63</td><td>-15.91</td><td>-15.29</td><td>482.11</td><td>503.77</td><td>2.01</td></tr><tr><td><span class="symbol">MPHASIS</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>2452.50</td><td>25.83</td><td>-73.89</td><td>-48.22</td><td>2704.89</td><td>2781.00</td><td>1.85</td></tr><tr><td><span class="symbol">HDFCLIFE</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>696.85</td><td>43.86</td><td>-11.81</td><td>-10.83</td><td>720.81</td><td>737.79</td><td>1.69</td></tr><tr><td><span class="symbol">MADRASFERT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>71.10</td><td>44.68</td><td>-1.04</td><td>-0.88</td><td>74.61</td><td>75.28</td><td>1.92</td></tr><tr><td><span class="symbol">CIGNITITEC</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>1338.60</td><td>27.36</td><td>-57.43</td><td>-39.83</td><td>1581.14</td><td>1655.43</td><td>1.93</td></tr><tr><td><span class="symbol">BAJAJINDEF</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>269.00</td><td>31.32</td><td>-11.81</td><td>-10.07</td><td>302.39</td><td>315.17</td><td>1.59</td></tr><tr><td><span class="symbol">SURYAROSNI</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>227.98</td><td>43.38</td><td>-5.15</td><td>-4.10</td><td>250.34</td><td>256.42</td><td>2.37</td></tr><tr><td><span class="symbol">DAMCAPITAL</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>162.82</td><td>40.67</td><td>-9.39</td><td>-9.36</td><td>179.25</td><td>192.36</td><td>1.40</td></tr><tr><td><span class="symbol">AXISTECETF</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>359.95</td><td>18.21</td><td>-9.71</td><td>-4.95</td><td>402.93</td><td>410.75</td><td>1.95</td></tr><tr><td><span class="symbol">TECILCHEM</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>14.80</td><td>37.91</td><td>-0.79</td><td>-0.78</td><td>15.67</td><td>16.76</td><td>3.58</td></tr><tr><td><span class="symbol">WIPRO</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>214.38</td><td>27.94</td><td>-8.00</td><td>-7.01</td><td>238.67</td><td>248.49</td><td>2.53</td></tr><tr><td><span class="symbol">POLYMED</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>1296.00</td><td>32.22</td><td>-84.88</td><td>-75.08</td><td>1521.42</td><td>1639.85</td><td>1.55</td></tr><tr><td><span class="symbol">IT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>36.80</td><td>18.27</td><td>-0.98</td><td>-0.50</td><td>40.51</td><td>41.29</td><td>5.53</td></tr><tr><td><span class="symbol">MASTEK</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>1754.00</td><td>29.72</td><td>-53.36</td><td>-30.87</td><td>2015.58</td><td>2073.17</td><td>1.72</td></tr><tr><td><span class="symbol">HLEGLAS</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>321.55</td><td>30.92</td><td>-18.31</td><td>-16.68</td><td>390.06</td><td>415.30</td><td>3.21</td></tr><tr><td><span class="symbol">SBIETFIT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>360.50</td><td>19.11</td><td>-9.86</td><td>-5.08</td><td>405.60</td><td>413.59</td><td>5.66</td></tr><tr><td><span class="symbol">FLEXIADD</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>10.13</td><td>38.00</td><td>-0.08</td><td>-0.07</td><td>10.44</td><td>10.55</td><td>1.63</td></tr><tr><td><span class="symbol">IRIS</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>237.00</td><td>40.02</td><td>-11.33</td><td>-7.49</td><td>273.62</td><td>285.58</td><td>2.07</td></tr><tr><td><span class="symbol">TECH</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>35.41</td><td>18.12</td><td>-0.96</td><td>-0.50</td><td>39.78</td><td>40.56</td><td>2.74</td></tr><tr><td><span class="symbol">SONATSOFTW</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>280.00</td><td>40.01</td><td>-9.39</td><td>-9.02</td><td>318.40</td><td>331.10</td><td>3.09</td></tr><tr><td><span class="symbol">INTELLECT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>676.90</td><td>15.68</td><td>-57.07</td><td>-45.94</td><td>833.75</td><td>904.57</td><td>2.58</td></tr><tr><td><span class="symbol">PWL</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>106.80</td><td>18.60</td><td>-5.39</td><td>-3.67</td><td>117.93</td><td>123.76</td><td>1.86</td></tr><tr><td><span class="symbol">KNAGRI</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>161.81</td><td>38.12</td><td>-6.11</td><td>-6.10</td><td>171.73</td><td>181.75</td><td>3.39</td></tr><tr><td><span class="symbol">BETA</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>1380.00</td><td>26.73</td><td>-54.08</td><td>-44.06</td><td>1452.41</td><td>1514.20</td><td>1.62</td></tr><tr><td><span class="symbol">CAPILLARY</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>513.90</td><td>29.36</td><td>-19.51</td><td>-16.61</td><td>611.41</td><td>640.12</td><td>1.35</td></tr><tr><td><span class="symbol">TNIDETF</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>88.80</td><td>33.44</td><td>-1.55</td><td>-1.37</td><td>93.92</td><td>95.98</td><td>3.25</td></tr><tr><td><span class="symbol">KPITTECH</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td class='right'>860.30</td><td>8.86</td><td>-60.33</td><td>-51.42</td><td>1026.71</td><td>1098.40</td><td>2.84</td></tr>
+<th onclick="sortTable(this)">SYMBOL NAME</th><th onclick="sortTable(this)">SWING_SIGNAL</th><th onclick="sortTable(this)">SWING ENTRY TYPE</th><th class="right" onclick="sortTable(this)">LTP</th><th onclick="sortTable(this)">DAILY RSI</th><th onclick="sortTable(this)">DAILY MACD</th><th onclick="sortTable(this)">DAILY MACD SIGNAL</th><th onclick="sortTable(this)">DAILY EMA21</th><th onclick="sortTable(this)">DAILY EMA50</th><th onclick="sortTable(this)">DAILY VOLUME RATIO</th></tr></thead><tbody><tr><td><span class="symbol">FINPIPE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>188.00</td><td>71.43</td><td>2.58</td><td>1.42</td><td>177.15</td><td>173.77</td><td>28.27</td></tr><tr><td><span class="symbol">AXISBNKETF</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>617.85</td><td>69.69</td><td>3.16</td><td>1.67</td><td>616.05</td><td>613.55</td><td>1.16</td></tr><tr><td><span class="symbol">LINCOLN</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>635.20</td><td>85.35</td><td>17.58</td><td>2.94</td><td>491.82</td><td>483.40</td><td>77.65</td></tr><tr><td><span class="symbol">CENTEXT</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>22.20</td><td>60.67</td><td>-0.02</td><td>-0.09</td><td>21.87</td><td>21.82</td><td>2.27</td></tr><tr><td><span class="symbol">PETRONET</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>289.85</td><td>63.83</td><td>5.37</td><td>4.44</td><td>292.24</td><td>284.97</td><td>1.21</td></tr><tr><td><span class="symbol">GINNIFILA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>39.80</td><td>68.41</td><td>0.66</td><td>0.02</td><td>39.69</td><td>39.31</td><td>4.25</td></tr><tr><td><span class="symbol">VARDHACRLC</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>37.27</td><td>66.96</td><td>0.24</td><td>-0.00</td><td>37.75</td><td>37.74</td><td>3.03</td></tr><tr><td><span class="symbol">BANKIETF</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>61.70</td><td>71.53</td><td>0.34</td><td>0.17</td><td>61.30</td><td>61.03</td><td>3.51</td></tr><tr><td><span class="symbol">SKYGOLD</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>368.80</td><td>70.35</td><td>4.65</td><td>-0.55</td><td>327.24</td><td>326.01</td><td>18.62</td></tr><tr><td><span class="symbol">TORNTPOWER</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>1462.20</td><td>69.24</td><td>32.61</td><td>22.28</td><td>1384.73</td><td>1349.58</td><td>1.34</td></tr><tr><td><span class="symbol">RUCHIRA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>111.80</td><td>82.65</td><td>1.84</td><td>0.62</td><td>120.88</td><td>119.83</td><td>1.26</td></tr><tr><td><span class="symbol">GPIL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>258.80</td><td>65.54</td><td>1.48</td><td>0.10</td><td>255.53</td><td>253.82</td><td>2.14</td></tr><tr><td><span class="symbol">ZIMLAB</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>71.54</td><td>59.97</td><td>0.78</td><td>0.52</td><td>73.45</td><td>72.52</td><td>1.37</td></tr><tr><td><span class="symbol">MBAPL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>464.45</td><td>87.22</td><td>13.44</td><td>7.32</td><td>431.73</td><td>420.23</td><td>1.92</td></tr><tr><td><span class="symbol">BLKASHYAP</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>50.42</td><td>63.46</td><td>1.17</td><td>0.42</td><td>51.38</td><td>51.18</td><td>1.45</td></tr><tr><td><span class="symbol">CONSOFINVT</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>235.00</td><td>81.30</td><td>17.98</td><td>10.78</td><td>195.37</td><td>180.66</td><td>1.20</td></tr><tr><td><span class="symbol">WANBURY</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>255.50</td><td>79.33</td><td>12.29</td><td>5.42</td><td>234.72</td><td>229.74</td><td>1.43</td></tr><tr><td><span class="symbol">GANDHITUBE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>800.00</td><td>67.69</td><td>16.64</td><td>2.85</td><td>761.37</td><td>756.76</td><td>1.34</td></tr><tr><td><span class="symbol">LTFOODS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>430.50</td><td>76.44</td><td>12.83</td><td>5.71</td><td>391.25</td><td>384.35</td><td>1.47</td></tr><tr><td><span class="symbol">IRB</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>43.95</td><td>81.52</td><td>0.74</td><td>0.29</td><td>42.35</td><td>41.95</td><td>1.38</td></tr><tr><td><span class="symbol">EDELWEISS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>122.00</td><td>76.16</td><td>3.28</td><td>0.89</td><td>111.10</td><td>109.27</td><td>1.16</td></tr><tr><td><span class="symbol">SAHYADRI</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>259.45</td><td>65.79</td><td>3.56</td><td>0.80</td><td>253.57</td><td>252.32</td><td>3.82</td></tr><tr><td><span class="symbol">FORTIS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>919.00</td><td>76.18</td><td>5.33</td><td>-4.09</td><td>877.67</td><td>877.33</td><td>1.39</td></tr><tr><td><span class="symbol">ARIES</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>350.00</td><td>75.16</td><td>4.83</td><td>0.87</td><td>322.61</td><td>321.35</td><td>6.11</td></tr><tr><td><span class="symbol">NDLVENTURE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>100.27</td><td>70.86</td><td>2.60</td><td>1.18</td><td>93.87</td><td>91.62</td><td>2.77</td></tr><tr><td><span class="symbol">DIVGIITTS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>750.00</td><td>74.72</td><td>12.63</td><td>7.01</td><td>618.19</td><td>607.23</td><td>2.22</td></tr><tr><td><span class="symbol">ASTRAL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>1601.00</td><td>84.47</td><td>32.70</td><td>18.82</td><td>1487.80</td><td>1459.24</td><td>2.36</td></tr><tr><td><span class="symbol">LEXUS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>35.00</td><td>74.91</td><td>1.67</td><td>0.49</td><td>27.91</td><td>26.94</td><td>6.11</td></tr><tr><td><span class="symbol">GODREJAGRO</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>652.00</td><td>81.17</td><td>11.62</td><td>0.75</td><td>562.97</td><td>562.49</td><td>40.29</td></tr><tr><td><span class="symbol">SMSPHARMA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>336.75</td><td>80.67</td><td>2.12</td><td>-0.83</td><td>320.74</td><td>320.68</td><td>9.75</td></tr><tr><td><span class="symbol">TVSSRICHAK</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>4322.00</td><td>77.48</td><td>72.63</td><td>9.15</td><td>4167.67</td><td>4153.57</td><td>25.93</td></tr><tr><td><span class="symbol">TIIL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>2508.00</td><td>83.15</td><td>78.59</td><td>24.36</td><td>2216.35</td><td>2179.55</td><td>8.96</td></tr><tr><td><span class="symbol">UNITEDTEA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>498.00</td><td>84.14</td><td>7.95</td><td>6.15</td><td>480.52</td><td>469.16</td><td>1.46</td></tr><tr><td><span class="symbol">DBREALTY</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>124.80</td><td>70.18</td><td>4.21</td><td>0.97</td><td>116.36</td><td>115.52</td><td>2.40</td></tr><tr><td><span class="symbol">CCAVENUE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>18.80</td><td>71.06</td><td>0.64</td><td>0.33</td><td>17.12</td><td>16.73</td><td>1.29</td></tr><tr><td><span class="symbol">PTCIL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>18230.00</td><td>66.10</td><td>125.80</td><td>42.72</td><td>18034.22</td><td>17901.82</td><td>1.44</td></tr><tr><td><span class="symbol">JAYBARMARU</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>103.00</td><td>77.92</td><td>3.07</td><td>0.51</td><td>93.52</td><td>91.49</td><td>4.14</td></tr><tr><td><span class="symbol">GPTINFRA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>123.00</td><td>79.44</td><td>2.61</td><td>0.08</td><td>107.95</td><td>106.90</td><td>4.94</td></tr><tr><td><span class="symbol">TVSSCS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>131.02</td><td>85.48</td><td>2.67</td><td>-0.49</td><td>105.92</td><td>105.67</td><td>4.97</td></tr><tr><td><span class="symbol">PRINCEPIPE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>265.75</td><td>75.92</td><td>5.49</td><td>1.70</td><td>252.86</td><td>250.22</td><td>1.20</td></tr><tr><td><span class="symbol">IOC</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>176.72</td><td>80.07</td><td>4.36</td><td>2.46</td><td>169.38</td><td>166.74</td><td>1.49</td></tr><tr><td><span class="symbol">AMBIKCO</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>1376.00</td><td>71.08</td><td>34.06</td><td>21.21</td><td>1292.67</td><td>1270.28</td><td>1.99</td></tr><tr><td><span class="symbol">CHEMPLASTS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>320.00</td><td>84.01</td><td>13.08</td><td>4.94</td><td>275.33</td><td>266.50</td><td>2.52</td></tr><tr><td><span class="symbol">ACUTAAS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>2024.00</td><td>81.12</td><td>95.12</td><td>75.92</td><td>1900.02</td><td>1793.64</td><td>1.20</td></tr><tr><td><span class="symbol">BANKNIFTY1</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>623.45</td><td>71.27</td><td>3.31</td><td>1.61</td><td>619.27</td><td>616.66</td><td>4.74</td></tr><tr><td><span class="symbol">SANSERA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>2226.10</td><td>86.82</td><td>89.79</td><td>40.22</td><td>1884.21</td><td>1805.18</td><td>1.63</td></tr><tr><td><span class="symbol">KROSS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>216.25</td><td>69.33</td><td>5.23</td><td>4.14</td><td>204.08</td><td>196.09</td><td>2.26</td></tr><tr><td><span class="symbol">APLAPOLLO</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>2249.70</td><td>85.97</td><td>94.90</td><td>79.11</td><td>2108.67</td><td>1985.07</td><td>2.05</td></tr><tr><td><span class="symbol">AKG</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>14.39</td><td>88.30</td><td>0.49</td><td>0.43</td><td>13.82</td><td>13.22</td><td>2.00</td></tr><tr><td><span class="symbol">BANKBETA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>62.02</td><td>70.05</td><td>0.33</td><td>0.16</td><td>61.77</td><td>61.53</td><td>5.35</td></tr><tr><td><span class="symbol">JGCHEM</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>380.60</td><td>80.73</td><td>10.95</td><td>0.44</td><td>346.53</td><td>345.47</td><td>1.81</td></tr><tr><td><span class="symbol">MUKKA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>24.98</td><td>70.18</td><td>0.50</td><td>0.19</td><td>23.75</td><td>23.62</td><td>3.57</td></tr><tr><td><span class="symbol">MUNJALSHOW</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>131.59</td><td>97.48</td><td>3.01</td><td>0.93</td><td>124.40</td><td>122.88</td><td>2.24</td></tr><tr><td><span class="symbol">AVL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>505.05</td><td>67.69</td><td>5.31</td><td>2.04</td><td>499.16</td><td>498.01</td><td>1.30</td></tr><tr><td><span class="symbol">ESSARSHPNG</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>30.20</td><td>76.47</td><td>1.04</td><td>0.37</td><td>27.38</td><td>27.02</td><td>1.86</td></tr><tr><td><span class="symbol">APEX</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>431.00</td><td>81.14</td><td>31.07</td><td>20.08</td><td>335.50</td><td>304.78</td><td>6.39</td></tr><tr><td><span class="symbol">FLAIR</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>323.00</td><td>65.32</td><td>1.31</td><td>0.18</td><td>307.79</td><td>305.24</td><td>7.55</td></tr><tr><td><span class="symbol">HAPPYFORGE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>1293.00</td><td>79.31</td><td>26.88</td><td>6.83</td><td>1117.75</td><td>1099.79</td><td>7.35</td></tr><tr><td><span class="symbol">ASHOKLEY</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>204.70</td><td>71.17</td><td>6.92</td><td>5.87</td><td>197.26</td><td>187.59</td><td>2.02</td></tr><tr><td><span class="symbol">KIRLOSENG</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>1371.00</td><td>78.40</td><td>29.94</td><td>7.45</td><td>1204.51</td><td>1185.01</td><td>23.23</td></tr><tr><td><span class="symbol">CANTABIL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>305.45</td><td>70.30</td><td>7.46</td><td>6.47</td><td>294.08</td><td>283.27</td><td>1.42</td></tr><tr><td><span class="symbol">LUMAXIND</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>6163.50</td><td>75.75</td><td>189.25</td><td>-13.04</td><td>5416.55</td><td>5390.68</td><td>2.31</td></tr><tr><td><span class="symbol">JITFINFRA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>374.25</td><td>80.94</td><td>14.06</td><td>3.74</td><td>282.34</td><td>275.42</td><td>3.33</td></tr><tr><td><span class="symbol">KINGFA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>4259.40</td><td>64.53</td><td>67.00</td><td>53.64</td><td>4315.64</td><td>4198.55</td><td>1.92</td></tr><tr><td><span class="symbol">ROLEXRINGS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>137.30</td><td>84.57</td><td>3.15</td><td>0.50</td><td>128.38</td><td>127.78</td><td>2.38</td></tr><tr><td><span class="symbol">ICICIB22</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>123.47</td><td>72.26</td><td>1.97</td><td>1.38</td><td>120.96</td><td>118.93</td><td>1.72</td></tr><tr><td><span class="symbol">ICICIBANK</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>1415.50</td><td>68.86</td><td>9.78</td><td>4.40</td><td>1389.10</td><td>1379.87</td><td>1.27</td></tr><tr><td><span class="symbol">MOTHERSON</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>130.99</td><td>82.56</td><td>3.29</td><td>1.05</td><td>120.29</td><td>118.88</td><td>1.83</td></tr><tr><td><span class="symbol">SCI</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>263.90</td><td>84.59</td><td>11.77</td><td>5.07</td><td>234.19</td><td>226.23</td><td>4.18</td></tr><tr><td><span class="symbol">UNIMECH</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>935.00</td><td>69.39</td><td>28.12</td><td>12.26</td><td>936.00</td><td>921.26</td><td>1.98</td></tr><tr><td><span class="symbol">VOLTAS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>1521.30</td><td>75.56</td><td>27.99</td><td>6.70</td><td>1419.87</td><td>1403.70</td><td>1.75</td></tr><tr><td><span class="symbol">WSTCSTPAPR</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>430.00</td><td>67.38</td><td>9.87</td><td>4.72</td><td>421.22</td><td>414.50</td><td>2.19</td></tr><tr><td><span class="symbol">LYPSAGEMS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>5.99</td><td>77.85</td><td>0.17</td><td>0.07</td><td>5.24</td><td>5.10</td><td>2.97</td></tr><tr><td><span class="symbol">GILT5YBEES</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>64.01</td><td>65.31</td><td>0.12</td><td>0.09</td><td>63.74</td><td>63.60</td><td>1.48</td></tr><tr><td><span class="symbol">BBOX</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>540.30</td><td>75.34</td><td>13.51</td><td>4.47</td><td>534.17</td><td>525.73</td><td>5.14</td></tr><tr><td><span class="symbol">SDL26BEES</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>136.49</td><td>54.49</td><td>0.18</td><td>0.13</td><td>135.91</td><td>135.66</td><td>5.06</td></tr><tr><td><span class="symbol">CARRARO</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>564.90</td><td>74.80</td><td>12.79</td><td>3.40</td><td>537.94</td><td>533.28</td><td>5.41</td></tr><tr><td><span class="symbol">PRECWIRE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>258.01</td><td>73.22</td><td>8.36</td><td>4.33</td><td>248.05</td><td>241.96</td><td>2.54</td></tr><tr><td><span class="symbol">FIBERWEB</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>46.29</td><td>80.04</td><td>2.56</td><td>1.72</td><td>39.65</td><td>37.60</td><td>2.92</td></tr><tr><td><span class="symbol">ELGIEQUIP</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>507.85</td><td>80.52</td><td>12.75</td><td>4.50</td><td>470.25</td><td>467.42</td><td>7.48</td></tr><tr><td><span class="symbol">GROWW</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>172.00</td><td>61.27</td><td>3.49</td><td>3.35</td><td>168.31</td><td>162.14</td><td>1.28</td></tr><tr><td><span class="symbol">WAKEFIT</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>214.00</td><td>82.05</td><td>5.71</td><td>1.64</td><td>188.87</td><td>186.66</td><td>1.47</td></tr><tr><td><span class="symbol">ICICIAMC</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>3007.90</td><td>71.87</td><td>97.88</td><td>90.10</td><td>2942.28</td><td>2812.20</td><td>1.17</td></tr><tr><td><span class="symbol">PARKHOSPS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>175.90</td><td>66.20</td><td>4.32</td><td>2.44</td><td>157.35</td><td>153.30</td><td>1.94</td></tr><tr><td><span class="symbol">GKSL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>110.50</td><td>80.60</td><td>2.40</td><td>1.31</td><td>107.13</td><td>105.37</td><td>1.49</td></tr><tr><td><span class="symbol">EICHERMOT</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>8067.00</td><td>76.19</td><td>84.45</td><td>1.27</td><td>7308.90</td><td>7252.73</td><td>2.14</td></tr><tr><td><span class="symbol">GATEWAY</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>58.76</td><td>64.27</td><td>1.09</td><td>0.54</td><td>60.19</td><td>59.65</td><td>1.71</td></tr><tr><td><span class="symbol">ENERGY</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>35.79</td><td>74.15</td><td>0.53</td><td>0.29</td><td>35.58</td><td>35.22</td><td>1.26</td></tr><tr><td><span class="symbol">CHEMBONDCH</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>157.29</td><td>65.50</td><td>3.08</td><td>0.61</td><td>151.77</td><td>151.57</td><td>1.20</td></tr><tr><td><span class="symbol">SGMART</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>415.25</td><td>76.57</td><td>16.93</td><td>8.02</td><td>376.10</td><td>361.92</td><td>2.61</td></tr><tr><td><span class="symbol">RNBDENIMS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>178.25</td><td>100.00</td><td>10.99</td><td>9.72</td><td>157.67</td><td>143.64</td><td>2.30</td></tr><tr><td><span class="symbol">ADVANCE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>138.40</td><td>62.40</td><td>2.57</td><td>2.00</td><td>130.80</td><td>127.86</td><td>3.83</td></tr><tr><td><span class="symbol">TMCV</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>484.15</td><td>69.99</td><td>15.37</td><td>12.70</td><td>456.82</td><td>433.67</td><td>1.28</td></tr><tr><td><span class="symbol">BELRISE</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>186.26</td><td>71.52</td><td>4.63</td><td>2.45</td><td>177.04</td><td>172.28</td><td>1.26</td></tr><tr><td><span class="symbol">PASHUPATI</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>903.15</td><td>88.85</td><td>11.16</td><td>1.43</td><td>821.23</td><td>818.03</td><td>6.76</td></tr><tr><td><span class="symbol">GULPOLY</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td>nan</td><td class='right'>163.00</td><td>83.76</td><td>3.51</td><td>-0.52</td><td>139.38</td><td>138.27</td><td>1.72</td></tr><tr><td><span class="symbol">PERSISTENT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>5473.00</td><td>24.12</td><td>-157.33</td><td>-98.92</td><td>6016.39</td><td>6159.01</td><td>2.17</td></tr><tr><td><span class="symbol">QUAL30IETF</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>21.58</td><td>42.86</td><td>-0.11</td><td>-0.10</td><td>21.62</td><td>21.74</td><td>1.25</td></tr><tr><td><span class="symbol">LTIM</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>5124.50</td><td>26.24</td><td>-166.05</td><td>-106.24</td><td>5797.93</td><td>5973.92</td><td>1.56</td></tr><tr><td><span class="symbol">ABBOTINDIA</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>26500.00</td><td>37.10</td><td>-259.96</td><td>-228.76</td><td>27375.43</td><td>27663.84</td><td>2.30</td></tr><tr><td><span class="symbol">ITBETA</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>340.30</td><td>17.45</td><td>-9.43</td><td>-4.82</td><td>384.14</td><td>391.73</td><td>7.29</td></tr><tr><td><span class="symbol">ITIETF</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>36.07</td><td>17.71</td><td>-1.00</td><td>-0.51</td><td>40.54</td><td>41.34</td><td>3.61</td></tr><tr><td><span class="symbol">UNIECOM</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>100.99</td><td>30.96</td><td>-3.37</td><td>-3.32</td><td>105.59</td><td>110.26</td><td>1.67</td></tr><tr><td><span class="symbol">FLEXITUFF</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>9.70</td><td>30.37</td><td>-0.81</td><td>-0.80</td><td>10.64</td><td>11.95</td><td>2.84</td></tr><tr><td><span class="symbol">IREDA</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>123.73</td><td>45.77</td><td>-2.37</td><td>-2.10</td><td>130.65</td><td>133.25</td><td>1.21</td></tr><tr><td><span class="symbol">CLEDUCATE</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>49.05</td><td>19.72</td><td>-6.87</td><td>-4.54</td><td>67.89</td><td>74.65</td><td>3.34</td></tr><tr><td><span class="symbol">ITBEES</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>36.30</td><td>17.79</td><td>-0.99</td><td>-0.51</td><td>40.60</td><td>41.40</td><td>4.68</td></tr><tr><td><span class="symbol">ITETF</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>34.40</td><td>16.60</td><td>-0.95</td><td>-0.49</td><td>38.69</td><td>39.45</td><td>3.58</td></tr><tr><td><span class="symbol">ZEELEARN</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>6.12</td><td>27.47</td><td>-0.21</td><td>-0.19</td><td>6.44</td><td>6.71</td><td>1.50</td></tr><tr><td><span class="symbol">INDIGOPNTS</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>971.50</td><td>33.83</td><td>-41.72</td><td>-41.41</td><td>1060.90</td><td>1121.20</td><td>1.28</td></tr><tr><td><span class="symbol">SHARIABEES</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>486.89</td><td>24.72</td><td>-3.91</td><td>-2.06</td><td>510.66</td><td>513.40</td><td>2.92</td></tr><tr><td><span class="symbol">GOKUL</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>31.70</td><td>8.65</td><td>-1.34</td><td>-1.02</td><td>35.67</td><td>37.31</td><td>1.71</td></tr><tr><td><span class="symbol">HDFCGROWTH</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>121.00</td><td>35.79</td><td>-1.09</td><td>-1.06</td><td>126.37</td><td>127.70</td><td>2.88</td></tr><tr><td><span class="symbol">OFSS</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>6630.00</td><td>13.77</td><td>-179.57</td><td>-89.22</td><td>7523.52</td><td>7686.37</td><td>2.47</td></tr><tr><td><span class="symbol">ZENSARTECH</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>586.00</td><td>17.88</td><td>-27.63</td><td>-19.95</td><td>656.59</td><td>686.58</td><td>1.55</td></tr><tr><td><span class="symbol">MPSLTD</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>1473.00</td><td>32.96</td><td>-77.17</td><td>-58.10</td><td>1769.89</td><td>1860.88</td><td>5.03</td></tr><tr><td><span class="symbol">NIFTYQLITY</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>21.49</td><td>45.48</td><td>-0.11</td><td>-0.10</td><td>21.84</td><td>21.96</td><td>1.44</td></tr><tr><td><span class="symbol">INDORAMA</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>39.00</td><td>41.46</td><td>-1.34</td><td>-1.19</td><td>41.82</td><td>43.78</td><td>2.37</td></tr><tr><td><span class="symbol">ITADD</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>34.46</td><td>15.65</td><td>-0.93</td><td>-0.47</td><td>38.72</td><td>39.46</td><td>5.08</td></tr><tr><td><span class="symbol">INFY</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>1369.00</td><td>13.49</td><td>-47.36</td><td>-22.63</td><td>1565.66</td><td>1597.93</td><td>2.74</td></tr><tr><td><span class="symbol">FSL</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>254.00</td><td>22.70</td><td>-11.75</td><td>-9.13</td><td>304.97</td><td>319.32</td><td>2.22</td></tr><tr><td><span class="symbol">HDFCQUAL</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>61.00</td><td>43.02</td><td>-0.30</td><td>-0.24</td><td>59.60</td><td>59.87</td><td>1.23</td></tr><tr><td><span class="symbol">KAYA</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>315.15</td><td>27.29</td><td>-9.67</td><td>-7.62</td><td>351.49</td><td>357.86</td><td>1.61</td></tr><tr><td><span class="symbol">HDFCNIFIT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>34.62</td><td>16.37</td><td>-0.95</td><td>-0.49</td><td>39.04</td><td>39.80</td><td>3.43</td></tr><tr><td><span class="symbol">FIVESTAR</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>439.90</td><td>27.47</td><td>-24.72</td><td>-23.88</td><td>469.80</td><td>505.60</td><td>3.08</td></tr><tr><td><span class="symbol">KANSAINER</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>201.00</td><td>26.98</td><td>-5.96</td><td>-3.44</td><td>220.84</td><td>225.33</td><td>1.22</td></tr><tr><td><span class="symbol">KAMOPAINTS</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>4.98</td><td>12.60</td><td>-0.29</td><td>-0.25</td><td>5.62</td><td>5.96</td><td>2.38</td></tr><tr><td><span class="symbol">INFOMEDIA</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>4.89</td><td>46.34</td><td>-0.13</td><td>-0.12</td><td>5.88</td><td>6.07</td><td>5.17</td></tr><tr><td><span class="symbol">CYIENT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>999.00</td><td>37.72</td><td>-23.24</td><td>-12.78</td><td>1108.09</td><td>1128.85</td><td>1.20</td></tr><tr><td><span class="symbol">UGROCAP</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>135.30</td><td>39.81</td><td>-6.68</td><td>-5.70</td><td>148.60</td><td>157.57</td><td>1.51</td></tr><tr><td><span class="symbol">ELECTHERM</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>735.00</td><td>43.20</td><td>-22.42</td><td>-21.12</td><td>803.99</td><td>829.24</td><td>4.26</td></tr><tr><td><span class="symbol">BERGEPAINT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>460.50</td><td>23.63</td><td>-15.91</td><td>-15.29</td><td>482.11</td><td>503.77</td><td>2.01</td></tr><tr><td><span class="symbol">MPHASIS</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>2452.50</td><td>25.83</td><td>-73.89</td><td>-48.22</td><td>2704.89</td><td>2781.00</td><td>1.85</td></tr><tr><td><span class="symbol">HDFCLIFE</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>696.85</td><td>43.86</td><td>-11.81</td><td>-10.83</td><td>720.81</td><td>737.79</td><td>1.69</td></tr><tr><td><span class="symbol">MADRASFERT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>71.10</td><td>44.68</td><td>-1.04</td><td>-0.88</td><td>74.61</td><td>75.28</td><td>1.92</td></tr><tr><td><span class="symbol">CIGNITITEC</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>1338.60</td><td>27.36</td><td>-57.43</td><td>-39.83</td><td>1581.14</td><td>1655.43</td><td>1.93</td></tr><tr><td><span class="symbol">BAJAJINDEF</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>269.00</td><td>31.32</td><td>-11.81</td><td>-10.07</td><td>302.39</td><td>315.17</td><td>1.59</td></tr><tr><td><span class="symbol">SURYAROSNI</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>227.98</td><td>43.38</td><td>-5.15</td><td>-4.10</td><td>250.34</td><td>256.42</td><td>2.37</td></tr><tr><td><span class="symbol">DAMCAPITAL</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>162.82</td><td>40.67</td><td>-9.39</td><td>-9.36</td><td>179.25</td><td>192.36</td><td>1.40</td></tr><tr><td><span class="symbol">AXISTECETF</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>359.95</td><td>18.21</td><td>-9.71</td><td>-4.95</td><td>402.93</td><td>410.75</td><td>1.95</td></tr><tr><td><span class="symbol">TECILCHEM</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>14.80</td><td>37.91</td><td>-0.79</td><td>-0.78</td><td>15.67</td><td>16.76</td><td>3.58</td></tr><tr><td><span class="symbol">WIPRO</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>214.38</td><td>27.94</td><td>-8.00</td><td>-7.01</td><td>238.67</td><td>248.49</td><td>2.53</td></tr><tr><td><span class="symbol">POLYMED</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>1296.00</td><td>32.22</td><td>-84.88</td><td>-75.08</td><td>1521.42</td><td>1639.85</td><td>1.55</td></tr><tr><td><span class="symbol">IT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>36.80</td><td>18.27</td><td>-0.98</td><td>-0.50</td><td>40.51</td><td>41.29</td><td>5.53</td></tr><tr><td><span class="symbol">MASTEK</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>1754.00</td><td>29.72</td><td>-53.36</td><td>-30.87</td><td>2015.58</td><td>2073.17</td><td>1.72</td></tr><tr><td><span class="symbol">HLEGLAS</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>321.55</td><td>30.92</td><td>-18.31</td><td>-16.68</td><td>390.06</td><td>415.30</td><td>3.21</td></tr><tr><td><span class="symbol">SBIETFIT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>360.50</td><td>19.11</td><td>-9.86</td><td>-5.08</td><td>405.60</td><td>413.59</td><td>5.66</td></tr><tr><td><span class="symbol">FLEXIADD</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>10.13</td><td>38.00</td><td>-0.08</td><td>-0.07</td><td>10.44</td><td>10.55</td><td>1.63</td></tr><tr><td><span class="symbol">IRIS</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>237.00</td><td>40.02</td><td>-11.33</td><td>-7.49</td><td>273.62</td><td>285.58</td><td>2.07</td></tr><tr><td><span class="symbol">TECH</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>35.41</td><td>18.12</td><td>-0.96</td><td>-0.50</td><td>39.78</td><td>40.56</td><td>2.74</td></tr><tr><td><span class="symbol">SONATSOFTW</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>280.00</td><td>40.01</td><td>-9.39</td><td>-9.02</td><td>318.40</td><td>331.10</td><td>3.09</td></tr><tr><td><span class="symbol">INTELLECT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>676.90</td><td>15.68</td><td>-57.07</td><td>-45.94</td><td>833.75</td><td>904.57</td><td>2.58</td></tr><tr><td><span class="symbol">PWL</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>106.80</td><td>18.60</td><td>-5.39</td><td>-3.67</td><td>117.93</td><td>123.76</td><td>1.86</td></tr><tr><td><span class="symbol">KNAGRI</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>161.81</td><td>38.12</td><td>-6.11</td><td>-6.10</td><td>171.73</td><td>181.75</td><td>3.39</td></tr><tr><td><span class="symbol">BETA</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>1380.00</td><td>26.73</td><td>-54.08</td><td>-44.06</td><td>1452.41</td><td>1514.20</td><td>1.62</td></tr><tr><td><span class="symbol">CAPILLARY</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>513.90</td><td>29.36</td><td>-19.51</td><td>-16.61</td><td>611.41</td><td>640.12</td><td>1.35</td></tr><tr><td><span class="symbol">TNIDETF</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>88.80</td><td>33.44</td><td>-1.55</td><td>-1.37</td><td>93.92</td><td>95.98</td><td>3.25</td></tr><tr><td><span class="symbol">KPITTECH</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td>nan</td><td class='right'>860.30</td><td>8.86</td><td>-60.33</td><td>-51.42</td><td>1026.71</td><td>1098.40</td><td>2.84</td></tr>
 </tbody>
 </table>
 </div>
@@ -241,7 +381,6 @@ function filterTable() {
   });
 }
 </script>
-
 
 </body>
 </html>
