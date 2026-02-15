@@ -6,10 +6,16 @@
 :root{ --mid:80px; } /* central column width - change once if needed */
 
 html,body{
-  margin:0;height:100%;background:#0b0f14;color:white;font-family:Arial;
+  margin:0;
+  height:100%;
+  background:#0b0f14;
+  color:white;
+  font-family:Arial;
   box-sizing:border-box;
 }
-*,*::before,*::after{box-sizing:inherit}
+*,*::before,*::after{
+  box-sizing:inherit;
+}
 
 /* screen container */
 #screen{
@@ -18,13 +24,14 @@ html,body{
   flex-direction:column;
   padding:20px;
 }
+
 /* centered grid with controlled width */
 #grid{
   flex:1;
   display:flex;
   flex-direction:column;
   justify-content:center;
-  max-width:1200px; /* keep centered width */
+  max-width:1200px; /* desktop canvas width */
   width:100%;
   margin:0 auto;
   position:relative;
@@ -46,8 +53,8 @@ html,body{
 #grid::after{
   content:"";
   position:absolute;
-  top:40px;        /* was 100px */
-  bottom:40px;     /* was 100px */
+  top:40px;
+  bottom:40px;
   width:calc((100% - var(--mid)) / 2);
   border:2px solid white;
   pointer-events:none;
@@ -62,15 +69,15 @@ html,body{
   grid-template-columns:1fr var(--mid) 1fr;
   min-height:18px;
   padding:0;
-  gap:0px;
+  gap:0;
   box-sizing:border-box;
 }
+
 /* ATM row visual markers */
 .row.atm{
   border-top:2px dotted orange;
   border-bottom:2px dotted orange;
 }
-
 
 /* topbar */
 .topbar{
@@ -81,7 +88,11 @@ html,body{
   justify-content:center;
 }
 
-select{background:#111;color:white;border:1px solid #555}
+select{
+  background:#111;
+  color:white;
+  border:1px solid #555;
+}
 
 /* header titles above the grid (keeps same container width and columns) */
 .outerRowHeader{
@@ -91,6 +102,7 @@ select{background:#111;color:white;border:1px solid #555}
   width:100%;
   margin:0 auto 8px auto;
 }
+
 .outerBoxTitle{
   text-align:center;
   font-size:13px;
@@ -98,7 +110,8 @@ select{background:#111;color:white;border:1px solid #555}
   border:1px solid #666;
   padding:6px 0;
 }
-/* MIDDLE GAP VISUAL DEBUG */
+
+/* middle gap visual debug */
 .midBox{
   border:2px dashed yellow !important;
 }
@@ -113,7 +126,6 @@ select{background:#111;color:white;border:1px solid #555}
   border:2px dashed yellow;
   pointer-events:none;
 }
-
 
 /* stacking & boxes */
 .stack{
@@ -130,16 +142,27 @@ select{background:#111;color:white;border:1px solid #555}
   justify-content:center;
   width:100%;
 }
-.boxTitle{ text-align:center; font-size:12px; margin-bottom:4px; opacity:.8; }
 
-.totWrap, .chgWrap{
+.boxTitle{
+  text-align:center;
+  font-size:12px;
+  margin-bottom:4px;
+  opacity:.8;
+}
+
+.totWrap,
+.chgWrap{
   height:100%;
   display:flex;
   align-items:center;
   padding:4px;
   box-sizing:border-box;
 }
-.chgWrap{ width:100%; border:1px solid #666; }
+
+.chgWrap{
+  width:100%;
+  border:1px solid #666;
+}
 
 .chgInner{
   position:relative;
@@ -154,7 +177,6 @@ select{background:#111;color:white;border:1px solid #555}
   height:16px;
 }
 
-
 /* bars */
 .bar{
   height:18px;
@@ -163,73 +185,95 @@ select{background:#111;color:white;border:1px solid #555}
 }
 
 .ce{ background:#00ff6a; }      /* base CE = green */
-.pe{ background:#ff4040; }      /* base PE = red  */
+.pe{ background:#ff4040; }      /* base PE = red   */
 
-.deep.ce{ background:#00aa55 }  /* CE increase */
-.deep.pe{ background:#aa0000 }  /* PE increase */
+.deep.ce{ background:#00aa55; } /* CE increase     */
+.deep.pe{ background:#aa0000; } /* PE increase     */
 
 /* CHANGE IN OI ONLY COLORS */
 .chg-ce{
-  background:#17D16B;   /* blue */
+  background:#17D16B;
 }
 
 .chg-pe{
-  background:#D11743;   /* magenta */
+  background:#D11743;
 }
 
-
-
-.r{ margin-left:auto }
-.l{ margin-right:auto }
+.r{ margin-left:auto; }
+.l{ margin-right:auto; }
 
 .strike{
   text-align:center;
   font-weight:bold;
   color:#fff;
-  margin-top:14px;   /* pushes it slightly downward */
-}
-
-
-
-.stack { gap:0px !important; }
-.box { padding:2px !important; }
-.totWrap, .chgWrap { padding:1px !important; }
-
-.strike{
+  margin-top:14px;
   position:relative;
   z-index:500;
 }
 
-/* ================= MOBILE ONLY ADDITIONS ================= */
+/* tighter default spacing (shared with mobile) */
+.stack { gap:0 !important; }
+.box   { padding:2px !important; }
+.totWrap,
+.chgWrap { padding:1px !important; }
 
+/* ================== MOBILE LAYOUT REWRITE ================== */
+
+/* Tablets + phones */
 @media (max-width: 900px){
 
+  /* Screen: allow scroll, reduce padding */
   #screen{
+    height:auto;
+    min-height:100vh;
     padding:10px;
   }
 
+  /* Grid: full width, top aligned (no vertical centering) */
   #grid{
     max-width:100%;
-    overflow-x:auto;
+    width:100%;
+    margin:0;
+    justify-content:flex-start;
+    overflow-x:hidden;
   }
 
+  /* Header row match full width */
   .outerRowHeader{
     max-width:100%;
+    width:100%;
+    margin:6px 0 8px 0;
+  }
+
+  /* Header compact but readable */
+  .outerBoxTitle{
+    font-size:12px;
+    padding:4px 2px;
+  }
+
+  .topbar{
+    padding:4px 4px;
+    gap:8px;
+  }
+
+  select{
+    font-size:12px;
+    padding:3px 6px;
   }
 
   .row{
     min-height:16px;
   }
-
 }
 
-/* PHONE SIZE */
+/* Phones */
 @media (max-width: 600px){
 
   :root{
-    --mid:60px;
+    --mid:56px;   /* thinner middle ladder, more space for bars */
   }
 
+  /* Remove decorative frames on phones */
   #grid::before,
   #grid::after,
   #midCol{
@@ -238,61 +282,33 @@ select{background:#111;color:white;border:1px solid #555}
 
   .row{
     grid-template-columns:1fr var(--mid) 1fr;
-    min-height:14px;
-  }
-
-  .outerBoxTitle{
-    font-size:11px;
-    padding:4px 0;
+    min-height:18px;
   }
 
   .strike{
-    font-size:10px;
+    font-size:11px;
     margin-top:6px;
   }
 
   .chgInner{
-    height:28px;
+    height:32px;
   }
 
   .bar{
-    height:14px;
-  }
-
-}
-/* ===== MOBILE FIX: SAFE TOP AREA FOR NOTCH + STATUS BAR ===== */
-
-@media (max-width: 600px){
-
-  .topbar{
-    padding-top: calc(10px + env(safe-area-inset-top));
-    margin-top: env(safe-area-inset-top);
+    height:16px;
   }
 
   body{
-    padding-top: env(safe-area-inset-top);
+    padding-top:env(safe-area-inset-top);
   }
 
+  .topbar{
+    padding-top:calc(4px + env(safe-area-inset-top));
+    margin-top:0;
+  }
 }
 
-
-/* ===== MOBILE FIX: REMOVE VERTICAL CENTER GAP ===== */
-
-@media (max-width: 600px){
-
-  #screen{
-    height:auto;
-    min-height:100vh;
-    padding:8px;
-  }
-
-  #grid{
-    justify-content:flex-start;
-  }
-
-}
-
-/* VERY SMALL */
+/* Very small phones */
 @media (max-width: 420px){
 
   :root{
@@ -301,42 +317,23 @@ select{background:#111;color:white;border:1px solid #555}
 
   select{
     font-size:11px;
+    padding:2px 4px;
+  }
+
+  .outerBoxTitle{
+    font-size:11px;
   }
 
   .row{
-    min-height:12px;
+    min-height:16px;
   }
 
+  .strike{
+    font-size:10px;
+  }
 }
-/* ===== MOBILE FIX: REDUCE ROW + BOX HEIGHT ===== */
-
-@media (max-width: 600px){
-
-  .row{
-    min-height:12px;
-  }
-
-  .box{
-    padding:2px;
-  }
-
-  .totWrap,
-  .chgWrap{
-    padding:1px;
-  }
-
-  .chgInner{
-    height:24px;
-  }
-
-  .bar{
-    height:12px;
-  }
-
-}
-
-
 </style>
+
 
 </head>
 
@@ -365,7 +362,7 @@ select{background:#111;color:white;border:1px solid #555}
       (LAST 2 SCAN DELTA)
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-14(<span style="color:#27F2F5;font-weight:bold">16:15:41</span>)
+      Scan: 2026-02-15(<span style="color:#27F2F5;font-weight:bold">12:33:24</span>)
     </span><br>
     <span id="pcrChange" style="font-size:11px;opacity:.85"></span>
   </div>
