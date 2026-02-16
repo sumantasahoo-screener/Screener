@@ -430,7 +430,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-16(<span style="color:#27F2F5;font-weight:bold">21:19:10</span>)
+      Scan: 2026-02-16(<span style="color:#27F2F5;font-weight:bold">21:28:52</span>)
     </span><br>
     <span id="pcrChange" style="font-size:11px;"></span>
   </div>
@@ -464,6 +464,21 @@ const hoverLine = document.getElementById("hoverLine");
 
 var keys = Object.keys(DATA);
 
+// --- Move INDEX symbols to front ---
+var indexSymbols = ["NIFTY","BANKNIFTY"];
+var indexList = [];
+var normalList = [];
+
+keys.forEach(function(k){
+  if(indexSymbols.includes(k)){
+    indexList.push(k);
+  }else{
+    normalList.push(k);
+  }
+});
+
+keys = indexList.concat(normalList);
+
 var topRow = document.createElement("div");
 var bottomRow = document.createElement("div");
 
@@ -476,7 +491,6 @@ bottomRow.style.gap = "10px";
 topRow.style.width = "100%";
 bottomRow.style.width = "100%";
 
-
 var splitIndex = Math.ceil(keys.length / 2);
 
 keys.forEach(function(k, i){
@@ -487,6 +501,14 @@ keys.forEach(function(k, i){
 
   var btn=document.createElement("button");
   btn.innerText=k;
+
+  // --- Highlight index buttons ---
+  if(indexSymbols.includes(k)){
+    btn.style.background = "#1c3f66";
+    btn.style.border = "1px solid #4aa3ff";
+    btn.style.fontWeight = "bold";
+  }
+
   btn.onclick=function(){
     ulSel.value=k;
     ulSel.onchange();
@@ -499,6 +521,7 @@ keys.forEach(function(k, i){
   }
 
 });
+
 
 var container = document.getElementById("symbolButtons");
 container.innerHTML = "";
