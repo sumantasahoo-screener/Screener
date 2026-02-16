@@ -86,10 +86,42 @@ html,body{
   padding:6px;
   border-bottom:1px solid #444;
   display:flex;
-  gap:12px;
   justify-content:center;
-  align-items:flex-start;
+  align-items:center;
   position:relative;
+}
+
+#dropdownWrap{
+  display:flex;
+  gap:12px;
+  z-index:5;
+}
+
+#symbolButtons{
+  position:absolute;
+  left:8px;
+  top:6px;
+  bottom:6px;
+  width:320px;
+  display:flex;
+  flex-wrap:wrap;
+  align-content:flex-start;
+  gap:4px;
+  overflow:hidden;
+}
+
+#symbolButtons button{
+  font-size:10px;
+  padding:2px 6px;
+  border:1px solid #555;
+  background:#012A40;
+  color:white;
+  cursor:pointer;
+  border-radius:3px;
+}
+
+#symbolButtons button:hover{
+  background:#0a3a55;
 }
 
 
@@ -372,7 +404,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-16(<span style="color:#27F2F5;font-weight:bold">20:26:36</span>)
+      Scan: 2026-02-16(<span style="color:#27F2F5;font-weight:bold">20:29:10</span>)
     </span><br>
     <span id="pcrChange" style="font-size:11px;"></span>
   </div>
@@ -408,6 +440,14 @@ Object.keys(DATA).forEach(function(k){
   var o=document.createElement("option");
   o.text=k; o.value=k;
   ulSel.add(o);
+
+  var btn=document.createElement("button");
+  btn.innerText=k;
+  btn.onclick=function(){
+    ulSel.value=k;
+    ulSel.onchange();
+  };
+  document.getElementById("symbolButtons").appendChild(btn);
 });
 
 ulSel.onchange = function(){
