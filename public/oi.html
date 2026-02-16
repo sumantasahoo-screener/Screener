@@ -413,7 +413,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-16(<span style="color:#27F2F5;font-weight:bold">20:59:46</span>)
+      Scan: 2026-02-16(<span style="color:#27F2F5;font-weight:bold">21:05:34</span>)
     </span><br>
     <span id="pcrChange" style="font-size:11px;"></span>
   </div>
@@ -445,7 +445,21 @@ const leftCol = document.getElementById("leftCol");
 const rightCol = document.getElementById("rightCol");
 const hoverLine = document.getElementById("hoverLine");
 
-Object.keys(DATA).forEach(function(k){
+var keys = Object.keys(DATA);
+
+var topRow = document.createElement("div");
+var bottomRow = document.createElement("div");
+
+topRow.style.display = "flex";
+bottomRow.style.display = "flex";
+
+topRow.style.gap = "10px";
+bottomRow.style.gap = "10px";
+
+var splitIndex = Math.ceil(keys.length / 2);
+
+keys.forEach(function(k, i){
+
   var o=document.createElement("option");
   o.text=k; o.value=k;
   ulSel.add(o);
@@ -456,8 +470,25 @@ Object.keys(DATA).forEach(function(k){
     ulSel.value=k;
     ulSel.onchange();
   };
-  document.getElementById("symbolButtons").appendChild(btn);
+
+  if(i < splitIndex){
+    topRow.appendChild(btn);
+  }else{
+    bottomRow.appendChild(btn);
+  }
+
 });
+
+var container = document.getElementById("symbolButtons");
+container.innerHTML = "";
+container.style.display = "flex";
+container.style.flexDirection = "column";
+container.style.justifyContent = "center";
+container.style.gap = "8px";
+
+container.appendChild(topRow);
+container.appendChild(bottomRow);
+
 
 ulSel.onchange = function(){
   expSel.innerHTML="";
