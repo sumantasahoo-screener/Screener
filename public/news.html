@@ -441,7 +441,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-17(<span style="color:#27F2F5;font-weight:bold">14:15:46</span>)
+      Scan: 2026-02-17(<span style="color:#27F2F5;font-weight:bold">14:19:48</span>)
     </span><br>
     <span id="pcrChange" style="font-size:16px;"></span>
   </div>
@@ -527,26 +527,32 @@ keys.forEach(function(k, i){
 
     btn.onclick=function(){
 
-      document.querySelectorAll("#symbolButtons button")
-        .forEach(b=>{
-          b.classList.remove("activeSymbol");
-          b.style.background = "";
-        });
+    document.querySelectorAll("#symbolButtons button")
+      .forEach(b=>{
+        b.classList.remove("activeSymbol");
+        b.style.background = "";
+      });
 
-      this.classList.add("activeSymbol");
+    const btn = this;   // FIX: store reference
 
-      ulSel.value = k;
-      ulSel.onchange();
+    btn.classList.add("activeSymbol");
 
-      // ---- APPLY OI SIGNAL COLOR ----
-      setTimeout(() => {
-        if (window.currentOISignal === "LONG") {
-          this.style.background = "#00ff6a";
-        }
-        if (window.currentOISignal === "SHORT") {
-          this.style.background = "#ff2e2e";
-        }
-      }, 50);
+    ulSel.value = k;
+    ulSel.onchange();
+
+    // ---- APPLY OI SIGNAL COLOR ----
+    setTimeout(function () {
+
+      if (window.currentOISignal === "LONG") {
+        btn.style.background = "#00ff6a";
+      }
+
+      if (window.currentOISignal === "SHORT") {
+        btn.style.background = "#ff2e2e";
+      }
+
+    }, 50);
+
 
 
 
