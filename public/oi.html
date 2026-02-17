@@ -441,7 +441,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-17(<span style="color:#27F2F5;font-weight:bold">14:04:04</span>)
+      Scan: 2026-02-17(<span style="color:#27F2F5;font-weight:bold">14:04:34</span>)
     </span><br>
     <span id="pcrChange" style="font-size:16px;"></span>
   </div>
@@ -528,13 +528,26 @@ keys.forEach(function(k, i){
     btn.onclick=function(){
 
       document.querySelectorAll("#symbolButtons button")
-        .forEach(b=>b.classList.remove("activeSymbol"));
+        .forEach(b=>{
+          b.classList.remove("activeSymbol");
+          b.style.background = "";
+        });
 
       this.classList.add("activeSymbol");
 
-      ulSel.value=k;
+      ulSel.value = k;
       ulSel.onchange();
-    };
+
+      // ---- APPLY OI SIGNAL COLOR ----
+      setTimeout(() => {
+        if (window.currentOISignal === "LONG") {
+          this.style.background = "#00ff6a";
+        }
+        if (window.currentOISignal === "SHORT") {
+          this.style.background = "#ff2e2e";
+        }
+      }, 50);
+
 
 
 
@@ -671,6 +684,24 @@ function render(){
       " | <span style='color:" + biasColor + ";font-weight:bold'>" + biasLabel + "</span>" +
       " | prev1: " + obj.prev1_cPCR +
       " | prev2: " + obj.prev2_cPCR;
+      
+      
+    // ---- CHANGE IN OI DOMINANCE SIGNAL ----
+    let signalType = null;
+
+    // SHORT: CE writing + PE unwinding
+    if (chCE > 0 && chPE < 0 && Math.abs(chCE) > Math.abs(chPE)) {
+      signalType = "SHORT";
+    }
+
+    // LONG: PE writing + CE unwinding
+    if (chPE > 0 && chCE < 0 && Math.abs(chPE) > Math.abs(chCE)) {
+      signalType = "LONG";
+    }
+
+    // store in window for next step
+    window.currentOISignal = signalType;
+
 
 
 
