@@ -441,7 +441,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-17(<span style="color:#27F2F5;font-weight:bold">19:47:29</span>)
+      Scan: 2026-02-17(<span style="color:#27F2F5;font-weight:bold">22:28:18</span>)
     </span><br>
     <span id="pcrChange" style="font-size:16px;"></span>
   </div>
@@ -543,15 +543,24 @@ keys.forEach(function(k, i){
     // ---- APPLY OI SIGNAL COLOR ----
     setTimeout(function () {
 
-      if (window.currentOISignal === "LONG") {
-        btn.style.background = "#00ff6a";
+      if (window.currentSpike === "CE") {
+        btn.style.background = "#00c6ff";   // Call side spike
       }
 
-      if (window.currentOISignal === "SHORT") {
-        btn.style.background = "#ff2e2e";
+      else if (window.currentSpike === "PE") {
+        btn.style.background = "#ff9f00";   // Put side spike
+      }
+
+      else if (window.currentSpike === "BOTH") {
+        btn.style.background = "#ffd000";   // Both side spike
+      }
+
+      else {
+        btn.style.background = "";          // No spike → normal
       }
 
     }, 50);
+
 };
 
 
@@ -711,11 +720,8 @@ function render(){
       signalType = "LONG";
     }
 
-
     // store in window for next step
     window.currentOISignal = signalType;
-
-
 
 
   
