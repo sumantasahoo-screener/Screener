@@ -1,1177 +1,1007 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- AUTO REFRESH EVERY 2 MINUTES -->
-<meta http-equiv="refresh" content="120">
-
-<title>F&O News Feed</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
 <style>
-:root {
-  --bg-light:#f4f6f9;
-  --bg-dark:#1b1c1f;
-  --card-light:#ffffff;
-  --card-dark:#242529;
-  --text-light:#111;
-  --text-dark:#f1f1f1;
-  --muted-light:#6c757d;
-  --muted-dark:#b0b3b8;
-  --header:#0d1b2a;
-  --accent:#4da3ff;
-}
+:root{ --mid:80px; } /* central column width - change once if needed */
 
-body {
-  background:var(--bg-light);
-  color:var(--text-light);
-  font-family:Inter, system-ui, sans-serif;
-  font-weight:400;
-  transition:.3s;
-}
-
-body.dark {
-  background:var(--bg-dark);
-  color:var(--text-dark);
-}
-
-.header {
-  background:var(--header);
-  color:#fff;
-  padding:10px 24px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  position:sticky;
-  top:0;
-  z-index:1000;
-}
-
-.header-left h4 {
-  font-size:1.1rem;
+html,body{
   margin:0;
+  height:100%;
+  background:#012A40;
+  color:white;
+  font-family:Arial, sans-serif;
+  box-sizing:border-box;
+}
+*,*::before,*::after{
+  box-sizing:inherit;
 }
 
-.search-box {
-  width:260px;
-  font-size:.85rem;
+/* ===== DESKTOP BASE LAYOUT (UNCHANGED) ===== */
+
+/* screen container */
+#screen{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  padding:20px;
 }
 
-.toggle {
-  cursor:pointer;
-  border:1px solid #fff;
-  padding:4px 12px;
-  border-radius:20px;
-  font-size:.8rem;
-  margin-left:10px;
-}
-
-.stock-card {
-  margin-bottom:32px;
-  padding:12px;
-  border-radius:14px;
-}
-
-.stock-card h5 {
-  font-size:1rem;
-  font-weight:500;
-  margin-bottom:12px;
-}
-
-.stock-card.highlight {
-  outline:2px solid var(--accent);
-  animation:blink .8s ease;
-}
-
-@keyframes blink {
-  0% { outline-color:transparent; }
-  100% { outline-color:var(--accent); }
-}
-
-.news-columns {
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:24px;
-}
-
-@media (max-width:1200px) {
-  .news-columns { grid-template-columns:1fr; }
-}
-
-
-.news-card {
-  background:#f0f2f5;
-  border-radius:12px;
-  padding:10px 12px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+/* centered grid with controlled width */
+#grid{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  max-width:1350px;        /* desktop canvas width */
+  width:100%;
+  margin:0 auto;
   position:relative;
-  transition:.15s ease;
 }
 
-.news-card:hover {
-  transform:translateY(-2px);
-  box-shadow:0 8px 20px rgba(0,0,0,0.15);
-}
-
-
-
-body.dark .news-card {
-  background:var(--card-dark);
-  box-shadow:0 6px 18px rgba(0,0,0,0.45);
-}
-
-.news-card a {
-  text-decoration:none;
-  font-weight:500;
-  font-size:.88rem;
-  line-height:1.35;
-  color:inherit;
-}
-
-body.dark .news-card a {
-  color:var(--accent);
-}
-
-.news-meta {
-  margin-top:4px;
-  font-size:.75rem;
-  color:var(--muted-light);
-}
-
-body.dark .news-meta {
-  color:var(--muted-dark);
-}
-
-.badge-new {
+.hoverLine{
   position:absolute;
-  top:8px;
-  right:8px;
-  background:#ff3b3b;
+  left:0;
+  right:0;
+  height:1px;
+  background:#ffd000;
+  pointer-events:none;
+  z-index:50;
+  display:none;
+}
+
+/* outline frames that follow exact same math as grid columns */
+#grid::before,
+#grid::after{
+  content:"";
+  position:absolute;
+  top:40px;
+  bottom:40px;
+  width:calc((100% - var(--mid)) / 2);
+  border:2px solid white;
+  pointer-events:none;
+}
+#grid::before{ left:0; }
+#grid::after { right:0; }
+
+/* each visual row: left column | center strike | right column */
+.row{
+  display:grid;
+  grid-template-columns:1fr var(--mid) 1fr;
+  min-height:18px;
+  padding:0;
+  gap:0;
+  box-sizing:border-box;
+}
+
+/* ATM row visual markers */
+.row.atm{
+  border-top:2px dotted orange;
+  border-bottom:2px dotted orange;
+}
+
+/* topbar */
+.topbar{
+  height:100px;
+  padding:6px 0;
+  border-bottom:1px solid #444;
+  display:flex;
+  align-items:center;
+
+  max-width:1350px;
+  width:100%;
+  margin:0 auto;
+}
+
+
+#symbolButtons{
+  flex:1;
+  display:flex;
+  flex-wrap:wrap;
+  align-content:center;
+  gap:10px;
+  height:70px;
+  overflow:hidden;
+  padding-left:6px;
+}
+
+#symbolDivider{
+  width:1px;
+  height:70px;
+  background:#2a5a6a;
+  margin:0 12px;
+  flex-shrink:0;
+}
+
+#dropdownWrap{
+  display:flex;
+  gap:6px;
+  flex-shrink:0;
+  margin-right:12px;
+}
+
+#dropdownDivider{
+  width:1px;
+  height:70px;
+  background:#2a5a6a;
+  margin-right:12px;
+  flex-shrink:0;
+}
+
+
+
+#dropdownWrap select{
+  width:85px;
+}
+
+#symbolButtons button{
+  font-size:12px;
+  padding:4px 10px;
+  border:1px solid #555;
+  background:#012A40;
+  color:white;
+  cursor:pointer;
+  border-radius:4px;
+  min-width:75px;
+  text-align:center;
+}
+
+
+#symbolButtons button:hover{
+  background:#0a3a55;
+}
+
+
+
+select{
+  background:#012A40;
+  color:white;
+  border:1px solid #555;
+}
+
+/* header titles above the grid (keeps same container width and columns) */
+.outerRowHeader{
+  display:grid;
+  grid-template-columns:1fr var(--mid) 1fr;
+  max-width:1350px;
+  width:100%;
+  margin:0 auto 8px auto;
+}
+.outerBoxTitle{
+  text-align:center;
+  font-size:13px;
+
+  border:1px solid #666;
+  padding:6px 0;
+}
+
+/* MIDDLE GAP VISUAL DEBUG */
+.midBox{
+  border:2px dashed yellow !important;
+}
+
+#midCol{
+  position:absolute;
+  left:50%;
+  top:40px;
+  bottom:40px;
+  width:var(--mid);
+  transform:translateX(-50%);
+  border:2px dashed yellow;
+  pointer-events:none;
+}
+
+/* stacking & boxes */
+.stack{
+  display:flex;
+  flex-direction:column;
+  gap:1px;
+}
+
+.box{
+  border:none;
+  padding:6px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  width:100%;
+}
+.boxTitle{
+  text-align:center;
+  font-size:12px;
+  margin-bottom:4px;
+
+}
+
+.totWrap,
+.chgWrap{
+  height:100%;
+  display:flex;
+  align-items:center;
+  padding:4px;
+  box-sizing:border-box;
+}
+.chgWrap{
+  width:100%;
+  border:1px solid #666;
+}
+
+.chgInner{
+  position:relative;
+  width:100%;
+  height:40px;
+  overflow:hidden;
+  padding:0;
+}
+.chgInner .bar{
+  position:absolute;
+  height:16px;
+}
+
+.activeSymbol{
+  background:linear-gradient(45deg,#00c6ff,#0072ff) !important;
+  border:1px solid #ffffff !important;
+  color:#000 !important;
+  font-weight:bold;
+}
+
+
+/* bars */
+.bar{
+  height:18px;
+  border:none;
+  box-sizing:border-box;
+}
+
+.ce{ background:#00ff6a; }      /* base CE = green */
+.pe{ background:#ff4040; }      /* base PE = red   */
+
+.deep.ce{ background:#00aa55; } /* CE increase     */
+.deep.pe{ background:#aa0000; } /* PE increase     */
+
+/* CHANGE IN OI ONLY COLORS */
+.chg-ce{
+  background:#17D16B;
+}
+.chg-pe{
+  background:#D11743;
+}
+
+.r{ margin-left:auto; }
+.l{ margin-right:auto; }
+
+.strike{
+  text-align:center;
+  font-weight:normal;
+
   color:#fff;
-  font-size:.65rem;
-  padding:2px 6px;
-  border-radius:999px;
-  font-weight:600;
-  animation:pulse 1.4s infinite ease-in-out;
+  margin-top:14px;   /* pushes it slightly downward */
+  position:relative;
+  z-index:500;
 }
 
-@keyframes pulse {
-  0% { transform:scale(1); opacity:1; }
-  50% { transform:scale(1.15); opacity:.75; }
-  100% { transform:scale(1); opacity:1; }
+/* compact spacing */
+.stack { gap:0 !important; }
+.box   { padding:2px !important; }
+.totWrap,
+.chgWrap { padding:1px !important; }
+
+/* ===== MOBILE / TABLET TWEAKS (NO DESKTOP CHANGE) ===== */
+
+/* Tablets + phones */
+@media (max-width: 900px){
+
+  /* Screen: allow scroll, reduce padding */
+  #screen{
+    height:auto;
+    min-height:100vh;
+    padding:10px;
+  }
+
+  /* Grid: full width, top aligned */
+  #grid{
+    max-width:100%;
+    width:100%;
+    margin:0;
+    justify-content:flex-start;
+    overflow-x:hidden;
+  }
+
+  /* Headers full width */
+  .outerRowHeader{
+    max-width:100%;
+    width:100%;
+    margin:6px 0 8px 0;
+  }
+
+  .outerBoxTitle{
+    font-size:12px;
+    padding:4px 2px;
+  }
+
+  .topbar{
+    padding:4px 4px;
+    gap:8px;
+  }
+
+  select{
+    font-size:12px;
+    padding:3px 6px;
+  }
+
+  .row{
+    min-height:16px;
+  }
 }
 
+/* Phones */
+@media (max-width: 600px){
 
-footer {
-  opacity:.6;
-  font-size:.8rem;
-}
-.stock-label {
-  font-size:.75rem;
-  font-weight:600;
-  letter-spacing:.3px;
-  text-transform:uppercase;
-  color:#555;
-  margin-bottom:6px;
-  padding:2px 8px;
-  background:rgba(77,163,255,0.15);
-  border-radius:999px;
-  display:inline-block;
+  :root{
+    --mid:56px;   /* narrower middle ladder, more space for bars */
+  }
+
+  /* Decorative frames hide on phones */
+  #grid::before,
+  #grid::after,
+  #midCol{
+    display:none;
+  }
+
+  .row{
+    grid-template-columns:1fr var(--mid) 1fr;
+    min-height:18px;
+  }
+
+  .strike{
+    font-size:11px;
+    margin-top:6px;
+  }
+
+  .chgInner{
+    height:32px;
+  }
+
+  .bar{
+    height:16px;
+  }
+
+  /* Safe-area for notch */
+  body{
+    padding-top:env(safe-area-inset-top);
+  }
+
+  .topbar{
+    padding-top:calc(4px + env(safe-area-inset-top));
+    margin-top:0;
+  }
 }
 
-body.dark .stock-label {
-  background:rgba(77,163,255,0.25);
-  color:#cfe4ff;
+/* Very small phones */
+@media (max-width: 420px){
+
+  :root{
+    --mid:48px;
+  }
+
+  select{
+    font-size:11px;
+    padding:2px 4px;
+  }
+
+  .outerBoxTitle{
+    font-size:11px;
+  }
+
+  .row{
+    min-height:16px;
+  }
+
+  .strike{
+    font-size:10px;
+  }
 }
 </style>
+
+
+
+
 </head>
 
 <body>
+<div id="screen">
 
-<div class="header" id="topHeader">
-  <div class="header-left">
-    <h4>📊 F&O News Feed</h4>
-    <small>Last Updated: 2026-02-15 00:21 IST</small>
+<div class="topbar">
+  <div id="symbolButtons"></div>
+  <div id="symbolDivider"></div>
+  <div id="dropdownWrap">
+    <select id="ul"></select>
+    <select id="exp"></select>
   </div>
 
-  <div class="d-flex align-items-center">
-    <input
-      type="text"
-      class="form-control form-control-sm search-box"
-      placeholder="Search stock…"
-      onkeyup="searchStock(this.value)"
-    >
-    <div class="toggle" onclick="toggleTheme()">Light / Dark</div>
-  </div>
+  <div id="rightReserve"></div>
 </div>
 
-<div class="container-fluid px-4 my-4">
-  <div class="news-columns">
-    
-    <div class="news-card-wrapper" data-stock="APLAPOLLO">
-        <div class="stock-label">APL Apollo Tubes Limited (APLAPOLLO)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMipAFBVV95cUxPamlVX2d6U3ZoTE5CYUNjaDBHc1NLWXBfYms1eFJHTGV0TXhMN3N4X0hBMnZHSUoyS0RpV09ZWWpkeVgtMHVEUnpZSFZtTDRjMC0xZ1A4dlVlR3hSSXNtbGJnTmwybWRXWmVsbjg3R25EYXpFNThBLVY5aS1VUWpOODBOQkZWTDFrRHIwSnpDeUtEZ3JCbEY3UGRmbEg0ZWEtTThaNw?oc=5" target="_blank">APL Apollo Tubes Ltd is Rated Strong Buy - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 01:36</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="ADANIENT">
-        <div class="stock-label">Adani Enterprises Limited (ADANIENT)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMixwFBVV95cUxNdEZIeHdtc0RBYWZiSUxFaWswR0k3dXVVa2tNZ0ZKZUpJSUVyR19lRnlOb0tDLTBWTDY0RGFkRF9JaU5DR1VuaFFObXdFeXAwU3BMMHBMWXFBNVM0Q2x5dFhzNktWLXBhZnhfT19rdlRNWUhKSWF2R3lDVldZdW12eUFBY0F4TGxvVkcySXJrakpNRmd4V1ItZTJzOVA2T2sxaUs3WFJBNDhiOF9qVGFwYU5VdGFPTGhQSjFKZW5YUk9FNDNIMGY00gHMAUFVX3lxTE9JV05RV015eGxZdTEtOVpTYWxPM3dCQ0Fxc0c0ZUM4Ykc4S2ZtTHRQY19fbmtMNWdGTzl1enNzT3h6b0ROMEhNdkhUYTlXQmdkVXdfS3lYZFRqckZsRmJFQmlaajlpU2ZtbjlfMGVxVFhNQ1ktYmFwbG9JV192U1hLdlJiWVJ3Y1BNcGdvVXc0UUU3YlhFSmtuSDRfTHlLWGhvdDhmUE14dEtTNmlZTG1BMUU1OFF5bV94cXhwbHBUMzRNeHRoVGdmYzRNMg?oc=5" target="_blank">Adani Group completes Indamer Technics acquisition to expand MRO footprint - The Statesman</a>
-            <div class="news-meta">Google News 2026-02-14 18:46</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi6AFBVV95cUxQaXhZWXVPVlJBc2FudUF6cGloZ1ZhbGtvajFEaUFaZzFwRDF4b3huSjNqcy1UUXctenNVOGJQOFlQcU1oQjFDRTlfSjB1YnJ2d3kxWXQwRmZGdng1bUJsZlVnMHBqWTllWExKeEd0c1VKNUVnQmxPWDdJVVloOVBSRzhzbHlMTk9qQnhIN185UG84RG1xUS04WnRyYUtsMGg4WGxaRDNMWTg1U2lpTEJ0WGFuYVVxOVZLR2wtVndUWjZJY1pFbXk5T3lSN3JDV2d3M3ZVdU1WandxLVZub2E2NzhXOWpqbzJx?oc=5" target="_blank">Adani Enterprises Sets February 13, 2026 as Record Date for Second and Final Call Payment - scanx.trade</a>
-            <div class="news-meta">Google News 2026-02-14 10:00</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="ABCAPITAL">
-        <div class="stock-label">Aditya Birla Capital Limited (ABCAPITAL)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi4wFBVV95cUxOaHpyTk5RU2R2OFBiZFg3Y0dDdUQyNEVLa3JZRGd6QTlPNVF2Y2tTcFliVnIyZjdLZGp4ZlhJdHBrVmlaUlo0ak1LTmZOdGhDb2VxemRIMEdrVWw3LVVJVzc5eG5hcGotZ29nOGl5RXBva1lHMTJsekFXUmNoYUhJNmVvOEN6dXB4Mi0tVVV0dDVtR01oVUV5cDdLcUdQMllqd1J5eHN0dWFpR09lbS1pckN2b1ltRGtfZ2dqb1VfQUxJeWhfTVN4T2FmSlVsMUx2T0M4UlRCeG10M2FmNWFxY2hMUQ?oc=5" target="_blank">MSCI rejig: IRCTC out, Aditya Birla Capital, L&amp;T Finance in; 34 stocks removed from smallcap index - MSN</a>
-            <div class="news-meta">Google News 2026-02-14 01:23</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="AMBER">
-        <div class="stock-label">Amber Enterprises India Limited (AMBER)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi6gFBVV95cUxPMWNJc0g1N1I1UGJCdWQtWWdmQ3VMbGhmZGNOeUt3bE96eDJlUWZ2YXJkVkNPNGhzdndEU0dCVndXaXVoWmFWSG8xWU1MTWZVdjVEUVV4VHJYcVEtc09uSUxLd0NQWDFtMkZ5UHFnenhVSjg3cGM2NHlWUEFkMUQ1cDhWMV8tTkg5WHp4OEFlSkk4SHMxeE1hWnRpNG9RXy1SU3dEU0xSdXBUWDZFVWg0UHZTZFZGbXdEOE1sTzRHNDByYjEzNEVuanRNOXpaMTVhdS1mUVVSeUhabGZqSTBsX284OElrdXo0ZUE?oc=5" target="_blank">Amber Enterprises Subsidiaries IL JIN Electronics and Ascent Circuits Receive ICRA AA- Credit Ratings - scanx.trade</a>
-            <div class="news-meta">Google News 2026-02-14 15:29</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi5wFBVV95cUxNR3FRcnFGeHYzcVd6NkxUUnNHV3hXdWR1ejAyOHl1aU1Zb0JncGxQcHNBTTVEMExQQV8tRTlmVjFUV05nX3dJa0x1N3hRTVZRZTIzbjlnWE5nTElLSS0wYTl4b2RwVHM3Um9CRzRJV3JQbnNEVGdjdzhWZFZNbUowYnFrN05tQVFFeHV2RDFhSGlFYnFYMzgtX212VW5FWlFJWXNlQXF2NmtlcGJqbkx6dmJWamFsMUY3bENjVnlfZVRaMEU0ZzV0LUtGdXg3alEyaVJ5N0Nmenl5MzFZNW5xbkRVd2NvLTg?oc=5" target="_blank">Amber Enterprises Subsidiary IL JIN Acquires 19.92% Stake in MoMagic Wireless for Rs. 25 Crore - scanx.trade</a>
-            <div class="news-meta">Google News 2026-02-14 11:30</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="APOLLOHOSP">
-        <div class="stock-label">Apollo Hospitals Enterprise Limited (APOLLOHOSP)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi_AFBVV95cUxNd3g0MGlPTmhIUExLVXlONEJ3MXN2NVN0bWt1V1d2RUhTclVHZkRYLWF3ZFRFSi1SLXdDNVJTNlNHakJoQTh6MEFVNFdoTk5nTEh1STFxTzhxbkNsNUE2TDg5eXA0UWc4ckpicjR0TWFob29hdktnZnoyZ05Ub3p3WGc4c0hxaG8yM1dMbXpwU2NNSDRTQW55UFEwSlVIYXVLUUhUcnhrMDFpWUtLUWRDVmF2eG5BQnpOOV9GcHplUWFRMEFjYlhEdFVCNkVmMWZQQ0lWS3hpdFVESl8xbmNpRE0wVEtualQzZEg4WVZ3bFFUZHlVVFZZUXhfNzXSAYICQVVfeXFMT1RvVmVzeUhqNkw4dk8tUnNiQXBUTFZvcWNJVUlGN3VETDcwQnIyN2VYTVFGMjNWeXBYcE0xTUhabDg3WldpQjlzaXZJVUkzcVJKWTFjeHQ4Y2hDWWVCZzBZQkExVU5SQ2U3dGhta1ZHTGREMktLQ0h2Ym9qLWZ5Y2VJUHhfR0RSQ2NDRGJHLXRGSDYxX3NrSWFYcXNEN01DRkxwbF84NEhPSlZKeXV5VDNzTnc4LU5JM2ctSVV5cGliRjVfWGxuVU9DWS0xaktVOW5OX01KXzN0dV9sdWI5cXRxS3RLdG1JbExzdnZqT1I2NGlTUHJHZENHMDBtSU9CN1hB?oc=5" target="_blank">Rs 62 Dividend, Right Issue: Torrent Power, Apollo Hospitals and 11 other stocks to go ex-date on February 16- FULL LIST - ET Now</a>
-            <div class="news-meta">Google News 2026-02-14 09:55</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="BANKINDIA">
-        <div class="stock-label">Bank of India (BANKINDIA)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMipAFBVV95cUxNeThNOW5salphUktJM2haYkRXYU9oa0ZRQ2FJR3l2b3BPT29mUjAxWnFySnB4UVRQY1M4MzRmWkNWTWt6SUhsQWFjNE5iR3JVVXdtcUV6R2Zwa1l5Uk1MQ014OUNRdjhRbFNUZV9DMDlYTm9JQ3piTWFpdTg1eVlablhaMTVoTVJrNWlaMHlTWlhUaXVvOWtCRXFXWnphWmdKb0J4U9IBqwFBVV95cUxOTXNYVGt5WFBOTkhsTVJWR21RV3gwcHc4dTZkVDllNkY0cUdJdkZjMjEzTDZwTFJmRUZPR0JsWVdaa1htQVVJekdqbFFPZ3FjU0ZSZTg1SzJIbklBM1VENGJaT05YY05OVkdJV2ZZODVFRUllUk9ZN1lISlFWeU8xSDZsQUJfc2g2Q1ZYN0FmR0xNUTcxbHBMSU44eUEzOHpFYmFFYzFOU2V0STg?oc=5" target="_blank">RBI tightens bank lending norms for stock brokers - The Indian Express</a>
-            <div class="news-meta">Google News 2026-02-14 21:55</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMitAFBVV95cUxQN1pTNWFTUkdQQVZCNHdvQmpmU2NUdE0wSXowbUFJeFI5VlpVLVhVU0lkWklHTGZPemlZcHhRQ2syc21MeEFvSWpvSzdEcW1ESV9kWU9MVlJEUFFSZU9WS1VINGFXT1F0RTFSZDNGX2lyMkotNU1tLVFIdTd1aGtwbzNlekFTM2QyWVZCMFRBRWFrLWtFZ2FOVE9qRFhEeEh5LXFScXM4cW5MRjNZUGg3Q3U3SmfSAboBQVVfeXFMUGFJN2NnTTVjUV82Zm5tUnJnYkVNWE4xQ1owTF9QU2xkYXpPd2hGYXVJa3QxWFpoNWptalM4SzZ3S3JiNy1XYXB2MGlWWk5IUHV3Q0JKZVpWZ21pSXZVTENCTXgzN0RGaU9PUmkzby1leVE4WXJfLWFsZ2JyOFpxVG1fQXFLdlZGYnFfZlZwS01KRWFSTkMydmR6eWU1REtld3BadklMRXJmNzFKWUhrcGJZV1BSMWcyTVpR?oc=5" target="_blank">Central Bank of India SO Recruitment 2026: Last Date To Apply for 350 Posts - NewsX</a>
-            <div class="news-meta">Google News 2026-02-14 18:26</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi8wFBVV95cUxQZjJuYVQ3R3BRYzdLcFZmMkhnMEpaUEdSNHhyNm5WQVljTWRUd1NOVWNRbEVzemJOa2ptRFYxMlpjZUpoYkZfdUI2TEFRNlRUWHBLNjBlRW1va081LWdaRG5kTWVuRml5eUxJTnJnMUc2SGc5VXk2Yl9NbnAyWnQ2bXVMeDQ2U0dPNzFkM2pUWDdNOGo5UjN0cDJLdjQ3VTR6b2tFZ2tpX0NqcFFoVlFmVG5OMEtHTmZZZUpwa0hjMDhCTlRCUXVKbm1PU1VJNWtuUmNudDFkQmhpMElyeVpqTHl1Vl9GZnpPVGpyUXFOTlFLb1nSAfgBQVVfeXFMTUhzcnc5VkY4NldiM2pfdUpSWmhxbzlNRDBiSkJEamxfZDg3dzZPVUV3MWhkWHFLcTN4bkhxRHlQdmFSM3RtMkRwT3pkS3U0aGpucUoyZzdMZE8yaG50YW9RYWFUeGFFS2hSbldvYjdxUDByWG56emlLUlUwMjBxbGpGbjVaUGxyVEEtOEhlRm12WEpJakViUFVPY1Y3bjZST0U3dlpFemljQkRoZldHSnRnNjc5b3E1bURZanFYdDFlRjVOOW1lR0syVTN6ZlJROW9hZ1FqdGFsUkRDWWF1V0UyMHpFMDhFdjcwcU05a09pMmJtazUzY3A?oc=5" target="_blank">Reserve Bank of India tightens broker funding norms: Will stock brokers feel the squeeze? - The Economic Times</a>
-            <div class="news-meta">Google News 2026-02-14 13:47</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMimwFBVV95cUxPSU4xNGdJMG1EdWsza19iMGFlOVNlNFBTMWg5dVYyUXQ2OGNybmhEV0RleFZCcVFaTmZwdlBpTUZ0OGk4OG52T00waGowMWZSOHpWREFOUzkwX3BJLU1sUFhLV1piV0Y2bTNzczBaVFRmSE9YZk9OcFNhbkQzTmtQR1BBWjhtd052NC1CMUkySmlLcHlvUmpZVE11UQ?oc=5" target="_blank">Bank Of India is Rated Strong Buy - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 10:41</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMitwFBVV95cUxQNzZJdEZhS2R4cDcxX1BDRElqeS1uc2NEbVVyd3pNYk5sUE9ISGZSZ3FEd0lBejAzc0V0bDZMeGdmTm4yS3JhSllpckV0N25NbnMzLVRTa1lRTlZYR2xsNm1tN3ZmVF9GVlVMMHRnNXVhMnJsSUFlbDJzdFNIbC12d0NidmtNcXZaSTlOejRYY2NiMnVCdVY4ZlFKWGR2U0pPUl9vUXYwVnB6Zkt0ajdxbnF0TDdqSTA?oc=5" target="_blank">Union Bank of India is Rated Strong Buy by MarketsMOJO - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 10:31</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="BDL">
-        <div class="stock-label">Bharat Dynamics Limited (BDL)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi5wFBVV95cUxNdWxLMU9uRzhFOGFpS2hTYUlsZlJwVnNHZElRWE9oamd6YWRfclZJbU5LLUtWVk0zWW93UW00c0FRVzBTN3F5M09CYkhKLWNOLXpvQWljT1hLbWNoT1BKcHY2TlNJT0V2T3ZubXhCLV9LTndnY1R3d2FXZEM3dlBhVkliX0FWeDIyX2tqd0ZmNjBlQnpSNHVrSk5jWTlVMWZyVDJzSXlHU05yYklQZ0hOQTlvVklROHlTZFpYYjMxVmc0bmlaS21WZkMzeUdKMEJCS2RnMWhzb0xlVF83eG9icEhxbXlpR2_SAewBQVVfeXFMT3BmVWJUUG1qZXRKY0g2UnJWM0piV2R5a2x1QUpJWnVpelBSTW9RWWpOZ1ExQ1YwbF9KTDdva1hUWWNOTGdvaWFyb1VzWVVjTW03SWdSMVVFSWY3MllMQlFpTGlxRXgxaGZ2ZjRIeGR0cmttZy00YjE4dkxELXRNRDUxYU1NMTBOd2xsVWlCZVI1YlRQcmZYWXRPRUVXbjZjb1Y5LWtJeGhVSmRHbUVyTGZOaUZXRjhLMDV1NXpDdHRSZDJSeFhrLWtyUk5VOXRIRnlyNl8tQnBwbVV6LWtCYldvQUJmVVl3WEhTREU?oc=5" target="_blank">HAL vs BDL vs BEL vs Mazagon Dock: Which defence stock to buy after Q3 results 2026? - Mint</a>
-            <div class="news-meta">Google News 2026-02-14 11:24</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="BEL">
-        <div class="stock-label">Bharat Electronics Limited (BEL)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi5wFBVV95cUxNdWxLMU9uRzhFOGFpS2hTYUlsZlJwVnNHZElRWE9oamd6YWRfclZJbU5LLUtWVk0zWW93UW00c0FRVzBTN3F5M09CYkhKLWNOLXpvQWljT1hLbWNoT1BKcHY2TlNJT0V2T3ZubXhCLV9LTndnY1R3d2FXZEM3dlBhVkliX0FWeDIyX2tqd0ZmNjBlQnpSNHVrSk5jWTlVMWZyVDJzSXlHU05yYklQZ0hOQTlvVklROHlTZFpYYjMxVmc0bmlaS21WZkMzeUdKMEJCS2RnMWhzb0xlVF83eG9icEhxbXlpR2_SAewBQVVfeXFMT3BmVWJUUG1qZXRKY0g2UnJWM0piV2R5a2x1QUpJWnVpelBSTW9RWWpOZ1ExQ1YwbF9KTDdva1hUWWNOTGdvaWFyb1VzWVVjTW03SWdSMVVFSWY3MllMQlFpTGlxRXgxaGZ2ZjRIeGR0cmttZy00YjE4dkxELXRNRDUxYU1NMTBOd2xsVWlCZVI1YlRQcmZYWXRPRUVXbjZjb1Y5LWtJeGhVSmRHbUVyTGZOaUZXRjhLMDV1NXpDdHRSZDJSeFhrLWtyUk5VOXRIRnlyNl8tQnBwbVV6LWtCYldvQUJmVVl3WEhTREU?oc=5" target="_blank">HAL vs BDL vs BEL vs Mazagon Dock: Which defence stock to buy after Q3 results 2026? - Mint</a>
-            <div class="news-meta">Google News 2026-02-14 11:24</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="BHARATFORG">
-        <div class="stock-label">Bharat Forge Limited (BHARATFORG)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi4AFBVV95cUxPc1poMjJSWGRneXl4d0JLS01BcTd1SWhwZUgzN2RzWnJZS3VqelJvVWg3SmZpak9fb3VDY01DMzFtSlgtMm11SE0xaDhLb1kwUEF4NlhmUzlyVnhQUm0tZ0s5SWpJUktfeV9fRHItLUREMnlvelZxSHFENE9PN05EVUFUSnBPdXVoS3JZMk5qRnlBSDluT1ZaSDkxbm1fcFRzNXU1Wkw5SFNXQUZMZm9KcWJIakZRVnd1a3Z0NWNuV004c1VMS1plU3lEZHBhc3lkbW82ZVExUUEyTHpUMFA4StIB5gFBVV95cUxPU0l3ZWRxQk56R1BIaUFKQnk2OG1yeHRkeTJPUkhHLUZpWllULUIySEV4aEZFaVFoazJUNlJXQk93UlJzdHVZTXVVVkd3bGIzZHc2Wm02OFhPR2VOakxJY21sdDRfcmJCQzJqZE1sc3l1dVBYNGptNGdyWXZDNW9FclB1bnhPemozd2oxZ3R3ek56XzN3UlN3VHU2M1JzNkdTck1HUnNEallvTFdLNjZhaHB0M2RnTUFBVkx5eDVlLXhISXcwSGYzbVVqUHh0bFVyb1RZTk9JRUVYU3FQRlJ3V0k2Ylk4UQ?oc=5" target="_blank">HAL, IRCTC, ONGC, Coal India, Bharat Forge, PFC others to turn ex-dividend next week - Business Today</a>
-            <div class="news-meta">Google News 2026-02-14 10:17</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="BPCL">
-        <div class="stock-label">Bharat Petroleum Corporation Limited (BPCL)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMitAFBVV95cUxPVGY1bl81Tm9oSlRrQkJ0SWFHaHpxQzR0V29WQnRkYzBQUVJLQ21jN2wyNmdDRDEzZ2ZfWTNrY1M0WFkzX0JiYkpKOVlsUHlOZmxIVzJCTmhaaUJZM2tvMW9xRlFaVW5HSmE3d3JzSVg0T0VFT1VIRGs4U1AtWGdNdTktZDNBanFVNUNfSEZnaW5JbWlTM2tJWi1tZHZGRHRoVDEwU0U0M2VaRDBxU1ZmZ2hGN0g?oc=5" target="_blank">Bharat Petroleum Corporation Ltd is Rated Strong Buy - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 02:37</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="BOSCHLTD">
-        <div class="stock-label">Bosch Limited (BOSCHLTD)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMipwFBVV95cUxNUVpkUzk5UGN6eC1pdHc1NHBpTHhLNTJ4clNOTXV4QTVkdWZfalA1QXJ0MFBzSlhPZGVhajcwNE11XzZody1ueXJYWjRiRmh0TEdZemFtSDZRc09QclNzNGVKdmtQcmhOdjFkSll4RTZlTHlVMlBYU1prT196QXFYNElKY1RyclBlNURuaTBENTEzcmIzSjl3VTItU2NkVnpELUhULTZRNA?oc=5" target="_blank">Bosch Home Comfort India Ltd is Rated Sell - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 13:00</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi2AFBVV95cUxQT2xhSHRkV0MxRHlHUG1PcDM1ejZxWklBLWRwVXhlalZLSlFKMXl4Y0FhdW81NUxycUJRcWhPSHh1c05sTmJmM09yUFhfY3MyWGtBZi01XzdZSGdnRlpjWERBY3Q5VDVMMkxLTnNVakNSWDF2SElmck14TXpOaVFQekxnODRHTDdNOUxhT0R5emFSRjlVeENVbHFJQ3c3djBSc2R3eXE1NXd3WEVMOVBkbjhJckNaM1piOUZ5OFZ5N253Qm1TRG1YUjFiYXVSY1hWbGpYRDRZM2M?oc=5" target="_blank">Bosch Home Comfort India Ltd Faces Bearish Momentum Amid Technical Indicator Shifts - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 12:40</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="BRITANNIA">
-        <div class="stock-label">Britannia Industries Limited (BRITANNIA)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiiwFBVV95cUxPTGllSjhQWldLUE5CUjJJMkdTNHRLOGFwUHA2LW9oLVQydE81czlzaFR1OW9mejdtbjFJY0lsMEpNQ2hBRy1oUGhUdTl2eXJVN0E4Z19naHJxUTZNMXdyZjdJLS02VzFOMEFIT01Wc25lN2Y4d2FaQi0tVDJuM2xmdks1QkFwenJMOWxB?oc=5" target="_blank">Britannia Vs Nestle: Which FMCG stock performed better in Q3? - Trade Brains</a>
-            <div class="news-meta">Google News 2026-02-14 09:00</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="CANBK">
-        <div class="stock-label">Canara Bank (CANBK)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMisgFBVV95cUxNdS1KVTFjc1JVaC1lblpCbkJwVzV2NC1ORy0xX1MySTNCVkNOQ1BVbTNhUWhMREhNRnhLaTQyYkowNk4yd1JoMHltdzdMR25fcUZ0bGZqUk5hdGNkWG1pcEpDb1ZhM1Y3LXRPcVlIUFd6MlFnV2duZ0t5TzVRZFpYUk9aeWd5ZkhzQlg1VXZvWF9fMlJxMXhQUUoxSVItRG1Sb0I5TXp0MDFpODRKR1o5Y1pn?oc=5" target="_blank">Best PSU Bank Dividend Stocks 2026: SBI, PNB, and Canara Bank Report Record Profits - PSU Connect</a>
-            <div class="news-meta">Google News 2026-02-14 11:15</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="COALINDIA">
-        <div class="stock-label">Coal India Limited (COALINDIA)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiiAFBVV95cUxNaGVNdnR0OWM0T1pxOElkX3VwSHpNOUdNWVFYM1VVRmdWaEpUWGpDMmpyLUlBN29acE9yMnZzMjlMQkRwTnVGZE5GUjlGdndFRmkzdWQ5OUlJbGhrdVBIWHFwZ1dmdzIwZFNreU1Zc1pXWGhEVEdTR01OREIzdGlSQ04tSFY0Mkdy?oc=5" target="_blank">Coal India, HAL and 6 stocks trading ex-dividend next week - Trade Brains</a>
-            <div class="news-meta">Google News 2026-02-14 19:00</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMirAJBVV95cUxPc0N6Nnl5OFljbDlhOElsbGdBWTRJWVIxSkVXamlraElwT1M0MEdRTXhKRElxdm9zcS1iWWtKSzhhTGpyQ29RemdzWEl5VTNKcVljT1I4VWVjeHd6N29GNXpKckVfWmJGTzFsNG9VSGFtejJNaHNOQ0xtdXk3enhRblBQVXQtbF9ySVd0WURqYXBTNTNuVlhLT1d1aWdCeHNaUWotQUZHTzFDaUZqMEM4YUNldjZXQ1NjbFAycDNINFNnTktzQVBxSThaM05YaHdCckdRX29fWVF4RTdFS0FBdTkydXFWTTlJZ1llVzZBb3ZjSGdGNktkcTF0SVFBaFF3SHg4Ukx3WlVLVS02TEVtTkllOG4xNDFLdy03SWNBdFRudVBBLWw4SlRsd2g?oc=5" target="_blank">Coal India, Adani Power among 10 stocks that saw highest increase in retail shareholding in Q3. Check full list - The Economic Times</a>
-            <div class="news-meta">Google News 2026-02-14 14:56</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi4AFBVV95cUxPc1poMjJSWGRneXl4d0JLS01BcTd1SWhwZUgzN2RzWnJZS3VqelJvVWg3SmZpak9fb3VDY01DMzFtSlgtMm11SE0xaDhLb1kwUEF4NlhmUzlyVnhQUm0tZ0s5SWpJUktfeV9fRHItLUREMnlvelZxSHFENE9PN05EVUFUSnBPdXVoS3JZMk5qRnlBSDluT1ZaSDkxbm1fcFRzNXU1Wkw5SFNXQUZMZm9KcWJIakZRVnd1a3Z0NWNuV004c1VMS1plU3lEZHBhc3lkbW82ZVExUUEyTHpUMFA4StIB5gFBVV95cUxPU0l3ZWRxQk56R1BIaUFKQnk2OG1yeHRkeTJPUkhHLUZpWllULUIySEV4aEZFaVFoazJUNlJXQk93UlJzdHVZTXVVVkd3bGIzZHc2Wm02OFhPR2VOakxJY21sdDRfcmJCQzJqZE1sc3l1dVBYNGptNGdyWXZDNW9FclB1bnhPemozd2oxZ3R3ek56XzN3UlN3VHU2M1JzNkdTck1HUnNEallvTFdLNjZhaHB0M2RnTUFBVkx5eDVlLXhISXcwSGYzbVVqUHh0bFVyb1RZTk9JRUVYU3FQRlJ3V0k2Ylk4UQ?oc=5" target="_blank">HAL, IRCTC, ONGC, Coal India, Bharat Forge, PFC others to turn ex-dividend next week - Business Today</a>
-            <div class="news-meta">Google News 2026-02-14 10:17</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="CROMPTON">
-        <div class="stock-label">Crompton Greaves Consumer Electricals Limited (CROMPTON)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi_wFBVV95cUxONHdVZG12N3cwemNoRThCakdEeTJvdXNvUWJYTk5YQ2o1TVRDeC11M0RvaFpjM0VWTGZmZ2tWU2puSVh6eDZfVGc4cDRYZ045N0g1ZHNCRlV2eWtMeFB6NVgxWEU1T29rTm9UQWtpSmVmZkNJcmtPeXIteGVFam9CdzNTck9qb1c1dkh6eGs3UzNCLU1KSUJYOFNxellVV25HMUN6TVB1WHRzR3RDdUdJWXJoSk9xREg0TElsc18wT0had3prTzk2WnF2bVJUeUx5MTJyMEwtX3JXV0NXcnBuM1JmUmJ2QzdJMVFVYVo0UV9WdlFGbnNSYTJjcDlYSUU?oc=5" target="_blank">Crompton Greaves Consumer Electricals Issues Postal Ballot Notice for Independent Director Re-appointment - scanx.trade</a>
-            <div class="news-meta">Google News 2026-02-14 21:27</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="EICHERMOT">
-        <div class="stock-label">Eicher Motors Limited (EICHERMOT)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiwgFBVV95cUxPTnMyT2NEX3ZPTUlGaXlyOExwTXZicXdGRERPbHNhcWtkTXUycHYzb0EzdGNySkZGODhDcEx0N0VUbV9ZSGxBUnVXVUpzSTlUNl84MEZTVXBlNHNncmZrSjdUcml4LXJfUlpIZVlOR1JJTC1PeFlrV0M2dmIzMjFZdE1KekRHYmdwMnVrYUZzSHU3VTNwc05vNl9rYm9UT1pBVXhOVUs4V0lzczF0TFYyV3NwcG5ZWnhOSGRvR2JTUWFRdw?oc=5" target="_blank">Eicher Motors Ltd Sees Robust Trading Activity Amidst Sector Gains - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 10:07</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="HCLTECH">
-        <div class="stock-label">HCL Technologies Limited (HCLTECH)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi7AFBVV95cUxQUTFFZHJKZ3VRaXA3MWxlRFF1Y3V2aXVkY1RUd0wydjA3cW9RbWNZZENaOUFSSzZKTkxCVHVhaEZpN2NYV3JrZVYxN0hKM1V1VUJ2ZVRaUWF5LTJQR2NpYmpnX2pvX3Foc3Mwb2Jjd2dpNGV6TzRjUTVZSVlraTE5aExTeE5nWDBtZDVYcDZSRWFHWmdUNnJKQzQwbjZJbEhnMndRT3BqMFkzVDBCRjJwWWs1X3RaS2lldXpMNWpraGFZUVpuZ0xCWEE2ZjUzMDBYYk5WXzVYSzZ6b3E2Y1VuZmxVNHFCTFJMZmw0MtIB8gFBVV95cUxQd1kxVTctWnlCN3BjRmpkZ1U1QjJRRVk1ZmFzcjk4ejNoRHc2TGY1VkY1UzhCekZDa3R1NmVRUUNUdnl4ZHpyNTZMdVZEd3d5dWlYX1RObzN5MWdHUlRkSDd6d2NfS2hEbll3RnZhQlowQ2lKZW1IUWVLNVJOajVIUkZSMjh1MU9nU3VMamNfelNwa3BZTVhwSk5HUE03bTBLUmlhODUtbjBmTU0xUWlWVTFLNnczN0dMd1ZzMzJGaTI4QnAtLUcxX0pZeFFZLURqSW5GSFRZUEIycXJ3QXRpa0g5MjdBU2g4RHR0ejBpdmRoUQ?oc=5" target="_blank">Nifty IT at 9-month low: Infosys, TCS, HCL Tech fall up to 9% this week; analysts share views - Business Today</a>
-            <div class="news-meta">Google News 2026-02-14 12:10</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi7gFBVV95cUxPNTdwZU9uSDBha2xaVm1ieEdNQ2tCcWYtSE1oWE1YOVB5Z0pNV2xWazVXX0JYSzlnM3N3MEg5MUZyQjNuM0xxQTZsWGZha2tLMWdGb3hOTENsWXMxUTNMM2pkVm1CQzZfeDlKZDVTcmtjWVhlMjZvOFFFQTNUTzQ5M0phblJyQmsxQklHWjgyeGgxUER0bGItbEtVNmtGejQ0MTFhdnl6WEdicHFHYTFKUlJFZC1hT2NDTFBMUFZ3SmV6UkpxUlA4bk1rUUJzTXRtS200dVhDUFhRajB3SV9OSHZ5cFB4Uk1ZRXZPdGlR0gH0AUFVX3lxTE1iS2FtYlEzS29VMnc3S0pvc01vM0hBd2dhRHZMTC1SVVNkNFBIYTlIakpJWUc2bm1heWZrbDdNdUx2cDhSa3JFMTVybG4wSUVFeGJTSUpxS2tjV2xlZUU3OXJmZDM1YTR5c1M0cDVITU4xUUxpVTQwbGhfTDZrYVdCNEFxRE5TVHh4V3FMY2VqN2NBbDVreDZ1b1dQYVd5TWNWOUdkcDZCaG9pM0V0X2xlN2J5SVR1S0U2aTgybjBDNW1wOGxabU9wRUhPU0tISG8zWnVLRExDek01aVV0RjdZazI0LUxvS2RmYUZaTmMyTktGTjA?oc=5" target="_blank">HCL Tech to Tech Mahindra: Axis Securities’ top conviction ideas in tech sector with up to 69% upside potential - The Financial Express</a>
-            <div class="news-meta">Google News 2026-02-14 08:00</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="HDFCAMC">
-        <div class="stock-label">HDFC Asset Management Company Limited (HDFCAMC)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMirgFBVV95cUxOMWUyQVBEQmI4TjJQVXJUV1FXLXNzQU9ENWFLaXdfSWZLR09sZ1BKMFBoSXotbWRidWFVOFB4TjJuN1p5c0FPcHA0TDlqbFdRZHItanZ2MXVXQTVjWmVXUEFDRjc4Y1YtbklhNW0zTVUtQWpQc1JEa0dmd202T2U4X0FLVG45V0FZZ0NDRnN1Y3Q5QjJJVmFXQlZ0eXdEbkF5TC1SRVlnMmdNLTJGVEE?oc=5" target="_blank">HDFC Asset Management Company Ltd is Rated Hold - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 02:06</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="HAVELLS">
-        <div class="stock-label">Havells India Limited (HAVELLS)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMimAFBVV95cUxQSEh4VUoxNmk0TXZyRC1rb3pDcHJSVmJQMUFISGt1SmNsbUt4VVpuYktJbXpTUV9JbXlacWg5cXdBQ1Y5czJjeGxjYnBoeFBhQWNwRmFYR1c4aFFuSTVxVnpOYlVNbVFjSVpuMDUwY2QwQWFMNU5LakxLVkVLbDFzRXNjZ3RuYlo3bFZmNGdDbnRxWFNXRTZSZg?oc=5" target="_blank">Havells India Ltd. is Rated Sell - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 12:43</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="HEROMOTOCO">
-        <div class="stock-label">Hero MotoCorp Limited (HEROMOTOCO)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiiwJBVV95cUxOTmlNSjE2RnZYY0JBTW1BMW00TUZrdlhVMkwzdHR4VVFUaHZyM21OQkk1aGJjNUowVUJma0xMci1SdnZNSlF6TzhhOXJSTURENlhraW14cS1MZGFfSG9kdVJQMnQxQUtBOEZFdkJWTFFTN3k1UkZYV0VVejFvd3YzWkRLdUZGYVhsdUxtU2lST2Y1ZGstRU5nd2twWlluamVCX3EtZVp5Z3RFWWJDQnY0Q3RUNDRyQ183Rm5CY0xSWTBUMWZpbHNHQ01nRVFNaEE1bGFabjBhdkNnVWp0aTJRaUQ3X010NzNGQ1VuT2dROEpfVFdsX1R2R0ptLWZYSUxDaE82Ym9MenZhT0XSAZACQVVfeXFMUFk1TDBpVUFLMEVMNzAwZVVpZFNzSjhjVVFOUEhzVkZDTXE0emo1MXlHU1RWRWFaWEktZGxyaUlsNmkxanVNZUUyaGFWblpiQmtpOG1XSGN5OFFON3hBSkprWV92V0Z3eFg2RTFjZ3BJek9xUURtZ1kwSTJIZENvRks4RlBzejRmOTFFclpDRm1RRlhVLTRTUGZCaUFILUFNNnpqd0RtWUxoLURaZDhNYzNTRjVSUV91V1pqWFBnUkFXczBiR1hkcU1RNnhSUFVEWWNfWGZ2YXBXNTlMUU9ZWUVkR2RCakNwZ3BHekc2dWx0djJnUTNZdVMzSEtRMjFLX0E1Zm9RRFFnTkw4NmM5VWo?oc=5" target="_blank">Dividend Stocks: Bharat Dynamics, Hero MotoCorp, RVNL, among others to trade ex-dividend next week; Full list here - Mint</a>
-            <div class="news-meta">Google News 2026-02-14 11:17</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="HAL">
-        <div class="stock-label">Hindustan Aeronautics Limited (HAL)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiiAFBVV95cUxNaGVNdnR0OWM0T1pxOElkX3VwSHpNOUdNWVFYM1VVRmdWaEpUWGpDMmpyLUlBN29acE9yMnZzMjlMQkRwTnVGZE5GUjlGdndFRmkzdWQ5OUlJbGhrdVBIWHFwZ1dmdzIwZFNreU1Zc1pXWGhEVEdTR01OREIzdGlSQ04tSFY0Mkdy?oc=5" target="_blank">Coal India, HAL and 6 stocks trading ex-dividend next week - Trade Brains</a>
-            <div class="news-meta">Google News 2026-02-14 19:00</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMitgFBVV95cUxQeTZFTFN1Q05yVlhoVjc0SUVoWnNhQUZHMDFLczYzYU5mVjFobVNXQWZRbGRkS0d3bG9ldlB4d3lwNnFia3VBVHV2ZmJmOFV3Z2pIOUNUWHA4SFJBaVhaR1NhWXNiTGN0azliUFZyUjd6T0U5ZmUwbUNqcElBRmV2TVFUaHZyY0s3TXNVSG0yTllUWXdMZTc4Y3dRZ2tHVk1xVFdzclRMOXU5cExOaWdfNWZEU0Nwd9IBuwFBVV95cUxORWttUHE2LU9JeFZGNi1VRk1yTkl3OWNMZnZwXzRERzZ3X1llRzdBOFZEb3NLSkNEOThjNkhrU0YtMDZvVU5MbnVXaG85clNlbkxSblQ1VVhsNm5IWEtEdWJTNHdRUzJyQmhFOGNzaVB6dWpxZUhjQlV4M190clZVaWJZSk16OG9EUHF2YWhaNDU3VlhDUEVEYmN2NzNDam42TFh4QXB2Z1RfM0o3S282Y2hDbWNORkVSU1lR?oc=5" target="_blank">HAL, IRCTC, ONGC, Coal India, Bharat Forge, PFC Headline Dividend Week on Bourses - Republic World</a>
-            <div class="news-meta">Google News 2026-02-14 11:27</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi5wFBVV95cUxNdWxLMU9uRzhFOGFpS2hTYUlsZlJwVnNHZElRWE9oamd6YWRfclZJbU5LLUtWVk0zWW93UW00c0FRVzBTN3F5M09CYkhKLWNOLXpvQWljT1hLbWNoT1BKcHY2TlNJT0V2T3ZubXhCLV9LTndnY1R3d2FXZEM3dlBhVkliX0FWeDIyX2tqd0ZmNjBlQnpSNHVrSk5jWTlVMWZyVDJzSXlHU05yYklQZ0hOQTlvVklROHlTZFpYYjMxVmc0bmlaS21WZkMzeUdKMEJCS2RnMWhzb0xlVF83eG9icEhxbXlpR2_SAewBQVVfeXFMT3BmVWJUUG1qZXRKY0g2UnJWM0piV2R5a2x1QUpJWnVpelBSTW9RWWpOZ1ExQ1YwbF9KTDdva1hUWWNOTGdvaWFyb1VzWVVjTW03SWdSMVVFSWY3MllMQlFpTGlxRXgxaGZ2ZjRIeGR0cmttZy00YjE4dkxELXRNRDUxYU1NMTBOd2xsVWlCZVI1YlRQcmZYWXRPRUVXbjZjb1Y5LWtJeGhVSmRHbUVyTGZOaUZXRjhLMDV1NXpDdHRSZDJSeFhrLWtyUk5VOXRIRnlyNl8tQnBwbVV6LWtCYldvQUJmVVl3WEhTREU?oc=5" target="_blank">HAL vs BDL vs BEL vs Mazagon Dock: Which defence stock to buy after Q3 results 2026? - Mint</a>
-            <div class="news-meta">Google News 2026-02-14 11:24</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi4AFBVV95cUxPc1poMjJSWGRneXl4d0JLS01BcTd1SWhwZUgzN2RzWnJZS3VqelJvVWg3SmZpak9fb3VDY01DMzFtSlgtMm11SE0xaDhLb1kwUEF4NlhmUzlyVnhQUm0tZ0s5SWpJUktfeV9fRHItLUREMnlvelZxSHFENE9PN05EVUFUSnBPdXVoS3JZMk5qRnlBSDluT1ZaSDkxbm1fcFRzNXU1Wkw5SFNXQUZMZm9KcWJIakZRVnd1a3Z0NWNuV004c1VMS1plU3lEZHBhc3lkbW82ZVExUUEyTHpUMFA4StIB5gFBVV95cUxPU0l3ZWRxQk56R1BIaUFKQnk2OG1yeHRkeTJPUkhHLUZpWllULUIySEV4aEZFaVFoazJUNlJXQk93UlJzdHVZTXVVVkd3bGIzZHc2Wm02OFhPR2VOakxJY21sdDRfcmJCQzJqZE1sc3l1dVBYNGptNGdyWXZDNW9FclB1bnhPemozd2oxZ3R3ek56XzN3UlN3VHU2M1JzNkdTck1HUnNEallvTFdLNjZhaHB0M2RnTUFBVkx5eDVlLXhISXcwSGYzbVVqUHh0bFVyb1RZTk9JRUVYU3FQRlJ3V0k2Ylk4UQ?oc=5" target="_blank">HAL, IRCTC, ONGC, Coal India, Bharat Forge, PFC others to turn ex-dividend next week - Business Today</a>
-            <div class="news-meta">Google News 2026-02-14 10:17</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="HINDPETRO">
-        <div class="stock-label">Hindustan Petroleum Corporation Limited (HINDPETRO)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi9gFBVV95cUxNU3M5Y1c5MzgyY044d3RzclcwUHJjVUt5VTZCQ0lnX2ZmZlcxekNoOVpPZ0tIYTRRUS1vbzJEX0ZkRHJfakpLMHlFNEJvNUNSQV9uUUVfLU9maEhsTnF6RE95WVJiMzVPSmJDVWdBRnNkWmg5Y2FLTF9GVXJfbkhPaFJIYUlBYmpNRnpNYllKeElybHdVUUVQeDQtbGhZaVM4ZlZXTFpWcDR2dWFsTFFFWk10azdrMDNtNTEtZXhua0VnZUhKOElUX09ZZkpDUnk5MURSRG92VEdqczJCRkthazBmM1JKU0Zpdk1LVUJIaXhWTXU2ZUE?oc=5" target="_blank">MarketsMOJO Upgrades Hindustan Petroleum Corporation Ltd. to Buy on Strong Fundamentals and Technicals - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 05:58</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="HINDUNILVR">
-        <div class="stock-label">Hindustan Unilever Limited (HINDUNILVR)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiugFBVV95cUxOZHNQV1JSODZWMDZubVM5NVBieDFfbTl0bU5NeFR3NTdlY2gwOGhtYlQ1N3U1M2pWWDMta0VqS2hJVWlDNVVrRkxZQ29nVDE5dkk5Mm9Zb2dkdy1LZVFCY1JSU0hlalRMWXJkSURjRmlLUTFwRDlJY0ZyN2lfY040Sy1aNXhDNFpNRHR0b25neW5pLWxaY2Q5OFVhTWIyMlNMVDNhelRReHRSdkVPRFZaX2k5Yi0tOG02cmc?oc=5" target="_blank">Hindustan Unilever demerges Kwality Wall’s, 2.3 Billion shares to list on stock market - Indian Television Dot Com</a>
-            <div class="news-meta">Google News 2026-02-14 16:31</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMixAFBVV95cUxNYlZmWEFyQnl3LW41SGVabmxTVHQyNkU4ZmtSLWJEZkctQVU4aHFRNmhSVTRtTTdhakdIakRKNV96VzFDc0t0dnpVRlZMTmRTb3JpUHNHU1U3SGxibGpoM0pCZGJXRHlfYlZQV3VCZ0R6NHdub3hRNzNoNmxJUDBEOGdUUDFQTjUwTFBfanN5YW5XZWhtSnhjanBnV2g4TVdGeDREZ29OUnE0dVhvbS02TEJKdE91YWVtOGJCbjFwaGNsMXho?oc=5" target="_blank">Kwality Wall&#x27;s India to debut on Indian stock exchanges on Monday - Exchange4Media</a>
-            <div class="news-meta">Google News 2026-02-14 09:08</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi2wFBVV95cUxOaGlIYmloZjBnNTc4X1RCTjJKTHFXSlRqSlFBTlRQXy03YkpRVlRmdXExRkx1VklkQkFPVFhiSEZFeGRKM0dNal9tT2pRVWQ3cjREcWthcGFqZDFwR3U1SkZ1MV9vbXJDVzFqVDF6OGVVbTFHTHYyRmZiVUo0N1gzNi15SXJKbGFFUHZkOF9iWDk4SVgzdzFtbFJlbXRnazlIZEV0X0RLV3JoT1FpQTJockFMTEhKSUJTNHAxaS0tZDl0MTFOVjJFczRzR2hLYVZBb3JBSE9TTlZfcXPSAeIBQVVfeXFMTXdnUUJnd1gwa1BNQmw4YlExYkp0Q2FBaERJU0c5eDc4YkgwV3hkbkR4eUNJdEpzOG4zT3dtZTB1Sk9vRzkzdFctUnprUVJxV1VVT2lMbHZLZDdHZ1VFdTJUeEo4NWpib09raF8tWTd1STVCQko4aU0tSWdlcHN3bVJhZWU4SXB3U1EzeklHN0s0QXBQY01SYzVfczNqV1RZbHJ3STdiZ0ZXTTBINnhRTlZIT3dRWUdTNWdnT0E4UjBWSnk2SVotbXlYZmxiZ1JGaXFkLXhnNGZmc0ZTU0pGclZWQQ?oc=5" target="_blank">HUL completes acquisition of Zywie ventures; KWIL shares to be traded from Feb. 16 - The Hindu</a>
-            <div class="news-meta">Google News 2026-02-14 07:51</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="POWERINDIA">
-        <div class="stock-label">Hitachi Energy India Limited (POWERINDIA)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMixwFBVV95cUxQRVBXdG9ZbXByazRiZ2FuNVJPaFFuMTBOX254enYtLTc5QXFUZWdzSnhiWmFLblZtZTZoZVNybkcxcFVKb3RtMDF3MHlJUHFoRUpFUnNTX0k5OU5QX2hnYlljZ3FLUTVrTG9TNGwzWE1JRlM4VVdwVXZxRmxoUDc0ZEpTbmxBZElVTzQ2cl9DdGtkSFJ1bFVJVWY1aFRFRHozY29oeEwxRnhBT1hyZTJzemNuSTJLcGtTeWJKWGNQcFp1Q21ocHBv?oc=5" target="_blank">Hitachi Energy India Ltd Technical Momentum Shifts Amid Sideways Trend - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 10:55</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="ICICIBANK">
-        <div class="stock-label">ICICI Bank Limited (ICICIBANK)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiowJBVV95cUxQNUlONEtVTGYya25ueDVGbjYtYWwzQjBIM2hibFE3OVBKVnJ2WXdrSmlfNVJvWHhWMVBOQ3FDek8tRDlrQWVtQkhuS1dDTlFaVG1DdUhoOVpWUE9DTFdDeFZQYm1scjUwTkNMZFQya3FqYm9XOXFvQ2xBcFZTdTV6MVJFdWd1TDhJRlJSTVFSSjRlN1RwWWFnZERMVVA0WTAxdTgyNkVFaV9DN04wa3ZxdlhzSXpKNE5xWm41RC13cUZIQUlzalA3aWdyTUNHMHZnWHVUZ2VZMFhpY0JwSEpvVmpqeEhodTN4dktZeGV0QkRzbE5hSEJyZXo0WkJ6VUJXVDB4akFDYlFIdDd1aVpLZG00SVdjV0pGSEpoZndVN1pjVEk?oc=5" target="_blank">Coal India, Adani Power among 10 stocks that saw highest increase in retail shareholding in Q3. Check full list - The Economic Times</a>
-            <div class="news-meta">Google News 2026-02-14 15:09</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="ITC">
-        <div class="stock-label">ITC Limited (ITC)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi7AFBVV95cUxQOG45Q1psbmMyQnRydDhqWjhYdWRCSWp2WUFBRW1aUTNwMmJnakdvbExpMEhwZld5Z2o0VjduZ2R0aFVmZ3V0UXBDcEZMcHpCRzRpZ1pZc180OU9waUhpWmY2b1Y4UWNMVEVJZFFMcUFIOTVsWFAzM3A5bllDUG4tY25KYzdwWWZkSnR0TEFaLWVYZ0diTHVCOFJob3Y3WmpiSEhxdkRnMWZfa2Zyem5KMjA5M2o5RlRrX0kzVWk1TVItZ2p3VW4zaUdmaVFodEF6ckZJWTFsWmxSRGZJWG53V2RDdkZiaks1RlExZdIB8gFBVV95cUxPUkFLbFNOaDRjWTBVaWdRLV95d0lsZ3lCcFJpLUFpdjM1Z09kWFFYbXFTTkdwXzBYcHY0N1hhenFFZmZFTURFNWJ6RS1kVWdjOE8yd2hmQVloUWRmVDFJTjZKZ2daNGZvc2c0VlhhQlNodDFVWkU0aFZPekE1OEhhWUx0WVMtUjBkYWREbEpjVkprUlBnekNESDNCdWhieW52X1B5cnZPRERXQzVBRjE3REpDNHdGOVZXSF9fRlFPSjEzZTA2ZXB6WXdTVnBtQjU4b2tabGtTNlhxSHZ2S2lxdkZwaHVEZ2k0NHg5TElMUDl5QQ?oc=5" target="_blank">Parag Parikh Flexi Cap adds CIE Automotive, CMS Info Systems in January; ups stake in TCS, ITC - Moneycontrol</a>
-            <div class="news-meta">Google News 2026-02-14 11:30</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="IOC">
-        <div class="stock-label">Indian Oil Corporation Limited (IOC)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMisAFBVV95cUxPV1RLaDc0d2MtZC1Na3FQWlBjNy0wWlVPQTA2cUZEWlE1dEZ4Smc5RFFkRVlmMThERDU1eE5qZl90Ulh5Y3JxQUUtY3JQdG5xbDhJdC1DSjNoS0tSOGRGN3VwQ2wzYWpubTMydkp5RkRfSVk5X1BMdWNLQ19mSXhPMThJNUlUeVJSNDFPOGhydmdhMDdJeFROOHlxMWFMUGoyTURXazNUM0NKLWpqNjVCMg?oc=5" target="_blank">Swiggy and 4 Other Large Cap Stocks Where FIIs Consistently Increased Stake Over 4 Qtrs - Trade Brains</a>
-            <div class="news-meta">Google News 2026-02-14 10:00</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiuAFBVV95cUxQa2I0a1c0WmZEaHpsdVlmbDdIQnZqLU5SZVJVTkZKY2JOWUl6UElyVktiVF83NktHY3U5OXBfZFBBbmRDN1ZKUFRXWU9uRU5PN25uMWJoVzFjU3pHajVFVTdWc0JmR1dxTElyeHIyeWE2X0lrOHRLWnJUanlaS0ExT0tvS21DeTFwTjhBSlBUbXlpMTQzZ29teUxWbE91T3NkRURSanNua0FsRS15bGFrZkNwOE8xR3RW?oc=5" target="_blank">Indian Oil Corporation Ltd Hits New 52-Week High at Rs.181.65 - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 02:09</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="IRCTC">
-        <div class="stock-label">Indian Railway Catering And Tourism Corporation Limited (IRCTC)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiiAFBVV95cUxNaGVNdnR0OWM0T1pxOElkX3VwSHpNOUdNWVFYM1VVRmdWaEpUWGpDMmpyLUlBN29acE9yMnZzMjlMQkRwTnVGZE5GUjlGdndFRmkzdWQ5OUlJbGhrdVBIWHFwZ1dmdzIwZFNreU1Zc1pXWGhEVEdTR01OREIzdGlSQ04tSFY0Mkdy?oc=5" target="_blank">Coal India, HAL and 6 stocks trading ex-dividend next week - Trade Brains</a>
-            <div class="news-meta">Google News 2026-02-14 19:00</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiwAFBVV95cUxQR2V6SmVqUnJhSjBkVTBXVFJEbDdhR0wyQ3F3QUI5Xzl5cWN0R1RqSUxHcXpqZ1FXTDFUNnZ3aXVDSkNOTDJqbGZHNGdCd1dQLWQtOHBPMElQZ2FwczdIXzVDZjFFSlAyWTNhbGVlOURyVlhVdUQtTUF0bVhMSy1QdW1IdGhPbVpoYS0xbU93d1VwSEg0MWhPZ0c3ZG10Ym9jZkdfSXlhd0MzS3gzRnVMTGIxdGpSVGYzY3ByQkt6U0s?oc=5" target="_blank">Indian Railway Catering &amp; Tourism Corporation Ltd is Rated Hold - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 10:41</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi4AFBVV95cUxPc1poMjJSWGRneXl4d0JLS01BcTd1SWhwZUgzN2RzWnJZS3VqelJvVWg3SmZpak9fb3VDY01DMzFtSlgtMm11SE0xaDhLb1kwUEF4NlhmUzlyVnhQUm0tZ0s5SWpJUktfeV9fRHItLUREMnlvelZxSHFENE9PN05EVUFUSnBPdXVoS3JZMk5qRnlBSDluT1ZaSDkxbm1fcFRzNXU1Wkw5SFNXQUZMZm9KcWJIakZRVnd1a3Z0NWNuV004c1VMS1plU3lEZHBhc3lkbW82ZVExUUEyTHpUMFA4StIB5gFBVV95cUxPU0l3ZWRxQk56R1BIaUFKQnk2OG1yeHRkeTJPUkhHLUZpWllULUIySEV4aEZFaVFoazJUNlJXQk93UlJzdHVZTXVVVkd3bGIzZHc2Wm02OFhPR2VOakxJY21sdDRfcmJCQzJqZE1sc3l1dVBYNGptNGdyWXZDNW9FclB1bnhPemozd2oxZ3R3ek56XzN3UlN3VHU2M1JzNkdTck1HUnNEallvTFdLNjZhaHB0M2RnTUFBVkx5eDVlLXhISXcwSGYzbVVqUHh0bFVyb1RZTk9JRUVYU3FQRlJ3V0k2Ylk4UQ?oc=5" target="_blank">HAL, IRCTC, ONGC, Coal India, Bharat Forge, PFC others to turn ex-dividend next week - Business Today</a>
-            <div class="news-meta">Google News 2026-02-14 10:17</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="IRFC">
-        <div class="stock-label">Indian Railway Finance Corporation Limited (IRFC)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMitAFBVV95cUxNZWdYTVIwdFhZQmtoX1pQSTVGSmhKeF9mYm5tTm0yWHFXMUc5RE1SeVFueUR0M3NZaVJQZXBjQzZmcXdxdDRVTTlFMVdhRG5BRDVuV1ZJQmRIMVVHd0tSbGtqazVXYzQxTzMyZTFzM0paZ1Y0QkZuLUNfNEFqSW9FYkxiTWZfNjZlb0lNRnFlTGx6MlU5eE9PV2hjZUhYbmtjT21nTGgtUWZKakQyQW1KMWZ4V0o?oc=5" target="_blank">Indian Railway Finance Corporation Ltd is Rated Sell - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 21:24</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="NAUKRI">
-        <div class="stock-label">Info Edge (India) Limited (NAUKRI)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi5gFBVV95cUxNX0gyd2U2VERJdG1XV3V3RE4zN21YV2xIWjBqc2RBV2MxdnA4cjZWV1hLdzBjTWF2TFcyMUJzVUhuS0lwNi12SnV2amJPbTFaMFRMQzZoNmZXeEhjQkpjckotNmhXM0tTenU4T3lRdkZ2NU1ra3RRTndPWFRjd3ExejRJZjc2X1FodTBSaTFNc0RUdTBOWEZYV3ZNRWV6MWx3MWxub0doM1JUSk1MWEVybTNtVDZBdVRONHIwdjNvOTZXZ0NVaG5PU3F3SjVXem42TmlGLUhieXhKb29XakxTOHVBR0ltdw?oc=5" target="_blank">Info Edge Releases Q3FY26 Conference Call Recordings Following February 13 Session - scanx.trade</a>
-            <div class="news-meta">Google News 2026-02-14 15:26</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMirAFBVV95cUxPUjZJbDVpZkVDOGY5WHg3ejBHVlQxVTlsbFZmZFJlaHgwc2Z1bnR5clZBMEhPLW5lNUpvZ1lVaTBVWnFrU0VjWHJNWm9QbFoyamhiRGJqZjZXUlZ5VDRoai00ME9IZVltY25MUmgwdEJsNC1BTUljd2NBRjdKRXdmVGNPU0RfN0JCc2dZbW9MazIyS1pDSFZvajl6dXhsWUtGVFlGWmg0cWZUU29M?oc=5" target="_blank">Naukri.com leads the charge as Info Edge clocks 12 per cent Pat jump in Q3 - Indian Television Dot Com</a>
-            <div class="news-meta">Google News 2026-02-14 15:00</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMimwFBVV95cUxNQ1daaV9tTVFQOXhPZGEwSWFWRm92Zk9EY0lIcGU2R0RzMGE3clUyUF9oNndibnh4c0FZNzFwQ0ZNcGFkSmZZWkpKSXM3RVowbXBObjd4NUlHVGQ1LUZjckRGQnVOajBpaDh6dTl2NldQajQzYWE3a1pmbDBZSEhGSl9vc3BxS2Q5MzFaRUxCZUdJOEI1Z2NnN0FyMA?oc=5" target="_blank">Info Edge (India) Ltd is Rated Sell - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 02:05</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="INFY">
-        <div class="stock-label">Infosys Limited (INFY)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi7AFBVV95cUxQUTFFZHJKZ3VRaXA3MWxlRFF1Y3V2aXVkY1RUd0wydjA3cW9RbWNZZENaOUFSSzZKTkxCVHVhaEZpN2NYV3JrZVYxN0hKM1V1VUJ2ZVRaUWF5LTJQR2NpYmpnX2pvX3Foc3Mwb2Jjd2dpNGV6TzRjUTVZSVlraTE5aExTeE5nWDBtZDVYcDZSRWFHWmdUNnJKQzQwbjZJbEhnMndRT3BqMFkzVDBCRjJwWWs1X3RaS2lldXpMNWpraGFZUVpuZ0xCWEE2ZjUzMDBYYk5WXzVYSzZ6b3E2Y1VuZmxVNHFCTFJMZmw0MtIB8gFBVV95cUxQd1kxVTctWnlCN3BjRmpkZ1U1QjJRRVk1ZmFzcjk4ejNoRHc2TGY1VkY1UzhCekZDa3R1NmVRUUNUdnl4ZHpyNTZMdVZEd3d5dWlYX1RObzN5MWdHUlRkSDd6d2NfS2hEbll3RnZhQlowQ2lKZW1IUWVLNVJOajVIUkZSMjh1MU9nU3VMamNfelNwa3BZTVhwSk5HUE03bTBLUmlhODUtbjBmTU0xUWlWVTFLNnczN0dMd1ZzMzJGaTI4QnAtLUcxX0pZeFFZLURqSW5GSFRZUEIycXJ3QXRpa0g5MjdBU2g4RHR0ejBpdmRoUQ?oc=5" target="_blank">Nifty IT at 9-month low: Infosys, TCS, HCL Tech fall up to 9% this week; analysts share views - Business Today</a>
-            <div class="news-meta">Google News 2026-02-14 12:10</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="INOXWIND">
-        <div class="stock-label">Inox Wind Limited (INOXWIND)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi8AFBVV95cUxNbmdaS3RmT2RVbXpUWTRGYU1hMG00UE5MXzY0UmhUR19UZEk0cFY1Y0xtblkyUlFxRHlCdHVvaUxtZHA1SkZXb29GRldycEpDZGo1d2RaWWpEb2VqazJvUk51UjJMbnRkWXUyQ3J6NUFxdnJXMDRlMWFGUGpsdzRWckRMNF9CSFJLVFk2SkFGWlg4dWFSRnVMQXY5bWFRQ0RPdlhRc3VROHVQSDZzV09SLWpzN3NNUG1aODRKYXM5S3lYUWJ0VHkxQmdOSjhmYmF2MV9uOE1yak1XUVoyNEVGbHBVVlF2UFdhMVFDcF9OaVbSAfYBQVVfeXFMTVF2M1Q1VTI1R052dDVlUHJnUDNUdjRsdFhVTnNVTkdKN2ZVUDJyUjVkYjNnN3lEbjF5RDhINXY3UHM1LU96WERpUlIwYWJUWDYzVG96VjFIeFd6aVh1RjZaU29EMEE4STZNNVRqUHFfNGFCOGNGTUd6enlPc0x0b1EteXI2R0VSdWtVOUVkTm9tUnR3OTNFWGdab2s4dWp6S1JGUzBEdGpIVXhreG9fTlY1dEpqRFItYTctNm9xNlNUaE5jelJyTjc1RjJUczk3Tmw2VlgzSWVhZDlMa2NXMHZxU000aDJsSjhwZmVKWjR4aU13TUdn?oc=5" target="_blank">Ola Electric, Inox Wind, Jindal Stainless, GMDC, NBCC among stocks in focus next week; here’s why - Business Today</a>
-            <div class="news-meta">Google News 2026-02-14 15:24</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="INDIGO">
-        <div class="stock-label">InterGlobe Aviation Limited (INDIGO)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiqAJBVV95cUxOeFl1M2tlZ29CZ2dISmd4LVVaYWhsbk1IZlpTRGtiTGN6b2xZUnNqZzFtWkN0Zl9oVGkyQ3YzTkdpdXZfZ0xlNmNidEl6TjVzZlJEbmhBZVh1UElQTURJMHZySHBYVHluZDBLbWtvVWZXQzN4Z2x6M0txY3VrZUlLWFRrMXNBVUNrOHdCMGRSWTZSLTNaSW1PX0oxaG9iVUhpcW9lVnYwMkg3VXNQVkpsc21MZDhYVXB5OXJDdDJVdFdwN0xLVjRkcl9TU2ZJWmYxTm1hdi0ySDFVVU1FYVlVX1JFaDF5ZnpVRHJ6ZHpXWjNCTFotUDNSQzBhb3pXQTd1aHZqenlsZUI0S2Y3NUx2ZHVfUnl0VDd0eVBpNXRsaG5tWk96M1BFQw?oc=5" target="_blank">Coal India, Adani Power among 10 stocks that saw highest increase in retail shareholding in Q3. Check full list - The Economic Times</a>
-            <div class="news-meta">Google News 2026-02-14 15:09</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="JIOFIN">
-        <div class="stock-label">Jio Financial Services Limited (JIOFIN)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMipAFBVV95cUxNMWc2S2FGU1ZxQ3FLVmpfemZNWTBYZ2RZU1h3OEM3NkNnTk1lT2lBd29fYmU2X3hiZ0duTGpFcmRDM1BBb3N0NU5jWHpyWms3aW91Mks5cDdRZldON1FPZnkyU0ItRTI5NlZvUy03TUZXakZaN0ZkZ0lEWkRZakpYelo3bVlDeWhfYnZORG5GaFB3cGZNM1FxaXdKelZfdjJ5TThnZQ?oc=5" target="_blank">Jio Financial Services Ltd is Rated Sell - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 10:48</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="KALYANKJIL">
-        <div class="stock-label">Kalyan Jewellers India Limited (KALYANKJIL)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi0gFBVV95cUxPazM0TDVVX0ZoXzN6TW55Q0tLUi1NYjlUSnNnV1B2M1pIbHNxc25ucWdEa0pBeUxmQVNiV2hfRkk5bzU3V3MzZ3l2MXpqLXBpamQxN0lldFd3OGY2akdtTWJ4N0l5RTgySDluT2N3Vm5hYzhnVFpaQnRJVk9VT2VxbmgyRmhBaEQxMi1ma1lheXh2ZWZpNTNKeThhbzBibDdCX3VyM05sbEV6R2hQOHpiZ1N2Z2kyb0xadGJlVzZTdE1TSHQxODlOQW00WFFCTGxRWWc?oc=5" target="_blank">Kalyan Jewellers India Ltd Technical Momentum Shifts Amid Mixed Market Signals - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 10:18</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="KAYNES">
-        <div class="stock-label">Kaynes Technology India Limited (KAYNES)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMirAJBVV95cUxPc0N6Nnl5OFljbDlhOElsbGdBWTRJWVIxSkVXamlraElwT1M0MEdRTXhKRElxdm9zcS1iWWtKSzhhTGpyQ29RemdzWEl5VTNKcVljT1I4VWVjeHd6N29GNXpKckVfWmJGTzFsNG9VSGFtejJNaHNOQ0xtdXk3enhRblBQVXQtbF9ySVd0WURqYXBTNTNuVlhLT1d1aWdCeHNaUWotQUZHTzFDaUZqMEM4YUNldjZXQ1NjbFAycDNINFNnTktzQVBxSThaM05YaHdCckdRX29fWVF4RTdFS0FBdTkydXFWTTlJZ1llVzZBb3ZjSGdGNktkcTF0SVFBaFF3SHg4Ukx3WlVLVS02TEVtTkllOG4xNDFLdy03SWNBdFRudVBBLWw4SlRsd2g?oc=5" target="_blank">Coal India, Adani Power among 10 stocks that saw highest increase in retail shareholding in Q3. Check full list - The Economic Times</a>
-            <div class="news-meta">Google News 2026-02-14 14:56</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMipgFBVV95cUxPd0N2YTRUZWprQlpENWp3YUIxVVR5SWFaUmZ4S1paRi14dzFXMjN3dFpmWWpTVFpUbERRa280Z3Q3cG9yNFlfZHZUaGZ6aDRFYTBfMlNSTTUwZlk3Nk1ENVhVRm1xSTBMMTRyRlpwMnRrVzRkUXhreEtHOUZhY1hvVXhkbUlYSElSOHdjOEhocmFKbVhyeldrbnBZdXB2bkx5VDljd013?oc=5" target="_blank">Kaynes Technology India Ltd is Rated Sell - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 01:21</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="KOTAKBANK">
-        <div class="stock-label">Kotak Mahindra Bank Limited (KOTAKBANK)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiwwFBVV95cUxORExfTFhSVXN3Z2V2ZFdJaFVBdUxSejZoUXhpSWYyWGExSFgza0RBRkNrbUlxc2FBU0owdXNyVTh4dml6VXNmY24xNWFEaGxiRFF4cnYyeUw5ZFJxcWRiQlpmbUdORm9wSVBqRmNoQWY4elBEVTVDZWNrX0I5RmNwMmxhU25jRnJ0bWF6QmpkMzVCU21TRVlWci1pMnF4WXF0MUprdVJEYjB0M010VURma0Jvc1RMd2pMNWN4V0gtdlN1TUk?oc=5" target="_blank">The Truth About Kotak Mahindra Bank Ltd: Why Everyone Is Suddenly Paying Attention - AD HOC NEWS</a>
-            <div class="news-meta">Google News 2026-02-14 09:30</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="LTF">
-        <div class="stock-label">L&T Finance Limited (LTF)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi4wFBVV95cUxOaHpyTk5RU2R2OFBiZFg3Y0dDdUQyNEVLa3JZRGd6QTlPNVF2Y2tTcFliVnIyZjdLZGp4ZlhJdHBrVmlaUlo0ak1LTmZOdGhDb2VxemRIMEdrVWw3LVVJVzc5eG5hcGotZ29nOGl5RXBva1lHMTJsekFXUmNoYUhJNmVvOEN6dXB4Mi0tVVV0dDVtR01oVUV5cDdLcUdQMllqd1J5eHN0dWFpR09lbS1pckN2b1ltRGtfZ2dqb1VfQUxJeWhfTVN4T2FmSlVsMUx2T0M4UlRCeG10M2FmNWFxY2hMUQ?oc=5" target="_blank">MSCI rejig: IRCTC out, Aditya Birla Capital, L&amp;T Finance in; 34 stocks removed from smallcap index - MSN</a>
-            <div class="news-meta">Google News 2026-02-14 01:23</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="LICI">
-        <div class="stock-label">Life Insurance Corporation Of India (LICI)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiygFBVV95cUxPcjZQWXZvR3o3QlBKdS11T3IxajF3TXdYeWRhVGtDZi1aRnZNX2cxeFU3ZWI3czNLNkdMU3FUaTdsbDc4dFRnLTAzbEl0RUllZnJMVVBMWkNJR3FfdGVNQnRhMkJCZHM3SE9NZktNZTdPcHlyV2d4TGhEbkZJN2FXVXZDZEJaME0tb3hUTVFnRHQxZnE3Snl0dGRrRXNwd0U1RFlHQU95R3hNSFRsMk5Ha1BVTVMwaks1Z2pRUmtJa3hWXy1YbmtSeGVn?oc=5" target="_blank">LIC Announces Launch of Two New Group Insurance Products on February 16, 2026 - scanx.trade</a>
-            <div class="news-meta">Google News 2026-02-14 22:47</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="M&M">
-        <div class="stock-label">Mahindra & Mahindra Limited (M&M)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMixAFBVV95cUxNZlh1VG9xVEJXTTVYMC05SWtEcWlwOVJMdVlnQ1ozVnJjR0RVMTJ5VXoyY29qa1Z5c3RNYnZEMnRBYl8yTHZSb3l0UXZnUG1TNWVmR3NfN24wSDZIb1ZGb2t5X3hZbXhZOWVqc2tqZUJ0ZkRCeTE3OUNONHN1Yy1nYjkzaDRnc0N2MXBiUklpRVNHdUNKb0Y2NlVzcl9zRmNtcWdTZ0Itc1NlOU9RYk5aWkkyYWFkOWJWQWlUTndPM3FPQlhJ?oc=5" target="_blank">SML Mahindra Limited Issues Clarification on Recent Share Price Movement - scanx.trade</a>
-            <div class="news-meta">Google News 2026-02-14 13:28</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="MAZDOCK">
-        <div class="stock-label">Mazagon Dock Shipbuilders Limited (MAZDOCK)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi5wFBVV95cUxNdWxLMU9uRzhFOGFpS2hTYUlsZlJwVnNHZElRWE9oamd6YWRfclZJbU5LLUtWVk0zWW93UW00c0FRVzBTN3F5M09CYkhKLWNOLXpvQWljT1hLbWNoT1BKcHY2TlNJT0V2T3ZubXhCLV9LTndnY1R3d2FXZEM3dlBhVkliX0FWeDIyX2tqd0ZmNjBlQnpSNHVrSk5jWTlVMWZyVDJzSXlHU05yYklQZ0hOQTlvVklROHlTZFpYYjMxVmc0bmlaS21WZkMzeUdKMEJCS2RnMWhzb0xlVF83eG9icEhxbXlpR2_SAewBQVVfeXFMT3BmVWJUUG1qZXRKY0g2UnJWM0piV2R5a2x1QUpJWnVpelBSTW9RWWpOZ1ExQ1YwbF9KTDdva1hUWWNOTGdvaWFyb1VzWVVjTW03SWdSMVVFSWY3MllMQlFpTGlxRXgxaGZ2ZjRIeGR0cmttZy00YjE4dkxELXRNRDUxYU1NMTBOd2xsVWlCZVI1YlRQcmZYWXRPRUVXbjZjb1Y5LWtJeGhVSmRHbUVyTGZOaUZXRjhLMDV1NXpDdHRSZDJSeFhrLWtyUk5VOXRIRnlyNl8tQnBwbVV6LWtCYldvQUJmVVl3WEhTREU?oc=5" target="_blank">HAL vs BDL vs BEL vs Mazagon Dock: Which defence stock to buy after Q3 results 2026? - Mint</a>
-            <div class="news-meta">Google News 2026-02-14 11:24</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="MCX">
-        <div class="stock-label">Multi Commodity Exchange of India Limited (MCX)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi6wFBVV95cUxPcU9FQjJrRExBNUlxLVVxQ0VJU2lDWVM4Y1lSVzVWblpTb2NtRXNLODBXZENoQ3pONlkwVU1WN3BmMzhMUjY2ak1qNlN6Ty1RdzZsOWc2a2huVTc0UG9JWHZtbnlVX2w2d3dDNnJaYWFGdUdoVlRxaHpvaE5ZRmpYaGpGYVBGWkY5ZzVIWnRocWd6MUNOQlNHRzhFeHlNSC02cE5SMlVrQ0N3MkRRMU9nR1U2RDMxZGFPZmdveXRVU25melBUbWNPUnJubmt1bG1CeVlrcmh3bFdLZkU5UzRTR3JkNnV5RkJxQmw4?oc=5" target="_blank">MCX Chief Business Officer Rishi Nathany Resigns Following Appointment as MD &amp; CEO of Subsidiary MCXCCL - scanx.trade</a>
-            <div class="news-meta">Google News 2026-02-14 14:16</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiuwFBVV95cUxQYVl1VER2cWN3dnY0SmFHbUp1bENIbW5FWGJrMF9EZGdSTmpKQVpsNnZiUUpqdzJvNTYtV2JsbU5KZFgyUFZXOWxXRVJSajIyYXBHclN5ZE5yTVI2bnVtb1FPak9fczdpQW1Va2lhNkZ6TlB2UlhlUVEzU2ZlOVpUNFdwSXR6Z01mcXI5ZExTRGlZejVQYjBzZm9HV1hiQkhPenkyMUNTR3VoS3UzTlNwTFI3WG1Zamk2NUdZ?oc=5" target="_blank">Multi Commodity Exchange of India Ltd is Rated Strong Buy - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 01:31</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="MUTHOOTFIN">
-        <div class="stock-label">Muthoot Finance Limited (MUTHOOTFIN)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiowFBVV95cUxOQW4wY3J4ZTBYbTg2NzhiaUpqOHowamV4N0VYRC1IZEUxQkRiV05fZzlZbzNwNDlxanJJMzNSLUNrZ3BJVXBQRmNkZklDR3ZPZElSWFU2MGJybTZONm1vV2tkTjRMWFJPcnIxa191N0lVTDJWNktaQk5KMTRWdGhaQlJ2RDNrYXJnQnF1Qm5VZ2Z4bjBCTW5qSnpnOHd6SENOX3dr?oc=5" target="_blank">Muthoot Finance Ltd is Rated Strong Buy - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 02:07</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="NATIONALUM">
-        <div class="stock-label">National Aluminium Company Limited (NATIONALUM)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi1gFBVV95cUxPWkFKelU4Z1czNUVJSmMxTnppTXc3RXkwVFJYYVVXZHlzeGtnd2thcmV4aElvWjFSVEQyZDEyaV9qczBFRV9EOGxEczdlYnZrSXVrbTVEcm1VUHF3S3FGZFBsYm96LXFqN1JJandDX05hMm45MEJVejA2a2RJMnlrbU9EbVE5dWNYRnlBX1NiVkNPQm4xSElxVUlvdkxSSUxYb25NaF9jNWE5RnlBcnFjdGs5T3ptQ0dzSmxrellrSG1wT1NDQ3NNWnB1bUZTY3IxYXd0UDV3?oc=5" target="_blank">NLC India Limited Signs MoU with NALCO for Thermal and Renewable Energy Collaboration - scanx.trade</a>
-            <div class="news-meta">Google News 2026-02-14 16:33</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMixAFBVV95cUxPeExSdG00WmJaNEtvNEtpNmN4MmJHdUVEREZtVUpBMUhjWEFxYnNQZWNub0RiY3BWTzBXRmowTmdGQUlXdFFGdk5SeV9iZFRfVEpoVHU1bGJPUDlEdTRWY080TUJza0xnWGlldUhUMGMwWWJ1RG04aDdwb3J4WXZRM2Q1emp5c2hIRjBOdnZVNWh4a3VyeFJ5eGdocDRVZVpSRm9QSFVJekRadVNwWVRFWEtKUzJPWnFQMU5UV2Z4b1VpQi11?oc=5" target="_blank">National Aluminium Company Ltd Hits Intraday Low Amid Price Pressure - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 13:33</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="NESTLEIND">
-        <div class="stock-label">Nestle India Limited (NESTLEIND)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiiwFBVV95cUxPTGllSjhQWldLUE5CUjJJMkdTNHRLOGFwUHA2LW9oLVQydE81czlzaFR1OW9mejdtbjFJY0lsMEpNQ2hBRy1oUGhUdTl2eXJVN0E4Z19naHJxUTZNMXdyZjdJLS02VzFOMEFIT01Wc25lN2Y4d2FaQi0tVDJuM2xmdks1QkFwenJMOWxB?oc=5" target="_blank">Britannia Vs Nestle: Which FMCG stock performed better in Q3? - Trade Brains</a>
-            <div class="news-meta">Google News 2026-02-14 09:00</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="ONGC">
-        <div class="stock-label">Oil & Natural Gas Corporation Limited (ONGC)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMivwFBVV95cUxNQi1wT1BZZ3hzVVdqZW9UeVVJN1h0dVQ5Tlh2bjhBMGRUaFpCTmowZV9wUVNaRHdiMXJMZTNnM181NU42aW85ZVdPMUh5NlNsdFctZ3NJTnJhb2tEWm81aHFMd1p6VXAwbTRWQ0xkLXhxVHVLNzg0cGIxelFmWEJ3VzRwWDBhN093bDRqWlNKejVGdzB3aHd1dnFRR1RkdkMycmVSVXNLQVhlcjhQMndqMFBXb0dtd0hYM2JoNnpXcw?oc=5" target="_blank">Oil &amp; Natural Gas Corporation Ltd. Hits New 52-Week High at Rs.280.35 - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 06:01</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="OIL">
-        <div class="stock-label">Oil India Limited (OIL)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiiAFBVV95cUxNaGVNdnR0OWM0T1pxOElkX3VwSHpNOUdNWVFYM1VVRmdWaEpUWGpDMmpyLUlBN29acE9yMnZzMjlMQkRwTnVGZE5GUjlGdndFRmkzdWQ5OUlJbGhrdVBIWHFwZ1dmdzIwZFNreU1Zc1pXWGhEVEdTR01OREIzdGlSQ04tSFY0Mkdy?oc=5" target="_blank">Coal India, HAL and 6 stocks trading ex-dividend next week - Trade Brains</a>
-            <div class="news-meta">Google News 2026-02-14 19:00</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi3gFBVV95cUxNaTRYM0JzTE9CeHMxb1B4YnJXU01WdTdoX3lKVS1mSFpBclgyQy12Vk4xY0YwTGZuM3ZnYUxkazdqT09qZWRieXBHTXFnU3ZxWHROT003T2t6T2V1eXJ0TGRrOWRRMlRNa3AxeGNNV1o4cU1WU2Jac3RSTzZBUGdtRF90czRISnQ0SXNwVTd4aTVCZGtEbTFGM2ZHRkFZUklCVllBV1M5X2h1V1o4YndNbWE4OGFJZm1GTGJMejhvS191dE56RkxoT0RKM3E1QVhxYVE3UTlrVmI4Sk1IcVE?oc=5" target="_blank">Oil India Ltd: Valuation Shifts Signal Renewed Price Attractiveness Amid Sector Dynamics - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 10:07</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="OFSS">
-        <div class="stock-label">Oracle Financial Services Software Limited (OFSS)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMixgFBVV95cUxNdWU4bzNKd0pTcW5Hd085TkNyNmxIdW4td3ZQZVRkc1VCMXFuckZERnlVakc0UlpweTI2Y1VXTGt5ckUyVWVhcEJKOW0xZUw4N2dUNWxuck1FMjhvLWZpSGpRV01wS04wSlVwMkoyMWY0cW1wVHo0R0d4akdjQ055U1d0U2dLNWN6b3VKNFNqbDFrXzhmRVhzVkd1WE9mXzc3T0lmNGZYMzVGRTdzYU9VdVN3Yjk5LXJsdmgyVDlxNGRNZmJXamc?oc=5" target="_blank">Oracle Financial Services Software Ltd Falls to 52-Week Low of Rs.6980 - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 10:22</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMizwFBVV95cUxQcTVGelYzQ3VTaWdoQVNYUmw1QlltVFdudmJ2a2hvYkludGVEdVJtY0VLZmwzcnV0Y2o1MU9SWXBUTUJkRlpHRDQtT2tCRG1Fb0ZuQ3ZhZGFtbC1wVUx2RnprNU05cnk5c0gxb29hVmJDU3VUTE9hVFoteHJoZFNyMW5GS1hLQ2RfMzZIUnlGN2JZVGVOdERydXU4ZVp4VnRhUEJaMVBmSmM3ZHFzZUNTWm1NbFk1VkdEX0NMYzgwQWZXUWhCTEJrZ2Z5T3VTZ0U?oc=5" target="_blank">Oracle Financial Services Software Ltd Hits Intraday Low Amid Price Pressure - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 06:56</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="PGEL">
-        <div class="stock-label">PG Electroplast Limited (PGEL)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi0gFBVV95cUxON2lRVXBEYVB2cWpPWi1id1pjaGxORHlOcjFkODQwVmROOXpUZWNyYU1DdElWTlpsTDBhYVN0azZScDhxZE9xWFgxTHlWUVEtMi1Ib3pZbUIwOFIwUW56VDd2WlJxNzhTMEduUndJazdXSmNrdm5QclpGQjYycFdmOTh4WktYbTdkczhHX1dhSE9vS2hfVkp6cWNma1VVRzVSSzZUMHk0Wl9DYzNNV2FPbkhmYVFna3ppdGhHdEdZeVRjbEZpbTRpOEVDa2NzcmtSaVE?oc=5" target="_blank">PG Electroplast Receives CRISIL A+/Stable Rating with Outlook Upgrade from Negative - scanx.trade</a>
-            <div class="news-meta">Google News 2026-02-14 15:29</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="PPLPHARMA">
-        <div class="stock-label">Piramal Pharma Limited (PPLPHARMA)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi5AFBVV95cUxQSzVwRXBPUzZ4UWdtRHFyZm03QnV2ckJBcEo2a0g3VlZBc09aeVNQME5scnBzc1o3TlNfNjN2bnVmWVpobGxaN0phNk80Z296dlJEVnJmLU10Uk9pUmlHQVdJNmZEVDF2TFR5R1dSclJHLUxzZXA2R3ZnTFN1NUVZRWhfQ3djSHk0MFQxdkh5Wmw3WGE3dHc0M3lMdGc2cVpTSzIzc2x4Q1h4YXFGSlNlSTVuV3o1dkprRjhRd3d2SW5uYmx4b1VDZ1NjWm8wdzVvLWp4eTQ3VUM2WVJQSnFwemd4T1o?oc=5" target="_blank">Piramal Pharma receives US FDA Form-483 with 4 observations following Digwal facility inspection - scanx.trade</a>
-            <div class="news-meta">Google News 2026-02-14 18:36</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="POLYCAB">
-        <div class="stock-label">Polycab India Limited (POLYCAB)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMilwFBVV95cUxNQ3E2ckg5bHZNcGwyWTgwOFhyNHhMOFVXakhnVWw3d0ctVC1yMHctTkRvNjd3V0VlRWE3eWhNX1NjSWF3QktRTG5Za2dvbldlc294Q3JPOHJyX1l0WjhnZ2R0S2dfanJQV3ZsTmRXbmNEZ1lfYjVBV0VrTEg4ZkxfUEkxWEZDNEd4aXkxMzhyUWZFTzNKVlg4?oc=5" target="_blank">Polycab India Ltd is Rated Buy - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 06:52</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="PNB">
-        <div class="stock-label">Punjab National Bank (PNB)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMisgFBVV95cUxNdS1KVTFjc1JVaC1lblpCbkJwVzV2NC1ORy0xX1MySTNCVkNOQ1BVbTNhUWhMREhNRnhLaTQyYkowNk4yd1JoMHltdzdMR25fcUZ0bGZqUk5hdGNkWG1pcEpDb1ZhM1Y3LXRPcVlIUFd6MlFnV2duZ0t5TzVRZFpYUk9aeWd5ZkhzQlg1VXZvWF9fMlJxMXhQUUoxSVItRG1Sb0I5TXp0MDFpODRKR1o5Y1pn?oc=5" target="_blank">Best PSU Bank Dividend Stocks 2026: SBI, PNB, and Canara Bank Report Record Profits - PSU Connect</a>
-            <div class="news-meta">Google News 2026-02-14 11:15</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="RBLBANK">
-        <div class="stock-label">RBL Bank Limited (RBLBANK)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMipgFBVV95cUxPTXd2MjVmWGd6QjlSQVJ5OHM1TUVYVVZNMEVDUkFZS0NuTnVSTjA3WjBySWxsLXJkLUJUYjJubVN4dGRjUFdVQ2tERHY5bnhHLWgyc2d5Z0x0a190M0puMEFTb2RRRkJnMGVkVlRxNFo1MzJ2N1c2azExS181LUNqNDFPd1lQc2MteTV2T0EwRU1JU0pQZjl6YjlFSUhGQ3NVajZzakhR?oc=5" target="_blank">RBL Bank Ltd is Rated Hold by MarketsMOJO - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 11:25</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="SBILIFE">
-        <div class="stock-label">SBI Life Insurance Company Limited (SBILIFE)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiqgFBVV95cUxOZ2NmSGhmd0VoeWtRWTJXcUhZMmE5Q3NwdVlkem1lMFlCRkJLbWNjaElyb01xdlVwOWJacG1NeG5FVXhYRFBJSXl1N3lUcFVtRWZndURsN0dlS0dhNUpzOTVOZTJVTG5lZHVGVThGZ0lQcjBiVURVTGZfOTZGMjJvRHJVR19aRlY0VW9QS041bWJqNS1jUVFvUlljdnI2a3R5Q2Q1cWlOSURDUQ?oc=5" target="_blank">SBI Life Insurance Company Ltd is Rated Hold - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 10:39</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="SOLARINDS">
-        <div class="stock-label">Solar Industries India Limited (SOLARINDS)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMivwFBVV95cUxPZGxuc1NSTlVwdUlLMkxEcTFfdkphZExRRmFzYXJIaHpBQXhRVlBnN09NbGVBWUxuRXhVV1NLemFQaE1QdzR0UDd0bnduN3ZrckNYYTdsS2JlQTRwcHNFdFlHck0yZ0JZYXdtOEJsQlJmQS1ONlVJQmg4VllEM3lZa3k0STZjbm9XdG9waDY5ZWpYdGpfTW1wU3ZzaUhKM0FGMEVrSzJTQW0tekkwMk04T3RWYVlUeEloVU1LeC1XWQ?oc=5" target="_blank">Solar Industries India Ltd Hits Intraday Low Amid Price Pressure - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 17:26</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="SBIN">
-        <div class="stock-label">State Bank of India (SBIN)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiigFBVV95cUxQaGVPN0plUjNoc1FVdndYTnpVcWpkdzZJTFVXVjlvN0NBOGFnNXpyMjhKeHRUMFNsMVVhOXFDOTg1MmhPbV9CZ2VXQlVuRXJkeVhjSTltZVVvcXhvTWUzQkRFX3FTSHV5X1o3X1BmSWItVXFCRWItcUJMVDF6aDlyMERmLXZBdlduR1HSAZcBQVVfeXFMTXZldE9pTnZSMjFEMW9XY2w2a1JqY1E2b2JoczFaeUo5X2dHSFFoVUY3eHFVczg2Y1lzMVpiMkxQZUYxc0tHU2dEQkNTUC1RWTBBaFlKVVRWSU1lTmszUXpic01zRy1aU1hPeE44SzJHbFZ0cWo4VFdidkdWVDJBM21PSlZ6LVNwQjl5aUZ3bVM4emNTZTVRaw?oc=5" target="_blank">Best SBI ETFs for Indian Investors in 2026 - Analytics Insight</a>
-            <div class="news-meta">Google News 2026-02-14 19:30</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi0AFBVV95cUxPTVdUM0xRLW9NU05GMFJNR3VWMFBXMEJPaExhYmdzZzBzQU9RS0lUVDJZelFVdGhUQ0R5RGcxX003S3NDWkt0YnRRZ3FqLThxeUlYSTFJTm54LU9NUHVEX1B1WTR0RHFDbDFUY0tteWhOMUhvems5MlJOTzhES2FmTTBxQU93U3lzQ2lOZ05lc2JtMmNLSUMzN3Axei1Sa041aWJRd2sxOEhvVGo1RVNQWnVYTy1kYVk2ZWRHd0tjTEVqNVBZTXdFUU82djFycXRm?oc=5" target="_blank">SBI Stock Up 22% in 2026: Is the Rally Over or Just Getting Started? - Equitymaster</a>
-            <div class="news-meta">Google News 2026-02-14 14:47</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMimgFBVV95cUxQeHJzQ1VBWWQzaWVOVzlKQXNKLWljS0U3X3FBVVVvYlJSekxrOE04WVhfZ1RRbjhxMXNkY3BTa3kycHpRSXdyZjV4MGlGekNTX1dJTFJ2QlZYVlRGbkdueXdKOUZFNEVZR3JqQlZhLWMySVNHb1VLYzBETkRmWkFDQmx3Wlo3V01jVzhPamU3VF9MeHFYbnhVU3BR?oc=5" target="_blank">State Bank of India is Rated Buy - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 12:07</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMisgFBVV95cUxNdS1KVTFjc1JVaC1lblpCbkJwVzV2NC1ORy0xX1MySTNCVkNOQ1BVbTNhUWhMREhNRnhLaTQyYkowNk4yd1JoMHltdzdMR25fcUZ0bGZqUk5hdGNkWG1pcEpDb1ZhM1Y3LXRPcVlIUFd6MlFnV2duZ0t5TzVRZFpYUk9aeWd5ZkhzQlg1VXZvWF9fMlJxMXhQUUoxSVItRG1Sb0I5TXp0MDFpODRKR1o5Y1pn?oc=5" target="_blank">Best PSU Bank Dividend Stocks 2026: SBI, PNB, and Canara Bank Report Record Profits - PSU Connect</a>
-            <div class="news-meta">Google News 2026-02-14 11:15</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi2gFBVV95cUxNUVJQYmhmenRZSV9mam5odlRVUFlFM2lFMGIzY3RzejRfTDhwbWE1emw0b3owcHowYmFPT3FfcWpYdkFvSE1yWm9vakh2eXVVSjZJaTJXNWpBaXdmN2dGRmx6SDRNcV9HUUJHdWZ6bEpISHNGU2hmRF94Slhlc04yYlBCZ1RvRmI0ZktKSHVqdEQyVTNiTTR6ODVjOVhLQVBOSmNGNkVHQ3hNd3RnWTE2U0VMNFRuTXpCX3hCVENYd3hJS2lIR25TVkg5NGF2dHh0Vk1sUlRPVEF6Zw?oc=5" target="_blank">Brokerages Pick 10 Stocks for Upside Amidst Market Dip - Whalesbook</a>
-            <div class="news-meta">Google News 2026-02-14 10:22</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMirAFBVV95cUxOUnFJc3g2eFBobGJGR3g4RHZBRUFTQ3RSTzdYWHk4UTYzZlJFSkpfYkw1N1ppako4eC1YUDF3ZkRWWDVOcV9jTXJTdFA0dG1zLUZOaFg5V0pKR0hDdnlCUjNxeGdxV09lcEltQjNrNzh5MU9LQnBrSjRtVlpSUDJiTEN0UzA0VE84dFl1VkVPRnhvV1IwS1hBWExKOWtsank3eTdQa1d5cUNCUWJR0gGzAUFVX3lxTE80dHZJR2k5TWI1RWd4ODNKU1lXbzU4bjNRaWRnN2VsLVF0aXYtQXhubG55Sng0MWR4OEhQYnI5SlpCa0diQ3JvN1lpbWhROHpWbEdoYXNjQktyXzRKRzZZWEV4VS13SnJqcmpXUW5YOEV6NzUwNy1DUkQzUG5QS2J0OUQyYTVYVXZLRUExLW1qZmRNZ2ljYlp4QTVlR21uQnVidFJfYndUbEJzTUREeFVFTEo0?oc=5" target="_blank">10 stocks with up to 42% upside – Top brokerage Buys this week - The Financial Express</a>
-            <div class="news-meta">Google News 2026-02-14 10:07</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="SAIL">
-        <div class="stock-label">Steel Authority of India Limited (SAIL)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMiuwFBVV95cUxOOExoTUg2SmJKRV9MWlI2azNDa2FvV3NpYVlrREhkV05xbGZPNS1Xdjd1NlR1WV9MNnB6MDcxMnlnc1dtVGpSU3BNUHZmR25zemhleFlESC1lc19qaU0tSE1jeGM3QjIxdFJsQ0wtQUVjOHlTQnBrOHo5QlBvczBJcmJJak1UUlJkRXZsRXAyYk9TUG96MlBmYUxJZjZvUWxWbVZhSVhpZEJXV2NkUXhBUjNFT0hRaDh2eF9r?oc=5" target="_blank">Steel Authority Of India Ltd. Hits New 52-Week High at Rs.162.95 - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 13:05</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="SWIGGY">
-        <div class="stock-label">Swiggy Limited (SWIGGY)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMisAFBVV95cUxPV1RLaDc0d2MtZC1Na3FQWlBjNy0wWlVPQTA2cUZEWlE1dEZ4Smc5RFFkRVlmMThERDU1eE5qZl90Ulh5Y3JxQUUtY3JQdG5xbDhJdC1DSjNoS0tSOGRGN3VwQ2wzYWpubTMydkp5RkRfSVk5X1BMdWNLQ19mSXhPMThJNUlUeVJSNDFPOGhydmdhMDdJeFROOHlxMWFMUGoyTURXazNUM0NKLWpqNjVCMg?oc=5" target="_blank">Swiggy and 4 Other Large Cap Stocks Where FIIs Consistently Increased Stake Over 4 Qtrs - Trade Brains</a>
-            <div class="news-meta">Google News 2026-02-14 10:00</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="TCS">
-        <div class="stock-label">Tata Consultancy Services Limited (TCS)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi7AFBVV95cUxQUTFFZHJKZ3VRaXA3MWxlRFF1Y3V2aXVkY1RUd0wydjA3cW9RbWNZZENaOUFSSzZKTkxCVHVhaEZpN2NYV3JrZVYxN0hKM1V1VUJ2ZVRaUWF5LTJQR2NpYmpnX2pvX3Foc3Mwb2Jjd2dpNGV6TzRjUTVZSVlraTE5aExTeE5nWDBtZDVYcDZSRWFHWmdUNnJKQzQwbjZJbEhnMndRT3BqMFkzVDBCRjJwWWs1X3RaS2lldXpMNWpraGFZUVpuZ0xCWEE2ZjUzMDBYYk5WXzVYSzZ6b3E2Y1VuZmxVNHFCTFJMZmw0MtIB8gFBVV95cUxQd1kxVTctWnlCN3BjRmpkZ1U1QjJRRVk1ZmFzcjk4ejNoRHc2TGY1VkY1UzhCekZDa3R1NmVRUUNUdnl4ZHpyNTZMdVZEd3d5dWlYX1RObzN5MWdHUlRkSDd6d2NfS2hEbll3RnZhQlowQ2lKZW1IUWVLNVJOajVIUkZSMjh1MU9nU3VMamNfelNwa3BZTVhwSk5HUE03bTBLUmlhODUtbjBmTU0xUWlWVTFLNnczN0dMd1ZzMzJGaTI4QnAtLUcxX0pZeFFZLURqSW5GSFRZUEIycXJ3QXRpa0g5MjdBU2g4RHR0ejBpdmRoUQ?oc=5" target="_blank">Nifty IT at 9-month low: Infosys, TCS, HCL Tech fall up to 9% this week; analysts share views - Business Today</a>
-            <div class="news-meta">Google News 2026-02-14 12:10</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="TORNTPHARM">
-        <div class="stock-label">Torrent Pharmaceuticals Limited (TORNTPHARM)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMizAFBVV95cUxOMEY5Vl83RXc3Qm16WXhsaU81VkZIOVJ6cXV0d2tJZlNVUmMweWx3b1VDU3lyalh0b1FRdFlWdk9GUW5oQjZ4bkt5UjNrdkxnbnFNVENtNnlDMzc2R080VTJYelRYMEZUVnF4anVLc1F6Ukw4dlpyTGRvVk9LdFZRN0JHejhOeFVZc200ajE2S2JFcFR4RmYtVF9YZ2lGVDRLc1QwOHhPdERBMndUNGotWGlSdndyUHdCMl9XSDBVVkh5S2ZJVVg3MWpBb3I?oc=5" target="_blank">Stock Split, Bonus Issue, Dividend Next Week: 70+ Stocks To Trade Ex-Date Between Feb 16-20 - Goodreturns</a>
-            <div class="news-meta">Google News 2026-02-14 15:40</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="TORNTPOWER">
-        <div class="stock-label">Torrent Power Limited (TORNTPOWER)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi_AFBVV95cUxOSkphMnVKaTY2NWV6d0RuU05nUjVXbXhQZ1NqcFdnMEVkREdkaUozWTlwLURsWTd2U0NOTHc5a2padV91VmlvZmlGVTVrOG9HUFR2WTI4eXI0cUNoVFp6eVdOV2xzVjBSbWdySzRaN1JNWTA2ekM0QU4xWDdId29PSmZEU0Jra0N2dlpoNWxkdnJSVVZob1JYNXZXUFlfY3VickhkRE5SUjdlYjlLN19SYm1IUWJNeW5jYW1yMVpRV2JFalJka2VNalJOZHdWWnJfVGFsbENySV9CTUFuZWlDOGFNYk1kMWNyUGNscVBaWGlxQzV5UzlYUkdfNVQ?oc=5" target="_blank">Rs 62 Dividend, Right Issue: Torrent Power, Apollo Hospitals and 11 other stocks to go ex-date on February 16- FULL LIST - MSN</a>
-            <div class="news-meta">Google News 2026-02-14 11:29</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi_AFBVV95cUxNd3g0MGlPTmhIUExLVXlONEJ3MXN2NVN0bWt1V1d2RUhTclVHZkRYLWF3ZFRFSi1SLXdDNVJTNlNHakJoQTh6MEFVNFdoTk5nTEh1STFxTzhxbkNsNUE2TDg5eXA0UWc4ckpicjR0TWFob29hdktnZnoyZ05Ub3p3WGc4c0hxaG8yM1dMbXpwU2NNSDRTQW55UFEwSlVIYXVLUUhUcnhrMDFpWUtLUWRDVmF2eG5BQnpOOV9GcHplUWFRMEFjYlhEdFVCNkVmMWZQQ0lWS3hpdFVESl8xbmNpRE0wVEtualQzZEg4WVZ3bFFUZHlVVFZZUXhfNzXSAYICQVVfeXFMT1RvVmVzeUhqNkw4dk8tUnNiQXBUTFZvcWNJVUlGN3VETDcwQnIyN2VYTVFGMjNWeXBYcE0xTUhabDg3WldpQjlzaXZJVUkzcVJKWTFjeHQ4Y2hDWWVCZzBZQkExVU5SQ2U3dGhta1ZHTGREMktLQ0h2Ym9qLWZ5Y2VJUHhfR0RSQ2NDRGJHLXRGSDYxX3NrSWFYcXNEN01DRkxwbF84NEhPSlZKeXV5VDNzTnc4LU5JM2ctSVV5cGliRjVfWGxuVU9DWS0xaktVOW5OX01KXzN0dV9sdWI5cXRxS3RLdG1JbExzdnZqT1I2NGlTUHJHZENHMDBtSU9CN1hB?oc=5" target="_blank">Rs 62 Dividend, Right Issue: Torrent Power, Apollo Hospitals and 11 other stocks to go ex-date on February 16- FULL LIST - ET Now</a>
-            <div class="news-meta">Google News 2026-02-14 09:55</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="UNIONBANK">
-        <div class="stock-label">Union Bank of India (UNIONBANK)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMitwFBVV95cUxQNzZJdEZhS2R4cDcxX1BDRElqeS1uc2NEbVVyd3pNYk5sUE9ISGZSZ3FEd0lBejAzc0V0bDZMeGdmTm4yS3JhSllpckV0N25NbnMzLVRTa1lRTlZYR2xsNm1tN3ZmVF9GVlVMMHRnNXVhMnJsSUFlbDJzdFNIbC12d0NidmtNcXZaSTlOejRYY2NiMnVCdVY4ZlFKWGR2U0pPUl9vUXYwVnB6Zkt0ajdxbnF0TDdqSTA?oc=5" target="_blank">Union Bank of India is Rated Strong Buy by MarketsMOJO - Markets Mojo</a>
-            <div class="news-meta">Google News 2026-02-14 10:31</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMisAFBVV95cUxPV1RLaDc0d2MtZC1Na3FQWlBjNy0wWlVPQTA2cUZEWlE1dEZ4Smc5RFFkRVlmMThERDU1eE5qZl90Ulh5Y3JxQUUtY3JQdG5xbDhJdC1DSjNoS0tSOGRGN3VwQ2wzYWpubTMydkp5RkRfSVk5X1BMdWNLQ19mSXhPMThJNUlUeVJSNDFPOGhydmdhMDdJeFROOHlxMWFMUGoyTURXazNUM0NKLWpqNjVCMg?oc=5" target="_blank">Swiggy and 4 Other Large Cap Stocks Where FIIs Consistently Increased Stake Over 4 Qtrs - Trade Brains</a>
-            <div class="news-meta">Google News 2026-02-14 10:00</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="WAAREEENER">
-        <div class="stock-label">Waaree Energies Limited (WAAREEENER)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMisAFBVV95cUxPV1RLaDc0d2MtZC1Na3FQWlBjNy0wWlVPQTA2cUZEWlE1dEZ4Smc5RFFkRVlmMThERDU1eE5qZl90Ulh5Y3JxQUUtY3JQdG5xbDhJdC1DSjNoS0tSOGRGN3VwQ2wzYWpubTMydkp5RkRfSVk5X1BMdWNLQ19mSXhPMThJNUlUeVJSNDFPOGhydmdhMDdJeFROOHlxMWFMUGoyTURXazNUM0NKLWpqNjVCMg?oc=5" target="_blank">Swiggy and 4 Other Large Cap Stocks Where FIIs Consistently Increased Stake Over 4 Qtrs - Trade Brains</a>
-            <div class="news-meta">Google News 2026-02-14 10:00</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="MRF LTD">
-        <div class="stock-label">MRF LTD (MRF LTD)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMimwFBVV95cUxNeW1zUE5LTTVZSzlTZ0E4MmRNTjFidU5oWWY0UXdrU2NRQWUzd3NEQXlKSXRoVTFMMVBRaVNJS2xEYU8ydkViY3FDeWFORUt1VjNwdzl5WV8zbG81RF8yUllqdGluSVNHY0NEZVhCNzJiRkVyeVdhdVBSZFVfZTl5anFjWkhqdFlXUEZWbDRaSjlYNDM3aWw5c2w5SQ?oc=5" target="_blank">How MRF became the most expensive stock in India - CAclubindia</a>
-            <div class="news-meta">Google News 2026-02-14 06:49</div>
-        </div>
-        
-    </div>
-    
-    <div class="news-card-wrapper" data-stock="NIFTY">
-        <div class="stock-label">NIFTY (NIFTY)</div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi6gFBVV95cUxQVUtNMXhZanFhNC1ZdGIxbnZvQlBMODJQS1NlZWh3WVlHRm9TbmcyNDU2cWNHdzAtdHRyazRzWkl5ZFpyZUJhM0RpczZCZnB3Vk9WU1BLUHhoRmtCS2tkTG4zU2VsTThUX1RjUFBCMVFJdy1Tb1h0N21DYVFRU05Vd1diM2dtV2ZaTWNiQ19wTWcxNWdYUGlPZnlub3pBX3pOZDg1bWJKUmEtRm1kZmU0bHZOVkQ5NWI2eGtyM2ZPRzNJRTd0Z0FMOS1ZdkdRdEMyNzItWHY1QWs2SEx6ZW9ud2hmc1plT3Ntb1HSAe8BQVVfeXFMTVd2RUZCNE9tM2cxMk5BM2tEcDNpUVpySC0ySnMyaGhYVFcwMjJ2dXZRem40cXhLdkFGM3A4Q0lUT2V6cTNwcUVWbGo4NFNQRzlOeWptenpoZTFqNG9OZ2R6cHpOQndkcm91ZkVtbzJnS1VqWm96R3BIV05lNDlIQlVDejdvWkl5ZkV1QzNBeFFDS3pqUGxaM2VIa2V4QVAzQVdfbzVHOUdLYUk3d21OS3gwRzRheTZkTzlRVGZLS2tCS0JoMjF4ZGRjMHJRZFlEOU92WUNqY3pNZU12WnhYckhKa1BON2ZleTVoT3BQN2s?oc=5" target="_blank">Buy or sell: Sumeet Bagadia recommends three stocks to buy on Monday — 16 February 2026 - Mint</a>
-            <div class="news-meta">Google News 2026-02-14 22:57</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMilgFBVV95cUxPd0JWejF5QUVUN3U2WTJkRFlqM0w5WUVjRG5FUDhORzM5SXBPRjBwVzE5RzhQRTNEOXZYZ2VlTkpmaXJoa3RBVmZsek1FcXFDREdZNVN1b1JZTDhPanZtMXp5aHVhd2VSdGF4UUY4YWY0c2JTeTZjZHRRUERXOXpNeFhGTVJRZUtsWVh5WW9kZHpoVTJhMGc?oc=5" target="_blank">India Markets February 14: Sensex, Nifty Sink as IT, Metals Slide - Meyka</a>
-            <div class="news-meta">Google News 2026-02-14 22:03</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi7AFBVV95cUxQUTFFZHJKZ3VRaXA3MWxlRFF1Y3V2aXVkY1RUd0wydjA3cW9RbWNZZENaOUFSSzZKTkxCVHVhaEZpN2NYV3JrZVYxN0hKM1V1VUJ2ZVRaUWF5LTJQR2NpYmpnX2pvX3Foc3Mwb2Jjd2dpNGV6TzRjUTVZSVlraTE5aExTeE5nWDBtZDVYcDZSRWFHWmdUNnJKQzQwbjZJbEhnMndRT3BqMFkzVDBCRjJwWWs1X3RaS2lldXpMNWpraGFZUVpuZ0xCWEE2ZjUzMDBYYk5WXzVYSzZ6b3E2Y1VuZmxVNHFCTFJMZmw0MtIB8gFBVV95cUxQd1kxVTctWnlCN3BjRmpkZ1U1QjJRRVk1ZmFzcjk4ejNoRHc2TGY1VkY1UzhCekZDa3R1NmVRUUNUdnl4ZHpyNTZMdVZEd3d5dWlYX1RObzN5MWdHUlRkSDd6d2NfS2hEbll3RnZhQlowQ2lKZW1IUWVLNVJOajVIUkZSMjh1MU9nU3VMamNfelNwa3BZTVhwSk5HUE03bTBLUmlhODUtbjBmTU0xUWlWVTFLNnczN0dMd1ZzMzJGaTI4QnAtLUcxX0pZeFFZLURqSW5GSFRZUEIycXJ3QXRpa0g5MjdBU2g4RHR0ejBpdmRoUQ?oc=5" target="_blank">Nifty IT at 9-month low: Infosys, TCS, HCL Tech fall up to 9% this week; analysts share views - Business Today</a>
-            <div class="news-meta">Google News 2026-02-14 12:10</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMi1gFBVV95cUxNRFBGV1pILXAzc2tqcEQtUldQc3hfX3FLSExMbndHLXVrbFFFZC1OR2lHZndlNlZIM180R1dRV1ZyNm5MUUlPbElfTDJWUWZiekpuVGViNGtTb2M5Mk9vS3JhOXlfRzVOZGdhSHlMNDVfMG5XRmVCWHN3bVMwaGVpTzFPUkNlZWdvcktnU0dXV3R1aDEwWjRHRnJFMjVMeWZSb3N1eWY4NDk4RzJSeEhDUlRmdVJKMTRLbkM2Y2ZTeGdyMVl3WTdwSEk0YzRvcWNhWXF5Q3JB?oc=5" target="_blank">Stock market crash today: Nifty, Sensex fall over 1% - Key reasons - MSN</a>
-            <div class="news-meta">Google News 2026-02-14 05:41</div>
-        </div>
-        
-        <div class="news-card">
-            
-            <a href="https://news.google.com/rss/articles/CBMivAFBVV95cUxOSzA3NXZVdTJaOWpzWVpjNlN2aWx1WjdFVlF3a0J2aVNYTVVYTW5kRnhVMDA4MldKRXByU1dET0szd0cwWHVkZV81cjJiemlrdGJxVGxsVHJWZVFBb2dOLWJKRGR1QmxCX3BGb3hrcHBMTGN1NVZUeUdBdHk2YmVjX0NKNUxUUFdiNW8zUGtqc29zM3p5X0tXYWpkSGk4T3A3YS0ycXlTMURQZHg1bUxZZWg4VDZEeWdFZzd4MtIBwwFBVV95cUxNUkJMME9iZk5ILWZZaUF0ZkJxTEFhRm81VlBscEtHRDU4bHZrblBkLUxyODFrd1M4NjlucmpWY3hNRHFiNjR3SXlHN0h5Y0RVOHpmUmRJVzZDY3BwS3lwVmtiNE9qLU9nQlpqU0xUN2N3aUREUnJ3cjdmY2JZZGh1NHVnSXhIU19FV2NOSWtJSDFLOEx3WW5yR2JRZ0pncTF3WFE5Yl80YUpqOVlNcE0wVFFHYTRjbzZBTER6R1ZDZERNTHM?oc=5" target="_blank">Stock markets fall 1.3% as AI concerns intensify IT sell-offs - The Indian Express</a>
-            <div class="news-meta">Google News 2026-02-14 04:32</div>
-        </div>
-        
-    </div>
-    
+
+
+<div class="outerRowHeader">
+  <div class="outerBoxTitle" id="totHeader">
+    TOTAL OI<br>
+    <span style="font-size:14px;opacity:.75">
+      Fetch: 2026-02-17(<span style="color:#27F2F5;font-weight:bold">14:12:14</span>)
+    </span><br>
+    <span id="pcrTotal" style="font-size:16px;"></span>
   </div>
+
+  <div class="outerBoxTitle midBox" id="midHeader">LTP</div>
+
+  <div class="outerBoxTitle" id="chgHeader">
+    CHANGE IN OI<br>
+    <span style="font-size:12px;opacity:.9;">
+      (LAST 4 SCAN (12Minuts))
+    </span><br>
+    <span style="font-size:14px;opacity:.75">
+      Scan: 2026-02-17(<span style="color:#27F2F5;font-weight:bold">14:13:13</span>)
+    </span><br>
+    <span id="pcrChange" style="font-size:16px;"></span>
+  </div>
+
 </div>
 
-<footer class="text-center py-3">
-  News sourced from public feeds
-</footer>
+
+
+
+
+<div id="grid">
+  <div id="hoverLineTop" class="hoverLine"></div>
+  <div id="hoverLineBottom" class="hoverLine"></div>
+
+  <div id="leftCol"></div>
+  <div id="midCol"></div>
+  <div id="rightCol"></div>
+</div>
+
+
+</div>
 
 <script>
-function toggleTheme() {
-  document.body.classList.toggle("dark");
+const DATA = {};
+
+const ulSel = document.getElementById("ul");
+const expSel = document.getElementById("exp");
+const leftCol = document.getElementById("leftCol");
+const rightCol = document.getElementById("rightCol");
+const hoverLine = document.getElementById("hoverLine");
+
+var keys = Object.keys(DATA);
+
+// --- Move INDEX symbols to front ---
+var indexSymbols = ["NIFTY","BANKNIFTY"];
+var indexList = [];
+var normalList = [];
+
+keys.forEach(function(k){
+  if(indexSymbols.includes(k)){
+    indexList.push(k);
+  }else{
+    normalList.push(k);
+  }
+});
+
+keys = indexList.concat(normalList);
+
+var topRow = document.createElement("div");
+var bottomRow = document.createElement("div");
+
+topRow.style.display = "flex";
+bottomRow.style.display = "flex";
+
+topRow.style.gap = "10px";
+bottomRow.style.gap = "10px";
+
+topRow.style.width = "100%";
+bottomRow.style.width = "100%";
+
+var splitIndex = Math.ceil(keys.length / 2);
+
+keys.forEach(function(k, i){
+
+  var o=document.createElement("option");
+  o.text=k; o.value=k;
+  ulSel.add(o);
+
+  var btn=document.createElement("button");
+  btn.innerText=k;
+
+  // --- Highlight index buttons ---
+  if(indexSymbols.includes(k)){
+    btn.style.background = "linear-gradient(135deg,#2d004d,#6a0dad)";
+
+
+
+
+
+    btn.style.border = "1px solid #4aa3ff";
+    btn.style.fontWeight = "bold";
+  }
+
+    btn.onclick=function(){
+
+      document.querySelectorAll("#symbolButtons button")
+        .forEach(b=>{
+          b.classList.remove("activeSymbol");
+          b.style.background = "";
+        });
+
+      this.classList.add("activeSymbol");
+
+      ulSel.value = k;
+      ulSel.onchange();
+
+      // ---- APPLY OI SIGNAL COLOR ----
+      setTimeout(() => {
+        if (window.currentOISignal === "LONG") {
+          this.style.background = "#00ff6a";
+        }
+        if (window.currentOISignal === "SHORT") {
+          this.style.background = "#ff2e2e";
+        }
+      }, 50);
+
+
+
+
+  if(i < splitIndex){
+    topRow.appendChild(btn);
+  }else{
+    bottomRow.appendChild(btn);
+  }
+
+});
+
+
+var container = document.getElementById("symbolButtons");
+container.innerHTML = "";
+container.style.display = "flex";
+container.style.flexDirection = "column";
+container.style.justifyContent = "flex-start";
+container.style.alignItems = "flex-start";
+container.style.gap = "8px";
+
+container.appendChild(topRow);
+container.appendChild(bottomRow);
+
+
+
+ulSel.onchange = function(){
+  expSel.innerHTML="";
+  Object.keys(DATA[ulSel.value]).forEach(function(e){
+    var o=document.createElement("option");
+    o.text=e; o.value=e;
+    expSel.add(o);
+  });
+  expSel.selectedIndex=0;
+  
+  document.querySelectorAll("#symbolButtons button")
+  .forEach(b=>{
+    b.classList.toggle("activeSymbol", b.innerText===ulSel.value);
+  });
+
+  
+  
+  render();
+};
+
+expSel.onchange = render;
+
+const st=JSON.parse(localStorage.getItem("oi_state")||"{}");
+if(st.ul && DATA[st.ul]){
+  ulSel.value=st.ul;
+  ulSel.onchange();
+  if(st.exp) expSel.value=st.exp;
+  render();
+}else{
+  ulSel.selectedIndex=0;
+  ulSel.onchange();
 }
 
-function searchStock(text) {
-  text = text.toLowerCase().trim();
-  const cards = document.querySelectorAll(".stock-card");
-  const headerHeight = document.getElementById("topHeader").offsetHeight;
 
-  cards.forEach(c => c.classList.remove("highlight"));
+function render(){
+  leftCol.innerHTML="";
+  rightCol.innerHTML="";
 
-  for (const c of cards) {
-    const title = c.querySelector("h5").innerText.toLowerCase();
-    if (title.includes(text) && text.length > 0) {
-      const y = c.getBoundingClientRect().top + window.pageYOffset - headerHeight - 10;
-      window.scrollTo({ top: y, behavior: "smooth" });
-      c.classList.add("highlight");
-      break;
+  var ul=ulSel.value, exp=expSel.value;
+  var obj=DATA[ul][exp];
+  document.getElementById("midHeader").innerHTML =
+    "LTP<br>" + obj.ltp.toFixed(2);
+
+  var rows=obj.table;
+  var atm=obj.atm;
+  var ltp=obj.ltp;
+
+  var ltpStrike = rows.reduce((a,b)=>
+    Math.abs(b.STRIKE_TXT-ltp) < Math.abs(a.STRIKE_TXT-ltp) ? b : a
+  );
+
+  var idx = rows.findIndex(r=>r.STRIKE_TXT===atm);
+  var half = Math.floor(15/2);
+  var win = rows.slice(Math.max(0,idx-half), idx+half+1);
+
+  /* ---- HEADER PCR CALC ---- */
+
+  let totCE = 0, totPE = 0;
+  let chCE = 0, chPE = 0;
+
+  win.forEach(r=>{
+    const ceOI = Number(r["OI_CE"]||0);
+    const peOI = Number(r["OI_PE"]||0);
+    const ceCh = Number(r["Change In OI_CE"]||0);
+    const peCh = Number(r["Change In OI_PE"]||0);
+
+    totCE += ceOI + ceCh;
+    totPE += peOI + peCh;
+
+    chCE += ceCh;
+    chPE += peCh;
+
+  });
+
+
+  const pcrTot = totCE ? (totPE/totCE).toFixed(2) : "0.00";
+  const pcrCh  = chCE  ? (chPE/chCE).toFixed(2)  : "0.00";
+
+    let mBiasLabel = "BALANCED";
+    let mBiasColor = "white";
+
+    if (Number(pcrTot) > 1.2) {
+      mBiasLabel = "LONG BIAS";
+      mBiasColor = "#00ff6a";
+    } else if (Number(pcrTot) < 0.8) {
+      mBiasLabel = "SHORT BIAS";
+      mBiasColor = "#C21A0E";
     }
-  }
+
+    document.getElementById("pcrTotal").innerHTML =
+      "mPCR: " + pcrTot +
+      " | <span style='color:" + mBiasColor + ";font-weight:bold'>" + mBiasLabel + "</span>" +
+      " | prev1: " + obj.prev1_mPCR +
+      " | prev2: " + obj.prev2_mPCR;
+
+
+    let biasLabel = "BALANCED";
+    let biasColor = "white";
+
+    if (Number(pcrCh) > 1.2) {
+      biasLabel = "LONG PRESSURE";
+      biasColor = "#00ff6a";
+    } else if (Number(pcrCh) < 0.8) {
+      biasLabel = "SHORT PRESSURE";
+      biasColor = "#C21A0E";
+    }
+
+    document.getElementById("pcrChange").innerHTML =
+      "cPCR: " + pcrCh +
+      " | <span style='color:" + biasColor + ";font-weight:bold'>" + biasLabel + "</span>" +
+      " | prev1: " + obj.prev1_cPCR +
+      " | prev2: " + obj.prev2_cPCR;
+      
+      
+    // ---- CHANGE IN OI DOMINANCE SIGNAL ----
+    let signalType = null;
+
+    // SHORT: CE writing + PE unwinding
+    if (chCE > 0 && chPE < 0 && Math.abs(chCE) > Math.abs(chPE)) {
+      signalType = "SHORT";
+    }
+
+    // LONG: PE writing + CE unwinding
+    if (chPE > 0 && chCE < 0 && Math.abs(chPE) > Math.abs(chCE)) {
+      signalType = "LONG";
+    }
+
+    // store in window for next step
+    window.currentOISignal = signalType;
+
+
+
+
+  
+
+  // ---- SCALE ONLY WINDOW ----
+  // ---- SCALE ONLY WINDOW ----
+  var maxTot = Math.max(1, ...win.map(x =>
+    Math.max(
+      Math.abs(x["OI_CE"]||0) + Math.abs(x["Change In OI_CE"]||0),
+      Math.abs(x["OI_PE"]||0) + Math.abs(x["Change In OI_PE"]||0)
+    )
+  ));
+
+
+
+  var maxCh = Math.max(1, ...win.map(x =>
+    Math.max(
+      Math.abs(x["DELTA_FROM_LAST2_CE"]||0),
+      Math.abs(x["DELTA_FROM_LAST2_PE"]||0)
+    )
+  ));
+
+
+  win.slice().reverse().forEach(function(r){
+
+    var ceOI = Number(r["OI_CE"]||0);
+    var peOI = Number(r["OI_PE"]||0);
+    var ceCh = Number(r["DELTA_FROM_LAST2_CE"]||0);
+    var peCh = Number(r["DELTA_FROM_LAST2_PE"]||0);
+
+    var ceRaw = Number(r["Change In OI_CE"]||0);
+    var peRaw = Number(r["Change In OI_PE"]||0);
+
+    // ---- TOTAL = OI + Change In OI (RAW) ----
+    var ceTot = ceOI + ceRaw;
+    var peTot = peOI + peRaw;
+
+    function pct(v){ return (Math.abs(v) / maxTot) * 100; }
+
+    var ceBasePct = pct(ceOI);
+    var peBasePct = pct(peOI);
+
+    var ceTotPct  = pct(ceTot);
+    var peTotPct  = pct(peTot);
+
+    var ceAddPct = ceRaw>0 ? (Math.abs(ceRaw) / maxTot) * 100 : 0;
+    var peAddPct = peRaw>0 ? (Math.abs(peRaw) / maxTot) * 100 : 0;
+
+    var ceCutPct = ceRaw<0 ? (Math.abs(ceRaw) / maxTot) * 100 : 0;
+    var peCutPct = peRaw<0 ? (Math.abs(peRaw) / maxTot) * 100 : 0;
+
+    function clamp(x){ return Math.max(0,Math.min(100,x)); }
+
+    ceBasePct=clamp(ceBasePct); peBasePct=clamp(peBasePct);
+    ceTotPct =clamp(ceTotPct);  peTotPct =clamp(peTotPct);
+    ceAddPct =clamp(ceAddPct);  peAddPct =clamp(peAddPct);
+    ceCutPct =clamp(ceCutPct);  peCutPct =clamp(peCutPct);
+
+    var row=document.createElement("div");
+    row.className="row"+(r.STRIKE_TXT===atm?" atm":"");
+
+    var strikeHTML =
+      '<div class="strike">'+
+        '<div class="stkPrice">'+r.STRIKE_TXT+'</div>'+
+        '<div class="stkInfo" style="display:none;font-size:11px;margin-top:4px;line-height:1.3;">'+
+          'CE: '+ceOI+' ('+(ceCh>=0?'+':'')+ceCh+')<br>'+
+          'PE: '+peOI+' ('+(peCh>=0?'+':'')+peCh+')<br>'+
+          'ΔCE: '+(ceCh>=0?'+':'')+ceCh+
+          ' &nbsp; ΔPE: '+(peCh>=0?'+':'')+peCh+
+        '</div>'+
+      '</div>';
+
+    row.onmouseenter=function(e){
+      const rbox=row.getBoundingClientRect();
+      const strikeBox=row.querySelector(".strike").getBoundingClientRect();
+      const gridBox=document.getElementById("grid").getBoundingClientRect();
+
+      const topLine=document.getElementById("hoverLineTop");
+      const botLine=document.getElementById("hoverLineBottom");
+
+      const topPos = rbox.top - gridBox.top;
+      const botPos = rbox.bottom - gridBox.top;
+
+      topLine.style.top = topPos + "px";
+      botLine.style.top = botPos + "px";
+
+      topLine.style.display="block";
+      botLine.style.display="block";
+
+      let tipL=document.getElementById("strikeTipLeft");
+      let tipR=document.getElementById("strikeTipRight");
+
+      if(!tipL){
+        tipL=document.createElement("div");
+        tipL.id="strikeTipLeft";
+        tipL.style.position="absolute";
+        tipL.style.background="#102018";
+        tipL.style.border="2px solid #00ff6a";
+        tipL.style.padding="6px 8px";
+        tipL.style.fontSize="11px";
+        tipL.style.lineHeight="1.4";
+        tipL.style.color="white";
+        tipL.style.pointerEvents="none";
+        tipL.style.zIndex="300";
+        tipL.style.minWidth="160px";
+        document.body.appendChild(tipL);
+      }
+
+      if(!tipR){
+        tipR=document.createElement("div");
+        tipR.id="strikeTipRight";
+        tipR.style.position="absolute";
+        tipR.style.background="#1a1020";
+        tipR.style.border="2px solid #ff00ff";
+        tipR.style.padding="6px 8px";
+        tipR.style.fontSize="11px";
+        tipR.style.lineHeight="1.4";
+        tipR.style.color="white";
+        tipR.style.pointerEvents="none";
+        tipR.style.zIndex="300";
+        tipR.style.minWidth="160px";
+        document.body.appendChild(tipR);
+      }
+
+      tipL.innerHTML=
+        r.STRIKE_TXT+'<br>'+
+        'CE: '+ceOI+' ('+(ceRaw>=0?'+':'')+ceRaw+')<br>'+
+        'PE: '+peOI+' ('+(peRaw>=0?'+':'')+peRaw+')';
+
+      tipR.innerHTML=
+        'CHANGE IN OI<br>'+
+        'CE: '+(ceCh>=0?'+':'')+ceCh+'<br>'+
+        'PE: '+(peCh>=0?'+':'')+peCh;
+
+      const strikeLeft  = strikeBox.left;
+      const strikeRight = strikeBox.right;
+
+      const gap = 8;
+      const leftExtra = 160;
+
+      const rowCenterY = rbox.top + rbox.height / 2;
+      const upShift = 30;
+
+      tipL.style.top = (rowCenterY - tipL.offsetHeight / 2 - upShift) + "px";
+      tipR.style.top = (rowCenterY - tipR.offsetHeight / 2 - upShift) + "px";
+
+      tipL.style.left =
+        (strikeLeft - tipL.offsetWidth - gap - leftExtra) + "px";
+
+      tipR.style.left =
+        (strikeRight + gap) + "px";
+
+      tipL.style.display="block";
+      tipR.style.display="block";
+    };
+
+    row.onmouseleave=function(){
+      const topLine=document.getElementById("hoverLineTop");
+      const botLine=document.getElementById("hoverLineBottom");
+
+      if(topLine) topLine.style.display="none";
+      if(botLine) botLine.style.display="none";
+
+      const tipL=document.getElementById("strikeTipLeft");
+      const tipR=document.getElementById("strikeTipRight");
+
+      if(tipL) tipL.style.display="none";
+      if(tipR) tipR.style.display="none";
+    };
+
+    // simple mobile flag
+    var isMobile = window.innerWidth <= 600;
+
+    if(!isMobile){
+
+      // ===== DESKTOP MARKUP (unchanged) =====
+      row.innerHTML=
+        '<div class="totWrap"><div class="box"><div class="stack">'+
+
+          '<div style="position:relative;height:18px;width:100%;">'+
+            '<div class="bar ce" style="position:absolute;left:0;width:'+ceBasePct+'%"></div>'+
+            (ceRaw>0
+              ? '<div class="bar ce deep" style="position:absolute;left:'+ceBasePct+'%;width:'+ceAddPct+'%"></div>'
+              : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:white;border:2px solid white"></div>')+
+          '</div>'+
+
+          '<div style="position:relative;height:18px;width:100%;margin-top:4px;">'+
+            '<div class="bar pe" style="position:absolute;left:0;width:'+peBasePct+'%"></div>'+
+            (peRaw>0
+              ? '<div class="bar pe deep" style="position:absolute;left:'+peBasePct+'%;width:'+peAddPct+'%"></div>'
+              : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:white;border:2px solid white"></div>')+
+          '</div>'+
+
+        '</div></div></div>'+
+
+        strikeHTML+
+
+        '<div class="box">'+
+          '<div class="chgInner">'+
+            '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
+            '<div class="bar chg-ce" style="left:50%;top:0px;width:'+((Math.abs(ceCh)/maxCh)*45)+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+            '<div class="bar chg-pe" style="left:50%;top:20px;width:'+((Math.abs(peCh)/maxCh)*45)+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+          '</div>'+
+        '</div>';
+
+    } else {
+
+      // ===== MOBILE MARKUP (more compact, stacked text inside same grid) =====
+      row.innerHTML=
+        '<div class="totWrap"><div class="box"><div class="stack">'+
+
+          '<div style="position:relative;height:16px;width:100%;">'+
+            '<div class="bar ce" style="position:absolute;left:0;width:'+ceBasePct+'%"></div>'+
+            (ceRaw>0
+              ? '<div class="bar ce deep" style="position:absolute;left:'+ceBasePct+'%;width:'+ceAddPct+'%"></div>'
+              : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:white;border:1px solid white"></div>')+
+          '</div>'+
+
+          '<div style="position:relative;height:16px;width:100%;margin-top:2px;">'+
+            '<div class="bar pe" style="position:absolute;left:0;width:'+peBasePct+'%"></div>'+
+            (peRaw>0
+              ? '<div class="bar pe deep" style="position:absolute;left:'+peBasePct+'%;width:'+peAddPct+'%"></div>'
+              : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:white;border:1px solid white"></div>')+
+          '</div>'+
+
+        '</div></div></div>'+
+
+        strikeHTML+
+
+        '<div class="box">'+
+          '<div class="chgInner" style="height:30px;">'+
+            '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
+            '<div class="bar chg-ce" style="left:50%;top:2px;width:'+((Math.abs(ceCh)/maxCh)*45)+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+            '<div class="bar chg-pe" style="left:50%;top:16px;width:'+((Math.abs(peCh)/maxCh)*45)+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
+          '</div>'+
+        '</div>';
+    }
+
+    leftCol.appendChild(row);
+
+    if(r.STRIKE_TXT===ltpStrike.STRIKE_TXT){
+      row.style.position="relative";
+
+      const ltpLine=document.createElement("div");
+      ltpLine.style.position="absolute";
+      ltpLine.style.left="0";
+      ltpLine.style.width="100%";
+      ltpLine.style.top="50%";
+      ltpLine.style.borderTop="2px solid #A6AEB3";
+
+      ltpLine.style.pointerEvents="none";
+      ltpLine.style.zIndex="20";
+
+      const ltpLbl=document.createElement("div");
+      ltpLbl.innerText="LTP "+ltp.toFixed(2);
+      ltpLbl.style.position="absolute";
+      ltpLbl.style.left="42%";
+      ltpLbl.style.top="50%";
+      ltpLbl.style.transform="translate(-50%,-50%)";
+      ltpLbl.style.color="white";
+      ltpLbl.style.fontWeight="normal";
+      ltpLbl.style.fontSize="12px";
+      ltpLbl.style.background="#012A40";
+      ltpLbl.style.padding="2px 6px";
+      ltpLbl.style.zIndex="25";
+
+      row.appendChild(ltpLine);
+      row.appendChild(ltpLbl);
+    }
+
+  });
+
 }
 </script>
+<script>
+let lastScanText =
+  document.querySelector("#chgHeader span").innerText;
+
+async function checkUpdate(){
+  try{
+    const r = await fetch(location.href, { cache:"no-store" });
+    const t = await r.text();
+    const m = t.match(/Scan:\s*([0-9\-: ]+)/);
+
+
+    if(m && m[1] !== lastScanText){
+      localStorage.setItem("oi_state",
+        JSON.stringify({ul:ulSel.value,exp:expSel.value})
+      );
+      location.replace(location.href);
+    }
+
+  }catch(e){}
+}
+
+setInterval(checkUpdate, 10000);
+</script>
+
 
 </body>
+
 </html>
