@@ -444,7 +444,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">16:28:36</span>)
+      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">16:30:19</span>)
     </span><br>
     <span id="pcrChange" style="font-size:16px;"></span>
   </div>
@@ -520,12 +520,16 @@ keys.forEach(function(k, i){
   // ✅ Stable identifier for reliable matching
   btn.dataset.symbol = k;
 
-  // --- Highlight index buttons ---
+  // --- Highlight index buttons (default style only) ---
   if(indexSymbols.includes(k)){
-    btn.style.background = "linear-gradient(135deg,#2d004d,#6a0dad)";
+    btn.dataset.defaultBg = "linear-gradient(135deg,#2d004d,#6a0dad)";
+    btn.style.background = btn.dataset.defaultBg;
     btn.style.border = "1px solid #4aa3ff";
     btn.style.fontWeight = "bold";
+  } else {
+    btn.dataset.defaultBg = "";
   }
+
 
   btn.onclick = function(){
 
@@ -673,6 +677,9 @@ if(st.ul && DATA[st.ul]){
     else if (spikeColor === "BOTH") {
       btn.style.background = "#4E5454";
     }
+    else {
+      btn.style.background = btn.dataset.defaultBg || "";
+    }
 
 
   });
@@ -817,10 +824,9 @@ function render(){
         activeBtn.style.background = "#4E5454";
       }
       else {
-        if (!["NIFTY","BANKNIFTY"].includes(activeBtn.dataset.symbol)) {
-          activeBtn.style.background = "";
-        }
+        activeBtn.style.background = activeBtn.dataset.defaultBg || "";
       }
+
     }
 
 
