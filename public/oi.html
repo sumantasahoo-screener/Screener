@@ -441,7 +441,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">10:16:50</span>)
+      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">10:17:57</span>)
     </span><br>
     <span id="pcrChange" style="font-size:16px;"></span>
   </div>
@@ -588,22 +588,15 @@ ulSel.onchange = function(){
 
 expSel.onchange = render;
 
-const st = JSON.parse(localStorage.getItem("oi_state") || "{}");
-
-if (st.ul && DATA[st.ul]) {
-  ulSel.value = st.ul;
+const st=JSON.parse(localStorage.getItem("oi_state")||"{}");
+if(st.ul && DATA[st.ul]){
+  ulSel.value=st.ul;
   ulSel.onchange();
-  if (st.exp) expSel.value = st.exp;
-} else {
-  ulSel.selectedIndex = 0;
+  if(st.exp) expSel.value=st.exp;
+}else{
+  ulSel.selectedIndex=0;
   ulSel.onchange();
 }
-
-/* run spike detection once after initial render */
-setTimeout(function(){
-  render();
-}, 0);
-
 
 
 function render(){
@@ -718,66 +711,31 @@ function render(){
 
     // ---- APPLY SPIKE COLOR TO ACTIVE BUTTON (STABLE) ----
 
-    /* ===== APPLY SPIKE COLOR TO ALL SYMBOLS (PAGE LOAD SAFE) ===== */
-
     window.symbolButtons.forEach(b => {
-
       b.classList.remove("activeSymbol");
 
-      const sym = b.dataset.symbol;
-
-      if (!DATA[sym]) return;
-
-      const firstExp = Object.keys(DATA[sym])[0];
-      const objX = DATA[sym][firstExp];
-
-      if (!objX) return;
-
-      let currCE = Number(objX.prev1_totalCE || 0);
-      let currPE = Number(objX.prev1_totalPE || 0);
-
-      let prevCE = Number(objX.prev2_totalCE || 0);
-      let prevPE = Number(objX.prev2_totalPE || 0);
-
-      let ceBig = prevCE !== 0 && Math.abs(currCE) > Math.abs(prevCE) * 1.3;
-      let peBig = prevPE !== 0 && Math.abs(currPE) > Math.abs(prevPE) * 1.3;
-
-      let spikeColor = null;
-
-      if (ceBig && peBig) {
-        spikeColor = "YELLOW";
+      // reset only non-index buttons
+      if (!["NIFTY","BANKNIFTY"].includes(b.dataset.symbol)) {
+        b.style.background = "";
       }
-      else if (
-        (ceBig && currCE < 0) ||
-        (peBig && currPE > 0)
-      ) {
-        spikeColor = "ORANGE";
-      }
-      else if (
-        (ceBig && currCE > 0) ||
-        (peBig && currPE < 0)
-      ) {
-        spikeColor = "BLUE";
-      }
-
-      b.style.background = "";
-
-      if (spikeColor === "ORANGE") {
-        b.style.background = "#ff9f00";
-      }
-      else if (spikeColor === "BLUE") {
-        b.style.background = "#00c6ff";
-      }
-      else if (spikeColor === "YELLOW") {
-        b.style.background = "#ffd000";
-      }
-
-      if (sym === ulSel.value) {
-        b.classList.add("activeSymbol");
-      }
-
     });
 
+    const activeBtn = window.symbolButtons
+      .find(b => b.dataset.symbol === ul);
+
+    if (activeBtn) {
+      activeBtn.classList.add("activeSymbol");
+
+      if (spikeColor === "ORANGE") {
+        activeBtn.style.background = "#ff9f00";
+      }
+      else if (spikeColor === "BLUE") {
+        activeBtn.style.background = "#00c6ff";
+      }
+      else if (spikeColor === "YELLOW") {
+        activeBtn.style.background = "#ffd000";
+      }
+    }
 
 
 
