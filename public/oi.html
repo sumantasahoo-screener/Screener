@@ -441,7 +441,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">09:19:04</span>)
+      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">09:21:58</span>)
     </span><br>
     <span id="pcrChange" style="font-size:16px;"></span>
   </div>
@@ -1017,16 +1017,22 @@ async function checkUpdate(){
     const t = await r.text();
     const m = t.match(/Scan:\s*([0-9\-: ]+)/);
 
-
     if(m && m[1] !== lastScanText){
+
       localStorage.setItem("oi_state",
         JSON.stringify({ul:ulSel.value,exp:expSel.value})
       );
+
       location.replace(location.href);
+      return;
     }
+
+    // If no reload, still re-render to refresh spike detection
+    render();
 
   }catch(e){}
 }
+
 
 setInterval(checkUpdate, 10000);
 </script>
