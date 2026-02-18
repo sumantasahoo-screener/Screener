@@ -441,7 +441,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">10:00:08</span>)
+      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">10:02:48</span>)
     </span><br>
     <span id="pcrChange" style="font-size:16px;"></span>
   </div>
@@ -706,11 +706,15 @@ function render(){
 
     window.currentSpike = spikeColor;
 
-    // ---- APPLY SPIKE COLOR TO ACTIVE BUTTON ----
+    // ---- APPLY SPIKE COLOR TO ACTIVE BUTTON (STABLE) ----
 
     window.symbolButtons.forEach(b => {
-      b.style.background = "";
       b.classList.remove("activeSymbol");
+
+      // reset only non-index buttons
+      if (!["NIFTY","BANKNIFTY"].includes(b.dataset.symbol)) {
+        b.style.background = "";
+      }
     });
 
     const activeBtn = window.symbolButtons
