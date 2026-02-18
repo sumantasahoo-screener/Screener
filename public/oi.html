@@ -441,7 +441,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">09:25:38</span>)
+      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">09:39:38</span>)
     </span><br>
     <span id="pcrChange" style="font-size:16px;"></span>
   </div>
@@ -507,34 +507,34 @@ var splitIndex = Math.ceil(keys.length / 2);
 keys.forEach(function(k, i){
 
   var o=document.createElement("option");
-  o.text=k; o.value=k;
+  o.text=k; 
+  o.value=k;
   ulSel.add(o);
 
   var btn=document.createElement("button");
   btn.innerText=k;
 
+  // ✅ Stable identifier for reliable matching
+  btn.dataset.symbol = k;
+
   // --- Highlight index buttons ---
   if(indexSymbols.includes(k)){
     btn.style.background = "linear-gradient(135deg,#2d004d,#6a0dad)";
-
-
-
-
-
     btn.style.border = "1px solid #4aa3ff";
     btn.style.fontWeight = "bold";
   }
 
-    btn.onclick = function(){
+  btn.onclick = function(){
 
-      ulSel.value = k;
+    ulSel.value = k;
 
-      // Do not touch button styles here
-      // render() will handle active + spike styling
+    // Do not touch button styles here
+    // render() will handle active + spike styling
 
-      ulSel.onchange();
+    ulSel.onchange();
 
-    };
+  };
+
 
 
   if(i < splitIndex){
@@ -715,7 +715,7 @@ function render(){
 
     const activeBtn = Array.from(
       document.querySelectorAll("#symbolButtons button")
-    ).find(b => b.innerText === ul);
+    ).find(b => b.dataset.symbol === ul);
 
     if (activeBtn) {
       activeBtn.classList.add("activeSymbol");
@@ -730,6 +730,7 @@ function render(){
         activeBtn.style.background = "#ffd000";
       }
     }
+
 
   
 
