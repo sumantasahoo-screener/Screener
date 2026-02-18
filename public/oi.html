@@ -239,11 +239,11 @@ select{
 }
 
 .activeSymbol{
-  background:linear-gradient(45deg,#00c6ff,#0072ff) !important;
   border:1px solid #ffffff !important;
   color:#000 !important;
   font-weight:bold;
 }
+
 
 
 /* bars */
@@ -441,7 +441,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">08:58:26</span>)
+      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">09:11:45</span>)
     </span><br>
     <span id="pcrChange" style="font-size:16px;"></span>
   </div>
@@ -525,26 +525,16 @@ keys.forEach(function(k, i){
     btn.style.fontWeight = "bold";
   }
 
-    btn.onclick=function(){
+    btn.onclick = function(){
 
-    document.querySelectorAll("#symbolButtons button")
-      .forEach(b=>{
-        b.classList.remove("activeSymbol");
-        b.style.background = "";
-      });
+      ulSel.value = k;
 
-    const btn = this;   // FIX: store reference
+      // Do not touch button styles here
+      // render() will handle active + spike styling
 
-    btn.classList.add("activeSymbol");
+      ulSel.onchange();
 
-    ulSel.value = k;
-    ulSel.onchange();
-
-    // ---- APPLY OI SIGNAL COLOR ----
-
-
-
-};
+    };
 
 
   if(i < splitIndex){
@@ -573,20 +563,19 @@ ulSel.onchange = function(){
   expSel.innerHTML="";
   Object.keys(DATA[ulSel.value]).forEach(function(e){
     var o=document.createElement("option");
-    o.text=e; o.value=e;
+    o.text=e; 
+    o.value=e;
     expSel.add(o);
   });
-  expSel.selectedIndex=0;
-  
-  document.querySelectorAll("#symbolButtons button")
-  .forEach(b=>{
-    b.classList.toggle("activeSymbol", b.innerText===ulSel.value);
-  });
 
-  
-  
+  expSel.selectedIndex=0;
+
+  // Do NOT handle active button styling here
+  // Styling will be handled only inside render()
+
   render();
 };
+
 
 expSel.onchange = render;
 
