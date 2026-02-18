@@ -441,7 +441,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">12:57:08</span>)
+      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">13:09:41</span>)
     </span><br>
     <span id="pcrChange" style="font-size:16px;"></span>
   </div>
@@ -709,23 +709,20 @@ function render(){
 
     window.currentSpike = spikeColor;
 
-    // ---- APPLY SPIKE COLOR TO ACTIVE BUTTON (STABLE) ----
+    // ---- APPLY SPIKE COLOR (PERSISTENT PER SYMBOL) ----
 
     window.symbolButtons.forEach(b => {
       b.classList.remove("activeSymbol");
-
-      // reset only non-index buttons
-      if (!["NIFTY","BANKNIFTY"].includes(b.dataset.symbol)) {
-        b.style.background = "";
-      }
     });
 
     const activeBtn = window.symbolButtons
       .find(b => b.dataset.symbol === ul);
 
     if (activeBtn) {
+
       activeBtn.classList.add("activeSymbol");
 
+      // Apply spike color ONLY for current symbol
       if (spikeColor === "ORANGE") {
         activeBtn.style.background = "#ff9f00";
       }
@@ -734,6 +731,12 @@ function render(){
       }
       else if (spikeColor === "YELLOW") {
         activeBtn.style.background = "#ffd000";
+      }
+      else {
+        // Only reset if no spike for this symbol
+        if (!["NIFTY","BANKNIFTY"].includes(activeBtn.dataset.symbol)) {
+          activeBtn.style.background = "";
+        }
       }
     }
 
