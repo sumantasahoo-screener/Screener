@@ -441,7 +441,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">09:44:50</span>)
+      Scan: 2026-02-18(<span style="color:#27F2F5;font-weight:bold">09:50:30</span>)
     </span><br>
     <span id="pcrChange" style="font-size:16px;"></span>
   </div>
@@ -556,6 +556,12 @@ container.style.gap = "8px";
 
 container.appendChild(topRow);
 container.appendChild(bottomRow);
+
+// cache buttons once
+window.symbolButtons = Array.from(
+  document.querySelectorAll("#symbolButtons button")
+);
+
 
 
 
@@ -706,15 +712,15 @@ function render(){
 
     // ---- APPLY SPIKE COLOR TO ACTIVE BUTTON ----
 
-    document.querySelectorAll("#symbolButtons button")
+    window.symbolButtons
       .forEach(b => {
         b.style.background = "";
         b.classList.remove("activeSymbol");
       });
 
-    const activeBtn = Array.from(
-      document.querySelectorAll("#symbolButtons button")
-    ).find(b => b.dataset.symbol === ul);
+    const activeBtn = window.symbolButtons
+      .find(b => b.dataset.symbol === ul);
+
 
     if (activeBtn) {
       activeBtn.classList.add("activeSymbol");
