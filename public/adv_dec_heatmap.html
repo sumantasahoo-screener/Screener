@@ -210,7 +210,7 @@ body {
 <div class="page-container">
 
   <div class="top-strip">
-    <div class="scan-time">Scanned at: 2026-02-19 19:38:49</div>
+    <div class="scan-time">Scanned at: 2026-02-19 19:47:04</div>
 
     <div class="breadth-block">
       <div class="breadth-title">MARKET BREADTH</div>
@@ -2777,9 +2777,28 @@ body {
   sortHeatmap();
 
   // 🔄 SILENT AUTO REFRESH EVERY 15 SECONDS
-  setInterval(function() {
-    window.location.reload();
-  }, 15000);
+    setInterval(function() {
+      fetch(window.location.href, { cache: "no-store" })
+        .then(function(response) {
+          return response.text();
+        })
+        .then(function(html) {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
+
+          const newGrid = doc.getElementById("cardsGrid");
+          const curGrid = document.getElementById("cardsGrid");
+
+          if (newGrid && curGrid) {
+            curGrid.innerHTML = newGrid.innerHTML;
+          }
+        })
+        .catch(function() {
+          // fail silently
+        });
+    }, 15000);
+
+
 
 })();
 </script>
