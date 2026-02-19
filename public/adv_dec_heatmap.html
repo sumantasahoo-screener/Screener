@@ -213,7 +213,7 @@ body {
 <div class="page-container">
 
   <div class="top-strip">
-    <div class="scan-time">Scanned at: 2026-02-19 21:37:07</div>
+    <div class="scan-time">Scanned at: 2026-02-19 21:58:12</div>
 
     <div class="breadth-block">
       <div class="breadth-title">MARKET BREADTH</div>
@@ -2776,39 +2776,50 @@ body {
     }
   });
 
-  // initial state: heatmap
+  // initial state
   sortHeatmap();
 
+  // 🔥 PRO AUTO REFRESH — UPDATE ONLY IF NEW DATA
+  let lastStamp = null;
 
-    // 🔄 SILENT AUTO REFRESH EVERY 15 SECONDS (GIT SAFE)
-    setInterval(function() {
-      const url = window.location.href.split('?')[0] + '?t=' + Date.now();
+  setInterval(function() {
+    const url = window.location.href.split('?')[0] + '?t=' + Date.now();
 
-      fetch(url, { cache: "no-store" })
-        .then(function(response) {
-          return response.text();
-        })
-        .then(function(html) {
+    fetch(url, { cache: 'no-store' })
+      .then(function(r) { return r.text(); })
+      .then(function(html) {
+
+        const match = html.match(/Scanned at:\s*([^<]+)/);
+        if (!match) return;
+
+        const newStamp = match[1];
+
+        if (lastStamp === null) {
+          lastStamp = newStamp;
+          return;
+        }
+
+        if (newStamp !== lastStamp) {
+          lastStamp = newStamp;
+
           const parser = new DOMParser();
-          const doc = parser.parseFromString(html, "text/html");
+          const doc = parser.parseFromString(html, 'text/html');
 
-          const newGrid = doc.getElementById("cardsGrid");
-          const curGrid = document.getElementById("cardsGrid");
+          const newGrid = doc.getElementById('cardsGrid');
+          const curGrid = document.getElementById('cardsGrid');
 
           if (newGrid && curGrid) {
             curGrid.innerHTML = newGrid.innerHTML;
           }
-        })
-        .catch(function() {
-          // fail silently
-        });
-    }, 15000);
-
-
-
+        }
+      })
+      .catch(function() { });
+  }, 15000);
 
 })();
 </script>
+
+
 
 
 </body>
