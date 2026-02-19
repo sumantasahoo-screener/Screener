@@ -213,7 +213,7 @@ body {
 <div class="page-container">
 
   <div class="top-strip">
-    <div class="scan-time">Scanned at: 2026-02-19 22:31:56</div>
+    <div class="scan-time">Scanned at: 2026-02-19 22:50:41</div>
 
     <div class="breadth-block">
       <div class="breadth-title">MARKET BREADTH</div>
@@ -2780,8 +2780,9 @@ body {
   sortHeatmap();
 
   // 🔥 PRO AUTO REFRESH — UPDATE ONLY IF NEW DATA
-  // 🔥 PRO AUTO REFRESH — FORCE FRESH DATA EVERY TIME
+  // 🔥 SMART AUTO REFRESH — SILENT + FAILSAFE RELOAD
   let lastStamp = null;
+  let failCount = 0;
 
   setInterval(function() {
     const baseUrl = window.location.origin + window.location.pathname;
@@ -2806,6 +2807,7 @@ body {
 
         if (newStamp !== lastStamp) {
           lastStamp = newStamp;
+          failCount = 0;
 
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
@@ -2816,10 +2818,21 @@ body {
           if (newGrid && curGrid) {
             curGrid.innerHTML = newGrid.innerHTML;
           }
+
+        } else {
+          failCount++;
         }
+
+        // 🧨 If no update for long time → FORCE RELOAD
+        if (failCount >= 4) {
+          window.location.reload(true);
+        }
+
       })
       .catch(function() { });
+
   }, 15000);
+
 
 
 
