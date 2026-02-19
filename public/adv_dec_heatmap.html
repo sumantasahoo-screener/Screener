@@ -213,7 +213,7 @@ body {
 <div class="page-container">
 
   <div class="top-strip">
-    <div class="scan-time">Scanned at: 2026-02-19 22:16:21</div>
+    <div class="scan-time">Scanned at: 2026-02-19 22:31:11</div>
 
     <div class="breadth-block">
       <div class="breadth-title">MARKET BREADTH</div>
@@ -2780,12 +2780,17 @@ body {
   sortHeatmap();
 
   // 🔥 PRO AUTO REFRESH — UPDATE ONLY IF NEW DATA
+  // 🔥 PRO AUTO REFRESH — FORCE FRESH DATA EVERY TIME
   let lastStamp = null;
 
   setInterval(function() {
-    const url = window.location.href.split('?')[0] + '?t=' + Date.now();
+    const baseUrl = window.location.origin + window.location.pathname;
+    const url = baseUrl + '?t=' + Date.now() + '&r=' + Math.random();
 
-    fetch(url, { cache: 'no-store' })
+    fetch(url, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' }
+    })
       .then(function(r) { return r.text(); })
       .then(function(html) {
 
@@ -2815,6 +2820,8 @@ body {
       })
       .catch(function() { });
   }, 15000);
+
+
 
 })();
 </script>
