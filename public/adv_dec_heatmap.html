@@ -213,8 +213,8 @@ body {
 <div class="page-container">
 
   <div class="top-strip">
-    <div class="scan-time" id="scan-time" data-scan-time="2026-02-19 23:25:26">
-      Scanned at: 2026-02-19 23:25:26
+    <div class="scan-time" id="scan-time" data-scan-time="2026-02-19 23:48:04">
+      Scanned at: 2026-02-19 23:48:04
     </div>
 
     <div class="breadth-block">
@@ -2749,7 +2749,6 @@ body {
   const cards = Array.from(grid.querySelectorAll('.card'));
   const toggle = document.getElementById('sortToggle');
 
-  // Preserve original heatmap order
   const heatOrder = cards.slice();
 
   function sortHeatmap() {
@@ -2778,71 +2777,37 @@ body {
     }
   });
 
-  // initial state
   sortHeatmap();
 
-  // 🔥 PRO AUTO REFRESH — UPDATE ONLY IF NEW DATA
-  // 🔥 SMART AUTO REFRESH — SILENT + FAILSAFE RELOAD
-  let lastStamp = null;
-  let failCount = 0;
+  async function checkUpdate() {
+    try {
+      const currentScan = document.querySelector('#scan-time');
+      if (!currentScan) return;
+      const currentTime = currentScan.getAttribute('data-scan-time');
 
-  setInterval(function() {
-    const baseUrl = window.location.origin + window.location.pathname;
-    const url = baseUrl + '?t=' + Date.now() + '&r=' + Math.random();
+      const resp = await fetch(window.location.pathname + '?t=' + Date.now(), {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      });
+      const text = await resp.text();
 
-    fetch(url, {
-      cache: 'no-store',
-      headers: { 'Cache-Control': 'no-cache' }
-    })
-      .then(function(r) { return r.text(); })
-      .then(function(html) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, 'text/html');
+      const newScan = doc.querySelector('#scan-time');
+      if (!newScan) return;
+      const newTime = newScan.getAttribute('data-scan-time');
 
-        const match = html.match(/Scanned at:\s*([^<]+)/);
-        if (!match) return;
+      if (newTime && newTime !== currentTime) {
+        window.location.reload();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
-        const newStamp = match[1];
-
-        if (lastStamp === null) {
-          lastStamp = newStamp;
-          return;
-        }
-
-        if (newStamp !== lastStamp) {
-          lastStamp = newStamp;
-          failCount = 0;
-
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-
-          const newGrid = doc.getElementById('cardsGrid');
-          const curGrid = document.getElementById('cardsGrid');
-
-          if (newGrid && curGrid) {
-            curGrid.innerHTML = newGrid.innerHTML;
-          }
-
-        } else {
-          failCount++;
-        }
-
-        // 🧨 If no update for long time → FORCE RELOAD
-        if (failCount >= 4) {
-          window.location.reload(true);
-        }
-
-      })
-      .catch(function() { });
-
-  }, 15000);
-
-
-
-
+  setInterval(checkUpdate, 10000);
 })();
 </script>
-
-
-
 
 </body>
 </html>
