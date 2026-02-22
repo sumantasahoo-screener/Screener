@@ -25,15 +25,17 @@ html,body{
 
 /* ===== SCREEN CONTAINER ===== */
 #screen{
+  /* Desktop: full viewport column layout */
   height:100vh;
+  overflow:hidden;
   display:flex;
   flex-direction:column;
-  padding:12px 16px 8px;
+  padding:10px 14px 6px;
 }
 
 /* ===== TOPBAR ===== */
 .topbar{
-  padding:6px 0;
+  padding:4px 0 6px;
   border-bottom:1px solid var(--border);
   display:flex;
   align-items:center;
@@ -41,23 +43,23 @@ html,body{
   max-width:1350px;
   width:100%;
   margin:0 auto;
-  gap:10px;
+  gap:8px;
 }
 
 #symbolButtons{
   flex:1;
   display:flex;
   flex-direction:column;
-  gap:6px;
-  overflow:visible;        /* FIXED: was hidden — was cutting off buttons */
+  gap:5px;
+  overflow:visible;
   padding-left:4px;
   min-width:0;
 }
 
-#symbolButtons > div{         /* topRow / bottomRow */
+#symbolButtons > div{
   display:flex;
   flex-wrap:wrap;
-  gap:6px;
+  gap:5px;
 }
 
 #symbolDivider{
@@ -156,12 +158,13 @@ select{
   flex:1;
   display:flex;
   flex-direction:column;
-  justify-content:center;
+  justify-content:center;   /* desktop: vertically center the chart rows */
   max-width:1350px;
   width:100%;
   margin:0 auto;
   position:relative;
-  min-height:0;
+  min-height:0;             /* essential: allows flex shrink */
+  overflow-y:auto;
 }
 
 /* outline frames */
@@ -169,8 +172,7 @@ select{
 #grid::after{
   content:"";
   position:absolute;
-  top:0;
-  bottom:0;
+  top:0; bottom:0;
   width:calc((100% - var(--mid)) / 2);
   border:1px solid #1e5a6a;
   pointer-events:none;
@@ -205,12 +207,10 @@ select{
 /* ===== MID STRIKE COLUMN ===== */
 #midCol{
   position:absolute;
-  left:50%;
-  top:0; bottom:0;
+  left:50%; top:0; bottom:0;
   width:var(--mid);
   transform:translateX(-50%);
   pointer-events:none;
-  /* NOTE: no debug border here */
 }
 
 .strike{
@@ -226,35 +226,24 @@ select{
 .stack { display:flex; flex-direction:column; gap:0; }
 
 .box{
-  border:none;
-  padding:2px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  width:100%;
+  border:none; padding:2px;
+  display:flex; flex-direction:column;
+  justify-content:center; width:100%;
 }
 
 .totWrap,
 .chgWrap{
-  height:100%;
-  display:flex;
-  align-items:center;
-  padding:1px;
+  height:100%; display:flex;
+  align-items:center; padding:1px;
 }
 
 .chgInner{
-  position:relative;
-  width:100%;
-  height:40px;
-  overflow:hidden;
+  position:relative; width:100%;
+  height:40px; overflow:hidden;
 }
 .chgInner .bar{ position:absolute; height:16px; }
 
-.bar{
-  height:18px;
-  border:none;
-  box-sizing:border-box;
-}
+.bar{ height:18px; border:none; box-sizing:border-box; }
 
 .ce      { background:#00ff6a; }
 .pe      { background:#ff4040; }
@@ -266,109 +255,118 @@ select{
 .r{ margin-left:auto; }
 .l{ margin-right:auto; }
 
-/* ===== TABLET (≤900px) ===== */
+/* ===================================================================
+   RESPONSIVE — ORDER MATTERS: largest → smallest
+=================================================================== */
+
+/* ── TABLET (≤900px) ── */
 @media (max-width:900px){
   #screen{
     height:auto;
-    min-height:100vh;
-    padding:8px;
+    min-height:100svh;          /* svh = small viewport height, avoids browser-bar issue */
     overflow-y:auto;
+    padding:8px;
   }
-
   #grid{
     max-width:100%;
-    justify-content:flex-start;
+    justify-content:flex-start; /* no centering: avoids blank gaps */
     flex:none;
+    overflow-y:visible;
   }
-
-  .outerRowHeader{
-    max-width:100%;
-    margin:6px 0;
-  }
-
+  .outerRowHeader{ max-width:100%; margin:6px 0; }
   .outerBoxTitle{ font-size:11px; padding:4px 2px; }
-
   .topbar{ flex-wrap:wrap; height:auto; }
-
   select{ font-size:11px; }
-
   .row{ min-height:16px; }
 }
 
-/* ===== PHONE (≤600px) ===== */
+/* ── LANDSCAPE PHONE (height ≤ 480px) — CRITICAL FIX ── */
+@media (max-height:480px) and (orientation:landscape){
+  #screen{
+    height:auto;
+    min-height:100svh;
+    overflow-y:auto;
+    padding:3px 8px;
+  }
+  .topbar{
+    flex-direction:row;
+    flex-wrap:nowrap;
+    padding-bottom:3px;
+    gap:6px;
+  }
+  #symbolButtons{ gap:3px; }
+  #symbolButtons button{ font-size:9px; padding:2px 5px; min-width:50px; }
+  .outerRowHeader{ margin:3px 0; }
+  .outerBoxTitle{ font-size:9px; padding:2px 1px; }
+  #midHeader{ font-size:9px; }
+  #grid{
+    justify-content:flex-start;
+    flex:none;
+    overflow-y:visible;
+  }
+  .row{ min-height:14px; }
+  .bar{ height:13px; }
+  .chgInner{ height:26px; }
+  .strike{ font-size:10px; margin-top:3px; }
+}
+
+/* ── PORTRAIT PHONE (≤600px) ── */
 @media (max-width:600px){
   :root{ --mid:56px; }
 
-  body{ padding-top:env(safe-area-inset-top); }
+  body{
+    padding-top:env(safe-area-inset-top);
+  }
 
   #screen{
-    padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+    height:auto;
+    min-height:100svh;
+    overflow-y:auto;
+    padding:6px;
     padding-top:calc(6px + env(safe-area-inset-top));
+    padding-bottom:calc(6px + env(safe-area-inset-bottom));
   }
 
   .topbar{
     flex-direction:column;
     align-items:flex-start;
-    gap:8px;
+    gap:6px;
     padding-bottom:8px;
+    height:auto;
   }
 
-  #symbolButtons{
-    width:100%;
-  }
-
-  #symbolButtons > div{
-    flex-wrap:wrap;
-  }
-
-  #symbolButtons button{
-    font-size:10px;
-    padding:3px 6px;
-    min-width:60px;
-  }
+  #symbolButtons{ width:100%; }
+  #symbolButtons > div{ flex-wrap:wrap; }
+  #symbolButtons button{ font-size:10px; padding:3px 6px; min-width:60px; }
 
   #symbolDivider{ display:none; }
 
-  #dropdownWrap{
-    width:100%;
-    justify-content:flex-start;
-  }
-
+  #dropdownWrap{ width:100%; justify-content:flex-start; }
   #dropdownWrap select{ width:80px; }
 
-  /* hide decorative grid frames on phones */
-  #grid::before,
-  #grid::after,
-  #midCol{ display:none; }
+  /* hide decorative frames */
+  #grid::before, #grid::after, #midCol{ display:none; }
 
-  .row{
-    grid-template-columns:1fr var(--mid) 1fr;
-    min-height:18px;
+  #grid{
+    justify-content:flex-start;
+    flex:none;
+    overflow-y:visible;
   }
 
+  .row{ grid-template-columns:1fr var(--mid) 1fr; min-height:18px; }
   .strike{ font-size:11px; margin-top:6px; }
-
   .chgInner{ height:32px; }
-
   .bar{ height:16px; }
-
-  .outerRowHeader{ font-size:10px; }
-
   .outerBoxTitle{ font-size:10px; padding:3px 2px; }
-
   #midHeader{ font-size:10px; }
 }
 
-/* ===== VERY SMALL (≤420px) ===== */
+/* ── VERY SMALL (≤420px) ── */
 @media (max-width:420px){
   :root{ --mid:48px; }
-
   #symbolButtons button{ min-width:52px; font-size:9px; }
-
   select{ font-size:10px; }
-
   .strike{ font-size:10px; }
-
   .row{ min-height:15px; }
 }
 </style>
@@ -410,7 +408,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-22(<span style="color:#27F2F5;font-weight:bold">22:08:58</span>)
+      Scan: 2026-02-22(<span style="color:#27F2F5;font-weight:bold">22:17:37</span>)
     </span><br>
     <span id="pcrChange" style="font-size:16px;"></span>
   </div>
