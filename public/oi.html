@@ -3,113 +3,67 @@
 <html>
 <head>
 <style>
-:root{ --mid:80px; } /* central column width - change once if needed */
+/* ===== ROOT VARIABLES ===== */
+:root{
+  --mid: 80px;
+  --bg:  #012A40;
+  --bg2: #021e2e;
+  --border: #1a4a5a;
+  --accent: #27F2F5;
+}
 
+/* ===== RESET ===== */
 html,body{
   margin:0;
   height:100%;
-  background:#012A40;
+  background:var(--bg);
   color:white;
   font-family:Arial, sans-serif;
   box-sizing:border-box;
 }
-*,*::before,*::after{
-  box-sizing:inherit;
-}
+*,*::before,*::after{ box-sizing:inherit; }
 
-/* ===== DESKTOP BASE LAYOUT (UNCHANGED) ===== */
-
-/* screen container */
+/* ===== SCREEN CONTAINER ===== */
 #screen{
   height:100vh;
   display:flex;
   flex-direction:column;
-  padding:20px;
+  padding:12px 16px 8px;
 }
 
-/* centered grid with controlled width */
-#grid{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  max-width:1350px;        /* desktop canvas width */
-  width:100%;
-  margin:0 auto;
-  position:relative;
-}
-
-.hoverLine{
-  position:absolute;
-  left:0;
-  right:0;
-  height:1px;
-  background:#ffd000;
-  pointer-events:none;
-  z-index:50;
-  display:none;
-}
-
-/* outline frames that follow exact same math as grid columns */
-#grid::before,
-#grid::after{
-  content:"";
-  position:absolute;
-  top:40px;
-  bottom:40px;
-  width:calc((100% - var(--mid)) / 2);
-  border:2px solid white;
-  pointer-events:none;
-}
-#grid::before{ left:0; }
-#grid::after { right:0; }
-
-/* each visual row: left column | center strike | right column */
-.row{
-  display:grid;
-  grid-template-columns:1fr var(--mid) 1fr;
-  min-height:18px;
-  padding:0;
-  gap:0;
-  box-sizing:border-box;
-}
-
-/* ATM row visual markers */
-.row.atm{
-  border-top:2px dotted orange;
-  border-bottom:2px dotted orange;
-}
-
-/* topbar */
+/* ===== TOPBAR ===== */
 .topbar{
-  height:100px;
   padding:6px 0;
-  border-bottom:1px solid #444;
+  border-bottom:1px solid var(--border);
   display:flex;
   align-items:center;
-
+  flex-shrink:0;
   max-width:1350px;
   width:100%;
   margin:0 auto;
+  gap:10px;
 }
-
 
 #symbolButtons{
   flex:1;
   display:flex;
+  flex-direction:column;
+  gap:6px;
+  overflow:visible;        /* FIXED: was hidden — was cutting off buttons */
+  padding-left:4px;
+  min-width:0;
+}
+
+#symbolButtons > div{         /* topRow / bottomRow */
+  display:flex;
   flex-wrap:wrap;
-  align-content:center;
-  gap:10px;
-  height:70px;
-  overflow:hidden;
-  padding-left:6px;
+  gap:6px;
 }
 
 #symbolDivider{
   width:1px;
-  height:70px;
-  background:#2a5a6a;
-  margin:0 12px;
+  align-self:stretch;
+  background:var(--border);
   flex-shrink:0;
 }
 
@@ -117,100 +71,167 @@ html,body{
   display:flex;
   gap:6px;
   flex-shrink:0;
-  margin-right:12px;
 }
 
-#dropdownDivider{
-  width:1px;
-  height:70px;
-  background:#2a5a6a;
-  margin-right:12px;
-  flex-shrink:0;
-}
-
-
-
-#dropdownWrap select{
-  width:85px;
-}
-
+/* ===== BUTTONS ===== */
 #symbolButtons button{
-  font-size:12px;
-  padding:4px 10px;
-  border:1px solid #555;
-  background:#012A40;
-  color:white;
+  font-size:11px;
+  padding:4px 8px;
+  border:1px solid #2a5a6a;
+  background:var(--bg2);
+  color:#cde;
   cursor:pointer;
-  border-radius:4px;
-  min-width:75px;
+  border-radius:3px;
+  min-width:72px;
   text-align:center;
+  transition:background 0.15s;
+  white-space:nowrap;
 }
-
-
 #symbolButtons button:hover{
   background:#0a3a55;
-}
-
-
-
-select{
-  background:#012A40;
   color:white;
-  border:1px solid #555;
 }
 
-/* header titles above the grid (keeps same container width and columns) */
+/* Active button */
+.activeSymbol{
+  border:1px solid #fff !important;
+  font-weight:bold;
+  transform:scale(1.18);
+  box-shadow:0 0 10px rgba(255,255,255,0.7);
+  z-index:5;
+  color:white !important;
+}
+
+/* ===== DROPDOWNS ===== */
+select{
+  background:var(--bg2);
+  color:white;
+  border:1px solid #2a5a6a;
+  border-radius:3px;
+  padding:3px 6px;
+  font-size:12px;
+  cursor:pointer;
+}
+#dropdownWrap select{ width:90px; }
+
+/* ===== HEADER ROW (TOTAL OI / LTP / CHANGE IN OI) ===== */
 .outerRowHeader{
   display:grid;
   grid-template-columns:1fr var(--mid) 1fr;
   max-width:1350px;
   width:100%;
-  margin:0 auto 8px auto;
+  margin:8px auto 6px;
+  border:1px solid var(--border);
+  border-radius:4px;
+  overflow:hidden;
 }
+
 .outerBoxTitle{
   text-align:center;
   font-size:13px;
+  padding:6px 4px;
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  line-height:1.55;
+}
+.outerBoxTitle:last-child{ border-right:none; }
 
-  border:1px solid #666;
-  padding:6px 0;
+/* LTP middle cell */
+#midHeader{
+  background:#0a2a35;
+  border-left:1px solid var(--border);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:bold;
+  color:#ffd700;
+  line-height:1.4;
 }
 
-/* MIDDLE GAP VISUAL DEBUG */
-.midBox{
-  border:2px dashed yellow !important;
+/* ===== GRID ===== */
+#grid{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  max-width:1350px;
+  width:100%;
+  margin:0 auto;
+  position:relative;
+  min-height:0;
 }
 
+/* outline frames */
+#grid::before,
+#grid::after{
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:calc((100% - var(--mid)) / 2);
+  border:1px solid #1e5a6a;
+  pointer-events:none;
+}
+#grid::before{ left:0; }
+#grid::after { right:0; }
+
+/* ===== ROWS ===== */
+.row{
+  display:grid;
+  grid-template-columns:1fr var(--mid) 1fr;
+  min-height:18px;
+  padding:0;
+  gap:0;
+}
+.row.atm{
+  border-top:2px dotted orange;
+  border-bottom:2px dotted orange;
+}
+
+/* hover crosshair */
+.hoverLine{
+  position:absolute;
+  left:0; right:0;
+  height:1px;
+  background:#ffd000;
+  pointer-events:none;
+  z-index:50;
+  display:none;
+}
+
+/* ===== MID STRIKE COLUMN ===== */
 #midCol{
   position:absolute;
   left:50%;
-  top:40px;
-  bottom:40px;
+  top:0; bottom:0;
   width:var(--mid);
   transform:translateX(-50%);
-  border:2px dashed yellow;
   pointer-events:none;
+  /* NOTE: no debug border here */
 }
 
-/* stacking & boxes */
-.stack{
-  display:flex;
-  flex-direction:column;
-  gap:1px;
+.strike{
+  text-align:center;
+  font-weight:normal;
+  color:#fff;
+  margin-top:12px;
+  position:relative;
+  z-index:500;
 }
+
+/* ===== BARS ===== */
+.stack { display:flex; flex-direction:column; gap:0; }
 
 .box{
   border:none;
-  padding:6px;
+  padding:2px;
   display:flex;
   flex-direction:column;
   justify-content:center;
   width:100%;
-}
-.boxTitle{
-  text-align:center;
-  font-size:12px;
-  margin-bottom:4px;
-
 }
 
 .totWrap,
@@ -218,12 +239,7 @@ select{
   height:100%;
   display:flex;
   align-items:center;
-  padding:4px;
-  box-sizing:border-box;
-}
-.chgWrap{
-  width:100%;
-  border:1px solid #666;
+  padding:1px;
 }
 
 .chgInner{
@@ -231,178 +247,129 @@ select{
   width:100%;
   height:40px;
   overflow:hidden;
-  padding:0;
 }
-.chgInner .bar{
-  position:absolute;
-  height:16px;
-}
+.chgInner .bar{ position:absolute; height:16px; }
 
-.activeSymbol{
-  border:1px solid #ffffff !important;
-  font-weight:bold;
-  transform:scale(1.22);
-  box-shadow:0 0 12px rgba(255,255,255,0.9);
-  z-index:5;
-}
-
-
-
-
-/* bars */
 .bar{
   height:18px;
   border:none;
   box-sizing:border-box;
 }
 
-.ce{ background:#00ff6a; }      /* base CE = green */
-.pe{ background:#ff4040; }      /* base PE = red   */
-
-.deep.ce{ background:#00aa55; } /* CE increase     */
-.deep.pe{ background:#aa0000; } /* PE increase     */
-
-/* CHANGE IN OI ONLY COLORS */
-.chg-ce{
-  background:#17D16B;
-}
-.chg-pe{
-  background:#D11743;
-}
+.ce      { background:#00ff6a; }
+.pe      { background:#ff4040; }
+.deep.ce { background:#00aa55; }
+.deep.pe { background:#aa0000; }
+.chg-ce  { background:#17D16B; }
+.chg-pe  { background:#D11743; }
 
 .r{ margin-left:auto; }
 .l{ margin-right:auto; }
 
-.strike{
-  text-align:center;
-  font-weight:normal;
-
-  color:#fff;
-  margin-top:14px;   /* pushes it slightly downward */
-  position:relative;
-  z-index:500;
-}
-
-/* compact spacing */
-.stack { gap:0 !important; }
-.box   { padding:2px !important; }
-.totWrap,
-.chgWrap { padding:1px !important; }
-
-/* ===== MOBILE / TABLET TWEAKS (NO DESKTOP CHANGE) ===== */
-
-/* Tablets + phones */
-@media (max-width: 900px){
-
-  /* Screen: allow scroll, reduce padding */
+/* ===== TABLET (≤900px) ===== */
+@media (max-width:900px){
   #screen{
     height:auto;
     min-height:100vh;
-    padding:10px;
+    padding:8px;
+    overflow-y:auto;
   }
 
-  /* Grid: full width, top aligned */
   #grid{
     max-width:100%;
-    width:100%;
-    margin:0;
     justify-content:flex-start;
-    overflow-x:hidden;
+    flex:none;
   }
 
-  /* Headers full width */
   .outerRowHeader{
     max-width:100%;
-    width:100%;
-    margin:6px 0 8px 0;
+    margin:6px 0;
   }
 
-  .outerBoxTitle{
-    font-size:12px;
-    padding:4px 2px;
+  .outerBoxTitle{ font-size:11px; padding:4px 2px; }
+
+  .topbar{ flex-wrap:wrap; height:auto; }
+
+  select{ font-size:11px; }
+
+  .row{ min-height:16px; }
+}
+
+/* ===== PHONE (≤600px) ===== */
+@media (max-width:600px){
+  :root{ --mid:56px; }
+
+  body{ padding-top:env(safe-area-inset-top); }
+
+  #screen{
+    padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+    padding-top:calc(6px + env(safe-area-inset-top));
   }
 
   .topbar{
-    padding:4px 4px;
+    flex-direction:column;
+    align-items:flex-start;
     gap:8px;
+    padding-bottom:8px;
   }
 
-  select{
-    font-size:12px;
+  #symbolButtons{
+    width:100%;
+  }
+
+  #symbolButtons > div{
+    flex-wrap:wrap;
+  }
+
+  #symbolButtons button{
+    font-size:10px;
     padding:3px 6px;
+    min-width:60px;
   }
 
-  .row{
-    min-height:16px;
-  }
-}
+  #symbolDivider{ display:none; }
 
-/* Phones */
-@media (max-width: 600px){
-
-  :root{
-    --mid:56px;   /* narrower middle ladder, more space for bars */
+  #dropdownWrap{
+    width:100%;
+    justify-content:flex-start;
   }
 
-  /* Decorative frames hide on phones */
+  #dropdownWrap select{ width:80px; }
+
+  /* hide decorative grid frames on phones */
   #grid::before,
   #grid::after,
-  #midCol{
-    display:none;
-  }
+  #midCol{ display:none; }
 
   .row{
     grid-template-columns:1fr var(--mid) 1fr;
     min-height:18px;
   }
 
-  .strike{
-    font-size:11px;
-    margin-top:6px;
-  }
+  .strike{ font-size:11px; margin-top:6px; }
 
-  .chgInner{
-    height:32px;
-  }
+  .chgInner{ height:32px; }
 
-  .bar{
-    height:16px;
-  }
+  .bar{ height:16px; }
 
-  /* Safe-area for notch */
-  body{
-    padding-top:env(safe-area-inset-top);
-  }
+  .outerRowHeader{ font-size:10px; }
 
-  .topbar{
-    padding-top:calc(4px + env(safe-area-inset-top));
-    margin-top:0;
-  }
+  .outerBoxTitle{ font-size:10px; padding:3px 2px; }
+
+  #midHeader{ font-size:10px; }
 }
 
-/* Very small phones */
-@media (max-width: 420px){
+/* ===== VERY SMALL (≤420px) ===== */
+@media (max-width:420px){
+  :root{ --mid:48px; }
 
-  :root{
-    --mid:48px;
-  }
+  #symbolButtons button{ min-width:52px; font-size:9px; }
 
-  select{
-    font-size:11px;
-    padding:2px 4px;
-  }
+  select{ font-size:10px; }
 
-  .outerBoxTitle{
-    font-size:11px;
-  }
+  .strike{ font-size:10px; }
 
-  .row{
-    min-height:16px;
-  }
-
-  .strike{
-    font-size:10px;
-  }
+  .row{ min-height:15px; }
 }
 </style>
 
@@ -422,7 +389,6 @@ select{
     <select id="exp"></select>
   </div>
 
-  <div id="rightReserve"></div>
 </div>
 
 
@@ -436,7 +402,7 @@ select{
     <span id="pcrTotal" style="font-size:16px;"></span>
   </div>
 
-  <div class="outerBoxTitle midBox" id="midHeader">LTP</div>
+  <div id="midHeader">LTP</div>
 
   <div class="outerBoxTitle" id="chgHeader">
     CHANGE IN OI<br>
@@ -444,7 +410,7 @@ select{
       (LAST 4 SCAN (12Minuts))
     </span><br>
     <span style="font-size:14px;opacity:.75">
-      Scan: 2026-02-22(<span style="color:#27F2F5;font-weight:bold">21:22:13</span>)
+      Scan: 2026-02-22(<span style="color:#27F2F5;font-weight:bold">22:08:58</span>)
     </span><br>
     <span id="pcrChange" style="font-size:16px;"></span>
   </div>
