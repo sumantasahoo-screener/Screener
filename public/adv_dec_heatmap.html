@@ -8,21 +8,16 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#2a4a60">
 <title>Advance / Decline Heat Map</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    font-family: 'Courier New', 'Consolas', monospace;
+    /* Fix 1: Option F lighter background */
     background: #2a4a60;
     color: #eef4f8;
     padding: 6px 8px;
-    overflow: hidden;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
+    overflow-x: hidden;
 }
 
 /* ── TOP STRIP ── */
@@ -31,12 +26,11 @@ body {
     grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: 12px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     padding: 6px 10px;
     background: rgba(0,0,0,0.20);
     border: 1px solid rgba(255,255,255,0.10);
     border-radius: 10px;
-    flex-shrink: 0;
 }
 
 .left-block {
@@ -45,9 +39,10 @@ body {
     gap: 5px;
 }
 .scan-time {
-    font-size: 11px;
+    font-size: 10px;
+    /* Fix 2: visible header text */
     color: #b0ccd8;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.05em;
 }
 .scan-time-value {
     color: #00e5ff;
@@ -58,7 +53,7 @@ body {
     border: 1px solid rgba(255,255,255,0.18);
     border-radius: 6px;
     color: #eef4f8;
-    font-size: 11px;
+    font-size: 10px;
     padding: 3px 8px;
     outline: none;
     width: 148px;
@@ -67,23 +62,23 @@ body {
 #symbolSearch::placeholder { color: #7a9aaa; }
 #symbolSearch:focus { border-color: rgba(0,220,255,0.5); }
 
-/* Breadth */
+/* Center: Breadth */
 .breadth-block {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
 .breadth-title {
-    font-size: 11px;
-    letter-spacing: 0.12em;
+    font-size: 10px;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
+    /* Fix 2 */
     color: #b0ccd8;
-    font-weight: 500;
 }
 .bar-container {
     display: flex;
-    height: 18px;
-    border-radius: 9px;
+    height: 14px;
+    border-radius: 7px;
     overflow: hidden;
     background: rgba(0,0,0,0.30);
     border: 1px solid rgba(255,255,255,0.10);
@@ -93,34 +88,31 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
+    font-size: 9px;
+    color: #001a0c;
     font-weight: 700;
-    /* Issue 3: white text */
-    color: #ffffff;
     white-space: nowrap;
     transition: width 0.4s ease;
-    font-family: inherit;
 }
 .bar-red {
     background: linear-gradient(90deg, #b71c1c, #ff5252);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
+    font-size: 9px;
+    color: #1a0000;
     font-weight: 700;
-    /* Issue 3: white text */
-    color: #ffffff;
     white-space: nowrap;
     transition: width 0.4s ease;
-    font-family: inherit;
 }
 .breadth-meta {
-    font-size: 11px;
+    font-size: 10px;
+    /* Fix 2 */
     color: #a0c4d8;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
 }
 
-/* Buttons */
+/* Right: buttons */
 .right-block {
     display: flex;
     flex-direction: column;
@@ -128,12 +120,12 @@ body {
     align-items: flex-end;
 }
 .filter-btn {
-    font-size: 11px;
+    font-size: 10px;
     font-family: inherit;
     padding: 4px 12px;
     border-radius: 6px;
     cursor: pointer;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     white-space: nowrap;
     transition: all 0.15s;
     border: 1px solid rgba(255,255,255,0.18);
@@ -141,7 +133,6 @@ body {
     color: #b0ccd8;
     width: 110px;
     text-align: center;
-    font-weight: 500;
 }
 .filter-btn:hover {
     background: rgba(0,0,0,0.30);
@@ -160,26 +151,21 @@ body {
     font-weight: 700;
 }
 
-/* ── CARDS GRID ──
-   Issue 1: flex-grow so grid fills remaining screen height
-   auto-fill with minmax so cards expand to fill space
-*/
+/* ── CARDS GRID ── */
 .cards-grid {
-    flex: 1;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
-    grid-auto-rows: 1fr;
-    gap: 4px;
-    overflow: hidden;
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    gap: 5px;
 }
 
 .card {
     position: relative;
     overflow: hidden;
-    border-radius: 7px;
-    /* Issue: card bg slightly dimmed vs previous #366080 */
-    background: #2d5268;
-    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 8px;
+    min-height: 56px;
+    /* Fix 1: Option F card background */
+    background: #366080;
+    border: 1px solid rgba(255,255,255,0.12);
     cursor: pointer;
     transition: border-color 0.15s, transform 0.1s;
 }
@@ -190,7 +176,7 @@ body {
 .card-fill {
     position: absolute;
     bottom: 0; left: 0; right: 0;
-    border-radius: 0 0 7px 7px;
+    border-radius: 0 0 8px 8px;
     pointer-events: none;
 }
 .card-content {
@@ -200,21 +186,20 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 100%;
+    min-height: 56px;
 }
-/* Issue 2: larger readable font sizes */
 .card-symbol {
     font-weight: 700;
-    font-size: 11px;
+    font-size: 10px;
     color: #ffffff;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 .card-row {
-    font-size: 10px;
-    font-weight: 500;
+    font-size: 9px;
+    /* Fix 2: bright readable text */
     color: #eef4f8;
     display: flex;
     justify-content: space-between;
@@ -235,27 +220,21 @@ body {
 }
 
 @media (max-width: 900px) {
-    body { overflow: auto; height: auto; }
     .top-strip { grid-template-columns: 1fr; row-gap: 8px; }
     .right-block { align-items: flex-start; flex-direction: row; }
     .filter-btn { width: auto; }
-    .cards-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        grid-auto-rows: auto;
-        gap: 6px;
-        overflow: visible;
-    }
-    .card { min-height: 64px; }
-    .card-content { min-height: 64px; }
+    .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+    .card { min-height: 60px; }
 }
 </style>
 </head>
 <body>
 
 <div class="top-strip">
+
     <div class="left-block">
-        <div class="scan-time" id="scan-time" data-scan-time="2026-02-23 19:00:49">
-            Scanned: <span class="scan-time-value">2026-02-23 19:00:49</span>
+        <div class="scan-time" id="scan-time" data-scan-time="2026-02-23 19:02:34">
+            Scanned: <span class="scan-time-value">2026-02-23 19:02:34</span>
         </div>
         <input id="symbolSearch" placeholder="&#128269; Search symbol..." />
     </div>
@@ -275,6 +254,7 @@ body {
         <button class="filter-btn active-all" id="btnAll">All F&amp;O</button>
         <button class="filter-btn" id="btnNifty">Nifty 50</button>
     </div>
+
 </div>
 
 <div class="cards-grid" id="cardsGrid">
@@ -3612,41 +3592,44 @@ body {
 const NIFTY50 = ["ADANIENT","ADANIPORTS","APOLLOHOSP","ASIANPAINT","AXISBANK","BAJAJ","BAJAJFINSV","BAJFINANCE","BEL","BHARTIARTL","BPCL","BRITANNIA","CIPLA","COALINDIA","DIVISLAB","DRREDDY","EICHERMOT","GRASIM","HCLTECH","HDFCBANK","HDFCLIFE","HEROMOTOCO","HINDALCO","HINDUNILVR","ICICIBANK","INDUSINDBK","INFY","ITC","JIOFIN","JSWSTEEL","KOTAKBANK","LT","M&M","MARUTI","NESTLEIND","NTPC","ONGC","POWERGRID","RELIANCE","SBILIFE","SBIN","SHRIRAMFIN","SUNPHARMA","TATACONSUM","TATASTEEL","TCS","TECHM","TITAN","ULTRACEMCO","WIPRO"];
 
 (function() {
-    const grid        = document.getElementById('cardsGrid');
-    const allCards    = Array.from(grid.querySelectorAll('.card'));
-    const heatOrder   = allCards.slice();
-    const btnAll      = document.getElementById('btnAll');
-    const btnNifty    = document.getElementById('btnNifty');
-    const searchBox   = document.getElementById('symbolSearch');
-    const barGreen    = document.getElementById('barGreen');
-    const barRed      = document.getElementById('barRed');
+    const grid      = document.getElementById('cardsGrid');
+    const allCards  = Array.from(grid.querySelectorAll('.card'));
+    const heatOrder = allCards.slice();
+    const btnAll    = document.getElementById('btnAll');
+    const btnNifty  = document.getElementById('btnNifty');
+    const searchBox = document.getElementById('symbolSearch');
+    const barGreen  = document.getElementById('barGreen');
+    const barRed    = document.getElementById('barRed');
     const breadthMeta = document.getElementById('breadthMeta');
 
     let currentFilter = 'all';
     let currentSearch = '';
 
+    // Fix 3: update breadth bar based on visible cards
     function updateBreadth(visibleCards) {
         const total = visibleCards.length;
         if (total === 0) return;
+
         let adv = 0, dec = 0, neu = 0;
         visibleCards.forEach(card => {
             const s = card.dataset.status;
-            if (s === 'ADV')      adv++;
+            if (s === 'ADV')     adv++;
             else if (s === 'DEC') dec++;
             else                  neu++;
         });
+
         const advPct = (adv / total * 100).toFixed(1);
         const decPct = (dec / total * 100).toFixed(1);
         const neuPct = (neu / total * 100).toFixed(1);
-        const advW   = Math.max(parseFloat(advPct), adv > 0 ? 2 : 0);
-        const decW   = Math.max(parseFloat(decPct), dec > 0 ? 2 : 0);
+
+        const advW = Math.max(parseFloat(advPct), adv > 0 ? 2 : 0);
+        const decW = Math.max(parseFloat(decPct), dec > 0 ? 2 : 0);
 
         barGreen.style.width = advW + '%';
         barGreen.textContent = 'Adv: ' + adv + ' (' + advPct + '%)';
         barRed.style.width   = decW + '%';
         barRed.textContent   = 'Dec: ' + dec + ' (' + decPct + '%)';
-        breadthMeta.innerHTML = 'Total: ' + total +
-            ' &nbsp;&middot;&nbsp; Neutral: ' + neu + ' (' + neuPct + '%)';
+        breadthMeta.innerHTML = 'Total: ' + total + ' &nbsp;&middot;&nbsp; Neutral: ' + neu + ' (' + neuPct + '%)';
     }
 
     function render() {
@@ -3684,6 +3667,7 @@ const NIFTY50 = ["ADANIENT","ADANIPORTS","APOLLOHOSP","ASIANPAINT","AXISBANK","B
         render();
     });
 
+    // Auto refresh every 10s
     async function checkUpdate() {
         try {
             const currentTime = document.querySelector('#scan-time').getAttribute('data-scan-time');
