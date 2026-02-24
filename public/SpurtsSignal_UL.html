@@ -1,221 +1,388 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
 <title>Spurt Underline Data</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── TOKENS ── */
+:root {
+  --font-body:    'Instrument Sans', system-ui, sans-serif;
+  --font-mono:    'Geist Mono', 'Courier New', monospace;
+
+  --bg:           #f0f4fa;
+  --card:         #ffffff;
+  --border:       #dde3ed;
+  --border-dark:  #0f1923;
+
+  --text-1:       #0d1520;
+  --text-2:       #1e2d3d;
+  --text-muted:   #4a6080;
+
+  --long-bg:      #ecfdf5;
+  --long-border:  #10b981;
+  --long-text:    #065f46;
+  --long-pct:     #059669;
+
+  --short-bg:     #fef2f2;
+  --short-border: #ef4444;
+  --short-text:   #991b1b;
+  --short-pct:    #dc2626;
+
+  --acc-bg:       #eff6ff;
+  --acc-border:   #3b82f6;
+  --acc-text:     #1d4ed8;
+  --acc-pct:      #2563eb;
+
+  --th-bg:        #0f1923;
+  --th-text:      #cbd5e1;
+  --row-hover:    #f0f6ff;
+  --row-stripe:   #fafbfd;
+  --blue-dot:     #2563eb;
 }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #f4f7fb;
-    color: #2c3e50;
-    padding: 20px;
+/* ── BASE ── */
+html, body {
+  background: var(--bg);
+  font-family: var(--font-body);
+  color: var(--text-1);
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
 }
 
+.page-wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+}
+
+/* ── HEADER ── */
 .header {
-    text-align: center;
-    margin-bottom: 30px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 24px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  box-shadow: 0 2px 12px rgba(37,99,235,.06), 0 1px 3px rgba(0,0,0,.04);
 }
 
-h1 {
-    font-size: 2.2rem;
-    color: #1f3a5f;
-    margin-bottom: 6px;
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.scan-date {
-    font-size: 0.9rem;
-    color: #6b7c8f;
+.blue-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--blue-dot);
+  flex-shrink: 0;
 }
 
-.section {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 6px 22px rgba(0,0,0,0.06);
-    border: 1px solid #e6ecf2;
-    margin-bottom: 26px;
-    overflow: hidden;
+.brand {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-1);
+  letter-spacing: .04em;
+  text-transform: uppercase;
 }
 
-.h-long { border-left: 5px solid #26de81; }
-.h-short { border-left: 5px solid #fc427b; }
-.h-acc { border-left: 5px solid #fdcb6e; }
-
-.section h2 {
-    padding: 18px 22px;
-    font-size: 1.25rem;
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
 }
 
-.signal-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
+.scan-time {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-2);
+  letter-spacing: .03em;
 }
 
-/* ===== TABLE HEADER COLOR BY SECTION ===== */
-
-.signal-table th {
-    background: #1f3a5f;
-    color: #ffffff;
-    padding: 15px 12px;
-    text-align: center;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+#elapsed {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
 }
 
-.h-long .signal-table th {
-    background: linear-gradient(135deg, #1dd1a1, #10ac84);
+/* ── GROUP CARD ── */
+.group {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 12px rgba(37,99,235,.05), 0 1px 3px rgba(0,0,0,.03);
 }
 
-.h-short .signal-table th {
-    background: linear-gradient(135deg, #ff6b6b, #ee5253);
+.group-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px 9px 22px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
 }
 
-.h-acc .signal-table th {
-    background: linear-gradient(135deg, #feca57, #f9ca24);
-    color: #2d3436;
+.group.long  .group-head { background: var(--long-bg);  color: var(--long-text);  border-left: 3px solid var(--long-border);  }
+.group.short .group-head { background: var(--short-bg); color: var(--short-text); border-left: 3px solid var(--short-border); }
+.group.acc   .group-head { background: var(--acc-bg);   color: var(--acc-text);   border-left: 3px solid var(--acc-border);   }
+
+.group-cnt {
+  background: rgba(0,0,0,.07);
+  padding: 1px 7px;
+  border-radius: 3px;
+  font-size: 10px;
+  letter-spacing: .06em;
 }
 
-.signal-table td {
-    padding: 13px 10px;
-    text-align: center;
-    border-bottom: 1px solid #edf1f5;
+/* ── TABLE ── */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-.signal-table tr:hover td {
-    background: #f6f9fc;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+  font-size: 13px;
 }
 
-@media (max-width: 768px) {
-    body { padding: 12px; }
-    .signal-table { display:block; overflow-x:auto; }
+thead th {
+  background: var(--th-bg);
+  color: var(--th-text);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 10.5px;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  padding: 9px 14px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+tbody tr { background: var(--card); }
+tbody tr:nth-child(even) { background: var(--row-stripe); }
+tbody tr:hover td { background: var(--row-hover); }
+
+td {
+  padding: 10px 14px;
+  text-align: center;
+  border-bottom: 1px solid #eef2f8;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-1);
+}
+
+td.sym-cell {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-1);
+}
+
+td.sig-cell {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  letter-spacing: .04em;
+}
+
+/* pct cells */
+td.pct-long  { color: var(--long-pct);  font-weight: 600; }
+td.pct-short { color: var(--short-pct); font-weight: 600; }
+td.pct-acc   { color: var(--acc-pct);   font-weight: 600; }
+
+/* empty state */
+tr.empty-row td {
+  text-align: center;
+  padding: 18px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center;
+  font-size: 11px;
+  color: #b0bec8;
+  font-family: var(--font-mono);
+  margin-top: 8px;
+  letter-spacing: .06em;
+}
+
+/* ── MOBILE ── */
+@media (max-width: 600px) {
+  .page-wrap { padding: 12px 10px 32px; }
+  .header { padding: 12px 16px; border-radius: 8px; }
+  .brand { font-size: 13px; }
+  .header { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .header-right { align-items: flex-start; }
+  .group-head { font-size: 10px; padding: 9px 14px 8px 16px; }
+  thead th { font-size: 9.5px; padding: 8px 10px; }
+  td { padding: 8px 10px; font-size: 12px; }
+  td.sym-cell { font-size: 12.5px; }
 }
 </style>
-
-<script>
-let lastHTML = "";
-
-async function silentRefresh() {
-    const res = await fetch(location.href, { cache: "no-store" });
-    const text = await res.text();
-
-    if (lastHTML && text !== lastHTML) {
-        document.open();
-        document.write(text);
-        document.close();
-    }
-    lastHTML = text;
-}
-
-window.addEventListener("load", () => {
-    silentRefresh();
-    setInterval(silentRefresh, 60000);
-});
-</script>
-
-
 </head>
-<body>
 
-<div class="header">
-    <h1>Spurt Underline Data</h1>
-    <p class="scan-date">
-        Scan Date: 24-02-2026 23:52
-    </p>
+<body>
+<div class="page-wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="blue-dot"></div>
+      <span class="brand">Spurt Underline Data</span>
+    </div>
+    <div class="header-right">
+      <span class="scan-time">SCAN: 25-02-2026 00:03</span>
+      <span id="elapsed"></span>
+    </div>
+  </div>
+
+  
+  <div class="group long">
+    <div class="group-head">
+      <span class="arrow">▲</span>
+      <span class="group-label">Long</span>
+      <span class="group-cnt">1</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Signal</th><th>Symbol</th><th>OI Recent</th><th>OI Pre</th>
+            <th>Chng OI</th><th>%Chng OI</th><th>Volume</th><th>Underlying</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+<tr>
+  <td class="sig-cell">LONG</td>
+  <td class="sym-cell">NIFTYNXT50</td>
+  <td>428</td>
+  <td>121</td>
+  <td>307</td>
+  <td class="pct-long">253.72</td>
+  <td>1389</td>
+  <td>69351</td>
+</tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  
+  <div class="group short">
+    <div class="group-head">
+      <span class="arrow">▼</span>
+      <span class="group-label">Short</span>
+      <span class="group-cnt">0</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Signal</th><th>Symbol</th><th>OI Recent</th><th>OI Pre</th>
+            <th>Chng OI</th><th>%Chng OI</th><th>Volume</th><th>Underlying</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="empty-row"><td colspan="8">no signals at this time</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  
+  <div class="group acc">
+    <div class="group-head">
+      <span class="arrow">◆</span>
+      <span class="group-label">Accumulation</span>
+      <span class="group-cnt">2</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Signal</th><th>Symbol</th><th>OI Recent</th><th>OI Pre</th>
+            <th>Chng OI</th><th>%Chng OI</th><th>Volume</th><th>Underlying</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+<tr>
+  <td class="sig-cell">ACCUMULATION</td>
+  <td class="sym-cell">MIDCPNIFTY</td>
+  <td>62903</td>
+  <td>31292</td>
+  <td>31611</td>
+  <td class="pct-acc">101.02</td>
+  <td>607246</td>
+  <td>13391</td>
+</tr>
+<tr>
+  <td class="sig-cell">ACCUMULATION</td>
+  <td class="sym-cell">ICICIGI</td>
+  <td>493</td>
+  <td>298</td>
+  <td>195</td>
+  <td class="pct-acc">65.44</td>
+  <td>2927</td>
+  <td>1923</td>
+</tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">SPURT UNDERLINE · AUTO-REFRESH 60s</div>
+
 </div>
 
+<script>
+const scanTime = new Date("2026-02-25T00:03:00");
+function updateElapsed() {
+  const diff = Math.floor((new Date() - scanTime) / 60000);
+  document.getElementById("elapsed").innerText =
+    diff <= 0 ? "just now" : diff + " mins ago";
+}
+updateElapsed();
+setInterval(updateElapsed, 60000);
 
-    <div class="section h-long">
-        <h2>LONG</h2>
-        <table class="dataframe signal-table">
-  <thead>
-    <tr style="text-align: right;">
-      <th>Signal</th>
-      <th>Symbol</th>
-      <th>OI Recent</th>
-      <th>OI Pre</th>
-      <th>chng in OI</th>
-      <th>%chng in OI</th>
-      <th>Volume</th>
-      <th>Underlying value</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>LONG</td>
-      <td>NIFTYNXT50</td>
-      <td>428</td>
-      <td>121</td>
-      <td>307</td>
-      <td>253.72</td>
-      <td>1389</td>
-      <td>69351</td>
-    </tr>
-  </tbody>
-</table>
-    </div>
-    
-
-        <div class="section h-short">
-            <h2>SHORT</h2>
-            <p style="text-align:center;padding:25px;font-weight:500;color:#7a8896;">
-                No data
-            </p>
-        </div>
-        
-
-    <div class="section h-acc">
-        <h2>ACCUMULATION</h2>
-        <table class="dataframe signal-table">
-  <thead>
-    <tr style="text-align: right;">
-      <th>Signal</th>
-      <th>Symbol</th>
-      <th>OI Recent</th>
-      <th>OI Pre</th>
-      <th>chng in OI</th>
-      <th>%chng in OI</th>
-      <th>Volume</th>
-      <th>Underlying value</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>ACCUMULATION</td>
-      <td>MIDCPNIFTY</td>
-      <td>62903</td>
-      <td>31292</td>
-      <td>31611</td>
-      <td>101.02</td>
-      <td>607246</td>
-      <td>13391</td>
-    </tr>
-    <tr>
-      <td>ACCUMULATION</td>
-      <td>ICICIGI</td>
-      <td>493</td>
-      <td>298</td>
-      <td>195</td>
-      <td>65.44</td>
-      <td>2927</td>
-      <td>1923</td>
-    </tr>
-  </tbody>
-</table>
-    </div>
-    
-
+// Silent refresh — only reload if content changed
+let lastHTML = document.documentElement.outerHTML;
+async function silentRefresh() {
+  try {
+    const res  = await fetch(location.href, { cache: "no-store" });
+    const text = await res.text();
+    if (text !== lastHTML) {
+      lastHTML = text;
+      document.open(); document.write(text); document.close();
+    }
+  } catch(e) {}
+}
+setInterval(silentRefresh, 60000);
+</script>
 </body>
-
 </html>
