@@ -2,284 +2,279 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Spurt Scanner Premium</title>
+<title>Spurt Scanner</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── TOKENS ── */
 :root {
-  --bg-page:#e5edf6;
-  --bg-body:#f4f7fb;
+  --font-body:   'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono:   'DM Mono', 'Courier New', monospace;
 
-  --card:#ffffff;
-  --border-soft:rgba(15,23,42,.08);
-  --text-main:#111827;
-  --text-muted:#6b7280;
+  --bg:          #f5f5f5;
+  --card:        #ffffff;
+  --border:      #e8eaed;
+  --border-dark: #111111;
 
-  --bull-main:#22c55e;
-  --bull-soft:#dcfce7;
-  --bull-dark:#15803d;
+  --text-1:      #111111;
+  --text-2:      #444444;
+  --text-muted:  #999999;
 
-  --bear-main:#ef4444;
-  --bear-soft:#fee2e2;
-  --bear-dark:#b91c1c;
+  --bull-bg:     #f0fdf4;
+  --bull-border: #16a34a;
+  --bull-text:   #15803d;
+  --bull-pill-bg:#dcfce7;
 
-  --neu-main:#3b82f6;
-  --neu-soft:#dbeafe;
-  --neu-dark:#1d4ed8;
+  --bear-bg:     #fff5f5;
+  --bear-border: #dc2626;
+  --bear-text:   #b91c1c;
+  --bear-pill-bg:#fee2e2;
 
-  --gold:#fbbf24;
+  --gold:        #d97706;
+  --th-bg:       #0f172a;
+  --th-text:     #e5e7eb;
+  --row-hover:   #eff6ff;
+  --row-stripe:  #fafafa;
 }
 
-* {
-  box-sizing:border-box;
-}
-
-html,body {
-  margin:0;
-  padding:0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color:var(--text-main);
-  -webkit-font-smoothing:antialiased;
-}
-
-body {
-  background:linear-gradient(180deg,var(--bg-page),var(--bg-body));
+/* ── BASE ── */
+html, body {
+  background: var(--bg);
+  font-family: var(--font-body);
+  color: var(--text-1);
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
 }
 
 .page-wrap {
-  max-width:1200px;
-  margin:0 auto 32px auto;
-  padding:12px 12px 32px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 16px 40px;
 }
 
-/* ===== HEADER (simple, non-sticky) ===== */
+/* ── HEADER ── */
 .header {
-  margin:4px 0 12px;
-  padding:16px 18px;
-  border-radius:18px;
-  background:linear-gradient(180deg,#e5edf7,#d1deee);
-  box-shadow:0 6px 18px rgba(15,23,42,.18);
-  border:1px solid rgba(148,163,184,.35);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--border-dark);
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
 
-.header-center {
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-  font-size:15px;
-  font-weight:600;
-  letter-spacing:.02em;
+.header-left .brand {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  color: var(--text-1);
 }
 
-.header-center b {
-  font-size:18px;
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
 }
 
-.header-center span {
-  font-size:13px;
-  color:var(--text-muted);
+.header-right .scan-time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: .04em;
 }
 
 #elapsed {
-  font-size:12px;
-  color:var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
 }
 
-/* ===== GROUP BASE (card) ===== */
+/* ── GROUP CARD ── */
 .group {
-  border-radius:22px;
-  border:1px solid var(--border-soft);
-  background:var(--card);
-  box-shadow:0 18px 45px rgba(15,23,42,.25);
-  overflow:hidden;
-  margin:18px auto;
-  max-width:100%;
-  position:relative;
-}
-
-.group-inner {
-  width:100%;
-}
-
-.group-header-strip {
-  position:absolute;
-  left:0;
-  top:0;
-  bottom:0;
-  width:9px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
 
 .group-title {
-  margin:0;
-  padding:16px 20px 14px 26px;
-  font-size:.95rem;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.group-pill {
-  padding:3px 9px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:600;
-}
-
-/* LONG = green */
-.group.bull .group-header-strip {
-  background:linear-gradient(180deg,var(--bull-main),var(--bull-dark));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px 10px 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
 }
 
 .group.bull .group-title {
-  background:linear-gradient(90deg,rgba(34,197,94,.16),transparent);
-  color:var(--bull-dark);
-}
-
-.group.bull .group-pill {
-  background:var(--bull-soft);
-  color:var(--bull-dark);
-}
-
-/* SHORT = red */
-.group.bear .group-header-strip {
-  background:linear-gradient(180deg,var(--bear-main),var(--bear-dark));
+  background: var(--bull-bg);
+  color: var(--bull-text);
+  border-left: 4px solid var(--bull-border);
 }
 
 .group.bear .group-title {
-  background:linear-gradient(90deg,rgba(239,68,68,.16),transparent);
-  color:var(--bear-dark);
+  background: var(--bear-bg);
+  color: var(--bear-text);
+  border-left: 4px solid var(--bear-border);
 }
 
-.group.bear .group-pill {
-  background:var(--bear-soft);
-  color:var(--bear-dark);
+.group-pill {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 2px;
+  letter-spacing: .06em;
 }
 
-/* ===== TABLE WRAPPER ===== */
-.table-outer{
-  margin:0;
-}
+.group.bull .group-pill { background: var(--bull-pill-bg); color: var(--bull-text); }
+.group.bear .group-pill { background: var(--bear-pill-bg); color: var(--bear-text); }
 
+/* ── TABLE SCROLL WRAPPER ── */
 .table-wrap {
-  width:100%;
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-  background:linear-gradient(180deg,#f9fafb,#eef2ff);
-  border-top:1px solid rgba(148,163,184,.3);
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
+/* ── TABLE ── */
 table {
-  width:100%;
-  border-collapse:collapse;
-  min-width:980px;
-  font-size:13px;
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+  font-size: 12.5px;
 }
 
-th,td {
-  padding:10px 12px;
-  border-bottom:1px solid rgba(148,163,184,.28);
-  text-align:center;
-  white-space:nowrap;
+thead th {
+  background: var(--th-bg);
+  color: var(--th-text);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 9px 13px;
+  text-align: center;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
-th {
-  background:linear-gradient(180deg,#0f172a,#1f2937);
-  color:#e5e7eb;
-  font-weight:700;
-  letter-spacing:.09em;
-  text-transform:uppercase;
-  position:sticky;
-  top:0;
-  z-index:2;
+tbody tr { background: var(--card); }
+tbody tr:nth-child(even) { background: var(--row-stripe); }
+tbody tr:hover td { background: var(--row-hover); }
+
+td {
+  padding: 9px 13px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-2);
 }
 
-tbody tr {
-  background:rgba(255,255,255,.92);
+/* ── CELL VARIANTS ── */
+td.symbol {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-1);
+  text-align: left;
+  padding-left: 16px;
 }
 
-tbody tr:nth-child(even) {
-  background:rgba(249,250,251,.96);
+td.expiry {
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 11.5px;
 }
 
-tbody tr:hover {
-  background:rgba(191,219,254,.9);
+td.strength {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-1);
 }
 
-.symbol {
-  font-weight:600;
-  color:#111827;
+td.type {
+  color: var(--text-muted);
+  font-size: 11px;
 }
 
-.type {
-  font-weight:600;
-  color:#4b5563;
+.dir-pill {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-family: var(--font-body);
 }
 
-.expiry {
-  color:var(--gold);
-  font-weight:700;
+.group.bull .dir-pill { background: var(--bull-pill-bg); color: var(--bull-text); }
+.group.bear .dir-pill { background: var(--bear-pill-bg); color: var(--bear-text); }
+
+/* ── EMPTY STATE ── */
+.empty-row td {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 20px;
+  font-size: 12px;
+  font-family: var(--font-body);
+  font-style: italic;
 }
 
-.strength {
-  font-weight:700;
+/* ── FOOTER ── */
+.footer {
+  text-align: center;
+  font-size: 11px;
+  color: #ccc;
+  font-family: var(--font-mono);
+  margin-top: 8px;
+  letter-spacing: .06em;
 }
 
-/* ===== MOBILE TUNING ===== */
-@media (max-width:768px) {
-
-  .page-wrap {
-    padding:12px 0 24px;
-  }
+/* ── MOBILE ── */
+@media (max-width: 600px) {
+  .page-wrap { padding: 10px 10px 32px; }
 
   .header {
-    margin:4px 8px 10px;
-    padding:12px 14px;
-    border-radius:16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 12px 14px;
   }
 
-  .header-center b {
-    font-size:16px;
-  }
+  .header-right { align-items: flex-start; }
 
-  .header-center span {
-    font-size:12px;
-  }
+  .header-left .brand { font-size: 15px; }
 
-  .group {
-    margin:14px 8px;
-    border-radius:18px;
-    box-shadow:0 14px 32px rgba(15,23,42,.35);
-  }
+  .group-title { font-size: 10px; padding: 10px 12px 9px 14px; }
 
-  .group-title {
-    padding:12px 16px 10px 22px;
-    font-size:.9rem;
-  }
+  table { font-size: 11.5px; min-width: 760px; }
 
-  .table-outer{
-    margin:0;
-  }
+  thead th { padding: 8px 10px; font-size: 9.5px; }
 
-  table {
-    font-size:12px;
-    min-width:820px;
-  }
+  td { padding: 8px 10px; font-size: 11px; }
 
-  th,td {
-    padding:8px 9px;
-  }
-}
+  td.symbol { font-size: 12px; padding-left: 12px; }
 
-@media (max-width:480px) {
-  .header-center {
-    gap:2px;
-  }
+  td.strength { font-size: 13px; }
 }
 </style>
 </head>
@@ -287,48 +282,41 @@ tbody tr:hover {
 <body>
 <div class="page-wrap">
 
+  <!-- HEADER -->
   <div class="header">
-    <div class="header-center">
-      <b>Spurt Data</b>
-      <span>Scan: 24-02-2026 09:46</span>
+    <div class="header-left">
+      <div class="brand">SPURT DATA</div>
+    </div>
+    <div class="header-right">
+      <span class="scan-time">SCAN: 24-02-2026 23:19</span>
       <span id="elapsed"></span>
     </div>
   </div>
 
+  <!-- BULL GROUP -->
   <div class="group bull">
-    <div class="group-header-strip"></div>
-    <h3 class="group-title">
-      LONG (3)
+    <div class="group-title">
+      ▲ LONG (3)
       <span class="group-pill">Trend Up</span>
-    </h3>
-    <div class="group-inner">
-      <div class="table-outer">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Symbol</th>
-                <th>Expiry</th>
-                <th>Strength</th>
-                <th>Type</th>
-                <th>Direction</th>
-                <th>OI Recent</th>
-                <th>OI Pre</th>
-                <th>Chng in OI</th>
-                <th>Chng in OI %</th>
-                <th>LTP</th>
-                <th>Prev Close</th>
-                <th>% LTP Chng</th>
-              </tr>
-            </thead>
-            <tbody>
-              
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th><th>Expiry</th><th>Strength</th><th>Type</th>
+            <th>Direction</th><th>OI Recent</th><th>OI Pre</th>
+            <th>Chng OI</th><th>Chng OI %</th><th>LTP</th>
+            <th>Prev Close</th><th>% LTP Chng</th>
+          </tr>
+        </thead>
+        <tbody>
+          
 <tr>
   <td class="symbol">SAIL</td>
   <td class="expiry">30 MAR 2026</td>
   <td class="strength">3</td>
   <td class="type">FUT</td>
-  <td>BULL</td>
+  <td><span class="dir-pill">BULL</span></td>
   <td>17504</td>
   <td>14121</td>
   <td>3383</td>
@@ -343,7 +331,7 @@ tbody tr:hover {
   <td class="expiry">30 MAR 2026</td>
   <td class="strength">2</td>
   <td class="type">FUT</td>
-  <td>BULL</td>
+  <td><span class="dir-pill">BULL</span></td>
   <td>13784</td>
   <td>12442</td>
   <td>1342</td>
@@ -358,7 +346,7 @@ tbody tr:hover {
   <td class="expiry">30 MAR 2026</td>
   <td class="strength">0</td>
   <td class="type">FUT</td>
-  <td>BULL</td>
+  <td><span class="dir-pill">BULL</span></td>
   <td>65389</td>
   <td>63998</td>
   <td>1391</td>
@@ -368,61 +356,48 @@ tbody tr:hover {
   <td>0.17</td>
 </tr>
 
-            </tbody>
-          </table>
-        </div>
-      </div>
+        </tbody>
+      </table>
     </div>
   </div>
 
+  <!-- BEAR GROUP -->
   <div class="group bear">
-    <div class="group-header-strip"></div>
-    <h3 class="group-title">
-      SHORT (0)
+    <div class="group-title">
+      ▼ SHORT (0)
       <span class="group-pill">Trend Down</span>
-    </h3>
-    <div class="group-inner">
-      <div class="table-outer">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Symbol</th>
-                <th>Expiry</th>
-                <th>Strength</th>
-                <th>Type</th>
-                <th>Direction</th>
-                <th>OI Recent</th>
-                <th>OI Pre</th>
-                <th>Chng in OI</th>
-                <th>Chng in OI %</th>
-                <th>LTP</th>
-                <th>Prev Close</th>
-                <th>% LTP Chng</th>
-              </tr>
-            </thead>
-            <tbody>
-              
-            </tbody>
-          </table>
-        </div>
-      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th><th>Expiry</th><th>Strength</th><th>Type</th>
+            <th>Direction</th><th>OI Recent</th><th>OI Pre</th>
+            <th>Chng OI</th><th>Chng OI %</th><th>LTP</th>
+            <th>Prev Close</th><th>% LTP Chng</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="empty-row"><td colspan="12">no signals at this time</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
+
+  <div class="footer">SPURT SCANNER · AUTO-REFRESH 60s</div>
 
 </div>
 
 <script>
-const scanTime = new Date("2026-02-24T09:46:00");
+const scanTime = new Date("2026-02-24T23:19:00");
 function updateElapsed() {
-  const diff = Math.floor((new Date() - scanTime)/60000);
+  const diff = Math.floor((new Date() - scanTime) / 60000);
   document.getElementById("elapsed").innerText =
     diff <= 0 ? "just now" : diff + " mins ago";
 }
 updateElapsed();
-setInterval(updateElapsed,60000);
+setInterval(updateElapsed, 60000);
 setInterval(() => location.reload(), 60000);
 </script>
-
 </body>
 </html>
