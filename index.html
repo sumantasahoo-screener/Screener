@@ -10,23 +10,19 @@
 body{
   font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
   min-height:100vh;
-  background:
-    radial-gradient(1200px at 10% -10%, #22c55e33, transparent 40%),
-    radial-gradient(900px at 110% 10%, #3b82f633, transparent 45%),
-    linear-gradient(180deg,#020617,#020617);
-  color:#e5e7eb;
+  background:#e5e7eb;
+  color:#020617;
   padding:16px;
 }
 
 .shell{
   max-width:1000px;
   margin:auto;
-  background:rgba(2,6,23,.85);
-  backdrop-filter:blur(18px);
+  background:#f9fafb;
   border-radius:22px;
   padding:18px;
-  box-shadow:0 30px 80px rgba(0,0,0,.85);
-  border:1px solid rgba(148,163,184,.18);
+  box-shadow:0 24px 60px rgba(15,23,42,.25);
+  border:1px solid rgba(148,163,184,.35);
 }
 
 .shell-header{
@@ -48,12 +44,12 @@ body{
   font-size:20px;
   font-weight:900;
   letter-spacing:.1em;
-  background:linear-gradient(90deg,#22c55e,#3b82f6,#f97316);
+  background:linear-gradient(90deg,#16a34a,#2563eb,#f97316);
   -webkit-background-clip:text;
   color:transparent;
 }
 
-.app-sub{font-size:12px;color:#9ca3af}
+.app-sub{font-size:12px;color:#4b5563}
 
 .status-pill{
   display:flex;align-items:center;gap:8px;
@@ -61,32 +57,57 @@ body{
   border-radius:999px;
   font-size:11px;
   font-weight:700;
-  background:linear-gradient(135deg,#22c55e33,#22c55e11);
+  background:linear-gradient(135deg,#dcfce7,#e0f2fe);
   border:1px solid #22c55e66;
+  color:#065f46;
 }
 
 .status-dot{
   width:8px;height:8px;border-radius:50%;
   background:#22c55e;
   box-shadow:0 0 10px #22c55e;
+  animation:pulse 1.6s infinite;
 }
 
-/* LINK-3 special badge */
+@keyframes pulse{
+  0%{transform:scale(1);box-shadow:0 0 0 0 rgba(34,197,94,.55)}
+  70%{transform:scale(1.15);box-shadow:0 0 0 8px rgba(34,197,94,0)}
+  100%{transform:scale(1);box-shadow:0 0 0 0 rgba(34,197,94,0)}
+}
+
+/* surprise / mast badge */
 .link3-badge{
-  font-size:10px;
-  font-weight:900;
-  padding:6px 12px;
-  border-radius:10px;
+  font-size:11px;
+  font-weight:800;
+  padding:7px 14px;
+  border-radius:999px;
   background:
-    linear-gradient(135deg,#020617,#020617) padding-box,
+    linear-gradient(135deg,#0f172a,#020617) padding-box,
     linear-gradient(135deg,#22c55e,#3b82f6,#f97316) border-box;
   border:2px solid transparent;
   color:#e5e7eb;
   letter-spacing:.18em;
-  box-shadow:0 0 14px rgba(34,197,94,.45);
+  box-shadow:0 0 18px rgba(59,130,246,.55);
+  text-transform:uppercase;
+  position:relative;
+  overflow:hidden;
 }
 
-/* header links */
+.link3-badge::after{
+  content:"";
+  position:absolute;
+  inset:-40%;
+  background:conic-gradient(from 180deg,#22c55e55,#3b82f655,#f9731655,#22c55e55);
+  mix-blend-mode:soft-light;
+  animation:spinGlow 4s linear infinite;
+  opacity:.5;
+}
+
+@keyframes spinGlow{
+  to{transform:rotate(360deg);}
+}
+
+/* header links container (currently empty, but kept if needed later) */
 .header-links{
   display:flex;
   gap:10px;
@@ -111,59 +132,94 @@ body{
   gap:16px;
 }
 
+/* base card */
 .card{
   position:relative;
   border-radius:20px;
   padding:16px;
-  background:
-    radial-gradient(400px at -20% -30%,rgba(255,255,255,.08),transparent 40%),
-    linear-gradient(160deg,rgba(15,23,42,.95),rgba(2,6,23,.95));
+  border-left:5px solid transparent;
+  box-shadow:0 16px 40px rgba(15,23,42,.12);
+  transition:transform .18s ease, box-shadow .18s ease, translate .18s ease;
 }
 
-/* per-card body gradients */
-.card--accent-1{background:linear-gradient(160deg,#064e3b,#020617)}
-.card--accent-2{background:linear-gradient(160deg,#1e3a8a,#020617)}
-.card--accent-3{background:linear-gradient(160deg,#7c2d12,#020617)}
-.card--accent-4{background:linear-gradient(160deg,#581c87,#020617)}
-.card--accent-5{background:linear-gradient(160deg,#7f1d1d,#020617)}
-.card--accent-6{background:linear-gradient(160deg,#164e63,#020617)}
-.card--accent-7{background:linear-gradient(160deg,#134e4a,#020617)}
-.card--accent-8{background:linear-gradient(160deg,#831843,#020617)}
-.card--accent-9{background:linear-gradient(160deg,#854d0e,#020617)}
-
-
+.card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  opacity:0;
+  pointer-events:none;
+  background:radial-gradient(circle at top,rgba(255,255,255,.65),transparent 55%);
+  transition:opacity .2s ease;
+}
 
 .card:hover{
-  transform:translateY(-3px);
-  box-shadow:0 20px 50px rgba(0,0,0,.7);
+  transform:translateY(-4px) scale(1.01);
+  box-shadow:0 22px 55px rgba(15,23,42,.24);
 }
 
-.card--accent-1{border-color:#22c55e}
-.card--accent-2{border-color:#3b82f6}
-.card--accent-3{border-color:#f97316}
-.card--accent-4{border-color:#a855f7}
-.card--accent-5{border-color:#ef4444}
-.card--accent-6{border-color:#06b6d4}
-.card--accent-7{border-color:#14b8a6}
-.card--accent-8{border-color:#ec4899}
-.card--accent-9{border-color:#64748b}
+.card:hover::after{
+  opacity:1;
+}
+
+/* per-card soft light backgrounds */
+.card--accent-1{
+  background:linear-gradient(160deg,#ecfdf5,#e0f2fe);
+  border-left-color:#16a34a;
+}
+.card--accent-2{
+  background:linear-gradient(160deg,#eff6ff,#e0f2fe);
+  border-left-color:#2563eb;
+}
+.card--accent-3{
+  background:linear-gradient(160deg,#fff7ed,#fef3c7);
+  border-left-color:#f97316;
+}
+.card--accent-4{
+  background:linear-gradient(160deg,#f5f3ff,#e0f2fe);
+  border-left-color:#a855f7;
+}
+.card--accent-5{
+  background:linear-gradient(160deg,#fef2f2,#fee2e2);
+  border-left-color:#ef4444;
+}
+.card--accent-6{
+  background:linear-gradient(160deg,#ecfeff,#e0f2fe);
+  border-left-color:#06b6d4;
+}
+.card--accent-7{
+  background:linear-gradient(160deg,#ecfdf5,#ccfbf1);
+  border-left-color:#14b8a6;
+}
+.card--accent-8{
+  background:linear-gradient(160deg,#fdf2f8,#fae8ff);
+  border-left-color:#ec4899;
+}
+.card--accent-9{
+  background:linear-gradient(160deg,#fffbeb,#fef3c7);
+  border-left-color:#facc15;
+}
 
 .card-label{
   font-size:10px;
   letter-spacing:.2em;
   text-transform:uppercase;
-  color:#9ca3af;
+  color:#6b7280;
+  margin-bottom:4px;
 }
 
 .card-title{
   font-size:17px;
   font-weight:800;
+  color:#020617;
+  margin-bottom:6px;
 }
 
 .card-body{
   font-size:13px;
-  line-height:1.55;
-  color:#d1d5db;
+  line-height:1.6;
+  color:#374151;
+  margin-bottom:10px;
 }
 
 .meta-row{
@@ -179,8 +235,9 @@ body{
   font-size:10px;
   padding:3px 9px;
   border-radius:999px;
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(148,163,184,.35);
+  background:rgba(15,23,42,.03);
+  border:1px solid rgba(148,163,184,.7);
+  color:#4b5563;
 }
 
 .open-btn{
@@ -189,16 +246,18 @@ body{
   font-size:12px;
   font-weight:800;
   text-decoration:none;
-  color:#020617;
+  color:#f9fafb;
   background:linear-gradient(135deg,#22c55e,#3b82f6);
+  box-shadow:0 10px 20px rgba(37,99,235,.35);
+  border:none;
 }
 
-.open-btn:hover{filter:brightness(1.1)}
+.open-btn:hover{filter:brightness(1.06)}
 
 .footer{
   margin-top:18px;
   font-size:11px;
-  color:#9ca3af;
+  color:#6b7280;
   display:flex;
   justify-content:space-between;
   flex-wrap:wrap;
@@ -213,55 +272,134 @@ body{
 <header class="shell-header">
   <div class="header-top">
     <div style="display:flex;align-items:center;gap:12px;white-space:nowrap;">
-		<img src="https://sumantasahoo-screener.github.io/Screener/LOGO.png"
-			 alt="F&O Screener"
-			 style="height:70px;object-fit:contain;">
-		<span class="link3-badge" style="white-space:nowrap;">LINK-2</span>
+      <img src="https://sumantasahoo-screener.github.io/Screener/LOGO.png"
+           alt="F&O Screener"
+           style="height:70px;object-fit:contain;">
+      <!-- LINK-2 badge removed as requested -->
     </div>
-    <div class="status-pill"><span class="status-dot"></span>Live scan during market hours</div>
+    <div class="status-pill">
+      <span class="status-dot"></span>
+      Live scan during market hours · scalper desk
+    </div>
   </div>
 
-  <div class="header-links">
-    <a href="https://sumantasahoo-screener.github.io/Screener/signal.html">LINK-1</a>
-  </div>
-
-  <div class="app-sub">Intraday · Options · Futures OI</div>
+  <!-- LINK-1 removed as requested -->
+  <div class="app-sub">Intraday · Options · Futures OI · All tools in one clean view</div>
 </header>
 
 <main class="grid">
-  <section class="card card--accent-1"><div class="card-label">Primary</div><div class="card-title">BANKING SCALPER</div><div class="card-body">Bank & IT contracts with full signal and options zones.</div><div class="meta-row"><span class="tag">Options</span><a class="open-btn" href="https://screener-epd.pages.dev/public/signal" target="_blank">OPEN ↗</a></div></section>
+  <section class="card card--accent-1">
+    <div class="card-label">Primary</div>
+    <div class="card-title">BANKING SCALPER</div>
+    <div class="card-body">
+      Bank & IT intraday scalping ke liye full signals, options zones aur clean bias view — fast entries, quick exits.
+    </div>
+    <div class="meta-row">
+      <span class="tag">Options · Intraday</span>
+      <a class="open-btn" href="https://screener-epd.pages.dev/public/signal" target="_blank">OPEN ↗</a>
+    </div>
+  </section>
 
-  
-  
-  <section class="card card--accent-3"><div class="card-label">Secondary</div><div class="card-title">NIFTY SCALPER</div><div class="card-body">Scalper Version</div><div class="meta-row"><span class="tag">Intraday</span><a class="open-btn" href="https://screener-epd.pages.dev/public/signal3" target="_blank">OPEN ↗</a></div></section>
-  
-  <section class="card card--accent-8"><div class="card-label">Log</div><div class="card-title">OI CHANGE</div><div class="card-body">Stock/index Open Interest / Change in OI</div><div class="meta-row"><span class="tag">Feed</span><a class="open-btn" href="https://screener-epd.pages.dev/public/oi" target="_blank">OPEN ↗</a></div></section>
-  
+  <section class="card card--accent-3">
+    <div class="card-label">Secondary</div>
+    <div class="card-title">NIFTY SCALPER</div>
+    <div class="card-body">
+      NIFTY index ke liye dedicated scalper version — smooth signal flow, compact panel aur tight risk control feel.
+    </div>
+    <div class="meta-row">
+      <span class="tag">Index · Scalper</span>
+      <a class="open-btn" href="https://screener-epd.pages.dev/public/signal3" target="_blank">OPEN ↗</a>
+    </div>
+  </section>
 
-  
-  
+  <section class="card card--accent-8">
+    <div class="card-label">Log</div>
+    <div class="card-title">OI CHANGE</div>
+    <div class="card-body">
+      Stock / index open interest aur intraday change track karo — fresh build‑up, unwinding aur shifting positions ek jagah.
+    </div>
+    <div class="meta-row">
+      <span class="tag">OI · Feed</span>
+      <a class="open-btn" href="https://screener-epd.pages.dev/public/oi" target="_blank">OPEN ↗</a>
+    </div>
+  </section>
 
-  <section class="card card--accent-4"><div class="card-label">Futures</div><div class="card-title">SPURT MAIN</div><div class="card-body">OI spurts showing aggressive bull or bear bias.</div><div class="meta-row"><span class="tag">Momentum</span><a class="open-btn" href="https://screener-epd.pages.dev/public/SpurtsSignal_Final" target="_blank">OPEN ↗</a></div></section>
-  
-  <section class="card card--accent-5"><div class="card-label">Underline</div><div class="card-title">UNDERLINE SPURT</div><div class="card-body">Underline spurts showing aggressive bull or bear bias</div><div class="meta-row"><span class="tag">Utility</span><a class="open-btn" href="https://screener-epd.pages.dev/public/SpurtsSignal_UL.html" target="_blank">OPEN ↗</a></div></section>
+  <section class="card card--accent-4">
+    <div class="card-label">Futures</div>
+    <div class="card-title">SPURT MAIN</div>
+    <div class="card-body">
+      Futures OI spurts se aggressive bull ya bear momentum catch karo — move jab start ho raha ho tabhi pakdo.
+    </div>
+    <div class="meta-row">
+      <span class="tag">Momentum · Futures</span>
+      <a class="open-btn" href="https://screener-epd.pages.dev/public/SpurtsSignal_Final" target="_blank">OPEN ↗</a>
+    </div>
+  </section>
 
-  <section class="card card--accent-6"><div class="card-label">HEATMAP</div><div class="card-title">MARKET MOOD</div><div class="card-body">ADVANCE DECLINE ONLY F&O STOCK</div><div class="meta-row"><span class="tag">Feed</span><a class="open-btn" href="https://screener-epd.pages.dev/public/adv_dec_heatmap" target="_blank">OPEN ↗</a></div></section>
+  <section class="card card--accent-5">
+    <div class="card-label">Underline</div>
+    <div class="card-title">BHAV COPY</div>
+    <div class="card-body">
+      Daily bhavdata analysis — base price action, delivery data aur list view se raw structure samajhne ke liye.
+    </div>
+    <div class="meta-row">
+      <span class="tag">Utility · Bhavdata</span>
+      <a class="open-btn" href="https://screener-epd.pages.dev/public/Bhavdata" target="_blank">OPEN ↗</a>
+    </div>
+  </section>
 
-  <section class="card card--accent-7"><div class="card-label">Log</div><div class="card-title">VOLATILITY</div><div class="card-body">Upload NSE Volatility file</div><div class="meta-row"><span class="tag">Archive</span><a class="open-btn" href="https://screener-epd.pages.dev/public/volatility_dashboard" target="_blank">OPEN ↗</a></div></section>
-  
-   <section class="card card--accent-2"><div class="card-label">Secondary</div><div class="card-title">Swing F&0</div><div class="card-body">Stock & Index Swing Signal F&o</div><div class="meta-row"><span class="tag">Intraday</span><a class="open-btn" href="https://screener-epd.pages.dev/public/swing_screener" target="_blank">OPEN ↗</a></div></section>
+  <section class="card card--accent-6">
+    <div class="card-label">Heatmap</div>
+    <div class="card-title">MARKET MOOD</div>
+    <div class="card-body">
+      F&O stocks ka advance‑decline heatmap — market ka overall mood dekhne ka quick snapshot, sector wise tone clear.
+    </div>
+    <div class="meta-row">
+      <span class="tag">Breadth · Visual</span>
+      <a class="open-btn" href="https://screener-epd.pages.dev/public/adv_dec_heatmap" target="_blank">OPEN ↗</a>
+    </div>
+  </section>
 
- 
+  <section class="card card--accent-7">
+    <div class="card-label">Log</div>
+    <div class="card-title">VOLATILITY</div>
+    <div class="card-body">
+      NSE volatility file upload karke IV structure, range expectation aur premium behaviour ko quick glance mein dekh sakte ho.
+    </div>
+    <div class="meta-row">
+      <span class="tag">IV · Dashboard</span>
+      <a class="open-btn" href="https://screener-epd.pages.dev/public/volatility_dashboard" target="_blank">OPEN ↗</a>
+    </div>
+  </section>
 
-  <section class="card card--accent-9"><div class="card-label">Important</div><div class="card-title">Links Hub</div><div class="card-body">Important knowledge base links </div><div class="meta-row"><span class="tag">Utility</span><a class="open-btn" href="https://screener-epd.pages.dev/public/Importantlink" target="_blank">OPEN ↗</a></div></section>
-  
-  
+  <section class="card card--accent-2">
+    <div class="card-label">Secondary</div>
+    <div class="card-title">Swing F&O</div>
+    <div class="card-body">
+      Stock & index swing signals F&O ke liye — multi‑day setups, cleaner structure aur delivery feel ke saath.
+    </div>
+    <div class="meta-row">
+      <span class="tag">Swing · F&O</span>
+      <a class="open-btn" href="https://screener-epd.pages.dev/public/swing_screener" target="_blank">OPEN ↗</a>
+    </div>
+  </section>
+
+  <section class="card card--accent-9">
+    <div class="card-label">Important</div>
+    <div class="card-title">Links Hub</div>
+    <div class="card-body">
+      Important knowledge‑base links, reference docs aur learning material — sab ko ek small hub mein club kiya gaya hai.
+    </div>
+    <div class="meta-row">
+      <span class="tag">Reference · Hub</span>
+      <a class="open-btn" href="https://screener-epd.pages.dev/public/Importantlink" target="_blank">OPEN ↗</a>
+    </div>
+  </section>
 </main>
 
-
 <footer class="footer">
-  <span>Premium gradient · Glass UI</span>
-  <span>Mobile-first</span>
+  <span>Soft gradient · Light theme</span>
+  <span>Mobile-first layout</span>
 </footer>
 
 </div>
