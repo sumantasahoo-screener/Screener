@@ -1,386 +1,1586 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>F&O Swing</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>F&O Swing Screener</title>
 <style>
 
-/* === GLOBAL RESET === */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* === THEME COLORS (Lighter Dark) === */
+/* ── THEME — Light with Slate accents ── */
 :root {
-    --bg-main: #0b1220;
-    --bg-elevated: #111827;
-    --bg-elevated-soft: #111827;
-    --bg-header: #020617;
-    --border-subtle: #1f2937;
-    --text-main: #e5e7eb;
-    --text-muted: #9ca3af;
-    --text-soft: #cbd5f5;
-    --accent-green: #22c55e;
-    --accent-red: #f97373;
-    --accent-blue: #3b82f6;
-    --accent-blue-soft: #60a5fa;
-    --row-hover: #1f2937;
+    --bg: #f1f5f9;
+    --bg-card: #ffffff;
+    --bg-header: #1e293b;
+    --bg-table-head: #f8fafc;
+    --bg-row-even: #f8fafc;
+    --bg-row-odd: #ffffff;
+    --bg-row-hover: #e0f2fe;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --text-header: #f1f5f9;
+    --green: #16a34a;
+    --green-bg: #dcfce7;
+    --red: #dc2626;
+    --red-bg: #fee2e2;
+    --blue: #2563eb;
+    --blue-bg: #dbeafe;
+    --amber: #d97706;
+    --amber-bg: #fef3c7;
+    --shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
-/* === LAYOUT === */
 body {
-    margin: 0;
-    font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    background: radial-gradient(circle at top left, #1f2937 0, var(--bg-main) 45%, #020617 100%);
-    color: var(--text-main);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
     -webkit-font-smoothing: antialiased;
 }
 
+/* ── HEADER ── */
 .header {
-    padding: 20px 20px 10px 20px;
-    background: linear-gradient(135deg, #020617, #020617 40%, #020617 100%);
-    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-header);
+    padding: 14px 20px 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-.header h1 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 600;
-    color: #f9fafb;
-    letter-spacing: 0.02em;
+.header-left h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: 0.01em;
 }
 
-.updated {
-    margin-top: 4px;
-    font-size: 13px;
-    color: var(--text-muted);
+.header-left .updated {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 2px;
 }
 
-/* Sirf time/date ka color */
 .time-value {
     color: #38bdf8;
-    font-weight: 500;
+    font-weight: 600;
 }
 
+/* ── SUMMARY CARDS ── */
 .cards {
     display: flex;
-    gap: 16px;
-    padding: 16px 20px 8px 20px;
+    gap: 12px;
+    padding: 14px 20px 0 20px;
     flex-wrap: wrap;
 }
 
 .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 20px;
+    min-width: 130px;
     flex: 1;
-    min-width: 150px;
-    background: var(--bg-elevated);
-    border-radius: 12px;
-    padding: 16px 18px;
-    text-align: left;
-    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.55);
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    position: relative;
-    overflow: hidden;
+    box-shadow: var(--shadow);
 }
 
-.card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.18), transparent 55%);
-    opacity: 0.95;
-    pointer-events: none;
-}
-
-.card h3 {
-    margin: 0;
-    font-weight: 500;
-    font-size: 13px;
-    color: var(--text-muted);
+.card-label {
+    font-size: 11px;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 4px;
 }
 
-.card p {
-    margin: 8px 0 0 0;
-    font-size: 24px;
+.card-value {
+    font-size: 26px;
     font-weight: 700;
+    line-height: 1;
 }
 
-.green { color: var(--accent-green); }
-.red { color: var(--accent-red); }
+.card-value.total  { color: var(--blue); }
+.card-value.buy    { color: var(--green); }
+.card-value.sell   { color: var(--red); }
 
-/* === SEARCH === */
-.search-box {
-    margin: 10px 20px 0 20px;
+/* ── TOOLBAR ── */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px 8px 20px;
+    flex-wrap: wrap;
 }
 
-.search-box input {
-    width: 100%;
-    max-width: 360px;
-    padding: 9px 12px;
+.search-input {
+    padding: 7px 12px;
+    border: 1px solid var(--border);
     border-radius: 8px;
-    border: 1px solid rgba(148, 163, 184, 0.4);
+    font-size: 13px;
     outline: none;
-    background-color: #020617;
-    color: var(--text-main);
-    font-size: 14px;
-    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.5);
+    width: 240px;
+    background: var(--bg-card);
+    color: var(--text);
+    transition: border-color 0.15s;
 }
 
-.search-box input::placeholder {
-    color: #6b7280;
+.search-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
 }
 
-/* === TABLE === */
-.table-container {
-    padding: 16px 20px 24px 20px;
+.filter-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.15s;
+}
+
+.filter-btn:hover { background: #e0f2fe; color: var(--blue); border-color: #93c5fd; }
+.filter-btn.active-buy  { background: var(--green-bg); color: var(--green); border-color: #86efac; }
+.filter-btn.active-sell { background: var(--red-bg);   color: var(--red);   border-color: #fca5a5; }
+.filter-btn.active-all  { background: var(--blue-bg);  color: var(--blue);  border-color: #93c5fd; }
+
+/* ── TABLE ── */
+.table-wrap {
+    padding: 0 20px 24px 20px;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    background: var(--bg-elevated-soft);
+    background: var(--bg-card);
     border-radius: 10px;
     overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
 }
 
-thead {
-    position: sticky;
-    top: 0;
-    z-index: 10;
+thead tr {
+    background: var(--bg-table-head);
+    border-bottom: 2px solid var(--border);
 }
 
 th {
-    padding: 10px 10px;
-    font-size: 13px;
-    background: #020617;
-    color: var(--text-soft);
+    padding: 9px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
     cursor: pointer;
-    text-align: left;
     white-space: nowrap;
-    border-bottom: 1px solid var(--border-subtle);
+    text-align: left;
+    user-select: none;
     position: sticky;
     top: 0;
-    z-index: 11;
+    background: var(--bg-table-head);
+    z-index: 10;
+    border-bottom: 2px solid var(--border);
 }
 
-th.right {
-    text-align: right;
-}
+th:hover { color: var(--blue); }
 
-th::after {
-    content:" ⬍";
-    margin-left: 6px;
-    font-size: 10px;
-    opacity: 0.55;
+th .sort-icon {
+    font-size: 9px;
+    margin-left: 3px;
+    opacity: 0.4;
 }
 
 td {
-    padding: 9px 10px;
-    font-size: 13px;
-    border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
     white-space: nowrap;
-    text-align: center;
+    text-align: left;
+    color: var(--text);
 }
 
-tr:nth-child(even) td {
-    background: rgba(15, 23, 42, 0.9);
+tr:nth-child(even) td { background: var(--bg-row-even); }
+tr:nth-child(odd)  td { background: var(--bg-row-odd); }
+tr:hover td { background: var(--bg-row-hover) !important; }
+
+.td-symbol {
+    font-weight: 700;
+    font-size: 13px;
+    color: #0f172a;
+    letter-spacing: 0.02em;
 }
 
-tr:nth-child(odd) td {
-    background: rgba(15, 23, 42, 0.75);
+.td-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
 }
 
-tr:hover td {
-    background: var(--row-hover);
-}
+/* RSI color */
+.rsi-hot  { color: #dc2626; font-weight: 600; }
+.rsi-ok   { color: #16a34a; font-weight: 600; }
+.rsi-cool { color: #2563eb; font-weight: 600; }
+.rsi-mid  { color: var(--text); }
 
-.symbol {
-    font-weight: 600;
-    color: #f9fafb;
-    letter-spacing: 0.03em;
-}
+/* MACD Hist color */
+.hist-pos { color: #16a34a; font-weight: 600; }
+.hist-neg { color: #dc2626; font-weight: 600; }
 
-.right {
-    text-align: center !important;
-}
+/* Vol Ratio */
+.vol-high { color: #16a34a; font-weight: 600; }
+.vol-low  { color: var(--text-muted); }
 
-/* === BADGES === */
-.signal-badge {
+/* ── BADGES ── */
+.badge {
     display: inline-block;
-    padding: 4px 10px;
-    font-size: 11px;
-    font-weight: 600;
+    padding: 3px 10px;
     border-radius: 999px;
-    text-align: center;
-    min-width: 80px;
+    font-size: 11px;
+    font-weight: 700;
     letter-spacing: 0.03em;
+    white-space: nowrap;
 }
 
-.buy-badge {
-    background: linear-gradient(135deg, #22c55e, #4ade80);
-    color: #022c22;
-}
+.badge-buy       { background: var(--green-bg); color: var(--green); border: 1px solid #86efac; }
+.badge-sell      { background: var(--red-bg);   color: var(--red);   border: 1px solid #fca5a5; }
+.badge-smart     { background: var(--blue-bg);  color: var(--blue);  border: 1px solid #93c5fd; }
+.badge-aggressive{ background: var(--amber-bg); color: var(--amber); border: 1px solid #fcd34d; }
 
-.sell-badge {
-    background: linear-gradient(135deg, #f97373, #ef4444);
-    color: #450a0a;
-}
-
-.smart-badge {
-    background: linear-gradient(135deg, #3b82f6, #60a5fa);
-    color: #eff6ff;
-}
-
-.aggressive-badge {
-    background: rgba(129, 140, 248, 0.2);
-    color: #e0e7ff;
-    border: 1px solid rgba(129, 140, 248, 0.6);
-}
-
-/* === RESPONSIVE (MOBILE) === */
+/* ── MOBILE ── */
 @media (max-width: 768px) {
-    .header {
-        padding: 16px 14px 8px 14px;
-    }
-
-    .header h1 {
-        font-size: 20px;
-    }
-
-    .updated {
-        font-size: 12px;
-    }
-
-    .cards {
-        flex-direction: column;
-        padding: 12px 14px 6px 14px;
-        gap: 10px;
-    }
-
-    .card {
-        padding: 12px 14px;
-    }
-
-    .card p {
-        font-size: 20px;
-    }
-
-    .table-container {
-        padding: 10px 10px 18px 10px;
-    }
-
-    th, td {
-        padding: 8px 8px;
-        font-size: 3.2vw;
-    }
-
-    .search-box {
-        margin: 8px 14px 0 14px;
-    }
-
-    .search-box input {
-        max-width: 100%;
-        font-size: 14px;
-    }
-}
-
-@media (max-width: 480px) {
-    th, td {
-        font-size: 3.6vw;
-    }
-
-    .header h1 {
-        font-size: 18px;
-    }
-
-    .card p {
-        font-size: 18px;
-    }
+    .header { padding: 12px 14px 8px 14px; }
+    .header-left h1 { font-size: 17px; }
+    .cards { padding: 10px 14px 0 14px; gap: 8px; }
+    .card { padding: 10px 14px; min-width: 100px; }
+    .card-value { font-size: 22px; }
+    .toolbar { padding: 10px 14px 6px 14px; }
+    .search-input { width: 100%; }
+    .table-wrap { padding: 0 10px 16px 10px; }
+    th, td { padding: 7px 8px; font-size: 11px; }
 }
 
 </style>
 </head>
-
 <body>
 
+<!-- HEADER -->
 <div class="header">
-  <h1>F&O Stock Selection</h1>
-  <div class="updated">
-    Last Updated: (<span class="time-value">2026-02-16 00:12:16</span>)
+  <div class="header-left">
+    <h1>F&O Swing Screener</h1>
+    <div class="updated">Last Updated: <span class="time-value">2026-02-25 15:35:05</span></div>
   </div>
 </div>
 
+<!-- SUMMARY CARDS -->
 <div class="cards">
   <div class="card">
-    <h3>Total Stocks</h3>
-    <p>73</p>
+    <div class="card-label">Total Stocks</div>
+    <div class="card-value total">101</div>
   </div>
   <div class="card">
-    <h3>Swing Buy</h3>
-    <p class="green">42</p>
+    <div class="card-label">Swing Buy</div>
+    <div class="card-value buy">70</div>
   </div>
   <div class="card">
-    <h3>Swing Sell</h3>
-    <p class="red">31</p>
+    <div class="card-label">Swing Sell</div>
+    <div class="card-value sell">31</div>
   </div>
 </div>
 
-<div class="search-box">
-  <input type="text" id="tableSearch" onkeyup="filterTable()" placeholder="Search...">
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <input class="search-input" type="text" id="searchInput" placeholder="🔍 Search symbol..." oninput="applyFilters()">
+  <button class="filter-btn active-all" id="btnAll"  onclick="setFilter('all')">All</button>
+  <button class="filter-btn"            id="btnBuy"  onclick="setFilter('buy')">Swing Buy</button>
+  <button class="filter-btn"            id="btnSell" onclick="setFilter('sell')">Swing Sell</button>
 </div>
 
-<div class="table-container">
-<table>
+<!-- TABLE -->
+<div class="table-wrap">
+<table id="mainTable">
 <thead>
 <tr>
-<th onclick="sortTable(this)">SYMBOL NAME</th><th onclick="sortTable(this)">SWING_SIGNAL</th><th onclick="sortTable(this)">SWING ENTRY TYPE</th><th class="right" onclick="sortTable(this)">LTP</th><th onclick="sortTable(this)">DAILY RSI</th><th onclick="sortTable(this)">DAILY MACD</th><th onclick="sortTable(this)">DAILY MACD SIGNAL</th><th onclick="sortTable(this)">DAILY EMA21</th><th onclick="sortTable(this)">DAILY EMA50</th><th onclick="sortTable(this)">DAILY VOLUME RATIO</th></tr></thead><tbody><tr><td><span class="symbol">NIFTY ENERGY</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>35721.40</td><td>66.84</td><td>472.36</td><td>338.92</td><td>35529.54</td><td>35140.93</td><td>0.79</td></tr><tr><td><span class="symbol">ADANIENSOL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>983.00</td><td>67.42</td><td>17.02</td><td>4.26</td><td>971.03</td><td>970.14</td><td>0.82</td></tr><tr><td><span class="symbol">APLAPOLLO</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>2249.70</td><td>76.80</td><td>93.79</td><td>82.34</td><td>2121.03</td><td>1994.14</td><td>0.34</td></tr><tr><td><span class="symbol">ASHOKLEY</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>204.70</td><td>61.87</td><td>6.58</td><td>5.97</td><td>197.95</td><td>188.43</td><td>1.37</td></tr><tr><td><span class="symbol">AUBANK</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>993.50</td><td>62.71</td><td>1.82</td><td>-0.05</td><td>990.17</td><td>988.38</td><td>0.76</td></tr><tr><td><span class="symbol">ASTRAL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>1601.00</td><td>83.84</td><td>35.75</td><td>20.68</td><td>1498.28</td><td>1470.64</td><td>1.04</td></tr><tr><td><span class="symbol">BAJAJ-AUTO</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>9748.00</td><td>62.61</td><td>112.78</td><td>92.17</td><td>9593.72</td><td>9424.13</td><td>0.37</td></tr><tr><td><span class="symbol">AXISBANK</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>1330.80</td><td>53.52</td><td>18.19</td><td>20.67</td><td>1324.65</td><td>1292.56</td><td>0.56</td></tr><tr><td><span class="symbol">EICHERMOT</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>8067.00</td><td>75.26</td><td>135.37</td><td>30.92</td><td>7376.54</td><td>7273.40</td><td>1.75</td></tr><tr><td><span class="symbol">FEDERALBNK</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>287.70</td><td>54.82</td><td>5.37</td><td>5.61</td><td>281.82</td><td>274.30</td><td>0.48</td></tr><tr><td><span class="symbol">BEL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>435.00</td><td>58.17</td><td>7.75</td><td>8.44</td><td>430.28</td><td>417.13</td><td>0.53</td></tr><tr><td><span class="symbol">BPCL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>374.30</td><td>63.17</td><td>4.86</td><td>3.69</td><td>373.46</td><td>369.78</td><td>0.34</td></tr><tr><td><span class="symbol">FORTIS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>919.00</td><td>73.35</td><td>7.45</td><td>-2.03</td><td>881.32</td><td>879.85</td><td>0.69</td></tr><tr><td><span class="symbol">IDEA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>11.28</td><td>68.06</td><td>0.14</td><td>0.03</td><td>11.14</td><td>11.13</td><td>0.49</td></tr><tr><td><span class="symbol">HDFCAMC</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>2825.00</td><td>77.94</td><td>67.56</td><td>37.48</td><td>2675.79</td><td>2627.10</td><td>0.83</td></tr><tr><td><span class="symbol">GRASIM</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>2877.40</td><td>53.50</td><td>29.72</td><td>17.90</td><td>2853.25</td><td>2828.65</td><td>0.57</td></tr><tr><td><span class="symbol">IOC</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>176.72</td><td>75.39</td><td>4.39</td><td>2.89</td><td>170.03</td><td>166.98</td><td>0.59</td></tr><tr><td><span class="symbol">JINDALSTEL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>1183.60</td><td>70.12</td><td>39.88</td><td>36.12</td><td>1138.85</td><td>1089.11</td><td>0.75</td></tr><tr><td><span class="symbol">INDUSTOWER</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>466.50</td><td>70.99</td><td>11.18</td><td>7.64</td><td>444.51</td><td>431.92</td><td>0.57</td></tr><tr><td><span class="symbol">ICICIBANK</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>1415.50</td><td>61.72</td><td>10.47</td><td>5.58</td><td>1391.44</td><td>1381.39</td><td>0.77</td></tr><tr><td><span class="symbol">INDUSINDBK</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>926.25</td><td>67.10</td><td>9.78</td><td>9.75</td><td>911.86</td><td>893.29</td><td>0.62</td></tr><tr><td><span class="symbol">TITAN</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>4175.00</td><td>63.26</td><td>47.65</td><td>29.25</td><td>4130.59</td><td>4071.42</td><td>0.47</td></tr><tr><td><span class="symbol">SUPREMEIND</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>3760.00</td><td>73.74</td><td>90.42</td><td>69.27</td><td>3638.74</td><td>3540.32</td><td>0.26</td></tr><tr><td><span class="symbol">SONACOMS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>527.60</td><td>68.08</td><td>15.75</td><td>12.44</td><td>507.48</td><td>493.61</td><td>0.38</td></tr><tr><td><span class="symbol">TMPV</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>379.00</td><td>76.47</td><td>8.01</td><td>5.20</td><td>366.47</td><td>358.82</td><td>1.30</td></tr><tr><td><span class="symbol">TATASTEEL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>202.98</td><td>59.58</td><td>6.34</td><td>5.51</td><td>195.73</td><td>186.98</td><td>0.72</td></tr><tr><td><span class="symbol">RBLBANK</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>312.55</td><td>68.11</td><td>1.97</td><td>0.06</td><td>305.44</td><td>304.28</td><td>0.62</td></tr><tr><td><span class="symbol">ONGC</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>267.50</td><td>61.38</td><td>8.05</td><td>7.57</td><td>261.02</td><td>250.34</td><td>1.07</td></tr><tr><td><span class="symbol">NTPC</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>364.00</td><td>63.72</td><td>7.84</td><td>7.42</td><td>356.03</td><td>344.60</td><td>0.61</td></tr><tr><td><span class="symbol">MOTHERSON</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>130.99</td><td>78.72</td><td>3.74</td><td>1.62</td><td>121.28</td><td>119.23</td><td>0.95</td></tr><tr><td><span class="symbol">LUPIN</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>2194.00</td><td>59.73</td><td>17.74</td><td>14.79</td><td>2176.57</td><td>2150.73</td><td>1.40</td></tr><tr><td><span class="symbol">JSWSTEEL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>1232.00</td><td>53.24</td><td>23.48</td><td>24.31</td><td>1215.36</td><td>1175.52</td><td>1.01</td></tr><tr><td><span class="symbol">SAIL</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>159.00</td><td>56.04</td><td>4.40</td><td>4.32</td><td>154.71</td><td>147.34</td><td>0.74</td></tr><tr><td><span class="symbol">POLYCAB</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>7577.00</td><td>71.07</td><td>103.58</td><td>35.01</td><td>7459.93</td><td>7410.00</td><td>0.38</td></tr><tr><td><span class="symbol">POWERINDIA</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>22450.00</td><td>80.80</td><td>1211.86</td><td>723.97</td><td>20074.11</td><td>19255.14</td><td>0.33</td></tr><tr><td><span class="symbol">SIEMENS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>3113.00</td><td>62.18</td><td>30.82</td><td>24.07</td><td>3101.25</td><td>3091.81</td><td>1.22</td></tr><tr><td><span class="symbol">ULTRACEMCO</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>12977.00</td><td>60.40</td><td>251.13</td><td>236.80</td><td>12648.26</td><td>12278.59</td><td>0.62</td></tr><tr><td><span class="symbol">TVSMOTOR</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>3870.00</td><td>71.88</td><td>42.63</td><td>19.06</td><td>3741.29</td><td>3702.22</td><td>0.31</td></tr><tr><td><span class="symbol">TORNTPOWER</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>1462.20</td><td>67.16</td><td>34.96</td><td>25.36</td><td>1391.60</td><td>1351.87</td><td>0.97</td></tr><tr><td><span class="symbol">TORNTPHARM</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>4069.80</td><td>58.16</td><td>38.11</td><td>33.89</td><td>4002.17</td><td>3936.02</td><td>1.81</td></tr><tr><td><span class="symbol">Waaree</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>3088.00</td><td>71.93</td><td>110.50</td><td>71.75</td><td>2946.82</td><td>2881.79</td><td>0.30</td></tr><tr><td><span class="symbol">VOLTAS</span></td><td><span class="signal-badge buy-badge">Swing Buy</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>1521.30</td><td>72.84</td><td>32.34</td><td>11.57</td><td>1429.56</td><td>1409.48</td><td>0.66</td></tr><tr><td><span class="symbol">ASIANPAINT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>2368.20</td><td>26.30</td><td>-93.30</td><td>-91.91</td><td>2498.74</td><td>2618.39</td><td>0.40</td></tr><tr><td><span class="symbol">ABCAPITAL</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>335.50</td><td>40.45</td><td>-2.10</td><td>-1.83</td><td>346.56</td><td>348.46</td><td>0.94</td></tr><tr><td><span class="symbol">IRFC</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>111.40</td><td>42.49</td><td>-1.63</td><td>-1.22</td><td>116.09</td><td>116.79</td><td>0.66</td></tr><tr><td><span class="symbol">IREDA</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>123.73</td><td>39.74</td><td>-2.57</td><td>-2.12</td><td>129.97</td><td>132.57</td><td>1.10</td></tr><tr><td><span class="symbol">IIFL</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>507.00</td><td>46.50</td><td>-21.12</td><td>-21.94</td><td>538.46</td><td>560.61</td><td>0.54</td></tr><tr><td><span class="symbol">IEX</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>123.56</td><td>43.68</td><td>-3.08</td><td>-3.33</td><td>128.18</td><td>132.69</td><td>1.81</td></tr><tr><td><span class="symbol">PIIND</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>3167.80</td><td>49.54</td><td>-6.45</td><td>-14.03</td><td>3188.47</td><td>3208.62</td><td>5.50</td></tr><tr><td><span class="symbol">PERSISTENT</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>5473.00</td><td>22.17</td><td>-177.92</td><td>-113.09</td><td>5966.90</td><td>6125.91</td><td>2.66</td></tr><tr><td><span class="symbol">PAYTM</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>1122.90</td><td>46.00</td><td>-32.35</td><td>-30.01</td><td>1194.67</td><td>1234.66</td><td>1.45</td></tr><tr><td><span class="symbol">OFSS</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>6630.00</td><td>10.26</td><td>-220.67</td><td>-108.95</td><td>7440.57</td><td>7619.39</td><td>2.67</td></tr><tr><td><span class="symbol">MPHASIS</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>2452.50</td><td>18.37</td><td>-82.44</td><td>-53.42</td><td>2681.84</td><td>2761.86</td><td>2.65</td></tr><tr><td><span class="symbol">NAUKRI</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>1135.00</td><td>30.01</td><td>-45.92</td><td>-38.24</td><td>1224.68</td><td>1276.51</td><td>2.09</td></tr><tr><td><span class="symbol">LTIM</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>5124.50</td><td>22.20</td><td>-196.47</td><td>-121.76</td><td>5734.91</td><td>5930.29</td><td>1.63</td></tr><tr><td><span class="symbol">MARUTI</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>15211.00</td><td>49.86</td><td>-243.59</td><td>-342.60</td><td>15306.39</td><td>15729.08</td><td>0.41</td></tr><tr><td><span class="symbol">KFINTECH</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>965.50</td><td>40.91</td><td>-15.46</td><td>-14.00</td><td>1011.69</td><td>1028.54</td><td>1.03</td></tr><tr><td><span class="symbol">LICHSGFIN</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>507.00</td><td>48.75</td><td>-2.57</td><td>-3.06</td><td>518.54</td><td>522.44</td><td>0.49</td></tr><tr><td><span class="symbol">CANBK</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>141.60</td><td>31.35</td><td>-1.87</td><td>-1.18</td><td>148.05</td><td>149.12</td><td>0.46</td></tr><tr><td><span class="symbol">INFY</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>1369.00</td><td>10.30</td><td>-56.08</td><td>-28.66</td><td>1547.54</td><td>1586.37</td><td>4.39</td></tr><tr><td><span class="symbol">HUDCO</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>195.40</td><td>47.96</td><td>-4.45</td><td>-5.20</td><td>199.66</td><td>205.59</td><td>1.76</td></tr><tr><td><span class="symbol">HDFCLIFE</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>696.85</td><td>34.41</td><td>-11.89</td><td>-10.65</td><td>718.48</td><td>734.63</td><td>0.63</td></tr><tr><td><span class="symbol">ICICIPRULI</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>638.75</td><td>49.88</td><td>-3.73</td><td>-3.09</td><td>648.85</td><td>650.30</td><td>0.63</td></tr><tr><td><span class="symbol">KPITTECH</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>860.30</td><td>8.26</td><td>-64.45</td><td>-52.56</td><td>1011.14</td><td>1083.33</td><td>4.84</td></tr><tr><td><span class="symbol">TATATECH</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>594.05</td><td>30.93</td><td>-10.04</td><td>-5.55</td><td>636.12</td><td>644.20</td><td>2.69</td></tr><tr><td><span class="symbol">TATACONSUM</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>1130.30</td><td>39.93</td><td>-6.94</td><td>-7.62</td><td>1153.41</td><td>1162.52</td><td>0.33</td></tr><tr><td><span class="symbol">SYNGENE</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>435.00</td><td>22.99</td><td>-44.74</td><td>-44.38</td><td>497.52</td><td>557.06</td><td>0.77</td></tr><tr><td><span class="symbol">SBICARD</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>760.80</td><td>45.84</td><td>-18.65</td><td>-22.36</td><td>778.51</td><td>806.89</td><td>0.37</td></tr><tr><td><span class="symbol">RVNL</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>309.10</td><td>39.39</td><td>-5.61</td><td>-3.90</td><td>323.48</td><td>325.75</td><td>0.77</td></tr><tr><td><span class="symbol">POLICYBZR</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>1525.00</td><td>40.39</td><td>-55.23</td><td>-58.50</td><td>1587.54</td><td>1671.34</td><td>0.39</td></tr><tr><td><span class="symbol">WIPRO</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>214.38</td><td>27.08</td><td>-8.83</td><td>-7.26</td><td>236.39</td><td>246.67</td><td>1.32</td></tr><tr><td><span class="symbol">VBL</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>448.45</td><td>34.49</td><td>-9.00</td><td>-8.41</td><td>463.09</td><td>472.07</td><td>0.45</td></tr><tr><td><span class="symbol">YESBANK</span></td><td><span class="signal-badge sell-badge">Swing Sell</span></td><td><span class="signal-badge smart-badge">Smart Entry</span></td><td class='right'>20.83</td><td>46.97</td><td>-0.22</td><td>-0.18</td><td>21.47</td><td>21.64</td><td>0.55</td></tr>
+<th onclick="sortTable(this)">SYMBOL <span class="sort-icon">⬍</span></th>
+<th onclick="sortTable(this)">SWING SIGNAL <span class="sort-icon">⬍</span></th>
+<th onclick="sortTable(this)">SWING ENTRY TYPE <span class="sort-icon">⬍</span></th>
+<th onclick="sortTable(this)">LTP <span class="sort-icon">⬍</span></th>
+<th onclick="sortTable(this)">DAILY RSI <span class="sort-icon">⬍</span></th>
+<th onclick="sortTable(this)">DAILY MACD <span class="sort-icon">⬍</span></th>
+<th onclick="sortTable(this)">DAILY MACD SIGNAL <span class="sort-icon">⬍</span></th>
+<th onclick="sortTable(this)">DAILY EMA21 <span class="sort-icon">⬍</span></th>
+<th onclick="sortTable(this)">DAILY EMA50 <span class="sort-icon">⬍</span></th>
+<th onclick="sortTable(this)">DAILY VOLUME RATIO <span class="sort-icon">⬍</span></th>
+</tr></thead><tbody>
+<tr data-signal="buy">
+<td><span class="td-symbol">NIFTY PVT BANK</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">29008.05</td>
+<td class="td-num"><span class="rsi-ok">63.33</span></td>
+<td class="td-num">114.83</td>
+<td class="td-num">111.84</td>
+<td class="td-num">28815.18</td>
+<td class="td-num">28670.99</td>
+<td class="td-num"><span class="vol-low">0.62</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">BANKNIFTY</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">61264.25</td>
+<td class="td-num"><span class="rsi-hot">72.29</span></td>
+<td class="td-num">447.88</td>
+<td class="td-num">358.36</td>
+<td class="td-num">60383.39</td>
+<td class="td-num">59876.32</td>
+<td class="td-num"><span class="vol-low">0.79</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">FINNIFTY</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">28455.00</td>
+<td class="td-num"><span class="rsi-hot">73.68</span></td>
+<td class="td-num">233.06</td>
+<td class="td-num">195.43</td>
+<td class="td-num">27926.46</td>
+<td class="td-num">27696.94</td>
+<td class="td-num"><span class="vol-low">0.62</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">NIFTY METAL</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">11962.75</td>
+<td class="td-num"><span class="rsi-ok">60.57</span></td>
+<td class="td-num">129.95</td>
+<td class="td-num">172.73</td>
+<td class="td-num">11877.97</td>
+<td class="td-num">11587.22</td>
+<td class="td-num"><span class="vol-low">0.52</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">NIFTY ENERGY</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">36741.55</td>
+<td class="td-num"><span class="rsi-ok">69.57</span></td>
+<td class="td-num">438.42</td>
+<td class="td-num">406.02</td>
+<td class="td-num">35862.31</td>
+<td class="td-num">35420.62</td>
+<td class="td-num"><span class="vol-low">0.80</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">ABB</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
+<td class="td-num">5906.00</td>
+<td class="td-num"><span class="rsi-hot">73.03</span></td>
+<td class="td-num">192.22</td>
+<td class="td-num">186.12</td>
+<td class="td-num">5643.12</td>
+<td class="td-num">5420.69</td>
+<td class="td-num"><span class="vol-high">11.09</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">ADANIENSOL</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
+<td class="td-num">1001.90</td>
+<td class="td-num"><span class="rsi-ok">68.20</span></td>
+<td class="td-num">17.24</td>
+<td class="td-num">12.92</td>
+<td class="td-num">987.88</td>
+<td class="td-num">982.60</td>
+<td class="td-num"><span class="vol-high">1.32</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">ADANIPORTS</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">1554.00</td>
+<td class="td-num"><span class="rsi-ok">65.83</span></td>
+<td class="td-num">24.31</td>
+<td class="td-num">24.83</td>
+<td class="td-num">1506.71</td>
+<td class="td-num">1485.07</td>
+<td class="td-num"><span class="vol-low">0.35</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">AUBANK</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">976.40</td>
+<td class="td-num"><span class="rsi-hot">73.16</span></td>
+<td class="td-num">8.28</td>
+<td class="td-num">4.26</td>
+<td class="td-num">1000.11</td>
+<td class="td-num">992.15</td>
+<td class="td-num"><span class="vol-low">0.88</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">APLAPOLLO</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">2187.00</td>
+<td class="td-num"><span class="rsi-ok">65.55</span></td>
+<td class="td-num">64.63</td>
+<td class="td-num">72.45</td>
+<td class="td-num">2158.54</td>
+<td class="td-num">2060.82</td>
+<td class="td-num"><span class="vol-low">0.36</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">ASHOKLEY</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">210.30</td>
+<td class="td-num"><span class="rsi-ok">66.54</span></td>
+<td class="td-num">5.39</td>
+<td class="td-num">5.63</td>
+<td class="td-num">201.43</td>
+<td class="td-num">192.91</td>
+<td class="td-num"><span class="vol-low">0.81</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">ASTRAL</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">1634.00</td>
+<td class="td-num"><span class="rsi-hot">79.50</span></td>
+<td class="td-num">53.70</td>
+<td class="td-num">43.29</td>
+<td class="td-num">1549.12</td>
+<td class="td-num">1487.99</td>
+<td class="td-num"><span class="vol-low">1.12</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">BAJAJ-AUTO</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">9884.50</td>
+<td class="td-num"><span class="rsi-ok">60.98</span></td>
+<td class="td-num">109.67</td>
+<td class="td-num">104.11</td>
+<td class="td-num">9676.55</td>
+<td class="td-num">9504.14</td>
+<td class="td-num"><span class="vol-low">1.02</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">AXISBANK</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">1385.90</td>
+<td class="td-num"><span class="rsi-ok">64.19</span></td>
+<td class="td-num">19.12</td>
+<td class="td-num">19.37</td>
+<td class="td-num">1339.61</td>
+<td class="td-num">1306.81</td>
+<td class="td-num"><span class="vol-low">0.48</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">Bajaj Holdings</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">11495.00</td>
+<td class="td-num"><span class="rsi-ok">67.23</span></td>
+<td class="td-num">87.44</td>
+<td class="td-num">44.41</td>
+<td class="td-num">11030.90</td>
+<td class="td-num">11008.62</td>
+<td class="td-num"><span class="vol-low">1.03</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">BAJAJFINSV</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">2046.80</td>
+<td class="td-num"><span class="rsi-hot">74.24</span></td>
+<td class="td-num">15.97</td>
+<td class="td-num">9.60</td>
+<td class="td-num">2019.46</td>
+<td class="td-num">2010.92</td>
+<td class="td-num"><span class="vol-low">0.43</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">EICHERMOT</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">8044.00</td>
+<td class="td-num"><span class="rsi-hot">80.96</span></td>
+<td class="td-num">201.32</td>
+<td class="td-num">132.92</td>
+<td class="td-num">7606.44</td>
+<td class="td-num">7446.28</td>
+<td class="td-num"><span class="vol-low">0.45</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">DRREDDY</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
+<td class="td-num">1305.10</td>
+<td class="td-num"><span class="rsi-hot">78.68</span></td>
+<td class="td-num">15.13</td>
+<td class="td-num">10.38</td>
+<td class="td-num">1254.71</td>
+<td class="td-num">1247.61</td>
+<td class="td-num"><span class="vol-high">1.30</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">BANDHANBNK</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">173.20</td>
+<td class="td-num"><span class="rsi-hot">82.07</span></td>
+<td class="td-num">6.20</td>
+<td class="td-num">5.43</td>
+<td class="td-num">161.60</td>
+<td class="td-num">154.46</td>
+<td class="td-num"><span class="vol-low">0.62</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">BANKBARODA</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">313.10</td>
+<td class="td-num"><span class="rsi-hot">85.62</span></td>
+<td class="td-num">1.81</td>
+<td class="td-num">-0.35</td>
+<td class="td-num">296.78</td>
+<td class="td-num">295.25</td>
+<td class="td-num"><span class="vol-high">1.48</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">BANKINDIA</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">174.00</td>
+<td class="td-num"><span class="rsi-hot">75.01</span></td>
+<td class="td-num">4.45</td>
+<td class="td-num">4.22</td>
+<td class="td-num">164.14</td>
+<td class="td-num">156.85</td>
+<td class="td-num"><span class="vol-low">0.56</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">BEL</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">439.80</td>
+<td class="td-num"><span class="rsi-mid">51.63</span></td>
+<td class="td-num">6.43</td>
+<td class="td-num">7.15</td>
+<td class="td-num">434.78</td>
+<td class="td-num">423.46</td>
+<td class="td-num"><span class="vol-low">0.38</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">CGPOWER</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">720.60</td>
+<td class="td-num"><span class="rsi-hot">81.74</span></td>
+<td class="td-num">24.45</td>
+<td class="td-num">19.02</td>
+<td class="td-num">664.97</td>
+<td class="td-num">647.13</td>
+<td class="td-num"><span class="vol-low">0.52</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">BRITANNIA</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">6106.00</td>
+<td class="td-num"><span class="rsi-ok">63.46</span></td>
+<td class="td-num">52.11</td>
+<td class="td-num">23.03</td>
+<td class="td-num">5999.03</td>
+<td class="td-num">5980.75</td>
+<td class="td-num"><span class="vol-low">1.13</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">FEDERALBNK</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">296.45</td>
+<td class="td-num"><span class="rsi-ok">66.52</span></td>
+<td class="td-num">4.93</td>
+<td class="td-num">5.27</td>
+<td class="td-num">284.90</td>
+<td class="td-num">276.96</td>
+<td class="td-num"><span class="vol-low">0.69</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">CUMMINSIND</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
+<td class="td-num">4880.00</td>
+<td class="td-num"><span class="rsi-hot">81.77</span></td>
+<td class="td-num">134.78</td>
+<td class="td-num">84.92</td>
+<td class="td-num">4404.72</td>
+<td class="td-num">4315.54</td>
+<td class="td-num"><span class="vol-high">1.32</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">COLPAL</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">2201.00</td>
+<td class="td-num"><span class="rsi-ok">60.96</span></td>
+<td class="td-num">16.72</td>
+<td class="td-num">12.87</td>
+<td class="td-num">2147.05</td>
+<td class="td-num">2125.35</td>
+<td class="td-num"><span class="vol-low">1.03</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">INDUSTOWER</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">473.00</td>
+<td class="td-num"><span class="rsi-hot">78.58</span></td>
+<td class="td-num">12.55</td>
+<td class="td-num">10.52</td>
+<td class="td-num">456.01</td>
+<td class="td-num">441.73</td>
+<td class="td-num"><span class="vol-low">0.65</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">INDIANB</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">985.00</td>
+<td class="td-num"><span class="rsi-hot">76.05</span></td>
+<td class="td-num">21.65</td>
+<td class="td-num">17.69</td>
+<td class="td-num">893.04</td>
+<td class="td-num">860.01</td>
+<td class="td-num"><span class="vol-low">0.96</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">INDUSINDBK</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
+<td class="td-num">920.00</td>
+<td class="td-num"><span class="rsi-ok">57.82</span></td>
+<td class="td-num">10.12</td>
+<td class="td-num">10.30</td>
+<td class="td-num">920.42</td>
+<td class="td-num">901.74</td>
+<td class="td-num"><span class="vol-high">1.59</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">GLENMARK</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">2033.00</td>
+<td class="td-num"><span class="rsi-ok">67.92</span></td>
+<td class="td-num">9.54</td>
+<td class="td-num">0.99</td>
+<td class="td-num">2003.41</td>
+<td class="td-num">2002.73</td>
+<td class="td-num"><span class="vol-low">0.63</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">FORTIS</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">917.05</td>
+<td class="td-num"><span class="rsi-hot">76.39</span></td>
+<td class="td-num">10.54</td>
+<td class="td-num">5.05</td>
+<td class="td-num">893.88</td>
+<td class="td-num">890.69</td>
+<td class="td-num"><span class="vol-low">0.89</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">MAXHEALTH</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">1082.00</td>
+<td class="td-num"><span class="rsi-hot">79.55</span></td>
+<td class="td-num">17.22</td>
+<td class="td-num">7.93</td>
+<td class="td-num">1044.75</td>
+<td class="td-num">1040.90</td>
+<td class="td-num"><span class="vol-low">0.64</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">MOTHERSON</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">130.25</td>
+<td class="td-num"><span class="rsi-hot">71.10</span></td>
+<td class="td-num">4.26</td>
+<td class="td-num">3.50</td>
+<td class="td-num">125.13</td>
+<td class="td-num">121.40</td>
+<td class="td-num"><span class="vol-low">0.52</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">JSWENERGY</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">485.85</td>
+<td class="td-num"><span class="rsi-hot">75.96</span></td>
+<td class="td-num">2.65</td>
+<td class="td-num">-0.02</td>
+<td class="td-num">479.36</td>
+<td class="td-num">479.35</td>
+<td class="td-num"><span class="vol-low">0.90</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">MCX</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">2399.00</td>
+<td class="td-num"><span class="rsi-mid">54.06</span></td>
+<td class="td-num">5.17</td>
+<td class="td-num">17.95</td>
+<td class="td-num">2376.12</td>
+<td class="td-num">2336.81</td>
+<td class="td-num"><span class="vol-low">0.49</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">LUPIN</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">2247.00</td>
+<td class="td-num"><span class="rsi-ok">67.08</span></td>
+<td class="td-num">21.03</td>
+<td class="td-num">18.62</td>
+<td class="td-num">2196.40</td>
+<td class="td-num">2168.09</td>
+<td class="td-num"><span class="vol-low">0.64</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">JSWSTEEL</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">1239.50</td>
+<td class="td-num"><span class="rsi-ok">63.54</span></td>
+<td class="td-num">17.70</td>
+<td class="td-num">21.10</td>
+<td class="td-num">1225.23</td>
+<td class="td-num">1189.61</td>
+<td class="td-num"><span class="vol-low">0.55</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">JINDALSTEL</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">1216.00</td>
+<td class="td-num"><span class="rsi-hot">80.14</span></td>
+<td class="td-num">40.04</td>
+<td class="td-num">40.04</td>
+<td class="td-num">1167.14</td>
+<td class="td-num">1107.37</td>
+<td class="td-num"><span class="vol-low">0.41</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">IOC</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">176.40</td>
+<td class="td-num"><span class="rsi-ok">64.11</span></td>
+<td class="td-num">3.72</td>
+<td class="td-num">3.91</td>
+<td class="td-num">171.97</td>
+<td class="td-num">167.21</td>
+<td class="td-num"><span class="vol-low">0.55</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">KAYNES</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">3811.90</td>
+<td class="td-num"><span class="rsi-ok">62.84</span></td>
+<td class="td-num">68.01</td>
+<td class="td-num">47.15</td>
+<td class="td-num">3836.32</td>
+<td class="td-num">3833.23</td>
+<td class="td-num"><span class="vol-low">0.62</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">KEI</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
+<td class="td-num">4762.00</td>
+<td class="td-num"><span class="rsi-hot">83.33</span></td>
+<td class="td-num">109.23</td>
+<td class="td-num">75.53</td>
+<td class="td-num">4453.75</td>
+<td class="td-num">4377.55</td>
+<td class="td-num"><span class="vol-high">1.43</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">LODHA</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">1079.90</td>
+<td class="td-num"><span class="rsi-hot">71.71</span></td>
+<td class="td-num">16.75</td>
+<td class="td-num">11.53</td>
+<td class="td-num">1057.68</td>
+<td class="td-num">1051.75</td>
+<td class="td-num"><span class="vol-low">0.28</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">LICI</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">883.05</td>
+<td class="td-num"><span class="rsi-ok">68.13</span></td>
+<td class="td-num">11.15</td>
+<td class="td-num">9.85</td>
+<td class="td-num">858.59</td>
+<td class="td-num">849.55</td>
+<td class="td-num"><span class="vol-low">0.30</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">MARICO</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">801.15</td>
+<td class="td-num"><span class="rsi-hot">77.79</span></td>
+<td class="td-num">10.05</td>
+<td class="td-num">5.63</td>
+<td class="td-num">763.09</td>
+<td class="td-num">754.84</td>
+<td class="td-num"><span class="vol-low">0.50</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">TORNTPHARM</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">4321.20</td>
+<td class="td-num"><span class="rsi-hot">70.69</span></td>
+<td class="td-num">75.88</td>
+<td class="td-num">56.16</td>
+<td class="td-num">4092.52</td>
+<td class="td-num">3999.80</td>
+<td class="td-num"><span class="vol-low">0.90</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">TVSMOTOR</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">3826.60</td>
+<td class="td-num"><span class="rsi-ok">67.39</span></td>
+<td class="td-num">45.52</td>
+<td class="td-num">37.92</td>
+<td class="td-num">3779.58</td>
+<td class="td-num">3728.89</td>
+<td class="td-num"><span class="vol-low">0.54</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">ULTRACEMCO</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">12970.00</td>
+<td class="td-num"><span class="rsi-ok">58.15</span></td>
+<td class="td-num">168.70</td>
+<td class="td-num">205.15</td>
+<td class="td-num">12741.42</td>
+<td class="td-num">12440.39</td>
+<td class="td-num"><span class="vol-low">0.49</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">SIEMENS</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">3301.00</td>
+<td class="td-num"><span class="rsi-ok">57.37</span></td>
+<td class="td-num">35.50</td>
+<td class="td-num">33.87</td>
+<td class="td-num">3129.80</td>
+<td class="td-num">3097.51</td>
+<td class="td-num"><span class="vol-high">3.92</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">SOLARINDS</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">13365.00</td>
+<td class="td-num"><span class="rsi-mid">51.83</span></td>
+<td class="td-num">103.30</td>
+<td class="td-num">132.25</td>
+<td class="td-num">13231.09</td>
+<td class="td-num">13004.32</td>
+<td class="td-num"><span class="vol-low">0.74</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">SONACOMS</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">536.00</td>
+<td class="td-num"><span class="rsi-ok">65.58</span></td>
+<td class="td-num">13.63</td>
+<td class="td-num">13.85</td>
+<td class="td-num">515.75</td>
+<td class="td-num">499.33</td>
+<td class="td-num"><span class="vol-low">0.71</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">SUNPHARMA</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">1732.00</td>
+<td class="td-num"><span class="rsi-hot">78.07</span></td>
+<td class="td-num">10.39</td>
+<td class="td-num">4.34</td>
+<td class="td-num">1696.40</td>
+<td class="td-num">1696.40</td>
+<td class="td-num"><span class="vol-low">0.45</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">SUPREMEIND</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
+<td class="td-num">3936.40</td>
+<td class="td-num"><span class="rsi-hot">71.37</span></td>
+<td class="td-num">116.73</td>
+<td class="td-num">103.02</td>
+<td class="td-num">3737.96</td>
+<td class="td-num">3582.56</td>
+<td class="td-num"><span class="vol-high">1.75</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">TATASTEEL</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">208.00</td>
+<td class="td-num"><span class="rsi-hot">72.23</span></td>
+<td class="td-num">6.00</td>
+<td class="td-num">5.93</td>
+<td class="td-num">199.79</td>
+<td class="td-num">190.37</td>
+<td class="td-num"><span class="vol-low">0.74</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">SBILIFE</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">2108.00</td>
+<td class="td-num"><span class="rsi-ok">67.34</span></td>
+<td class="td-num">5.46</td>
+<td class="td-num">-1.03</td>
+<td class="td-num">2036.47</td>
+<td class="td-num">2033.54</td>
+<td class="td-num"><span class="vol-low">0.82</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">SAIL</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">156.69</td>
+<td class="td-num"><span class="rsi-ok">66.01</span></td>
+<td class="td-num">2.97</td>
+<td class="td-num">3.61</td>
+<td class="td-num">156.04</td>
+<td class="td-num">149.82</td>
+<td class="td-num"><span class="vol-low">0.58</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">POLYCAB</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">7992.00</td>
+<td class="td-num"><span class="rsi-hot">74.96</span></td>
+<td class="td-num">125.82</td>
+<td class="td-num">82.81</td>
+<td class="td-num">7584.85</td>
+<td class="td-num">7512.54</td>
+<td class="td-num"><span class="vol-high">1.46</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">POWERGRID</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">302.70</td>
+<td class="td-num"><span class="rsi-hot">73.27</span></td>
+<td class="td-num">9.35</td>
+<td class="td-num">8.35</td>
+<td class="td-num">285.72</td>
+<td class="td-num">275.73</td>
+<td class="td-num"><span class="vol-low">0.63</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">POWERINDIA</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">24100.00</td>
+<td class="td-num"><span class="rsi-hot">79.20</span></td>
+<td class="td-num">1431.36</td>
+<td class="td-num">1191.85</td>
+<td class="td-num">21266.28</td>
+<td class="td-num">19813.09</td>
+<td class="td-num"><span class="vol-high">1.21</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">RBLBANK</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">319.50</td>
+<td class="td-num"><span class="rsi-hot">78.69</span></td>
+<td class="td-num">6.13</td>
+<td class="td-num">3.12</td>
+<td class="td-num">313.10</td>
+<td class="td-num">308.53</td>
+<td class="td-num"><span class="vol-low">1.11</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">PFC</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">412.25</td>
+<td class="td-num"><span class="rsi-ok">63.77</span></td>
+<td class="td-num">11.04</td>
+<td class="td-num">11.72</td>
+<td class="td-num">401.38</td>
+<td class="td-num">385.04</td>
+<td class="td-num"><span class="vol-low">0.66</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">ONGC</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">276.10</td>
+<td class="td-num"><span class="rsi-ok">69.82</span></td>
+<td class="td-num">7.08</td>
+<td class="td-num">7.19</td>
+<td class="td-num">265.45</td>
+<td class="td-num">254.75</td>
+<td class="td-num"><span class="vol-high">1.44</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">NYKAA</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">267.00</td>
+<td class="td-num"><span class="rsi-ok">68.86</span></td>
+<td class="td-num">5.20</td>
+<td class="td-num">4.76</td>
+<td class="td-num">264.03</td>
+<td class="td-num">259.94</td>
+<td class="td-num"><span class="vol-low">0.40</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">NTPC</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
+<td class="td-num">375.50</td>
+<td class="td-num"><span class="rsi-hot">70.18</span></td>
+<td class="td-num">7.00</td>
+<td class="td-num">7.19</td>
+<td class="td-num">360.81</td>
+<td class="td-num">349.54</td>
+<td class="td-num"><span class="vol-high">1.55</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">VOLTAS</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
+<td class="td-num">1537.00</td>
+<td class="td-num"><span class="rsi-hot">80.68</span></td>
+<td class="td-num">41.90</td>
+<td class="td-num">31.25</td>
+<td class="td-num">1468.54</td>
+<td class="td-num">1429.45</td>
+<td class="td-num"><span class="vol-low">1.17</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">TITAN</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">4271.00</td>
+<td class="td-num"><span class="rsi-ok">69.94</span></td>
+<td class="td-num">44.00</td>
+<td class="td-num">37.24</td>
+<td class="td-num">4166.49</td>
+<td class="td-num">4111.46</td>
+<td class="td-num"><span class="vol-low">0.49</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">TMPV</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">379.05</td>
+<td class="td-num"><span class="rsi-ok">63.43</span></td>
+<td class="td-num">6.62</td>
+<td class="td-num">6.17</td>
+<td class="td-num">371.50</td>
+<td class="td-num">364.82</td>
+<td class="td-num"><span class="vol-low">0.57</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">TORNTPOWER</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
+<td class="td-num">1533.00</td>
+<td class="td-num"><span class="rsi-hot">76.05</span></td>
+<td class="td-num">45.46</td>
+<td class="td-num">35.91</td>
+<td class="td-num">1434.50</td>
+<td class="td-num">1382.94</td>
+<td class="td-num"><span class="vol-high">1.74</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">UNIONBANK</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">197.20</td>
+<td class="td-num"><span class="rsi-hot">81.98</span></td>
+<td class="td-num">6.06</td>
+<td class="td-num">5.14</td>
+<td class="td-num">180.88</td>
+<td class="td-num">171.64</td>
+<td class="td-num"><span class="vol-low">0.88</span></td>
+</tr>
+<tr data-signal="buy">
+<td><span class="td-symbol">VEDL</span></td>
+<td><span class="badge badge-buy">Swing Buy</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">679.50</td>
+<td class="td-num"><span class="rsi-ok">56.33</span></td>
+<td class="td-num">6.69</td>
+<td class="td-num">10.02</td>
+<td class="td-num">676.68</td>
+<td class="td-num">657.12</td>
+<td class="td-num"><span class="vol-low">0.35</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">MUTHOOTFIN</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">3474.00</td>
+<td class="td-num"><span class="rsi-mid">47.53</span></td>
+<td class="td-num">-91.50</td>
+<td class="td-num">-55.22</td>
+<td class="td-num">3671.90</td>
+<td class="td-num">3749.04</td>
+<td class="td-num"><span class="vol-low">0.80</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">NAUKRI</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">1072.00</td>
+<td class="td-num"><span class="rsi-cool">25.08</span></td>
+<td class="td-num">-54.62</td>
+<td class="td-num">-47.82</td>
+<td class="td-num">1180.09</td>
+<td class="td-num">1249.60</td>
+<td class="td-num"><span class="vol-low">0.92</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">NMDC</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">78.85</td>
+<td class="td-num"><span class="rsi-mid">46.54</span></td>
+<td class="td-num">-0.52</td>
+<td class="td-num">-0.08</td>
+<td class="td-num">81.61</td>
+<td class="td-num">81.99</td>
+<td class="td-num"><span class="vol-low">0.98</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">HINDZINC</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">591.75</td>
+<td class="td-num"><span class="rsi-mid">43.61</span></td>
+<td class="td-num">-15.69</td>
+<td class="td-num">-11.18</td>
+<td class="td-num">614.76</td>
+<td class="td-num">627.65</td>
+<td class="td-num"><span class="vol-low">0.25</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">IRFC</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">111.79</td>
+<td class="td-num"><span class="rsi-cool">37.47</span></td>
+<td class="td-num">-2.64</td>
+<td class="td-num">-2.81</td>
+<td class="td-num">115.15</td>
+<td class="td-num">120.19</td>
+<td class="td-num"><span class="vol-low">0.67</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">HCLTECH</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">1425.00</td>
+<td class="td-num"><span class="rsi-cool">15.54</span></td>
+<td class="td-num">-59.30</td>
+<td class="td-num">-42.75</td>
+<td class="td-num">1553.50</td>
+<td class="td-num">1607.32</td>
+<td class="td-num"><span class="vol-low">0.75</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">INFY</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">1328.00</td>
+<td class="td-num"><span class="rsi-cool">13.83</span></td>
+<td class="td-num">-73.77</td>
+<td class="td-num">-58.33</td>
+<td class="td-num">1481.03</td>
+<td class="td-num">1557.54</td>
+<td class="td-num"><span class="vol-low">0.88</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">IREDA</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">127.25</td>
+<td class="td-num"><span class="rsi-mid">48.20</span></td>
+<td class="td-num">-2.39</td>
+<td class="td-num">-2.61</td>
+<td class="td-num">128.93</td>
+<td class="td-num">132.93</td>
+<td class="td-num"><span class="vol-low">0.68</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">BOSCHLTD</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">35270.00</td>
+<td class="td-num"><span class="rsi-cool">39.82</span></td>
+<td class="td-num">-319.48</td>
+<td class="td-num">-213.82</td>
+<td class="td-num">35951.04</td>
+<td class="td-num">36177.42</td>
+<td class="td-num"><span class="vol-high">1.40</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">CONCOR</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">507.20</td>
+<td class="td-num"><span class="rsi-mid">46.67</span></td>
+<td class="td-num">-2.01</td>
+<td class="td-num">-1.59</td>
+<td class="td-num">508.22</td>
+<td class="td-num">511.78</td>
+<td class="td-num"><span class="vol-low">0.34</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">AUROPHARMA</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">1148.70</td>
+<td class="td-num"><span class="rsi-mid">48.21</span></td>
+<td class="td-num">-4.05</td>
+<td class="td-num">-4.12</td>
+<td class="td-num">1170.61</td>
+<td class="td-num">1179.64</td>
+<td class="td-num"><span class="vol-low">0.46</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">BHEL</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">257.40</td>
+<td class="td-num"><span class="rsi-mid">49.32</span></td>
+<td class="td-num">-2.84</td>
+<td class="td-num">-2.58</td>
+<td class="td-num">262.84</td>
+<td class="td-num">268.32</td>
+<td class="td-num"><span class="vol-low">0.58</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">360ONE</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">1125.00</td>
+<td class="td-num"><span class="rsi-mid">48.01</span></td>
+<td class="td-num">-10.01</td>
+<td class="td-num">-7.74</td>
+<td class="td-num">1130.89</td>
+<td class="td-num">1146.12</td>
+<td class="td-num"><span class="vol-low">0.42</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">MPHASIS</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">2303.00</td>
+<td class="td-num"><span class="rsi-cool">13.17</span></td>
+<td class="td-num">-107.75</td>
+<td class="td-num">-83.73</td>
+<td class="td-num">2581.07</td>
+<td class="td-num">2696.10</td>
+<td class="td-num"><span class="vol-low">1.04</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">MAZDOCK</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">2284.10</td>
+<td class="td-num"><span class="rsi-mid">40.97</span></td>
+<td class="td-num">-26.60</td>
+<td class="td-num">-21.90</td>
+<td class="td-num">2405.53</td>
+<td class="td-num">2445.48</td>
+<td class="td-num"><span class="vol-low">0.66</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">KPITTECH</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">813.00</td>
+<td class="td-num"><span class="rsi-cool">14.65</span></td>
+<td class="td-num">-72.36</td>
+<td class="td-num">-65.25</td>
+<td class="td-num">953.69</td>
+<td class="td-num">1048.14</td>
+<td class="td-num"><span class="vol-low">0.83</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">M&M</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">3435.00</td>
+<td class="td-num"><span class="rsi-mid">45.52</span></td>
+<td class="td-num">-30.53</td>
+<td class="td-num">-19.69</td>
+<td class="td-num">3534.08</td>
+<td class="td-num">3572.49</td>
+<td class="td-num"><span class="vol-low">0.77</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">MANKIND</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">2045.00</td>
+<td class="td-num"><span class="rsi-mid">44.79</span></td>
+<td class="td-num">-28.49</td>
+<td class="td-num">-26.58</td>
+<td class="td-num">2087.20</td>
+<td class="td-num">2126.99</td>
+<td class="td-num"><span class="vol-low">0.54</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">LTIM</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">4822.50</td>
+<td class="td-num"><span class="rsi-cool">13.73</span></td>
+<td class="td-num">-271.80</td>
+<td class="td-num">-200.17</td>
+<td class="td-num">5461.71</td>
+<td class="td-num">5731.38</td>
+<td class="td-num"><span class="vol-low">0.79</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">RVNL</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">320.30</td>
+<td class="td-num"><span class="rsi-cool">36.21</span></td>
+<td class="td-num">-9.41</td>
+<td class="td-num">-10.07</td>
+<td class="td-num">319.73</td>
+<td class="td-num">337.91</td>
+<td class="td-num"><span class="vol-low">0.94</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">SHREECEM</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">26450.00</td>
+<td class="td-num"><span class="rsi-mid">46.14</span></td>
+<td class="td-num">-171.52</td>
+<td class="td-num">-112.11</td>
+<td class="td-num">26710.38</td>
+<td class="td-num">26773.78</td>
+<td class="td-num"><span class="vol-low">0.52</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">POLICYBZR</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">1496.90</td>
+<td class="td-num"><span class="rsi-mid">45.42</span></td>
+<td class="td-num">-54.45</td>
+<td class="td-num">-59.66</td>
+<td class="td-num">1554.11</td>
+<td class="td-num">1655.28</td>
+<td class="td-num"><span class="vol-low">0.89</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">OFSS</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">6659.50</td>
+<td class="td-num"><span class="rsi-cool">20.39</span></td>
+<td class="td-num">-291.90</td>
+<td class="td-num">-219.80</td>
+<td class="td-num">7160.88</td>
+<td class="td-num">7445.92</td>
+<td class="td-num"><span class="vol-low">0.57</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">SYNGENE</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">448.60</td>
+<td class="td-num"><span class="rsi-cool">35.58</span></td>
+<td class="td-num">-37.98</td>
+<td class="td-num">-42.20</td>
+<td class="td-num">474.60</td>
+<td class="td-num">536.53</td>
+<td class="td-num"><span class="vol-low">0.93</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">PERSISTENT</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">4969.00</td>
+<td class="td-num"><span class="rsi-cool">22.18</span></td>
+<td class="td-num">-242.85</td>
+<td class="td-num">-177.78</td>
+<td class="td-num">5748.39</td>
+<td class="td-num">5997.36</td>
+<td class="td-num"><span class="vol-high">2.34</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">PAYTM</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">1172.00</td>
+<td class="td-num"><span class="rsi-mid">46.61</span></td>
+<td class="td-num">-26.20</td>
+<td class="td-num">-29.71</td>
+<td class="td-num">1181.45</td>
+<td class="td-num">1226.21</td>
+<td class="td-num"><span class="vol-low">0.28</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">TATATECH</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">598.35</td>
+<td class="td-num"><span class="rsi-cool">33.96</span></td>
+<td class="td-num">-12.98</td>
+<td class="td-num">-10.55</td>
+<td class="td-num">623.78</td>
+<td class="td-num">637.45</td>
+<td class="td-num"><span class="vol-low">1.04</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">TATAELXSI</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">4700.00</td>
+<td class="td-num"><span class="rsi-cool">28.01</span></td>
+<td class="td-num">-156.12</td>
+<td class="td-num">-110.52</td>
+<td class="td-num">5136.98</td>
+<td class="td-num">5270.48</td>
+<td class="td-num"><span class="vol-low">0.86</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">VBL</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">456.50</td>
+<td class="td-num"><span class="rsi-mid">42.51</span></td>
+<td class="td-num">-6.46</td>
+<td class="td-num">-7.70</td>
+<td class="td-num">460.83</td>
+<td class="td-num">470.49</td>
+<td class="td-num"><span class="vol-low">0.40</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">WIPRO</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">205.93</td>
+<td class="td-num"><span class="rsi-cool">10.40</span></td>
+<td class="td-num">-10.75</td>
+<td class="td-num">-9.50</td>
+<td class="td-num">227.29</td>
+<td class="td-num">241.53</td>
+<td class="td-num"><span class="vol-low">1.01</span></td>
+</tr>
+<tr data-signal="sell">
+<td><span class="td-symbol">YESBANK</span></td>
+<td><span class="badge badge-sell">Swing Sell</span></td>
+<td><span class="badge badge-smart">Smart Entry</span></td>
+<td class="td-num">20.88</td>
+<td class="td-num"><span class="rsi-mid">46.78</span></td>
+<td class="td-num">-0.21</td>
+<td class="td-num">-0.20</td>
+<td class="td-num">21.31</td>
+<td class="td-num">21.53</td>
+<td class="td-num"><span class="vol-low">0.56</span></td>
+</tr>
+
 </tbody>
 </table>
 </div>
 
 <script>
-function sortTable(header) {
-  const table = header.closest("table");
-  const index = Array.from(header.parentNode.children).indexOf(header);
-  const rows = Array.from(table.querySelectorAll("tbody tr"));
-  const asc = header.classList.toggle("asc");
-  header.classList.toggle("desc", !asc);
+let currentFilter = 'all';
 
-  rows.sort((a, b) => {
-    let A = a.children[index].innerText.trim();
-    let B = b.children[index].innerText.trim();
-    return asc
-      ? A.localeCompare(B, undefined, {numeric:true})
-      : B.localeCompare(A, undefined, {numeric:true});
-  });
-
-  rows.forEach(row => table.querySelector("tbody").appendChild(row));
+function setFilter(f) {
+    currentFilter = f;
+    document.getElementById('btnAll').className  = 'filter-btn' + (f === 'all'  ? ' active-all'  : '');
+    document.getElementById('btnBuy').className  = 'filter-btn' + (f === 'buy'  ? ' active-buy'  : '');
+    document.getElementById('btnSell').className = 'filter-btn' + (f === 'sell' ? ' active-sell' : '');
+    applyFilters();
 }
 
-function filterTable() {
-  const input = document.getElementById("tableSearch");
-  const filter = input.value.toLowerCase();
-  const table = document.querySelector("table");
-  const rows = table.querySelectorAll("tbody tr");
+function applyFilters() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const rows   = document.querySelectorAll('#mainTable tbody tr');
+    rows.forEach(row => {
+        const sig  = row.dataset.signal || '';
+        const text = row.innerText.toLowerCase();
+        const matchFilter = (currentFilter === 'all') || (sig === currentFilter);
+        const matchSearch = !search || text.includes(search);
+        row.style.display = (matchFilter && matchSearch) ? '' : 'none';
+    });
+}
 
-  rows.forEach(row => {
-    const text = row.innerText.toLowerCase();
-    if (text.includes(filter)) {
-      row.style.display = "";
-    } else {
-      row.style.display = "none";
-    }
-  });
+function sortTable(header) {
+    const table = header.closest('table');
+    const idx   = Array.from(header.parentNode.children).indexOf(header);
+    const rows  = Array.from(table.querySelectorAll('tbody tr'));
+    const asc   = header.dataset.asc !== 'true';
+    header.dataset.asc = asc;
+
+    // Reset all sort icons
+    table.querySelectorAll('th .sort-icon').forEach(s => s.textContent = '⬍');
+    header.querySelector('.sort-icon').textContent = asc ? '▲' : '▼';
+
+    rows.sort((a, b) => {
+        let A = a.children[idx]?.innerText.trim() || '';
+        let B = b.children[idx]?.innerText.trim() || '';
+        const numA = parseFloat(A), numB = parseFloat(B);
+        if (!isNaN(numA) && !isNaN(numB)) {
+            return asc ? numA - numB : numB - numA;
+        }
+        return asc ? A.localeCompare(B) : B.localeCompare(A);
+    });
+
+    const tbody = table.querySelector('tbody');
+    rows.forEach(r => tbody.appendChild(r));
 }
 </script>
-
 </body>
 </html>
