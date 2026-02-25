@@ -4,155 +4,212 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>F&O Swing Screener</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 
-/* ── RESET ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-/* ── THEME — Light with Slate accents ── */
 :root {
-    --bg: #f1f5f9;
-    --bg-card: #ffffff;
-    --bg-header: #1e293b;
-    --bg-table-head: #f8fafc;
-    --bg-row-even: #f8fafc;
-    --bg-row-odd: #ffffff;
-    --bg-row-hover: #e0f2fe;
-    --border: #e2e8f0;
-    --text: #1e293b;
-    --text-muted: #64748b;
-    --text-header: #f1f5f9;
-    --green: #16a34a;
-    --green-bg: #dcfce7;
-    --red: #dc2626;
-    --red-bg: #fee2e2;
-    --blue: #2563eb;
-    --blue-bg: #dbeafe;
-    --amber: #d97706;
-    --amber-bg: #fef3c7;
-    --shadow: 0 1px 4px rgba(0,0,0,0.08);
+    --bg:          #f8f9fb;
+    --bg-card:     #ffffff;
+    --bg-head:     #131722;
+    --bg-th:       #f3f4f8;
+    --bg-row-even: #fafbfc;
+    --bg-row-odd:  #ffffff;
+    --bg-hover:    #f0f7ff;
+    --border:      #e4e7ef;
+    --border-head: #1e2433;
+
+    --text:        #1a1f2e;
+    --text-muted:  #7b8494;
+    --text-light:  #a0a8b8;
+
+    --green:       #0d9e6e;
+    --green-bg:    #edfaf4;
+    --green-bdr:   #b7e8d4;
+    --red:         #d94040;
+    --red-bg:      #fef0f0;
+    --red-bdr:     #f5b8b8;
+    --blue:        #2463eb;
+    --blue-bg:     #eff4ff;
+    --blue-bdr:    #b8d0f8;
+    --amber:       #b87000;
+    --amber-bg:    #fff8eb;
+    --amber-bdr:   #f5d990;
+
+    --font: 'Geist', 'Segoe UI', system-ui, sans-serif;
+    --radius: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-family: var(--font);
     background: var(--bg);
     color: var(--text);
     font-size: 13px;
+    font-weight: 400;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
 }
 
 /* ── HEADER ── */
 .header {
-    background: var(--bg-header);
-    padding: 14px 20px 10px 20px;
+    background: var(--bg-head);
+    padding: 12px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
+    gap: 16px;
 }
 
-.header-left h1 {
-    font-size: 20px;
-    font-weight: 700;
-    color: #f8fafc;
+.header-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: #e8eaf0;
     letter-spacing: 0.01em;
 }
 
-.header-left .updated {
-    font-size: 11px;
-    color: #94a3b8;
-    margin-top: 2px;
+.header-title span {
+    color: #4d9fff;
+    font-weight: 400;
 }
 
-.time-value {
+.header-meta {
+    font-size: 11px;
+    color: #4a5568;
+    font-weight: 300;
+}
+
+.header-meta em {
     color: #38bdf8;
-    font-weight: 600;
+    font-style: normal;
 }
 
-/* ── SUMMARY CARDS ── */
-.cards {
+/* ── STAT STRIP ── */
+.stat-strip {
     display: flex;
-    gap: 12px;
-    padding: 14px 20px 0 20px;
-    flex-wrap: wrap;
-}
-
-.card {
     background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 20px;
-    min-width: 130px;
+    border-bottom: 1px solid var(--border);
+}
+
+.stat-item {
     flex: 1;
-    box-shadow: var(--shadow);
+    padding: 12px 20px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
-.card-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+.stat-item:last-child { border-right: none; }
+
+.stat-label {
+    font-size: 10px;
+    font-weight: 400;
     color: var(--text-muted);
-    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
 }
 
-.card-value {
-    font-size: 26px;
-    font-weight: 700;
+.stat-value {
+    font-size: 24px;
+    font-weight: 300;
     line-height: 1;
+    letter-spacing: -0.02em;
 }
 
-.card-value.total  { color: var(--blue); }
-.card-value.buy    { color: var(--green); }
-.card-value.sell   { color: var(--red); }
+.stat-value.total  { color: var(--text); }
+.stat-value.buy    { color: var(--green); }
+.stat-value.sell   { color: var(--red); }
 
 /* ── TOOLBAR ── */
 .toolbar {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 20px 8px 20px;
-    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+}
+
+.search-wrap {
+    position: relative;
+    flex: 0 0 220px;
+}
+
+.search-wrap svg {
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
 }
 
 .search-input {
-    padding: 7px 12px;
+    width: 100%;
+    padding: 6px 10px 6px 30px;
     border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 13px;
-    outline: none;
-    width: 240px;
-    background: var(--bg-card);
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-family: var(--font);
+    font-weight: 400;
     color: var(--text);
-    transition: border-color 0.15s;
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .search-input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(36,99,235,0.08);
+}
+
+.search-input::placeholder { color: var(--text-light); }
+
+.filter-group {
+    display: flex;
+    gap: 4px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2px;
+    background: var(--bg);
 }
 
 .filter-btn {
-    padding: 6px 14px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    color: var(--text-muted);
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: none;
+    font-size: 11px;
+    font-family: var(--font);
+    font-weight: 400;
     cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
+    color: var(--text-muted);
+    background: transparent;
     transition: all 0.15s;
+    white-space: nowrap;
 }
 
-.filter-btn:hover { background: #e0f2fe; color: var(--blue); border-color: #93c5fd; }
-.filter-btn.active-buy  { background: var(--green-bg); color: var(--green); border-color: #86efac; }
-.filter-btn.active-sell { background: var(--red-bg);   color: var(--red);   border-color: #fca5a5; }
-.filter-btn.active-all  { background: var(--blue-bg);  color: var(--blue);  border-color: #93c5fd; }
+.filter-btn:hover { color: var(--text); background: var(--bg-card); }
+.filter-btn.active-all  { background: var(--bg-card); color: var(--text); box-shadow: var(--shadow); }
+.filter-btn.active-buy  { background: var(--green-bg); color: var(--green); box-shadow: var(--shadow); }
+.filter-btn.active-sell { background: var(--red-bg);   color: var(--red);   box-shadow: var(--shadow); }
 
-/* ── TABLE ── */
+.count-badge {
+    display: inline-block;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-left: 4px;
+}
+
+/* ── TABLE WRAPPER ── */
 .table-wrap {
-    padding: 0 20px 24px 20px;
+    padding: 16px 20px 32px;
     overflow-x: auto;
 }
 
@@ -160,108 +217,218 @@ table {
     width: 100%;
     border-collapse: collapse;
     background: var(--bg-card);
-    border-radius: 10px;
-    overflow: hidden;
     border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
     box-shadow: var(--shadow);
+    table-layout: fixed;
 }
 
+/* Column widths */
+col.c-symbol  { width: 130px; }
+col.c-signal  { width: 110px; }
+col.c-entry   { width: 145px; }
+col.c-ltp     { width: 90px; }
+col.c-rsi     { width: 70px; }
+col.c-macd    { width: 85px; }
+col.c-macdsig { width: 95px; }
+col.c-hist    { width: 85px; }
+col.c-ema21   { width: 90px; }
+col.c-ema50   { width: 90px; }
+col.c-vol     { width: 80px; }
+col.c-sh      { width: 95px; }
+col.c-sl      { width: 95px; }
+
 thead tr {
-    background: var(--bg-table-head);
-    border-bottom: 2px solid var(--border);
+    background: var(--bg-th);
+    border-bottom: 1px solid var(--border);
 }
 
 th {
-    padding: 9px 10px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+    padding: 8px 10px;
+    font-size: 10px;
+    font-weight: 500;
     color: var(--text-muted);
-    cursor: pointer;
-    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
     text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
     user-select: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-right: 1px solid var(--border);
     position: sticky;
     top: 0;
-    background: var(--bg-table-head);
+    background: var(--bg-th);
     z-index: 10;
-    border-bottom: 2px solid var(--border);
+    transition: color 0.12s;
 }
 
+th:last-child { border-right: none; }
 th:hover { color: var(--blue); }
 
-th .sort-icon {
-    font-size: 9px;
+th .sort-arrow {
+    display: inline-block;
+    font-size: 8px;
     margin-left: 3px;
-    opacity: 0.4;
+    opacity: 0.35;
+    vertical-align: middle;
 }
 
 td {
     padding: 8px 10px;
     border-bottom: 1px solid var(--border);
+    border-right: 1px solid rgba(228,231,239,0.5);
     white-space: nowrap;
-    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
     color: var(--text);
+    font-weight: 400;
 }
+
+td:last-child { border-right: none; }
 
 tr:nth-child(even) td { background: var(--bg-row-even); }
 tr:nth-child(odd)  td { background: var(--bg-row-odd); }
-tr:hover td { background: var(--bg-row-hover) !important; }
+tr:last-child td   { border-bottom: none; }
+tr:hover td        { background: var(--bg-hover) !important; }
 
-.td-symbol {
-    font-weight: 700;
-    font-size: 13px;
-    color: #0f172a;
-    letter-spacing: 0.02em;
+/* ── SYMBOL CELL ── */
+.sym-link {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 12.5px;
+    letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.12s;
 }
 
-.td-num {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    font-size: 12px;
+.sym-link:hover { color: var(--blue); }
+
+.sym-link svg {
+    opacity: 0;
+    transition: opacity 0.12s;
+    flex-shrink: 0;
 }
 
-/* RSI color */
-.rsi-hot  { color: #dc2626; font-weight: 600; }
-.rsi-ok   { color: #16a34a; font-weight: 600; }
-.rsi-cool { color: #2563eb; font-weight: 600; }
-.rsi-mid  { color: var(--text); }
-
-/* MACD Hist color */
-.hist-pos { color: #16a34a; font-weight: 600; }
-.hist-neg { color: #dc2626; font-weight: 600; }
-
-/* Vol Ratio */
-.vol-high { color: #16a34a; font-weight: 600; }
-.vol-low  { color: var(--text-muted); }
+tr:hover .sym-link svg { opacity: 0.5; }
 
 /* ── BADGES ── */
 .badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 4px;
     font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.03em;
+    font-weight: 400;
     white-space: nowrap;
+    border: 1px solid transparent;
+    line-height: 1.3;
 }
 
-.badge-buy       { background: var(--green-bg); color: var(--green); border: 1px solid #86efac; }
-.badge-sell      { background: var(--red-bg);   color: var(--red);   border: 1px solid #fca5a5; }
-.badge-smart     { background: var(--blue-bg);  color: var(--blue);  border: 1px solid #93c5fd; }
-.badge-aggressive{ background: var(--amber-bg); color: var(--amber); border: 1px solid #fcd34d; }
+.badge-buy   { background: var(--green-bg); color: var(--green); border-color: var(--green-bdr); }
+.badge-sell  { background: var(--red-bg);   color: var(--red);   border-color: var(--red-bdr); }
+.badge-smart { background: var(--blue-bg);  color: var(--blue);  border-color: var(--blue-bdr); }
+.badge-aggr  { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-bdr); }
+
+/* ── ENTRY TYPE with tooltip trigger ── */
+.entry-cell {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    position: relative;
+}
+
+.info-icon {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--border);
+    color: var(--text-muted);
+    font-size: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: help;
+    flex-shrink: 0;
+    transition: background 0.12s;
+    font-style: normal;
+    line-height: 1;
+    user-select: none;
+}
+
+.info-icon:hover { background: #c8cfe0; color: var(--text); }
+
+/* ── TOOLTIP ── */
+.tooltip {
+    position: fixed;
+    z-index: 9999;
+    max-width: 320px;
+    background: #1a1f2e;
+    color: #d4d8e8;
+    font-size: 11.5px;
+    font-weight: 300;
+    line-height: 1.6;
+    padding: 10px 13px;
+    border-radius: 8px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.06);
+    white-space: normal;
+}
+
+.tooltip.visible { opacity: 1; }
+
+.tooltip-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: #7b9cff;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+}
+
+.tooltip-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    padding: 2px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.tooltip-row:last-child { border-bottom: none; }
+
+.tooltip-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #4d9fff;
+    flex-shrink: 0;
+    margin-top: 5px;
+}
+
+/* ── NUMERIC CELLS ── */
+.num { text-align: right; font-variant-numeric: tabular-nums; font-size: 12px; }
+.green { color: var(--green); }
+.red   { color: var(--red); }
+.amber { color: var(--amber); }
+.muted { color: var(--text-muted); }
 
 /* ── MOBILE ── */
 @media (max-width: 768px) {
-    .header { padding: 12px 14px 8px 14px; }
-    .header-left h1 { font-size: 17px; }
-    .cards { padding: 10px 14px 0 14px; gap: 8px; }
-    .card { padding: 10px 14px; min-width: 100px; }
-    .card-value { font-size: 22px; }
-    .toolbar { padding: 10px 14px 6px 14px; }
-    .search-input { width: 100%; }
-    .table-wrap { padding: 0 10px 16px 10px; }
+    .header { padding: 10px 14px; flex-direction: column; align-items: flex-start; gap: 4px; }
+    .stat-strip { flex-wrap: wrap; }
+    .stat-item { min-width: 100px; }
+    .toolbar { padding: 8px 14px; flex-wrap: wrap; }
+    .search-wrap { flex: 1; min-width: 160px; }
+    .table-wrap { padding: 10px 10px 20px; }
     th, td { padding: 7px 8px; font-size: 11px; }
 }
 
@@ -271,1270 +438,1315 @@ tr:hover td { background: var(--bg-row-hover) !important; }
 
 <!-- HEADER -->
 <div class="header">
-  <div class="header-left">
-    <h1>F&O Swing Screener</h1>
-    <div class="updated">Last Updated: <span class="time-value">2026-02-25 15:35:05</span></div>
-  </div>
+  <div class="header-title">F&O <span>Swing Screener</span></div>
+  <div class="header-meta">Last scan: <em>2026-02-25 17:36:49</em></div>
 </div>
 
-<!-- SUMMARY CARDS -->
-<div class="cards">
-  <div class="card">
-    <div class="card-label">Total Stocks</div>
-    <div class="card-value total">101</div>
+<!-- STAT STRIP -->
+<div class="stat-strip">
+  <div class="stat-item">
+    <div class="stat-label">Total Stocks</div>
+    <div class="stat-value total">41</div>
   </div>
-  <div class="card">
-    <div class="card-label">Swing Buy</div>
-    <div class="card-value buy">70</div>
+  <div class="stat-item">
+    <div class="stat-label">Swing Buy</div>
+    <div class="stat-value buy">20</div>
   </div>
-  <div class="card">
-    <div class="card-label">Swing Sell</div>
-    <div class="card-value sell">31</div>
+  <div class="stat-item">
+    <div class="stat-label">Swing Sell</div>
+    <div class="stat-value sell">21</div>
   </div>
 </div>
 
 <!-- TOOLBAR -->
 <div class="toolbar">
-  <input class="search-input" type="text" id="searchInput" placeholder="🔍 Search symbol..." oninput="applyFilters()">
-  <button class="filter-btn active-all" id="btnAll"  onclick="setFilter('all')">All</button>
-  <button class="filter-btn"            id="btnBuy"  onclick="setFilter('buy')">Swing Buy</button>
-  <button class="filter-btn"            id="btnSell" onclick="setFilter('sell')">Swing Sell</button>
+  <div class="search-wrap">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input class="search-input" type="text" id="searchInput"
+           placeholder="Search symbol..." oninput="applyFilters()">
+  </div>
+  <div class="filter-group">
+    <button class="filter-btn active-all" id="btnAll"  onclick="setFilter('all')">All <span class="count-badge" id="cntAll">41</span></button>
+    <button class="filter-btn"            id="btnBuy"  onclick="setFilter('buy')">Buy <span class="count-badge" id="cntBuy">20</span></button>
+    <button class="filter-btn"            id="btnSell" onclick="setFilter('sell')">Sell <span class="count-badge" id="cntSell">21</span></button>
+  </div>
 </div>
 
 <!-- TABLE -->
 <div class="table-wrap">
 <table id="mainTable">
+<colgroup>
+  <col class="c-symbol">
+  <col class="c-signal">
+  <col class="c-entry">
+  <col class="c-ltp">
+  <col class="c-rsi">
+  <col class="c-macd">
+  <col class="c-macdsig">
+  <col class="c-hist">
+  <col class="c-ema21">
+  <col class="c-ema50">
+  <col class="c-vol">
+  <col class="c-sh">
+  <col class="c-sl">
+</colgroup>
 <thead>
 <tr>
-<th onclick="sortTable(this)">SYMBOL <span class="sort-icon">⬍</span></th>
-<th onclick="sortTable(this)">SWING SIGNAL <span class="sort-icon">⬍</span></th>
-<th onclick="sortTable(this)">SWING ENTRY TYPE <span class="sort-icon">⬍</span></th>
-<th onclick="sortTable(this)">LTP <span class="sort-icon">⬍</span></th>
-<th onclick="sortTable(this)">DAILY RSI <span class="sort-icon">⬍</span></th>
-<th onclick="sortTable(this)">DAILY MACD <span class="sort-icon">⬍</span></th>
-<th onclick="sortTable(this)">DAILY MACD SIGNAL <span class="sort-icon">⬍</span></th>
-<th onclick="sortTable(this)">DAILY EMA21 <span class="sort-icon">⬍</span></th>
-<th onclick="sortTable(this)">DAILY EMA50 <span class="sort-icon">⬍</span></th>
-<th onclick="sortTable(this)">DAILY VOLUME RATIO <span class="sort-icon">⬍</span></th>
+<th onclick="sortTable(this)">Symbol <span class="sort-arrow">⬍</span></th>
+<th onclick="sortTable(this)">Signal <span class="sort-arrow">⬍</span></th>
+<th onclick="sortTable(this)">Entry Type <span class="sort-arrow">⬍</span></th>
+<th onclick="sortTable(this)">LTP <span class="sort-arrow">⬍</span></th>
+<th onclick="sortTable(this)">RSI (14) <span class="sort-arrow">⬍</span></th>
+<th onclick="sortTable(this)">MACD <span class="sort-arrow">⬍</span></th>
+<th onclick="sortTable(this)">MACD Sig <span class="sort-arrow">⬍</span></th>
+<th onclick="sortTable(this)">Hist <span class="sort-arrow">⬍</span></th>
+<th onclick="sortTable(this)">EMA 21 <span class="sort-arrow">⬍</span></th>
+<th onclick="sortTable(this)">EMA 50 <span class="sort-arrow">⬍</span></th>
+<th onclick="sortTable(this)">Vol Ratio <span class="sort-arrow">⬍</span></th>
+<th onclick="sortTable(this)">Swing High <span class="sort-arrow">⬍</span></th>
+<th onclick="sortTable(this)">Swing Low <span class="sort-arrow">⬍</span></th>
 </tr></thead><tbody>
 <tr data-signal="buy">
-<td><span class="td-symbol">NIFTY PVT BANK</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">29008.05</td>
-<td class="td-num"><span class="rsi-ok">63.33</span></td>
-<td class="td-num">114.83</td>
-<td class="td-num">111.84</td>
-<td class="td-num">28815.18</td>
-<td class="td-num">28670.99</td>
-<td class="td-num"><span class="vol-low">0.62</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">BANKNIFTY</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">61264.25</td>
-<td class="td-num"><span class="rsi-hot">72.29</span></td>
-<td class="td-num">447.88</td>
-<td class="td-num">358.36</td>
-<td class="td-num">60383.39</td>
-<td class="td-num">59876.32</td>
-<td class="td-num"><span class="vol-low">0.79</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">FINNIFTY</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">28455.00</td>
-<td class="td-num"><span class="rsi-hot">73.68</span></td>
-<td class="td-num">233.06</td>
-<td class="td-num">195.43</td>
-<td class="td-num">27926.46</td>
-<td class="td-num">27696.94</td>
-<td class="td-num"><span class="vol-low">0.62</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">NIFTY METAL</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">11962.75</td>
-<td class="td-num"><span class="rsi-ok">60.57</span></td>
-<td class="td-num">129.95</td>
-<td class="td-num">172.73</td>
-<td class="td-num">11877.97</td>
-<td class="td-num">11587.22</td>
-<td class="td-num"><span class="vol-low">0.52</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">NIFTY ENERGY</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">36741.55</td>
-<td class="td-num"><span class="rsi-ok">69.57</span></td>
-<td class="td-num">438.42</td>
-<td class="td-num">406.02</td>
-<td class="td-num">35862.31</td>
-<td class="td-num">35420.62</td>
-<td class="td-num"><span class="vol-low">0.80</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">ABB</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
-<td class="td-num">5906.00</td>
-<td class="td-num"><span class="rsi-hot">73.03</span></td>
-<td class="td-num">192.22</td>
-<td class="td-num">186.12</td>
-<td class="td-num">5643.12</td>
-<td class="td-num">5420.69</td>
-<td class="td-num"><span class="vol-high">11.09</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">ADANIENSOL</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
-<td class="td-num">1001.90</td>
-<td class="td-num"><span class="rsi-ok">68.20</span></td>
-<td class="td-num">17.24</td>
-<td class="td-num">12.92</td>
-<td class="td-num">987.88</td>
-<td class="td-num">982.60</td>
-<td class="td-num"><span class="vol-high">1.32</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">ADANIPORTS</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">1554.00</td>
-<td class="td-num"><span class="rsi-ok">65.83</span></td>
-<td class="td-num">24.31</td>
-<td class="td-num">24.83</td>
-<td class="td-num">1506.71</td>
-<td class="td-num">1485.07</td>
-<td class="td-num"><span class="vol-low">0.35</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">AUBANK</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">976.40</td>
-<td class="td-num"><span class="rsi-hot">73.16</span></td>
-<td class="td-num">8.28</td>
-<td class="td-num">4.26</td>
-<td class="td-num">1000.11</td>
-<td class="td-num">992.15</td>
-<td class="td-num"><span class="vol-low">0.88</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">APLAPOLLO</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">2187.00</td>
-<td class="td-num"><span class="rsi-ok">65.55</span></td>
-<td class="td-num">64.63</td>
-<td class="td-num">72.45</td>
-<td class="td-num">2158.54</td>
-<td class="td-num">2060.82</td>
-<td class="td-num"><span class="vol-low">0.36</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">ASHOKLEY</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">210.30</td>
-<td class="td-num"><span class="rsi-ok">66.54</span></td>
-<td class="td-num">5.39</td>
-<td class="td-num">5.63</td>
-<td class="td-num">201.43</td>
-<td class="td-num">192.91</td>
-<td class="td-num"><span class="vol-low">0.81</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">ASTRAL</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">1634.00</td>
-<td class="td-num"><span class="rsi-hot">79.50</span></td>
-<td class="td-num">53.70</td>
-<td class="td-num">43.29</td>
-<td class="td-num">1549.12</td>
-<td class="td-num">1487.99</td>
-<td class="td-num"><span class="vol-low">1.12</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">BAJAJ-AUTO</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">9884.50</td>
-<td class="td-num"><span class="rsi-ok">60.98</span></td>
-<td class="td-num">109.67</td>
-<td class="td-num">104.11</td>
-<td class="td-num">9676.55</td>
-<td class="td-num">9504.14</td>
-<td class="td-num"><span class="vol-low">1.02</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">AXISBANK</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">1385.90</td>
-<td class="td-num"><span class="rsi-ok">64.19</span></td>
-<td class="td-num">19.12</td>
-<td class="td-num">19.37</td>
-<td class="td-num">1339.61</td>
-<td class="td-num">1306.81</td>
-<td class="td-num"><span class="vol-low">0.48</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">Bajaj Holdings</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">11495.00</td>
-<td class="td-num"><span class="rsi-ok">67.23</span></td>
-<td class="td-num">87.44</td>
-<td class="td-num">44.41</td>
-<td class="td-num">11030.90</td>
-<td class="td-num">11008.62</td>
-<td class="td-num"><span class="vol-low">1.03</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">BAJAJFINSV</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">2046.80</td>
-<td class="td-num"><span class="rsi-hot">74.24</span></td>
-<td class="td-num">15.97</td>
-<td class="td-num">9.60</td>
-<td class="td-num">2019.46</td>
-<td class="td-num">2010.92</td>
-<td class="td-num"><span class="vol-low">0.43</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">EICHERMOT</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">8044.00</td>
-<td class="td-num"><span class="rsi-hot">80.96</span></td>
-<td class="td-num">201.32</td>
-<td class="td-num">132.92</td>
-<td class="td-num">7606.44</td>
-<td class="td-num">7446.28</td>
-<td class="td-num"><span class="vol-low">0.45</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">DRREDDY</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
-<td class="td-num">1305.10</td>
-<td class="td-num"><span class="rsi-hot">78.68</span></td>
-<td class="td-num">15.13</td>
-<td class="td-num">10.38</td>
-<td class="td-num">1254.71</td>
-<td class="td-num">1247.61</td>
-<td class="td-num"><span class="vol-high">1.30</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">BANDHANBNK</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">173.20</td>
-<td class="td-num"><span class="rsi-hot">82.07</span></td>
-<td class="td-num">6.20</td>
-<td class="td-num">5.43</td>
-<td class="td-num">161.60</td>
-<td class="td-num">154.46</td>
-<td class="td-num"><span class="vol-low">0.62</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">BANKBARODA</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">313.10</td>
-<td class="td-num"><span class="rsi-hot">85.62</span></td>
-<td class="td-num">1.81</td>
-<td class="td-num">-0.35</td>
-<td class="td-num">296.78</td>
-<td class="td-num">295.25</td>
-<td class="td-num"><span class="vol-high">1.48</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">BANKINDIA</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">174.00</td>
-<td class="td-num"><span class="rsi-hot">75.01</span></td>
-<td class="td-num">4.45</td>
-<td class="td-num">4.22</td>
-<td class="td-num">164.14</td>
-<td class="td-num">156.85</td>
-<td class="td-num"><span class="vol-low">0.56</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">BEL</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">439.80</td>
-<td class="td-num"><span class="rsi-mid">51.63</span></td>
-<td class="td-num">6.43</td>
-<td class="td-num">7.15</td>
-<td class="td-num">434.78</td>
-<td class="td-num">423.46</td>
-<td class="td-num"><span class="vol-low">0.38</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">CGPOWER</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">720.60</td>
-<td class="td-num"><span class="rsi-hot">81.74</span></td>
-<td class="td-num">24.45</td>
-<td class="td-num">19.02</td>
-<td class="td-num">664.97</td>
-<td class="td-num">647.13</td>
-<td class="td-num"><span class="vol-low">0.52</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">BRITANNIA</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">6106.00</td>
-<td class="td-num"><span class="rsi-ok">63.46</span></td>
-<td class="td-num">52.11</td>
-<td class="td-num">23.03</td>
-<td class="td-num">5999.03</td>
-<td class="td-num">5980.75</td>
-<td class="td-num"><span class="vol-low">1.13</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">FEDERALBNK</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">296.45</td>
-<td class="td-num"><span class="rsi-ok">66.52</span></td>
-<td class="td-num">4.93</td>
-<td class="td-num">5.27</td>
-<td class="td-num">284.90</td>
-<td class="td-num">276.96</td>
-<td class="td-num"><span class="vol-low">0.69</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">CUMMINSIND</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
-<td class="td-num">4880.00</td>
-<td class="td-num"><span class="rsi-hot">81.77</span></td>
-<td class="td-num">134.78</td>
-<td class="td-num">84.92</td>
-<td class="td-num">4404.72</td>
-<td class="td-num">4315.54</td>
-<td class="td-num"><span class="vol-high">1.32</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">COLPAL</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">2201.00</td>
-<td class="td-num"><span class="rsi-ok">60.96</span></td>
-<td class="td-num">16.72</td>
-<td class="td-num">12.87</td>
-<td class="td-num">2147.05</td>
-<td class="td-num">2125.35</td>
-<td class="td-num"><span class="vol-low">1.03</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">INDUSTOWER</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">473.00</td>
-<td class="td-num"><span class="rsi-hot">78.58</span></td>
-<td class="td-num">12.55</td>
-<td class="td-num">10.52</td>
-<td class="td-num">456.01</td>
-<td class="td-num">441.73</td>
-<td class="td-num"><span class="vol-low">0.65</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">INDIANB</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">985.00</td>
-<td class="td-num"><span class="rsi-hot">76.05</span></td>
-<td class="td-num">21.65</td>
-<td class="td-num">17.69</td>
-<td class="td-num">893.04</td>
-<td class="td-num">860.01</td>
-<td class="td-num"><span class="vol-low">0.96</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">INDUSINDBK</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
-<td class="td-num">920.00</td>
-<td class="td-num"><span class="rsi-ok">57.82</span></td>
-<td class="td-num">10.12</td>
-<td class="td-num">10.30</td>
-<td class="td-num">920.42</td>
-<td class="td-num">901.74</td>
-<td class="td-num"><span class="vol-high">1.59</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">GLENMARK</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">2033.00</td>
-<td class="td-num"><span class="rsi-ok">67.92</span></td>
-<td class="td-num">9.54</td>
-<td class="td-num">0.99</td>
-<td class="td-num">2003.41</td>
-<td class="td-num">2002.73</td>
-<td class="td-num"><span class="vol-low">0.63</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">FORTIS</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">917.05</td>
-<td class="td-num"><span class="rsi-hot">76.39</span></td>
-<td class="td-num">10.54</td>
-<td class="td-num">5.05</td>
-<td class="td-num">893.88</td>
-<td class="td-num">890.69</td>
-<td class="td-num"><span class="vol-low">0.89</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">MAXHEALTH</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">1082.00</td>
-<td class="td-num"><span class="rsi-hot">79.55</span></td>
-<td class="td-num">17.22</td>
-<td class="td-num">7.93</td>
-<td class="td-num">1044.75</td>
-<td class="td-num">1040.90</td>
-<td class="td-num"><span class="vol-low">0.64</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">MOTHERSON</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">130.25</td>
-<td class="td-num"><span class="rsi-hot">71.10</span></td>
-<td class="td-num">4.26</td>
-<td class="td-num">3.50</td>
-<td class="td-num">125.13</td>
-<td class="td-num">121.40</td>
-<td class="td-num"><span class="vol-low">0.52</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">JSWENERGY</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">485.85</td>
-<td class="td-num"><span class="rsi-hot">75.96</span></td>
-<td class="td-num">2.65</td>
-<td class="td-num">-0.02</td>
-<td class="td-num">479.36</td>
-<td class="td-num">479.35</td>
-<td class="td-num"><span class="vol-low">0.90</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">MCX</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">2399.00</td>
-<td class="td-num"><span class="rsi-mid">54.06</span></td>
-<td class="td-num">5.17</td>
-<td class="td-num">17.95</td>
-<td class="td-num">2376.12</td>
-<td class="td-num">2336.81</td>
-<td class="td-num"><span class="vol-low">0.49</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">LUPIN</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">2247.00</td>
-<td class="td-num"><span class="rsi-ok">67.08</span></td>
-<td class="td-num">21.03</td>
-<td class="td-num">18.62</td>
-<td class="td-num">2196.40</td>
-<td class="td-num">2168.09</td>
-<td class="td-num"><span class="vol-low">0.64</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">JSWSTEEL</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">1239.50</td>
-<td class="td-num"><span class="rsi-ok">63.54</span></td>
-<td class="td-num">17.70</td>
-<td class="td-num">21.10</td>
-<td class="td-num">1225.23</td>
-<td class="td-num">1189.61</td>
-<td class="td-num"><span class="vol-low">0.55</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">JINDALSTEL</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">1216.00</td>
-<td class="td-num"><span class="rsi-hot">80.14</span></td>
-<td class="td-num">40.04</td>
-<td class="td-num">40.04</td>
-<td class="td-num">1167.14</td>
-<td class="td-num">1107.37</td>
-<td class="td-num"><span class="vol-low">0.41</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">IOC</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">176.40</td>
-<td class="td-num"><span class="rsi-ok">64.11</span></td>
-<td class="td-num">3.72</td>
-<td class="td-num">3.91</td>
-<td class="td-num">171.97</td>
-<td class="td-num">167.21</td>
-<td class="td-num"><span class="vol-low">0.55</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">KAYNES</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">3811.90</td>
-<td class="td-num"><span class="rsi-ok">62.84</span></td>
-<td class="td-num">68.01</td>
-<td class="td-num">47.15</td>
-<td class="td-num">3836.32</td>
-<td class="td-num">3833.23</td>
-<td class="td-num"><span class="vol-low">0.62</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">KEI</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
-<td class="td-num">4762.00</td>
-<td class="td-num"><span class="rsi-hot">83.33</span></td>
-<td class="td-num">109.23</td>
-<td class="td-num">75.53</td>
-<td class="td-num">4453.75</td>
-<td class="td-num">4377.55</td>
-<td class="td-num"><span class="vol-high">1.43</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">LODHA</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">1079.90</td>
-<td class="td-num"><span class="rsi-hot">71.71</span></td>
-<td class="td-num">16.75</td>
-<td class="td-num">11.53</td>
-<td class="td-num">1057.68</td>
-<td class="td-num">1051.75</td>
-<td class="td-num"><span class="vol-low">0.28</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">LICI</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">883.05</td>
-<td class="td-num"><span class="rsi-ok">68.13</span></td>
-<td class="td-num">11.15</td>
-<td class="td-num">9.85</td>
-<td class="td-num">858.59</td>
-<td class="td-num">849.55</td>
-<td class="td-num"><span class="vol-low">0.30</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">MARICO</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">801.15</td>
-<td class="td-num"><span class="rsi-hot">77.79</span></td>
-<td class="td-num">10.05</td>
-<td class="td-num">5.63</td>
-<td class="td-num">763.09</td>
-<td class="td-num">754.84</td>
-<td class="td-num"><span class="vol-low">0.50</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">TORNTPHARM</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">4321.20</td>
-<td class="td-num"><span class="rsi-hot">70.69</span></td>
-<td class="td-num">75.88</td>
-<td class="td-num">56.16</td>
-<td class="td-num">4092.52</td>
-<td class="td-num">3999.80</td>
-<td class="td-num"><span class="vol-low">0.90</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">TVSMOTOR</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">3826.60</td>
-<td class="td-num"><span class="rsi-ok">67.39</span></td>
-<td class="td-num">45.52</td>
-<td class="td-num">37.92</td>
-<td class="td-num">3779.58</td>
-<td class="td-num">3728.89</td>
-<td class="td-num"><span class="vol-low">0.54</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">ULTRACEMCO</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">12970.00</td>
-<td class="td-num"><span class="rsi-ok">58.15</span></td>
-<td class="td-num">168.70</td>
-<td class="td-num">205.15</td>
-<td class="td-num">12741.42</td>
-<td class="td-num">12440.39</td>
-<td class="td-num"><span class="vol-low">0.49</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">SIEMENS</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">3301.00</td>
-<td class="td-num"><span class="rsi-ok">57.37</span></td>
-<td class="td-num">35.50</td>
-<td class="td-num">33.87</td>
-<td class="td-num">3129.80</td>
-<td class="td-num">3097.51</td>
-<td class="td-num"><span class="vol-high">3.92</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">SOLARINDS</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">13365.00</td>
-<td class="td-num"><span class="rsi-mid">51.83</span></td>
-<td class="td-num">103.30</td>
-<td class="td-num">132.25</td>
-<td class="td-num">13231.09</td>
-<td class="td-num">13004.32</td>
-<td class="td-num"><span class="vol-low">0.74</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">SONACOMS</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">536.00</td>
-<td class="td-num"><span class="rsi-ok">65.58</span></td>
-<td class="td-num">13.63</td>
-<td class="td-num">13.85</td>
-<td class="td-num">515.75</td>
-<td class="td-num">499.33</td>
-<td class="td-num"><span class="vol-low">0.71</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">SUNPHARMA</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">1732.00</td>
-<td class="td-num"><span class="rsi-hot">78.07</span></td>
-<td class="td-num">10.39</td>
-<td class="td-num">4.34</td>
-<td class="td-num">1696.40</td>
-<td class="td-num">1696.40</td>
-<td class="td-num"><span class="vol-low">0.45</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">SUPREMEIND</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
-<td class="td-num">3936.40</td>
-<td class="td-num"><span class="rsi-hot">71.37</span></td>
-<td class="td-num">116.73</td>
-<td class="td-num">103.02</td>
-<td class="td-num">3737.96</td>
-<td class="td-num">3582.56</td>
-<td class="td-num"><span class="vol-high">1.75</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">TATASTEEL</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">208.00</td>
-<td class="td-num"><span class="rsi-hot">72.23</span></td>
-<td class="td-num">6.00</td>
-<td class="td-num">5.93</td>
-<td class="td-num">199.79</td>
-<td class="td-num">190.37</td>
-<td class="td-num"><span class="vol-low">0.74</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">SBILIFE</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">2108.00</td>
-<td class="td-num"><span class="rsi-ok">67.34</span></td>
-<td class="td-num">5.46</td>
-<td class="td-num">-1.03</td>
-<td class="td-num">2036.47</td>
-<td class="td-num">2033.54</td>
-<td class="td-num"><span class="vol-low">0.82</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">SAIL</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">156.69</td>
-<td class="td-num"><span class="rsi-ok">66.01</span></td>
-<td class="td-num">2.97</td>
-<td class="td-num">3.61</td>
-<td class="td-num">156.04</td>
-<td class="td-num">149.82</td>
-<td class="td-num"><span class="vol-low">0.58</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">POLYCAB</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">7992.00</td>
-<td class="td-num"><span class="rsi-hot">74.96</span></td>
-<td class="td-num">125.82</td>
-<td class="td-num">82.81</td>
-<td class="td-num">7584.85</td>
-<td class="td-num">7512.54</td>
-<td class="td-num"><span class="vol-high">1.46</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">POWERGRID</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">302.70</td>
-<td class="td-num"><span class="rsi-hot">73.27</span></td>
-<td class="td-num">9.35</td>
-<td class="td-num">8.35</td>
-<td class="td-num">285.72</td>
-<td class="td-num">275.73</td>
-<td class="td-num"><span class="vol-low">0.63</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">POWERINDIA</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">24100.00</td>
-<td class="td-num"><span class="rsi-hot">79.20</span></td>
-<td class="td-num">1431.36</td>
-<td class="td-num">1191.85</td>
-<td class="td-num">21266.28</td>
-<td class="td-num">19813.09</td>
-<td class="td-num"><span class="vol-high">1.21</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">RBLBANK</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">319.50</td>
-<td class="td-num"><span class="rsi-hot">78.69</span></td>
-<td class="td-num">6.13</td>
-<td class="td-num">3.12</td>
-<td class="td-num">313.10</td>
-<td class="td-num">308.53</td>
-<td class="td-num"><span class="vol-low">1.11</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">PFC</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">412.25</td>
-<td class="td-num"><span class="rsi-ok">63.77</span></td>
-<td class="td-num">11.04</td>
-<td class="td-num">11.72</td>
-<td class="td-num">401.38</td>
-<td class="td-num">385.04</td>
-<td class="td-num"><span class="vol-low">0.66</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">ONGC</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">276.10</td>
-<td class="td-num"><span class="rsi-ok">69.82</span></td>
-<td class="td-num">7.08</td>
-<td class="td-num">7.19</td>
-<td class="td-num">265.45</td>
-<td class="td-num">254.75</td>
-<td class="td-num"><span class="vol-high">1.44</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">NYKAA</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">267.00</td>
-<td class="td-num"><span class="rsi-ok">68.86</span></td>
-<td class="td-num">5.20</td>
-<td class="td-num">4.76</td>
-<td class="td-num">264.03</td>
-<td class="td-num">259.94</td>
-<td class="td-num"><span class="vol-low">0.40</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">NTPC</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
-<td class="td-num">375.50</td>
-<td class="td-num"><span class="rsi-hot">70.18</span></td>
-<td class="td-num">7.00</td>
-<td class="td-num">7.19</td>
-<td class="td-num">360.81</td>
-<td class="td-num">349.54</td>
-<td class="td-num"><span class="vol-high">1.55</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">VOLTAS</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
-<td class="td-num">1537.00</td>
-<td class="td-num"><span class="rsi-hot">80.68</span></td>
-<td class="td-num">41.90</td>
-<td class="td-num">31.25</td>
-<td class="td-num">1468.54</td>
-<td class="td-num">1429.45</td>
-<td class="td-num"><span class="vol-low">1.17</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">TITAN</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">4271.00</td>
-<td class="td-num"><span class="rsi-ok">69.94</span></td>
-<td class="td-num">44.00</td>
-<td class="td-num">37.24</td>
-<td class="td-num">4166.49</td>
-<td class="td-num">4111.46</td>
-<td class="td-num"><span class="vol-low">0.49</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">TMPV</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">379.05</td>
-<td class="td-num"><span class="rsi-ok">63.43</span></td>
-<td class="td-num">6.62</td>
-<td class="td-num">6.17</td>
-<td class="td-num">371.50</td>
-<td class="td-num">364.82</td>
-<td class="td-num"><span class="vol-low">0.57</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">TORNTPOWER</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-aggressive">Aggressive Entry</span></td>
-<td class="td-num">1533.00</td>
-<td class="td-num"><span class="rsi-hot">76.05</span></td>
-<td class="td-num">45.46</td>
-<td class="td-num">35.91</td>
-<td class="td-num">1434.50</td>
-<td class="td-num">1382.94</td>
-<td class="td-num"><span class="vol-high">1.74</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">UNIONBANK</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">197.20</td>
-<td class="td-num"><span class="rsi-hot">81.98</span></td>
-<td class="td-num">6.06</td>
-<td class="td-num">5.14</td>
-<td class="td-num">180.88</td>
-<td class="td-num">171.64</td>
-<td class="td-num"><span class="vol-low">0.88</span></td>
-</tr>
-<tr data-signal="buy">
-<td><span class="td-symbol">VEDL</span></td>
-<td><span class="badge badge-buy">Swing Buy</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">679.50</td>
-<td class="td-num"><span class="rsi-ok">56.33</span></td>
-<td class="td-num">6.69</td>
-<td class="td-num">10.02</td>
-<td class="td-num">676.68</td>
-<td class="td-num">657.12</td>
-<td class="td-num"><span class="vol-low">0.35</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=INDIA VIX-EQ" target="_blank" title="Open NSE Chart">
+    INDIA VIX
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 60.3 — Bullish momentum confirmed · Price 13 > EMA21 13 > EMA50 12 — Uptrend active · MACD 0.48 above Signal 0.35 — Bullish crossover · Histogram 0.124 (increasing ↑) · Volume nanx avg — Below average · Swing Low support: 11.55 | Resistance: 15.10 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">13.49</td>
+<td class="num"><span class="green">60.28</span></td>
+<td class="num muted">0.48</td>
+<td class="num muted">0.35</td>
+<td class="num"><span class="green">▲ 0.1241</span></td>
+<td class="num muted">12.96</td>
+<td class="num muted">12.32</td>
+<td class="num"><span class="muted">nanx</span></td>
+<td class="num muted">15.10</td>
+<td class="num muted">11.55</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=NIFTY PSU BANK-EQ" target="_blank" title="Open NSE Chart">
+    NIFTY PSU BANK
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 71.6 — Strong momentum (watch for overbought) · Price 9787 > EMA21 9283 > EMA50 8957 — Uptrend active · MACD 257.41 above Signal 197.43 — Bullish crossover · Histogram 59.979 (increasing ↑) · Volume 1.79x avg — Strong surge · Swing Low support: 8517.20 | Resistance: 9085.80 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">9,787.20</td>
+<td class="num"><span class="red">71.61</span></td>
+<td class="num muted">257.41</td>
+<td class="num muted">197.43</td>
+<td class="num"><span class="green">▲ 59.9786</span></td>
+<td class="num muted">9282.80</td>
+<td class="num muted">8956.51</td>
+<td class="num"><span class="green">1.79x</span></td>
+<td class="num muted">9085.80</td>
+<td class="num muted">8517.20</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=NIFTY ENERGY-EQ" target="_blank" title="Open NSE Chart">
+    NIFTY ENERGY
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 62.4 — Bullish momentum confirmed · Price 37119 > EMA21 36042 > EMA50 35592 — Uptrend active · MACD 474.94 above Signal 421.78 — Bullish crossover · Histogram 53.161 (increasing ↑) · Volume 0.87x avg — Below average · Swing Low support: 35709.90 | Resistance: 36671.00 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">37,118.60</td>
+<td class="num"><span class="green">62.35</span></td>
+<td class="num muted">474.94</td>
+<td class="num muted">421.78</td>
+<td class="num"><span class="green">▲ 53.1615</span></td>
+<td class="num muted">36041.50</td>
+<td class="num muted">35592.15</td>
+<td class="num"><span class="muted">0.87x</span></td>
+<td class="num muted">36671.00</td>
+<td class="num muted">35709.90</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=ADANIENSOL-EQ" target="_blank" title="Open NSE Chart">
+    ADANIENSOL
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 58.6 — Bullish momentum confirmed · Price 1022 > EMA21 993 > EMA50 978 — Uptrend active · MACD 18.87 above Signal 15.98 — Bullish crossover · Histogram 2.887 (increasing ↑) · Volume 0.87x avg — Below average · Swing Low support: 988.00 | Resistance: 924.80 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">1,021.70</td>
+<td class="num"><span class="green">58.61</span></td>
+<td class="num muted">18.87</td>
+<td class="num muted">15.98</td>
+<td class="num"><span class="green">▲ 2.8869</span></td>
+<td class="num muted">993.19</td>
+<td class="num muted">978.14</td>
+<td class="num"><span class="muted">0.87x</span></td>
+<td class="num muted">924.80</td>
+<td class="num muted">988.00</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=BANKBARODA-EQ" target="_blank" title="Open NSE Chart">
+    BANKBARODA
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 65.7 — Bullish momentum confirmed · Price 316 > EMA21 300 > EMA50 296 — Uptrend active · MACD 3.67 above Signal 0.98 — Bullish crossover · Histogram 2.690 (increasing ↑) · Volume 1.26x avg — Above average · Swing Low support: 287.45 | Resistance: 306.20 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">316.20</td>
+<td class="num"><span class="green">65.72</span></td>
+<td class="num muted">3.67</td>
+<td class="num muted">0.98</td>
+<td class="num"><span class="green">▲ 2.6897</span></td>
+<td class="num muted">299.64</td>
+<td class="num muted">296.19</td>
+<td class="num"><span class="amber">1.26x</span></td>
+<td class="num muted">306.20</td>
+<td class="num muted">287.45</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=AXISBANK-EQ" target="_blank" title="Open NSE Chart">
+    AXISBANK
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 62.5 — Bullish momentum confirmed · Price 1402 > EMA21 1348 > EMA50 1317 — Uptrend active · MACD 20.47 above Signal 18.65 — Bullish crossover · Histogram 1.823 (increasing ↑) · Volume 1.17x avg — Below average · Swing Low support: 1332.30 | Resistance: 1370.40 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">1,402.50</td>
+<td class="num"><span class="green">62.51</span></td>
+<td class="num muted">20.47</td>
+<td class="num muted">18.65</td>
+<td class="num"><span class="green">▲ 1.8229</span></td>
+<td class="num muted">1348.26</td>
+<td class="num muted">1317.48</td>
+<td class="num"><span class="muted">1.17x</span></td>
+<td class="num muted">1370.40</td>
+<td class="num muted">1332.30</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=CANBK-EQ" target="_blank" title="Open NSE Chart">
+    CANBK
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 61.4 — Bullish momentum confirmed · Price 159 > EMA21 150 > EMA50 149 — Uptrend active · MACD 0.99 above Signal -0.30 — Bullish crossover · Histogram 1.290 (increasing ↑) · Volume 0.95x avg — Below average · Swing Low support: 141.77 | Resistance: 148.29 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">158.99</td>
+<td class="num"><span class="green">61.41</span></td>
+<td class="num muted">0.99</td>
+<td class="num muted">-0.30</td>
+<td class="num"><span class="green">▲ 1.2901</span></td>
+<td class="num muted">150.29</td>
+<td class="num muted">149.14</td>
+<td class="num"><span class="muted">0.95x</span></td>
+<td class="num muted">148.29</td>
+<td class="num muted">141.77</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=BANKINDIA-EQ" target="_blank" title="Open NSE Chart">
+    BANKINDIA
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 64.9 — Bullish momentum confirmed · Price 175 > EMA21 166 > EMA50 159 — Uptrend active · MACD 4.83 above Signal 4.29 — Bullish crossover · Histogram 0.533 (increasing ↑) · Volume 1.89x avg — Strong surge · Swing Low support: 161.79 | Resistance: 168.41 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">175.20</td>
+<td class="num"><span class="green">64.86</span></td>
+<td class="num muted">4.83</td>
+<td class="num muted">4.29</td>
+<td class="num"><span class="green">▲ 0.5330</span></td>
+<td class="num muted">166.04</td>
+<td class="num muted">158.76</td>
+<td class="num"><span class="green">1.89x</span></td>
+<td class="num muted">168.41</td>
+<td class="num muted">161.79</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=GODREJCP-EQ" target="_blank" title="Open NSE Chart">
+    GODREJCP
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 60.4 — Bullish momentum confirmed · Price 1235 > EMA21 1203 > EMA50 1194 — Uptrend active · MACD 5.96 above Signal 1.47 — Bullish crossover · Histogram 4.495 (increasing ↑) · Volume 1.05x avg — Below average · Swing Low support: 1146.40 | Resistance: 1246.00 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">1,235.00</td>
+<td class="num"><span class="green">60.41</span></td>
+<td class="num muted">5.96</td>
+<td class="num muted">1.47</td>
+<td class="num"><span class="green">▲ 4.4954</span></td>
+<td class="num muted">1203.32</td>
+<td class="num muted">1193.85</td>
+<td class="num"><span class="muted">1.05x</span></td>
+<td class="num muted">1246.00</td>
+<td class="num muted">1146.40</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=COLPAL-EQ" target="_blank" title="Open NSE Chart">
+    COLPAL
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-aggr">Aggressive Entry</span>
+    <i class="info-icon"
+       data-title="Aggressive Entry — Breakout entry — price broke swing high/low with volume"
+       data-tip="RSI 63.7 — Bullish momentum confirmed · Price 2272 > EMA21 2160 > EMA50 2147 — Uptrend active · MACD 20.69 above Signal 12.67 — Bullish crossover · Histogram 8.016 (increasing ↑) · Volume 1.36x avg — Above average · Swing Low support: 2118.60 | Resistance: 2183.00 · Breakout above swing high confirmed">i</i>
+  </div>
+</td>
+<td class="num">2,272.00</td>
+<td class="num"><span class="green">63.70</span></td>
+<td class="num muted">20.69</td>
+<td class="num muted">12.67</td>
+<td class="num"><span class="green">▲ 8.0157</span></td>
+<td class="num muted">2160.09</td>
+<td class="num muted">2146.99</td>
+<td class="num"><span class="amber">1.36x</span></td>
+<td class="num muted">2183.00</td>
+<td class="num muted">2118.60</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=POLYCAB-EQ" target="_blank" title="Open NSE Chart">
+    POLYCAB
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 66.8 — Bullish momentum confirmed · Price 8348 > EMA21 7663 > EMA50 7532 — Uptrend active · MACD 166.72 above Signal 115.89 — Bullish crossover · Histogram 50.829 (increasing ↑) · Volume 3.25x avg — Strong surge · Swing Low support: 7587.50 | Resistance: 7897.00 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">8,348.00</td>
+<td class="num"><span class="green">66.81</span></td>
+<td class="num muted">166.72</td>
+<td class="num muted">115.89</td>
+<td class="num"><span class="green">▲ 50.8288</span></td>
+<td class="num muted">7662.82</td>
+<td class="num muted">7532.47</td>
+<td class="num"><span class="green">3.25x</span></td>
+<td class="num muted">7897.00</td>
+<td class="num muted">7587.50</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=PETRONET-EQ" target="_blank" title="Open NSE Chart">
+    PETRONET
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-aggr">Aggressive Entry</span>
+    <i class="info-icon"
+       data-title="Aggressive Entry — Breakout entry — price broke swing high/low with volume"
+       data-tip="RSI 62.7 — Bullish momentum confirmed · Price 314 > EMA21 298 > EMA50 290 — Uptrend active · MACD 5.26 above Signal 4.59 — Bullish crossover · Histogram 0.673 (increasing ↑) · Volume 2.07x avg — Strong surge · Swing Low support: 290.40 | Resistance: 295.30 · Breakout above swing high confirmed">i</i>
+  </div>
+</td>
+<td class="num">313.80</td>
+<td class="num"><span class="green">62.67</span></td>
+<td class="num muted">5.26</td>
+<td class="num muted">4.59</td>
+<td class="num"><span class="green">▲ 0.6726</span></td>
+<td class="num muted">297.63</td>
+<td class="num muted">290.41</td>
+<td class="num"><span class="green">2.07x</span></td>
+<td class="num muted">295.30</td>
+<td class="num muted">290.40</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=NTPC-EQ" target="_blank" title="Open NSE Chart">
+    NTPC
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 69.3 — Bullish momentum confirmed · Price 386 > EMA21 364 > EMA50 352 — Uptrend active · MACD 8.01 above Signal 7.37 — Bullish crossover · Histogram 0.641 (increasing ↑) · Volume 1.83x avg — Strong surge · Swing Low support: 336.70 | Resistance: 349.10 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">385.90</td>
+<td class="num"><span class="green">69.26</span></td>
+<td class="num muted">8.01</td>
+<td class="num muted">7.37</td>
+<td class="num"><span class="green">▲ 0.6414</span></td>
+<td class="num muted">364.00</td>
+<td class="num muted">352.44</td>
+<td class="num"><span class="green">1.83x</span></td>
+<td class="num muted">349.10</td>
+<td class="num muted">336.70</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=LUPIN-EQ" target="_blank" title="Open NSE Chart">
+    LUPIN
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 63.0 — Bullish momentum confirmed · Price 2293 > EMA21 2205 > EMA50 2161 — Uptrend active · MACD 24.41 above Signal 22.01 — Bullish crossover · Histogram 2.393 (increasing ↑) · Volume 1.36x avg — Above average · Swing Low support: 2129.40 | Resistance: 2218.50 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">2,293.00</td>
+<td class="num"><span class="green">62.99</span></td>
+<td class="num muted">24.41</td>
+<td class="num muted">22.01</td>
+<td class="num"><span class="green">▲ 2.3933</span></td>
+<td class="num muted">2204.54</td>
+<td class="num muted">2160.65</td>
+<td class="num"><span class="amber">1.36x</span></td>
+<td class="num muted">2218.50</td>
+<td class="num muted">2129.40</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=INDIANB-EQ" target="_blank" title="Open NSE Chart">
+    INDIANB
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 70.4 — Strong momentum (watch for overbought) · Price 982 > EMA21 909 > EMA50 879 — Uptrend active · MACD 28.21 above Signal 19.62 — Bullish crossover · Histogram 8.591 (increasing ↑) · Volume 1.10x avg — Below average · Swing Low support: 834.80 | Resistance: 911.70 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">981.85</td>
+<td class="num"><span class="red">70.43</span></td>
+<td class="num muted">28.21</td>
+<td class="num muted">19.62</td>
+<td class="num"><span class="green">▲ 8.5914</span></td>
+<td class="num muted">909.33</td>
+<td class="num muted">878.65</td>
+<td class="num"><span class="muted">1.10x</span></td>
+<td class="num muted">911.70</td>
+<td class="num muted">834.80</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=ICICIPRULI-EQ" target="_blank" title="Open NSE Chart">
+    ICICIPRULI
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 57.7 — Bullish momentum confirmed · Price 669 > EMA21 650 > EMA50 648 — Uptrend active · MACD 0.72 above Signal -1.52 — Bullish crossover · Histogram 2.246 (increasing ↑) · Volume 0.78x avg — Below average · Swing Low support: 638.10 | Resistance: 660.35 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">669.00</td>
+<td class="num"><span class="green">57.72</span></td>
+<td class="num muted">0.72</td>
+<td class="num muted">-1.52</td>
+<td class="num"><span class="green">▲ 2.2460</span></td>
+<td class="num muted">650.33</td>
+<td class="num muted">647.55</td>
+<td class="num"><span class="muted">0.78x</span></td>
+<td class="num muted">660.35</td>
+<td class="num muted">638.10</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=UNIONBANK-EQ" target="_blank" title="Open NSE Chart">
+    UNIONBANK
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 74.2 — Strong momentum (watch for overbought) · Price 199 > EMA21 184 > EMA50 174 — Uptrend active · MACD 7.16 above Signal 5.69 — Bullish crossover · Histogram 1.465 (increasing ↑) · Volume 1.18x avg — Below average · Swing Low support: 169.37 | Resistance: 181.93 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">199.00</td>
+<td class="num"><span class="red">74.19</span></td>
+<td class="num muted">7.16</td>
+<td class="num muted">5.69</td>
+<td class="num"><span class="green">▲ 1.4653</span></td>
+<td class="num muted">184.11</td>
+<td class="num muted">173.96</td>
+<td class="num"><span class="muted">1.18x</span></td>
+<td class="num muted">181.93</td>
+<td class="num muted">169.37</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=VOLTAS-EQ" target="_blank" title="Open NSE Chart">
+    VOLTAS
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-aggr">Aggressive Entry</span>
+    <i class="info-icon"
+       data-title="Aggressive Entry — Breakout entry — price broke swing high/low with volume"
+       data-tip="RSI 62.9 — Bullish momentum confirmed · Price 1527 > EMA21 1480 > EMA50 1438 — Uptrend active · MACD 41.67 above Signal 35.38 — Bullish crossover · Histogram 6.292 (increasing ↑) · Volume 1.24x avg — Above average · Swing Low support: 1294.80 | Resistance: 1372.90 · Breakout above swing high confirmed">i</i>
+  </div>
+</td>
+<td class="num">1,527.00</td>
+<td class="num"><span class="green">62.88</span></td>
+<td class="num muted">41.67</td>
+<td class="num muted">35.38</td>
+<td class="num"><span class="green">▲ 6.2920</span></td>
+<td class="num muted">1480.49</td>
+<td class="num muted">1437.65</td>
+<td class="num"><span class="amber">1.24x</span></td>
+<td class="num muted">1372.90</td>
+<td class="num muted">1294.80</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=TITAN-EQ" target="_blank" title="Open NSE Chart">
+    TITAN
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 62.9 — Bullish momentum confirmed · Price 4333 > EMA21 4185 > EMA50 4096 — Uptrend active · MACD 54.67 above Signal 47.90 — Bullish crossover · Histogram 6.767 (increasing ↑) · Volume 0.50x avg — Below average · Swing Low support: 3939.70 | Resistance: 4275.80 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">4,332.90</td>
+<td class="num"><span class="green">62.85</span></td>
+<td class="num muted">54.67</td>
+<td class="num muted">47.90</td>
+<td class="num"><span class="green">▲ 6.7668</span></td>
+<td class="num muted">4184.90</td>
+<td class="num muted">4096.14</td>
+<td class="num"><span class="muted">0.50x</span></td>
+<td class="num muted">4275.80</td>
+<td class="num muted">3939.70</td>
+</tr>
+<tr data-signal="buy">
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=TORNTPHARM-EQ" target="_blank" title="Open NSE Chart">
+    TORNTPHARM
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-buy">↑ Swing Buy</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 74.4 — Strong momentum (watch for overbought) · Price 4435 > EMA21 4137 > EMA50 4010 — Uptrend active · MACD 97.02 above Signal 71.11 — Bullish crossover · Histogram 25.915 (increasing ↑) · Volume 2.21x avg — Strong surge · Swing Low support: 3939.00 | Resistance: 4086.60 · Higher Low structure intact — pullback entry">i</i>
+  </div>
+</td>
+<td class="num">4,435.00</td>
+<td class="num"><span class="red">74.40</span></td>
+<td class="num muted">97.02</td>
+<td class="num muted">71.11</td>
+<td class="num"><span class="green">▲ 25.9147</span></td>
+<td class="num muted">4137.31</td>
+<td class="num muted">4009.82</td>
+<td class="num"><span class="green">2.21x</span></td>
+<td class="num muted">4086.60</td>
+<td class="num muted">3939.00</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">MUTHOOTFIN</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">3474.00</td>
-<td class="td-num"><span class="rsi-mid">47.53</span></td>
-<td class="td-num">-91.50</td>
-<td class="td-num">-55.22</td>
-<td class="td-num">3671.90</td>
-<td class="td-num">3749.04</td>
-<td class="td-num"><span class="vol-low">0.80</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=DLF-EQ" target="_blank" title="Open NSE Chart">
+    DLF
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 38.4 — Bearish momentum confirmed · Price 611 < EMA21 640 < EMA50 660 — Downtrend active · MACD -8.89 below Signal -6.54 — Bearish crossover · Histogram -2.347 (decreasing ↓) · Volume 0.93x avg — Below average · Swing High resistance: 672.05 | Support: 588.45 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">611.00</td>
+<td class="num"><span class="muted">38.39</span></td>
+<td class="num muted">-8.89</td>
+<td class="num muted">-6.54</td>
+<td class="num"><span class="red">▼ 2.3473</span></td>
+<td class="num muted">640.19</td>
+<td class="num muted">660.20</td>
+<td class="num"><span class="muted">0.93x</span></td>
+<td class="num muted">672.05</td>
+<td class="num muted">588.45</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">NAUKRI</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">1072.00</td>
-<td class="td-num"><span class="rsi-cool">25.08</span></td>
-<td class="td-num">-54.62</td>
-<td class="td-num">-47.82</td>
-<td class="td-num">1180.09</td>
-<td class="td-num">1249.60</td>
-<td class="td-num"><span class="vol-low">0.92</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=DIXON-EQ" target="_blank" title="Open NSE Chart">
+    DIXON
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 36.8 — Bearish momentum confirmed · Price 10360 < EMA21 11212 < EMA50 11770 — Downtrend active · MACD -139.86 below Signal -93.06 — Bearish crossover · Histogram -46.800 (decreasing ↓) · Volume 0.65x avg — Below average · Swing High resistance: 11757.00 | Support: 10184.00 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">10,360.00</td>
+<td class="num"><span class="muted">36.80</span></td>
+<td class="num muted">-139.86</td>
+<td class="num muted">-93.06</td>
+<td class="num"><span class="red">▼ 46.7996</span></td>
+<td class="num muted">11211.90</td>
+<td class="num muted">11769.56</td>
+<td class="num"><span class="muted">0.65x</span></td>
+<td class="num muted">11757.00</td>
+<td class="num muted">10184.00</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">NMDC</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">78.85</td>
-<td class="td-num"><span class="rsi-mid">46.54</span></td>
-<td class="td-num">-0.52</td>
-<td class="td-num">-0.08</td>
-<td class="td-num">81.61</td>
-<td class="td-num">81.99</td>
-<td class="td-num"><span class="vol-low">0.98</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=BHARTIARTL-EQ" target="_blank" title="Open NSE Chart">
+    BHARTIARTL
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-aggr">Aggressive Entry</span>
+    <i class="info-icon"
+       data-title="Aggressive Entry — Breakout entry — price broke swing high/low with volume"
+       data-tip="RSI 36.3 — Bearish momentum confirmed · Price 1917 < EMA21 2002 < EMA50 2027 — Downtrend active · MACD -12.44 below Signal -9.62 — Bearish crossover · Histogram -2.823 (decreasing ↓) · Volume 1.57x avg — Strong surge · Swing High resistance: 2038.40 | Support: 1949.00 · Breakdown below swing low confirmed">i</i>
+  </div>
+</td>
+<td class="num">1,916.80</td>
+<td class="num"><span class="muted">36.32</span></td>
+<td class="num muted">-12.44</td>
+<td class="num muted">-9.62</td>
+<td class="num"><span class="red">▼ 2.8234</span></td>
+<td class="num muted">2002.14</td>
+<td class="num muted">2026.84</td>
+<td class="num"><span class="green">1.57x</span></td>
+<td class="num muted">2038.40</td>
+<td class="num muted">1949.00</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">HINDZINC</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">591.75</td>
-<td class="td-num"><span class="rsi-mid">43.61</span></td>
-<td class="td-num">-15.69</td>
-<td class="td-num">-11.18</td>
-<td class="td-num">614.76</td>
-<td class="td-num">627.65</td>
-<td class="td-num"><span class="vol-low">0.25</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=CAMS-EQ" target="_blank" title="Open NSE Chart">
+    CAMS
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 43.6 — Bearish momentum confirmed · Price 715 < EMA21 724 < EMA50 732 — Downtrend active · MACD -1.38 below Signal -0.36 — Bearish crossover · Histogram -1.016 (decreasing ↓) · Volume 0.78x avg — Below average · Swing High resistance: 747.10 | Support: 676.10 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">714.55</td>
+<td class="num"><span class="">43.62</span></td>
+<td class="num muted">-1.38</td>
+<td class="num muted">-0.36</td>
+<td class="num"><span class="red">▼ 1.0165</span></td>
+<td class="num muted">723.92</td>
+<td class="num muted">732.35</td>
+<td class="num"><span class="muted">0.78x</span></td>
+<td class="num muted">747.10</td>
+<td class="num muted">676.10</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">IRFC</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">111.79</td>
-<td class="td-num"><span class="rsi-cool">37.47</span></td>
-<td class="td-num">-2.64</td>
-<td class="td-num">-2.81</td>
-<td class="td-num">115.15</td>
-<td class="td-num">120.19</td>
-<td class="td-num"><span class="vol-low">0.67</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=MAZDOCK-EQ" target="_blank" title="Open NSE Chart">
+    MAZDOCK
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 35.5 — Bearish momentum confirmed · Price 2240 < EMA21 2381 < EMA50 2446 — Downtrend active · MACD -40.17 below Signal -27.88 — Bearish crossover · Histogram -12.290 (decreasing ↓) · Volume 0.60x avg — Below average · Swing High resistance: 2472.50 | Support: 2301.80 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">2,240.00</td>
+<td class="num"><span class="muted">35.50</span></td>
+<td class="num muted">-40.17</td>
+<td class="num muted">-27.88</td>
+<td class="num"><span class="red">▼ 12.2900</span></td>
+<td class="num muted">2381.43</td>
+<td class="num muted">2446.28</td>
+<td class="num"><span class="muted">0.60x</span></td>
+<td class="num muted">2472.50</td>
+<td class="num muted">2301.80</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">HCLTECH</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">1425.00</td>
-<td class="td-num"><span class="rsi-cool">15.54</span></td>
-<td class="td-num">-59.30</td>
-<td class="td-num">-42.75</td>
-<td class="td-num">1553.50</td>
-<td class="td-num">1607.32</td>
-<td class="td-num"><span class="vol-low">0.75</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=M&M-EQ" target="_blank" title="Open NSE Chart">
+    M&M
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 40.7 — Bearish momentum confirmed · Price 3480 < EMA21 3518 < EMA50 3566 — Downtrend active · MACD -37.45 below Signal -26.56 — Bearish crossover · Histogram -10.892 (decreasing ↓) · Volume 0.72x avg — Below average · Swing High resistance: 3675.80 | Support: 3363.80 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">3,480.00</td>
+<td class="num"><span class="">40.68</span></td>
+<td class="num muted">-37.45</td>
+<td class="num muted">-26.56</td>
+<td class="num"><span class="red">▼ 10.8919</span></td>
+<td class="num muted">3518.09</td>
+<td class="num muted">3565.55</td>
+<td class="num"><span class="muted">0.72x</span></td>
+<td class="num muted">3675.80</td>
+<td class="num muted">3363.80</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">INFY</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">1328.00</td>
-<td class="td-num"><span class="rsi-cool">13.83</span></td>
-<td class="td-num">-73.77</td>
-<td class="td-num">-58.33</td>
-<td class="td-num">1481.03</td>
-<td class="td-num">1557.54</td>
-<td class="td-num"><span class="vol-low">0.88</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=IRFC-EQ" target="_blank" title="Open NSE Chart">
+    IRFC
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 34.6 — Bearish momentum confirmed · Price 104 < EMA21 114 < EMA50 117 — Downtrend active · MACD -2.02 below Signal -1.80 — Bearish crossover · Histogram -0.220 (decreasing ↓) · Volume 0.83x avg — Below average · Swing High resistance: 120.15 | Support: 113.54 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">104.43</td>
+<td class="num"><span class="muted">34.60</span></td>
+<td class="num muted">-2.02</td>
+<td class="num muted">-1.80</td>
+<td class="num"><span class="red">▼ 0.2203</span></td>
+<td class="num muted">114.04</td>
+<td class="num muted">116.54</td>
+<td class="num"><span class="muted">0.83x</span></td>
+<td class="num muted">120.15</td>
+<td class="num muted">113.54</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">IREDA</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">127.25</td>
-<td class="td-num"><span class="rsi-mid">48.20</span></td>
-<td class="td-num">-2.39</td>
-<td class="td-num">-2.61</td>
-<td class="td-num">128.93</td>
-<td class="td-num">132.93</td>
-<td class="td-num"><span class="vol-low">0.68</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=NBCC-EQ" target="_blank" title="Open NSE Chart">
+    NBCC
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 37.1 — Bearish momentum confirmed · Price 95 < EMA21 99 < EMA50 103 — Downtrend active · MACD -2.55 below Signal -2.43 — Bearish crossover · Histogram -0.121 (decreasing ↓) · Volume 0.68x avg — Below average · Swing High resistance: 104.35 | Support: 95.08 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">94.75</td>
+<td class="num"><span class="muted">37.15</span></td>
+<td class="num muted">-2.55</td>
+<td class="num muted">-2.43</td>
+<td class="num"><span class="red">▼ 0.1212</span></td>
+<td class="num muted">99.06</td>
+<td class="num muted">103.46</td>
+<td class="num"><span class="muted">0.68x</span></td>
+<td class="num muted">104.35</td>
+<td class="num muted">95.08</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">BOSCHLTD</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">35270.00</td>
-<td class="td-num"><span class="rsi-cool">39.82</span></td>
-<td class="td-num">-319.48</td>
-<td class="td-num">-213.82</td>
-<td class="td-num">35951.04</td>
-<td class="td-num">36177.42</td>
-<td class="td-num"><span class="vol-high">1.40</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=MIDCPNIFTY-EQ" target="_blank" title="Open NSE Chart">
+    MIDCPNIFTY
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 44.5 — Bearish momentum confirmed · Price 13559 < EMA21 13594 < EMA50 13620 — Downtrend active · MACD -20.57 below Signal 5.32 — Bearish crossover · Histogram -25.887 (decreasing ↓) · Volume 1.01x avg — Below average · Swing High resistance: 13953.10 | Support: 13020.25 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">13,558.55</td>
+<td class="num"><span class="">44.49</span></td>
+<td class="num muted">-20.57</td>
+<td class="num muted">5.32</td>
+<td class="num"><span class="red">▼ 25.8875</span></td>
+<td class="num muted">13593.72</td>
+<td class="num muted">13620.36</td>
+<td class="num"><span class="muted">1.01x</span></td>
+<td class="num muted">13953.10</td>
+<td class="num muted">13020.25</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">CONCOR</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">507.20</td>
-<td class="td-num"><span class="rsi-mid">46.67</span></td>
-<td class="td-num">-2.01</td>
-<td class="td-num">-1.59</td>
-<td class="td-num">508.22</td>
-<td class="td-num">511.78</td>
-<td class="td-num"><span class="vol-low">0.34</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=SENSEX-EQ" target="_blank" title="Open NSE Chart">
+    SENSEX
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 43.1 — Bearish momentum confirmed · Price 82276 < EMA21 83155 < EMA50 83550 — Downtrend active · MACD -161.42 below Signal -117.91 — Bearish crossover · Histogram -43.505 (decreasing ↓) · Volume 0.88x avg — Below average · Swing High resistance: 84273.92 | Support: 80722.94 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">82,276.07</td>
+<td class="num"><span class="">43.15</span></td>
+<td class="num muted">-161.42</td>
+<td class="num muted">-117.91</td>
+<td class="num"><span class="red">▼ 43.5052</span></td>
+<td class="num muted">83155.03</td>
+<td class="num muted">83549.78</td>
+<td class="num"><span class="muted">0.88x</span></td>
+<td class="num muted">84273.92</td>
+<td class="num muted">80722.94</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">AUROPHARMA</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">1148.70</td>
-<td class="td-num"><span class="rsi-mid">48.21</span></td>
-<td class="td-num">-4.05</td>
-<td class="td-num">-4.12</td>
-<td class="td-num">1170.61</td>
-<td class="td-num">1179.64</td>
-<td class="td-num"><span class="vol-low">0.46</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=INDHOTEL-EQ" target="_blank" title="Open NSE Chart">
+    INDHOTEL
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 44.4 — Bearish momentum confirmed · Price 676 < EMA21 685 < EMA50 695 — Downtrend active · MACD -2.93 below Signal -2.05 — Bearish crossover · Histogram -0.879 (decreasing ↓) · Volume 1.24x avg — Above average · Swing High resistance: 712.00 | Support: 645.50 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">676.50</td>
+<td class="num"><span class="">44.39</span></td>
+<td class="num muted">-2.93</td>
+<td class="num muted">-2.05</td>
+<td class="num"><span class="red">▼ 0.8786</span></td>
+<td class="num muted">685.13</td>
+<td class="num muted">694.80</td>
+<td class="num"><span class="amber">1.24x</span></td>
+<td class="num muted">712.00</td>
+<td class="num muted">645.50</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">BHEL</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">257.40</td>
-<td class="td-num"><span class="rsi-mid">49.32</span></td>
-<td class="td-num">-2.84</td>
-<td class="td-num">-2.58</td>
-<td class="td-num">262.84</td>
-<td class="td-num">268.32</td>
-<td class="td-num"><span class="vol-low">0.58</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=HDFCBANK-EQ" target="_blank" title="Open NSE Chart">
+    HDFCBANK
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 39.9 — Bearish momentum confirmed · Price 907 < EMA21 927 < EMA50 944 — Downtrend active · MACD -8.60 below Signal -8.44 — Bearish crossover · Histogram -0.161 (decreasing ↓) · Volume 1.15x avg — Below average · Swing High resistance: 953.10 | Support: 903.90 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">907.40</td>
+<td class="num"><span class="muted">39.87</span></td>
+<td class="num muted">-8.60</td>
+<td class="num muted">-8.44</td>
+<td class="num"><span class="red">▼ 0.1608</span></td>
+<td class="num muted">927.05</td>
+<td class="num muted">944.46</td>
+<td class="num"><span class="muted">1.15x</span></td>
+<td class="num muted">953.10</td>
+<td class="num muted">903.90</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">360ONE</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">1125.00</td>
-<td class="td-num"><span class="rsi-mid">48.01</span></td>
-<td class="td-num">-10.01</td>
-<td class="td-num">-7.74</td>
-<td class="td-num">1130.89</td>
-<td class="td-num">1146.12</td>
-<td class="td-num"><span class="vol-low">0.42</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=SUZLON-EQ" target="_blank" title="Open NSE Chart">
+    SUZLON
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 32.8 — Bearish momentum confirmed · Price 43 < EMA21 47 < EMA50 49 — Downtrend active · MACD -1.25 below Signal -1.07 — Bearish crossover · Histogram -0.178 (decreasing ↓) · Volume 1.04x avg — Below average · Swing High resistance: 49.77 | Support: 45.53 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">43.19</td>
+<td class="num"><span class="muted">32.84</span></td>
+<td class="num muted">-1.25</td>
+<td class="num muted">-1.07</td>
+<td class="num"><span class="red">▼ 0.1782</span></td>
+<td class="num muted">46.53</td>
+<td class="num muted">48.72</td>
+<td class="num"><span class="muted">1.04x</span></td>
+<td class="num muted">49.77</td>
+<td class="num muted">45.53</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">MPHASIS</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">2303.00</td>
-<td class="td-num"><span class="rsi-cool">13.17</span></td>
-<td class="td-num">-107.75</td>
-<td class="td-num">-83.73</td>
-<td class="td-num">2581.07</td>
-<td class="td-num">2696.10</td>
-<td class="td-num"><span class="vol-low">1.04</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=SRF-EQ" target="_blank" title="Open NSE Chart">
+    SRF
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 29.7 — Strong bearish momentum (watch for oversold) · Price 2613 < EMA21 2793 < EMA50 2866 — Downtrend active · MACD -69.07 below Signal -43.71 — Bearish crossover · Histogram -25.361 (decreasing ↓) · Volume 1.60x avg — Strong surge · Swing High resistance: 2986.70 | Support: 2676.90 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">2,613.00</td>
+<td class="num"><span class="muted">29.71</span></td>
+<td class="num muted">-69.07</td>
+<td class="num muted">-43.71</td>
+<td class="num"><span class="red">▼ 25.3611</span></td>
+<td class="num muted">2792.90</td>
+<td class="num muted">2866.28</td>
+<td class="num"><span class="green">1.60x</span></td>
+<td class="num muted">2986.70</td>
+<td class="num muted">2676.90</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">MAZDOCK</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">2284.10</td>
-<td class="td-num"><span class="rsi-mid">40.97</span></td>
-<td class="td-num">-26.60</td>
-<td class="td-num">-21.90</td>
-<td class="td-num">2405.53</td>
-<td class="td-num">2445.48</td>
-<td class="td-num"><span class="vol-low">0.66</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=PRESTIGE-EQ" target="_blank" title="Open NSE Chart">
+    PRESTIGE
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 34.2 — Bearish momentum confirmed · Price 1419 < EMA21 1512 < EMA50 1547 — Downtrend active · MACD -14.01 below Signal -5.98 — Bearish crossover · Histogram -8.032 (decreasing ↓) · Volume 1.59x avg — Strong surge · Swing High resistance: 1597.50 | Support: 1388.80 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">1,419.20</td>
+<td class="num"><span class="muted">34.24</span></td>
+<td class="num muted">-14.01</td>
+<td class="num muted">-5.98</td>
+<td class="num"><span class="red">▼ 8.0324</span></td>
+<td class="num muted">1512.25</td>
+<td class="num muted">1546.84</td>
+<td class="num"><span class="green">1.59x</span></td>
+<td class="num muted">1597.50</td>
+<td class="num muted">1388.80</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">KPITTECH</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">813.00</td>
-<td class="td-num"><span class="rsi-cool">14.65</span></td>
-<td class="td-num">-72.36</td>
-<td class="td-num">-65.25</td>
-<td class="td-num">953.69</td>
-<td class="td-num">1048.14</td>
-<td class="td-num"><span class="vol-low">0.83</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=PHOENIXLTD-EQ" target="_blank" title="Open NSE Chart">
+    PHOENIXLTD
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 39.1 — Bearish momentum confirmed · Price 1698 < EMA21 1744 < EMA50 1760 — Downtrend active · MACD -13.07 below Signal -12.46 — Bearish crossover · Histogram -0.612 (decreasing ↓) · Volume 0.81x avg — Below average · Swing High resistance: 1784.00 | Support: 1631.50 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">1,698.10</td>
+<td class="num"><span class="muted">39.07</span></td>
+<td class="num muted">-13.07</td>
+<td class="num muted">-12.46</td>
+<td class="num"><span class="red">▼ 0.6116</span></td>
+<td class="num muted">1744.43</td>
+<td class="num muted">1760.36</td>
+<td class="num"><span class="muted">0.81x</span></td>
+<td class="num muted">1784.00</td>
+<td class="num muted">1631.50</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">M&M</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">3435.00</td>
-<td class="td-num"><span class="rsi-mid">45.52</span></td>
-<td class="td-num">-30.53</td>
-<td class="td-num">-19.69</td>
-<td class="td-num">3534.08</td>
-<td class="td-num">3572.49</td>
-<td class="td-num"><span class="vol-low">0.77</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=TATAELXSI-EQ" target="_blank" title="Open NSE Chart">
+    TATAELXSI
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 26.3 — Strong bearish momentum (watch for oversold) · Price 4580 < EMA21 5041 < EMA50 5205 — Downtrend active · MACD -189.31 below Signal -129.20 — Bearish crossover · Histogram -60.107 (decreasing ↓) · Volume 1.72x avg — Strong surge · Swing High resistance: 5510.00 | Support: 5323.50 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">4,580.50</td>
+<td class="num"><span class="muted">26.27</span></td>
+<td class="num muted">-189.31</td>
+<td class="num muted">-129.20</td>
+<td class="num"><span class="red">▼ 60.1068</span></td>
+<td class="num muted">5041.34</td>
+<td class="num muted">5205.24</td>
+<td class="num"><span class="green">1.72x</span></td>
+<td class="num muted">5510.00</td>
+<td class="num muted">5323.50</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">MANKIND</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">2045.00</td>
-<td class="td-num"><span class="rsi-mid">44.79</span></td>
-<td class="td-num">-28.49</td>
-<td class="td-num">-26.58</td>
-<td class="td-num">2087.20</td>
-<td class="td-num">2126.99</td>
-<td class="td-num"><span class="vol-low">0.54</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=TATATECH-EQ" target="_blank" title="Open NSE Chart">
+    TATATECH
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 28.8 — Strong bearish momentum (watch for oversold) · Price 576 < EMA21 617 < EMA50 637 — Downtrend active · MACD -15.72 below Signal -12.45 — Bearish crossover · Histogram -3.271 (decreasing ↓) · Volume 1.95x avg — Strong surge · Swing High resistance: 660.65 | Support: 597.45 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">576.25</td>
+<td class="num"><span class="muted">28.80</span></td>
+<td class="num muted">-15.72</td>
+<td class="num muted">-12.45</td>
+<td class="num"><span class="red">▼ 3.2714</span></td>
+<td class="num muted">617.29</td>
+<td class="num muted">636.80</td>
+<td class="num"><span class="green">1.95x</span></td>
+<td class="num muted">660.65</td>
+<td class="num muted">597.45</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">LTIM</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">4822.50</td>
-<td class="td-num"><span class="rsi-cool">13.73</span></td>
-<td class="td-num">-271.80</td>
-<td class="td-num">-200.17</td>
-<td class="td-num">5461.71</td>
-<td class="td-num">5731.38</td>
-<td class="td-num"><span class="vol-low">0.79</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=UNOMINDA-EQ" target="_blank" title="Open NSE Chart">
+    UNOMINDA
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 44.0 — Bearish momentum confirmed · Price 1214 < EMA21 1204 < EMA50 1216 — Downtrend active · MACD -3.72 below Signal -2.18 — Bearish crossover · Histogram -1.547 (decreasing ↓) · Volume 0.69x avg — Below average · Swing High resistance: 1247.90 | Support: 1120.40 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">1,214.30</td>
+<td class="num"><span class="">44.01</span></td>
+<td class="num muted">-3.72</td>
+<td class="num muted">-2.18</td>
+<td class="num"><span class="red">▼ 1.5474</span></td>
+<td class="num muted">1203.76</td>
+<td class="num muted">1215.71</td>
+<td class="num"><span class="muted">0.69x</span></td>
+<td class="num muted">1247.90</td>
+<td class="num muted">1120.40</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">RVNL</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">320.30</td>
-<td class="td-num"><span class="rsi-cool">36.21</span></td>
-<td class="td-num">-9.41</td>
-<td class="td-num">-10.07</td>
-<td class="td-num">319.73</td>
-<td class="td-num">337.91</td>
-<td class="td-num"><span class="vol-low">0.94</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=UPL-EQ" target="_blank" title="Open NSE Chart">
+    UPL
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 29.7 — Strong bearish momentum (watch for oversold) · Price 625 < EMA21 724 < EMA50 736 — Downtrend active · MACD -14.20 below Signal -5.77 — Bearish crossover · Histogram -8.431 (decreasing ↓) · Volume 2.27x avg — Strong surge · Swing High resistance: 758.70 | Support: 724.30 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">625.00</td>
+<td class="num"><span class="muted">29.74</span></td>
+<td class="num muted">-14.20</td>
+<td class="num muted">-5.77</td>
+<td class="num"><span class="red">▼ 8.4315</span></td>
+<td class="num muted">724.13</td>
+<td class="num muted">736.40</td>
+<td class="num"><span class="green">2.27x</span></td>
+<td class="num muted">758.70</td>
+<td class="num muted">724.30</td>
 </tr>
 <tr data-signal="sell">
-<td><span class="td-symbol">SHREECEM</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">26450.00</td>
-<td class="td-num"><span class="rsi-mid">46.14</span></td>
-<td class="td-num">-171.52</td>
-<td class="td-num">-112.11</td>
-<td class="td-num">26710.38</td>
-<td class="td-num">26773.78</td>
-<td class="td-num"><span class="vol-low">0.52</span></td>
-</tr>
-<tr data-signal="sell">
-<td><span class="td-symbol">POLICYBZR</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">1496.90</td>
-<td class="td-num"><span class="rsi-mid">45.42</span></td>
-<td class="td-num">-54.45</td>
-<td class="td-num">-59.66</td>
-<td class="td-num">1554.11</td>
-<td class="td-num">1655.28</td>
-<td class="td-num"><span class="vol-low">0.89</span></td>
-</tr>
-<tr data-signal="sell">
-<td><span class="td-symbol">OFSS</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">6659.50</td>
-<td class="td-num"><span class="rsi-cool">20.39</span></td>
-<td class="td-num">-291.90</td>
-<td class="td-num">-219.80</td>
-<td class="td-num">7160.88</td>
-<td class="td-num">7445.92</td>
-<td class="td-num"><span class="vol-low">0.57</span></td>
-</tr>
-<tr data-signal="sell">
-<td><span class="td-symbol">SYNGENE</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">448.60</td>
-<td class="td-num"><span class="rsi-cool">35.58</span></td>
-<td class="td-num">-37.98</td>
-<td class="td-num">-42.20</td>
-<td class="td-num">474.60</td>
-<td class="td-num">536.53</td>
-<td class="td-num"><span class="vol-low">0.93</span></td>
-</tr>
-<tr data-signal="sell">
-<td><span class="td-symbol">PERSISTENT</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">4969.00</td>
-<td class="td-num"><span class="rsi-cool">22.18</span></td>
-<td class="td-num">-242.85</td>
-<td class="td-num">-177.78</td>
-<td class="td-num">5748.39</td>
-<td class="td-num">5997.36</td>
-<td class="td-num"><span class="vol-high">2.34</span></td>
-</tr>
-<tr data-signal="sell">
-<td><span class="td-symbol">PAYTM</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">1172.00</td>
-<td class="td-num"><span class="rsi-mid">46.61</span></td>
-<td class="td-num">-26.20</td>
-<td class="td-num">-29.71</td>
-<td class="td-num">1181.45</td>
-<td class="td-num">1226.21</td>
-<td class="td-num"><span class="vol-low">0.28</span></td>
-</tr>
-<tr data-signal="sell">
-<td><span class="td-symbol">TATATECH</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">598.35</td>
-<td class="td-num"><span class="rsi-cool">33.96</span></td>
-<td class="td-num">-12.98</td>
-<td class="td-num">-10.55</td>
-<td class="td-num">623.78</td>
-<td class="td-num">637.45</td>
-<td class="td-num"><span class="vol-low">1.04</span></td>
-</tr>
-<tr data-signal="sell">
-<td><span class="td-symbol">TATAELXSI</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">4700.00</td>
-<td class="td-num"><span class="rsi-cool">28.01</span></td>
-<td class="td-num">-156.12</td>
-<td class="td-num">-110.52</td>
-<td class="td-num">5136.98</td>
-<td class="td-num">5270.48</td>
-<td class="td-num"><span class="vol-low">0.86</span></td>
-</tr>
-<tr data-signal="sell">
-<td><span class="td-symbol">VBL</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">456.50</td>
-<td class="td-num"><span class="rsi-mid">42.51</span></td>
-<td class="td-num">-6.46</td>
-<td class="td-num">-7.70</td>
-<td class="td-num">460.83</td>
-<td class="td-num">470.49</td>
-<td class="td-num"><span class="vol-low">0.40</span></td>
-</tr>
-<tr data-signal="sell">
-<td><span class="td-symbol">WIPRO</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">205.93</td>
-<td class="td-num"><span class="rsi-cool">10.40</span></td>
-<td class="td-num">-10.75</td>
-<td class="td-num">-9.50</td>
-<td class="td-num">227.29</td>
-<td class="td-num">241.53</td>
-<td class="td-num"><span class="vol-low">1.01</span></td>
-</tr>
-<tr data-signal="sell">
-<td><span class="td-symbol">YESBANK</span></td>
-<td><span class="badge badge-sell">Swing Sell</span></td>
-<td><span class="badge badge-smart">Smart Entry</span></td>
-<td class="td-num">20.88</td>
-<td class="td-num"><span class="rsi-mid">46.78</span></td>
-<td class="td-num">-0.21</td>
-<td class="td-num">-0.20</td>
-<td class="td-num">21.31</td>
-<td class="td-num">21.53</td>
-<td class="td-num"><span class="vol-low">0.56</span></td>
+<td>
+  <a class="sym-link" href="https://charting.nseindia.com/?symbol=YESBANK-EQ" target="_blank" title="Open NSE Chart">
+    YESBANK
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  </a>
+</td>
+<td><span class="badge badge-sell">↓ Swing Sell</span></td>
+<td>
+  <div class="entry-cell">
+    <span class="badge badge-smart">Smart Entry</span>
+    <i class="info-icon"
+       data-title="Smart Entry — Higher Low entry — price pulled back, structure intact"
+       data-tip="RSI 39.7 — Bearish momentum confirmed · Price 21 < EMA21 21 < EMA50 22 — Downtrend active · MACD -0.25 below Signal -0.24 — Bearish crossover · Histogram -0.006 (decreasing ↓) · Volume 1.09x avg — Below average · Swing High resistance: 21.56 | Support: 20.86 · Lower High structure intact — bounce sell entry">i</i>
+  </div>
+</td>
+<td class="num">20.78</td>
+<td class="num"><span class="muted">39.69</span></td>
+<td class="num muted">-0.25</td>
+<td class="num muted">-0.24</td>
+<td class="num"><span class="red">▼ 0.0057</span></td>
+<td class="num muted">21.24</td>
+<td class="num muted">21.63</td>
+<td class="num"><span class="muted">1.09x</span></td>
+<td class="num muted">21.56</td>
+<td class="num muted">20.86</td>
 </tr>
 
 </tbody>
 </table>
 </div>
 
+<div class="tooltip" id="tooltip"><div class="tooltip-title" id="tt-title"></div><div id="tt-body"></div></div>
+
 <script>
+// ── Filter ──
 let currentFilter = 'all';
 
 function setFilter(f) {
@@ -1548,15 +1760,28 @@ function setFilter(f) {
 function applyFilters() {
     const search = document.getElementById('searchInput').value.toLowerCase();
     const rows   = document.querySelectorAll('#mainTable tbody tr');
+    let cnt = {all: 0, buy: 0, sell: 0};
+
     rows.forEach(row => {
         const sig  = row.dataset.signal || '';
         const text = row.innerText.toLowerCase();
-        const matchFilter = (currentFilter === 'all') || (sig === currentFilter);
-        const matchSearch = !search || text.includes(search);
-        row.style.display = (matchFilter && matchSearch) ? '' : 'none';
+        const matchF = (currentFilter === 'all') || (sig === currentFilter);
+        const matchS = !search || text.includes(search);
+        const show   = matchF && matchS;
+        row.style.display = show ? '' : 'none';
+        if (show) {
+            cnt.all++;
+            if (sig === 'buy')  cnt.buy++;
+            if (sig === 'sell') cnt.sell++;
+        }
     });
+
+    document.getElementById('cntAll').textContent  = cnt.all;
+    document.getElementById('cntBuy').textContent  = cnt.buy;
+    document.getElementById('cntSell').textContent = cnt.sell;
 }
 
+// ── Sort ──
 function sortTable(header) {
     const table = header.closest('table');
     const idx   = Array.from(header.parentNode.children).indexOf(header);
@@ -1564,22 +1789,63 @@ function sortTable(header) {
     const asc   = header.dataset.asc !== 'true';
     header.dataset.asc = asc;
 
-    // Reset all sort icons
-    table.querySelectorAll('th .sort-icon').forEach(s => s.textContent = '⬍');
-    header.querySelector('.sort-icon').textContent = asc ? '▲' : '▼';
+    table.querySelectorAll('th .sort-arrow').forEach(s => s.textContent = '⬍');
+    header.querySelector('.sort-arrow').textContent = asc ? '▲' : '▼';
 
     rows.sort((a, b) => {
-        let A = a.children[idx]?.innerText.trim() || '';
-        let B = b.children[idx]?.innerText.trim() || '';
-        const numA = parseFloat(A), numB = parseFloat(B);
-        if (!isNaN(numA) && !isNaN(numB)) {
-            return asc ? numA - numB : numB - numA;
-        }
+        const A = a.children[idx]?.innerText.trim() || '';
+        const B = b.children[idx]?.innerText.trim() || '';
+        const nA = parseFloat(A.replace(/[^0-9.\-]/g, ''));
+        const nB = parseFloat(B.replace(/[^0-9.\-]/g, ''));
+        if (!isNaN(nA) && !isNaN(nB)) return asc ? nA - nB : nB - nA;
         return asc ? A.localeCompare(B) : B.localeCompare(A);
     });
 
     const tbody = table.querySelector('tbody');
     rows.forEach(r => tbody.appendChild(r));
+}
+
+// ── Tooltip ──
+const tooltip  = document.getElementById('tooltip');
+const ttTitle  = document.getElementById('tt-title');
+const ttBody   = document.getElementById('tt-body');
+
+document.querySelectorAll('.info-icon').forEach(icon => {
+    icon.addEventListener('mouseenter', function(e) {
+        const title = this.dataset.title || '';
+        const tip   = this.dataset.tip   || '';
+        ttTitle.textContent = title;
+
+        // Split by ' · ' to make rows
+        const parts = tip.split(' · ').filter(Boolean);
+        ttBody.innerHTML = parts.map(p =>
+            `<div class="tooltip-row">
+               <span class="tooltip-dot"></span>
+               <span>${p}</span>
+             </div>`
+        ).join('');
+
+        tooltip.classList.add('visible');
+        positionTooltip(e);
+    });
+
+    icon.addEventListener('mousemove', positionTooltip);
+
+    icon.addEventListener('mouseleave', function() {
+        tooltip.classList.remove('visible');
+    });
+});
+
+function positionTooltip(e) {
+    const pad = 12;
+    const tw  = tooltip.offsetWidth  || 300;
+    const th  = tooltip.offsetHeight || 120;
+    let x = e.clientX + pad;
+    let y = e.clientY + pad;
+    if (x + tw > window.innerWidth)  x = e.clientX - tw - pad;
+    if (y + th > window.innerHeight) y = e.clientY - th - pad;
+    tooltip.style.left = x + 'px';
+    tooltip.style.top  = y + 'px';
 }
 </script>
 </body>
