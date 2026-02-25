@@ -262,8 +262,8 @@ body {
 
 <div class="top-strip">
     <div class="left-block">
-        <div class="scan-time" id="scan-time" data-scan-time="2026-02-25 15:05:43">
-            Scanned: <span class="scan-time-value">2026-02-25 15:05:43</span>
+        <div class="scan-time" id="scan-time" data-scan-time="2026-02-25 15:06:45">
+            Scanned: <span class="scan-time-value">2026-02-25 15:06:45</span>
         </div>
         <input id="symbolSearch" placeholder="&#128269; Search symbol..." />
     </div>
@@ -3513,6 +3513,7 @@ const NIFTY50 = ["ADANIENT","ADANIPORTS","APOLLOHOSP","ASIANPAINT","AXISBANK","B
             ' &nbsp;&middot;&nbsp; Neutral: ' + neu + ' (' + neuPct + '%)';
     }
 
+    // ✅ FIXED: Sirf visible cards ko grid mein append karo — no gaps
     function render() {
         grid.innerHTML = '';
         const visible = [];
@@ -3522,9 +3523,13 @@ const NIFTY50 = ["ADANIENT","ADANIPORTS","APOLLOHOSP","ASIANPAINT","AXISBANK","B
             const matchSearch = !currentSearch || sym.includes(currentSearch);
             const matchFilter = (currentFilter === 'all') || isNifty;
             const show        = matchSearch && matchFilter;
-            card.style.display = show ? '' : 'none';
-            grid.appendChild(card);
-            if (show) visible.push(card);
+
+            if (show) {
+                card.style.display = '';
+                grid.appendChild(card);
+                visible.push(card);
+            }
+            // hidden cards grid mein append nahi hote — gap nahi banega
         });
         updateBreadth(visible);
     }
