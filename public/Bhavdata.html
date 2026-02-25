@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F&O Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f7f4ef;--ink:#1c1917;--ink2:#44403c;--muted:#a8a29e;
+  --card:#fff;--border:#e7e2da;--border2:#d6d0c8;
+  --bull:#166534;--bull-lt:#dcfce7;--bull-md:#86efac;
+  --bear:#9b1c1c;--bear-lt:#fee2e2;--bear-md:#fca5a5;
+  --gold:#92400e;--gold-lt:#fef3c7;--gold-md:#fde68a;
+  --blue:#1e40af;--blue-lt:#dbeafe;
+  --fs:'Instrument Serif',serif;--fm:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:var(--fm);font-size:12px;min-height:100vh;
+  background-image:radial-gradient(circle at 10% 90%,rgba(22,101,52,.05) 0%,transparent 45%),
+                   radial-gradient(circle at 90% 10%,rgba(155,28,28,.05) 0%,transparent 45%);}
+
+/* ── UPLOAD OVERLAY ── */
+#uscreen{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;
+  background:var(--bg);
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 39px,var(--border) 39px,var(--border) 40px),
+                   repeating-linear-gradient(90deg,transparent,transparent 39px,var(--border) 39px,var(--border) 40px);
+  transition:opacity .4s,transform .4s;}
+#uscreen.gone{opacity:0;pointer-events:none;transform:scale(1.03);}
+.ucard{background:var(--card);border:1px solid var(--border2);border-radius:24px;padding:48px 56px;
+  text-align:center;max-width:460px;width:90%;position:relative;overflow:hidden;
+  box-shadow:0 4px 6px -1px rgba(0,0,0,.05),0 24px 60px -20px rgba(0,0,0,.13);}
+.ucard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--bull),#4ade80 40%,#fbbf24 70%,var(--bear));}
+.ucorner{position:absolute;font-size:.62rem;color:var(--muted);letter-spacing:1px;}
+.ucorner.tl{top:14px;left:18px;}.ucorner.tr{top:14px;right:18px;}
+.uicon{width:76px;height:76px;border-radius:18px;background:var(--bg);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 20px;
+  box-shadow:0 2px 8px rgba(0,0,0,.07);}
+.ucard h1{font-family:var(--fs);font-size:2rem;font-weight:400;margin-bottom:8px;letter-spacing:-.5px;line-height:1.1;}
+.ucard h1 i{font-style:italic;color:var(--bull);}
+.udesc{color:var(--muted);font-size:.74rem;line-height:1.7;margin-bottom:22px;}
+.udesc code{background:var(--bg);border:1px solid var(--border);padding:1px 6px;border-radius:4px;color:var(--ink2);font-size:.7rem;}
+.udrop{border:2px dashed var(--border2);border-radius:12px;padding:20px;margin-bottom:16px;transition:all .2s;cursor:pointer;}
+.udrop.drag{border-color:var(--bull);background:var(--bull-lt);}
+.udrop strong{display:block;font-size:.82rem;color:var(--ink);margin-bottom:3px;}
+.udrop p{font-size:.7rem;color:var(--muted);}
+#fi{display:none;}
+.ubtn{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;
+  padding:11px 28px;border-radius:10px;font-family:var(--fm);font-size:.76rem;font-weight:600;
+  cursor:pointer;transition:all .2s;letter-spacing:.5px;border:none;}
+.ubtn:hover{background:#292524;transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.22);}
+.uhint{margin-top:16px;font-size:.63rem;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:14px;}
+
+/* ── HEADER ── */
+header{background:rgba(255,255,255,.92);border-bottom:1px solid var(--border);
+  padding:0 28px;height:50px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
+.logo{font-family:var(--fs);font-size:1.2rem;letter-spacing:-.3px;display:flex;align-items:center;gap:8px;}
+.logo em{font-style:italic;color:var(--bull);}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--bull);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.hdr-r{display:flex;align-items:center;gap:10px;}
+#hdate{font-size:.68rem;color:var(--muted);}
+.hbtn{background:var(--ink);color:#fff;padding:6px 14px;border-radius:7px;
+  font-family:var(--fm);font-size:.68rem;font-weight:600;cursor:pointer;border:none;
+  transition:opacity .2s;letter-spacing:.5px;}
+.hbtn:hover{opacity:.8;}
+#fi2{display:none;}
+
+/* ── MAIN ── */
+main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
+
+/* ── SUMMARY STRIP ── */
+.smr{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px;}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;
+  position:relative;overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+.sc:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08);}
+.sc.active-filter{box-shadow:0 0 0 2px var(--ink);}
+.sc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.sc.cbull::after{background:linear-gradient(90deg,var(--bull),#4ade80);}
+.sc.cbear::after{background:linear-gradient(90deg,var(--bear),#f87171);}
+.sc.cgold::after{background:linear-gradient(90deg,var(--gold),#fbbf24);}
+.sc.cblue::after{background:linear-gradient(90deg,var(--blue),#60a5fa);}
+.sc.cink::after{background:linear-gradient(90deg,var(--ink),#a8a29e);}
+.sc.cpurp::after{background:linear-gradient(90deg,#7c3aed,#a78bfa);}
+.slbl{font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:5px;}
+.sval{font-family:var(--fs);font-size:1.9rem;line-height:1;}
+.sval.bull{color:var(--bull);}.sval.bear{color:var(--bear);}.sval.gold{color:var(--gold);}.sval.blue{color:var(--blue);}
+.ssub{font-size:.62rem;color:var(--muted);margin-top:4px;}
+.click-hint{font-size:.58rem;color:var(--blue);margin-top:3px;opacity:.7;}
+
+/* ── GRID ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+
+/* ── PANEL ── */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:13px;overflow:hidden;}
+.ph{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);background:linear-gradient(to bottom,#fafaf8,var(--card));}
+.phl{display:flex;align-items:center;gap:8px;}
+.phi{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;border:1px solid var(--border);background:var(--bg);}
+.ph h3{font-family:var(--fs);font-size:.95rem;font-weight:400;letter-spacing:-.1px;}
+.ph-sub{font-size:.62rem;color:var(--muted);margin-top:1px;}
+.pbadge{font-size:.62rem;padding:3px 9px;border-radius:20px;background:var(--bg);color:var(--muted);border:1px solid var(--border);}
+
+/* Tabs */
+.tabs{display:flex;border-bottom:1px solid var(--border);background:#fafaf8;}
+.tab{flex:1;padding:8px 6px;text-align:center;font-size:.69rem;cursor:pointer;color:var(--muted);
+  transition:all .15s;border-right:1px solid var(--border);letter-spacing:.2px;}
+.tab:last-child{border-right:none;}.tab.active{background:var(--card);color:var(--ink);font-weight:600;}
+.tab:hover:not(.active){background:#f5f3ee;}
+
+/* Tip box */
+.tipbox{padding:8px 16px;font-size:.69rem;color:var(--blue);background:var(--blue-lt);
+  border-bottom:1px solid #bfdbfe;line-height:1.5;}
+
+/* Col headers */
+.ch{display:grid;gap:8px;padding:7px 16px;background:#fafaf8;
+  border-bottom:1px solid var(--border);font-size:.59rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
+.g-oi{grid-template-columns:84px 66px 60px 56px 1fr 82px;}
+.g-pcr{grid-template-columns:84px 1fr 50px 80px;}
+.g-mp{grid-template-columns:84px 72px 72px 58px 80px;}
+.g-act{grid-template-columns:84px 70px 70px 66px 58px;}
+.g-list{grid-template-columns:40px 84px 66px 60px 56px 82px;}
+
+/* Rows */
+.row{display:grid;gap:8px;align-items:center;padding:9px 16px;
+  border-bottom:1px solid rgba(231,226,218,.5);transition:background .1s;}
+.row:last-child{border-bottom:none;}.row:hover{background:#fafaf8;}
+.row.g-oi{grid-template-columns:84px 66px 60px 56px 1fr 82px;}
+.row.g-pcr{grid-template-columns:84px 1fr 50px 80px;}
+.row.g-mp{grid-template-columns:84px 72px 72px 58px 80px;}
+.row.g-act{grid-template-columns:84px 70px 70px 66px 58px;}
+.row.g-list{grid-template-columns:40px 84px 66px 60px 56px 82px;}
+
+.sym{font-weight:600;font-size:.8rem;letter-spacing:.2px;}
+.num{text-align:right;font-size:.77rem;}
+.num.bull{color:var(--bull);}.num.bear{color:var(--bear);}.num.muted{color:var(--muted);}.num.gold{color:var(--gold);}
+.rk{font-size:.68rem;color:var(--muted);text-align:center;}
+
+/* Tags */
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;
+  font-size:.61rem;font-weight:600;letter-spacing:.2px;white-space:nowrap;}
+.tag.bull{background:var(--bull-lt);color:var(--bull);border:1px solid var(--bull-md);}
+.tag.bear{background:var(--bear-lt);color:var(--bear);border:1px solid var(--bear-md);}
+.tag.neutral{background:#f5f5f4;color:#78716c;border:1px solid #d6d3d1;}
+.tag.gold{background:var(--gold-lt);color:var(--gold);border:1px solid var(--gold-md);}
+
+/* Bars */
+.oibar{height:4px;border-radius:2px;min-width:3px;}
+.ptrack{height:6px;background:#f0ece6;border-radius:3px;overflow:hidden;}
+.pfill{height:100%;border-radius:3px;transition:width .3s;}
+
+/* Alert strip */
+.alert{display:flex;align-items:center;gap:9px;padding:9px 16px;font-size:.72rem;border-bottom:1px solid var(--border);}
+.alert.bull{background:var(--bull-lt);color:var(--bull);}
+.alert.bear{background:var(--bear-lt);color:var(--bear);}
+.alert.neutral{background:#f5f5f4;color:#57534e;}
+.adot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.adot.bull{background:var(--bull);}.adot.bear{background:var(--bear);}.adot.neutral{background:#a8a29e;}
+
+/* PCR Explainer */
+.pcr-explainer{padding:10px 16px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.pe-item{padding:8px 10px;border-radius:8px;text-align:center;}
+.pe-item.bull{background:var(--bull-lt);border:1px solid var(--bull-md);}
+.pe-item.neutral{background:#f5f5f4;border:1px solid #d6d3d1;}
+.pe-item.bear{background:var(--bear-lt);border:1px solid var(--bear-md);}
+.pe-val{font-weight:700;font-size:.78rem;margin-bottom:2px;}
+.pe-val.bull{color:var(--bull);}.pe-val.bear{color:var(--bear);}.pe-val.neutral{color:#57534e;}
+.pe-desc{font-size:.62rem;color:var(--muted);line-height:1.4;}
+
+/* Search */
+.sw{padding:9px 16px;border-bottom:1px solid var(--border);}
+.si{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;
+  padding:7px 11px;font-family:var(--fm);font-size:.74rem;color:var(--ink);outline:none;transition:border-color .2s;}
+.si:focus{border-color:var(--ink2);}.si::placeholder{color:var(--muted);}
+
+/* Scroll */
+.sb{max-height:340px;overflow-y:auto;}
+.sb::-webkit-scrollbar{width:3px;}
+.sb::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+.cw{height:185px;padding:14px 16px;}
+.empty{padding:36px 16px;text-align:center;color:var(--muted);font-size:.76rem;}
+
+/* Modal */
+#modal{position:fixed;inset:0;z-index:300;background:rgba(28,25,23,.5);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+#modal.open{opacity:1;pointer-events:all;}
+.modal-box{background:var(--card);border-radius:16px;padding:0;max-width:540px;width:90%;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;transform:translateY(8px);transition:transform .2s;}
+#modal.open .modal-box{transform:translateY(0);}
+.mh{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(to bottom,#fafaf8,var(--card));}
+.mh h3{font-family:var(--fs);font-size:1.1rem;font-weight:400;}
+.mclose{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;
+  cursor:pointer;font-size:.75rem;color:var(--muted);font-family:var(--fm);}
+.mclose:hover{background:var(--bg);}
+.mb{padding:16px 20px;max-height:70vh;overflow-y:auto;}
+.mb::-webkit-scrollbar{width:3px;}
+.mb::-webkit-scrollbar-thumb{background:var(--border2);}
+
+@media(max-width:1100px){.smr{grid-template-columns:repeat(3,1fr);}.g2,.g3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- UPLOAD -->
+<div id="uscreen">
+  <div class="ucard" id="ucard">
+    <span class="ucorner tl">NSE F&amp;O</span>
+    <span class="ucorner tr">BHAVCOPY</span>
+    <div class="uicon">📦</div>
+    <h1>Drop your<br><i>F&amp;O ZIP</i></h1>
+    <p class="udesc">ZIP mein <code>fo*.csv</code> aur <code>op*.csv</code> honi chahiye<br>NSE Bhavcopy — rozana download karo, yahan drop karo</p>
+    <div class="udrop" id="udrop"><strong>Yahan drag &amp; drop karo</strong><p>ya neeche browse karo</p></div>
+    <input type="file" id="fi" accept=".zip">
+    <label for="fi" class="ubtn">↑ &nbsp;Browse ZIP File</label>
+    <div class="uhint"><span>✓ fo240226.csv</span><span>✓ op240226.csv</span><span>✓ Offline kaam karta hai</span></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal"><div class="modal-box"><div class="mh"><h3 id="m-title">—</h3><button class="mclose" onclick="closeModal()">✕ Close</button></div><div class="mb" id="m-body"></div></div></div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo"><div class="ldot"></div>F&amp;<em>O</em> Intelligence</div>
+  <div class="hdr-r">
+    <span id="hdate">—</span>
+    <input type="file" id="fi2" accept=".zip">
+    <button class="hbtn" onclick="document.getElementById('fi2').click()">↑ New ZIP</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- SUMMARY STRIP — clickable -->
+  <div class="smr">
+    <div class="sc cink" onclick="openModal('all')">
+      <div class="slbl">Active Stocks</div>
+      <div class="sval" id="s-act">—</div>
+      <div class="ssub">Filtered from 200+</div>
+      <div class="click-hint">↗ Click to see list</div>
+    </div>
+    <div class="sc cbull" onclick="openModal('long')">
+      <div class="slbl">Long Buildup</div>
+      <div class="sval bull" id="s-lng">—</div>
+      <div class="ssub">Price ↑ &amp; OI ↑</div>
+      <div class="click-hint">↗ Click to see list</div>
+    </div>
+    <div class="sc cbear" onclick="openModal('short')">
+      <div class="slbl">Short Buildup</div>
+      <div class="sval bear" id="s-sht">—</div>
+      <div class="ssub">Price ↓ &amp; OI ↑</div>
+      <div class="click-hint">↗ Click to see list</div>
+    </div>
+    <div class="sc cpurp" onclick="openModal('unwind')">
+      <div class="slbl">Unwinding</div>
+      <div class="sval" id="s-uwnd" style="color:#7c3aed">—</div>
+      <div class="ssub">OI gir raha hai</div>
+      <div class="click-hint">↗ Click to see list</div>
+    </div>
+    <div class="sc cgold">
+      <div class="slbl">Market PCR</div>
+      <div class="sval gold" id="s-pcr">—</div>
+      <div class="ssub" id="s-ph">Overall sentiment</div>
+    </div>
+    <div class="sc cblue">
+      <div class="slbl">Trend Signal</div>
+      <div class="sval" id="s-trd" style="font-size:1rem;padding-top:6px;font-family:var(--fm)">—</div>
+      <div class="ssub" id="s-th">—</div>
+    </div>
+  </div>
+
+  <!-- ROW 1: OI + PCR -->
+  <div class="g2">
+    <div class="panel">
+      <div class="ph">
+        <div class="phl"><div class="phi">📊</div>
+          <div><h3>OI Buildup Signals</h3><div class="ph-sub">Price + OI change combined signal</div></div>
+        </div>
+        <span class="pbadge" id="oi-b">—</span>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="oiT('long',this)">🟢 Long Buildup</div>
+        <div class="tab" onclick="oiT('short',this)">🔴 Short Buildup</div>
+        <div class="tab" onclick="oiT('unwind',this)">⚪ Unwinding</div>
+      </div>
+      <div class="ch g-oi"><span>Symbol</span><span style="text-align:right">Price</span><span style="text-align:right">Chg%</span><span style="text-align:right">OI(K)</span><span>OI Bar</span><span style="text-align:right">Signal</span></div>
+      <div class="sb" id="oi-bd"></div>
+    </div>
+
+    <div class="panel">
+      <div class="ph">
+        <div class="phl"><div class="phi">⚖️</div>
+          <div><h3>Put-Call Ratio (PCR)</h3><div class="ph-sub">PE OI ÷ CE OI — sentiment indicator</div></div>
+        </div>
+        <span class="pbadge" id="pcr-b">—</span>
+      </div>
+      <!-- PCR Explainer always visible -->
+      <div class="pcr-explainer">
+        <div class="pe-item bull">
+          <div class="pe-val bull">PCR &gt; 1.2</div>
+          <div class="pe-desc">🟢 Bullish<br>Zyada puts = market support</div>
+        </div>
+        <div class="pe-item neutral">
+          <div class="pe-val neutral">PCR 0.8–1.2</div>
+          <div class="pe-desc">⚪ Neutral<br>Balanced — sideways market</div>
+        </div>
+        <div class="pe-item bear">
+          <div class="pe-val bear">PCR &lt; 0.8</div>
+          <div class="pe-desc">🔴 Bearish<br>Zyada calls = resistance likely</div>
+        </div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="pcrT('bull',this)">🟢 Bullish PCR</div>
+        <div class="tab" onclick="pcrT('bear',this)">🔴 Bearish PCR</div>
+        <div class="tab" onclick="pcrT('all',this)">All Stocks</div>
+      </div>
+      <div id="pcr-aw"></div>
+      <div class="ch g-pcr"><span>Symbol</span><span>PCR Bar</span><span style="text-align:right">PCR</span><span style="text-align:right">View</span></div>
+      <div class="sb" id="pcr-bd"></div>
+    </div>
+  </div>
+
+  <!-- ROW 2: Max Pain + Most Active -->
+  <div class="g2">
+    <div class="panel">
+      <div class="ph">
+        <div class="phl"><div class="phi">🎯</div>
+          <div><h3>Max Pain</h3><div class="ph-sub">Jahan option sellers sabse kam lose karte hain</div></div>
+        </div>
+        <span class="pbadge">Near Month</span>
+      </div>
+      <div class="tipbox">💡 <strong>Kya hota hai?</strong> Expiry ke paas spot price Max Pain ki taraf khinchti hai. Gap% dekho — agar spot pain se zyada door hai, reversal possible.</div>
+      <div class="sw"><input class="si" id="mps" placeholder="Symbol search karo..." oninput="rMP()"></div>
+      <div class="ch g-mp"><span>Symbol</span><span style="text-align:right">Spot</span><span style="text-align:right">Max Pain</span><span style="text-align:right">Gap%</span><span style="text-align:right">Signal</span></div>
+      <div class="sb" id="mp-bd"></div>
+    </div>
+
+    <div class="panel">
+      <div class="ph">
+        <div class="phl"><div class="phi">🔥</div>
+          <div><h3>Most Active Options</h3><div class="ph-sub">Smart money kahan hai — OI + Volume</div></div>
+        </div>
+        <span class="pbadge">By OI + Volume</span>
+      </div>
+      <div class="tipbox">💡 <strong>Use karo:</strong> High OI wale strikes = strong support/resistance. CE heavy = resistance, PE heavy = support.</div>
+      <div class="tabs">
+        <div class="tab active" onclick="actT('CE',this)">Calls (CE) — Resistance</div>
+        <div class="tab" onclick="actT('PE',this)">Puts (PE) — Support</div>
+      </div>
+      <div class="ch g-act"><span>Symbol</span><span style="text-align:right">Strike</span><span style="text-align:right">OI(K)</span><span style="text-align:right">Vol(K)</span><span style="text-align:right">Type</span></div>
+      <div class="sb" id="act-bd"></div>
+    </div>
+  </div>
+
+  <!-- ROW 3: Charts -->
+  <div class="g2">
+    <div class="panel">
+      <div class="ph"><div class="phl"><div class="phi">📈</div><div><h3>Top OI — Futures</h3><div class="ph-sub">Green = price up, Red = price down</div></div></div></div>
+      <div class="cw"><canvas id="oic"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><div class="phl"><div class="phi">🥧</div><div><h3>PCR Distribution</h3><div class="ph-sub">Active stocks ka PCR breakdown</div></div></div></div>
+      <div class="tipbox">💡 Zyada green stocks = overall bullish sentiment. Zyada red = bearish pressure across market.</div>
+      <div class="cw"><canvas id="pcrc"></canvas></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL HTML for stock lists -->
+<script>
+const D={fut:{},ceOi:{},peOi:{},mp:{},act:[],oiTab:'long',pcrTab:'bull',actTab:'CE',ch:{}};
+
+// ── ZIP LOAD ──
+async function loadZip(f){
+  try{
+    const z=await JSZip.loadAsync(f);
+    let fo='',op='',dt='Unknown';
+    for(const[n,zf]of Object.entries(z.files)){
+      const bn=n.toLowerCase().split('/').pop();
+      if(bn.startsWith('fo')&&bn.endsWith('.csv')){fo=await zf.async('text');const m=n.match(/(\d{6,8})/);if(m){const d=m[1];dt=d.length===6?`${d.slice(0,2)}/${d.slice(2,4)}/20${d.slice(4)}`:`${d.slice(0,2)}/${d.slice(2,4)}/${d.slice(4)}`;}}
+      if(bn.startsWith('op')&&bn.endsWith('.csv'))op=await zf.async('text');
+    }
+    if(!fo||!op){alert('ZIP mein fo*.csv aur op*.csv dono chahiye!');return;}
+    pFut(fo);pOpt(op);pMP(op);pAct(op);rAll();
+    document.getElementById('hdate').textContent=`📅 ${dt}  ·  ${Object.keys(D.fut).length} active stocks`;
+    document.getElementById('uscreen').classList.add('gone');
+    document.getElementById('main').style.display='block';
+  }catch(e){alert('Error loading ZIP: '+e.message);}
+}
+
+function rows(txt){const ls=txt.trim().split('\n'),hs=ls[0].split(',').map(h=>h.trim());return ls.slice(1).map(l=>{const v=l.split(','),o={};hs.forEach((h,i)=>o[h]=(v[i]||'').trim());return o;});}
+function getNM(rs){const ex=[...new Set(rs.map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();return ex[0]||'';}
+
+function pFut(txt){
+  D.fut={};const rs=rows(txt),near=getNM(rs);
+  rs.forEach(r=>{const c=r.CONTRACT_D||'';if(!c.includes(near))return;
+    const sym=c.replace('FUTSTK','').replace('FUTIDX','').replace(near,'');if(!sym)return;
+    const prev=+r.PREVIOUS_S||0,net=+r.NET_CHANGE||0;
+    D.fut[sym]={close:+r.CLOSE_PRIC||0,prev,oi:+r.OI_NO_CON||0,vol:+r.TRADED_QUA||0,tval:+r.TRADED_VAL||0,net,pct:prev>0?net/prev*100:0};
+  });
+  const ois=Object.values(D.fut).map(v=>v.oi).filter(x=>x>0).sort((a,b)=>a-b);
+  const tvs=Object.values(D.fut).map(v=>v.tval).filter(x=>x>0).sort((a,b)=>a-b);
+  const mOi=ois[Math.floor(ois.length/2)]||0,mTv=tvs[Math.floor(tvs.length/2)]||0;
+  Object.keys(D.fut).forEach(s=>{const v=D.fut[s];if(v.oi<mOi||v.tval<mTv)delete D.fut[s];});
+}
+
+function pOpt(txt){
+  D.ceOi={};D.peOi={};const rs=rows(txt);
+  const idxExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTIDX')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();
+  const stkExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTSTK')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();
+  const idxNear=idxExps[0]||'', stkNear=stkExps[0]||'';
+  rs.forEach(r=>{
+    const c=r.CONTRACT_D||'';
+    const isIdx=c.includes('OPTIDX'),isStk=c.includes('OPTSTK');
+    if(!isIdx&&!isStk)return;
+    const near=isIdx?idxNear:stkNear;
+    if(!near||!c.includes(near))return;
+    const oi=+r.OI_NO_CON||0;
+    if(c.includes('CE')){const p=c.split(near+'CE');if(p.length!==2)return;const s=p[0].replace('OPTSTK','').replace('OPTIDX','');D.ceOi[s]=(D.ceOi[s]||0)+oi;}
+    else if(c.includes('PE')){const p=c.split(near+'PE');if(p.length!==2)return;const s=p[0].replace('OPTSTK','').replace('OPTIDX','');D.peOi[s]=(D.peOi[s]||0)+oi;}
+  });
+}
+
+function pMP(txt){
+  D.mp={};const rs=rows(txt),sm={};
+  
+  // Get separate near months for OPTIDX and OPTSTK
+  const idxExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTIDX')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();
+  const stkExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTSTK')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();
+  const idxNear=idxExps[0]||'';
+  const stkNear=stkExps[0]||'';
+
+  rs.forEach(r=>{
+    const c=r.CONTRACT_D||'';
+    const isIdx=c.includes('OPTIDX'), isStk=c.includes('OPTSTK');
+    if(!isIdx&&!isStk)return;
+    const near=isIdx?idxNear:stkNear;
+    if(!near||!c.includes(near))return;
+    const oi=+r.OI_NO_CON||0,und=+r.UNDRLNG_ST||0;
+    let sym,strike,type;
+    if(c.includes('CE')){const p=c.split(near+'CE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='CE';}
+    else if(c.includes('PE')){const p=c.split(near+'PE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='PE';}
+    else return;
+    if(!sym||!strike||isNaN(strike))return;
+    if(!sm[sym])sm[sym]={s:{},u:0};
+    if(!sm[sym].s[strike])sm[sym].s[strike]={c:0,p:0};
+    if(type==='CE')sm[sym].s[strike].c+=oi;else sm[sym].s[strike].p+=oi;
+    sm[sym].u=und||sm[sym].u;
+  });
+
+  Object.entries(sm).forEach(([sym,d])=>{
+    const isIdx=['NIFTY','BANKNIFTY','FINNIFTY','MIDCPNIFTY'].includes(sym);
+    if(!D.fut[sym]&&!isIdx)return;
+    const ss=Object.keys(d.s).map(Number).sort((a,b)=>a-b);if(ss.length<3)return;
+    let min=Infinity,mps=0;
+    ss.forEach(ts=>{let l=0;ss.forEach(s=>{if(ts>s)l+=(ts-s)*d.s[s].c;else l+=(s-ts)*d.s[s].p;});if(l<min){min=l;mps=ts;}});
+    const spot=d.u||(D.fut[sym]?D.fut[sym].close:0);
+    if(spot>0&&mps>0)D.mp[sym]={spot,mp:mps,gap:+((mps-spot)/spot*100).toFixed(2)};
+  });
+}
+
+function pAct(txt){
+  D.act=[];const rs=rows(txt);
+  const idxExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTIDX')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();
+  const stkExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTSTK')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();
+  const idxNear=idxExps[0]||'', stkNear=stkExps[0]||'';
+  rs.forEach(r=>{
+    const c=r.CONTRACT_D||'';
+    const isIdx=c.includes('OPTIDX'),isStk=c.includes('OPTSTK');
+    if(!isIdx&&!isStk)return;
+    const near=isIdx?idxNear:stkNear;
+    if(!near||!c.includes(near))return;
+    const oi=+r.OI_NO_CON||0,vol=+r.TRADED_QUA||0;if(oi===0&&vol===0)return;
+    let sym,strike,type;
+    if(c.includes('CE')){const p=c.split(near+'CE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='CE';}
+    else if(c.includes('PE')){const p=c.split(near+'PE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='PE';}
+    else return;
+    if(!sym||!strike||isNaN(strike))return;
+    if(!D.fut[sym]&&!['NIFTY','BANKNIFTY','FINNIFTY'].includes(sym))return;
+    D.act.push({sym,strike,type,oi,vol});
+  });
+  D.act.sort((a,b)=>(b.oi+b.vol)-(a.oi+a.vol));
+}
+
+// ── RENDER ALL ──
+function rAll(){rSumm();rOI();rPCR();rMP();rAct();rCharts();}
+
+function rSumm(){
+  const fv=Object.values(D.fut);
+  const lng=fv.filter(v=>v.pct>0.3);
+  const sht=fv.filter(v=>v.pct<-0.3);
+  const uwnd=fv.filter(v=>Math.abs(v.pct)<=0.3);
+  document.getElementById('s-act').textContent=fv.length;
+  document.getElementById('s-lng').textContent=lng.length;
+  document.getElementById('s-sht').textContent=sht.length;
+  document.getElementById('s-uwnd').textContent=uwnd.length;
+  let tc=0,tp=0;
+  Object.values(D.ceOi).forEach(v=>tc+=v);Object.values(D.peOi).forEach(v=>tp+=v);
+  const pcr=tc>0?tp/tc:0;
+  document.getElementById('s-pcr').textContent=pcr.toFixed(2);
+  document.getElementById('s-ph').textContent=pcr>1?'🟢 Bullish sentiment':pcr<0.8?'🔴 Bearish sentiment':'⚪ Neutral';
+  const te=document.getElementById('s-trd'),th=document.getElementById('s-th');
+  if(pcr>1.2){te.textContent='🟢 BULLISH';te.style.color='var(--bull)';th.textContent='PCR>1.2 — Strong support';}
+  else if(pcr<0.7){te.textContent='🔴 BEARISH';te.style.color='var(--bear)';th.textContent='PCR<0.7 — Resistance likely';}
+  else{te.textContent='⚪ NEUTRAL';te.style.color='var(--ink2)';th.textContent='PCR 0.7–1.2 — Sideways';}
+}
+
+function sig(v){
+  if(v.pct>0.3)return{l:'Long Build',c:'bull'};
+  if(v.pct<-0.3)return{l:'Short Build',c:'bear'};
+  if(v.pct>0)return{l:'Short Unwind',c:'neutral'};
+  return{l:'Long Unwind',c:'neutral'};
+}
+
+function rOI(){
+  const all=Object.entries(D.fut).map(([sym,v])=>({sym,...v,sg:sig(v)}));
+  let data;
+  if(D.oiTab==='long')data=all.filter(d=>d.sg.l==='Long Build').sort((a,b)=>b.pct-a.pct);
+  else if(D.oiTab==='short')data=all.filter(d=>d.sg.l==='Short Build').sort((a,b)=>a.pct-b.pct);
+  else data=all.filter(d=>d.sg.l.includes('Unwind')).sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));
+  document.getElementById('oi-b').textContent=data.length+' stocks';
+  const maxOi=Math.max(...data.map(d=>d.oi),1);
+  document.getElementById('oi-bd').innerHTML=data.slice(0,25).map(d=>`
+    <div class="row g-oi">
+      <span class="sym">${d.sym}</span>
+      <span class="num ${d.pct>=0?'bull':'bear'}">₹${d.close.toFixed(1)}</span>
+      <span class="num ${d.pct>=0?'bull':'bear'}">${d.pct>=0?'+':''}${d.pct.toFixed(2)}%</span>
+      <span class="num muted">${(d.oi/1000).toFixed(1)}K</span>
+      <div><div class="oibar" style="width:${Math.max(3,d.oi/maxOi*90)}px;background:${d.pct>=0?'var(--bull)':'var(--bear)'}"></div></div>
+      <div style="text-align:right"><span class="tag ${d.sg.c}">${d.sg.l}</span></div>
+    </div>`).join('')||'<div class="empty">Is category mein koi stock nahi</div>';
+}
+function oiT(t,el){D.oiTab=t;el.closest('.tabs').querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');rOI();}
+
+function rPCR(){
+  const af=new Set(Object.keys(D.fut));
+  const data=Object.keys(D.ceOi).filter(s=>af.has(s)&&(D.ceOi[s]||0)>0)
+    .map(s=>({s,ce:D.ceOi[s]||0,pe:D.peOi[s]||0,pcr:(D.ceOi[s]||0)>0?(D.peOi[s]||0)/(D.ceOi[s]||1):0}))
+    .filter(d=>d.pcr>0);
+  let fil;
+  if(D.pcrTab==='bull')fil=data.filter(d=>d.pcr>1).sort((a,b)=>b.pcr-a.pcr);
+  else if(D.pcrTab==='bear')fil=data.filter(d=>d.pcr<0.8).sort((a,b)=>a.pcr-b.pcr);
+  else fil=data.sort((a,b)=>b.pcr-a.pcr);
+  document.getElementById('pcr-b').textContent=fil.length+' stocks';
+  const avg=data.length?data.reduce((s,d)=>s+d.pcr,0)/data.length:0;
+  const ac=avg>1?'bull':avg<0.8?'bear':'neutral';
+  const at=avg>1?`Overall Bullish — Put writers active, support expected | Avg PCR: ${avg.toFixed(2)}`:avg<0.8?`Overall Bearish — Call writers active, resistance expected | Avg PCR: ${avg.toFixed(2)}`:`Neutral market — balanced OI | Avg PCR: ${avg.toFixed(2)}`;
+  document.getElementById('pcr-aw').innerHTML=`<div class="alert ${ac}"><div class="adot ${ac}"></div><span>${at}</span></div>`;
+  const mx=Math.max(...fil.map(d=>d.pcr),2);
+  document.getElementById('pcr-bd').innerHTML=fil.slice(0,25).map(d=>{
+    const bc=d.pcr>1?'var(--bull)':d.pcr<0.8?'var(--bear)':'#a8a29e';
+    const vl=d.pcr>1.3?'Strong Bull':d.pcr>1?'Bullish':d.pcr<0.6?'Strong Bear':d.pcr<0.8?'Bearish':'Neutral';
+    const vc=d.pcr>1?'bull':d.pcr<0.8?'bear':'neutral';
+    return`<div class="row g-pcr">
+      <span class="sym">${d.s}</span>
+      <div><div class="ptrack"><div class="pfill" style="width:${Math.min(100,d.pcr/mx*100)}%;background:${bc}"></div></div></div>
+      <span class="num muted">${d.pcr.toFixed(2)}</span>
+      <div style="text-align:right"><span class="tag ${vc}">${vl}</span></div>
+    </div>`;
+  }).join('')||'<div class="empty">Koi data nahi</div>';
+}
+function pcrT(t,el){D.pcrTab=t;el.closest('.tabs').querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');rPCR();}
+
+function rMP(){
+  const q=(document.getElementById('mps').value||'').toLowerCase();
+  // Sort by absolute gap — stocks furthest from pain first
+  const data=Object.entries(D.mp)
+    .filter(([sym])=>!q||sym.toLowerCase().includes(q))
+    .map(([sym,v])=>({sym,...v}))
+    .sort((a,b)=>Math.abs(b.gap)-Math.abs(a.gap));
+  document.getElementById('mp-bd').innerHTML=data.slice(0,25).map(d=>{
+    const gc=d.gap>3?'bear':d.gap<-3?'bull':'neutral';
+    const gl=d.gap>3?'↓ Pull Down':d.gap<-3?'↑ Pull Up':'✓ Near Pain';
+    return`<div class="row g-mp">
+      <span class="sym">${d.sym}</span>
+      <span class="num muted">₹${d.spot.toFixed(1)}</span>
+      <span class="num gold">${d.mp}</span>
+      <span class="num ${d.gap>=0?'bear':'bull'}">${d.gap>=0?'+':''}${d.gap}%</span>
+      <div style="text-align:right"><span class="tag ${gc}">${gl}</span></div>
+    </div>`;
+  }).join('')||'<div class="empty">Koi data nahi</div>';
+}
+
+function rAct(){
+  const fil=D.act.filter(d=>d.type===D.actTab).slice(0,25);
+  document.getElementById('act-bd').innerHTML=fil.map(d=>`
+    <div class="row g-act">
+      <span class="sym">${d.sym}</span>
+      <span class="num muted">${d.strike}</span>
+      <span class="num ${d.type==='CE'?'bear':'bull'}">${(d.oi/1000).toFixed(1)}K</span>
+      <span class="num muted">${(d.vol/1000).toFixed(1)}K</span>
+      <div style="text-align:right"><span class="tag ${d.type==='CE'?'bear':'bull'}">${d.type}</span></div>
+    </div>`).join('')||'<div class="empty">Koi data nahi</div>';
+}
+function actT(t,el){D.actTab=t;el.closest('.tabs').querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');rAct();}
+
+// ── MODAL — stock list ──
+function openModal(type){
+  const all=Object.entries(D.fut).map(([sym,v])=>({sym,...v,sg:sig(v)}));
+  let data,title;
+  if(type==='all'){data=all.sort((a,b)=>b.tval-a.tval);title=`All Active Stocks (${data.length})`;}
+  else if(type==='long'){data=all.filter(d=>d.sg.l==='Long Build').sort((a,b)=>b.pct-a.pct);title=`Long Buildup Stocks (${data.length})`;}
+  else if(type==='short'){data=all.filter(d=>d.sg.l==='Short Build').sort((a,b)=>a.pct-b.pct);title=`Short Buildup Stocks (${data.length})`;}
+  else{data=all.filter(d=>d.sg.l.includes('Unwind')).sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));title=`Unwinding Stocks (${data.length})`;}
+
+  document.getElementById('m-title').textContent=title;
+  const maxOi=Math.max(...data.map(d=>d.oi),1);
+  document.getElementById('m-body').innerHTML=`
+    <div style="display:grid;grid-template-columns:36px 80px 66px 60px 54px 80px;gap:8px;padding:6px 0 10px;border-bottom:1px solid var(--border);font-size:.6rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;">
+      <span>#</span><span>Symbol</span><span style="text-align:right">Price</span><span style="text-align:right">Chg%</span><span style="text-align:right">OI(K)</span><span style="text-align:right">Signal</span>
+    </div>
+    ${data.map((d,i)=>`
+    <div style="display:grid;grid-template-columns:36px 80px 66px 60px 54px 80px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(231,226,218,.5);">
+      <span style="font-size:.68rem;color:var(--muted)">${i+1}</span>
+      <span class="sym">${d.sym}</span>
+      <span class="num ${d.pct>=0?'bull':'bear'}">₹${d.close.toFixed(1)}</span>
+      <span class="num ${d.pct>=0?'bull':'bear'}">${d.pct>=0?'+':''}${d.pct.toFixed(2)}%</span>
+      <span class="num muted">${(d.oi/1000).toFixed(1)}K</span>
+      <div style="text-align:right"><span class="tag ${d.sg.c}">${d.sg.l}</span></div>
+    </div>`).join('')}`;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// ── CHARTS ──
+function rCharts(){
+  const t12=Object.entries(D.fut).sort((a,b)=>b[1].oi-a[1].oi).slice(0,12);
+  if(D.ch.oi)D.ch.oi.destroy();
+  D.ch.oi=new Chart(document.getElementById('oic'),{
+    type:'bar',
+    data:{labels:t12.map(([s])=>s),datasets:[{data:t12.map(([,v])=>+(v.oi/1000).toFixed(1)),backgroundColor:t12.map(([,v])=>v.pct>0?'rgba(22,101,52,.8)':'rgba(155,28,28,.8)'),borderRadius:5,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw}K contracts`}}},
+      scales:{x:{grid:{display:false},ticks:{color:'#a8a29e',font:{family:'IBM Plex Mono',size:9}}},y:{grid:{color:'#ede8e0'},ticks:{color:'#a8a29e',font:{family:'IBM Plex Mono',size:9},callback:v=>v+'K'}}}}
+  });
+
+  const syms=Object.keys(D.fut).filter(s=>(D.ceOi[s]||0)>0);
+  const pcrs=syms.map(s=>(D.ceOi[s]>0?(D.peOi[s]||0)/D.ceOi[s]:0));
+  const sb=pcrs.filter(p=>p>1.2).length,mb=pcrs.filter(p=>p>=1&&p<=1.2).length,ne=pcrs.filter(p=>p>=0.8&&p<1).length,be=pcrs.filter(p=>p<0.8).length;
+  if(D.ch.pcr)D.ch.pcr.destroy();
+  D.ch.pcr=new Chart(document.getElementById('pcrc'),{
+    type:'doughnut',
+    data:{labels:[`Strong Bull >1.2 (${sb})`,`Mild Bull 1–1.2 (${mb})`,`Neutral 0.8–1 (${ne})`,`Bearish <0.8 (${be})`],
+      datasets:[{data:[sb,mb,ne,be],backgroundColor:['#166534','#4ade80','#a8a29e','#9b1c1c'],borderWidth:0,hoverOffset:10}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
+      plugins:{legend:{labels:{color:'#57534e',font:{family:'IBM Plex Mono',size:10},padding:10},position:'bottom'},
+        tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw} stocks`}}}}
+  });
+}
+
+// ── EVENTS ──
+['fi','fi2'].forEach(id=>document.getElementById(id).addEventListener('change',e=>{if(e.target.files[0])loadZip(e.target.files[0]);}));
+const ud=document.getElementById('udrop'),us=document.getElementById('uscreen');
+us.addEventListener('dragover',e=>{e.preventDefault();ud.classList.add('drag');});
+us.addEventListener('dragleave',e=>{if(!e.relatedTarget||!us.contains(e.relatedTarget))ud.classList.remove('drag');});
+us.addEventListener('drop',e=>{e.preventDefault();ud.classList.remove('drag');const f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.zip'))loadZip(f);else alert('Sirf .zip file drop karo!');});
+document.addEventListener('dragover',e=>e.preventDefault());
+document.addEventListener('drop',e=>{e.preventDefault();if(us.classList.contains('gone')){const f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.zip'))loadZip(f);}});
+</script>
+</body>
+</html>
