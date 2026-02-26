@@ -113,9 +113,29 @@
     font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s;
-    letter-spacing: 1px;
   }
   .upload-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(5,150,105,0.25); }
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px 28px;
+    background: var(--blue);
+    color: #fff;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .download-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,99,235,0.3); background: #1d4ed8; }
+  .download-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+  .divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; color: var(--muted); font-size: 0.78rem; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
 
   /* Stats bar */
   .stats-bar {
@@ -387,9 +407,18 @@
   <div class="upload-zone" id="upload-zone">
     <input type="file" id="csv-input" accept=".csv">
     <div class="upload-icon">📂</div>
-    <h2>Drop FOVOLT CSV File Here</h2>
-    <p>NSE format: FOVOLT_DDMMYYYY.csv — Daily download karke yahan drop karo</p>
-    <label for="csv-input" class="upload-btn">BROWSE FILE</label>
+    <h2>FOVOLT CSV Load Karo</h2>
+
+    <!-- AUTO DOWNLOAD BUTTON -->
+    <button class="download-btn" id="auto-download-btn" onclick="autoDownloadCSV()">
+      ⬇️ NSE se Latest CSV Download Karo
+    </button>
+    <div id="download-status" style="font-size:0.78rem; color:var(--muted); margin-top:8px; min-height:20px;"></div>
+
+    <div class="divider">YA MANUALLY UPLOAD KARO</div>
+
+    <p>NSE format: FOVOLT_DDMMYYYY.csv — Drag & drop ya browse karo</p>
+    <label for="csv-input" class="upload-btn">📁 BROWSE FILE</label>
   </div>
 
   <!-- Strategy Guide (always visible) -->
@@ -490,7 +519,52 @@
 </main>
 
 <script>
-let allData = [];
+const WORKER_URL = 'https://fovolt-downloader.sumantasahoo.workers.dev/';
+
+async function autoDownloadCSV() {
+  const btn = document.getElementById('auto-download-btn');
+  const status = document.getElementById('download-status');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ NSE se fetch ho raha hai...';
+  status.textContent = '';
+
+  try {
+    const response = await fetch(WORKER_URL);
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'File nahi mili');
+    }
+
+    // File date header se lo
+    const fileDate = response.headers.get('X-File-Date') || '';
+    const filename = `FOVOLT_${fileDate}.csv`;
+
+    const blob = await response.blob();
+    const text = await blob.text();
+
+    // Dashboard mein seedha load karo
+    loadData(text, filename);
+
+    // Saath mein download bhi karo
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    status.innerHTML = `<span style="color:var(--green)">✅ ${filename} load ho gaya!</span>`;
+    btn.textContent = '✅ Downloaded!';
+
+  } catch (err) {
+    status.innerHTML = `<span style="color:var(--red)">❌ ${err.message} — Manual upload try karo</span>`;
+    btn.disabled = false;
+    btn.textContent = '⬇️ NSE se Latest CSV Download Karo';
+  }
+}
+
 let currentFilter = 'all';
 let doughnutChart = null, barChart = null;
 
