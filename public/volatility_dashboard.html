@@ -400,7 +400,7 @@
   <div class="logo">FO<span>VOLT</span> Dashboard</div>
   <div class="date-badge" id="file-date">No file loaded</div>
   <div class="date-badge" id="last-updated">
-  Last Updated: 27 Feb 2026 — 00.13
+  Last Updated: 27 Feb 2026 — 00.14
   </div>
 </header>
 
@@ -551,23 +551,16 @@ async function autoDownloadCSV() {
     // Dashboard mein seedha load karo
     loadData(text, filename);
 
-    // Saath mein download bhi karo — popup-safe version
-	const url = URL.createObjectURL(blob);
+	// 1) Dashboard load already ho chuka (loadData call upar hai)
 
-	const a = document.createElement('a');
-	a.href = url;
-	a.download = filename;
-	a.style.display = 'none';
+	// 2) Direct download via hidden iframe (no redirect, no popup)
+	const iframe = document.createElement('iframe');
+	iframe.style.display = 'none';
+	iframe.src = 'https://fovolt-downloader.sumantasahoo.workers.dev/';
+	document.body.appendChild(iframe);
 
-	document.body.appendChild(a);
-
-	// Required for Safari / mobile reliability
-	a.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
-
-	setTimeout(() => {
-	  URL.revokeObjectURL(url);
-	  a.remove();
-	}, 2000);
+	// optional cleanup
+	setTimeout(() => iframe.remove(), 10000);
 
 
     status.innerHTML = `<span style="color:var(--green)">✅ ${filename} load ho gaya!</span>`;
