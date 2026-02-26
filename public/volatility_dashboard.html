@@ -547,13 +547,21 @@ async function autoDownloadCSV() {
     // Dashboard mein seedha load karo
     loadData(text, filename);
 
-    // Saath mein download bhi karo
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
+    // Saath mein download bhi karo — popup-safe version
+	const url = URL.createObjectURL(blob);
+
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = filename;
+	a.style.display = 'none';
+
+	document.body.appendChild(a);
+	a.click();
+
+	setTimeout(() => {
+	  URL.revokeObjectURL(url);
+	  a.remove();
+	}, 100);
 
     status.innerHTML = `<span style="color:var(--green)">✅ ${filename} load ho gaya!</span>`;
     btn.textContent = '✅ Downloaded!';
