@@ -400,7 +400,7 @@
   <div class="logo">FO<span>VOLT</span> Dashboard</div>
   <div class="date-badge" id="file-date">No file loaded</div>
   <div class="date-badge" id="last-updated">
-  Last Updated: 27 Feb 2026 — 12.06
+  Last Updated: 27 Feb 2026 — 00.10
   </div>
 </header>
 
@@ -551,20 +551,12 @@ async function autoDownloadCSV() {
     loadData(text, filename);
 
     // Saath mein download bhi karo — popup-safe version
-	const url = URL.createObjectURL(blob);
-
 	const a = document.createElement('a');
-	a.href = url;
+	a.href = URL.createObjectURL(new Blob([blob], { type: 'text/csv' }));
 	a.download = filename;
-	a.style.display = 'none';
-
 	document.body.appendChild(a);
 	a.click();
-
-	setTimeout(() => {
-	  URL.revokeObjectURL(url);
-	  a.remove();
-	}, 100);
+	setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 
     status.innerHTML = `<span style="color:var(--green)">✅ ${filename} load ho gaya!</span>`;
     btn.textContent = '✅ Downloaded!';
