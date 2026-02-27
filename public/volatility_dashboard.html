@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<!-- FOVOLT Dashboard v1.0 - Fixed Edition -->
-<!-- Fixes: CSS .download-btn selector | Button onclick handler | NSE data loading -->
+<!-- FOVOLT Dashboard v1.1 - Load + Direct Download -->
+<!-- Fixes: Function order | Loading delay | Direct download button | V1 header -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -400,7 +400,7 @@
 <body>
 
 <header>
-  <div class="logo">FO<span>VOLT</span> Dashboard</div>
+  <div class="logo">FO<span>VOLT</span> Dashboard <strong>V1</strong></div>
   <div class="date-badge" id="file-date">No file loaded</div>
 </header>
 
@@ -415,6 +415,10 @@
     <button onclick="loadFromCloudflare()" class="download-btn" id="nse-btn">
       ⬇️ NSE se Latest CSV Load Karo
     </button>
+
+    <a href="https://fovolt-downloader.sumantasahoo.workers.dev/" class="download-btn" download style="text-align: center; margin-left: 12px;">
+      ⬇️ DIRECT DOWNLOAD
+    </a>
 
     <div class="divider">YA MANUALLY UPLOAD KARO</div>
     <p>NSE format: FOVOLT_DDMMYYYY.csv — Drag & drop ya browse karo</p>
@@ -519,18 +523,50 @@
 </main>
 
 <script>
-// FOVOLT Dashboard v1.0 - CSS & JS Fixed
-console.log("FOVOLT Dashboard v1.0 - NSE Button Fully Functional");
+// FOVOLT Dashboard v1.1 - Load & Direct Download
+console.log("FOVOLT Dashboard v1.1 - NSE Load + Direct Download");
 
 let currentFilter = 'all';
 let doughnutChart = null, barChart = null;
 let allData = [];
+
+// ============ UTILITY FUNCTIONS (MUST BE FIRST) ============
+
+function classifyVol(vol) {
+  if (vol < 30) return 'buy';
+  if (vol >= 30 && vol < 50) return 'caution';
+  return 'avoid';
+}
+
+function isIntraday(vol) {
+  return vol >= 35 && vol <= 65;
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const data = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(',').map(s => s.trim());
+    if (cols.length < 16) continue;
+    const symbol = cols[1];
+    const annVol = parseFloat(cols[15]) * 100;
+    const prevDailyVol = parseFloat(cols[11]) * 100 * Math.sqrt(365);
+    if (!symbol || isNaN(annVol)) continue;
+    data.push({ symbol, annVol: +annVol.toFixed(2), prevAnnVol: +prevDailyVol.toFixed(2) });
+  }
+  return data;
+}
+
+// ============ MAIN LOAD FUNCTION ============
 
 // Load CSV directly from Cloudflare Worker
 async function loadFromCloudflare() {
   const btn = document.getElementById('nse-btn');
   btn.disabled = true;
   btn.textContent = '⏳ Loading...';
+  
+  // Add 1 second delay for UX
+  await new Promise(resolve => setTimeout(resolve, 1000));
   
   try {
     // Fetch from Cloudflare endpoint
@@ -556,7 +592,7 @@ async function loadFromCloudflare() {
     
     // Update date badge
     const today = new Date().toLocaleDateString('en-GB');
-    document.getElementById('file-date').textContent = `${today} — ${allData.length} stocks loaded from Cloudflare`;
+    document.getElementById('file-date').textContent = `${today} — ${allData.length} stocks loaded (v1.1)`;
     
     // Update all dashboard elements
     updateStats(allData);
@@ -576,35 +612,10 @@ async function loadFromCloudflare() {
     
   } catch (error) {
     console.error('Error loading from Cloudflare:', error);
-    alert('❌ NSE data load failed:\n\n' + error.message + '\n\nPleaseupload CSV manually below.');
+    alert('❌ NSE data load failed:\n\n' + error.message + '\n\nPlease upload CSV manually below.');
     btn.disabled = false;
     btn.textContent = '❌ Try Again';
   }
-}
-
-function classifyVol(vol) {
-  if (vol < 30) return 'buy';
-  if (vol >= 30 && vol < 50) return 'caution';
-  return 'avoid';
-}
-
-function isIntraday(vol) {
-  return vol >= 35 && vol <= 65;
-}
-
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const data = [];
-  for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i].split(',').map(s => s.trim());
-    if (cols.length < 16) continue;
-    const symbol = cols[1];
-    const annVol = parseFloat(cols[15]) * 100;
-    const prevDailyVol = parseFloat(cols[11]) * 100 * Math.sqrt(365);
-    if (!symbol || isNaN(annVol)) continue;
-    data.push({ symbol, annVol: +annVol.toFixed(2), prevAnnVol: +prevDailyVol.toFixed(2) });
-  }
-  return data;
 }
 
 function updateStats(data) {
