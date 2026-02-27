@@ -399,9 +399,6 @@
 <header>
   <div class="logo">FO<span>VOLT</span> Dashboard</div>
   <div class="date-badge" id="file-date">No file loaded</div>
-  <div class="date-badge" id="last-updated">
-  Last Updated: 27 Feb 2026 — 00.15
-  </div>
 </header>
 
 <main>
@@ -413,7 +410,7 @@
     <h2>FOVOLT CSV Load Karo</h2>
 
     <!-- AUTO DOWNLOAD BUTTON -->
-    <button class="download-btn" id="auto-download-btn" onclick="autoDownloadCSV()">
+    <button class="download-btn" id="auto-download-btn">
       ⬇️ NSE se Latest CSV Download Karo
     </button>
     <div id="download-status" style="font-size:0.78rem; color:var(--muted); margin-top:8px; min-height:20px;"></div>
@@ -523,9 +520,8 @@
 
 <script>
 const WORKER_URL = 'https://fovolt-downloader.sumantasahoo.workers.dev/';
+
 async function autoDownloadCSV() {
-
-
   const btn = document.getElementById('auto-download-btn');
   const status = document.getElementById('download-status');
 
@@ -551,23 +547,13 @@ async function autoDownloadCSV() {
     // Dashboard mein seedha load karo
     loadData(text, filename);
 
-	// 1) Dashboard load already ho chuka (loadData call upar hai)
-
-	// 2) Direct download via hidden iframe (no redirect, no popup)
-	// ✅ SAFE DOWNLOAD (works everywhere)
-
-	const url = window.URL.createObjectURL(blob);
-
-	const a = document.createElement('a');
-	a.href = url;
-	a.download = filename;
-
-	document.body.appendChild(a);
-	a.click();
-
-	a.remove();
-	window.URL.revokeObjectURL(url);
-
+    // Saath mein download bhi karo
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
 
     status.innerHTML = `<span style="color:var(--green)">✅ ${filename} load ho gaya!</span>`;
     btn.textContent = '✅ Downloaded!';
@@ -770,6 +756,12 @@ zone.addEventListener('drop', e => {
   const reader = new FileReader();
   reader.onload = ev => loadData(ev.target.result, file.name);
   reader.readAsText(file);
+});
+
+// Download button event listener
+document.addEventListener('DOMContentLoaded', function() {
+  const btn = document.getElementById('auto-download-btn');
+  if (btn) btn.addEventListener('click', autoDownloadCSV);
 });
 </script>
 </body>
