@@ -393,6 +393,52 @@
     .strategy-grid { grid-template-columns: 1fr; }
   }
 </style>
+
+<script>
+const WORKER_URL = 'https://fovolt-downloader.sumantasahoo.workers.dev/';
+
+async function autoDownloadCSV() {
+  const btn = document.getElementById('auto-download-btn');
+  const status = document.getElementById('download-status');
+
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Fetch ho raha hai...';
+  status.innerHTML = '';
+
+  try {
+    const response = await fetch(WORKER_URL);
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'File nahi mili');
+    }
+
+    const fileDate = response.headers.get('X-File-Date') || '';
+    const filename = 'FOVOLT_' + fileDate + '.csv';
+    const blob = await response.blob();
+    const text = await blob.text();
+
+    // Dashboard mein load karo
+    loadData(text, filename);
+
+    // Downloads mein bhi save karo
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], {type:'text/csv'}));
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    status.innerHTML = '<span style="color:#059669">✅ ' + filename + ' load ho gaya!</span>';
+    btn.innerHTML = '✅ Downloaded!';
+
+  } catch(err) {
+    status.innerHTML = '<span style="color:#dc2626">❌ ' + err.message + '</span>';
+    btn.disabled = false;
+    btn.innerHTML = '⬇️ NSE se Latest CSV Download Karo';
+  }
+}
+</script>
 </head>
 <body>
 
@@ -410,7 +456,7 @@
     <h2>FOVOLT CSV Load Karo</h2>
 
     <!-- AUTO DOWNLOAD BUTTON -->
-    <button class="download-btn" id="auto-download-btn">
+    <button class="download-btn" id="auto-download-btn" onclick="autoDownloadCSV()">
       ⬇️ NSE se Latest CSV Download Karo
     </button>
     <div id="download-status" style="font-size:0.78rem; color:var(--muted); margin-top:8px; min-height:20px;"></div>
@@ -519,52 +565,6 @@
 </main>
 
 <script>
-const WORKER_URL = 'https://fovolt-downloader.sumantasahoo.workers.dev/';
-
-async function autoDownloadCSV() {
-  const btn = document.getElementById('auto-download-btn');
-  const status = document.getElementById('download-status');
-
-  btn.disabled = true;
-  btn.textContent = '⏳ NSE se fetch ho raha hai...';
-  status.textContent = '';
-
-  try {
-    const response = await fetch(WORKER_URL);
-
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error || 'File nahi mili');
-    }
-
-    // File date header se lo
-    const fileDate = response.headers.get('X-File-Date') || '';
-    const filename = `FOVOLT_${fileDate}.csv`;
-
-    const blob = await response.blob();
-    const text = await blob.text();
-
-    // Dashboard mein seedha load karo
-    loadData(text, filename);
-
-    // Saath mein download bhi karo
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    status.innerHTML = `<span style="color:var(--green)">✅ ${filename} load ho gaya!</span>`;
-    btn.textContent = '✅ Downloaded!';
-
-  } catch (err) {
-    status.innerHTML = `<span style="color:var(--red)">❌ ${err.message} — Manual upload try karo</span>`;
-    btn.disabled = false;
-    btn.textContent = '⬇️ NSE se Latest CSV Download Karo';
-  }
-}
-
 let currentFilter = 'all';
 let doughnutChart = null, barChart = null;
 
@@ -756,12 +756,6 @@ zone.addEventListener('drop', e => {
   const reader = new FileReader();
   reader.onload = ev => loadData(ev.target.result, file.name);
   reader.readAsText(file);
-});
-
-// Download button event listener
-document.addEventListener('DOMContentLoaded', function() {
-  const btn = document.getElementById('auto-download-btn');
-  if (btn) btn.addEventListener('click', autoDownloadCSV);
 });
 </script>
 </body>
