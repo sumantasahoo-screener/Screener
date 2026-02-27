@@ -393,52 +393,6 @@
     .strategy-grid { grid-template-columns: 1fr; }
   }
 </style>
-
-<script>
-const WORKER_URL = 'https://fovolt-downloader.sumantasahoo.workers.dev/';
-
-async function autoDownloadCSV() {
-  const btn = document.getElementById('auto-download-btn');
-  const status = document.getElementById('download-status');
-
-  btn.disabled = true;
-  btn.innerHTML = '⏳ Fetch ho raha hai...';
-  status.innerHTML = '';
-
-  try {
-    const response = await fetch(WORKER_URL);
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.error || 'File nahi mili');
-    }
-
-    const fileDate = response.headers.get('X-File-Date') || '';
-    const filename = 'FOVOLT_' + fileDate + '.csv';
-    const blob = await response.blob();
-    const text = await blob.text();
-
-    // Dashboard mein load karo
-    loadData(text, filename);
-
-    // Downloads mein bhi save karo
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([text], {type:'text/csv'}));
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    status.innerHTML = '<span style="color:#059669">✅ ' + filename + ' load ho gaya!</span>';
-    btn.innerHTML = '✅ Downloaded!';
-
-  } catch(err) {
-    status.innerHTML = '<span style="color:#dc2626">❌ ' + err.message + '</span>';
-    btn.disabled = false;
-    btn.innerHTML = '⬇️ NSE se Latest CSV Download Karo';
-  }
-}
-</script>
 </head>
 <body>
 
@@ -455,14 +409,11 @@ async function autoDownloadCSV() {
     <div class="upload-icon">📂</div>
     <h2>FOVOLT CSV Load Karo</h2>
 
-    <!-- AUTO DOWNLOAD BUTTON -->
-    <a href="https://fovolt-downloader.sumantasahoo.workers.dev/" class="download-btn" download>
+    <a href="https://fovolt-downloader.sumantasahoo.workers.dev/" class="download-btn" target="_blank">
       ⬇️ NSE se Latest CSV Download Karo
     </a>
-    <div id="download-status" style="font-size:0.78rem; color:var(--muted); margin-top:8px; min-height:20px;"></div>
 
     <div class="divider">YA MANUALLY UPLOAD KARO</div>
-
     <p>NSE format: FOVOLT_DDMMYYYY.csv — Drag & drop ya browse karo</p>
     <label for="csv-input" class="upload-btn">📁 BROWSE FILE</label>
   </div>
