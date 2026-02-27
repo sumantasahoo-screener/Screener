@@ -782,6 +782,27 @@ zone.addEventListener('drop', e => {
   reader.onload = ev => loadData(ev.target.result, file.name);
   reader.readAsText(file);
 });
+
+
+async function downloadDirect() {
+  try {
+    const res = await fetch('https://fovolt-downloader.sumantasahoo.workers.dev/');
+    if (!res.ok) throw new Error('Download failed');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'FOVOLT_TODAY.csv';   // file naam jo chaho
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('Direct download fail hua: ' + e.message);
+  }
+}
+
 </script>
 </body>
 </html>
