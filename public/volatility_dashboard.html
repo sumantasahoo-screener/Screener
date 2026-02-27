@@ -115,6 +115,7 @@
     transition: all 0.2s;
   }
   .upload-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(5,150,105,0.25); }
+  .download-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -503,7 +504,12 @@
   <div class="table-card">
     <div class="table-header">
       <h3 id="table-title">All Stocks</h3>
-      <input type="text" class="search-box" placeholder="Search symbol..." id="search-box" oninput="searchTable()">
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <input type="text" class="search-box" placeholder="Search symbol..." id="search-box" oninput="searchTable()">
+        <button class="download-btn" onclick="downloadCSV()" id="download-btn" style="margin: 0; margin-top: 0;">
+          ⬇️ Download Analysis
+        </button>
+      </div>
     </div>
     <div id="table-wrap">
       <div class="no-data">
@@ -708,6 +714,37 @@ zone.addEventListener('drop', e => {
   reader.onload = ev => loadData(ev.target.result, file.name);
   reader.readAsText(file);
 });
+
+// Download function
+let allData = [];
+function downloadCSV() {
+  if (!allData.length) {
+    alert('Pehle CSV file upload karo!');
+    return;
+  }
+  
+  // Create CSV header
+  let csv = 'Symbol,Annualized Vol %,Category,Intraday Pick\n';
+  
+  // Add data rows
+  for (const d of allData) {
+    const category = classifyVol(d.annVol);
+    const catText = category === 'buy' ? 'BUY' : category === 'caution' ? 'CAUTION' : 'AVOID';
+    const intraday = isIntraday(d.annVol) ? 'YES' : 'NO';
+    csv += `${d.symbol},${d.annVol},${catText},${intraday}\n`;
+  }
+  
+  // Create blob and download
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `FOVOLT_Analysis_${new Date().toISOString().slice(0,10)}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 </script>
 </body>
 </html>
