@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="oi-scan-time" content="2026-02-28 22:27:00">
+<meta name="oi-scan-time" content="2026-02-28 22:51:32">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -536,7 +536,7 @@ select:focus{ border-color:var(--cyan-dim); }
     <span style="color:#000;font-weight:600;letter-spacing:0.1em;font-size:15px;">CHANGE IN OI</span><br>
     <span style="font-size:12px;color:#000;">(LAST 4 SCAN · 12 MIN)</span><br>
     <span style="font-size:13px;color:#000;">
-      Scan: 2026-02-28&nbsp;<span style="color:#2196F3;font-weight:600;">22:27:00</span>
+      Scan: 2026-02-28&nbsp;<span style="color:#2196F3;font-weight:600;">22:51:32</span>
     </span><br>
     <span id="pcrChange" style="font-size:14px;"></span>
   </div>
@@ -570,17 +570,33 @@ const themeSwitch = document.getElementById("themeSwitch");
 const hoverLine = document.getElementById("hoverLine");
 
 // ===== THEME SWITCH BUTTON =====
-themeSwitch.addEventListener("click", function() {
-  let currentUrl = window.location.href.split("?")[0];
-  
-  if (currentUrl.includes("oi2.html")) {
-    // On oi2.html, go to oi.html
-    window.location.href = currentUrl.replace("oi2.html", "oi.html");
-  } else {
-    // On oi.html, go to oi2.html
-    window.location.href = currentUrl.replace("oi.html", "oi2.html");
-  }
-});
+if (themeSwitch) {
+  themeSwitch.addEventListener("click", function(e) {
+    e.preventDefault();
+    
+    let currentUrl = window.location.href.split("?")[0].split("#")[0];
+    let newUrl = "";
+    
+    // Check what file we're currently on
+    if (currentUrl.endsWith("oi2.html")) {
+      // On oi2.html → go to oi.html
+      newUrl = currentUrl.substring(0, currentUrl.lastIndexOf("/")) + "/oi.html";
+    } else if (currentUrl.endsWith("oi.html")) {
+      // On oi.html → go to oi2.html
+      newUrl = currentUrl.substring(0, currentUrl.lastIndexOf("/")) + "/oi2.html";
+    } else if (currentUrl.includes("oi2")) {
+      // Fallback for oi2 anywhere in path
+      newUrl = currentUrl.replace(/oi2/, "oi").replace(/oi\.html/, "oi.html");
+    } else if (currentUrl.includes("oi")) {
+      // Fallback for oi anywhere in path
+      newUrl = currentUrl.replace(/oi\.html/, "oi2.html");
+    }
+    
+    if (newUrl) {
+      window.location.href = newUrl;
+    }
+  });
+}
 
 var keys = Object.keys(DATA);
 
