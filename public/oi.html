@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="oi-scan-time" content="2026-02-28 22:14:55">
+<meta name="oi-scan-time" content="2026-02-28 22:23:31">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -514,7 +514,7 @@ select:focus{ border-color:var(--cyan-dim); }
   <div id="dropdownWrap">
     <select id="ul"></select>
     <select id="exp"></select>
-    <button id="themeSwitch">⚙️ Dark</button>
+    <button id="themeSwitch">OI2</button>
   </div>
 
 </div>
@@ -536,7 +536,7 @@ select:focus{ border-color:var(--cyan-dim); }
     <span style="color:#d8e8f4;font-weight:600;letter-spacing:0.1em;font-size:15px;">CHANGE IN OI</span><br>
     <span style="font-size:12px;color:#6a8898;">(LAST 4 SCAN · 12 MIN)</span><br>
     <span style="font-size:13px;color:#6a8898;">
-      Scan: 2026-02-28&nbsp;<span style="color:#29d8e0;font-weight:600;">22:14:55</span>
+      Scan: 2026-02-28&nbsp;<span style="color:#29d8e0;font-weight:600;">22:23:31</span>
     </span><br>
     <span id="pcrChange" style="font-size:14px;"></span>
   </div>
@@ -571,18 +571,14 @@ const hoverLine = document.getElementById("hoverLine");
 
 // ===== THEME SWITCH BUTTON =====
 themeSwitch.addEventListener("click", function() {
-  const currentUrl = window.location.href;
-  const baseUrl = currentUrl.split("?")[0];
-  const fileName = baseUrl.split("/").pop();
+  let currentUrl = window.location.href.split("?")[0];
   
-  if (fileName === "oi.html" || !fileName) {
-    // Switch to dark theme (oi2.html)
-    const darkUrl = baseUrl.replace("oi.html", "oi2.html");
-    window.location.href = darkUrl;
+  if (currentUrl.includes("oi2.html")) {
+    // On oi2.html, go to oi.html
+    window.location.href = currentUrl.replace("oi2.html", "oi.html");
   } else {
-    // Switch to light theme (oi.html)
-    const lightUrl = baseUrl.replace("oi2.html", "oi.html");
-    window.location.href = lightUrl;
+    // On oi.html, go to oi2.html
+    window.location.href = currentUrl.replace("oi.html", "oi2.html");
   }
 });
 
@@ -863,9 +859,9 @@ function render(){
     }
 
     document.getElementById("pcrTotal").innerHTML =
-      "<span style='color:#6a8898;font-size:13px;'>mPCR:</span> <span style='color:#d8e8f4;font-size:14px;font-weight:600;'>" + pcrTot + "</span>" +
-      " <span style='color:#1e3a50;'>|</span> <span style='color:" + mBiasColor + ";font-weight:600;letter-spacing:0.05em;font-size:14px;'>" + mBiasLabel + "</span>" +
-      "&nbsp;&nbsp;<span style='color:#ffffff;font-size:12px;'>p1:" + obj.prev1_mPCR + " p2:" + obj.prev2_mPCR + "</span>";
+      "<span style='color:#333;font-size:13px;'>mPCR:</span> <span style='color:#333;font-size:14px;font-weight:600;'>" + pcrTot + "</span>" +
+      " <span style='color:#ccc;'>|</span> <span style='color:" + mBiasColor + ";font-weight:600;letter-spacing:0.05em;font-size:14px;'>" + mBiasLabel + "</span>" +
+      "&nbsp;&nbsp;<span style='color:#333;font-size:12px;'>p1:" + obj.prev1_mPCR + " p2:" + obj.prev2_mPCR + "</span>";
 
 
     let biasLabel = "BALANCED";
@@ -880,9 +876,9 @@ function render(){
     }
 
     document.getElementById("pcrChange").innerHTML =
-      "<span style='color:#6a8898;font-size:13px;'>cPCR:</span> <span style='color:#d8e8f4;font-size:14px;font-weight:600;'>" + pcrCh + "</span>" +
-      " <span style='color:#1e3a50;'>|</span> <span style='color:" + biasColor + ";font-weight:600;letter-spacing:0.05em;font-size:14px;'>" + biasLabel + "</span>" +
-      "&nbsp;&nbsp;<span style='color:#ffffff;font-size:12px;'>p1:" + obj.prev1_cPCR + " p2:" + obj.prev2_cPCR + "</span>";
+      "<span style='color:#333;font-size:13px;'>cPCR:</span> <span style='color:#333;font-size:14px;font-weight:600;'>" + pcrCh + "</span>" +
+      " <span style='color:#ccc;'>|</span> <span style='color:" + biasColor + ";font-weight:600;letter-spacing:0.05em;font-size:14px;'>" + biasLabel + "</span>" +
+      "&nbsp;&nbsp;<span style='color:#333;font-size:12px;'>p1:" + obj.prev1_cPCR + " p2:" + obj.prev2_cPCR + "</span>";
       
     // ---- ATTENTION SPIKE LOGIC ----
 
@@ -1168,14 +1164,14 @@ function render(){
             '<div class="bar ce" style="position:absolute;left:0;width:'+ceBasePct+'%"></div>'+
             (ceRaw>0
               ? '<div class="bar ce deep" style="position:absolute;left:'+ceBasePct+'%;width:'+ceAddPct+'%"></div>'
-              : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:#999999;border:1px solid #999999"></div>')+
+              : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:#000000;border:1px solid #000000"></div>')+
           '</div>'+
 
           '<div style="position:relative;height:18px;width:100%;margin-top:4px;">'+
             '<div class="bar pe" style="position:absolute;left:0;width:'+peBasePct+'%"></div>'+
             (peRaw>0
               ? '<div class="bar pe deep" style="position:absolute;left:'+peBasePct+'%;width:'+peAddPct+'%"></div>'
-              : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:#999999;border:1px solid #999999"></div>')+
+              : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:#000000;border:1px solid #000000"></div>')+
           '</div>'+
 
         '</div></div></div>'+
@@ -1200,14 +1196,14 @@ function render(){
             '<div class="bar ce" style="position:absolute;left:0;width:'+ceBasePct+'%"></div>'+
             (ceRaw>0
               ? '<div class="bar ce deep" style="position:absolute;left:'+ceBasePct+'%;width:'+ceAddPct+'%"></div>'
-              : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:#999999;border:1px solid #999999"></div>')+
+              : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:#000000;border:1px solid #000000"></div>')+
           '</div>'+
 
           '<div style="position:relative;height:16px;width:100%;margin-top:2px;">'+
             '<div class="bar pe" style="position:absolute;left:0;width:'+peBasePct+'%"></div>'+
             (peRaw>0
               ? '<div class="bar pe deep" style="position:absolute;left:'+peBasePct+'%;width:'+peAddPct+'%"></div>'
-              : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:#999999;border:1px solid #999999"></div>')+
+              : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:#000000;border:1px solid #000000"></div>')+
           '</div>'+
 
         '</div></div></div>'+
