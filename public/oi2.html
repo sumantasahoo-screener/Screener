@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="oi-scan-time" content="2026-02-27 15:33:06">
+<meta name="oi-scan-time" content="2026-02-28 22:37:36">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -188,6 +188,26 @@ select{
 }
 select:focus{ border-color:var(--cyan-dim); }
 #dropdownWrap select{ width:104px; }
+
+/* ===== THEME SWITCH BUTTON ===== */
+#themeSwitch {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+#themeSwitch:hover {
+  background: #45a049;
+  box-shadow: 0 2px 6px rgba(76,175,80,0.3);
+}
 
 /* ===== HEADER ROW ===== */
 .outerRowHeader{
@@ -405,28 +425,69 @@ select:focus{ border-color:var(--cyan-dim); }
   }
 
   .topbar{
-    flex-direction:column; align-items:flex-start;
+    flex-direction:column; align-items:stretch;
     gap:6px; padding-bottom:8px; height:auto;
   }
 
   #symbolButtons{ width:100%; }
-  #symbolButtons > div{ flex-wrap:wrap; }
-  #symbolButtons button{ font-size:9.5px; padding:3px 6px; min-width:58px; }
+  #symbolButtons > div{ 
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  #symbolButtons button{ font-size:10px; padding:5px 6px; min-width: auto; }
 
   #symbolDivider{ display:none; }
 
-  #dropdownWrap{ width:100%; justify-content:flex-start; }
-  #dropdownWrap select{ width:80px; }
+  #dropdownWrap{ 
+    width:100%; 
+    display: flex;
+    gap: 6px;
+  }
+  #dropdownWrap select{ 
+    flex: 1;
+    font-size: 11px;
+  }
+  
+  #themeSwitch {
+    font-size: 11px;
+    padding: 5px 8px;
+  }
 
   #grid::before, #grid::after, #midCol{ display:none; }
   #grid{ justify-content:flex-start; flex:none; overflow-y:visible; }
 
-  .row{ grid-template-columns:1fr var(--mid) 1fr; min-height:18px; }
+  .row{ grid-template-columns:1fr var(--mid) 1fr; min-height:20px; }
   .strike{ font-size:10px; margin-top:6px; }
   .chgInner{ height:32px; }
-  .bar{ height:15px; }
-  .outerBoxTitle{ font-size:9.5px; padding:3px 2px; }
-  #midHeader{ font-size:9.5px; }
+  .bar{ height:16px; }
+  
+  /* COMPACT 2-COLUMN HEADER */
+  .outerRowHeader{
+    grid-template-columns: 1fr 1fr;
+    margin: 6px 0;
+    gap: 0;
+  }
+  
+  .outerBoxTitle{ 
+    font-size:10px;
+    padding: 6px 4px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    line-height: 1.4;
+  }
+  
+  .outerBoxTitle:nth-child(2n) {
+    border-right: none;
+  }
+  
+  .outerBoxTitle:nth-child(n+3) {
+    border-bottom: none;
+  }
+  
+  #midHeader{ 
+    display: none;
+  }
 }
 
 /* ── VERY SMALL (<=420px) ── */
@@ -453,6 +514,7 @@ select:focus{ border-color:var(--cyan-dim); }
   <div id="dropdownWrap">
     <select id="ul"></select>
     <select id="exp"></select>
+    <button id="themeSwitch">OI-1</button>
   </div>
 
 </div>
@@ -474,7 +536,7 @@ select:focus{ border-color:var(--cyan-dim); }
     <span style="color:#d8e8f4;font-weight:600;letter-spacing:0.1em;font-size:15px;">CHANGE IN OI</span><br>
     <span style="font-size:12px;color:#6a8898;">(LAST 4 SCAN · 12 MIN)</span><br>
     <span style="font-size:13px;color:#6a8898;">
-      Scan: 2026-02-27&nbsp;<span style="color:#29d8e0;font-weight:600;">15:33:06</span>
+      Scan: 2026-02-28&nbsp;<span style="color:#29d8e0;font-weight:600;">22:37:36</span>
     </span><br>
     <span id="pcrChange" style="font-size:14px;"></span>
   </div>
@@ -504,7 +566,21 @@ const ulSel = document.getElementById("ul");
 const expSel = document.getElementById("exp");
 const leftCol = document.getElementById("leftCol");
 const rightCol = document.getElementById("rightCol");
+const themeSwitch = document.getElementById("themeSwitch");
 const hoverLine = document.getElementById("hoverLine");
+
+// ===== THEME SWITCH BUTTON =====
+themeSwitch.addEventListener("click", function() {
+  let currentUrl = window.location.href.split("?")[0];
+  
+  if (currentUrl.includes("oi2.html")) {
+    // On oi2.html, go to oi.html
+    window.location.href = currentUrl.replace("oi2.html", "oi.html");
+  } else {
+    // On oi.html, go to oi2.html
+    window.location.href = currentUrl.replace("oi.html", "oi2.html");
+  }
+});
 
 var keys = Object.keys(DATA);
 
