@@ -4,31 +4,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="oi-scan-time" content="2026-02-27 15:32:11">
+<meta name="oi-scan-time" content="2026-02-28 21:48:36">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ===== PREMIUM TERMINAL THEME ===== */
+/* ===== LIGHT THEME ===== */
 :root{
   --mid:       80px;
 
-  /* Core palette — deep navy, slightly lighter for readability */
-  --bg:        #0d1e2e;
-  --bg2:       #112333;
-  --bg3:       #162a3a;
-  --bg4:       #0f2030;
-  --panel:     #132535;
+  /* Light palette */
+  --bg:        #ffffff;
+  --bg2:       #f8f9fa;
+  --bg3:       #f0f0f0;
+  --bg4:       #fafafa;
+  --panel:     #f5f5f5;
 
   /* Borders */
-  --border:    #1e3a50;
-  --border2:   #284a60;
+  --border:    #e0e0e0;
+  --border2:   #d0d0d0;
 
   /* Accents */
-  --gold:      #c8a84b;
-  --gold-dim:  #7a6228;
-  --cyan:      #29d8e0;
-  --cyan-dim:  #155f63;
+  --gold:      #ffc107;
+  --gold-dim:  #ff9800;
+  --cyan:      #2196F3;
+  --cyan-dim:  #1976d2;
 
   /* Data colors */
   --ce:        #1ed97a;
@@ -39,9 +39,9 @@
   --chg-pe:    #f03545;
 
   /* Text */
-  --text:      #d8e8f4;
-  --text-dim:  #6a8898;
-  --text-mid:  #9ab4c4;
+  --text:      #333333;
+  --text-dim:  #999999;
+  --text-mid:  #666666;
 
   /* Font */
   --font-ui:   'IBM Plex Sans', sans-serif;
@@ -176,7 +176,7 @@ body::before{
 select{
   font-family:var(--font-mono);
   font-size:12px;
-  background:var(--bg3);
+  background:var(--bg);
   color:var(--text);
   border:1px solid var(--border2);
   border-radius:2px;
@@ -188,6 +188,26 @@ select{
 }
 select:focus{ border-color:var(--cyan-dim); }
 #dropdownWrap select{ width:104px; }
+
+/* ===== THEME SWITCH BUTTON ===== */
+#themeSwitch {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+#themeSwitch:hover {
+  background: #45a049;
+  box-shadow: 0 2px 6px rgba(76,175,80,0.3);
+}
 
 /* ===== HEADER ROW ===== */
 .outerRowHeader{
@@ -410,23 +430,66 @@ select:focus{ border-color:var(--cyan-dim); }
   }
 
   #symbolButtons{ width:100%; }
-  #symbolButtons > div{ flex-wrap:wrap; }
-  #symbolButtons button{ font-size:9.5px; padding:3px 6px; min-width:58px; }
+  #symbolButtons > div{ 
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  #symbolButtons button{ font-size:9.5px; padding:4px 6px; min-width: auto; }
 
   #symbolDivider{ display:none; }
 
-  #dropdownWrap{ width:100%; justify-content:flex-start; }
-  #dropdownWrap select{ width:80px; }
+  #dropdownWrap{ 
+    width:100%; 
+    justify-content:flex-start; 
+    gap: 6px;
+  }
+  #dropdownWrap select{ 
+    flex: 1;
+    width: auto;
+    font-size: 11px;
+  }
+  
+  #themeSwitch {
+    font-size: 11px;
+    padding: 5px 8px;
+    min-width: 50px;
+  }
 
   #grid::before, #grid::after, #midCol{ display:none; }
   #grid{ justify-content:flex-start; flex:none; overflow-y:visible; }
 
-  .row{ grid-template-columns:1fr var(--mid) 1fr; min-height:18px; }
+  .row{ grid-template-columns:1fr var(--mid) 1fr; min-height:20px; }
   .strike{ font-size:10px; margin-top:6px; }
   .chgInner{ height:32px; }
-  .bar{ height:15px; }
-  .outerBoxTitle{ font-size:9.5px; padding:3px 2px; }
-  #midHeader{ font-size:9.5px; }
+  .bar{ height:16px; }
+  
+  .outerRowHeader{
+    grid-template-columns: 1fr 1fr;
+    margin: 8px 0;
+  }
+  
+  .outerBoxTitle{ 
+    font-size:11px; 
+    padding:8px 6px;
+    border-bottom: 1px solid var(--border);
+    border-right: none;
+  }
+  
+  .outerBoxTitle:last-child {
+    border-bottom: none;
+  }
+  
+  .outerBoxTitle span {
+    display: block;
+  }
+  
+  #midHeader{ 
+    font-size:11px;
+    grid-column: 1 / -1;
+    border-bottom: 1px solid var(--border);
+    padding: 6px;
+  }
 }
 
 /* ── VERY SMALL (<=420px) ── */
@@ -453,6 +516,7 @@ select:focus{ border-color:var(--cyan-dim); }
   <div id="dropdownWrap">
     <select id="ul"></select>
     <select id="exp"></select>
+    <button id="themeSwitch">⚙️ Dark</button>
   </div>
 
 </div>
@@ -474,7 +538,7 @@ select:focus{ border-color:var(--cyan-dim); }
     <span style="color:#d8e8f4;font-weight:600;letter-spacing:0.1em;font-size:15px;">CHANGE IN OI</span><br>
     <span style="font-size:12px;color:#6a8898;">(LAST 4 SCAN · 12 MIN)</span><br>
     <span style="font-size:13px;color:#6a8898;">
-      Scan: 2026-02-27&nbsp;<span style="color:#29d8e0;font-weight:600;">15:32:11</span>
+      Scan: 2026-02-28&nbsp;<span style="color:#29d8e0;font-weight:600;">21:48:36</span>
     </span><br>
     <span id="pcrChange" style="font-size:14px;"></span>
   </div>
@@ -504,7 +568,25 @@ const ulSel = document.getElementById("ul");
 const expSel = document.getElementById("exp");
 const leftCol = document.getElementById("leftCol");
 const rightCol = document.getElementById("rightCol");
+const themeSwitch = document.getElementById("themeSwitch");
 const hoverLine = document.getElementById("hoverLine");
+
+// ===== THEME SWITCH BUTTON =====
+themeSwitch.addEventListener("click", function() {
+  const currentUrl = window.location.href;
+  const baseUrl = currentUrl.split("?")[0];
+  const fileName = baseUrl.split("/").pop();
+  
+  if (fileName === "oi.html" || !fileName) {
+    // Switch to dark theme (oi2.html)
+    const darkUrl = baseUrl.replace("oi.html", "oi2.html");
+    window.location.href = darkUrl;
+  } else {
+    // Switch to light theme (oi.html)
+    const lightUrl = baseUrl.replace("oi2.html", "oi.html");
+    window.location.href = lightUrl;
+  }
+});
 
 var keys = Object.keys(DATA);
 
@@ -1001,12 +1083,12 @@ function render(){
         tipL=document.createElement("div");
         tipL.id="strikeTipLeft";
         tipL.style.position="absolute";
-        tipL.style.background="#102018";
-        tipL.style.border="2px solid #00ff6a";
+        tipL.style.background="#f5f5f5";
+        tipL.style.border="2px solid #333";
         tipL.style.padding="6px 8px";
         tipL.style.fontSize="11px";
         tipL.style.lineHeight="1.4";
-        tipL.style.color="white";
+        tipL.style.color="#333";
         tipL.style.pointerEvents="none";
         tipL.style.zIndex="300";
         tipL.style.minWidth="160px";
@@ -1017,12 +1099,12 @@ function render(){
         tipR=document.createElement("div");
         tipR.id="strikeTipRight";
         tipR.style.position="absolute";
-        tipR.style.background="#1a1020";
-        tipR.style.border="2px solid #ff00ff";
+        tipR.style.background="#f0f0f0";
+        tipR.style.border="2px solid #333";
         tipR.style.padding="6px 8px";
         tipR.style.fontSize="11px";
         tipR.style.lineHeight="1.4";
-        tipR.style.color="white";
+        tipR.style.color="#333";
         tipR.style.pointerEvents="none";
         tipR.style.zIndex="300";
         tipR.style.minWidth="160px";
@@ -1104,7 +1186,7 @@ function render(){
 
         '<div class="box">'+
           '<div class="chgInner">'+
-            '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
+            '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#ccc"></div>'+
             '<div class="bar chg-ce" style="left:50%;top:0px;width:'+((Math.abs(ceCh)/maxCh)*45)+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
             '<div class="bar chg-pe" style="left:50%;top:20px;width:'+((Math.abs(peCh)/maxCh)*45)+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
           '</div>'+
@@ -1136,7 +1218,7 @@ function render(){
 
         '<div class="box">'+
           '<div class="chgInner" style="height:30px;">'+
-            '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#666"></div>'+
+            '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#ccc"></div>'+
             '<div class="bar chg-ce" style="left:50%;top:2px;width:'+((Math.abs(ceCh)/maxCh)*45)+'%;transform:'+(ceCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
             '<div class="bar chg-pe" style="left:50%;top:16px;width:'+((Math.abs(peCh)/maxCh)*45)+'%;transform:'+(peCh>=0?'translateX(0)':'translateX(-100%)')+'"></div>'+
           '</div>'+
@@ -1153,7 +1235,7 @@ function render(){
       ltpLine.style.left="0";
       ltpLine.style.width="100%";
       ltpLine.style.top="50%";
-      ltpLine.style.borderTop="2px solid #A6AEB3";
+      ltpLine.style.borderTop="2px solid #999";
 
       ltpLine.style.pointerEvents="none";
       ltpLine.style.zIndex="20";
@@ -1164,12 +1246,13 @@ function render(){
       ltpLbl.style.left="42%";
       ltpLbl.style.top="50%";
       ltpLbl.style.transform="translate(-50%,-50%)";
-      ltpLbl.style.color="white";
+      ltpLbl.style.color="#333";
       ltpLbl.style.fontWeight="normal";
       ltpLbl.style.fontSize="12px";
-      ltpLbl.style.background="#012A40";
+      ltpLbl.style.background="#ffffff";
       ltpLbl.style.padding="2px 6px";
       ltpLbl.style.zIndex="25";
+      ltpLbl.style.border="1px solid #ccc";
 
       row.appendChild(ltpLine);
       row.appendChild(ltpLbl);
