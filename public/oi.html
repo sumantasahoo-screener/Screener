@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="oi-scan-time" content="2026-02-28 21:48:36">
+<meta name="oi-scan-time" content="2026-02-28 22:14:55">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -38,10 +38,10 @@
   --chg-ce:    #22e882;
   --chg-pe:    #f03545;
 
-  /* Text */
+  /* Text - DARK for light background */
   --text:      #333333;
-  --text-dim:  #999999;
-  --text-mid:  #666666;
+  --text-dim:  #333333;
+  --text-mid:  #333333;
 
   /* Font */
   --font-ui:   'IBM Plex Sans', sans-serif;
@@ -425,7 +425,7 @@ select:focus{ border-color:var(--cyan-dim); }
   }
 
   .topbar{
-    flex-direction:column; align-items:flex-start;
+    flex-direction:column; align-items:stretch;
     gap:6px; padding-bottom:8px; height:auto;
   }
 
@@ -435,25 +435,23 @@ select:focus{ border-color:var(--cyan-dim); }
     grid-template-columns: 1fr 1fr;
     gap: 6px;
   }
-  #symbolButtons button{ font-size:9.5px; padding:4px 6px; min-width: auto; }
+  #symbolButtons button{ font-size:10px; padding:5px 6px; min-width: auto; }
 
   #symbolDivider{ display:none; }
 
   #dropdownWrap{ 
     width:100%; 
-    justify-content:flex-start; 
+    display: flex;
     gap: 6px;
   }
   #dropdownWrap select{ 
     flex: 1;
-    width: auto;
     font-size: 11px;
   }
   
   #themeSwitch {
     font-size: 11px;
     padding: 5px 8px;
-    min-width: 50px;
   }
 
   #grid::before, #grid::after, #midCol{ display:none; }
@@ -464,31 +462,31 @@ select:focus{ border-color:var(--cyan-dim); }
   .chgInner{ height:32px; }
   .bar{ height:16px; }
   
+  /* COMPACT 2-COLUMN HEADER */
   .outerRowHeader{
     grid-template-columns: 1fr 1fr;
-    margin: 8px 0;
+    margin: 6px 0;
+    gap: 0;
   }
   
   .outerBoxTitle{ 
-    font-size:11px; 
-    padding:8px 6px;
+    font-size:10px;
+    padding: 6px 4px;
     border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    line-height: 1.4;
+  }
+  
+  .outerBoxTitle:nth-child(2n) {
     border-right: none;
   }
   
-  .outerBoxTitle:last-child {
+  .outerBoxTitle:nth-child(n+3) {
     border-bottom: none;
   }
   
-  .outerBoxTitle span {
-    display: block;
-  }
-  
   #midHeader{ 
-    font-size:11px;
-    grid-column: 1 / -1;
-    border-bottom: 1px solid var(--border);
-    padding: 6px;
+    display: none;
   }
 }
 
@@ -538,7 +536,7 @@ select:focus{ border-color:var(--cyan-dim); }
     <span style="color:#d8e8f4;font-weight:600;letter-spacing:0.1em;font-size:15px;">CHANGE IN OI</span><br>
     <span style="font-size:12px;color:#6a8898;">(LAST 4 SCAN · 12 MIN)</span><br>
     <span style="font-size:13px;color:#6a8898;">
-      Scan: 2026-02-28&nbsp;<span style="color:#29d8e0;font-weight:600;">21:48:36</span>
+      Scan: 2026-02-28&nbsp;<span style="color:#29d8e0;font-weight:600;">22:14:55</span>
     </span><br>
     <span id="pcrChange" style="font-size:14px;"></span>
   </div>
@@ -1170,14 +1168,14 @@ function render(){
             '<div class="bar ce" style="position:absolute;left:0;width:'+ceBasePct+'%"></div>'+
             (ceRaw>0
               ? '<div class="bar ce deep" style="position:absolute;left:'+ceBasePct+'%;width:'+ceAddPct+'%"></div>'
-              : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:white;border:2px solid white"></div>')+
+              : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:#999999;border:1px solid #999999"></div>')+
           '</div>'+
 
           '<div style="position:relative;height:18px;width:100%;margin-top:4px;">'+
             '<div class="bar pe" style="position:absolute;left:0;width:'+peBasePct+'%"></div>'+
             (peRaw>0
               ? '<div class="bar pe deep" style="position:absolute;left:'+peBasePct+'%;width:'+peAddPct+'%"></div>'
-              : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:white;border:2px solid white"></div>')+
+              : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:#999999;border:1px solid #999999"></div>')+
           '</div>'+
 
         '</div></div></div>'+
@@ -1202,14 +1200,14 @@ function render(){
             '<div class="bar ce" style="position:absolute;left:0;width:'+ceBasePct+'%"></div>'+
             (ceRaw>0
               ? '<div class="bar ce deep" style="position:absolute;left:'+ceBasePct+'%;width:'+ceAddPct+'%"></div>'
-              : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:white;border:1px solid white"></div>')+
+              : '<div class="bar" style="position:absolute;left:'+ceBasePct+'%;width:'+ceCutPct+'%;background:#999999;border:1px solid #999999"></div>')+
           '</div>'+
 
           '<div style="position:relative;height:16px;width:100%;margin-top:2px;">'+
             '<div class="bar pe" style="position:absolute;left:0;width:'+peBasePct+'%"></div>'+
             (peRaw>0
               ? '<div class="bar pe deep" style="position:absolute;left:'+peBasePct+'%;width:'+peAddPct+'%"></div>'
-              : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:white;border:1px solid white"></div>')+
+              : '<div class="bar" style="position:absolute;left:'+peBasePct+'%;width:'+peCutPct+'%;background:#999999;border:1px solid #999999"></div>')+
           '</div>'+
 
         '</div></div></div>'+
