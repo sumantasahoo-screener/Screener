@@ -7,404 +7,940 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
+
+/* ===== CSS VARIABLES FOR THEMING ===== */
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1a1a2e;
+  --bg-tertiary: #16213e;
+  --bg-overlay: rgba(15, 23, 42, 0.7);
+  --bg-sidebar: rgba(15, 23, 42, 0.5);
+  
+  --text-primary: #e0e7ff;
+  --text-secondary: rgba(203, 213, 225, 0.8);
+  --text-tertiary: rgba(148, 163, 184, 0.6);
+  
+  --border-color: rgba(148, 163, 184, 0.1);
+  --border-color-light: rgba(255, 255, 255, 0.1);
+  
+  --accent-blue: #60a5fa;
+  --accent-blue-light: #93c5fd;
+  --accent-green: #34d399;
+  --accent-amber: #fbbf24;
+  
+  --transition-duration: 0.3s;
+}
+
+/* ===== LIGHT WHITE THEME ===== */
+html[data-theme="light-white"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-tertiary: #e2e8f0;
+  --bg-overlay: rgba(248, 250, 252, 0.9);
+  --bg-sidebar: rgba(248, 250, 252, 0.85);
+  
+  --text-primary: #0f172a;
+  --text-secondary: rgba(15, 23, 42, 0.8);
+  --text-tertiary: rgba(71, 85, 99, 0.7);
+  
+  --border-color: rgba(71, 85, 99, 0.15);
+  --border-color-light: rgba(15, 23, 42, 0.1);
+}
+
+/* ===== LIGHT BLUE THEME ===== */
+html[data-theme="light-blue"] {
+  --bg-primary: #eff6ff;
+  --bg-secondary: #e0f2fe;
+  --bg-tertiary: #cffafe;
+  --bg-overlay: rgba(239, 246, 255, 0.9);
+  --bg-sidebar: rgba(239, 246, 255, 0.85);
+  
+  --text-primary: #0c2d6b;
+  --text-secondary: rgba(12, 45, 107, 0.8);
+  --text-tertiary: rgba(71, 85, 99, 0.7);
+  
+  --border-color: rgba(71, 85, 99, 0.15);
+  --border-color-light: rgba(12, 45, 107, 0.1);
+}
+
+/* ===== LIGHT CREAM THEME ===== */
+html[data-theme="light-cream"] {
+  --bg-primary: #fefdf8;
+  --bg-secondary: #fefae0;
+  --bg-tertiary: #fef3c7;
+  --bg-overlay: rgba(254, 253, 248, 0.9);
+  --bg-sidebar: rgba(254, 253, 248, 0.85);
+  
+  --text-primary: #3d2817;
+  --text-secondary: rgba(61, 40, 23, 0.8);
+  --text-tertiary: rgba(71, 85, 99, 0.7);
+  
+  --border-color: rgba(71, 85, 99, 0.15);
+  --border-color-light: rgba(61, 40, 23, 0.1);
+}
+
+/* ===== DARK PURPLE THEME ===== */
+html[data-theme="dark-purple"] {
+  --bg-primary: #1a0933;
+  --bg-secondary: #2d0d5c;
+  --bg-tertiary: #3d1a7f;
+  --bg-overlay: rgba(26, 9, 51, 0.7);
+  --bg-sidebar: rgba(26, 9, 51, 0.5);
+  
+  --text-primary: #f3e8ff;
+  --text-secondary: rgba(243, 232, 255, 0.75);
+  --text-tertiary: rgba(196, 181, 253, 0.6);
+  
+  --border-color: rgba(196, 181, 253, 0.1);
+  --border-color-light: rgba(255, 255, 255, 0.08);
+  
+  --accent-blue: #a78bfa;
+  --accent-blue-light: #c4b5fd;
+  --accent-green: #d8b4fe;
+}
+
+/* ===== DARK GREEN THEME ===== */
+html[data-theme="dark-green"] {
+  --bg-primary: #051515;
+  --bg-secondary: #0f3d3d;
+  --bg-tertiary: #164e4e;
+  --bg-overlay: rgba(5, 21, 21, 0.7);
+  --bg-sidebar: rgba(5, 21, 21, 0.5);
+  
+  --text-primary: #d1fae5;
+  --text-secondary: rgba(209, 250, 229, 0.75);
+  --text-tertiary: rgba(110, 231, 183, 0.6);
+  
+  --border-color: rgba(110, 231, 183, 0.1);
+  --border-color-light: rgba(255, 255, 255, 0.08);
+  
+  --accent-blue: #6ee7b7;
+  --accent-green: #34d399;
+}
+
+/* ===== DARK BLACK THEME ===== */
+html[data-theme="dark-black"] {
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #1a1a1a;
+  --bg-overlay: rgba(0, 0, 0, 0.8);
+  --bg-sidebar: rgba(0, 0, 0, 0.6);
+  
+  --text-primary: #f5f5f5;
+  --text-secondary: rgba(245, 245, 245, 0.75);
+  --text-tertiary: rgba(155, 155, 155, 0.6);
+  
+  --border-color: rgba(155, 155, 155, 0.1);
+  --border-color-light: rgba(255, 255, 255, 0.05);
+}
+
+/* ===== BASE STYLES ===== */
 body{
-  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   min-height:100vh;
-  background:#e5e7eb;
-  color:#020617;
-  padding:16px;
+  background:linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-tertiary) 100%);
+  color:var(--text-primary);
+  overflow-x:hidden;
+  transition:background var(--transition-duration) ease;
 }
 
-.shell{
-  max-width:1000px;
-  margin:auto;
-  background:#f9fafb;
-  border-radius:22px;
-  padding:18px;
-  box-shadow:0 24px 60px rgba(15,23,42,.25);
-  border:1px solid rgba(148,163,184,.35);
-}
-
-.shell-header{
+.main-layout{
   display:flex;
+  min-height:100vh;
+}
+
+.main-layout.fullscreen-mode{
   flex-direction:column;
-  gap:10px;
-  margin-bottom:18px;
 }
 
-.header-top{
+/* ===== NAVBAR ===== */
+.top-navbar{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  height:70px;
+  background:var(--bg-overlay);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border-color);
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  flex-wrap:wrap;
-  gap:12px;
+  padding:0 20px;
+  gap:20px;
+  z-index:100;
+  box-shadow:0 8px 32px rgba(0, 0, 0, 0.3);
+  transition:all var(--transition-duration) ease;
 }
 
-.app-title{
-  font-size:20px;
-  font-weight:900;
-  letter-spacing:.1em;
-  background:linear-gradient(90deg,#16a34a,#2563eb,#f97316);
+.top-navbar.fullscreen-hidden{
+  display:none;
+}
+
+.hamburger-btn{
+  display:none;
+  background:none;
+  border:none;
+  font-size:24px;
+  cursor:pointer;
+  color:var(--accent-blue);
+  padding:8px;
+  border-radius:12px;
+  transition:all .3s;
+}
+
+.hamburger-btn:hover{
+  background:rgba(96, 165, 250, 0.1);
+  color:var(--accent-blue-light);
+}
+
+.navbar-logo{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex:1;
+}
+
+.navbar-logo img{
+  height:50px;
+  object-fit:contain;
+  filter:brightness(1.1);
+}
+
+.navbar-title{
+  font-size:18px;
+  font-weight:800;
+  letter-spacing:.15em;
+  background:linear-gradient(90deg, var(--accent-blue), var(--accent-green), var(--accent-amber));
   -webkit-background-clip:text;
   color:transparent;
+  text-transform:uppercase;
 }
 
-.app-sub{font-size:12px;color:#4b5563}
+.navbar-controls{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-left:auto;
+}
 
 .status-pill{
-  display:flex;align-items:center;gap:8px;
-  padding:6px 14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 16px;
   border-radius:999px;
   font-size:11px;
   font-weight:700;
-  background:linear-gradient(135deg,#dcfce7,#e0f2fe);
-  border:1px solid #22c55e66;
-  color:#065f46;
+  background:rgba(34, 197, 94, 0.1);
+  border:1px solid rgba(34, 197, 94, 0.5);
+  color:#34d399;
+  white-space:nowrap;
+  backdrop-filter:blur(10px);
 }
 
 .status-dot{
-  width:8px;height:8px;border-radius:50%;
-  background:#22c55e;
-  box-shadow:0 0 10px #22c55e;
-  animation:pulse 1.6s infinite;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#10b981;
+  box-shadow:0 0 12px #10b981;
+  animation:pulse 1.5s infinite;
 }
 
 @keyframes pulse{
-  0%{transform:scale(1);box-shadow:0 0 0 0 rgba(34,197,94,.55)}
-  70%{transform:scale(1.15);box-shadow:0 0 0 8px rgba(34,197,94,0)}
-  100%{transform:scale(1);box-shadow:0 0 0 0 rgba(34,197,94,0)}
+  0%{transform:scale(1);box-shadow:0 0 0 0 rgba(16, 185, 129, 0.6)}
+  70%{transform:scale(1.2);box-shadow:0 0 0 8px rgba(16, 185, 129, 0)}
+  100%{transform:scale(1);box-shadow:0 0 0 0 rgba(16, 185, 129, 0)}
 }
 
-/* surprise / mast badge (kept for future use if needed) */
-.link3-badge{
-  font-size:11px;
-  font-weight:800;
-  padding:7px 14px;
-  border-radius:999px;
-  background:
-    linear-gradient(135deg,#0f172a,#020617) padding-box,
-    linear-gradient(135deg,#22c55e,#3b82f6,#f97316) border-box;
-  border:2px solid transparent;
-  color:#e5e7eb;
-  letter-spacing:.18em;
-  box-shadow:0 0 18px rgba(59,130,246,.55);
-  text-transform:uppercase;
+/* ===== THEME SELECTOR ===== */
+.theme-selector-wrapper{
   position:relative;
-  overflow:hidden;
 }
 
-.link3-badge::after{
-  content:"";
-  position:absolute;
-  inset:-40%;
-  background:conic-gradient(from 180deg,#22c55e55,#3b82f655,#f9731655,#22c55e55);
-  mix-blend-mode:soft-light;
-  animation:spinGlow 4s linear infinite;
-  opacity:.5;
-}
-
-@keyframes spinGlow{
-  to{transform:rotate(360deg);}
-}
-
-/* header links container (currently empty, but kept if needed later) */
-.header-links{
+.theme-btn{
+  background:rgba(96, 165, 250, 0.1);
+  border:1px solid var(--border-color);
+  color:var(--accent-blue);
+  padding:8px 12px;
+  border-radius:12px;
+  cursor:pointer;
+  font-size:18px;
+  transition:all .2s;
   display:flex;
-  gap:10px;
-  flex-wrap:wrap;
+  align-items:center;
+  justify-content:center;
 }
 
-.header-links a{
-  font-size:11px;
-  font-weight:800;
-  padding:4px 10px;
-  border-radius:999px;
-  text-decoration:none;
-  color:#020617;
-  background:linear-gradient(135deg,#22c55e,#3b82f6);
+.theme-btn:hover{
+  background:rgba(96, 165, 250, 0.2);
+  border-color:var(--accent-blue);
 }
 
-.header-links a:hover{filter:brightness(1.1)}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:16px;
-}
-
-/* base card */
-.card{
-  position:relative;
-  border-radius:20px;
-  padding:16px;
-  border-left:5px solid transparent;
-  box-shadow:0 16px 40px rgba(15,23,42,.12);
-  transition:transform .18s ease, box-shadow .18s ease, translate .18s ease;
-}
-
-.card::after{
-  content:"";
+.theme-dropdown{
   position:absolute;
-  inset:0;
-  border-radius:inherit;
-  opacity:0;
-  pointer-events:none;
-  background:radial-gradient(circle at top,rgba(255,255,255,.65),transparent 55%);
-  transition:opacity .2s ease;
+  top:calc(100% + 8px);
+  right:0;
+  background:var(--bg-overlay);
+  backdrop-filter:blur(20px);
+  border:1px solid var(--border-color);
+  border-radius:12px;
+  padding:8px;
+  min-width:180px;
+  z-index:1000;
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .3s ease;
+  box-shadow:0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-.card:hover{
-  transform:translateY(-4px) scale(1.01);
-  box-shadow:0 22px 55px rgba(15,23,42,.24);
+.theme-dropdown.active{
+  max-height:400px;
 }
 
-.card:hover::after{
-  opacity:1;
+.theme-group{
+  padding:8px 0;
+  border-bottom:1px solid var(--border-color);
 }
 
-/* per-card soft light backgrounds */
-.card--accent-1{
-  background:linear-gradient(160deg,#ecfdf5,#e0f2fe);
-  border-left-color:#16a34a;
-}
-.card--accent-2{
-  background:linear-gradient(160deg,#eff6ff,#e0f2fe);
-  border-left-color:#2563eb;
-}
-.card--accent-3{
-  background:linear-gradient(160deg,#fff7ed,#fef3c7);
-  border-left-color:#f97316;
-}
-.card--accent-4{
-  background:linear-gradient(160deg,#f5f3ff,#e0f2fe);
-  border-left-color:#a855f7;
-}
-.card--accent-5{
-  background:linear-gradient(160deg,#fef2f2,#fee2e2);
-  border-left-color:#ef4444;
-}
-.card--accent-6{
-  background:linear-gradient(160deg,#ecfeff,#e0f2fe);
-  border-left-color:#06b6d4;
-}
-.card--accent-7{
-  background:linear-gradient(160deg,#ecfdf5,#ccfbf1);
-  border-left-color:#14b8a6;
-}
-.card--accent-8{
-  background:linear-gradient(160deg,#fdf2f8,#fae8ff);
-  border-left-color:#ec4899;
-}
-.card--accent-9{
-  background:linear-gradient(160deg,#fffbeb,#fef3c7);
-  border-left-color:#facc15;
+.theme-group:last-child{
+  border-bottom:none;
 }
 
-.card-label{
+.theme-group-label{
   font-size:10px;
-  letter-spacing:.2em;
+  font-weight:700;
+  letter-spacing:.15em;
   text-transform:uppercase;
-  color:#6b7280;
-  margin-bottom:4px;
+  color:var(--text-tertiary);
+  padding:6px 12px;
 }
 
-.card-title{
-  font-size:17px;
+.theme-option{
+  padding:8px 12px;
+  margin:4px 0;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:12px;
+  color:var(--text-primary);
+  background:transparent;
+  border:1px solid transparent;
+  transition:all .2s;
+  text-align:left;
+}
+
+.theme-option:hover{
+  background:var(--bg-secondary);
+  border-color:var(--border-color-light);
+  color:var(--accent-blue);
+}
+
+.theme-option.active{
+  background:var(--accent-blue);
+  color:#fff;
+  border-color:var(--accent-blue);
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  position:fixed;
+  left:0;
+  top:70px;
+  width:240px;
+  height:calc(100vh - 70px);
+  background:var(--bg-sidebar);
+  backdrop-filter:blur(20px);
+  border-right:1px solid var(--border-color);
+  overflow-y:auto;
+  padding:20px 0;
+  z-index:99;
+  transition:transform .3s ease;
+}
+
+.sidebar.mobile-open{
+  transform:translateX(0);
+}
+
+.sidebar.fullscreen-hidden{
+  display:none;
+}
+
+.sidebar-overlay{
+  display:none;
+  position:fixed;
+  top:70px;
+  left:0;
+  right:0;
+  bottom:0;
+  background:rgba(0, 0, 0, 0.4);
+  backdrop-filter:blur(4px);
+  z-index:98;
+}
+
+.sidebar-overlay.active{
+  display:block;
+}
+
+/* ===== MENU ===== */
+.menu-container{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+
+.menu-section{
+  padding:0;
+  margin:0;
+}
+
+.menu-label{
+  font-size:9px;
   font-weight:800;
-  color:#020617;
-  margin-bottom:6px;
+  letter-spacing:.25em;
+  text-transform:uppercase;
+  color:var(--text-tertiary);
+  padding:12px 20px 8px;
+  margin:0;
+  display:block;
+  margin-top:16px;
 }
 
-.card-body{
-  font-size:13px;
-  line-height:1.6;
-  color:#374151;
-  margin-bottom:10px;
+.menu-label:first-of-type{
+  margin-top:0;
 }
 
-.meta-row{
-  margin-top:auto;
+.menu-btn{
+  width:100%;
+  padding:12px 20px;
+  background:none;
+  border:none;
+  text-align:left;
+  font-size:14px;
+  font-weight:600;
+  color:var(--text-secondary);
+  cursor:pointer;
+  transition:all .2s;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
+  position:relative;
 }
 
-.tag{
-  font-size:10px;
-  padding:3px 9px;
-  border-radius:999px;
-  background:rgba(15,23,42,.03);
-  border:1px solid rgba(148,163,184,.7);
-  color:#4b5563;
+.menu-btn:hover{
+  background:rgba(96, 165, 250, 0.1);
+  color:var(--accent-blue);
+  padding-left:24px;
 }
 
-.open-btn{
-  padding:7px 16px;
-  border-radius:999px;
+.menu-btn.active{
+  color:var(--accent-blue);
+  font-weight:700;
+  background:rgba(96, 165, 250, 0.15);
+}
+
+.menu-btn.active::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:4px;
+  background:linear-gradient(180deg, var(--accent-blue), var(--accent-green));
+}
+
+.menu-arrow{
+  display:inline-block;
+  transition:transform .2s;
   font-size:12px;
-  font-weight:800;
-  text-decoration:none;
-  color:#f9fafb;
-  background:linear-gradient(135deg,#22c55e,#3b82f6);
-  box-shadow:0 10px 20px rgba(37,99,235,.35);
-  border:none;
+  color:var(--accent-blue);
 }
 
-.open-btn:hover{filter:brightness(1.06)}
+.menu-arrow.open{
+  transform:rotate(180deg);
+}
 
-.footer{
-  margin-top:18px;
-  font-size:11px;
-  color:#6b7280;
+.submenu{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .3s ease;
+}
+
+.submenu.open{
+  max-height:500px;
+}
+
+.submenu-item{
+  padding:10px 20px 10px 40px;
+  font-size:12px;
+  color:var(--text-secondary);
+  cursor:pointer;
+  transition:all .2s;
+  display:block;
+  background:none;
+  border:none;
+  width:100%;
+  text-align:left;
+  text-decoration:none;
+}
+
+.submenu-item:hover{
+  color:var(--accent-blue);
+  background:rgba(96, 165, 250, 0.08);
+  padding-left:44px;
+}
+
+.submenu-item.active{
+  color:var(--accent-green);
+  font-weight:700;
+  background:rgba(52, 211, 153, 0.1);
+}
+
+/* ===== MAIN CONTENT - IFRAME ===== */
+.main-content{
+  margin-left:240px;
+  margin-top:70px;
+  padding:0;
+  flex:1;
+  width:calc(100% - 240px);
+  transition:all var(--transition-duration) ease;
+  background:var(--bg-primary);
+  position:relative;
+}
+
+.main-content.fullscreen{
+  margin-left:0;
+  margin-top:0;
+  width:100%;
+  height:100vh;
+}
+
+.content-wrapper{
+  width:100%;
+  height:calc(100vh - 70px);
+  position:relative;
   display:flex;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:8px;
+  flex-direction:column;
+}
+
+.main-content.fullscreen .content-wrapper{
+  height:100vh;
+}
+
+.content-frame{
+  flex:1;
+  width:100%;
+  border:none;
+  background:var(--bg-primary);
+}
+
+.empty-state{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  color:var(--text-tertiary);
+  padding:20px;
+  text-align:center;
+}
+
+.empty-state-icon{
+  font-size:64px;
+  margin-bottom:20px;
+  opacity:0.5;
+}
+
+.empty-state-text{
+  font-size:18px;
+  font-weight:600;
+  color:var(--text-secondary);
+  margin-bottom:8px;
+}
+
+.empty-state-sub{
+  font-size:12px;
+  color:var(--text-tertiary);
+}
+
+/* ===== FLOATING FULLSCREEN BUTTON ===== */
+.floating-fullscreen-btn{
+  display:none;
+  position:fixed;
+  z-index:101;
+  background:linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+  border:none;
+  color:#fff;
+  cursor:pointer;
+  border-radius:12px;
+  padding:10px 14px;
+  font-size:18px;
+  font-weight:600;
+  transition:all .3s;
+  box-shadow:0 4px 16px rgba(96, 165, 250, 0.4);
+  backdrop-filter:blur(10px);
+}
+
+.floating-fullscreen-btn:hover{
+  transform:scale(1.1);
+  box-shadow:0 8px 24px rgba(96, 165, 250, 0.6);
+}
+
+/* Desktop: Top-right */
+@media (min-width:769px){
+  .floating-fullscreen-btn.visible{
+    display:block;
+    top:90px;
+    right:20px;
+  }
+}
+
+/* Mobile: Bottom-right Circular */
+@media (max-width:768px){
+  .floating-fullscreen-btn.visible{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    bottom:20px;
+    right:20px;
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    padding:0;
+  }
+
+  .floating-fullscreen-btn.visible:active{
+    transform:scale(0.95);
+  }
+}
+
+/* ===== SCROLLBAR ===== */
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-track{background:transparent}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(96, 165, 250, 0.3);border-radius:3px}
+.sidebar::-webkit-scrollbar-thumb:hover{background:rgba(96, 165, 250, 0.5)}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:768px){
+  .hamburger-btn{display:block}
+
+  .sidebar{
+    transform:translateX(-100%);
+    width:260px;
+  }
+
+  .sidebar.mobile-open{
+    transform:translateX(0);
+    box-shadow:2px 0 32px rgba(0, 0, 0, 0.5);
+  }
+
+  .main-content{
+    margin-left:0;
+    width:100%;
+    position:relative;
+  }
+
+  .main-content:hover .sidebar{
+    transform:translateX(0);
+  }
+
+  .navbar-title{font-size:16px}
+}
+
+@media (max-width:480px){
+  .top-navbar{padding:0 12px;gap:10px}
+  .hamburger-btn{font-size:20px}
+  .navbar-logo img{height:40px}
+  .navbar-title{display:none}
+  .status-pill{font-size:9px;padding:6px 10px}
+  .theme-btn{padding:6px 10px;font-size:16px}
 }
 </style>
 </head>
 
 <body>
-<div class="shell">
+<div class="main-layout" id="main-layout">
 
-<header class="shell-header">
-  <div class="header-top">
-    <div style="display:flex;align-items:center;gap:12px;white-space:nowrap;">
-      <img src="https://sumantasahoo-screener.github.io/Screener/LOGO.png"
-           alt="F&O Screener"
-           style="height:70px;object-fit:contain;">
-      <!-- LINK-2 badge removed as requested -->
-    </div>
-    <div class="status-pill">
-      <span class="status-dot"></span>
-      Live scan during market hours · scalper desk
-    </div>
-  </div>
+  <!-- FLOATING FULLSCREEN BUTTON -->
+  <button class="floating-fullscreen-btn" id="floating-fullscreen-btn" title="Toggle Fullscreen">⛶</button>
 
-  <!-- LINK-1 removed as requested -->
-  <div class="app-sub">Intraday · Options · Futures OI · All tools in one clean view</div>
-</header>
+  <!-- TOP NAVBAR -->
+  <nav class="top-navbar" id="top-navbar">
+    <button class="hamburger-btn" id="hamburger">☰</button>
+    <div class="navbar-logo">
+      <img src="https://sumantasahoo-screener.github.io/Screener/LOGO.png" alt="F&O Screener">
+      <span class="navbar-title">F&O Screener</span>
+    </div>
+    <div class="navbar-controls">
+      <div class="theme-selector-wrapper">
+        <button class="theme-btn" id="theme-btn">🌙</button>
+        <div class="theme-dropdown" id="theme-dropdown">
+          <div class="theme-group">
+            <div class="theme-group-label">🌙 Dark Themes</div>
+            <button class="theme-option active" data-theme="dark-blue">Dark Blue</button>
+            <button class="theme-option" data-theme="dark-purple">Dark Purple</button>
+            <button class="theme-option" data-theme="dark-green">Dark Green</button>
+            <button class="theme-option" data-theme="dark-black">Pure Black</button>
+          </div>
+          <div class="theme-group">
+            <div class="theme-group-label">☀️ Light Themes</div>
+            <button class="theme-option" data-theme="light-white">Light White</button>
+            <button class="theme-option" data-theme="light-blue">Light Blue</button>
+            <button class="theme-option" data-theme="light-cream">Light Cream</button>
+          </div>
+        </div>
+      </div>
+      <div class="status-pill">
+        <span class="status-dot"></span>
+        Live scan · scalper desk
+      </div>
+    </div>
+  </nav>
 
-<main class="grid">
-  <section class="card card--accent-1">
-    <div class="card-label">Primary</div>
-    <div class="card-title">BANKING SCALPER</div>
-    <div class="card-body">
-      Live Bank & IT intraday scalper with full signals, option zones and a clean bias view for fast entries and quick exits.
-    </div>
-    <div class="meta-row">
-      <span class="tag">Options · Intraday</span>
-      <a class="open-btn" href="https://screener-epd.pages.dev/public/signal" target="_blank">OPEN ↗</a>
-    </div>
-  </section>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="menu-container">
+      
+      <!-- SCALPER SECTION -->
+      <div class="menu-section">
+        <label class="menu-label">⚡ Scalper</label>
+        <div class="menu-item">
+          <button class="menu-btn" id="scalper-toggle">
+            Scalper
+            <span class="menu-arrow">▼</span>
+          </button>
+          <div class="submenu" id="scalper-menu">
+            <a class="submenu-item" data-link="https://screener-epd.pages.dev/public/signal">Banking Scalper</a>
+            <a class="submenu-item" data-link="https://screener-epd.pages.dev/public/signal3">Nifty Scalper</a>
+          </div>
+        </div>
+      </div>
 
-  <section class="card card--accent-3">
-    <div class="card-label">Secondary</div>
-    <div class="card-title">NIFTY SCALPER</div>
-    <div class="card-body">
-      Scalper engine for F&O stocks listed in NIFTY — focused stock and options trading with compact layout and tight risk control.
-    </div>
-    <div class="meta-row">
-      <span class="tag">F&O Stocks · Scalper</span>
-      <a class="open-btn" href="https://screener-epd.pages.dev/public/signal3" target="_blank">OPEN ↗</a>
-    </div>
-  </section>
+      <!-- OI SECTION -->
+      <div class="menu-section">
+        <label class="menu-label">📊 OI</label>
+        <div class="menu-item">
+          <button class="menu-btn" id="oi-toggle">
+            OI
+            <span class="menu-arrow">▼</span>
+          </button>
+          <div class="submenu" id="oi-menu">
+            <a class="submenu-item" data-link="https://screener-epd.pages.dev/public/oi">OI Change</a>
+            <a class="submenu-item" data-link="https://screener-epd.pages.dev/public/oi">OI 2</a>
+            <a class="submenu-item" data-link="https://screener-epd.pages.dev/public/SpurtsSignal_Final">Spurt Main</a>
+            <a class="submenu-item" data-link="https://screener-epd.pages.dev/public/adv_dec_heatmap">Advance Decline</a>
+          </div>
+        </div>
+      </div>
 
-  <section class="card card--accent-6">
-    <div class="card-label">Heatmap</div>
-    <div class="card-title">ADVANCE DECLINE</div>
-    <div class="card-body">
-      Advance‑decline heatmap for F&O stocks — a quick visual snapshot of overall market breadth and sector-wise tone.
-    </div>
-    <div class="meta-row">
-      <span class="tag">Breadth · Visual</span>
-      <a class="open-btn" href="https://screener-epd.pages.dev/public/adv_dec_heatmap" target="_blank">OPEN ↗</a>
-    </div>
-  </section>
+      <!-- NSE DATA SECTION -->
+      <div class="menu-section">
+        <label class="menu-label">📈 NSE Data</label>
+        <div class="menu-item">
+          <button class="menu-btn" id="nse-toggle">
+            NSE Data
+            <span class="menu-arrow">▼</span>
+          </button>
+          <div class="submenu" id="nse-menu">
+            <a class="submenu-item" data-link="https://screener-epd.pages.dev/public/Bhavdata">Bhav Copy</a>
+            <a class="submenu-item" data-link="https://screener-epd.pages.dev/public/volatility_dashboard">Volatility</a>
+            <a class="submenu-item" data-link="https://screener-epd.pages.dev/public/SpurtsSignal_Final">Spurt Data</a>
+          </div>
+        </div>
+      </div>
 
-  <section class="card card--accent-8">
-    <div class="card-label">Log</div>
-    <div class="card-title">OI CHANGE</div>
-    <div class="card-body">
-      Track stock and index open interest with intraday changes to spot fresh build‑up, unwinding and position shifts in one place.
-    </div>
-    <div class="meta-row">
-      <span class="tag">OI · Feed</span>
-      <a class="open-btn" href="https://screener-epd.pages.dev/public/oi" target="_blank">OPEN ↗</a>
-    </div>
-  </section>
-  
-  <section class="card card--accent-5">
-    <div class="card-label">Underline</div>
-    <div class="card-title">BHAV COPY</div>
-    <div class="card-body">
-      Daily bhavdata analysis with raw price action, delivery data and list view to understand the underlying structure.
-    </div>
-    <div class="meta-row">
-      <span class="tag">Utility · Bhavdata</span>
-      <a class="open-btn" href="https://screener-epd.pages.dev/public/Bhavdata" target="_blank">OPEN ↗</a>
-    </div>
-  </section>
- 
+      <!-- SWING DATA SECTION -->
+      <div class="menu-section">
+        <label class="menu-label">🔄 Swing Data</label>
+        <div class="menu-item">
+          <button class="menu-btn" id="swing-toggle">
+            Swing Data
+            <span class="menu-arrow">▼</span>
+          </button>
+          <div class="submenu" id="swing-menu">
+            <a class="submenu-item" data-link="https://screener-epd.pages.dev/public/swing_screener">Swing F&O</a>
+          </div>
+        </div>
+      </div>
 
+      <!-- NEWS SECTION -->
+      <div class="menu-section">
+        <label class="menu-label">📰 News</label>
+        <div class="menu-item">
+          <button class="menu-btn" id="news-toggle">
+            News
+            <span class="menu-arrow">▼</span>
+          </button>
+          <div class="submenu" id="news-menu">
+            <a class="submenu-item" data-link="https://screener-epd.pages.dev/public/news">News Terminal</a>
+          </div>
+        </div>
+      </div>
 
-  <section class="card card--accent-7">
-    <div class="card-label">Log</div>
-    <div class="card-title">VOLATILITY</div>
-    <div class="card-body">
-      Upload NSE volatility files to view IV structure, expected range and premium behaviour in a compact dashboard.
     </div>
-    <div class="meta-row">
-      <span class="tag">IV · Dashboard</span>
-      <a class="open-btn" href="https://screener-epd.pages.dev/public/volatility_dashboard" target="_blank">OPEN ↗</a>
-    </div>
-  </section>
+  </aside>
 
-  <section class="card card--accent-4">
-    <div class="card-label">Futures</div>
-    <div class="card-title">SPURT MAIN</div>
-    <div class="card-body">
-      Futures OI spurt tracker to catch aggressive bull or bear momentum right when the move is starting to build.
-    </div>
-    <div class="meta-row">
-      <span class="tag">Momentum · Futures</span>
-      <a class="open-btn" href="https://screener-epd.pages.dev/public/SpurtsSignal_Final" target="_blank">OPEN ↗</a>
-    </div>
-  </section>
+  <!-- OVERLAY -->
+  <div class="sidebar-overlay" id="overlay"></div>
 
-  <section class="card card--accent-2">
-    <div class="card-label">Secondary</div>
-    <div class="card-title">Swing F&O</div>
-    <div class="card-body">
-      Swing signals for stocks and indices in F&O — multi‑day setups with cleaner structure and a swing‑friendly view.
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content">
+    <div class="content-wrapper">
+      <div class="empty-state">
+        <div class="empty-state-icon">📊</div>
+        <div class="empty-state-text">Select a Tool</div>
+        <div class="empty-state-sub">Click on any menu item to view the screener</div>
+      </div>
     </div>
-    <div class="meta-row">
-      <span class="tag">Swing · F&O</span>
-      <a class="open-btn" href="https://screener-epd.pages.dev/public/swing_screener" target="_blank">OPEN ↗</a>
-    </div>
-  </section>
-  
-  <section class="card card--accent-2">
-    <div class="card-label">Secondary</div>
-    <div class="card-title">NEWS TERMINAL</div>
-    <div class="card-body">
-      Swing signals for stocks and indices in F&O — multi‑day setups with cleaner structure and a swing‑friendly view.
-    </div>
-    <div class="meta-row">
-      <span class="tag">Swing · F&O</span>
-      <a class="open-btn" href="https://screener-epd.pages.dev/public/news" target="_blank">OPEN ↗</a>
-    </div>
-  </section>
-
-
-
-<footer class="footer">
-  <span>Soft gradient · Light theme</span>
-  <span>Mobile-first layout</span>
-</footer>
+  </main>
 
 </div>
+
+<script>
+// ===== THEME MANAGEMENT =====
+const themeBtn = document.getElementById('theme-btn');
+const themeDropdown = document.getElementById('theme-dropdown');
+const themeOptions = document.querySelectorAll('.theme-option');
+const html = document.documentElement;
+
+const savedTheme = localStorage.getItem('selectedTheme') || 'dark-blue';
+html.setAttribute('data-theme', savedTheme);
+updateThemeButtonIcon(savedTheme);
+
+themeBtn.addEventListener('click', () => {
+  themeDropdown.classList.toggle('active');
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.theme-selector-wrapper')) {
+    themeDropdown.classList.remove('active');
+  }
+});
+
+themeOptions.forEach(option => {
+  option.addEventListener('click', (e) => {
+    e.preventDefault();
+    const theme = option.getAttribute('data-theme');
+    html.setAttribute('data-theme', theme);
+    localStorage.setItem('selectedTheme', theme);
+    
+    themeOptions.forEach(opt => opt.classList.remove('active'));
+    option.classList.add('active');
+    
+    updateThemeButtonIcon(theme);
+    themeDropdown.classList.remove('active');
+  });
+});
+
+function updateThemeButtonIcon(theme) {
+  themeBtn.textContent = theme.includes('dark') ? '🌙' : '☀️';
+}
+
+// ===== SIDEBAR & HAMBURGER =====
+const hamburger = document.getElementById('hamburger');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+const mainContent = document.getElementById('main-content');
+const mainLayout = document.getElementById('main-layout');
+const topNavbar = document.getElementById('top-navbar');
+const floatingBtn = document.getElementById('floating-fullscreen-btn');
+
+hamburger.addEventListener('click', () => {
+  sidebar.classList.toggle('mobile-open');
+  overlay.classList.toggle('active');
+});
+
+overlay.addEventListener('click', () => {
+  sidebar.classList.remove('mobile-open');
+  overlay.classList.remove('active');
+});
+
+// ===== FULLSCREEN FUNCTIONALITY =====
+let isFullscreen = false;
+
+function toggleFullscreen() {
+  isFullscreen = !isFullscreen;
+  
+  if (isFullscreen) {
+    topNavbar.classList.add('fullscreen-hidden');
+    sidebar.classList.add('fullscreen-hidden');
+    mainLayout.classList.add('fullscreen-mode');
+    mainContent.classList.add('fullscreen');
+  } else {
+    topNavbar.classList.remove('fullscreen-hidden');
+    sidebar.classList.remove('fullscreen-hidden');
+    mainLayout.classList.remove('fullscreen-mode');
+    mainContent.classList.remove('fullscreen');
+  }
+}
+
+floatingBtn.addEventListener('click', toggleFullscreen);
+
+// ===== MENU ITEMS - LOAD iFrame =====
+const submenuItems = document.querySelectorAll('.submenu-item');
+
+submenuItems.forEach(item => {
+  item.addEventListener('click', (e) => {
+    e.preventDefault();
+    
+    const link = item.getAttribute('data-link');
+    const label = item.textContent.trim();
+    
+    loadIFrame(link, label);
+    
+    submenuItems.forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    
+    if (window.innerWidth < 768) {
+      sidebar.classList.remove('mobile-open');
+      overlay.classList.remove('active');
+    }
+  });
+});
+
+function loadIFrame(url, label) {
+  const contentWrapper = mainContent.querySelector('.content-wrapper');
+  contentWrapper.innerHTML = `
+    <iframe 
+      src="${url}" 
+      class="content-frame"
+      title="${label}"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  `;
+  
+  floatingBtn.classList.add('visible');
+}
+
+// ===== MENU TOGGLE =====
+function setupMenuToggle(toggleId, menuId, arrowSelector) {
+  const toggle = document.getElementById(toggleId);
+  const menu = document.getElementById(menuId);
+  const arrow = toggle.querySelector(arrowSelector);
+
+  toggle.addEventListener('click', () => {
+    menu.classList.toggle('open');
+    arrow.classList.toggle('open');
+  });
+}
+
+setupMenuToggle('scalper-toggle', 'scalper-menu', '.menu-arrow');
+setupMenuToggle('oi-toggle', 'oi-menu', '.menu-arrow');
+setupMenuToggle('nse-toggle', 'nse-menu', '.menu-arrow');
+setupMenuToggle('swing-toggle', 'swing-menu', '.menu-arrow');
+setupMenuToggle('news-toggle', 'news-menu', '.menu-arrow');
+
+// ===== OPEN ALL MENUS BY DEFAULT =====
+document.addEventListener('DOMContentLoaded', () => {
+  const menuIds = ['scalper-menu', 'oi-menu', 'nse-menu', 'swing-menu', 'news-menu'];
+  const toggleIds = ['scalper-toggle', 'oi-toggle', 'nse-toggle', 'swing-toggle', 'news-toggle'];
+  
+  menuIds.forEach((menuId, index) => {
+    document.getElementById(menuId).classList.add('open');
+    document.getElementById(toggleIds[index]).querySelector('.menu-arrow').classList.add('open');
+  });
+});
+</script>
+
 </body>
 </html>
