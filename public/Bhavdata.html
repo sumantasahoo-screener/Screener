@@ -209,7 +209,6 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
 </head>
 <body>
 
-<!-- UPLOAD -->
 <div id="uscreen">
   <div class="ucard" id="ucard">
     <span class="ucorner tl">NSE F&amp;O</span>
@@ -217,6 +216,12 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
     <div class="uicon">📦</div>
     <h1>Drop your<br><i>F&amp;O ZIP</i></h1>
     <p class="udesc">ZIP mein <code>fo*.csv</code> aur <code>op*.csv</code> honi chahiye<br>NSE Bhavcopy — rozana download karo, yahan drop karo</p>
+    
+    <div style="display:flex; gap:10px; justify-content:center; margin-bottom:16px;">
+      <button class="ubtn" style="background:var(--blue); padding:11px 20px;" onclick="fetchFromNSE()" id="fbtn">☁️ Fetch from NSE</button>
+      <button class="ubtn" style="background:var(--gold); padding:11px 20px;" onclick="downloadFromNSE()">⬇️ Download from NSE</button>
+    </div>
+
     <div class="udrop" id="udrop"><strong>Yahan drag &amp; drop karo</strong><p>ya neeche browse karo</p></div>
     <input type="file" id="fi" accept=".zip">
     <label for="fi" class="ubtn">↑ &nbsp;Browse ZIP File</label>
@@ -224,10 +229,8 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
   </div>
 </div>
 
-<!-- MODAL -->
 <div id="modal"><div class="modal-box"><div class="mh"><h3 id="m-title">—</h3><button class="mclose" onclick="closeModal()">✕ Close</button></div><div class="mb" id="m-body"></div></div></div>
 
-<!-- HEADER -->
 <header>
   <div class="logo"><div class="ldot"></div>F&amp;<em>O</em> Intelligence</div>
   <div class="hdr-r">
@@ -237,10 +240,8 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
   </div>
 </header>
 
-<!-- MAIN -->
 <main id="main">
 
-  <!-- SUMMARY STRIP — clickable -->
   <div class="smr">
     <div class="sc cink" onclick="openModal('all')">
       <div class="slbl">Active Stocks</div>
@@ -278,7 +279,6 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
     </div>
   </div>
 
-  <!-- ROW 1: OI + PCR -->
   <div class="g2">
     <div class="panel">
       <div class="ph">
@@ -303,7 +303,6 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
         </div>
         <span class="pbadge" id="pcr-b">—</span>
       </div>
-      <!-- PCR Explainer always visible -->
       <div class="pcr-explainer">
         <div class="pe-item bull">
           <div class="pe-val bull">PCR &gt; 1.2</div>
@@ -329,7 +328,6 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
     </div>
   </div>
 
-  <!-- ROW 2: Max Pain + Most Active -->
   <div class="g2">
     <div class="panel">
       <div class="ph">
@@ -361,7 +359,6 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
     </div>
   </div>
 
-  <!-- ROW 3: Charts -->
   <div class="g2">
     <div class="panel">
       <div class="ph"><div class="phl"><div class="phi">📈</div><div><h3>Top OI — Futures</h3><div class="ph-sub">Green = price up, Red = price down</div></div></div></div>
@@ -376,9 +373,33 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
 
 </main>
 
-<!-- MODAL HTML for stock lists -->
 <script>
 const D={fut:{},ceOi:{},peOi:{},mp:{},act:[],oiTab:'long',pcrTab:'bull',actTab:'CE',ch:{}};
+
+// ── NEW: CLOUDFLARE WORKER LOGIC ──
+const WORKER_URL = 'https://bhavdcopydata.sumantasahoo.workers.dev/';
+
+async function fetchFromNSE() {
+  const btn = document.getElementById('fbtn');
+  btn.innerHTML = '⏳ Fetching...';
+  btn.disabled = true;
+  try {
+    const res = await fetch(WORKER_URL);
+    if (!res.ok) throw new Error('Fetch failed from NSE server.');
+    const blob = await res.blob();
+    await loadZip(blob); // ZIP extract karke dashboard me seedha load
+  } catch (e) {
+    alert('Fetch Error: ' + e.message);
+  } finally {
+    btn.innerHTML = '☁️ Fetch from NSE';
+    btn.disabled = false;
+  }
+}
+
+function downloadFromNSE() {
+  // Seedha link open karega taaki PC me download ho jaye
+  window.location.href = WORKER_URL;
+}
 
 // ── ZIP LOAD ──
 async function loadZip(f){
@@ -433,8 +454,6 @@ function pOpt(txt){
 
 function pMP(txt){
   D.mp={};const rs=rows(txt),sm={};
-  
-  // Get separate near months for OPTIDX and OPTSTK
   const idxExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTIDX')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();
   const stkExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTSTK')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();
   const idxNear=idxExps[0]||'';
@@ -492,7 +511,6 @@ function pAct(txt){
   D.act.sort((a,b)=>(b.oi+b.vol)-(a.oi+a.vol));
 }
 
-// ── RENDER ALL ──
 function rAll(){rSumm();rOI();rPCR();rMP();rAct();rCharts();}
 
 function rSumm(){
@@ -573,7 +591,6 @@ function pcrT(t,el){D.pcrTab=t;el.closest('.tabs').querySelectorAll('.tab').forE
 
 function rMP(){
   const q=(document.getElementById('mps').value||'').toLowerCase();
-  // Sort by absolute gap — stocks furthest from pain first
   const data=Object.entries(D.mp)
     .filter(([sym])=>!q||sym.toLowerCase().includes(q))
     .map(([sym,v])=>({sym,...v}))
@@ -604,7 +621,6 @@ function rAct(){
 }
 function actT(t,el){D.actTab=t;el.closest('.tabs').querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');rAct();}
 
-// ── MODAL — stock list ──
 function openModal(type){
   const all=Object.entries(D.fut).map(([sym,v])=>({sym,...v,sg:sig(v)}));
   let data,title;
@@ -633,7 +649,6 @@ function openModal(type){
 function closeModal(){document.getElementById('modal').classList.remove('open');}
 document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
-// ── CHARTS ──
 function rCharts(){
   const t12=Object.entries(D.fut).sort((a,b)=>b[1].oi-a[1].oi).slice(0,12);
   if(D.ch.oi)D.ch.oi.destroy();
