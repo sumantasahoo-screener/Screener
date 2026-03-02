@@ -478,11 +478,12 @@ function pOpt(txt){
     const near=isIdx?idxNear:stkNear;
     if(!near||!c.includes(near))return;
     const oi=+r.OPEN_INT||+r.OI_NO_CON||0,vol=+r.TRADED_QUA||0;
-    if(c.includes('CE')){
+    // FIX: near+'CE' aur near+'PE' check karega
+    if(c.includes(near+'CE')){
       const p=c.split(near+'CE');if(p.length!==2)return;
       const s=p[0].replace('OPTSTK','').replace('OPTIDX','');
       D.ceOi[s]=(D.ceOi[s]||0)+oi;D.ceVol[s]=(D.ceVol[s]||0)+vol;
-    }else if(c.includes('PE')){
+    }else if(c.includes(near+'PE')){
       const p=c.split(near+'PE');if(p.length!==2)return;
       const s=p[0].replace('OPTSTK','').replace('OPTIDX','');
       D.peOi[s]=(D.peOi[s]||0)+oi;D.peVol[s]=(D.peVol[s]||0)+vol;
@@ -504,8 +505,9 @@ function pMP(txt){
     const near=isIdx?idxNear:stkNear;if(!near||!c.includes(near))return;
     const oi=+r.OPEN_INT||+r.OI_NO_CON||0,und=+r.UNDRLNG_ST||0;
     let sym,strike,type;
-    if(c.includes('CE')){const p=c.split(near+'CE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='CE';}
-    else if(c.includes('PE')){const p=c.split(near+'PE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='PE';}
+    // FIX: near+'CE' aur near+'PE' check karega
+    if(c.includes(near+'CE')){const p=c.split(near+'CE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='CE';}
+    else if(c.includes(near+'PE')){const p=c.split(near+'PE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='PE';}
     else return;
     if(!sym||!strike||isNaN(strike))return;
     if(!sm[sym])sm[sym]={s:{},u:0};
@@ -523,15 +525,12 @@ function pMP(txt){
       const total=callPain+putPain;painTable.push({strike:ts,callPain,putPain,total});
       if(total<minPain){minPain=total;mpStrike=ts;}
     });
-    // CE Wall = highest Call OI strike (resistance)
     const ceWall=ss.reduce((mx,s)=>d.s[s].c>d.s[mx].c?s:mx,ss[0]);
-    // PE Wall = highest Put OI strike (support)
     const peWall=ss.reduce((mx,s)=>d.s[s].p>d.s[mx].p?s:mx,ss[0]);
     const spot=d.u||(D.fut[sym]?D.fut[sym].close:0);
     if(spot>0&&mpStrike>0)D.mp[sym]={spot,mp:mpStrike,gap:+((mpStrike-spot)/spot*100).toFixed(2),ceWall,peWall,painTable};
   });
 }
-
 // ─────────────────────────────────────────────
 // PARSE MOST ACTIVE
 // ─────────────────────────────────────────────
@@ -546,8 +545,9 @@ function pAct(txt){
     const near=isIdx?idxNear:stkNear;if(!near||!c.includes(near))return;
     const oi=+r.OPEN_INT||+r.OI_NO_CON||0,vol=+r.TRADED_QUA||0;if(oi===0&&vol===0)return;
     let sym,strike,type;
-    if(c.includes('CE')){const p=c.split(near+'CE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='CE';}
-    else if(c.includes('PE')){const p=c.split(near+'PE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='PE';}
+    // FIX: near+'CE' aur near+'PE' check karega
+    if(c.includes(near+'CE')){const p=c.split(near+'CE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='CE';}
+    else if(c.includes(near+'PE')){const p=c.split(near+'PE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='PE';}
     else return;
     if(!sym||!strike||isNaN(strike))return;
     if(!D.fut[sym]&&!INDICES.includes(sym))return;
@@ -555,7 +555,6 @@ function pAct(txt){
   });
   D.act.sort((a,b)=>(b.oi+b.vol)-(a.oi+a.vol));
 }
-
 // ─────────────────────────────────────────────
 // RENDER
 // ─────────────────────────────────────────────
