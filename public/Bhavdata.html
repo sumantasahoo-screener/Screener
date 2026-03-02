@@ -454,8 +454,9 @@ function pOpt(txt){
 
 function pMP(txt){
   D.mp={};const rs=rows(txt),sm={};
-  const idxExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTIDX')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();
-  const stkExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTSTK')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();
+  const pD=d=>{const m={'JAN':0,'FEB':1,'MAR':2,'APR':3,'MAY':4,'JUN':5,'JUL':6,'AUG':7,'SEP':8,'OCT':9,'NOV':10,'DEC':11};const p=d.split('-');return new Date(p[2],m[p[1]],p[0]);};
+  const idxExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTIDX')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort((a,b)=>pD(a)-pD(b));
+  const stkExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTSTK')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort((a,b)=>pD(a)-pD(b));
   const idxNear=idxExps[0]||'';
   const stkNear=stkExps[0]||'';
 
