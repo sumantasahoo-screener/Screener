@@ -20,9 +20,21 @@
   --purp:#a855f7;--purp-lt:rgba(168,85,247,.12);
   --fs:'Instrument Serif',serif;--fm:'IBM Plex Mono',monospace;
 }
+
+/* ── LIGHT THEME (WARM WHITE) ── */
+.light-theme {
+  --bg:#fdfaf5;--bg2:#f5f0e8;--bg3:#ece4d9;
+  --card:#ffffff;--card2:#f9f7f2;
+  --border:#e2d9c8;--border2:#d4c8b0;
+  --ink:#1a1f2c;--ink2:#4a5568;--muted:#718096;
+  --bull-lt:rgba(34,197,94,.15);--bear-lt:rgba(244,63,94,.15);
+  --gold-lt:rgba(245,158,11,.15);--blue-lt:rgba(59,130,246,.15);
+  --purp-lt:rgba(168,85,247,.15);
+}
+
 *{margin:0;padding:0;box-sizing:border-box;}
 /* FIX 1: Font size increased for better visibility */
-body{background:var(--bg);color:var(--ink);font-family:var(--fm);font-size:13px;min-height:100vh;}
+body{background:var(--bg);color:var(--ink);font-family:var(--fm);font-size:13px;min-height:100vh;transition:background 0.3s, color 0.3s;}
 
 /* ── UPLOAD ── */
 #uscreen{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;
@@ -183,6 +195,10 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 .mb{padding:20px 25px;max-height:74vh;overflow-y:auto;}
 
 @media(max-width:1100px){.smr{grid-template-columns:repeat(3,1fr);}.g2{grid-template-columns:1fr;}}
+
+/* ── THEME EXTRAS ── */
+.light-theme header {background:rgba(253,250,245,.95);}
+.theme-toggle {background:var(--bg3); border:1px solid var(--border2); color:var(--ink); padding:6px 12px; border-radius:8px; cursor:pointer; font-size:1.1rem;}
 </style>
 </head>
 <body>
@@ -214,6 +230,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 <header>
   <div class="logo"><div class="ldot"></div>F&amp;<em>O</em> Intelligence</div>
   <div class="hdr-r">
+    <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
     <span id="hdate">—</span>
     <span id="hexp" style="font-size:.63rem;color:var(--gold);background:var(--gold-lt);border:1px solid var(--gold-md);padding:3px 10px;border-radius:12px;display:none;"></span>
     <input type="file" id="fi2" accept=".zip">
@@ -800,6 +817,14 @@ us.addEventListener('dragleave',e=>{if(!e.relatedTarget||!us.contains(e.relatedT
 us.addEventListener('drop',e=>{e.preventDefault();ud.classList.remove('drag');const f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.zip'))loadZip(f);else alert('Sirf .zip file drop karo!');});
 document.addEventListener('dragover',e=>e.preventDefault());
 document.addEventListener('drop',e=>{e.preventDefault();if(us.classList.contains('gone')){const f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.zip'))loadZip(f);}});
+
+// Theme Toggle Logic
+if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-theme');
+function toggleTheme() {
+  document.body.classList.toggle('light-theme');
+  localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+}
+
 </script>
 </body>
 </html>
