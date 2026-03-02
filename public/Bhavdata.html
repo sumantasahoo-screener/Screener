@@ -125,7 +125,6 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
 .g-pcr{grid-template-columns:84px 1fr 50px 80px;}
 .g-mp{grid-template-columns:84px 72px 72px 58px 80px;}
 .g-act{grid-template-columns:84px 70px 70px 66px 58px;}
-.g-list{grid-template-columns:40px 84px 66px 60px 56px 82px;}
 
 /* Rows */
 .row{display:grid;gap:8px;align-items:center;padding:9px 16px;
@@ -135,12 +134,10 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
 .row.g-pcr{grid-template-columns:84px 1fr 50px 80px;}
 .row.g-mp{grid-template-columns:84px 72px 72px 58px 80px;}
 .row.g-act{grid-template-columns:84px 70px 70px 66px 58px;}
-.row.g-list{grid-template-columns:40px 84px 66px 60px 56px 82px;}
 
 .sym{font-weight:600;font-size:.8rem;letter-spacing:.2px;}
 .num{text-align:right;font-size:.77rem;}
 .num.bull{color:var(--bull);}.num.bear{color:var(--bear);}.num.muted{color:var(--muted);}.num.gold{color:var(--gold);}
-.rk{font-size:.68rem;color:var(--muted);text-align:center;}
 
 /* Tags */
 .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;
@@ -173,17 +170,14 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
 .pe-val.bull{color:var(--bull);}.pe-val.bear{color:var(--bear);}.pe-val.neutral{color:#57534e;}
 .pe-desc{font-size:.62rem;color:var(--muted);line-height:1.4;}
 
-/* Search */
+/* Search & Scroll */
 .sw{padding:9px 16px;border-bottom:1px solid var(--border);}
 .si{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;
   padding:7px 11px;font-family:var(--fm);font-size:.74rem;color:var(--ink);outline:none;transition:border-color .2s;}
 .si:focus{border-color:var(--ink2);}.si::placeholder{color:var(--muted);}
-
-/* Scroll */
 .sb{max-height:340px;overflow-y:auto;}
 .sb::-webkit-scrollbar{width:3px;}
 .sb::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-
 .cw{height:185px;padding:14px 16px;}
 .empty{padding:36px 16px;text-align:center;color:var(--muted);font-size:.76rem;}
 
@@ -199,10 +193,11 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
 .mh h3{font-family:var(--fs);font-size:1.1rem;font-weight:400;}
 .mclose{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;
   cursor:pointer;font-size:.75rem;color:var(--muted);font-family:var(--fm);}
-.mclose:hover{background:var(--bg);}
 .mb{padding:16px 20px;max-height:70vh;overflow-y:auto;}
 .mb::-webkit-scrollbar{width:3px;}
 .mb::-webkit-scrollbar-thumb{background:var(--border2);}
+.sort-th{cursor:pointer; user-select:none;}
+.sort-th:hover{color:var(--ink);}
 
 @media(max-width:1100px){.smr{grid-template-columns:repeat(3,1fr);}.g2,.g3{grid-template-columns:1fr;}}
 </style>
@@ -241,7 +236,6 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
 </header>
 
 <main id="main">
-
   <div class="smr">
     <div class="sc cink" onclick="openModal('all')">
       <div class="slbl">Active Stocks</div>
@@ -304,18 +298,9 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
         <span class="pbadge" id="pcr-b">—</span>
       </div>
       <div class="pcr-explainer">
-        <div class="pe-item bull">
-          <div class="pe-val bull">PCR &gt; 1.2</div>
-          <div class="pe-desc">🟢 Bullish<br>Zyada puts = market support</div>
-        </div>
-        <div class="pe-item neutral">
-          <div class="pe-val neutral">PCR 0.8–1.2</div>
-          <div class="pe-desc">⚪ Neutral<br>Balanced — sideways market</div>
-        </div>
-        <div class="pe-item bear">
-          <div class="pe-val bear">PCR &lt; 0.8</div>
-          <div class="pe-desc">🔴 Bearish<br>Zyada calls = resistance likely</div>
-        </div>
+        <div class="pe-item bull"><div class="pe-val bull">PCR &gt; 1.2</div><div class="pe-desc">🟢 Bullish<br>Zyada puts = support</div></div>
+        <div class="pe-item neutral"><div class="pe-val neutral">PCR 0.8–1.2</div><div class="pe-desc">⚪ Neutral<br>Balanced market</div></div>
+        <div class="pe-item bear"><div class="pe-val bear">PCR &lt; 0.8</div><div class="pe-desc">🔴 Bearish<br>Zyada calls = resistance</div></div>
       </div>
       <div class="tabs">
         <div class="tab active" onclick="pcrT('bull',this)">🟢 Bullish PCR</div>
@@ -338,7 +323,13 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
       </div>
       <div class="tipbox">💡 <strong>Kya hota hai?</strong> Expiry ke paas spot price Max Pain ki taraf khinchti hai. Gap% dekho — agar spot pain se zyada door hai, reversal possible.</div>
       <div class="sw"><input class="si" id="mps" placeholder="Symbol search karo..." oninput="rMP()"></div>
-      <div class="ch g-mp"><span>Symbol</span><span style="text-align:right">Spot</span><span style="text-align:right">Max Pain</span><span style="text-align:right">Gap%</span><span style="text-align:right">Signal</span></div>
+      <div class="ch g-mp">
+        <span class="sort-th" id="th-sym" onclick="sMP('sym')">Symbol</span>
+        <span class="sort-th" style="text-align:right" id="th-spot" onclick="sMP('spot')">Spot</span>
+        <span class="sort-th" style="text-align:right" id="th-mp" onclick="sMP('mp')">Max Pain</span>
+        <span class="sort-th" style="text-align:right" id="th-gap" onclick="sMP('gap')">Gap%</span>
+        <span class="sort-th" style="text-align:right" id="th-sig" onclick="sMP('gap')">Signal ↓</span>
+      </div>
       <div class="sb" id="mp-bd"></div>
     </div>
 
@@ -349,7 +340,6 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
         </div>
         <span class="pbadge">By OI + Volume</span>
       </div>
-      <div class="tipbox">💡 <strong>Use karo:</strong> High OI wale strikes = strong support/resistance. CE heavy = resistance, PE heavy = support.</div>
       <div class="tabs">
         <div class="tab active" onclick="actT('CE',this)">Calls (CE) — Resistance</div>
         <div class="tab" onclick="actT('PE',this)">Puts (PE) — Support</div>
@@ -366,15 +356,21 @@ main{padding:18px 28px;max-width:1500px;margin:0 auto;display:none;}
     </div>
     <div class="panel">
       <div class="ph"><div class="phl"><div class="phi">🥧</div><div><h3>PCR Distribution</h3><div class="ph-sub">Active stocks ka PCR breakdown</div></div></div></div>
-      <div class="tipbox">💡 Zyada green stocks = overall bullish sentiment. Zyada red = bearish pressure across market.</div>
       <div class="cw"><canvas id="pcrc"></canvas></div>
     </div>
   </div>
-
 </main>
 
 <script>
-const D={fut:{},ceOi:{},peOi:{},mp:{},act:[],oiTab:'long',pcrTab:'bull',actTab:'CE',ch:{}};
+const D={fut:{},ceOi:{},peOi:{},mp:{},act:[],oiTab:'long',pcrTab:'bull',actTab:'CE',ch:{}, mpSort:{c:'gap',d:-1}};
+
+// ── GLOBAL DATE PARSER ──
+const pD = d => {
+  if(!d) return new Date(0);
+  const m = {'JAN':0,'FEB':1,'MAR':2,'APR':3,'MAY':4,'JUN':5,'JUL':6,'AUG':7,'SEP':8,'OCT':9,'NOV':10,'DEC':11};
+  const p = d.split('-');
+  return p.length === 3 ? new Date(p[2], m[p[1]], p[0]) : new Date(0);
+};
 
 // ── NEW: CLOUDFLARE WORKER LOGIC ──
 const WORKER_URL = 'https://bhavdcopydata.sumantasahoo.workers.dev/';
@@ -387,7 +383,7 @@ async function fetchFromNSE() {
     const res = await fetch(WORKER_URL);
     if (!res.ok) throw new Error('Fetch failed from NSE server.');
     const blob = await res.blob();
-    await loadZip(blob); // ZIP extract karke dashboard me seedha load
+    await loadZip(blob);
   } catch (e) {
     alert('Fetch Error: ' + e.message);
   } finally {
@@ -396,10 +392,7 @@ async function fetchFromNSE() {
   }
 }
 
-function downloadFromNSE() {
-  // NSE ki website naye tab mein khulegi
-  window.open('https://www.nseindia.com/all-reports-derivatives', '_blank');
-}
+function downloadFromNSE() { window.open('https://www.nseindia.com/all-reports-derivatives', '_blank'); }
 
 // ── ZIP LOAD ──
 async function loadZip(f){
@@ -420,33 +413,29 @@ async function loadZip(f){
 }
 
 function rows(txt){const ls=txt.trim().split('\n'),hs=ls[0].split(',').map(h=>h.trim());return ls.slice(1).map(l=>{const v=l.split(','),o={};hs.forEach((h,i)=>o[h]=(v[i]||'').trim());return o;});}
-function getNM(rs){const ex=[...new Set(rs.map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();return ex[0]||'';}
+function getNM(rs){const ex=[...new Set(rs.map(r=>{const m=(r.CONTRACT_D||'').toUpperCase().match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort((a,b)=>pD(a)-pD(b));return ex[0]||'';}
 
 function pFut(txt){
   D.fut={};const rs=rows(txt),near=getNM(rs);
-  rs.forEach(r=>{const c=r.CONTRACT_D||'';if(!c.includes(near))return;
+  rs.forEach(r=>{const c=(r.CONTRACT_D||'').toUpperCase();if(!c.includes(near))return;
     const sym=c.replace('FUTSTK','').replace('FUTIDX','').replace(near,'');if(!sym)return;
     const prev=+r.PREVIOUS_S||0,net=+r.NET_CHANGE||0;
-    D.fut[sym]={close:+r.CLOSE_PRIC||0,prev,oi:+r.OI_NO_CON||0,vol:+r.TRADED_QUA||0,tval:+r.TRADED_VAL||0,net,pct:prev>0?net/prev*100:0};
+    D.fut[sym]={close:+r.CLOSE_PRIC||0,prev,oi:+r.OPEN_INT||+r.OI_NO_CON||0,vol:+r.TRADED_QUA||0,tval:+r.TRADED_VAL||0,net,pct:prev>0?net/prev*100:0};
   });
-  const ois=Object.values(D.fut).map(v=>v.oi).filter(x=>x>0).sort((a,b)=>a-b);
-  const tvs=Object.values(D.fut).map(v=>v.tval).filter(x=>x>0).sort((a,b)=>a-b);
-  const mOi=ois[Math.floor(ois.length/2)]||0,mTv=tvs[Math.floor(tvs.length/2)]||0;
-  Object.keys(D.fut).forEach(s=>{const v=D.fut[s];if(v.oi<mOi||v.tval<mTv)delete D.fut[s];});
 }
 
 function pOpt(txt){
   D.ceOi={};D.peOi={};const rs=rows(txt);
-  const idxExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTIDX')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();
-  const stkExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTSTK')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();
+  const idxExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').toUpperCase().includes('OPTIDX')).map(r=>{const m=(r.CONTRACT_D||'').toUpperCase().match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort((a,b)=>pD(a)-pD(b));
+  const stkExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').toUpperCase().includes('OPTSTK')).map(r=>{const m=(r.CONTRACT_D||'').toUpperCase().match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort((a,b)=>pD(a)-pD(b));
   const idxNear=idxExps[0]||'', stkNear=stkExps[0]||'';
   rs.forEach(r=>{
-    const c=r.CONTRACT_D||'';
+    const c=(r.CONTRACT_D||'').toUpperCase();
     const isIdx=c.includes('OPTIDX'),isStk=c.includes('OPTSTK');
     if(!isIdx&&!isStk)return;
     const near=isIdx?idxNear:stkNear;
     if(!near||!c.includes(near))return;
-    const oi=+r.OI_NO_CON||0;
+    const oi=+r.OPEN_INT||+r.OI_NO_CON||0;
     if(c.includes('CE')){const p=c.split(near+'CE');if(p.length!==2)return;const s=p[0].replace('OPTSTK','').replace('OPTIDX','');D.ceOi[s]=(D.ceOi[s]||0)+oi;}
     else if(c.includes('PE')){const p=c.split(near+'PE');if(p.length!==2)return;const s=p[0].replace('OPTSTK','').replace('OPTIDX','');D.peOi[s]=(D.peOi[s]||0)+oi;}
   });
@@ -454,19 +443,17 @@ function pOpt(txt){
 
 function pMP(txt){
   D.mp={};const rs=rows(txt),sm={};
-  const pD=d=>{const m={'JAN':0,'FEB':1,'MAR':2,'APR':3,'MAY':4,'JUN':5,'JUL':6,'AUG':7,'SEP':8,'OCT':9,'NOV':10,'DEC':11};const p=d.split('-');return new Date(p[2],m[p[1]],p[0]);};
-  const idxExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTIDX')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort((a,b)=>pD(a)-pD(b));
-  const stkExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTSTK')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort((a,b)=>pD(a)-pD(b));
-  const idxNear=idxExps[0]||'';
-  const stkNear=stkExps[0]||'';
+  const idxExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').toUpperCase().includes('OPTIDX')).map(r=>{const m=(r.CONTRACT_D||'').toUpperCase().match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort((a,b)=>pD(a)-pD(b));
+  const stkExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').toUpperCase().includes('OPTSTK')).map(r=>{const m=(r.CONTRACT_D||'').toUpperCase().match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort((a,b)=>pD(a)-pD(b));
+  const idxNear=idxExps[0]||'', stkNear=stkExps[0]||'';
 
   rs.forEach(r=>{
-    const c=r.CONTRACT_D||'';
+    const c=(r.CONTRACT_D||'').toUpperCase();
     const isIdx=c.includes('OPTIDX'), isStk=c.includes('OPTSTK');
     if(!isIdx&&!isStk)return;
     const near=isIdx?idxNear:stkNear;
     if(!near||!c.includes(near))return;
-    const oi=+r.OI_NO_CON||0,und=+r.UNDRLNG_ST||0;
+    const oi=+r.OPEN_INT||+r.OI_NO_CON||0,und=+r.UNDRLNG_ST||0;
     let sym,strike,type;
     if(c.includes('CE')){const p=c.split(near+'CE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='CE';}
     else if(c.includes('PE')){const p=c.split(near+'PE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='PE';}
@@ -491,16 +478,16 @@ function pMP(txt){
 
 function pAct(txt){
   D.act=[];const rs=rows(txt);
-  const idxExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTIDX')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();
-  const stkExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').includes('OPTSTK')).map(r=>{const m=(r.CONTRACT_D||'').match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort();
+  const idxExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').toUpperCase().includes('OPTIDX')).map(r=>{const m=(r.CONTRACT_D||'').toUpperCase().match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort((a,b)=>pD(a)-pD(b));
+  const stkExps=[...new Set(rs.filter(r=>(r.CONTRACT_D||'').toUpperCase().includes('OPTSTK')).map(r=>{const m=(r.CONTRACT_D||'').toUpperCase().match(/(\d{2}-[A-Z]{3}-\d{4})/);return m?m[1]:null;}).filter(Boolean))].sort((a,b)=>pD(a)-pD(b));
   const idxNear=idxExps[0]||'', stkNear=stkExps[0]||'';
   rs.forEach(r=>{
-    const c=r.CONTRACT_D||'';
+    const c=(r.CONTRACT_D||'').toUpperCase();
     const isIdx=c.includes('OPTIDX'),isStk=c.includes('OPTSTK');
     if(!isIdx&&!isStk)return;
     const near=isIdx?idxNear:stkNear;
     if(!near||!c.includes(near))return;
-    const oi=+r.OI_NO_CON||0,vol=+r.TRADED_QUA||0;if(oi===0&&vol===0)return;
+    const oi=+r.OPEN_INT||+r.OI_NO_CON||0,vol=+r.TRADED_QUA||0;if(oi===0&&vol===0)return;
     let sym,strike,type;
     if(c.includes('CE')){const p=c.split(near+'CE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='CE';}
     else if(c.includes('PE')){const p=c.split(near+'PE');if(p.length!==2)return;sym=p[0].replace('OPTSTK','').replace('OPTIDX','');strike=+p[1];type='PE';}
@@ -557,7 +544,7 @@ function rOI(){
       <span class="num muted">${(d.oi/1000).toFixed(1)}K</span>
       <div><div class="oibar" style="width:${Math.max(3,d.oi/maxOi*90)}px;background:${d.pct>=0?'var(--bull)':'var(--bear)'}"></div></div>
       <div style="text-align:right"><span class="tag ${d.sg.c}">${d.sg.l}</span></div>
-    </div>`).join('')||'<div class="empty">Is category mein koi stock nahi</div>';
+    </div>`).join('')||'<div class="empty">Koi data nahi</div>';
 }
 function oiT(t,el){D.oiTab=t;el.closest('.tabs').querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');rOI();}
 
@@ -573,7 +560,7 @@ function rPCR(){
   document.getElementById('pcr-b').textContent=fil.length+' stocks';
   const avg=data.length?data.reduce((s,d)=>s+d.pcr,0)/data.length:0;
   const ac=avg>1?'bull':avg<0.8?'bear':'neutral';
-  const at=avg>1?`Overall Bullish — Put writers active, support expected | Avg PCR: ${avg.toFixed(2)}`:avg<0.8?`Overall Bearish — Call writers active, resistance expected | Avg PCR: ${avg.toFixed(2)}`:`Neutral market — balanced OI | Avg PCR: ${avg.toFixed(2)}`;
+  const at=avg>1?`Overall Bullish | Avg PCR: ${avg.toFixed(2)}`:avg<0.8?`Overall Bearish | Avg PCR: ${avg.toFixed(2)}`:`Neutral | Avg PCR: ${avg.toFixed(2)}`;
   document.getElementById('pcr-aw').innerHTML=`<div class="alert ${ac}"><div class="adot ${ac}"></div><span>${at}</span></div>`;
   const mx=Math.max(...fil.map(d=>d.pcr),2);
   document.getElementById('pcr-bd').innerHTML=fil.slice(0,25).map(d=>{
@@ -590,20 +577,36 @@ function rPCR(){
 }
 function pcrT(t,el){D.pcrTab=t;el.closest('.tabs').querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));el.classList.add('active');rPCR();}
 
+function sMP(c){
+  if(D.mpSort.c===c) D.mpSort.d *= -1;
+  else { D.mpSort.c=c; D.mpSort.d= (c==='sym')?1:-1; }
+  ['th-sym','th-spot','th-mp','th-gap','th-sig'].forEach(id=>document.getElementById(id).textContent=document.getElementById(id).textContent.replace(/[↑↓]/g,'').trim());
+  const th = document.getElementById('th-'+(c==='gap'?'sig':c));
+  if(th) th.textContent += D.mpSort.d===1?' ↑':' ↓';
+  rMP();
+}
+
 function rMP(){
   const q=(document.getElementById('mps').value||'').toLowerCase();
-  const data=Object.entries(D.mp)
+  let data=Object.entries(D.mp)
     .filter(([sym])=>!q||sym.toLowerCase().includes(q))
-    .map(([sym,v])=>({sym,...v}))
-    .sort((a,b)=>Math.abs(b.gap)-Math.abs(a.gap));
-  document.getElementById('mp-bd').innerHTML=data.slice(0,25).map(d=>{
-    const gc=d.gap>3?'bear':d.gap<-3?'bull':'neutral';
-    const gl=d.gap>3?'↓ Pull Down':d.gap<-3?'↑ Pull Up':'✓ Near Pain';
+    .map(([sym,v])=>({sym,...v}));
+  
+  data.sort((a,b)=>{
+    let v1=a[D.mpSort.c], v2=b[D.mpSort.c];
+    if(D.mpSort.c==='sym') return D.mpSort.d * v1.localeCompare(v2);
+    if(D.mpSort.c==='gap') return D.mpSort.d * (Math.abs(v1)-Math.abs(v2)); // Sorting strictly based on distance from pain
+    return D.mpSort.d * (v1-v2);
+  });
+
+  document.getElementById('mp-bd').innerHTML=data.map(d=>{
+    const gc=d.gap>3?'bull':d.gap<-3?'bear':'neutral';
+    const gl=d.gap>3?'↑ Pull Up':d.gap<-3?'↓ Pull Down':'✓ Near Pain';
     return`<div class="row g-mp">
       <span class="sym">${d.sym}</span>
       <span class="num muted">₹${d.spot.toFixed(1)}</span>
       <span class="num gold">${d.mp}</span>
-      <span class="num ${d.gap>=0?'bear':'bull'}">${d.gap>=0?'+':''}${d.gap}%</span>
+      <span class="num ${d.gap>=0?'bull':'bear'}">${d.gap>=0?'+':''}${d.gap}%</span>
       <div style="text-align:right"><span class="tag ${gc}">${gl}</span></div>
     </div>`;
   }).join('')||'<div class="empty">Koi data nahi</div>';
@@ -631,7 +634,6 @@ function openModal(type){
   else{data=all.filter(d=>d.sg.l.includes('Unwind')).sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));title=`Unwinding Stocks (${data.length})`;}
 
   document.getElementById('m-title').textContent=title;
-  const maxOi=Math.max(...data.map(d=>d.oi),1);
   document.getElementById('m-body').innerHTML=`
     <div style="display:grid;grid-template-columns:36px 80px 66px 60px 54px 80px;gap:8px;padding:6px 0 10px;border-bottom:1px solid var(--border);font-size:.6rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;">
       <span>#</span><span>Symbol</span><span style="text-align:right">Price</span><span style="text-align:right">Chg%</span><span style="text-align:right">OI(K)</span><span style="text-align:right">Signal</span>
