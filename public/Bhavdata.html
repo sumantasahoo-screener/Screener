@@ -9,15 +9,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
-  --bg:#f7f4ef;--bg2:#f0ece4;--bg3:#ebe6dd;
-  --card:#ffffff;--card2:#f9f7f3;
-  --border:#e2ddd4;--border2:#d4cfc5;
-  --ink:#1c1917;--ink2:#44403c;--muted:#9ca3a0;
-  --bull:#15803d;--bull-lt:#dcfce7;--bull-md:#86efac;--bull-dk:#166534;
-  --bear:#dc2626;--bear-lt:#fee2e2;--bear-md:#fca5a5;--bear-dk:#b91c1c;
-  --gold:#b45309;--gold-lt:#fef3c7;--gold-md:#fde68a;
-  --blue:#1d4ed8;--blue-lt:#dbeafe;--blue-md:#bfdbfe;
-  --purp:#7c3aed;--purp-lt:#ede9fe;
+  --bg:#0f1117;--bg2:#161b27;--bg3:#1e2535;
+  --card:#1a2032;--card2:#222b3d;
+  --border:#2a3450;--border2:#334166;
+  --ink:#e8eaf0;--ink2:#a0aec0;--muted:#5a6a8a;
+  --bull:#22c55e;--bull-lt:rgba(34,197,94,.12);--bull-md:rgba(34,197,94,.25);--bull-dk:#16a34a;
+  --bear:#f43f5e;--bear-lt:rgba(244,63,94,.12);--bear-md:rgba(244,63,94,.25);--bear-dk:#be123c;
+  --gold:#f59e0b;--gold-lt:rgba(245,158,11,.12);--gold-md:rgba(245,158,11,.25);
+  --blue:#3b82f6;--blue-lt:rgba(59,130,246,.12);--blue-md:rgba(59,130,246,.25);
+  --purp:#a855f7;--purp-lt:rgba(168,85,247,.12);
   --fs:'Instrument Serif',serif;--fm:'IBM Plex Mono',monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -123,7 +123,7 @@ main{padding:16px 24px;max-width:1540px;margin:0 auto;display:none;}
   border-bottom:1px solid var(--border);font-size:.57rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);}
 .g-oi {grid-template-columns:82px 64px 58px 54px 1fr 80px;}
 .g-pcr{grid-template-columns:82px 1fr 52px 78px;}
-.g-mp {grid-template-columns:78px 66px 66px 58px 58px 54px 76px;}
+.g-mp {grid-template-columns:78px 68px 68px 62px 62px 62px;}
 .g-act{grid-template-columns:82px 68px 68px 64px 56px;}
 
 /* Rows */
@@ -320,15 +320,14 @@ main{padding:16px 24px;max-width:1540px;margin:0 auto;display:none;}
       <div class="tipbox">💡 <strong>Max Pain</strong> = Option sellers minimum loss point. &nbsp;<span style="color:var(--bear)">CE Wall</span> = Resistance &nbsp;|&nbsp; <span style="color:var(--bull)">PE Wall</span> = Support &nbsp;|&nbsp; Gap% = Spot vs Max Pain distance</div>
       <div class="sw"><input class="si" id="mps" placeholder="Symbol search karo..." oninput="rMP()"></div>
       <!-- FIX: 6 columns — Symbol | Spot | Max Pain | CE Wall | PE Wall | Gap% -->
-	  <div class="ch g-mp">
-	    <span class="sort-th" id="th-sym" onclick="sMP('sym')">Symbol</span>
-	    <span class="sort-th" style="text-align:right" id="th-spot" onclick="sMP('spot')">Spot</span>
-	    <span class="sort-th" style="text-align:right" id="th-mp" onclick="sMP('mp')">Max Pain</span>
-	    <span style="text-align:right;color:var(--bear)">CE Wall</span>
-	    <span style="text-align:right;color:var(--bull)">PE Wall</span>
-	    <span class="sort-th" style="text-align:right" id="th-gap" onclick="sMP('gap')">Gap%</span>
-	    <span style="text-align:right">Signal</span>
-	  </div>
+      <div class="ch g-mp">
+        <span class="sort-th" id="th-sym" onclick="sMP('sym')">Symbol</span>
+        <span class="sort-th" style="text-align:right" id="th-spot" onclick="sMP('spot')">Spot</span>
+        <span class="sort-th" style="text-align:right" id="th-mp" onclick="sMP('mp')">Max Pain</span>
+        <span style="text-align:right;color:var(--bear)">CE Wall</span>
+        <span style="text-align:right;color:var(--bull)">PE Wall</span>
+        <span class="sort-th" style="text-align:right" id="th-gap" onclick="sMP('gap')">Gap%</span>
+      </div>
       <div class="sb" id="mp-bd"></div>
     </div>
 
@@ -662,15 +661,14 @@ function rMP(){
   document.getElementById('mp-bd').innerHTML=data.map(d=>{
     const gc=d.gap>3?'bull':d.gap<-3?'bear':'neutral';
     const gl=d.gap>3?'↑ Pull Up':d.gap<-3?'↓ Pull Down':'✓ At Pain';
-	return`<div class="row g-mp" style="cursor:pointer" onclick="openMPModal('${d.sym}')" title="Click for full pain table">
-	  <span class="sym">${d.sym}</span>
-	  <span class="num muted">₹${d.spot.toFixed(0)}</span>
-	  <span class="num gold">${d.mp}</span>
-	  <span class="num bear">${d.ceWall}</span>
-	  <span class="num bull">${d.peWall}</span>
-	  <span class="num ${d.gap>=0?'bull':'bear'}">${d.gap>=0?'+':''}${d.gap}%</span>
-	  <div style="text-align:right"><span class="tag ${gc}">${gl}</span></div>
-	</div>`;
+    return`<div class="row g-mp" style="cursor:pointer" onclick="openMPModal('${d.sym}')" title="Click for full pain table">
+      <span class="sym">${d.sym}</span>
+      <span class="num muted">₹${d.spot.toFixed(0)}</span>
+      <span class="num gold">${d.mp}</span>
+      <span class="num bear">${d.ceWall}</span>
+      <span class="num bull">${d.peWall}</span>
+      <span class="num ${d.gap>=0?'bull':'bear'}">${d.gap>=0?'+':''}${d.gap}%</span>
+    </div>`;
   }).join('')||'<div class="empty">Koi data nahi</div>';
 }
 
