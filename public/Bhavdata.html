@@ -81,7 +81,6 @@ header{background:rgba(15,17,23,.95);border-bottom:1px solid var(--border);
   font-family:var(--fm);font-size:.66rem;font-weight:600;cursor:pointer;border:1px solid var(--border2);
   transition:all .2s;letter-spacing:.4px;}
 .hbtn:hover{border-color:var(--blue);color:var(--ink);}
-#fi2{display:none;}
 
 /* ── MAIN ── */
 main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
@@ -133,18 +132,18 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 /* Col headers */
 .ch{display:grid;gap:10px;padding:10px 20px;background:var(--bg3);
   border-bottom:1px solid var(--border);font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;}
-.g-oi {grid-template-columns: 2fr 1fr 1fr 1fr 2fr 1.2fr;}
+.g-oi {grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 1.2fr;}
 .g-pcr{grid-template-columns: 2fr 3fr 1fr 1.2fr;}
-.g-mp {grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1.2fr;} /* 7 COLUMNS FOR MAX PAIN */
+.g-mp {grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1.2fr;}
 .g-act{grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr;}
 
 /* Rows */
 .row{display:grid;gap:10px;align-items:center;padding:12px 20px;
   border-bottom:1px solid rgba(42,52,80,.6);transition:background .1s;}
 .row:last-child{border-bottom:none;}.row:hover{background:var(--bg3);}
-.row.g-oi {grid-template-columns: 2fr 1fr 1fr 1fr 2fr 1.2fr;}
+.row.g-oi {grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 1.2fr;}
 .row.g-pcr{grid-template-columns: 2fr 3fr 1fr 1.2fr;}
-.row.g-mp {grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1.2fr;} /* 7 COLUMNS FOR MAX PAIN */
+.row.g-mp {grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1.2fr;}
 .row.g-act{grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr;}
 
 .sym{font-weight:600;font-size:1.1rem;letter-spacing:.3px;color:var(--ink);}
@@ -156,6 +155,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
   font-size:.65rem;font-weight:700;letter-spacing:.3px;white-space:nowrap;}
 .tag.bull{background:var(--bull-lt);color:var(--bull);border:1px solid var(--bull-md);}
 .tag.bear{background:var(--bear-lt);color:var(--bear);border:1px solid var(--bear-md);}
+.tag.neutral{background:var(--bg3);color:var(--ink2);border:1px solid var(--border);}
 
 /* Bars */
 .oibar{height:4px;border-radius:2px;min-width:3px;}
@@ -228,11 +228,16 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 
 <header>
   <div class="logo"><div class="ldot"></div>F&amp;<em>O</em> Intelligence</div>
+  
   <div class="hdr-r">
     <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
     <span id="hdate">—</span>
     <span id="hexp" style="font-size:.63rem;color:var(--gold);background:var(--gold-lt);border:1px solid var(--gold-md);padding:3px 10px;border-radius:12px;display:none;"></span>
-    <input type="file" id="fi2" accept=".zip">
+    
+    <input type="file" id="fi-ref" accept=".zip" style="display:none;">
+    <button class="hbtn" style="background:var(--gold-lt); color:var(--gold); border-color:var(--gold-md);" onclick="document.getElementById('fi-ref').click()">📉 Set Prev OI</button>
+    
+    <input type="file" id="fi2" accept=".zip" style="display:none;">
     <button class="hbtn" onclick="document.getElementById('fi2').click()">↑ New ZIP</button>
   </div>
 </header>
@@ -280,7 +285,14 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <div class="tab" onclick="oiT('short_unwind',this)">🟡 Short Unwind</div>
         <div class="tab" onclick="oiT('long_unwind',this)">⚪ Long Unwind</div>
       </div>
-      <div class="ch g-oi"><span>Symbol</span><span style="text-align:right">Price</span><span style="text-align:right">Chg%</span><span style="text-align:right">OI(K)</span><span>OI Bar</span><span style="text-align:right">Signal</span></div>
+      <div class="ch g-oi">
+        <span>Symbol</span>
+        <span style="text-align:right">Price</span>
+        <span style="text-align:right">Chg%</span>
+        <span style="text-align:right">OI(K)</span>
+        <span style="padding-left:25px">OI Bar</span>
+        <span style="text-align:right">Signal</span>
+      </div>
       <div class="sb" id="oi-bd"></div>
     </div>
 
@@ -374,6 +386,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 const D={
   fut:{},ceOi:{},peOi:{},ceVol:{},peVol:{},
   mp:{},act:[],
+  refOi:{}, // PURANI FILE KA DATA YAHAN AAYEGA
   oiTab:'long',pcrTab:'bull',actTab:'CE',actSearch:'',
   ch:{},mpSort:{c:'gap',d:-1},
   exp:{futNear:'',idxNear:'',stkNear:''}
@@ -400,7 +413,7 @@ const getExps=(rs,kw)=>rs
   .filter(Boolean);
 
 // ─────────────────────────────────────────────
-// NSE
+// NSE API FETCH (BETA)
 // ─────────────────────────────────────────────
 const WORKER_URL='https://bhavdcopydata.sumantasahoo.workers.dev/';
 async function fetchFromNSE(){
@@ -412,7 +425,7 @@ async function fetchFromNSE(){
 function downloadFromNSE(){window.open('https://www.nseindia.com/all-reports-derivatives','_blank');}
 
 // ─────────────────────────────────────────────
-// ZIP LOADER
+// ZIP LOADER (CURRENT)
 // ─────────────────────────────────────────────
 async function loadZip(f){
   try{
@@ -435,6 +448,40 @@ async function loadZip(f){
     document.getElementById('main').style.display='block';
   }catch(e){alert('Error loading ZIP: '+e.message);}
 }
+
+// ─────────────────────────────────────────────
+// ZIP LOADER (PREVIOUS/REFERENCE OI)
+// ─────────────────────────────────────────────
+async function loadReferenceZip(f) {
+  try {
+    const z = await JSZip.loadAsync(f);
+    let fo = '';
+    for (const [n, zf] of Object.entries(z.files)) {
+      if (n.toLowerCase().startsWith('fo') && n.toLowerCase().endsWith('.csv')) {
+        fo = await zf.async('text');
+        break;
+      }
+    }
+    if (!fo) { alert('Reference ZIP mein fo*.csv nahi mili!'); return; }
+    const rs = rows(fo);
+    const near = getNearExp(getExps(rs, 'FUT'));
+    if (!near) { alert('Expiry theek se match nahi hui.'); return; }
+    
+    D.refOi = {};
+    let count = 0;
+    rs.forEach(r => {
+      const c = (r.CONTRACT_D || '').toUpperCase();
+      if (!c.includes(near)) return;
+      const sym = c.replace('FUTSTK', '').replace('FUTIDX', '').replace(near, '');
+      if (!sym) return;
+      D.refOi[sym] = +r.OPEN_INT || +r.OI_NO_CON || 0;
+      count++;
+    });
+    alert(`✅ Success! Purana OI data (${count} stocks) memory mein load ho gaya.\nAb current table chg% show karegi.`);
+    if(Object.keys(D.fut).length > 0) rOI();
+  } catch(e) { alert('Reference ZIP Error: ' + e.message); }
+}
+
 function rows(txt){
   const ls=txt.trim().split('\n'),hs=ls[0].split(',').map(h=>h.trim());
   return ls.slice(1).map(l=>{const v=l.split(','),o={};hs.forEach((h,i)=>o[h]=(v[i]||'').trim());return o;});
@@ -584,8 +631,6 @@ function sig(v){
 function rOI(){
   const all=Object.entries(D.fut).map(([sym,v])=>({sym,...v,sg:sig(v)}));
   let data;
-  
-  // NAYA LOGIC: 4 Tabs ke hisaab se filter karega
   if(D.oiTab==='long')data=all.filter(d=>d.sg.l==='Long Build').sort((a,b)=>b.pct-a.pct);
   else if(D.oiTab==='short')data=all.filter(d=>d.sg.l==='Short Build').sort((a,b)=>a.pct-b.pct);
   else if(D.oiTab==='short_unwind')data=all.filter(d=>d.sg.l==='Short Unwind').sort((a,b)=>b.pct-a.pct);
@@ -594,7 +639,6 @@ function rOI(){
   document.getElementById('oi-b').textContent=data.length+' stocks';
   const maxOi=Math.max(...data.map(d=>d.oi),1);
   
-  // FIX: data.slice(0,30) se '.slice(0,30)' hata diya hai taaki SAARE stocks dikhein
   document.getElementById('oi-bd').innerHTML=data.map(d=>{
     let pdTag = '';
     if(D.mp[d.sym] && D.mp[d.sym].spot > 0) {
@@ -608,6 +652,18 @@ function rOI(){
        }
     }
 
+    // OI Change calculation against PREVIOUS OI if loaded
+    let oipcStr = '—';
+    let oipcCls = 'muted';
+    
+    if (D.refOi && D.refOi[d.sym] !== undefined && D.refOi[d.sym] > 0) {
+        const prevOI = D.refOi[d.sym];
+        const currentOI = d.oi;
+        const changePct = ((currentOI - prevOI) / prevOI) * 100;
+        oipcStr = changePct > 0 ? `+${changePct.toFixed(1)}%` : `${changePct.toFixed(1)}%`;
+        oipcCls = changePct >= 0 ? 'bull' : 'bear';
+    }
+
     return `
     <div class="row g-oi">
       <div style="display:flex;align-items:center;gap:6px;">
@@ -616,8 +672,16 @@ function rOI(){
       </div>
       <span class="num ${d.pct>=0?'bull':'bear'}">₹${d.close.toFixed(1)}</span>
       <span class="num ${d.pct>=0?'bull':'bear'}">${d.pct>=0?'+':''}${d.pct.toFixed(2)}%</span>
-      <span class="num muted">${(d.oi/1000).toFixed(1)}K</span>
-      <div><div class="oibar" style="width:${Math.max(3,d.oi/maxOi*88)}px;background:${d.pct>=0?'var(--bull)':'var(--bear)'};opacity:.85"></div></div>
+      
+      <div style="text-align:right;">
+        <div class="num muted">${(d.oi/1000).toFixed(1)}K</div>
+        <div style="font-size:0.75rem; font-weight:700; margin-top:4px; color:var(--${oipcCls})">${oipcStr}</div>
+      </div>
+      
+      <div style="padding-left:25px; display:flex; align-items:center;">
+        <div class="oibar" style="width:${Math.max(3,d.oi/maxOi*88)}px;background:${d.pct>=0?'var(--bull)':'var(--bear)'};opacity:.85"></div>
+      </div>
+      
       <div style="text-align:right"><span class="tag ${d.sg.c}">${d.sg.l}</span></div>
     </div>`;
   }).join('')||'<div class="empty">Koi data nahi</div>';
@@ -835,6 +899,10 @@ function rCharts(){
 }
 
 ['fi','fi2'].forEach(id=>document.getElementById(id).addEventListener('change',e=>{if(e.target.files[0])loadZip(e.target.files[0]);}));
+
+// REFERENCE ZIP LISTENER
+document.getElementById('fi-ref').addEventListener('change',e=>{if(e.target.files[0])loadReferenceZip(e.target.files[0]);});
+
 const ud=document.getElementById('udrop'),us=document.getElementById('uscreen');
 us.addEventListener('dragover',e=>{e.preventDefault();ud.classList.add('drag');});
 us.addEventListener('dragleave',e=>{if(!e.relatedTarget||!us.contains(e.relatedTarget))ud.classList.remove('drag');});
