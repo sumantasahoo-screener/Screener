@@ -133,8 +133,13 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 
 
 /* Col headers (FIX 4: Proportional grid to use empty space) */
+/* Table headers ka size bada kiya (0.65rem se 0.75rem) */
 .ch{display:grid;gap:10px;padding:10px 20px;background:var(--bg3);
-  border-bottom:1px solid var(--border);font-size:.65rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);}
+  border-bottom:1px solid var(--border);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;}
+
+/* Symbol aur Numbers ka size bada kiya (1rem se 1.15rem) */
+.sym{font-weight:600;font-size:1.15rem;letter-spacing:.3px;color:var(--ink);}
+.num{text-align:right;font-size:1.15rem;}
 .g-oi {grid-template-columns: 2fr 1fr 1fr 1fr 2fr 1.2fr;}
 .g-pcr{grid-template-columns: 2fr 3fr 1fr 1.2fr;}
 /* FIX: 7 columns for Max Pain Header */
@@ -650,7 +655,8 @@ function pcrT(t,el){D.pcrTab=t;el.closest('.tabs').querySelectorAll('.tab').forE
 // FIX: Max Pain table — CE Wall + PE Wall as separate columns
 function sMP(c){
   if(D.mpSort.c===c)D.mpSort.d*=-1;else{D.mpSort.c=c;D.mpSort.d=(c==='sym')?1:-1;}
-  ['th-sym','th-spot','th-mp','th-gap'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=el.textContent.replace(/[↑↓]/g,'').trim();});
+  // NAYE CODE MEIN: 'th-fut' ko list mein add kar diya gaya hai
+  ['th-sym','th-spot','th-fut','th-mp','th-gap'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=el.textContent.replace(/[↑↓]/g,'').trim();});
   const th=document.getElementById('th-'+c);if(th)th.textContent+=D.mpSort.d===1?' ↑':' ↓';
   rMP();
 }
@@ -683,7 +689,7 @@ function rMP(){
       <span class="num muted">₹${d.spot.toFixed(0)}</span>
       <div style="text-align:right">
         <div class="num blue">₹${d.fut.toFixed(0)}</div>
-        <div style="font-size:0.56rem;color:var(--${pdCls});margin-top:2px;font-weight:600">${pdTxt}</div>
+        <div style="font-size:0.8rem;color:var(--${pdCls});margin-top:2px;font-weight:600;">${pdTxt}</div>
       </div>
       <span class="num gold">${d.mp}</span>
       <span class="num bear">${d.ceWall}</span>
