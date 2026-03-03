@@ -275,9 +275,10 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <span class="pbadge" id="oi-b">—</span>
       </div>
       <div class="tabs">
-        <div class="tab active" onclick="oiT('long',this)">🟢 Long Buildup</div>
-        <div class="tab" onclick="oiT('short',this)">🔴 Short Buildup</div>
-        <div class="tab" onclick="oiT('unwind',this)">⚪ Unwinding</div>
+        <div class="tab active" onclick="oiT('long',this)">🟢 Long Build</div>
+        <div class="tab" onclick="oiT('short',this)">🔴 Short Build</div>
+        <div class="tab" onclick="oiT('short_unwind',this)">🟡 Short Unwind</div>
+        <div class="tab" onclick="oiT('long_unwind',this)">⚪ Long Unwind</div>
       </div>
       <div class="ch g-oi"><span>Symbol</span><span style="text-align:right">Price</span><span style="text-align:right">Chg%</span><span style="text-align:right">OI(K)</span><span>OI Bar</span><span style="text-align:right">Signal</span></div>
       <div class="sb" id="oi-bd"></div>
@@ -583,14 +584,18 @@ function sig(v){
 function rOI(){
   const all=Object.entries(D.fut).map(([sym,v])=>({sym,...v,sg:sig(v)}));
   let data;
+  
+  // NAYA LOGIC: 4 Tabs ke hisaab se filter karega
   if(D.oiTab==='long')data=all.filter(d=>d.sg.l==='Long Build').sort((a,b)=>b.pct-a.pct);
   else if(D.oiTab==='short')data=all.filter(d=>d.sg.l==='Short Build').sort((a,b)=>a.pct-b.pct);
-  else data=all.filter(d=>d.sg.l.includes('Unwind')).sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));
+  else if(D.oiTab==='short_unwind')data=all.filter(d=>d.sg.l==='Short Unwind').sort((a,b)=>b.pct-a.pct);
+  else data=all.filter(d=>d.sg.l==='Long Unwind').sort((a,b)=>a.pct-b.pct);
   
   document.getElementById('oi-b').textContent=data.length+' stocks';
   const maxOi=Math.max(...data.map(d=>d.oi),1);
   
-  document.getElementById('oi-bd').innerHTML=data.slice(0,30).map(d=>{
+  // FIX: data.slice(0,30) se '.slice(0,30)' hata diya hai taaki SAARE stocks dikhein
+  document.getElementById('oi-bd').innerHTML=data.map(d=>{
     let pdTag = '';
     if(D.mp[d.sym] && D.mp[d.sym].spot > 0) {
        const spot = D.mp[d.sym].spot;
