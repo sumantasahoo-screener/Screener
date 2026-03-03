@@ -657,14 +657,23 @@ function sMP(c){
 function rMP(){
   const q=(document.getElementById('mps').value||'').toLowerCase();
   let data=Object.entries(D.mp).filter(([sym])=>!q||sym.toLowerCase().includes(q)).map(([sym,v])=>({sym,...v}));
+  
+  // NAYA SORTING LOGIC
   data.sort((a,b)=>{
     if(D.mpSort.c==='sym')return D.mpSort.d*a.sym.localeCompare(b.sym);
     if(D.mpSort.c==='gap')return D.mpSort.d*(Math.abs(a.gap)-Math.abs(b.gap));
+    
+    // Agar FUT column sort ho raha hai, toh Premium/Discount % par sort karo
+    if(D.mpSort.c==='fut'){
+      const pdA = a.spot > 0 ? ((a.fut - a.spot) / a.spot * 100) : 0;
+      const pdB = b.spot > 0 ? ((b.fut - b.spot) / b.spot * 100) : 0;
+      return D.mpSort.d * (pdA - pdB);
+    }
+    
     return D.mpSort.d*(a[D.mpSort.c]-b[D.mpSort.c]);
   });
+
   document.getElementById('mp-bd').innerHTML=data.map(d=>{
-    
-    // NAYA LOGIC: Premium ya Discount Calculate karna
     const pd = d.spot > 0 ? ((d.fut - d.spot) / d.spot * 100) : 0;
     const pdCls = pd >= 0 ? 'bull' : 'bear';
     const pdTxt = pd >= 0 ? `+${pd.toFixed(2)}% P` : `${pd.toFixed(2)}% D`;
@@ -683,7 +692,6 @@ function rMP(){
     </div>`;
   }).join('')||'<div class="empty">Koi data nahi</div>';
 }
-
 // Max Pain Detail Modal
 function openMPModal(sym){
   const d=D.mp[sym];if(!d)return;
