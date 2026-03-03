@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>F&O Intelligence Dashboard v1</title>
+<title>F&O Intelligence Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -663,12 +663,19 @@ function rMP(){
     return D.mpSort.d*(a[D.mpSort.c]-b[D.mpSort.c]);
   });
   document.getElementById('mp-bd').innerHTML=data.map(d=>{
-    const gc=d.gap>3?'bull':d.gap<-3?'bear':'neutral';
-    const gl=d.gap>3?'↑ Pull Up':d.gap<-3?'↓ Pull Down':'✓ At Pain';
+    
+    // NAYA LOGIC: Premium ya Discount Calculate karna
+    const pd = d.spot > 0 ? ((d.fut - d.spot) / d.spot * 100) : 0;
+    const pdCls = pd >= 0 ? 'bull' : 'bear';
+    const pdTxt = pd >= 0 ? `+${pd.toFixed(2)}% P` : `${pd.toFixed(2)}% D`;
+
     return`<div class="row g-mp" style="cursor:pointer" onclick="openMPModal('${d.sym}')" title="Click for full pain table">
       <span class="sym">${d.sym}</span>
       <span class="num muted">₹${d.spot.toFixed(0)}</span>
-      <span class="num blue">₹${d.fut.toFixed(0)}</span>
+      <div style="text-align:right">
+        <div class="num blue">₹${d.fut.toFixed(0)}</div>
+        <div style="font-size:0.56rem;color:var(--${pdCls});margin-top:2px;font-weight:600">${pdTxt}</div>
+      </div>
       <span class="num gold">${d.mp}</span>
       <span class="num bear">${d.ceWall}</span>
       <span class="num bull">${d.peWall}</span>
