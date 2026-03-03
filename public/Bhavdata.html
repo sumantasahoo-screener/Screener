@@ -131,12 +131,14 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 .tipbox{padding:10px 20px;font-size:.75rem;color:var(--blue);background:var(--blue-lt);
   border-bottom:1px solid rgba(59,130,246,.2);line-height:1.6;}
 
+
 /* Col headers (FIX 4: Proportional grid to use empty space) */
 .ch{display:grid;gap:10px;padding:10px 20px;background:var(--bg3);
   border-bottom:1px solid var(--border);font-size:.65rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);}
 .g-oi {grid-template-columns: 2fr 1fr 1fr 1fr 2fr 1.2fr;}
 .g-pcr{grid-template-columns: 2fr 3fr 1fr 1.2fr;}
-.g-mp {grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1.2fr;}
+/* FIX: 7 columns for Max Pain Header */
+.g-mp {grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1.2fr;}
 .g-act{grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr;}
 
 /* Rows (FIX 5: Increased padding and font) */
@@ -145,7 +147,8 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 .row:last-child{border-bottom:none;}.row:hover{background:var(--bg3);}
 .row.g-oi {grid-template-columns: 2fr 1fr 1fr 1fr 2fr 1.2fr;}
 .row.g-pcr{grid-template-columns: 2fr 3fr 1fr 1.2fr;}
-.row.g-mp {grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1.2fr;}
+/* FIX: 7 columns for Max Pain Rows */
+.row.g-mp {grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1.2fr;}
 .row.g-act{grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr;}
 
 .sym{font-weight:600;font-size:1rem;letter-spacing:.3px;color:var(--ink);}
@@ -324,6 +327,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
       <div class="ch g-mp">
         <span class="sort-th" id="th-sym" onclick="sMP('sym')">Symbol</span>
         <span class="sort-th" style="text-align:right" id="th-spot" onclick="sMP('spot')">Spot</span>
+        <span class="sort-th" style="text-align:right" id="th-fut" onclick="sMP('fut')">Fut</span>
         <span class="sort-th" style="text-align:right" id="th-mp" onclick="sMP('mp')">Max Pain</span>
         <span style="text-align:right;color:var(--bear)">CE Wall</span>
         <span style="text-align:right;color:var(--bull)">PE Wall</span>
@@ -528,7 +532,7 @@ function pMP(txt){
     const ceWall=ss.reduce((mx,s)=>d.s[s].c>d.s[mx].c?s:mx,ss[0]);
     const peWall=ss.reduce((mx,s)=>d.s[s].p>d.s[mx].p?s:mx,ss[0]);
     const spot=d.u||(D.fut[sym]?D.fut[sym].close:0);
-    if(spot>0&&mpStrike>0)D.mp[sym]={spot,mp:mpStrike,gap:+((mpStrike-spot)/spot*100).toFixed(2),ceWall,peWall,painTable};
+    if(spot>0&&mpStrike>0)D.mp[sym]={spot, fut:(D.fut[sym]?D.fut[sym].close:0), mp:mpStrike, gap:+((mpStrike-spot)/spot*100).toFixed(2), ceWall, peWall, painTable};
   });
 }
 // ─────────────────────────────────────────────
@@ -664,6 +668,7 @@ function rMP(){
     return`<div class="row g-mp" style="cursor:pointer" onclick="openMPModal('${d.sym}')" title="Click for full pain table">
       <span class="sym">${d.sym}</span>
       <span class="num muted">₹${d.spot.toFixed(0)}</span>
+      <span class="num blue">₹${d.fut.toFixed(0)}</span>
       <span class="num gold">${d.mp}</span>
       <span class="num bear">${d.ceWall}</span>
       <span class="num bull">${d.peWall}</span>
