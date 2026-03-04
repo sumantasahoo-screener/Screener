@@ -1,686 +1,650 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FII · DII Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root {
-  --bg:     #080c12;
-  --bg2:    #0d1420;
-  --bg3:    #111a2a;
-  --card:   #0f1923;
-  --card2:  #141f30;
-  --border: #1c2d45;
-  --border2:#243a56;
-  --ink:    #e2eaf5;
-  --ink2:   #8fa8c8;
-  --muted:  #445870;
-  --bull:   #00e5a0;
-  --bull2:  #00c483;
-  --bull-lt:rgba(0,229,160,.1);
-  --bull-md:rgba(0,229,160,.22);
-  --bear:   #ff4d6d;
-  --bear2:  #e0354f;
-  --bear-lt:rgba(255,77,109,.1);
-  --bear-md:rgba(255,77,109,.22);
-  --gold:   #ffc947;
-  --gold-lt:rgba(255,201,71,.1);
-  --blue:   #4da6ff;
-  --blue-lt:rgba(77,166,255,.1);
-  --blue-md:rgba(77,166,255,.22);
-  --purp:   #b87dff;
-  --purp-lt:rgba(184,125,255,.1);
-  --mono: 'Space Mono', monospace;
-  --sans: 'Syne', sans-serif;
+/* ════════════════════════════════
+   LIGHT THEME — warm white
+════════════════════════════════ */
+[data-theme="light"]{
+  --bg:       #f7f4ef;
+  --bg2:      #f0ebe3;
+  --bg3:      #e8e2d8;
+  --card:     #ffffff;
+  --card2:    #faf8f5;
+  --border:   #e4ddd4;
+  --border2:  #d6ccbf;
+  --ink:      #1c1916;
+  --ink2:     #5a5149;
+  --muted:    #998f83;
+  --shadow:   rgba(28,25,22,.06);
+  --bull:     #166534;
+  --bull-lt:  #f0fdf4;
+  --bull-md:  #bbf7d0;
+  --bull-text:#15803d;
+  --bear:     #991b1b;
+  --bear-lt:  #fff1f2;
+  --bear-md:  #fecdd3;
+  --bear-text:#dc2626;
+  --gold:     #92400e;
+  --gold-lt:  #fffbeb;
+  --gold-md:  #fde68a;
+  --blue:     #1e40af;
+  --blue-lt:  #eff6ff;
+  --blue-md:  #bfdbfe;
+  --blue-text:#2563eb;
+  --purp:     #5b21b6;
+  --purp-lt:  #f5f3ff;
+  --chart-grid:rgba(0,0,0,.07);
+  --chart-tick:#a89f94;
 }
 
+/* ════════════════════════════════
+   DARK THEME
+════════════════════════════════ */
+[data-theme="dark"]{
+  --bg:       #111318;
+  --bg2:      #181c24;
+  --bg3:      #1f2433;
+  --card:     #1a1f2e;
+  --card2:    #1e2438;
+  --border:   #2a3348;
+  --border2:  #364060;
+  --ink:      #e8eaf2;
+  --ink2:     #9aa3bc;
+  --muted:    #56637a;
+  --shadow:   rgba(0,0,0,.35);
+  --bull:     #16a34a;
+  --bull-lt:  rgba(22,163,74,.12);
+  --bull-md:  rgba(22,163,74,.3);
+  --bull-text:#4ade80;
+  --bear:     #dc2626;
+  --bear-lt:  rgba(220,38,38,.12);
+  --bear-md:  rgba(220,38,38,.3);
+  --bear-text:#f87171;
+  --gold:     #d97706;
+  --gold-lt:  rgba(217,119,6,.12);
+  --gold-md:  rgba(217,119,6,.3);
+  --blue:     #2563eb;
+  --blue-lt:  rgba(37,99,235,.12);
+  --blue-md:  rgba(37,99,235,.3);
+  --blue-text:#60a5fa;
+  --purp:     #7c3aed;
+  --purp-lt:  rgba(124,58,237,.12);
+  --chart-grid:rgba(255,255,255,.05);
+  --chart-tick:#56637a;
+}
+
+/* ── BASE ── */
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{
-  background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:13px;
-  min-height:100vh;overflow-x:hidden;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(0,229,160,.04) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 90% 100%, rgba(77,166,255,.04) 0%, transparent 60%);
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:14px;
+  line-height:1.55;
+  min-height:100vh;
+  transition:background .25s,color .25s;
 }
 
 /* ── HEADER ── */
-header {
+header{
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 32px;height:58px;
-  background:rgba(8,12,18,.9);
+  padding:0 32px;height:60px;
+  background:var(--card);
   border-bottom:1px solid var(--border);
   position:sticky;top:0;z-index:100;
-  backdrop-filter:blur(20px);
+  box-shadow:0 1px 6px var(--shadow);
 }
-.logo-area{display:flex;align-items:center;gap:14px;}
-.logo-mark{
-  width:32px;height:32px;border-radius:8px;
-  background:linear-gradient(135deg,var(--bull),var(--blue));
+.brand{display:flex;align-items:center;gap:14px;}
+.brand-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--ink);
   display:flex;align-items:center;justify-content:center;
-  font-size:.7rem;font-weight:700;color:#000;letter-spacing:.5px;
+  font-family:'Lora',serif;font-size:.8rem;color:var(--card);font-style:italic;
 }
-.logo-text{font-family:var(--sans);font-size:1.15rem;font-weight:800;letter-spacing:-.5px;}
-.logo-text span{color:var(--bull);}
-.logo-sub{font-size:.6rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:1px;}
-.hdr-r{display:flex;align-items:center;gap:12px;}
-#hdr-date{font-size:.65rem;color:var(--ink2);}
+.brand-name{
+  font-family:'Lora',serif;font-size:1.2rem;font-weight:500;
+  color:var(--ink);letter-spacing:-.2px;
+}
+.brand-tag{
+  font-size:.68rem;color:var(--muted);font-weight:500;
+  letter-spacing:.3px;margin-top:1px;font-family:'Inter',sans-serif;
+}
+
+.hdr-right{display:flex;align-items:center;gap:10px;}
+#hdr-date{font-size:.82rem;color:var(--ink2);font-weight:500;}
 #hdr-status{
-  font-size:.6rem;padding:4px 10px;border-radius:20px;letter-spacing:.8px;text-transform:uppercase;
-  border:1px solid var(--border2);color:var(--muted);background:var(--bg3);
+  font-size:.7rem;font-weight:600;
+  padding:4px 12px;border-radius:20px;
+  border:1px solid var(--border2);
+  color:var(--muted);background:var(--bg2);
+  transition:all .25s;letter-spacing:.2px;
 }
-#hdr-status.live{border-color:var(--bull-md);color:var(--bull);background:var(--bull-lt);}
-#hdr-status.error{border-color:var(--bear-md);color:var(--bear);background:var(--bear-lt);}
+#hdr-status.live{border-color:var(--bull-md);color:var(--bull-text);background:var(--bull-lt);}
+#hdr-status.error{border-color:var(--bear-md);color:var(--bear-text);background:var(--bear-lt);}
 
-.rbtn{
-  display:inline-flex;align-items:center;gap:6px;
-  background:var(--card2);color:var(--ink2);
-  padding:7px 14px;border-radius:8px;font-family:var(--mono);font-size:.65rem;font-weight:700;
-  cursor:pointer;transition:all .2s;letter-spacing:.6px;border:1px solid var(--border2);
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 16px;border-radius:8px;cursor:pointer;
+  font-size:.8rem;font-weight:600;font-family:'Inter',sans-serif;
+  border:1px solid var(--border2);
+  background:var(--bg2);color:var(--ink2);
+  transition:all .18s;
 }
-.rbtn:hover{border-color:var(--bull);color:var(--bull);}
-.rbtn.loading{opacity:.5;pointer-events:none;}
+.btn:hover{background:var(--bg3);color:var(--ink);border-color:var(--ink2);}
+.btn.loading{opacity:.55;pointer-events:none;}
 
-/* ── MAIN ── */
-main{padding:24px 32px;max-width:1440px;margin:0 auto;}
-
-/* ── SECTION LABEL ── */
-.sec-label{
-  font-family:var(--sans);font-size:.65rem;font-weight:700;
-  letter-spacing:3px;text-transform:uppercase;color:var(--muted);
-  margin-bottom:14px;display:flex;align-items:center;gap:10px;
+.theme-toggle{
+  width:36px;height:36px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg2);border:1px solid var(--border2);
+  cursor:pointer;font-size:1rem;transition:all .18s;
 }
-.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.theme-toggle:hover{background:var(--bg3);border-color:var(--ink2);}
 
-/* ── TODAY CARDS ── */
-.today-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:28px;}
-.tcard{
-  background:var(--card);border:1px solid var(--border);border-radius:12px;
-  padding:18px 20px;position:relative;overflow:hidden;transition:all .2s;
+/* ── LAYOUT ── */
+main{padding:28px 32px;max-width:1440px;margin:0 auto;}
+
+/* Section heading */
+.section-title{
+  font-family:'Lora',serif;font-size:.9rem;font-style:italic;
+  color:var(--muted);font-weight:400;
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:16px;
 }
-.tcard:hover{border-color:var(--border2);transform:translateY(-2px);}
-.tcard::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
-.tcard.bull::after{background:linear-gradient(90deg,transparent,var(--bull),transparent);}
-.tcard.bear::after{background:linear-gradient(90deg,transparent,var(--bear),transparent);}
-.tcard.gold::after{background:linear-gradient(90deg,transparent,var(--gold),transparent);}
-.tcard.blue::after{background:linear-gradient(90deg,transparent,var(--blue),transparent);}
-.tcard.purp::after{background:linear-gradient(90deg,transparent,var(--purp),transparent);}
-.tcard.neutral::after{background:linear-gradient(90deg,transparent,var(--ink2),transparent);}
-.tc-label{font-size:.55rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:8px;}
-.tc-cat{font-size:.6rem;font-weight:700;letter-spacing:1.5px;color:var(--ink2);margin-bottom:4px;}
-.tc-val{font-family:var(--sans);font-size:1.7rem;font-weight:800;line-height:1;letter-spacing:-1px;}
-.tc-val.bull{color:var(--bull);}
-.tc-val.bear{color:var(--bear);}
-.tc-val.gold{color:var(--gold);}
-.tc-val.blue{color:var(--blue);}
-.tc-sub{font-size:.62rem;color:var(--muted);margin-top:6px;}
-.tc-sub b{color:var(--ink2);}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
 
-/* ── SENTIMENT BAR ── */
+/* ── HINT ── */
+.hint{
+  display:none;
+  background:var(--blue-lt);border:1px solid var(--blue-md);border-radius:10px;
+  padding:12px 16px;margin-bottom:22px;
+  font-size:.8rem;color:var(--blue-text);line-height:1.6;
+}
+
+/* ── TOP CARDS ── */
+.cards-row{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:24px;}
+.kcard{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:18px 20px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 1px 4px var(--shadow);
+  transition:box-shadow .2s,transform .2s;
+}
+.kcard:hover{box-shadow:0 5px 18px var(--shadow);transform:translateY(-2px);}
+.kcard-bar{position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0;}
+.kc-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:3px;}
+.kc-sub{font-size:.73rem;color:var(--ink2);margin-bottom:11px;}
+.kc-value{
+  font-family:'Lora',serif;font-size:1.85rem;font-weight:500;
+  line-height:1.1;margin-bottom:9px;letter-spacing:-.5px;
+}
+.kc-value.bull{color:var(--bull-text);}
+.kc-value.bear{color:var(--bear-text);}
+.kc-value.gold{color:var(--gold);}
+.kc-value.blue{color:var(--blue-text);}
+.kc-value.purp{color:var(--purp);}
+.kc-detail{font-size:.75rem;color:var(--ink2);line-height:1.5;}
+.kc-detail strong{color:var(--ink);font-weight:600;}
+
+/* ── SENTIMENT ── */
 .sent-wrap{
   background:var(--card);border:1px solid var(--border);border-radius:12px;
-  padding:20px 24px;margin-bottom:28px;
+  padding:20px 24px;margin-bottom:24px;
+  box-shadow:0 1px 4px var(--shadow);
 }
-.sent-row{display:flex;align-items:center;gap:16px;margin-bottom:12px;}
-.sent-title{font-family:var(--sans);font-size:.9rem;font-weight:700;color:var(--ink);}
-.sent-bar-outer{flex:1;height:10px;background:var(--bg3);border-radius:5px;overflow:hidden;border:1px solid var(--border);}
-.sent-bar-inner{height:100%;border-radius:5px;transition:width .8s cubic-bezier(.4,0,.2,1);}
-.sent-labels{display:flex;justify-content:space-between;font-size:.6rem;color:var(--muted);}
-.sent-meta{display:flex;gap:24px;margin-top:10px;}
-.sent-item{font-size:.65rem;}
-.sent-item span{color:var(--ink2);font-weight:700;}
-
-/* ── 2-COL GRID ── */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:28px;}
+.sent-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.sent-heading{font-size:.95rem;font-weight:600;color:var(--ink);}
+#sent-verdict{font-size:.85rem;font-weight:600;}
+.sent-track{height:8px;background:var(--bg3);border-radius:6px;overflow:hidden;margin-bottom:7px;}
+.sent-fill{height:100%;border-radius:6px;transition:width .9s cubic-bezier(.4,0,.2,1),background .4s;}
+.sent-ends{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-bottom:14px;}
+.sent-stats{display:flex;gap:28px;flex-wrap:wrap;}
+.sent-stat{font-size:.78rem;color:var(--ink2);}
+.sent-stat strong{color:var(--ink);font-weight:600;}
 
 /* ── PANEL ── */
-.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
-.phead{
-  padding:14px 20px;display:flex;align-items:center;justify-content:space-between;
-  border-bottom:1px solid var(--border);background:var(--card2);
+.panel{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;box-shadow:0 1px 4px var(--shadow);
 }
-.phead-l{display:flex;align-items:center;gap:10px;}
-.picon{
-  width:28px;height:28px;border-radius:7px;border:1px solid var(--border2);
-  display:flex;align-items:center;justify-content:center;font-size:.85rem;
+.panel-head{
+  padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+  background:var(--card2);
 }
-.ptitle{font-family:var(--sans);font-size:.95rem;font-weight:700;color:var(--ink);}
-.psub{font-size:.6rem;color:var(--muted);margin-top:1px;}
-.pbadge{font-size:.6rem;padding:3px 9px;border-radius:12px;background:var(--bg3);color:var(--muted);border:1px solid var(--border);}
+.panel-head-l{display:flex;align-items:center;gap:10px;}
+.panel-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--bg2);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;font-size:.9rem;
+}
+.panel-title{font-size:.9rem;font-weight:600;color:var(--ink);}
+.panel-sub{font-size:.7rem;color:var(--muted);margin-top:1px;}
+.badge{
+  font-size:.7rem;font-weight:500;
+  padding:3px 10px;border-radius:20px;
+  background:var(--bg2);color:var(--muted);border:1px solid var(--border);
+}
 
 /* ── CHART ── */
-.chart-wrap{padding:16px 20px;height:240px;}
+.chart-body{padding:16px 20px;height:230px;}
+
+/* ── TWO COL ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px;}
 
 /* ── TABLE ── */
 .tbl-head{
   display:grid;gap:10px;padding:9px 20px;
   background:var(--bg3);border-bottom:1px solid var(--border);
-  font-size:.58rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:700;
+  font-size:.67rem;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:600;
 }
 .tbl-row{
   display:grid;gap:10px;padding:10px 20px;align-items:center;
-  border-bottom:1px solid rgba(28,45,69,.7);transition:background .1s;
+  border-bottom:1px solid var(--border);transition:background .12s;
 }
 .tbl-row:last-child{border-bottom:none;}
-.tbl-row:hover{background:var(--bg3);}
-.sym-cell{font-weight:700;font-size:.82rem;color:var(--ink);}
-.num-cell{text-align:right;font-size:.78rem;}
-.num-cell.bull{color:var(--bull);}
-.num-cell.bear{color:var(--bear);}
-.num-cell.muted{color:var(--ink2);}
-.num-cell.gold{color:var(--gold);}
-.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:.6rem;font-weight:700;letter-spacing:.3px;}
-.tag.bull{background:var(--bull-lt);color:var(--bull);border:1px solid var(--bull-md);}
-.tag.bear{background:var(--bear-lt);color:var(--bear);border:1px solid var(--bear-md);}
-.tag.blue{background:var(--blue-lt);color:var(--blue);border:1px solid var(--blue-md);}
-
-.sb{max-height:380px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
-
-/* ── HISTORY HINT ── */
-.hint-box{
-  background:var(--blue-lt);border:1px solid var(--blue-md);border-radius:8px;
-  padding:10px 16px;font-size:.68rem;color:var(--blue);line-height:1.7;margin-bottom:20px;
+.tbl-row:hover{background:var(--bg2);}
+.sym{font-size:.84rem;font-weight:700;color:var(--ink);}
+.num{text-align:right;font-size:.82rem;font-weight:500;}
+.num.bull{color:var(--bull-text);}
+.num.bear{color:var(--bear-text);}
+.num.muted{color:var(--ink2);}
+.num.gold{color:var(--gold);}
+.tag{
+  display:inline-flex;align-items:center;
+  padding:2px 8px;border-radius:4px;
+  font-size:.67rem;font-weight:700;
 }
+.tag.bull{background:var(--bull-lt);color:var(--bull-text);border:1px solid var(--bull-md);}
+.tag.bear{background:var(--bear-lt);color:var(--bear-text);border:1px solid var(--bear-md);}
+.scrollbox{max-height:360px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
 
-/* ── LOADING ── */
-.spinner{
-  display:inline-block;width:14px;height:14px;border:2px solid var(--border2);
-  border-top-color:var(--bull);border-radius:50%;
-  animation:spin .7s linear infinite;vertical-align:middle;
+/* ── HISTORY CARDS ── */
+.hist-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
+  gap:10px;padding:16px 20px;
 }
-@keyframes spin{to{transform:rotate(360deg);}}
-.empty{padding:32px;text-align:center;color:var(--muted);font-size:.75rem;}
+.hday{
+  background:var(--bg2);border:1px solid var(--border);border-radius:9px;
+  padding:11px 13px;transition:border-color .15s;
+}
+.hday:hover{border-color:var(--border2);}
+.hday-dt{font-size:.67rem;color:var(--muted);font-weight:500;margin-bottom:7px;}
+.hday-fii{font-size:.8rem;font-weight:600;margin-bottom:2px;}
+.hday-dii{font-size:.77rem;font-weight:500;margin-bottom:6px;}
+.hday-net{font-size:.7rem;color:var(--muted);padding-top:6px;border-top:1px solid var(--border);}
+.hday-net strong{font-weight:700;}
 
-/* ── HISTORY STRIP ── */
-.hist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;padding:16px 20px;}
-.hist-day{
-  background:var(--bg3);border:1px solid var(--border);border-radius:8px;
-  padding:10px 12px;transition:all .15s;cursor:default;
+/* ── SPINNER ── */
+.spin{
+  display:inline-block;width:13px;height:13px;
+  border:2px solid var(--border2);border-top-color:var(--blue);
+  border-radius:50%;animation:ro .7s linear infinite;vertical-align:middle;
 }
-.hist-day:hover{border-color:var(--border2);}
-.hd-date{font-size:.58rem;color:var(--muted);margin-bottom:5px;}
-.hd-fii{font-size:.75rem;font-weight:700;margin-bottom:2px;}
-.hd-dii{font-size:.72rem;}
-.hd-net{font-size:.6rem;color:var(--muted);margin-top:4px;border-top:1px solid var(--border);padding-top:4px;}
+@keyframes ro{to{transform:rotate(360deg);}}
+.empty{padding:32px;text-align:center;color:var(--muted);font-size:.82rem;}
 
-/* ── NET FLOW INDICATOR ── */
-.net-indicator{
-  display:flex;align-items:center;gap:8px;padding:12px 20px;
-  border-bottom:1px solid var(--border);font-size:.75rem;
-}
-.ni-bull{background:var(--bull-lt);color:var(--bull);}
-.ni-bear{background:var(--bear-lt);color:var(--bear);}
-
-/* ── MOBILE ── */
-@media(max-width:900px){
-  main{padding:14px 14px;}
-  header{padding:0 14px;}
-  .today-grid{grid-template-columns:repeat(2,1fr);}
-  .g2,.g3{grid-template-columns:1fr;}
-}
-@media(max-width:600px){
-  .today-grid{grid-template-columns:1fr 1fr;}
-  .logo-sub{display:none;}
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){.cards-row{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:900px){.g2{grid-template-columns:1fr;}}
+@media(max-width:640px){
+  main{padding:16px;}header{padding:0 16px;}
+  .cards-row{grid-template-columns:1fr 1fr;}
+  .brand-tag{display:none;}
 }
 </style>
 </head>
 <body>
 
+<!-- ── HEADER ── -->
 <header>
-  <div class="logo-area">
-    <div class="logo-mark">F·D</div>
+  <div class="brand">
+    <div class="brand-icon">F·D</div>
     <div>
-      <div class="logo-text">FII <span>&</span> DII</div>
-      <div class="logo-sub">Intelligence Dashboard</div>
+      <div class="brand-name">FII &amp; DII Intelligence</div>
+      <div class="brand-tag">NSE India · Cash Market</div>
     </div>
   </div>
-  <div class="hdr-r">
+  <div class="hdr-right">
     <span id="hdr-date">—</span>
-    <span id="hdr-status">Loading...</span>
-    <button class="rbtn" id="rfbtn" onclick="fetchAll()">⟳ &nbsp;Refresh</button>
+    <span id="hdr-status">Loading</span>
+    <div class="theme-toggle" onclick="toggleTheme()" id="theme-btn" title="Toggle theme">🌙</div>
+    <button class="btn" id="rfbtn" onclick="fetchAll()">↻ &nbsp;Refresh</button>
   </div>
 </header>
 
 <main>
 
-  <!-- HINT -->
-  <div class="hint-box" id="hist-hint" style="display:none">
-    📈 <strong>History Mode Active:</strong> Dashboard visit karte karte <strong id="hist-days-count">0 din</strong> ka data collect ho gaya hai.
-    Rozana open karo → chart khud build hota jayega. &nbsp;
-    <span style="opacity:.7">Data browser mein save hota hai.</span>
+  <!-- hint -->
+  <div class="hint" id="hist-hint">
+    <strong id="hdays">0</strong> trading days recorded — charts update automatically each session.
+    <span style="opacity:.7;margin-left:4px;">Data stored locally in this browser.</span>
   </div>
 
-  <!-- TODAY SUMMARY -->
-  <div class="sec-label">Today's Flow</div>
-  <div class="today-grid" id="today-grid">
-    <div class="tcard neutral"><div class="tc-label">Loading...</div><div class="tc-val" style="color:var(--muted)">—</div></div>
-    <div class="tcard neutral"><div class="tc-label">Loading...</div><div class="tc-val" style="color:var(--muted)">—</div></div>
-    <div class="tcard neutral"><div class="tc-label">Loading...</div><div class="tc-val" style="color:var(--muted)">—</div></div>
-    <div class="tcard neutral"><div class="tc-label">Loading...</div><div class="tc-val" style="color:var(--muted)">—</div></div>
-    <div class="tcard neutral"><div class="tc-label">Loading...</div><div class="tc-val" style="color:var(--muted)">—</div></div>
-    <div class="tcard neutral"><div class="tc-label">Loading...</div><div class="tc-val" style="color:var(--muted)">—</div></div>
+  <!-- TODAY'S FLOW -->
+  <div class="section-title">Today's Flow</div>
+  <div class="cards-row" id="cards-row">
+    <div class="kcard"><div class="kc-label">Loading…</div><div class="kc-value">—</div></div>
+    <div class="kcard"><div class="kc-label">Loading…</div><div class="kc-value">—</div></div>
+    <div class="kcard"><div class="kc-label">Loading…</div><div class="kc-value">—</div></div>
+    <div class="kcard"><div class="kc-label">Loading…</div><div class="kc-value">—</div></div>
+    <div class="kcard"><div class="kc-label">Loading…</div><div class="kc-value">—</div></div>
+    <div class="kcard"><div class="kc-label">Loading…</div><div class="kc-value">—</div></div>
   </div>
 
   <!-- SENTIMENT -->
   <div class="sent-wrap">
-    <div class="sent-row">
-      <div class="sent-title">Market Sentiment</div>
-      <div style="font-size:.7rem;color:var(--muted);margin-left:auto" id="sent-label">—</div>
+    <div class="sent-top">
+      <div class="sent-heading">Market Sentiment</div>
+      <div id="sent-verdict" style="color:var(--muted)">—</div>
     </div>
-    <div class="sent-bar-outer">
-      <div class="sent-bar-inner" id="sent-bar" style="width:50%;background:var(--ink2)"></div>
-    </div>
-    <div class="sent-labels"><span>🔴 Full Bear</span><span>⚪ Neutral</span><span>🟢 Full Bull</span></div>
-    <div class="sent-meta" id="sent-meta"></div>
+    <div class="sent-track"><div class="sent-fill" id="sent-fill" style="width:50%"></div></div>
+    <div class="sent-ends"><span>🔴 Bearish</span><span>⚪ Neutral</span><span>🟢 Bullish</span></div>
+    <div class="sent-stats" id="sent-stats"></div>
   </div>
 
-  <!-- CHARTS -->
-  <div class="sec-label">Net Flow History (Auto-Builds Daily)</div>
+  <!-- NET FLOW HISTORY -->
+  <div class="section-title">Net Flow History <span style="font-size:.7rem;font-style:normal;font-family:Inter;margin-left:6px;color:var(--muted)">(rozana open karo — chart khud build hoga)</span></div>
   <div class="g2">
     <div class="panel">
-      <div class="phead">
-        <div class="phead-l">
-          <div class="picon" style="background:var(--bull-lt);border-color:var(--bull-md)">📊</div>
-          <div><div class="ptitle">FII Net Flow</div><div class="psub">Daily net (₹ Cr) — from browser history</div></div>
+      <div class="panel-head">
+        <div class="panel-head-l">
+          <div class="panel-icon">📊</div>
+          <div><div class="panel-title">FII Net Flow</div><div class="panel-sub">Daily ₹ Cr — browser history</div></div>
         </div>
-        <span class="pbadge" id="fii-hist-badge">—</span>
+        <span class="badge" id="fii-badge">0 days</span>
       </div>
-      <div class="chart-wrap"><canvas id="fii-chart"></canvas></div>
+      <div class="chart-body"><canvas id="fii-chart"></canvas></div>
     </div>
     <div class="panel">
-      <div class="phead">
-        <div class="phead-l">
-          <div class="picon" style="background:var(--blue-lt);border-color:var(--blue-md)">📊</div>
-          <div><div class="ptitle">DII Net Flow</div><div class="psub">Daily net (₹ Cr) — from browser history</div></div>
+      <div class="panel-head">
+        <div class="panel-head-l">
+          <div class="panel-icon">📊</div>
+          <div><div class="panel-title">DII Net Flow</div><div class="panel-sub">Daily ₹ Cr — browser history</div></div>
         </div>
-        <span class="pbadge" id="dii-hist-badge">—</span>
+        <span class="badge" id="dii-badge">0 days</span>
       </div>
-      <div class="chart-wrap"><canvas id="dii-chart"></canvas></div>
+      <div class="chart-body"><canvas id="dii-chart"></canvas></div>
     </div>
   </div>
 
-  <!-- COMBINED CHART -->
-  <div class="panel" style="margin-bottom:28px;">
-    <div class="phead">
-      <div class="phead-l">
-        <div class="picon" style="background:var(--purp-lt);border-color:rgba(184,125,255,.3)">🔀</div>
-        <div><div class="ptitle">FII vs DII — Combined Net Flow</div><div class="psub">Green = FII dominant &nbsp;|&nbsp; Blue = DII dominant</div></div>
-      </div>
-      <span class="pbadge" id="combined-badge">—</span>
-    </div>
-    <div class="chart-wrap" style="height:200px;"><canvas id="combined-chart"></canvas></div>
-  </div>
 
-  <!-- HISTORY DAYS STRIP -->
-  <div class="sec-label">History Log</div>
-  <div class="panel" style="margin-bottom:28px;">
-    <div class="phead">
-      <div class="phead-l">
-        <div class="picon" style="background:var(--gold-lt);border-color:rgba(255,201,71,.3)">📅</div>
-        <div><div class="ptitle">Daily History</div><div class="psub">Sab din jo is browser mein save hain</div></div>
-      </div>
-      <button class="rbtn" style="font-size:.58rem;padding:5px 10px;" onclick="clearHistory()">🗑 Clear</button>
-    </div>
-    <div class="hist-grid" id="hist-grid">
-      <div class="empty">Pehle refresh karo — data save hoga</div>
-    </div>
-  </div>
 
-  <!-- BULK + BLOCK DEALS -->
-  <div class="sec-label">Institutional Activity — Bulk & Block Deals</div>
+
+
+  <!-- DEALS -->
+  <div class="section-title">Institutional Activity — Bulk &amp; Block Deals</div>
   <div class="g2">
     <div class="panel">
-      <div class="phead">
-        <div class="phead-l">
-          <div class="picon" style="background:var(--bear-lt);border-color:var(--bear-md)">🐘</div>
-          <div><div class="ptitle">Bulk Deals</div><div class="psub">Large trades — threshold based</div></div>
+      <div class="panel-head">
+        <div class="panel-head-l">
+          <div class="panel-icon">🐘</div>
+          <div><div class="panel-title">Bulk Deals</div><div class="panel-sub">Threshold-based large trades</div></div>
         </div>
-        <span class="pbadge" id="bulk-badge">—</span>
+        <span class="badge" id="bulk-badge">—</span>
       </div>
-      <div class="tbl-head" style="grid-template-columns:1.5fr 1.2fr .8fr .9fr .8fr .7fr">
-        <span>Symbol</span><span>Client</span><span style="text-align:right">B/S</span>
+      <div class="tbl-head" style="grid-template-columns:1.3fr 1.4fr .7fr .9fr .8fr .7fr">
+        <span>Symbol</span><span>Client</span><span>B/S</span>
         <span style="text-align:right">Qty</span><span style="text-align:right">Price</span><span style="text-align:right">Date</span>
       </div>
-      <div class="sb" id="bulk-bd"></div>
+      <div class="scrollbox" id="bulk-bd"></div>
     </div>
     <div class="panel">
-      <div class="phead">
-        <div class="phead-l">
-          <div class="picon" style="background:var(--purp-lt);border-color:rgba(184,125,255,.3)">🧱</div>
-          <div><div class="ptitle">Block Deals</div><div class="psub">Negotiated large block trades</div></div>
+      <div class="panel-head">
+        <div class="panel-head-l">
+          <div class="panel-icon">🧱</div>
+          <div><div class="panel-title">Block Deals</div><div class="panel-sub">Negotiated large block trades</div></div>
         </div>
-        <span class="pbadge" id="block-badge">—</span>
+        <span class="badge" id="block-badge">—</span>
       </div>
-      <div class="tbl-head" style="grid-template-columns:1.5fr 1.2fr .8fr .9fr .8fr .7fr">
-        <span>Symbol</span><span>Client</span><span style="text-align:right">B/S</span>
+      <div class="tbl-head" style="grid-template-columns:1.3fr 1.4fr .7fr .9fr .8fr .7fr">
+        <span>Symbol</span><span>Client</span><span>B/S</span>
         <span style="text-align:right">Qty</span><span style="text-align:right">Price</span><span style="text-align:right">Date</span>
       </div>
-      <div class="sb" id="block-bd"></div>
+      <div class="scrollbox" id="block-bd"></div>
     </div>
   </div>
 
 </main>
 
 <script>
-// ─────────────────────────────────────────────
-// CONFIG
-// ─────────────────────────────────────────────
-const WORKER = 'https://bhavdcopydata.sumantasahoo.workers.dev/';
-const LS_KEY = 'fii_dii_history_v1';
+const WORKER  = 'https://fiidii.sumantasahoo.workers.dev/';
+const LS_KEY  = 'fii_dii_history_v1';
+const LS_TH   = 'fii_theme_v1';
 
-// ─────────────────────────────────────────────
-// HISTORY (localStorage)
-// ─────────────────────────────────────────────
-function loadHistory() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); }
-  catch { return {}; }
+// ── THEME ────────────────────────────────────
+function toggleTheme(){
+  const t = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  applyTheme(t);
 }
-function saveHistory(h) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(h)); } catch {}
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('theme-btn').textContent = t==='light' ? '🌙' : '☀️';
+  localStorage.setItem(LS_TH, t);
+  renderCharts();
 }
-function clearHistory() {
-  if(confirm('Poori history clear karein?')) {
-    localStorage.removeItem(LS_KEY);
-    alert('History cleared!');
-    location.reload();
-  }
+(function(){
+  const t = localStorage.getItem(LS_TH) || 'light';
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('theme-btn').textContent = t==='light'?'🌙':'☀️';
+})();
+
+// ── HISTORY ──────────────────────────────────
+function loadH(){ try{return JSON.parse(localStorage.getItem(LS_KEY)||'{}')}catch{return{}} }
+function saveH(h){ try{localStorage.setItem(LS_KEY,JSON.stringify(h))}catch{} }
+function addDay(date,fii,dii){
+  if(!date||!fii||!dii) return;
+  const h=loadH();
+  h[date]={ fii:{buy:+fii.buyValue,sell:+fii.sellValue,net:+fii.netValue},
+             dii:{buy:+dii.buyValue,sell:+dii.sellValue,net:+dii.netValue} };
+  saveH(h);
 }
-function addToHistory(date, fiiData, diiData) {
-  if(!date || !fiiData || !diiData) return;
-  const h = loadHistory();
-  h[date] = {
-    fii: { buy: +fiiData.buyValue, sell: +fiiData.sellValue, net: +fiiData.netValue },
-    dii: { buy: +diiData.buyValue, sell: +diiData.sellValue, net: +diiData.netValue }
-  };
-  saveHistory(h);
+function clearHistory(){
+  if(!confirm('Poori history clear karein?'))return;
+  localStorage.removeItem(LS_KEY); location.reload();
 }
 
-// ─────────────────────────────────────────────
-// FETCH
-// ─────────────────────────────────────────────
-async function fetchAll() {
-  const btn = document.getElementById('rfbtn');
+// ── FORMAT ───────────────────────────────────
+function fmtCr(v){
+  const n=+v, a=Math.abs(n);
+  if(a>=10000) return (n/1000).toFixed(1)+'K Cr';
+  return n.toFixed(0)+' Cr';
+}
+function fmtS(v){ return (+v>=0?'+':'')+fmtCr(v); }
+
+// ── STATUS ───────────────────────────────────
+function setStatus(cls,txt){
+  const el=document.getElementById('hdr-status');
+  el.className=cls; el.id='hdr-status'; el.textContent=txt;
+}
+
+// ── FETCH ────────────────────────────────────
+async function fetchAll(){
+  const btn=document.getElementById('rfbtn');
   btn.classList.add('loading');
-  btn.innerHTML = '<span class="spinner"></span> &nbsp;Fetching';
-  setStatus('loading', 'Fetching...');
-
-  try {
-    // Parallel fetch
-    const [fiidiiRes, dealsRes] = await Promise.allSettled([
-      fetch(WORKER + '?mode=fiidii').then(r => r.json()),
-      fetch(WORKER + '?mode=bulkdeals').then(r => r.json())
+  btn.innerHTML='<span class="spin"></span> &nbsp;Fetching';
+  setStatus('','Loading...');
+  try{
+    const [fdRes, dlRes] = await Promise.allSettled([
+      fetch(WORKER+'?mode=fiidii').then(r=>r.json()),
+      fetch(WORKER+'?mode=bulkdeals').then(r=>r.json())
     ]);
-
-    // FII/DII
-    if (fiidiiRes.status === 'fulfilled' && Array.isArray(fiidiiRes.value)) {
-      const data = fiidiiRes.value;
-      const fii = data.find(d => d.category === 'FII') || data.find(d => d.category?.includes('FII'));
-      const dii = data.find(d => d.category === 'DII') || data.find(d => d.category?.includes('DII'));
-      if (fii && dii) {
-        renderTodayCards(fii, dii);
-        renderSentiment(fii, dii);
-        addToHistory(fii.date, fii, dii);
-        document.getElementById('hdr-date').textContent = '📅 ' + fii.date;
-        setStatus('live', 'LIVE');
+    if(fdRes.status==='fulfilled' && Array.isArray(fdRes.value)){
+      const arr=fdRes.value;
+      const fii=arr.find(d=>d.category==='FII'||String(d.category).includes('FII'));
+      const dii=arr.find(d=>d.category==='DII'||String(d.category).includes('DII'));
+      if(fii&&dii){
+        renderCards(fii,dii);
+        renderSentiment(fii,dii);
+        addDay(fii.date,fii,dii);
+        document.getElementById('hdr-date').textContent='📅 '+fii.date;
+        setStatus('live','● Live');
       }
-    } else {
-      setStatus('error', 'FII Error');
-    }
-
-    // Deals
-    if (dealsRes.status === 'fulfilled') {
-      renderDeals(dealsRes.value);
-    }
-
-  } catch(e) {
-    setStatus('error', 'Error');
-    console.error(e);
-  }
-
-  // Always render history
+    } else { setStatus('error','Error'); }
+    if(dlRes.status==='fulfilled') renderDeals(dlRes.value);
+  } catch(e){ setStatus('error','Error'); console.error(e); }
   renderHistory();
   renderCharts();
-
   btn.classList.remove('loading');
-  btn.innerHTML = '⟳ &nbsp;Refresh';
+  btn.innerHTML='↻ &nbsp;Refresh';
 }
 
-function setStatus(type, text) {
-  const el = document.getElementById('hdr-status');
-  el.className = 'hdr-status ' + (type === 'live' ? 'live' : type === 'error' ? 'error' : '');
-  el.textContent = text;
-}
+// ── CARDS ────────────────────────────────────
+function renderCards(fii,dii){
+  const fn=+fii.netValue, dn=+dii.netValue, tn=fn+dn;
+  const fb=+fii.buyValue, fs=+fii.sellValue;
+  const db=+dii.buyValue, ds=+dii.sellValue;
+  const ratio=Math.abs(dn)>0?(Math.abs(fn)/Math.abs(dn)).toFixed(2)+'x':'—';
+  const ratioNote=fn>=0&&dn>=0?'Both buying 🟢':fn<0&&dn<0?'Both selling 🔴':fn>=0?'FII buying, DII selling':'DII buying, FII selling';
 
-// ─────────────────────────────────────────────
-// FORMAT
-// ─────────────────────────────────────────────
-const fmtCr = v => {
-  const n = +v;
-  const abs = Math.abs(n);
-  if(abs >= 10000) return (n/1000).toFixed(1) + 'K Cr';
-  return n.toFixed(0) + ' Cr';
-};
-const fmtSign = v => (+v >= 0 ? '+' : '') + fmtCr(v);
-
-// ─────────────────────────────────────────────
-// TODAY CARDS
-// ─────────────────────────────────────────────
-function renderTodayCards(fii, dii) {
-  const fiiNet = +fii.netValue, diiNet = +dii.netValue;
-  const totalNet = fiiNet + diiNet;
-  const fiiBuy = +fii.buyValue, fiiSell = +fii.sellValue;
-  const diiBuy = +dii.buyValue, diiSell = +dii.sellValue;
-
-  const cards = [
-    {
-      label:'FII Net Flow', cat:'Foreign Institutional',
-      val: fmtSign(fiiNet), valClass: fiiNet >= 0 ? 'bull' : 'bear',
-      sub: `Buy <b>${fmtCr(fiiBuy)}</b> · Sell <b>${fmtCr(fiiSell)}</b>`,
-      color: fiiNet >= 0 ? 'bull' : 'bear'
-    },
-    {
-      label:'DII Net Flow', cat:'Domestic Institutional',
-      val: fmtSign(diiNet), valClass: diiNet >= 0 ? 'bull' : 'bear',
-      sub: `Buy <b>${fmtCr(diiBuy)}</b> · Sell <b>${fmtCr(diiSell)}</b>`,
-      color: diiNet >= 0 ? 'bull' : 'bear'
-    },
-    {
-      label:'Combined Net', cat:'FII + DII Together',
-      val: fmtSign(totalNet), valClass: totalNet >= 0 ? 'bull' : 'bear',
-      sub: `Market <b>${totalNet >= 0 ? 'Net Inflow' : 'Net Outflow'}</b>`,
-      color: totalNet >= 0 ? 'bull' : 'bear'
-    },
-    {
-      label:'FII Buy Value', cat:'Gross Purchase',
-      val: fmtCr(fiiBuy), valClass: 'gold',
-      sub: `Sell: <b>${fmtCr(fiiSell)}</b>`,
-      color: 'gold'
-    },
-    {
-      label:'DII Buy Value', cat:'Gross Purchase',
-      val: fmtCr(diiBuy), valClass: 'blue',
-      sub: `Sell: <b>${fmtCr(diiSell)}</b>`,
-      color: 'blue'
-    },
-    {
-      label:'FII/DII Ratio', cat:'Relative Strength',
-      val: Math.abs(diiNet) > 0 ? (Math.abs(fiiNet)/Math.abs(diiNet)).toFixed(2)+'x' : '—',
-      valClass: fiiNet > diiNet ? 'purp' : 'blue',
-      sub: fiiNet >= 0 && diiNet >= 0 ? '<b>Both buying</b> 🟢' :
-           fiiNet < 0 && diiNet < 0 ? '<b>Both selling</b> 🔴' :
-           fiiNet >= 0 ? '<b>FII buying</b>, DII selling' : 'DII buying, <b>FII selling</b>',
-      color: 'purp'
-    }
+  const cards=[
+    {bar:'#16a34a', label:'FII Net Flow', sub:'Foreign Institutional',
+     val:fmtS(fn), cls:fn>=0?'bull':'bear',
+     detail:`Buy <strong>${fmtCr(fb)}</strong> &nbsp;·&nbsp; Sell <strong>${fmtCr(fs)}</strong>`},
+    {bar:'#2563eb', label:'DII Net Flow', sub:'Domestic Institutional',
+     val:fmtS(dn), cls:dn>=0?'bull':'bear',
+     detail:`Buy <strong>${fmtCr(db)}</strong> &nbsp;·&nbsp; Sell <strong>${fmtCr(ds)}</strong>`},
+    {bar:tn>=0?'#16a34a':'#dc2626', label:'Combined Net', sub:'FII + DII Together',
+     val:fmtS(tn), cls:tn>=0?'bull':'bear',
+     detail:`Market <strong>${tn>=0?'Net Inflow':'Net Outflow'}</strong>`},
+    {bar:'#d97706', label:'FII Gross Buy', sub:'Total Purchase Value',
+     val:fmtCr(fb), cls:'gold',
+     detail:`Sell: <strong>${fmtCr(fs)}</strong>`},
+    {bar:'#2563eb', label:'DII Gross Buy', sub:'Total Purchase Value',
+     val:fmtCr(db), cls:'blue',
+     detail:`Sell: <strong>${fmtCr(ds)}</strong>`},
+    {bar:'#7c3aed', label:'FII / DII Ratio', sub:'Relative Flow Strength',
+     val:ratio, cls:'purp',
+     detail:ratioNote},
   ];
 
-  document.getElementById('today-grid').innerHTML = cards.map(c => `
-    <div class="tcard ${c.color}">
-      <div class="tc-label">${c.label}</div>
-      <div class="tc-cat">${c.cat}</div>
-      <div class="tc-val ${c.valClass}">${c.val}</div>
-      <div class="tc-sub">${c.sub}</div>
+  document.getElementById('cards-row').innerHTML = cards.map(c=>`
+    <div class="kcard">
+      <div class="kcard-bar" style="background:${c.bar}"></div>
+      <div class="kc-label">${c.label}</div>
+      <div class="kc-sub">${c.sub}</div>
+      <div class="kc-value ${c.cls}">${c.val}</div>
+      <div class="kc-detail">${c.detail}</div>
     </div>`).join('');
 }
 
-// ─────────────────────────────────────────────
-// SENTIMENT
-// ─────────────────────────────────────────────
-function renderSentiment(fii, dii) {
-  const fiiNet = +fii.netValue, diiNet = +dii.netValue;
-  const total = Math.abs(fiiNet) + Math.abs(diiNet);
-  const fiiWeight = total > 0 ? fiiNet / total : 0;
-  // -1 = full bear, +1 = full bull
-  const score = (fiiNet + diiNet) / (total || 1);
-  const pct = Math.round((score + 1) / 2 * 100);
-
-  const bar = document.getElementById('sent-bar');
-  const lbl = document.getElementById('sent-label');
-  bar.style.width = pct + '%';
-  const sentiment = score > 0.3 ? 'Strong Bullish 🟢' : score > 0 ? 'Mild Bullish 🟡' :
-                    score < -0.3 ? 'Strong Bearish 🔴' : 'Mild Bearish 🟠';
-  bar.style.background = score > 0.1 ? 'linear-gradient(90deg,var(--bull2),var(--bull))' :
-                          score < -0.1 ? 'linear-gradient(90deg,var(--bear2),var(--bear))' :
-                          'linear-gradient(90deg,var(--gold),#ffaa00)';
-  lbl.textContent = sentiment;
-  lbl.style.color = score > 0 ? 'var(--bull)' : score < 0 ? 'var(--bear)' : 'var(--gold)';
-
-  document.getElementById('sent-meta').innerHTML = `
-    <div class="sent-item">FII: <span style="color:${fiiNet>=0?'var(--bull)':'var(--bear)'}">₹${fmtSign(fiiNet)}</span></div>
-    <div class="sent-item">DII: <span style="color:${diiNet>=0?'var(--bull)':'var(--bear)'}">₹${fmtSign(diiNet)}</span></div>
-    <div class="sent-item">FII Weight: <span>${(fiiWeight*100).toFixed(0)}%</span></div>
-    <div class="sent-item">Combined: <span style="color:${(fiiNet+diiNet)>=0?'var(--bull)':'var(--bear)'}">₹${fmtSign(fiiNet+diiNet)}</span></div>`;
+// ── SENTIMENT ────────────────────────────────
+function renderSentiment(fii,dii){
+  const fn=+fii.netValue, dn=+dii.netValue;
+  const total=Math.abs(fn)+Math.abs(dn);
+  const score=(fn+dn)/(total||1);
+  const pct=Math.round((score+1)/2*100);
+  const fill=document.getElementById('sent-fill');
+  const verdict=document.getElementById('sent-verdict');
+  fill.style.width=pct+'%';
+  if(score>0.15){
+    fill.style.background='linear-gradient(90deg,#15803d,#22c55e)';
+    verdict.textContent=score>0.4?'Strong Bullish 🟢':'Mild Bullish 🟡';
+    verdict.style.color='var(--bull-text)';
+  } else if(score<-0.15){
+    fill.style.background='linear-gradient(90deg,#991b1b,#ef4444)';
+    verdict.textContent=score<-0.4?'Strong Bearish 🔴':'Mild Bearish 🟠';
+    verdict.style.color='var(--bear-text)';
+  } else {
+    fill.style.background='linear-gradient(90deg,#92400e,#f59e0b)';
+    verdict.textContent='Neutral ⚪';
+    verdict.style.color='var(--gold)';
+  }
+  const wt=total>0?((Math.abs(fn)/total)*100).toFixed(0):0;
+  document.getElementById('sent-stats').innerHTML=`
+    <div class="sent-stat">FII Net: <strong style="color:${fn>=0?'var(--bull-text)':'var(--bear-text)'}">${fmtS(fn)}</strong></div>
+    <div class="sent-stat">DII Net: <strong style="color:${dn>=0?'var(--bull-text)':'var(--bear-text)'}">${fmtS(dn)}</strong></div>
+    <div class="sent-stat">FII Activity: <strong>${wt}%</strong></div>
+    <div class="sent-stat">Combined: <strong style="color:${(fn+dn)>=0?'var(--bull-text)':'var(--bear-text)'}">${fmtS(fn+dn)}</strong></div>`;
 }
 
-// ─────────────────────────────────────────────
-// HISTORY RENDER
-// ─────────────────────────────────────────────
-function renderHistory() {
-  const h = loadHistory();
-  const dates = Object.keys(h).sort();
-  const cnt = dates.length;
-
-  if(cnt === 0) return;
-  document.getElementById('hist-hint').style.display = 'block';
-  document.getElementById('hist-days-count').textContent = cnt + ' din';
-
-  document.getElementById('hist-grid').innerHTML = dates.slice(-30).reverse().map(dt => {
-    const d = h[dt];
-    const fiiNet = d.fii.net, diiNet = d.dii.net;
-    return `<div class="hist-day">
-      <div class="hd-date">${dt}</div>
-      <div class="hd-fii" style="color:${fiiNet>=0?'var(--bull)':'var(--bear)'}">
-        FII ${fiiNet>=0?'+':''}${fmtCr(fiiNet)}
-      </div>
-      <div class="hd-dii" style="color:${diiNet>=0?'var(--blue)':'var(--bear)'}">
-        DII ${diiNet>=0?'+':''}${fmtCr(diiNet)}
-      </div>
-      <div class="hd-net">Net: <span style="color:${(fiiNet+diiNet)>=0?'var(--bull)':'var(--bear)'}">${fmtSign(fiiNet+diiNet)}</span></div>
-    </div>`;
-  }).join('');
+// ── HISTORY ──────────────────────────────────
+function renderHistory(){
+  const h=loadH(), dates=Object.keys(h).sort(), cnt=dates.length;
+  if(!cnt) return;
+  document.getElementById('hist-hint').style.display='block';
+  document.getElementById('hdays').textContent=cnt;
 }
 
-// ─────────────────────────────────────────────
-// CHARTS
-// ─────────────────────────────────────────────
-let fiiChartInst, diiChartInst, combinedChartInst;
+// ── CHARTS ───────────────────────────────────
+let CH={fii:null,dii:null,combo:null};
 
-function renderCharts() {
-  const h = loadHistory();
-  const dates = Object.keys(h).sort().slice(-30);
-  if(dates.length === 0) return;
+function gc(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  return{
+    grid: dark?'rgba(255,255,255,.05)':'rgba(0,0,0,.07)',
+    tick: dark?'#56637a':'#a89f94',
+    bull: dark?'rgba(74,222,128,.8)' :'rgba(22,163,74,.85)',
+    bear: dark?'rgba(248,113,113,.8)':'rgba(220,38,38,.8)',
+    blue: dark?'rgba(96,165,250,.8)' :'rgba(37,99,235,.75)',
+  };
+}
 
-  const labels = dates.map(d => {
-    const p = d.split('-'); return p.length===3 ? `${p[0]}/${p[1]}` : d;
-  });
-  const fiiNets = dates.map(d => h[d].fii.net);
-  const diiNets = dates.map(d => h[d].dii.net);
-  const combined = dates.map(d => h[d].fii.net + h[d].dii.net);
+function renderCharts(){
+  const h=loadH(), dates=Object.keys(h).sort().slice(-30);
+  if(!dates.length){ ['fii-badge','dii-badge'].forEach(id=>document.getElementById(id).textContent='0 days'); return; }
+  const cc=gc();
+  const labels=dates.map(d=>{ const p=d.split('-'); return p.length===3?p[0]+'/'+p[1]:d; });
+  const fiiN=dates.map(d=>h[d].fii.net);
+  const diiN=dates.map(d=>h[d].dii.net);
+  document.getElementById('fii-badge').textContent=dates.length+' days';
+  document.getElementById('dii-badge').textContent=dates.length+' days';
 
-  document.getElementById('fii-hist-badge').textContent = dates.length + ' days';
-  document.getElementById('dii-hist-badge').textContent = dates.length + ' days';
-  document.getElementById('combined-badge').textContent = dates.length + ' days';
-
-  const baseOpts = {
-    responsive:true, maintainAspectRatio:false,
+  const base={
+    responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,
-      callbacks:{label:c=>`₹${c.raw.toFixed(0)} Cr`}}},
+      callbacks:{label:c=>'₹'+(+c.raw).toFixed(0)+' Cr'}}},
     scales:{
-      x:{grid:{color:'rgba(28,45,69,.5)'},ticks:{color:'#445870',font:{family:'Space Mono',size:9}}},
-      y:{grid:{color:'rgba(28,45,69,.5)'},ticks:{color:'#445870',font:{family:'Space Mono',size:9},callback:v=>v+'Cr'}}
+      x:{grid:{color:cc.grid},ticks:{color:cc.tick,font:{family:'Inter',size:10}}},
+      y:{grid:{color:cc.grid},ticks:{color:cc.tick,font:{family:'Inter',size:10},
+        callback:v=>Math.abs(v)>=10000?(v/1000).toFixed(0)+'K':v}}
     }
   };
 
-  const mkBar = (id, data, inst, posCol, negCol) => {
+  const mkBar=(id,data,inst,pc,nc)=>{
     if(inst) inst.destroy();
-    return new Chart(document.getElementById(id), {
+    return new Chart(document.getElementById(id),{
       type:'bar',
-      data:{
-        labels,
-        datasets:[{
-          data,
-          backgroundColor: data.map(v => v>=0 ? posCol : negCol),
-          borderRadius:3,borderSkipped:false
-        }]
-      },
-      options: baseOpts
+      data:{labels,datasets:[{data,backgroundColor:data.map(v=>v>=0?pc:nc),borderRadius:4,borderSkipped:false}]},
+      options:base
     });
   };
 
-  fiiChartInst = mkBar('fii-chart', fiiNets, fiiChartInst, 'rgba(0,229,160,.75)', 'rgba(255,77,109,.75)');
-  diiChartInst = mkBar('dii-chart', diiNets, diiChartInst, 'rgba(77,166,255,.75)', 'rgba(255,77,109,.75)');
-
-  if(combinedChartInst) combinedChartInst.destroy();
-  combinedChartInst = new Chart(document.getElementById('combined-chart'), {
-    type:'bar',
-    data:{
-      labels,
-      datasets:[
-        {label:'FII',data:fiiNets,backgroundColor:'rgba(0,229,160,.6)',borderRadius:2,borderSkipped:false},
-        {label:'DII',data:diiNets,backgroundColor:'rgba(77,166,255,.6)',borderRadius:2,borderSkipped:false}
-      ]
-    },
-    options:{
-      ...baseOpts,
-      plugins:{
-        ...baseOpts.plugins,
-        legend:{display:true,labels:{color:'#8fa8c8',font:{family:'Space Mono',size:10},padding:16}}
-      }
-    }
-  });
+  CH.fii=mkBar('fii-chart',fiiN,CH.fii,cc.bull,cc.bear);
+  CH.dii=mkBar('dii-chart',diiN,CH.dii,cc.blue,cc.bear);
 }
 
-// ─────────────────────────────────────────────
-// DEALS
-// ─────────────────────────────────────────────
-function renderDeals(data) {
-  const bulk = data.BULK_DEALS_DATA || [];
-  const block = data.BLOCK_DEALS_DATA || [];
-
-  document.getElementById('bulk-badge').textContent = bulk.length + ' deals';
-  document.getElementById('block-badge').textContent = block.length + ' deals';
-
-  const row = d => `
-    <div class="tbl-row" style="grid-template-columns:1.5fr 1.2fr .8fr .9fr .8fr .7fr">
-      <span class="sym-cell">${d.symbol||'—'}</span>
-      <span class="num-cell muted" style="font-size:.65rem;text-align:left;">${(d.clientName||'—').slice(0,20)}</span>
-      <div style="text-align:right"><span class="tag ${d.buySell==='BUY'?'bull':'bear'}">${d.buySell||'—'}</span></div>
-      <span class="num-cell muted">${d.qty?(+d.qty).toLocaleString('en-IN'):'—'}</span>
-      <span class="num-cell gold">${d.watp?'₹'+d.watp:'—'}</span>
-      <span class="num-cell muted" style="font-size:.65rem">${(d.date||'').split('-').slice(0,2).join('-')}</span>
+// ── DEALS ────────────────────────────────────
+function renderDeals(data){
+  const bulk=data.BULK_DEALS_DATA||[], block=data.BLOCK_DEALS_DATA||[];
+  document.getElementById('bulk-badge').textContent=bulk.length+' deals';
+  document.getElementById('block-badge').textContent=block.length+' deals';
+  const row=d=>`
+    <div class="tbl-row" style="grid-template-columns:1.3fr 1.4fr .7fr .9fr .8fr .7fr">
+      <span class="sym">${d.symbol||'—'}</span>
+      <span class="num muted" style="text-align:left;font-size:.74rem">${(d.clientName||'—').slice(0,18)}</span>
+      <div><span class="tag ${d.buySell==='BUY'?'bull':'bear'}">${d.buySell||'—'}</span></div>
+      <span class="num muted">${d.qty?(+d.qty).toLocaleString('en-IN'):'—'}</span>
+      <span class="num gold">${d.watp?'₹'+d.watp:'—'}</span>
+      <span class="num muted" style="font-size:.72rem">${(d.date||'').slice(0,6)}</span>
     </div>`;
-
-  document.getElementById('bulk-bd').innerHTML = bulk.slice(0,30).map(row).join('') || '<div class="empty">Koi bulk deal nahi</div>';
-  document.getElementById('block-bd').innerHTML = block.slice(0,30).map(row).join('') || '<div class="empty">Koi block deal nahi</div>';
+  document.getElementById('bulk-bd').innerHTML=bulk.slice(0,30).map(row).join('')||'<div class="empty">Koi bulk deal nahi</div>';
+  document.getElementById('block-bd').innerHTML=block.slice(0,30).map(row).join('')||'<div class="empty">Koi block deal nahi</div>';
 }
 
-// ─────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+// ── INIT ─────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
   renderHistory();
   renderCharts();
   fetchAll();
