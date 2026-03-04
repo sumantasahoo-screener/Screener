@@ -1,66 +1,204 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Terminal</title>
+    <title>Pro Terminal - Hybrid Theme</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: #131722; color: #D1D4DC; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; overflow-y: scroll; }
-        
-        /* Center Wrapper for Big Screens - Increased Width */
-        .wrapper { max-width: 1400px; width: 100%; margin: 0 auto; background-color: #131722; min-height: 100vh; border-left: 1px solid #1E222D; border-right: 1px solid #1E222D; display: flex; flex-direction: column; }
+        /* --- THEME VARIABLES --- */
+        :root {
+            /* Dark Theme (Default) */
+            --bg-body: #0c0e15;
+            --bg-wrapper: #131722;
+            --bg-bar: #1E222D;
+            --text-main: #D1D4DC;
+            --text-headline: #E0E3EB;
+            --text-meta: #787B86;
+            --border-color: #2A2E39;
+            --item-border: #1E222D;
+            --tab-active: #2962FF;
+            --hover-color: #1e222d;
+        }
 
-        /* Live Top Bar (Horizontal Scroll for Mobile without squishing) */
-        #top-bar { background-color: #1E222D; border-bottom: 1px solid #2A2E39; padding: 12px 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-        #top-bar::-webkit-scrollbar { display: none; } 
-        
-        /* Prevent elements from shrinking/cutting on small screens */
-        .index-box { margin-right: 25px; display: inline-flex; align-items: center; flex-shrink: 0; }
-        .index-name { color: #787B86; margin-right: 6px; }
-        .val-up { color: #089981; } .val-down { color: #F23645; } .val-flat { color: #D1D4DC; }
+        [data-theme="light"] {
+            /* Light Theme */
+            --bg-body: #f0f2f5;
+            --bg-wrapper: #ffffff;
+            --bg-bar: #f8f9fb;
+            --text-main: #131722;
+            --text-headline: #131722;
+            --text-meta: #5d606b;
+            --border-color: #dee2e6;
+            --item-border: #f0f3fa;
+            --tab-active: #2962FF;
+            --hover-color: #f0f3fa;
+        }
 
-        /* Tabs (Horizontal Scroll without squishing) */
-        #tabs { display: flex; border-bottom: 1px solid #2A2E39; padding: 0 10px; margin-top: 10px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        body { 
+            background-color: var(--bg-body); 
+            color: var(--text-main); 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; 
+            overflow-y: scroll; 
+        }
+        
+        .wrapper { 
+            max-width: 1400px; 
+            width: 100%; 
+            margin: 0 auto; 
+            background-color: var(--bg-wrapper); 
+            min-height: 100vh; 
+            border-left: 1px solid var(--border-color); 
+            border-right: 1px solid var(--border-color); 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        /* --- TOP BAR & THEME SWITCHER --- */
+        #top-bar { 
+            background-color: var(--bg-bar); 
+            border-bottom: 1px solid var(--border-color); 
+            padding: 12px 20px; 
+            font-size: 13px; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+        }
+
+        .indices-wrapper {
+            display: flex;
+            align-items: center;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            flex-grow: 1;
+        }
+        .indices-wrapper::-webkit-scrollbar { display: none; }
+
+        .theme-toggle {
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: var(--border-color);
+            color: var(--text-headline);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            margin-left: 15px;
+            flex-shrink: 0;
+        }
+
+        .index-box { 
+            margin-right: 25px; 
+            display: inline-flex; 
+            align-items: center; 
+            flex-shrink: 0; 
+        }
+        
+        .index-name { color: var(--text-meta); margin-right: 6px; }
+        .val-up { color: #089981; } 
+        .val-down { color: #F23645; } 
+        .val-flat { color: var(--text-main); }
+
+        /* --- TABS --- */
+        #tabs { 
+            display: flex; 
+            border-bottom: 1px solid var(--border-color); 
+            padding: 0 10px; 
+            margin-top: 10px; 
+            overflow-x: auto; 
+            white-space: nowrap; 
+            scrollbar-width: none; 
+        }
+        
         #tabs::-webkit-scrollbar { display: none; }
-        .tab { padding: 12px 20px; cursor: pointer; font-size: 14px; font-weight: 600; color: #787B86; transition: 0.2s; border-bottom: 3px solid transparent; flex-shrink: 0; }
-        .tab.active { color: #2962FF; border-bottom: 3px solid #2962FF; }
-        .tab:hover:not(.active) { color: #D1D4DC; }
-
-        /* News Area */
-        #news-container { padding: 20px; flex-grow: 1; }
-        .news-item { padding: 18px 0; border-bottom: 1px solid #1E222D; animation: fadeIn 0.4s; display: flex; flex-direction: column; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Category Tags */
-        .tag-row { display: flex; align-items: center; margin-bottom: 8px; }
-        .tag { font-size: 11px; font-weight: bold; padding: 3px 6px; border-radius: 4px; margin-right: 10px; text-transform: uppercase; }
+        .tab { 
+            padding: 12px 20px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            font-weight: 600; 
+            color: var(--text-meta); 
+            border-bottom: 3px solid transparent; 
+            flex-shrink: 0; 
+        }
+        
+        .tab.active { 
+            color: var(--tab-active); 
+            border-bottom: 3px solid var(--tab-active); 
+        }
+        
+        .tab:hover:not(.active) { color: var(--text-headline); }
+
+        /* --- NEWS ITEMS --- */
+        #news-container { padding: 20px; flex-grow: 1; }
+        
+        .news-item { 
+            padding: 18px 0; 
+            border-bottom: 1px solid var(--item-border); 
+            animation: fadeIn 0.4s; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(5px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        .tag { 
+            font-size: 10px; 
+            font-weight: bold; 
+            padding: 3px 6px; 
+            border-radius: 4px; 
+            margin-bottom: 8px;
+            text-transform: uppercase; 
+            display: inline-block;
+            width: fit-content;
+        }
+        
         .tag-STOCKS { background: rgba(41, 98, 255, 0.15); color: #2962FF; }
         .tag-INDEX { background: rgba(156, 39, 176, 0.15); color: #E040FB; }
         .tag-GLOBAL { background: rgba(242, 54, 69, 0.15); color: #F23645; }
         .tag-RESULTS { background: rgba(8, 153, 129, 0.15); color: #089981; }
         
-        /* Text Styling */
-        .headline { font-size: 16px; font-weight: 600; color: #E0E3EB; text-decoration: none; line-height: 1.4; margin-bottom: 6px; word-wrap: break-word; white-space: normal; }
-        .headline:hover { color: #2962FF; }
-        .meta { font-size: 12px; color: #787B86; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .dot { height: 4px; width: 4px; background-color: #787B86; border-radius: 50%; }
+        .headline { 
+            font-size: 16px; 
+            font-weight: 600; 
+            color: var(--text-headline); 
+            text-decoration: none; 
+            line-height: 1.4; 
+            margin-bottom: 6px; 
+        }
         
-        #loading { padding: 20px; color: #787B86; font-family: monospace; text-align: center; margin-top: 20px; }
+        .headline:hover { color: var(--tab-active); }
         
-        /* Scrollbar for PC body */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #131722; }
-        ::-webkit-scrollbar-thumb { background: #2A2E39; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #363A45; }
+        .meta { 
+            font-size: 12px; 
+            color: var(--text-meta); 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
+        
+        .dot { height: 4px; width: 4px; background-color: var(--text-meta); border-radius: 50%; }
+        
+        #loading { padding: 40px; color: var(--text-meta); text-align: center; font-family: monospace; }
 
-        /* Mobile specific adjustments */
         @media (max-width: 768px) {
             .wrapper { border-left: none; border-right: none; }
-            #news-container { padding: 15px; }
             .headline { font-size: 15px; }
-            .tab { padding: 12px 15px; font-size: 13px; }
-            #top-bar { font-size: 12px; padding: 10px 15px; }
+            .theme-toggle span { display: none; } /* Mobile par text hide kar do */
         }
     </style>
 </head>
@@ -68,8 +206,15 @@
 
 <div class="wrapper">
     <div id="top-bar">
-        <span class="index-name" style="color: #D1D4DC; margin-right: 15px; position: sticky; left: 0; background: #1E222D; z-index: 2; padding-right: 10px; flex-shrink: 0;">LIVE DATA:</span>
-        <span id="indices-container" style="display: flex; align-items: center;">Syncing via TradingView...</span>
+        <div class="indices-wrapper">
+            <span class="index-name" style="color: var(--text-headline); margin-right: 15px;">MARKETS:</span>
+            <div id="indices-container" style="display: flex;">Syncing...</div>
+        </div>
+        
+        <div class="theme-toggle" onclick="toggleTheme()">
+            <i id="theme-icon" class="fas fa-moon"></i>
+            <span>Theme</span>
+        </div>
     </div>
 
     <div id="tabs">
@@ -81,7 +226,7 @@
     </div>
 
     <div id="news-container">
-        <div id="loading">> Connecting to server...</div>
+        <div id="loading">> INITIALIZING TERMINAL...</div>
     </div>
 </div>
 
@@ -91,79 +236,88 @@
     let lastNewsCount = 0;
     const alertSound = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
 
+    // --- THEME LOGIC ---
+    function initTheme() {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+        const icon = document.getElementById('theme-icon');
+        if (theme === 'dark') {
+            icon.className = 'fas fa-moon';
+        } else {
+            icon.className = 'fas fa-sun';
+        }
+    }
+
+    // --- DATA LOGIC ---
     function timeAgo(dateString) {
         const diffMins = Math.floor((new Date() - new Date(dateString)) / 60000);
         if (diffMins < 1 || isNaN(diffMins)) return "JUST NOW";
         if (diffMins < 60) return `${diffMins} MINS AGO`;
-        const diffHrs = Math.floor(diffMins / 60);
-        return `${diffHrs} HOURS AGO`;
+        return `${Math.floor(diffMins / 60)} HOURS AGO`;
     }
 
     async function fetchTerminalData() {
         try {
-            // APNE WORKER KA URL YAHA CONFIRM KAREIN
+            // REPLACE WITH YOUR ACTUAL WORKER URL
             const res = await fetch('https://news-fetcher.sumantasahoo.workers.dev');
             const data = await res.json();
             
-            // 1. Update Live Indices
             renderIndices(data.indices);
-
-            // 2. Update News
             allNewsData = data.news || [];
             
-            // Sound Alert logic
             if (lastNewsCount !== 0 && allNewsData.length > lastNewsCount) {
-                alertSound.play().catch(e => console.log("Click page to enable sound alert"));
+                alertSound.play().catch(() => {});
             }
             lastNewsCount = allNewsData.length;
-
             renderNews();
         } catch (e) {
-            document.getElementById('loading').innerText = "> CONNECTION ERROR. Retrying in 60s...";
+            document.getElementById('loading').innerText = "> CONNECTION ERROR. RETRYING...";
         }
     }
 
     function renderIndices(indices) {
         const container = document.getElementById('indices-container');
-        if (!indices || indices.length === 0) {
-            container.innerHTML = '<span style="color:#F23645">Live data unavailable at the moment</span>';
-            return;
-        }
-        
+        if (!indices) return;
         container.innerHTML = '';
         indices.forEach(idx => {
-            const numChange = parseFloat(idx.change);
-            let colorClass = 'val-flat';
-            let sign = '';
-            if (numChange > 0) { colorClass = 'val-up'; sign = '+'; }
-            else if (numChange < 0) { colorClass = 'val-down'; }
-
+            const val = parseFloat(idx.change);
+            const colorClass = val > 0 ? 'val-up' : (val < 0 ? 'val-down' : 'val-flat');
             container.innerHTML += `
                 <div class="index-box">
                     <span class="index-name">${idx.symbol}:</span>
-                    <span class="${colorClass}">${idx.price} (${sign}${idx.change}%)</span>
-                </div>
-            `;
+                    <span class="${colorClass}">${idx.price} (${val > 0 ? '+' : ''}${idx.change}%)</span>
+                </div>`;
         });
     }
 
     function filterNews(category) {
         currentFilter = category;
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.classList.remove('active');
-            if(tab.innerText.includes(category)) tab.classList.add('active');
-        });
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        // Event detection for active tab highlight
+        if(event) event.target.classList.add('active');
         renderNews();
     }
 
     function renderNews() {
         const container = document.getElementById('news-container');
         container.innerHTML = '';
-        
         const filtered = currentFilter === 'ALL' ? allNewsData : allNewsData.filter(n => n.category === currentFilter);
         
         if (filtered.length === 0) {
-            container.innerHTML = '<div id="loading">> No fresh data in the last 24 hours for this category.</div>';
+            container.innerHTML = '<div id="loading">> NO DATA AVAILABLE IN THIS CATEGORY.</div>';
             return;
         }
 
@@ -171,25 +325,21 @@
             const div = document.createElement('div');
             div.className = 'news-item';
             div.innerHTML = `
-                <div class="tag-row">
-                    <span class="tag tag-${item.category}">${item.category}</span>
-                </div>
+                <div class="tag-row"><span class="tag tag-${item.category}">${item.category}</span></div>
                 <a href="${item.link}" target="_blank" class="headline">${item.title}</a>
                 <div class="meta">
                     <span>${item.source}</span>
                     <div class="dot"></div>
                     <span>${timeAgo(item.pubDate)}</span>
-                </div>
-            `;
+                </div>`;
             container.appendChild(div);
         });
     }
 
-    // Auto-fetch har 60 seconds (1 minute) mein
+    // Start
+    initTheme();
     setInterval(fetchTerminalData, 60000);
     fetchTerminalData();
-    
-    document.body.addEventListener('click', () => { console.log("Sound Ready"); }, { once: true });
 </script>
 </body>
 </html>
