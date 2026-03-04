@@ -1,404 +1,818 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spurt Scanner</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ── RESET ── */
+/* ══════════════════════════════════════
+   DARK THEME
+══════════════════════════════════════ */
+[data-theme="dark"] {
+  --bg:        #0b0f18;
+  --bg2:       #111827;
+  --bg3:       #1a2234;
+  --card:      #131b2e;
+  --card2:     #182036;
+  --border:    #1f2e47;
+  --border2:   #2a3f60;
+  --ink:       #e2e8f2;
+  --ink2:      #8ea4c4;
+  --muted:     #4a607e;
+  --shadow:    rgba(0,0,0,.4);
+  --bull:      #10b981;
+  --bull-dim:  rgba(16,185,129,.12);
+  --bull-mid:  rgba(16,185,129,.28);
+  --bull-txt:  #34d399;
+  --bear:      #ef4444;
+  --bear-dim:  rgba(239,68,68,.12);
+  --bear-mid:  rgba(239,68,68,.28);
+  --bear-txt:  #f87171;
+  --gold:      #f59e0b;
+  --gold-dim:  rgba(245,158,11,.12);
+  --str3:      #f59e0b;
+  --str2:      #a78bfa;
+  --str1:      #60a5fa;
+  --chart-g:   rgba(255,255,255,.04);
+}
+
+/* ══════════════════════════════════════
+   LIGHT THEME
+══════════════════════════════════════ */
+[data-theme="light"] {
+  --bg:        #f0f2f7;
+  --bg2:       #e8ebf2;
+  --bg3:       #dde1eb;
+  --card:      #ffffff;
+  --card2:     #f8f9fc;
+  --border:    #dde3ef;
+  --border2:   #c8d0e2;
+  --ink:       #111827;
+  --ink2:      #4b5a72;
+  --muted:     #8a96ac;
+  --shadow:    rgba(0,0,0,.07);
+  --bull:      #059669;
+  --bull-dim:  rgba(5,150,105,.08);
+  --bull-mid:  rgba(5,150,105,.22);
+  --bull-txt:  #047857;
+  --bear:      #dc2626;
+  --bear-dim:  rgba(220,38,38,.08);
+  --bear-mid:  rgba(220,38,38,.22);
+  --bear-txt:  #b91c1c;
+  --gold:      #d97706;
+  --gold-dim:  rgba(217,119,6,.08);
+  --str3:      #d97706;
+  --str2:      #7c3aed;
+  --str1:      #2563eb;
+}
+
+/* ══════════════════════════════════════
+   BASE
+══════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-/* ── TOKENS ── */
-:root {
-  --font-body:   'IBM Plex Sans', system-ui, sans-serif;
-  --font-mono:   'DM Mono', 'Courier New', monospace;
-
-  --bg:          #f5f5f5;
-  --card:        #ffffff;
-  --border:      #e8eaed;
-  --border-dark: #111111;
-
-  --text-1:      #0d0d0d;
-  --text-2:      #1a1a1a;
-  --text-muted:  #555555;
-
-  --bull-bg:     #f0fdf4;
-  --bull-border: #16a34a;
-  --bull-text:   #15803d;
-  --bull-pill-bg:#dcfce7;
-
-  --bear-bg:     #fff5f5;
-  --bear-border: #dc2626;
-  --bear-text:   #b91c1c;
-  --bear-pill-bg:#fee2e2;
-
-  --gold:        #d97706;
-  --th-bg:       #0f172a;
-  --th-text:     #e5e7eb;
-  --row-hover:   #eff6ff;
-  --row-stripe:  #fafafa;
-}
-
-/* ── BASE ── */
-html, body {
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Outfit', system-ui, sans-serif;
   background: var(--bg);
-  font-family: var(--font-body);
-  color: var(--text-1);
-  -webkit-font-smoothing: antialiased;
+  color: var(--ink);
   font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  transition: background .25s, color .25s;
 }
 
-.page-wrap {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 16px 16px 40px;
-}
-
-/* ── HEADER ── */
-.header {
+/* ══════════════════════════════════════
+   HEADER
+══════════════════════════════════════ */
+header {
   background: var(--card);
-  border: 1px solid var(--border);
-  border-top: 3px solid var(--border-dark);
-  border-radius: 4px;
-  padding: 16px 20px;
-  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  justify-content: space-between;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 8px var(--shadow);
 }
 
-.header-left .brand {
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: .02em;
-  color: var(--text-1);
-}
-
-.header-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-}
-
-.header-right .scan-time {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--text-2);
-  letter-spacing: .04em;
-}
-
-#elapsed {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--text-2);
-}
-
-/* ── GROUP CARD ── */
-.group {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06);
-}
-
-.group-title {
+.brand {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 11px 16px 10px 20px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: .1em;
+  flex-shrink: 0;
+}
+.brand-mark {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem; font-weight: 800; color: var(--bg);
+  letter-spacing: -.5px;
+}
+.brand-name {
+  font-size: 1rem; font-weight: 700; letter-spacing: -.3px; color: var(--ink);
+}
+.brand-name sub {
+  font-size: .6rem; font-weight: 500; color: var(--muted);
+  vertical-align: middle; margin-left: 4px; letter-spacing: .5px;
   text-transform: uppercase;
+}
+
+.hdr-mid {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Fira Code', monospace;
+  font-size: .72rem;
+  color: var(--ink2);
+}
+.scan-badge {
+  padding: 3px 10px; border-radius: 20px;
+  font-size: .68rem; font-weight: 600; letter-spacing: .2px;
+  background: var(--bg3); color: var(--muted); border: 1px solid var(--border2);
+  transition: all .25s;
+}
+.scan-badge.live { background: var(--bull-dim); color: var(--bull-txt); border-color: var(--bull-mid); }
+.scan-badge.err  { background: var(--bear-dim); color: var(--bear-txt); border-color: var(--bear-mid); }
+.scan-badge.file { background: var(--gold-dim); color: var(--gold); border-color: rgba(245,158,11,.3); }
+
+.hdr-actions { display: flex; align-items: center; gap: 8px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 8px; cursor: pointer;
+  font-family: 'Outfit', sans-serif; font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border2); background: var(--bg2); color: var(--ink2);
+  transition: all .15s; white-space: nowrap;
+}
+.btn:hover { background: var(--bg3); color: var(--ink); border-color: var(--ink2); }
+.btn:active { transform: scale(.97); }
+.btn.primary {
+  background: var(--bull-dim); color: var(--bull-txt); border-color: var(--bull-mid);
+}
+.btn.primary:hover { background: var(--bull-mid); }
+.btn.loading { opacity: .55; pointer-events: none; }
+.btn.icon-only { padding: 7px; width: 34px; height: 34px; justify-content: center; }
+
+/* hidden file input */
+#file-input { display: none; }
+
+/* ══════════════════════════════════════
+   MAIN
+══════════════════════════════════════ */
+main { padding: 20px 24px 40px; max-width: 1440px; margin: 0 auto; }
+
+/* ══════════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════════ */
+#empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 80px 24px; text-align: center;
+  gap: 12px;
+}
+.es-icon { font-size: 3rem; opacity: .3; }
+.es-title { font-size: 1.1rem; font-weight: 600; color: var(--ink2); }
+.es-sub { font-size: .85rem; color: var(--muted); max-width: 320px; line-height: 1.6; }
+
+/* ══════════════════════════════════════
+   SUMMARY CARDS
+══════════════════════════════════════ */
+#dashboard { display: none; }
+
+.cards-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.scard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 4px var(--shadow);
+  transition: transform .15s, box-shadow .15s;
+}
+.scard:hover { transform: translateY(-2px); box-shadow: 0 4px 16px var(--shadow); }
+.scard-accent {
+  position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 12px 12px 0 0;
+}
+.scard-label {
+  font-size: .65rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--muted); margin-bottom: 6px;
+}
+.scard-val {
+  font-size: 2rem; font-weight: 800; line-height: 1; margin-bottom: 4px;
+  letter-spacing: -1px;
+}
+.scard-val.bull { color: var(--bull-txt); }
+.scard-val.bear { color: var(--bear-txt); }
+.scard-val.gold { color: var(--gold); }
+.scard-note { font-size: .75rem; color: var(--ink2); font-weight: 500; }
+.scard-note b { color: var(--ink); }
+
+/* ══════════════════════════════════════
+   SECTION HEADER
+══════════════════════════════════════ */
+.sec-hdr {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px; margin-top: 6px;
+}
+.sec-hdr h2 {
+  font-size: .72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--muted); white-space: nowrap;
+}
+.sec-hdr::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ══════════════════════════════════════
+   BULL / BEAR SPLIT
+══════════════════════════════════════ */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+/* ══════════════════════════════════════
+   TABLE PANEL
+══════════════════════════════════════ */
+.tpanel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px var(--shadow);
+}
+.tpanel-head {
+  padding: 11px 16px;
+  display: flex; align-items: center; justify-content: space-between;
   border-bottom: 1px solid var(--border);
 }
-
-.group.bull .group-title {
-  background: var(--bull-bg);
-  color: var(--bull-text);
-  border-left: 4px solid var(--bull-border);
+.tpanel-head.bull { background: var(--bull-dim); border-left: 3px solid var(--bull); }
+.tpanel-head.bear { background: var(--bear-dim); border-left: 3px solid var(--bear); }
+.tph-left { display: flex; align-items: center; gap: 8px; }
+.tph-label {
+  font-size: .72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px;
 }
-
-.group.bear .group-title {
-  background: var(--bear-bg);
-  color: var(--bear-text);
-  border-left: 4px solid var(--bear-border);
+.tph-label.bull { color: var(--bull-txt); }
+.tph-label.bear { color: var(--bear-txt); }
+.tph-count {
+  font-family: 'Fira Code', monospace;
+  font-size: .68rem; padding: 2px 8px; border-radius: 10px;
+  font-weight: 500;
 }
+.tph-count.bull { background: var(--bull-mid); color: var(--bull-txt); }
+.tph-count.bear { background: var(--bear-mid); color: var(--bear-txt); }
 
-.group-pill {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 2px;
-  letter-spacing: .06em;
-}
+/* ══════════════════════════════════════
+   DATA TABLE
+══════════════════════════════════════ */
+.tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-.group.bull .group-pill { background: var(--bull-pill-bg); color: var(--bull-text); }
-.group.bear .group-pill { background: var(--bear-pill-bg); color: var(--bear-text); }
-
-/* ── TABLE SCROLL WRAPPER ── */
-.table-wrap {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* ── TABLE ── */
 table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 860px;
-  font-size: 12.5px;
+  width: 100%; border-collapse: collapse;
+  font-size: 13px;
 }
 
 thead th {
-  background: var(--th-bg);
-  color: var(--th-text);
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 11px;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  padding: 9px 13px;
-  text-align: center;
+  background: var(--bg3);
+  color: var(--muted);
+  font-size: .62rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .8px;
+  padding: 8px 12px;
+  text-align: left;
   white-space: nowrap;
-  position: sticky;
-  top: 0;
-  z-index: 2;
+  border-bottom: 1px solid var(--border);
 }
+thead th.r { text-align: right; }
+thead th.c { text-align: center; }
 
-tbody tr { background: var(--card); }
-tbody tr:nth-child(even) { background: var(--row-stripe); }
-tbody tr:hover td { background: var(--row-hover); }
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg2); }
 
 td {
-  padding: 9px 13px;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
+  padding: 9px 12px;
+  color: var(--ink);
+  font-size: .84rem;
   white-space: nowrap;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--text-1);
+}
+td.sym {
+  font-weight: 700; font-size: .88rem;
+  font-family: 'Outfit', sans-serif;
+}
+td.r { text-align: right; }
+td.c { text-align: center; }
+td.mono {
+  font-family: 'Fira Code', monospace;
+  font-size: .78rem;
+}
+td.muted { color: var(--ink2); }
+td.bull  { color: var(--bull-txt); font-weight: 600; }
+td.bear  { color: var(--bear-txt); font-weight: 600; }
+td.gold  { color: var(--gold); }
+
+/* Strength dots */
+.str-dots { display: flex; gap: 3px; align-items: center; justify-content: center; }
+.dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--border2);
+}
+.dot.on3 { background: var(--str3); }
+.dot.on2 { background: var(--str2); }
+.dot.on1 { background: var(--str1); }
+
+/* Type badge */
+.tbadge {
+  display: inline-flex; align-items: center;
+  padding: 2px 7px; border-radius: 4px;
+  font-size: .65rem; font-weight: 700; letter-spacing: .3px;
+}
+.tbadge.ce { background: rgba(96,165,250,.15); color: #60a5fa; }
+.tbadge.pe { background: rgba(251,191,36,.15); color: #fbbf24; }
+.tbadge.fut { background: rgba(167,139,250,.15); color: #a78bfa; }
+
+/* No data row */
+.no-data td {
+  text-align: center; padding: 24px;
+  color: var(--muted); font-size: .8rem; font-style: italic;
 }
 
-/* ── CELL VARIANTS ── */
-td.symbol {
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 13px;
-  color: var(--text-1);
-  text-align: left;
-  padding-left: 16px;
+/* ══════════════════════════════════════
+   SPINNER
+══════════════════════════════════════ */
+.spin {
+  display: inline-block; width: 12px; height: 12px;
+  border: 2px solid var(--border2); border-top-color: var(--bull);
+  border-radius: 50%; animation: ro .65s linear infinite; vertical-align: middle;
+}
+@keyframes ro { to { transform: rotate(360deg); } }
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media (max-width: 900px) {
+  .cards-row { grid-template-columns: repeat(2, 1fr); }
+  .split { grid-template-columns: 1fr; }
 }
 
-td.expiry {
-  color: var(--gold);
-  font-weight: 500;
-  font-size: 12px;
-}
-
-td.strength {
-  font-weight: 500;
-  font-size: 14px;
-  color: var(--text-1);
-}
-
-td.type {
-  color: var(--text-2);
-  font-size: 12px;
-}
-
-.dir-pill {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: .06em;
-  padding: 2px 8px;
-  border-radius: 2px;
-  font-family: var(--font-body);
-}
-
-.group.bull .dir-pill { background: var(--bull-pill-bg); color: var(--bull-text); }
-.group.bear .dir-pill { background: var(--bear-pill-bg); color: var(--bear-text); }
-
-/* ── EMPTY STATE ── */
-.empty-row td {
-  text-align: center;
-  color: var(--text-muted);
-  padding: 20px;
-  font-size: 12px;
-  font-family: var(--font-body);
-  font-style: italic;
-}
-
-/* ── FOOTER ── */
-.footer {
-  text-align: center;
-  font-size: 11px;
-  color: #ccc;
-  font-family: var(--font-mono);
-  margin-top: 8px;
-  letter-spacing: .06em;
-}
-
-/* ── MOBILE ── */
 @media (max-width: 600px) {
-  .page-wrap { padding: 10px 10px 32px; }
-
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    padding: 12px 14px;
-  }
-
-  .header-right { align-items: flex-start; }
-
-  .header-left .brand { font-size: 15px; }
-
-  .group-title { font-size: 10px; padding: 10px 12px 9px 14px; }
-
-  table { font-size: 11.5px; min-width: 760px; }
-
-  thead th { padding: 8px 10px; font-size: 9.5px; }
-
-  td { padding: 8px 10px; font-size: 11px; }
-
-  td.symbol { font-size: 12px; padding-left: 12px; }
-
-  td.strength { font-size: 13px; }
+  header { padding: 0 14px; height: 52px; }
+  .brand-name sub { display: none; }
+  main { padding: 14px 14px 32px; }
+  .cards-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .scard { padding: 13px 14px; }
+  .scard-val { font-size: 1.6rem; }
+  .hdr-mid { display: none; }
+  table { min-width: 480px; }
 }
 </style>
 </head>
-
 <body>
-<div class="page-wrap">
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="header-left">
-      <div class="brand">SPURT DATA</div>
-    </div>
-    <div class="header-right">
-      <span class="scan-time">SCAN: 04-03-2026 22:41</span>
-      <span id="elapsed"></span>
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="brand">
+    <div class="brand-mark">OI</div>
+    <div class="brand-name">Spurt Scanner <sub>NSE F&amp;O</sub></div>
+  </div>
+
+  <div class="hdr-mid">
+    <span class="scan-badge" id="scan-badge">Ready</span>
+    <span id="scan-time" style="opacity:.6"></span>
+  </div>
+
+  <div class="hdr-actions">
+    <button class="btn icon-only" onclick="toggleTheme()" id="theme-btn" title="Toggle theme">🌙</button>
+    <label class="btn" for="file-input" title="Upload 4 CSV files manually">
+      📂 &nbsp;Load CSV
+    </label>
+    <input type="file" id="file-input" accept=".csv" multiple onchange="handleFiles(this.files)">
+    <button class="btn primary" id="fetch-btn" onclick="fetchLive()">
+      ☁️ &nbsp;Fetch Live
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- Empty State -->
+  <div id="empty-state">
+    <div class="es-icon">📡</div>
+    <div class="es-title">No data loaded</div>
+    <div class="es-sub">
+      Click <strong>Fetch Live</strong> to pull latest NSE spurts data,
+      or <strong>Load CSV</strong> to upload 4 downloaded files manually.
     </div>
   </div>
 
-  <!-- BULL GROUP -->
-  <div class="group bull">
-    <div class="group-title">
-      ▲ LONG (0)
-      <span class="group-pill">Trend Up</span>
+  <!-- Dashboard (hidden until data loads) -->
+  <div id="dashboard">
+
+    <!-- Summary Cards -->
+    <div class="cards-row">
+      <div class="scard">
+        <div class="scard-accent" style="background:var(--bull)"></div>
+        <div class="scard-label">Bull Signals</div>
+        <div class="scard-val bull" id="c-bull">—</div>
+        <div class="scard-note" id="c-bull-note">—</div>
+      </div>
+      <div class="scard">
+        <div class="scard-accent" style="background:var(--bear)"></div>
+        <div class="scard-label">Bear Signals</div>
+        <div class="scard-val bear" id="c-bear">—</div>
+        <div class="scard-note" id="c-bear-note">—</div>
+      </div>
+      <div class="scard">
+        <div class="scard-accent" style="background:var(--bull)"></div>
+        <div class="scard-label">Top Bull</div>
+        <div class="scard-val gold" id="c-top-bull" style="font-size:1.4rem;letter-spacing:-.5px">—</div>
+        <div class="scard-note" id="c-top-bull-note">—</div>
+      </div>
+      <div class="scard">
+        <div class="scard-accent" style="background:var(--bear)"></div>
+        <div class="scard-label">Top Bear</div>
+        <div class="scard-val gold" id="c-top-bear" style="font-size:1.4rem;letter-spacing:-.5px">—</div>
+        <div class="scard-note" id="c-top-bear-note">—</div>
+      </div>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Symbol</th><th>Expiry</th><th>Strength</th><th>Type</th>
-            <th>Direction</th><th>OI Recent</th><th>OI Pre</th>
-            <th>Chng OI</th><th>Chng OI %</th><th>LTP</th>
-            <th>Prev Close</th><th>% LTP Chng</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="empty-row"><td colspan="12">no signals at this time</td></tr>
-        </tbody>
-      </table>
+
+    <!-- FUTURES -->
+    <div class="sec-hdr"><h2>⬡ Futures</h2></div>
+    <div class="split" id="fut-split">
+      <!-- Injected by JS -->
     </div>
-  </div>
 
-  <!-- BEAR GROUP -->
-  <div class="group bear">
-    <div class="group-title">
-      ▼ SHORT (3)
-      <span class="group-pill">Trend Down</span>
+    <!-- OPTIONS -->
+    <div class="sec-hdr"><h2>◈ Options</h2></div>
+    <div class="split" id="opt-split">
+      <!-- Injected by JS -->
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Symbol</th><th>Expiry</th><th>Strength</th><th>Type</th>
-            <th>Direction</th><th>OI Recent</th><th>OI Pre</th>
-            <th>Chng OI</th><th>Chng OI %</th><th>LTP</th>
-            <th>Prev Close</th><th>% LTP Chng</th>
-          </tr>
-        </thead>
-        <tbody>
-          
-<tr>
-  <td class="symbol">BANKNIFTY</td>
-  <td class="expiry">30 MAR 2026</td>
-  <td class="strength">-3</td>
-  <td class="type">FUT</td>
-  <td><span class="dir-pill">BEAR</span></td>
-  <td>63240</td>
-  <td>51899</td>
-  <td>11341</td>
-  <td>21.85</td>
-  <td>59109.2</td>
-  <td>60213.6</td>
-  <td>-1.83</td>
-</tr>
 
-<tr>
-  <td class="symbol">NIFTY</td>
-  <td class="expiry">30 MAR 2026</td>
-  <td class="strength">-1</td>
-  <td class="type">FUT</td>
-  <td><span class="dir-pill">BEAR</span></td>
-  <td>241467</td>
-  <td>231078</td>
-  <td>10389</td>
-  <td>4.5</td>
-  <td>24578.0</td>
-  <td>24982.2</td>
-  <td>-1.62</td>
-</tr>
-
-<tr>
-  <td class="symbol">HDFCBANK</td>
-  <td class="expiry">30 MAR 2026</td>
-  <td class="strength">0</td>
-  <td class="type">FUT</td>
-  <td><span class="dir-pill">BEAR</span></td>
-  <td>553742</td>
-  <td>538310</td>
-  <td>15432</td>
-  <td>2.87</td>
-  <td>875.0</td>
-  <td>886.15</td>
-  <td>-1.26</td>
-</tr>
-
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="footer">SPURT SCANNER · AUTO-REFRESH 60s</div>
-
-</div>
+  </div><!-- /dashboard -->
+</main>
 
 <script>
-const scanTime = new Date("2026-03-04T22:41:00");
-function updateElapsed() {
-  const diff = Math.floor((new Date() - scanTime) / 60000);
-  document.getElementById("elapsed").innerText =
-    diff <= 0 ? "just now" : diff + " mins ago";
+'use strict';
+
+// ── CONFIG ─────────────────────────────────────────────
+const WORKER = 'https://spurts.sumantasahoo.workers.dev/';
+const MON = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+
+// ── THEME ──────────────────────────────────────────────
+(function(){
+  const t = localStorage.getItem('spurts_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('theme-btn').textContent = t === 'dark' ? '🌙' : '☀️';
+})();
+
+function toggleTheme() {
+  const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('theme-btn').textContent = t === 'dark' ? '🌙' : '☀️';
+  localStorage.setItem('spurts_theme', t);
 }
-updateElapsed();
-setInterval(updateElapsed, 60000);
-setInterval(() => location.reload(), 60000);
+
+// ── UI HELPERS ─────────────────────────────────────────
+function setBadge(cls, text) {
+  const el = document.getElementById('scan-badge');
+  el.className = 'scan-badge ' + cls;
+  el.textContent = text;
+}
+function setScanTime(iso) {
+  if (!iso) return;
+  const d = new Date(iso);
+  document.getElementById('scan-time').textContent =
+    d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+}
+function showDashboard() {
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+}
+
+// ── CSV PARSING (browser) ──────────────────────────────
+function parseCSVLine(line) {
+  const out = []; let cur = ''; let q = false;
+  for (const ch of line) {
+    if (ch === '"') { q = !q; }
+    else if (ch === ',' && !q) { out.push(cur.trim()); cur = ''; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+}
+
+function parseCSVText(text) {
+  text = text.replace(/^\uFEFF/, '');
+  const lines = text.trim().split('\n').filter(Boolean);
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const f = parseCSVLine(lines[i]);
+    if (f.length < 12) continue;
+    const inst = f[1].replace(/"/g, '').trim();
+    const opt  = f[4].replace(/"/g, '').trim();
+    rows.push({
+      symbol:     f[0].replace(/"/g, '').trim(),
+      instrument: inst,
+      expiry:     f[2].replace(/"/g, '').trim(),
+      strike:     parseFloat(f[3]) || 0,
+      optType:    opt,
+      oiRecent:   parseFloat(f[5]) || 0,
+      oiPrev:     parseFloat(f[6]) || 0,
+      chngOI:     parseFloat(f[7]) || 0,
+      chngOIPct:  parseFloat(f[8]) || 0,
+      ltp:        parseFloat(f[9]) || 0,
+      prevClose:  parseFloat(f[10]) || 0,
+      ltpChngPct: parseFloat(f[11]) || 0,
+    });
+  }
+  return rows;
+}
+
+// ── SIGNAL ENGINE ──────────────────────────────────────
+function expiryMs(s) {
+  const [d, m, y] = s.split('-');
+  return new Date(+y, MON[m], +d).getTime();
+}
+
+function tradingDaysLeft(expMs) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  let d = new Date(today), n = 0;
+  while (d.getTime() <= expMs) {
+    if (d.getDay() !== 0 && d.getDay() !== 6) n++;
+    d.setDate(d.getDate() + 1);
+  }
+  return Math.max(n - 1, 0);
+}
+
+function nearExpiryFilter(rows) {
+  const minExp = {};
+  for (const r of rows) {
+    const ms = expiryMs(r.expiry);
+    if (!minExp[r.symbol] || ms < minExp[r.symbol]) minExp[r.symbol] = ms;
+  }
+  return rows.filter(r => expiryMs(r.expiry) === minExp[r.symbol]);
+}
+
+function calcDirection(r) {
+  const isFut = r.instrument.includes('Futures');
+  const type  = isFut ? 'FUT' : r.optType;
+  if (type === 'FUT' || type === 'CE') {
+    if (r.ltp > r.prevClose && r.chngOI > 0) return 'BULL';
+    if (r.ltp < r.prevClose && r.chngOI > 0) return 'BEAR';
+  }
+  if (type === 'PE') {
+    if (r.ltp > r.prevClose && r.chngOI > 0) return 'BEAR';
+    if (r.ltp < r.prevClose && r.chngOI > 0) return 'BULL';
+  }
+  return 'NEUTRAL';
+}
+
+function calcStrength(r, dir) {
+  if (dir === 'NEUTRAL') return 0;
+  const isFut = r.instrument.includes('Futures');
+  const oi    = Math.abs(r.chngOIPct);
+  let s = 0;
+  if (isFut) {
+    s = oi >= 15 ? 3 : oi >= 8 ? 2 : oi >= 4 ? 1 : 0;
+  } else {
+    const tf = tradingDaysLeft(expiryMs(r.expiry)) > 7 ? 1 : 0.5;
+    s = oi >= 20 ? 2 * tf : oi >= 10 ? 1 * tf : 0;
+  }
+  return Math.round(s * 10) / 10;
+}
+
+function processRows(allRows) {
+  const rows = nearExpiryFilter(allRows);
+  const fut = { bull: [], bear: [] };
+  const opt = { bull: [], bear: [] };
+
+  for (const r of rows) {
+    const dir = calcDirection(r);
+    if (dir === 'NEUTRAL') continue;
+    const isFut = r.instrument.includes('Futures');
+    const str   = calcStrength(r, dir);
+    const sig = {
+      symbol:    r.symbol,
+      expiry:    r.expiry,
+      type:      isFut ? 'FUT' : r.optType,
+      strike:    isFut ? null : r.strike,
+      strength:  str,
+      oiChngPct: r.chngOIPct,
+      ltpChngPct:r.ltpChngPct,
+      ltp:       r.ltp,
+    };
+    const bucket = dir === 'BULL' ? 'bull' : 'bear';
+    (isFut ? fut : opt)[bucket].push(sig);
+  }
+
+  const byStr = (a, b) => b.strength - a.strength;
+  fut.bull.sort(byStr); fut.bear.sort(byStr);
+  opt.bull.sort(byStr); opt.bear.sort(byStr);
+
+  return { futures: fut, options: opt };
+}
+
+// ── RENDER ─────────────────────────────────────────────
+function strDots(s, max = 3) {
+  const filled = Math.round(s);
+  let html = '<div class="str-dots">';
+  for (let i = 1; i <= max; i++) {
+    const cls = filled >= i
+      ? (max === 3 && i === 3 ? 'on3' : i === 2 ? 'on2' : 'on1')
+      : '';
+    html += `<div class="dot${cls ? ' ' + cls : ''}"></div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function fmtPct(v) {
+  const n = +v;
+  const cls = n > 0 ? 'bull' : n < 0 ? 'bear' : 'muted';
+  return `<span class="${cls}">${n > 0 ? '+' : ''}${n.toFixed(2)}%</span>`;
+}
+
+function typeBadge(type) {
+  const cls = type === 'CE' ? 'ce' : type === 'PE' ? 'pe' : 'fut';
+  return `<span class="tbadge ${cls}">${type}</span>`;
+}
+
+function renderFutTable(signals, dir) {
+  const cls = dir.toLowerCase();
+  if (!signals.length) {
+    return `<tbody><tr class="no-data"><td colspan="6">No ${dir} futures signals</td></tr></tbody>`;
+  }
+  const rows = signals.map(s => `
+    <tr>
+      <td class="sym">${s.symbol}</td>
+      <td class="c">${strDots(s.strength, 3)}</td>
+      <td class="mono r ${s.oiChngPct > 0 ? 'bull' : 'bear'}">${s.oiChngPct > 0 ? '+' : ''}${(+s.oiChngPct).toFixed(1)}%</td>
+      <td class="mono r">${fmtPct(s.ltpChngPct)}</td>
+      <td class="mono r muted">${(+s.ltp).toFixed(1)}</td>
+      <td class="muted" style="font-size:.72rem">${s.expiry}</td>
+    </tr>`).join('');
+  return `<tbody>${rows}</tbody>`;
+}
+
+function renderOptTable(signals, dir) {
+  if (!signals.length) {
+    return `<tbody><tr class="no-data"><td colspan="7">No ${dir} options signals</td></tr></tbody>`;
+  }
+  const rows = signals.map(s => `
+    <tr>
+      <td class="sym">${s.symbol}</td>
+      <td class="mono r gold">${s.strike ? s.strike.toLocaleString('en-IN') : '—'}</td>
+      <td class="c">${typeBadge(s.type)}</td>
+      <td class="c">${strDots(s.strength, 2)}</td>
+      <td class="mono r ${s.oiChngPct > 0 ? 'bull' : 'bear'}">${s.oiChngPct > 0 ? '+' : ''}${(+s.oiChngPct).toFixed(1)}%</td>
+      <td class="mono r">${fmtPct(s.ltpChngPct)}</td>
+      <td class="muted" style="font-size:.72rem">${s.expiry}</td>
+    </tr>`).join('');
+  return `<tbody>${rows}</tbody>`;
+}
+
+function buildPanel(title, cls, count, tbody, isFut) {
+  const colsFut = `
+    <th>Symbol</th>
+    <th class="c">Str</th>
+    <th class="r">OI Chng%</th>
+    <th class="r">LTP Chng%</th>
+    <th class="r">LTP</th>
+    <th>Expiry</th>`;
+  const colsOpt = `
+    <th>Symbol</th>
+    <th class="r">Strike</th>
+    <th class="c">Type</th>
+    <th class="c">Str</th>
+    <th class="r">OI Chng%</th>
+    <th class="r">LTP Chng%</th>
+    <th>Expiry</th>`;
+  return `
+    <div class="tpanel">
+      <div class="tpanel-head ${cls}">
+        <div class="tph-left">
+          <span class="tph-label ${cls}">${title === 'bull' ? '▲ LONG' : '▼ SHORT'}</span>
+          <span class="tph-count ${cls}">${count}</span>
+        </div>
+      </div>
+      <div class="tscroll">
+        <table>
+          <thead><tr>${isFut ? colsFut : colsOpt}</tr></thead>
+          ${tbody}
+        </table>
+      </div>
+    </div>`;
+}
+
+function renderAll(data) {
+  const { futures, options } = data;
+
+  // Summary cards
+  const totalBull = futures.bull.length + options.bull.length;
+  const totalBear = futures.bear.length + options.bear.length;
+  document.getElementById('c-bull').textContent = totalBull;
+  document.getElementById('c-bear').textContent = totalBear;
+  document.getElementById('c-bull-note').innerHTML =
+    `Fut: <b>${futures.bull.length}</b> &nbsp; Opt: <b>${options.bull.length}</b>`;
+  document.getElementById('c-bear-note').innerHTML =
+    `Fut: <b>${futures.bear.length}</b> &nbsp; Opt: <b>${options.bear.length}</b>`;
+
+  // Top Bull
+  const allBull = [...futures.bull, ...options.bull].sort((a,b) => b.strength - a.strength);
+  const allBear = [...futures.bear, ...options.bear].sort((a,b) => b.strength - a.strength);
+  if (allBull.length) {
+    const t = allBull[0];
+    document.getElementById('c-top-bull').textContent = t.symbol;
+    document.getElementById('c-top-bull-note').innerHTML =
+      `${t.type}${t.strike ? ' ' + t.strike : ''} &nbsp;·&nbsp; Str <b>${t.strength}</b> &nbsp;·&nbsp; OI ${t.oiChngPct > 0 ? '+' : ''}${(+t.oiChngPct).toFixed(1)}%`;
+  }
+  if (allBear.length) {
+    const t = allBear[0];
+    document.getElementById('c-top-bear').textContent = t.symbol;
+    document.getElementById('c-top-bear-note').innerHTML =
+      `${t.type}${t.strike ? ' ' + t.strike : ''} &nbsp;·&nbsp; Str <b>${t.strength}</b> &nbsp;·&nbsp; OI ${t.oiChngPct > 0 ? '+' : ''}${(+t.oiChngPct).toFixed(1)}%`;
+  }
+
+  // Futures panels
+  document.getElementById('fut-split').innerHTML =
+    buildPanel('bull', 'bull', futures.bull.length, renderFutTable(futures.bull, 'BULL'), true) +
+    buildPanel('bear', 'bear', futures.bear.length, renderFutTable(futures.bear, 'BEAR'), true);
+
+  // Options panels
+  document.getElementById('opt-split').innerHTML =
+    buildPanel('bull', 'bull', options.bull.length, renderOptTable(options.bull, 'BULL'), false) +
+    buildPanel('bear', 'bear', options.bear.length, renderOptTable(options.bear, 'BEAR'), false);
+
+  showDashboard();
+}
+
+// ── FETCH LIVE ─────────────────────────────────────────
+async function fetchLive() {
+  const btn = document.getElementById('fetch-btn');
+  btn.classList.add('loading');
+  btn.innerHTML = '<span class="spin"></span> &nbsp;Fetching';
+  setBadge('', 'Loading...');
+
+  try {
+    const res = await fetch(WORKER + '?mode=signals');
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Worker error');
+
+    renderAll(data);
+    setBadge('live', '● Live');
+    setScanTime(data.scanTime);
+  } catch (e) {
+    setBadge('err', 'Error');
+    alert('Fetch failed: ' + e.message);
+  }
+
+  btn.classList.remove('loading');
+  btn.innerHTML = '☁️ &nbsp;Fetch Live';
+}
+
+// ── MANUAL FILE UPLOAD ─────────────────────────────────
+async function handleFiles(files) {
+  if (!files || files.length === 0) return;
+
+  setBadge('', 'Parsing...');
+  const allRows = [];
+
+  for (const file of files) {
+    try {
+      const text = await file.text();
+      const rows = parseCSVText(text);
+      allRows.push(...rows);
+    } catch (e) {
+      console.error('File parse error:', file.name, e);
+    }
+  }
+
+  if (allRows.length === 0) {
+    setBadge('err', 'Parse Error');
+    alert('No data found in uploaded files. Check file format.');
+    return;
+  }
+
+  const { futures, options } = processRows(allRows);
+  renderAll({ futures, options });
+  setBadge('file', `📂 ${files.length} files`);
+  setScanTime(new Date().toISOString());
+
+  // Reset file input so same files can be re-uploaded
+  document.getElementById('file-input').value = '';
+}
 </script>
 </body>
 </html>
