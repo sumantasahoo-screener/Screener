@@ -130,6 +130,30 @@ body{
 .card.nt  .cl{color:#ffee88;}
 
 .cp{font-size:9px;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.9);color:#ffffff;}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  body{padding:4px 4px;gap:4px;overflow:auto;height:auto;}
+  .hdr{
+    grid-template-columns:1fr;
+    gap:8px;padding:8px 10px;
+  }
+  .hdr-left{flex-wrap:wrap;gap:8px;}
+  .sep{display:none;}
+  .sw input{width:100%;}
+  .breadth .bar-row{height:20px;}
+  .bstats{font-size:10px;gap:10px;}
+  .hdr-right{flex-direction:row;justify-content:flex-start;}
+  .grid{
+    overflow-y:auto;
+    grid-auto-rows:auto !important;
+    height:auto;
+  }
+  .card{min-height:60px;padding:5px 5px 4px;}
+  .cs{font-size:10px;}
+  .cl{font-size:11px;}
+  .cp{font-size:8.5px;}
+}
 </style>
 </head>
 <body>
@@ -138,7 +162,7 @@ body{
   <div class="hdr-left">
     <div class="logo">NSE F&amp;O<small>208 STOCKS</small></div>
     <div class="sep"></div>
-    <div class="ts">Scanned &nbsp;<b id="sct" data-scan-time="2026-03-04 17:28:09">2026-03-04 17:28:09</b></div>
+    <div class="ts">Scanned &nbsp;<b id="sct" data-scan-time="2026-03-04 17:43:22">2026-03-04 17:43:22</b></div>
     <div class="sep"></div>
     <div class="sw"><input id="srch" placeholder="Search…" oninput="doFilter()"></div>
   </div>
@@ -179,19 +203,34 @@ function setF(f){
   doFilter();
 }
 
+function getColumns(count){
+  const w=window.innerWidth;
+  if(w<=480)  return Math.min(count, 5);
+  if(w<=768)  return Math.min(count, 8);
+  if(w<=1024) return Math.min(count,12);
+  // desktop: fit naturally
+  if(count<=50)  return Math.min(count,10);
+  if(count<=100) return Math.min(count,14);
+  return 21;
+}
+
 function doFilter(){
   const s=document.getElementById('srch').value.toLowerCase();
-  const filtering=s||cF==='nifty';
-  grid.style.gridTemplateColumns=filtering?'repeat(auto-fill,minmax(95px,1fr))':'repeat(21,1fr)';
-  grid.style.gridAutoRows=filtering?'auto':'1fr';
-  grid.style.overflowY=filtering?'auto':'hidden';
-
   let adv=0,dec=0,neu=0,tot=0;
+  const visible=[];
   nodes.forEach(c=>{
     const ok=(cF==='all'||c.dataset.nifty==='1')&&(!s||c.dataset.sym.toLowerCase().includes(s));
     c.style.display=ok?'':'none';
-    if(ok){tot++;c.classList.contains('adv')?adv++:c.classList.contains('dec')?dec++:neu++;}
+    if(ok){tot++;visible.push(c);c.classList.contains('adv')?adv++:c.classList.contains('dec')?dec++:neu++;}
   });
+
+  const cols=getColumns(tot);
+  const w=window.innerWidth;
+  const isScrollable=(w<=768)||s;
+  grid.style.gridTemplateColumns='repeat('+cols+',1fr)';
+  grid.style.gridAutoRows=isScrollable?'auto':'1fr';
+  grid.style.overflowY=isScrollable?'auto':'hidden';
+
   const ap=tot?+(adv/tot*100).toFixed(1):0;
   const dp=tot?+(dec/tot*100).toFixed(1):0;
   document.getElementById('bA').style.width=Math.max(ap,adv>0?3:0)+'%';
@@ -203,6 +242,7 @@ function doFilter(){
   document.getElementById('stDec').textContent=dec;
   document.getElementById('stNeu').textContent=neu;
 }
+window.addEventListener('resize',doFilter);
 
 // Auto-reload when HTML file is updated
 async function checkUpdate(){
