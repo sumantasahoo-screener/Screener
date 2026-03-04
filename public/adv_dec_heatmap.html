@@ -133,26 +133,37 @@ body{
 
 /* ── MOBILE ── */
 @media(max-width:768px){
-  body{padding:4px 4px;gap:4px;overflow:auto;height:auto;}
+  body{padding:4px;gap:4px;overflow:auto;height:auto;}
   .hdr{
     grid-template-columns:1fr;
-    gap:8px;padding:8px 10px;
+    gap:8px;padding:10px 12px;border-radius:10px;
   }
   .hdr-left{flex-wrap:wrap;gap:8px;}
+  .logo{font-size:16px;}
+  .logo small{font-size:10px;}
   .sep{display:none;}
-  .sw input{width:100%;}
-  .breadth .bar-row{height:20px;}
-  .bstats{font-size:10px;gap:10px;}
-  .hdr-right{flex-direction:row;justify-content:flex-start;}
+  .ts{font-size:11px;}
+  .sw input{width:100%;font-size:12px;padding:6px 10px 6px 26px;}
+  .breadth .bar-row{height:26px;border-radius:13px;}
+  .b-adv,.b-dec{font-size:11px;}
+  .bstats{font-size:12px;gap:12px;flex-wrap:wrap;}
+  .hdr-right{flex-direction:row;gap:8px;}
+  .fb{font-size:12px;padding:6px 16px;}
   .grid{
-    overflow-y:auto;
+    overflow-y:visible;
     grid-auto-rows:auto !important;
     height:auto;
+    gap:4px;
   }
-  .card{min-height:60px;padding:5px 5px 4px;}
-  .cs{font-size:10px;}
-  .cl{font-size:11px;}
-  .cp{font-size:8.5px;}
+  .card{
+    min-height:80px;
+    padding:8px 8px 7px;
+    border-radius:8px;
+  }
+  .cs{font-size:13px;font-weight:700;}
+  .cl{font-size:14px;}
+  .cp{font-size:11px;}
+  .ndot{width:5px;height:5px;}
 }
 </style>
 </head>
@@ -162,7 +173,7 @@ body{
   <div class="hdr-left">
     <div class="logo">NSE F&amp;O<small>208 STOCKS</small></div>
     <div class="sep"></div>
-    <div class="ts">Scanned &nbsp;<b id="sct" data-scan-time="2026-03-04 17:55:59">2026-03-04 17:55:59</b></div>
+    <div class="ts">Scanned &nbsp;<b id="sct" data-scan-time="2026-03-04 18:01:20">2026-03-04 18:01:20</b></div>
     <div class="sep"></div>
     <div class="sw"><input id="srch" placeholder="Search…" oninput="doFilter()"></div>
   </div>
@@ -205,10 +216,11 @@ function setF(f){
 
 function getColumns(count){
   const w=window.innerWidth;
-  if(w<=480)  return Math.min(count, 5);
-  if(w<=768)  return Math.min(count, 8);
-  if(w<=1024) return Math.min(count,12);
-  // desktop: fit naturally
+  if(w<=380)  return Math.min(count, 3);   // small phones: 3 cols
+  if(w<=480)  return Math.min(count, 3);   // phones: 3 cols
+  if(w<=600)  return Math.min(count, 4);   // large phones: 4 cols
+  if(w<=768)  return Math.min(count, 5);   // tablet portrait: 5 cols
+  if(w<=1024) return Math.min(count,12);   // tablet landscape
   if(count<=50)  return Math.min(count,10);
   if(count<=100) return Math.min(count,14);
   return 21;
