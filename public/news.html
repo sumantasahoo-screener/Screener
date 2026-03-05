@@ -92,18 +92,15 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background 0.3s, color 0.3s;
-  padding: 20px 10px; /* Space around the unified app */
+  padding: 20px 10px;
 }
 
 /* ════════════════════════════════════
-   UNIFIED APP CONTAINER (WIDTH FIXED)
+   UNIFIED LAYOUT (NO MORE WIDTH MISMATCH)
 ════════════════════════════════════ */
-#app-container {
-  max-width: 1550px; /* Increased Width */
+.layout-container {
+  max-width: 1550px; /* Lock for both Ticker and News */
   margin: 0 auto;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px var(--shadow);
-  /* Dhyan rakhein: overflow: hidden nahi lagana, warna sticky break ho jayega! */
 }
 
 /* ════════════════════════════════════
@@ -119,9 +116,11 @@ body {
   position: sticky; top: 0; z-index: 300;
 }
 .ticker-label {
-  font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px;
+  font-size: 0.75rem; font-weight: 800; letter-spacing: 1.5px;
   color: var(--ink3); margin-right: 24px; text-transform: uppercase;
 }
+/* Ticker now gets 100% of the space because buttons moved down! */
+.ticker-scroll { flex: 1; overflow: hidden; display: flex; align-items: center; }
 .ticker-inner { display: flex; align-items: center; gap: 30px; overflow-x: auto; scrollbar-width: none; }
 .ticker-inner::-webkit-scrollbar { display: none; }
 .t-item { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
@@ -136,19 +135,26 @@ body {
   border: 1px solid var(--border);
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
+  box-shadow: 0 10px 40px var(--shadow);
 }
 
 /* ════════════════════════════════════
-   TABS NAVIGATION (STICKY)
+   TABS & ACTIONS WRAPPER (THE CIRCLE FIX)
 ════════════════════════════════════ */
-#tab-bar {
+#tab-actions-wrapper {
+  display: flex; justify-content: space-between; align-items: center;
   background: var(--surface); border-bottom: 1px solid var(--border);
-  padding: 0 20px; display: flex; align-items: center; gap: 5px;
-  position: sticky; top: 54px; z-index: 200; overflow-x: auto; scrollbar-width: none;
+  position: sticky; top: 54px; z-index: 200;
+}
+
+/* Tabs Left Side */
+#tab-bar {
+  display: flex; align-items: center; gap: 5px; padding: 0 20px;
+  overflow-x: auto; scrollbar-width: none; flex: 1;
 }
 #tab-bar::-webkit-scrollbar { display: none; }
 .tab {
-  padding: 18px 20px; font-size: 0.95rem; font-weight: 600; color: var(--ink3);
+  padding: 18px 16px; font-size: 0.95rem; font-weight: 600; color: var(--ink3);
   border-bottom: 3px solid transparent; cursor: pointer; white-space: nowrap;
   transition: all 0.2s ease;
 }
@@ -157,73 +163,29 @@ body {
 .tab-badge {
   font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700;
   padding: 2px 8px; border-radius: 12px; background: var(--border);
-  color: var(--ink); margin-left: 8px; transition: 0.2s;
+  color: var(--ink); margin-left: 6px; transition: 0.2s;
 }
 .tab.active .tab-badge { background: var(--accent); color: #fff; }
 
+/* Actions Right Side (Moved from Ticker) */
+.tab-actions {
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 24px 0 16px; border-left: 1px solid var(--border);
+}
+
 /* ════════════════════════════════════
-   PREMIUM NEWS CARDS
+   BUTTONS & LIVE SYNC DOT
 ════════════════════════════════════ */
-#news-container { padding: 24px; background: var(--bg); min-height: 80vh; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
-
-.news-item {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 22px 28px;
-  margin-bottom: 16px;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: fadeSlideUp 0.3s ease forwards;
+.update-container {
+  display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem; color: var(--ink3); background: var(--bg);
+  padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); white-space: nowrap;
 }
-.news-item:hover {
-  background: var(--card-hover);
-  border-color: var(--border-hover);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px var(--shadow);
-}
-@keyframes fadeSlideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-.tag {
-  font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 6px;
-  text-transform: uppercase; letter-spacing: 1px; display: inline-block;
-  border: 1px solid transparent;
-}
-.tag-STOCKS { background: var(--tag-stock); color: var(--tag-stock-c); border-color: var(--tag-stock); }
-.tag-INDEX  { background: var(--tag-index); color: var(--tag-index-c); border-color: var(--tag-index); }
-.tag-RESULTS{ background: var(--tag-result); color: var(--tag-result-c); border-color: var(--tag-result); }
-.tag-GLOBAL { background: var(--tag-global); color: var(--tag-global-c); border-color: var(--tag-global); }
-.tag-IPO    { background: var(--tag-ipo); color: var(--tag-ipo-c); border-color: var(--tag-ipo); }
-.tag-BSE    { background: var(--tag-bse); color: var(--tag-bse-c); border-color: var(--tag-bse); }
-
-.headline {
-  font-size: 1.25rem; font-weight: 700; color: var(--ink);
-  text-decoration: none; display: block; margin: 12px 0;
-  line-height: 1.4; transition: color 0.2s;
-}
-.headline:hover { color: var(--accent); }
-
-.source-chip {
-  font-size: 0.7rem; font-weight: 600; color: var(--ink2);
-  background: transparent; padding: 2px 8px; border-radius: 4px;
-  margin-left: 10px; border: 1px solid var(--border);
-}
-
-.news-time {
-  font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
-  color: var(--ink3); display: flex; align-items: center; gap: 10px; font-weight: 500;
-}
-
-.list-header {
-  padding: 10px 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
-  color: var(--ink2); margin: 24px 0 12px 0; border-bottom: 2px solid var(--border);
-  letter-spacing: 1px;
-}
-
-/* Utils */
 .tbtn {
   height: 36px; padding: 0 16px; border-radius: 8px; background: var(--card);
   border: 1px solid var(--border); color: var(--ink); font-size: 0.85rem; font-weight: 600;
   cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;
+  white-space: nowrap;
 }
 .tbtn:hover { background: var(--card-hover); border-color: var(--accent); }
 
@@ -233,6 +195,54 @@ body {
 }
 @keyframes blink { 0% { opacity: 0.3; } 50% { opacity: 1; box-shadow: 0 0 8px #00e676; } 100% { opacity: 0.3; } }
 
+/* ════════════════════════════════════
+   PREMIUM NEWS CARDS
+════════════════════════════════════ */
+#news-container { padding: 24px; background: var(--bg); min-height: 80vh; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
+
+.news-item {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 22px 28px; margin-bottom: 16px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeSlideUp 0.3s ease forwards;
+}
+.news-item:hover {
+  background: var(--card-hover); border-color: var(--border-hover);
+  transform: translateY(-3px); box-shadow: 0 8px 20px var(--shadow);
+}
+@keyframes fadeSlideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+.tag {
+  font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 6px;
+  text-transform: uppercase; letter-spacing: 1px; display: inline-block; border: 1px solid transparent;
+}
+.tag-STOCKS { background: var(--tag-stock); color: var(--tag-stock-c); border-color: var(--tag-stock); }
+.tag-INDEX  { background: var(--tag-index); color: var(--tag-index-c); border-color: var(--tag-index); }
+.tag-RESULTS{ background: var(--tag-result); color: var(--tag-result-c); border-color: var(--tag-result); }
+.tag-GLOBAL { background: var(--tag-global); color: var(--tag-global-c); border-color: var(--tag-global); }
+.tag-IPO    { background: var(--tag-ipo); color: var(--tag-ipo-c); border-color: var(--tag-ipo); }
+.tag-BSE    { background: var(--tag-bse); color: var(--tag-bse-c); border-color: var(--tag-bse); }
+
+.headline {
+  font-size: 1.25rem; font-weight: 700; color: var(--ink); text-decoration: none;
+  display: block; margin: 12px 0; line-height: 1.4; transition: color 0.2s;
+}
+.headline:hover { color: var(--accent); }
+
+.source-chip {
+  font-size: 0.7rem; font-weight: 600; color: var(--ink2); background: transparent;
+  padding: 2px 8px; border-radius: 4px; margin-left: 10px; border: 1px solid var(--border);
+}
+
+.news-time {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+  color: var(--ink3); display: flex; align-items: center; gap: 10px; font-weight: 500;
+}
+
+.list-header {
+  padding: 10px 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
+  color: var(--ink2); margin: 24px 0 12px 0; border-bottom: 2px solid var(--border); letter-spacing: 1px;
+}
+
 .spin {
   display: inline-block; width: 20px; height: 20px; border: 3px solid var(--border);
   border-top-color: var(--accent); border-radius: 50%; animation: ro 0.8s linear infinite;
@@ -240,29 +250,27 @@ body {
 @keyframes ro { to { transform: rotate(360deg); } }
 
 /* ════════════════════════════════════
-   📱 MOBILE RESPONSIVE (PERFECT VIEW)
+   📱 MOBILE RESPONSIVE
 ════════════════════════════════════ */
+@media (max-width: 950px) {
+  #tab-actions-wrapper { flex-direction: column; align-items: stretch; }
+  .tab-actions { border-left: none; border-top: 1px solid var(--border); padding: 12px 20px; justify-content: space-between; }
+}
+
 @media (max-width: 768px) {
   body { padding: 0; }
-  #app-container { border-radius: 0; box-shadow: none; border: none; }
+  .layout-container { border-radius: 0; }
+  #ticker-bar { border-radius: 0; border-left: none; border-right: none; padding: 0 12px; height: 50px; }
+  .wrapper { border-radius: 0; border-left: none; border-right: none; box-shadow: none; border-bottom: none; }
   
-  #ticker-bar { 
-    border-radius: 0; border-left: none; border-right: none; 
-    padding: 0 12px; height: 50px; 
-  }
-  .wrapper { border-radius: 0; border-left: none; border-right: none; }
+  .ticker-label { display: none; }
+  .tbtn span { display: none; }
+  .tbtn { padding: 0 14px; font-size: 1rem; }
+  .update-container { font-size: 0.65rem; padding: 4px 10px; }
   
-  /* Compact Header on Mobile */
-  .ticker-label { display: none; } /* Hide 'MARKETS' */
-  .update-container { display: none !important; } /* Hide connection status */
-  .tbtn span { display: none; } /* Show only icons in buttons */
-  .tbtn { padding: 0 12px; font-size: 1rem; }
-  
-  /* Swipeable Tabs */
-  #tab-bar { padding: 0 10px; top: 50px; }
+  #tab-bar { padding: 0 10px; }
   .tab { padding: 14px 12px; font-size: 0.85rem; }
   
-  /* Edge-to-Edge Cards */
   #news-container { padding: 16px 12px; }
   .news-item { padding: 16px; border-radius: 8px; margin-bottom: 12px; }
   .headline { font-size: 1.1rem; margin: 8px 0; }
@@ -272,37 +280,40 @@ body {
 </head>
 <body>
 
-<div id="app-container">
+<div class="layout-container">
   <div id="ticker-bar">
     <div class="ticker-label">MARKETS</div>
-    <div class="ticker-scroll" style="flex: 1;">
+    <div class="ticker-scroll">
       <div class="ticker-inner" id="indices-container">
         <span style="color:var(--ink3); font-size:0.85rem;">Loading Live Indices...</span>
       </div>
     </div>
-    <div class="ticker-right" style="display: flex; align-items: center; gap: 10px;">
-      <div class="update-container" style="display:flex; align-items:center; gap:8px; font-family:'JetBrains Mono'; font-size:0.75rem; color:var(--ink3); background:var(--bg); padding:4px 12px; border-radius:20px; border:1px solid var(--border);">
-        <span class="live-dot"></span>
-        <span id="update-time">Connecting...</span>
-      </div>
-      <button class="tbtn" onclick="toggleTheme()" id="theme-btn">
-        <i class="fas fa-moon"></i><span>Theme</span>
-      </button>
-      <button class="tbtn" onclick="refreshData(true)" id="refresh-btn">
-        <i class="fas fa-sync-alt" id="refresh-icon"></i><span>Sync</span>
-      </button>
-    </div>
   </div>
 
   <div class="wrapper">
-    <div id="tab-bar">
-      <div class="tab active" onclick="switchTab(this,'ALL')">All Feed <span class="tab-badge" id="cnt-ALL">0</span></div>
-      <div class="tab" onclick="switchTab(this,'STOCKS')">Stocks <span class="tab-badge" id="cnt-STOCKS">0</span></div>
-      <div class="tab" onclick="switchTab(this,'INDEX')">Index <span class="tab-badge" id="cnt-INDEX">0</span></div>
-      <div class="tab" onclick="switchTab(this,'RESULTS')">Results <span class="tab-badge" id="cnt-RESULTS">0</span></div>
-      <div class="tab" onclick="switchTab(this,'GLOBAL')">Global <span class="tab-badge" id="cnt-GLOBAL">0</span></div>
-      <div class="tab" onclick="switchTab(this,'IPO')">IPO <span class="tab-badge" id="cnt-IPO">0</span></div>
-      <div class="tab" onclick="switchTab(this,'BSE')">BSE Filings <span class="tab-badge" id="cnt-BSE">0</span></div>
+    <div id="tab-actions-wrapper">
+      <div id="tab-bar">
+        <div class="tab active" onclick="switchTab(this,'ALL')">All Feed <span class="tab-badge" id="cnt-ALL">0</span></div>
+        <div class="tab" onclick="switchTab(this,'STOCKS')">Stocks <span class="tab-badge" id="cnt-STOCKS">0</span></div>
+        <div class="tab" onclick="switchTab(this,'INDEX')">Index <span class="tab-badge" id="cnt-INDEX">0</span></div>
+        <div class="tab" onclick="switchTab(this,'RESULTS')">Results <span class="tab-badge" id="cnt-RESULTS">0</span></div>
+        <div class="tab" onclick="switchTab(this,'GLOBAL')">Global <span class="tab-badge" id="cnt-GLOBAL">0</span></div>
+        <div class="tab" onclick="switchTab(this,'IPO')">IPO <span class="tab-badge" id="cnt-IPO">0</span></div>
+        <div class="tab" onclick="switchTab(this,'BSE')">BSE Filings <span class="tab-badge" id="cnt-BSE">0</span></div>
+      </div>
+      
+      <div class="tab-actions">
+        <div class="update-container">
+          <span class="live-dot"></span>
+          <span id="update-time">Connecting...</span>
+        </div>
+        <button class="tbtn" onclick="toggleTheme()" id="theme-btn">
+          <i class="fas fa-moon"></i><span>Theme</span>
+        </button>
+        <button class="tbtn" onclick="refreshData(true)" id="refresh-btn">
+          <i class="fas fa-sync-alt" id="refresh-icon"></i><span>Sync</span>
+        </button>
+      </div>
     </div>
 
     <div id="news-container">
@@ -343,10 +354,15 @@ function updateThemeBtn(theme) {
   else btn.innerHTML = '<i class="fas fa-sun"></i><span>Light</span>';
 }
 
-/* ── Date Formatter ── */
+/* ── Aggressive Date Killer (No more 'Invalid Date') ── */
+function isValidDate(d) {
+  return d instanceof Date && !isNaN(d.getTime());
+}
+
 function timeAgo(dateStr){
+  if (!dateStr) return '';
   const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return 'LIVE'; 
+  if (!isValidDate(d)) return ''; 
   const diff = Math.floor((new Date() - d) / 60000);
   if (diff < 1) return 'JUST NOW';
   if (diff < 60) return diff + ' MIN AGO';
@@ -356,7 +372,7 @@ function timeAgo(dateStr){
 function fmtTime(iso){
   if (!iso) return '';
   const d = new Date(iso);
-  if (isNaN(d.getTime())) return ''; 
+  if (!isValidDate(d)) return ''; 
   return d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', timeZone:'Asia/Kolkata' }) + ' IST';
 }
 
@@ -400,7 +416,16 @@ function renderNews(){
     return;
   }
   
-  let html = list.map((item, index) => `
+  let html = list.map((item, index) => {
+    let tStr = fmtTime(item.pubDate);
+    let aStr = timeAgo(item.pubDate);
+    
+    // Fallback logic if date is corrupted
+    let timeHtml = (tStr && aStr) 
+      ? `<i class="far fa-clock"></i> ${tStr} <span style="color:var(--border-hover)">•</span> <span style="color:var(--ink2)">${aStr}</span>`
+      : `<i class="fas fa-bolt"></i> <span style="color:var(--ink2)">LIVE UPDATE</span>`;
+
+    return `
     <div class="news-item" style="animation-delay: ${Math.min(index * 0.03, 0.5)}s">
       <div style="margin-bottom:12px; display:flex; align-items:center;">
         <span class="tag tag-${item.category}">${item.category}</span>
@@ -408,11 +433,10 @@ function renderNews(){
       </div>
       <a href="${item.link}" target="_blank" class="headline">${item.title}</a>
       <div class="news-time">
-        <i class="far fa-clock"></i> ${fmtTime(item.pubDate)} 
-        <span style="color:var(--border-hover)">•</span> 
-        <span style="color:var(--ink2)">${timeAgo(item.pubDate)}</span>
+        ${timeHtml}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   
   container.innerHTML = html;
 }
@@ -430,16 +454,23 @@ function renderBSE(container){
   ['DIVIDEND','RESULTS','BOARD','CORPORATE','BUYBACK','BONUS/SPLIT','CAPITAL','FILING'].forEach(grp => {
     if(!groups[grp]) return;
     html += `<div class="list-header">${grp} Announcements <span style="float:right; opacity:0.6;">${groups[grp].length} Updates</span></div>`;
-    html += groups[grp].map((item, index) => `
-      <div class="news-item" style="animation-delay: ${Math.min(index * 0.03, 0.5)}s;">
+    html += groups[grp].map((item, index) => {
+      let tStr = fmtTime(item.pubDate);
+      let aStr = timeAgo(item.pubDate);
+      let timeHtml = (tStr && aStr) 
+        ? `<span style="color:var(--border-hover)">•</span> ${tStr} <span style="color:var(--border-hover)">•</span> ${aStr}`
+        : `<span style="color:var(--border-hover)">•</span> LIVE UPDATE`;
+
+      return `
+      <div class="news-item" style="animation-delay: ${Math.min(index * 0.03, 0.5)}s; padding:18px 24px;">
         <div style="margin-bottom:8px;"><span class="tag tag-BSE">BSE FILING</span></div>
         <a href="${item.link}" target="_blank" class="headline" style="font-size:1.1rem; margin:8px 0;">${item.title}</a>
         <div class="news-time">
           <i class="fas fa-file-signature"></i> Exchange Upload 
-          <span style="color:var(--border-hover)">•</span> ${fmtTime(item.pubDate)} 
-          <span style="color:var(--border-hover)">•</span> ${timeAgo(item.pubDate)}
+          ${timeHtml}
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   });
   
   container.innerHTML = html;
@@ -461,7 +492,8 @@ async function refreshData(isManual = false){
     renderNews();
     renderIndices(data.indices || []);
     
-    document.getElementById('update-time').textContent = 'Live Sync: ' + (data.updatedAt ? fmtTime(data.updatedAt) : fmtTime(new Date()));
+    let updatedTime = data.updatedAt ? fmtTime(data.updatedAt) : fmtTime(new Date().toISOString());
+    document.getElementById('update-time').textContent = 'Live Sync: ' + (updatedTime || 'LIVE');
     isInitialLoad = false;
   } catch(e) { console.error("Sync Interrupted", e); }
   
