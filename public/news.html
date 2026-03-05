@@ -1,345 +1,665 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Terminal - Hybrid Theme</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        /* --- THEME VARIABLES --- */
-        :root {
-            /* Dark Theme (Default) */
-            --bg-body: #0c0e15;
-            --bg-wrapper: #131722;
-            --bg-bar: #1E222D;
-            --text-main: #D1D4DC;
-            --text-headline: #E0E3EB;
-            --text-meta: #787B86;
-            --border-color: #2A2E39;
-            --item-border: #1E222D;
-            --tab-active: #2962FF;
-            --hover-color: #1e222d;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Terminal · NSE/BSE News</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
 
-        [data-theme="light"] {
-            /* Light Theme */
-            --bg-body: #f0f2f5;
-            --bg-wrapper: #ffffff;
-            --bg-bar: #f8f9fb;
-            --text-main: #131722;
-            --text-headline: #131722;
-            --text-meta: #5d606b;
-            --border-color: #dee2e6;
-            --item-border: #f0f3fa;
-            --tab-active: #2962FF;
-            --hover-color: #f0f3fa;
-        }
+/* ════════════════════════════════════
+   DARK THEME (Premium #055C51 Base)
+════════════════════════════════════ */
+[data-theme="dark"] {
+  --bg:        #055C51;
+  --surface:   #044A41;
+  --surface2:  #066E61;
+  --surface3:  #088575;
+  --card:      #044A41;
+  --border:    rgba(255, 255, 255, 0.12);
+  --border2:   rgba(255, 255, 255, 0.25);
+  --ink:       #F0F7F6;
+  --ink2:      #B3DCD6;
+  --ink3:      #8BC4BD;
+  --shadow:    rgba(0,0,0,.35);
 
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            transition: background-color 0.3s, color 0.3s;
-        }
-        
-        body { 
-            background-color: var(--bg-body); 
-            color: var(--text-main); 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; 
-            overflow-y: scroll; 
-        }
-        
-        .wrapper { 
-            max-width: 1400px; 
-            width: 100%; 
-            margin: 0 auto; 
-            background-color: var(--bg-wrapper); 
-            min-height: 100vh; 
-            border-left: 1px solid var(--border-color); 
-            border-right: 1px solid var(--border-color); 
-            display: flex; 
-            flex-direction: column; 
-        }
+  --bull:      #00FF9D;
+  --bear:      #FF5252;
+  --amber:     #FFC400;
+  --blue:      #40C4FF;
 
-        /* --- TOP BAR & THEME SWITCHER --- */
-        #top-bar { 
-            background-color: var(--bg-bar); 
-            border-bottom: 1px solid var(--border-color); 
-            padding: 12px 20px; 
-            font-size: 13px; 
-            font-weight: 600; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between;
-        }
+  --tag-stock-bg:  rgba(64,196,255,.15);
+  --tag-stock-c:   #80D8FF;
+  --tag-index-bg:  rgba(224,64,251,.15);
+  --tag-index-c:   #EA80FC;
+  --tag-result-bg: rgba(0,255,157,.15);
+  --tag-result-c:  #00FF9D;
+  --tag-global-bg: rgba(255,82,82,.15);
+  --tag-global-c:  #FF8A80;
+  --tag-div-bg:    rgba(255,196,0,.15);
+  --tag-div-c:     #FFE57F;
+  --tag-corp-bg:   rgba(100,181,246,.15);
+  --tag-corp-c:    #90CAF9;
+  --tag-bse-bg:    rgba(129,199,132,.15);
+  --tag-bse-c:     #A5D6A7;
 
-        .indices-wrapper {
-            display: flex;
-            align-items: center;
-            overflow-x: auto;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            flex-grow: 1;
-        }
-        .indices-wrapper::-webkit-scrollbar { display: none; }
+  --ticker-bg:  #044A41;
+  --val-up:     #00FF9D;
+  --val-dn:     #FF5252;
+  --val-flat:   #B3DCD6;
+}
 
-        .theme-toggle {
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 20px;
-            background: var(--border-color);
-            color: var(--text-headline);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            margin-left: 15px;
-            flex-shrink: 0;
-        }
+/* ════════════════════════════════════
+   LIGHT THEME (Fresh Mint/Teal Tone)
+════════════════════════════════════ */
+[data-theme="light"] {
+  --bg:        #F0F7F6;
+  --surface:   #FFFFFF;
+  --surface2:  #E0EFEC;
+  --surface3:  #D1E8E4;
+  --card:      #FFFFFF;
+  --border:    #CCE0DC;
+  --border2:   #AECFC9;
+  --ink:       #03332D;
+  --ink2:      #055C51;
+  --ink3:      #087D6E;
+  --shadow:    rgba(3, 51, 45, .08);
 
-        .index-box { 
-            margin-right: 25px; 
-            display: inline-flex; 
-            align-items: center; 
-            flex-shrink: 0; 
-        }
-        
-        .index-name { color: var(--text-meta); margin-right: 6px; }
-        .val-up { color: #089981; } 
-        .val-down { color: #F23645; } 
-        .val-flat { color: var(--text-main); }
+  --bull:      #0A9160;
+  --bear:      #D42035;
+  --amber:     #C07A10;
+  --blue:      #1D55D0;
 
-        /* --- TABS --- */
-        #tabs { 
-            display: flex; 
-            border-bottom: 1px solid var(--border-color); 
-            padding: 0 10px; 
-            margin-top: 10px; 
-            overflow-x: auto; 
-            white-space: nowrap; 
-            scrollbar-width: none; 
-        }
-        
-        #tabs::-webkit-scrollbar { display: none; }
-        
-        .tab { 
-            padding: 12px 20px; 
-            cursor: pointer; 
-            font-size: 14px; 
-            font-weight: 600; 
-            color: var(--text-meta); 
-            border-bottom: 3px solid transparent; 
-            flex-shrink: 0; 
-        }
-        
-        .tab.active { 
-            color: var(--tab-active); 
-            border-bottom: 3px solid var(--tab-active); 
-        }
-        
-        .tab:hover:not(.active) { color: var(--text-headline); }
+  --tag-stock-bg:  rgba(29,85,208,.08);
+  --tag-stock-c:   #1D55D0;
+  --tag-index-bg:  rgba(123,31,162,.08);
+  --tag-index-c:   #7B1FA2;
+  --tag-result-bg: rgba(10,145,96,.08);
+  --tag-result-c:  #0A9160;
+  --tag-global-bg: rgba(212,32,53,.08);
+  --tag-global-c:  #D42035;
+  --tag-div-bg:    rgba(192,122,16,.08);
+  --tag-div-c:     #C07A10;
+  --tag-corp-bg:   rgba(25,118,210,.08);
+  --tag-corp-c:    #1976D2;
+  --tag-bse-bg:    rgba(46,125,50,.08);
+  --tag-bse-c:     #2E7D32;
 
-        /* --- NEWS ITEMS --- */
-        #news-container { padding: 20px; flex-grow: 1; }
-        
-        .news-item { 
-            padding: 18px 0; 
-            border-bottom: 1px solid var(--item-border); 
-            animation: fadeIn 0.4s; 
-            display: flex; 
-            flex-direction: column; 
-        }
-        
-        @keyframes fadeIn { 
-            from { opacity: 0; transform: translateY(5px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-        
-        .tag { 
-            font-size: 10px; 
-            font-weight: bold; 
-            padding: 3px 6px; 
-            border-radius: 4px; 
-            margin-bottom: 8px;
-            text-transform: uppercase; 
-            display: inline-block;
-            width: fit-content;
-        }
-        
-        .tag-STOCKS { background: rgba(41, 98, 255, 0.15); color: #2962FF; }
-        .tag-INDEX { background: rgba(156, 39, 176, 0.15); color: #E040FB; }
-        .tag-GLOBAL { background: rgba(242, 54, 69, 0.15); color: #F23645; }
-        .tag-RESULTS { background: rgba(8, 153, 129, 0.15); color: #089981; }
-        
-        .headline { 
-            font-size: 16px; 
-            font-weight: 600; 
-            color: var(--text-headline); 
-            text-decoration: none; 
-            line-height: 1.4; 
-            margin-bottom: 6px; 
-        }
-        
-        .headline:hover { color: var(--tab-active); }
-        
-        .meta { 
-            font-size: 12px; 
-            color: var(--text-meta); 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-        }
-        
-        .dot { height: 4px; width: 4px; background-color: var(--text-meta); border-radius: 50%; }
-        
-        #loading { padding: 40px; color: var(--text-meta); text-align: center; font-family: monospace; }
+  --ticker-bg:  #FFFFFF;
+  --val-up:     #0A9160;
+  --val-dn:     #D42035;
+  --val-flat:   #055C51;
+}
 
-        @media (max-width: 768px) {
-            .wrapper { border-left: none; border-right: none; }
-            .headline { font-size: 15px; }
-            .theme-toggle span { display: none; } /* Mobile par text hide kar do */
-        }
-    </style>
+/* ════════════════════════════════════
+   RESET + BASE
+════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:'DM Sans',system-ui,sans-serif;
+  font-size:16px; /* Text Size Increased */
+  line-height:1.6;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  transition:background .3s,color .3s;
+}
+
+/* ════════════════════════════════════
+   TICKER BAR
+════════════════════════════════════ */
+#ticker-bar {
+  background:var(--ticker-bg);
+  border-bottom:1px solid var(--border);
+  height:48px;
+  display:flex;align-items:center;
+  padding:0 24px;
+  gap:0;
+  position:sticky;top:0;z-index:300;
+  box-shadow:0 1px 0 var(--border), 0 2px 8px var(--shadow);
+}
+.ticker-label {
+  font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;
+  color:var(--ink3);flex-shrink:0;margin-right:20px;
+  white-space:nowrap;
+}
+.ticker-scroll {
+  flex:1;overflow:hidden;
+  display:flex;align-items:center;gap:0;
+}
+.ticker-inner {
+  display:flex;align-items:center;gap:28px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;padding-bottom:1px;
+}
+.ticker-inner::-webkit-scrollbar{display:none;}
+.t-item {
+  display:inline-flex;align-items:center;gap:8px;
+  flex-shrink:0;font-size:.85rem;
+}
+.t-name {
+  font-family:'DM Mono',monospace;font-size:.75rem;
+  color:var(--ink3);font-weight:500;
+}
+.t-val {font-family:'DM Mono',monospace;font-weight:600;font-size:.85rem;}
+.t-val.up  {color:var(--val-up);}
+.t-val.dn  {color:var(--val-dn);}
+.t-val.flat{color:var(--val-flat);}
+.ticker-right {
+  display:flex;align-items:center;gap:12px;
+  flex-shrink:0;margin-left:20px;
+  border-left:1px solid var(--border);
+  padding-left:20px;
+}
+.update-time {
+  font-family:'DM Mono',monospace;font-size:.7rem;
+  color:var(--ink3);white-space:nowrap;
+}
+.tbtn {
+  display:inline-flex;align-items:center;gap:6px;
+  height:32px;padding:0 12px;border-radius:6px;
+  background:var(--surface2);border:1px solid var(--border2);
+  color:var(--ink2);font-size:.8rem;font-weight:600;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+  font-family:'DM Sans',sans-serif;user-select:none;
+}
+.tbtn:hover{background:var(--surface3);color:var(--ink);}
+.tbtn:active{transform:scale(.97);}
+
+/* ════════════════════════════════════
+   WRAPPER
+════════════════════════════════════ */
+.wrapper {
+  max-width:1400px; /* Width Increased */
+  margin:0 auto;
+  background:var(--surface);
+  min-height:calc(100vh - 48px);
+  border-left:1px solid var(--border);
+  border-right:1px solid var(--border);
+  box-shadow: 0 0 20px var(--shadow);
+}
+
+/* ════════════════════════════════════
+   TABS
+════════════════════════════════════ */
+#tab-bar {
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+  display:flex;align-items:center;gap:0;
+  position:sticky;top:48px;z-index:200;
+  overflow-x:auto;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+#tab-bar::-webkit-scrollbar{display:none;}
+
+.tab {
+  display:inline-flex;align-items:center;gap:8px;
+  padding:16px 20px 14px;
+  font-size:.9rem;font-weight:600;
+  color:var(--ink3);
+  border-bottom:3px solid transparent;
+  cursor:pointer;white-space:nowrap;
+  transition:color .2s,border-color .2s;
+  flex-shrink:0;
+}
+.tab:hover:not(.active){color:var(--ink2);}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.tab-badge {
+  font-family:'DM Mono',monospace;
+  font-size:.7rem;font-weight:600;
+  padding:3px 8px;border-radius:12px;
+  background:var(--surface2);
+  color:var(--ink3);
+  transition:all .2s;
+}
+.tab.active .tab-badge{background:rgba(64,196,255,.15);color:var(--blue);}
+
+/* ════════════════════════════════════
+   NEWS CONTAINER
+════════════════════════════════════ */
+#news-container {
+  padding:0;
+}
+
+/* ════════════════════════════════════
+   NEWS ITEM
+════════════════════════════════════ */
+.news-item {
+  padding:22px 28px;
+  border-bottom:1px solid var(--border);
+  display:flex;flex-direction:column;gap:10px;
+  transition:background .2s;
+  animation:fadeSlide .3s ease both;
+}
+.news-item:hover{background:var(--surface2);}
+.news-item:last-child{border-bottom:none;}
+
+@keyframes fadeSlide{
+  from{opacity:0;transform:translateX(-10px);}
+  to{opacity:1;transform:translateX(0);}
+}
+
+/* Tag row */
+.news-meta-top {
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+
+/* Category tag */
+.tag {
+  display:inline-flex;align-items:center;
+  font-size:.65rem;font-weight:800;
+  padding:4px 10px;border-radius:5px;
+  text-transform:uppercase;letter-spacing:.8px;
+  flex-shrink:0;
+}
+.tag-STOCKS {background:var(--tag-stock-bg);color:var(--tag-stock-c);}
+.tag-INDEX  {background:var(--tag-index-bg);color:var(--tag-index-c);}
+.tag-RESULTS{background:var(--tag-result-bg);color:var(--tag-result-c);}
+.tag-GLOBAL {background:var(--tag-global-bg);color:var(--tag-global-c);}
+.tag-DIVIDEND   {background:var(--tag-div-bg);color:var(--tag-div-c);}
+.tag-BOARD      {background:var(--tag-corp-bg);color:var(--tag-corp-c);}
+.tag-CORPORATE  {background:var(--tag-corp-bg);color:var(--tag-corp-c);}
+.tag-BUYBACK    {background:var(--tag-div-bg);color:var(--tag-div-c);}
+.tag-BONUS\/SPLIT{background:var(--tag-bse-bg);color:var(--tag-bse-c);}
+.tag-CAPITAL    {background:var(--tag-bse-bg);color:var(--tag-bse-c);}
+.tag-FILING     {background:var(--surface3);color:var(--ink2);}
+.tag-RESULTS-BSE{background:var(--tag-result-bg);color:var(--tag-result-c);}
+
+/* Source chip */
+.source-chip {
+  font-size:.7rem;font-weight:600;
+  color:var(--ink3);background:var(--surface2);
+  padding:3px 10px;border-radius:5px;
+  border:1px solid var(--border);
+}
+
+/* Headline */
+.headline {
+  font-size:1.15rem; /* Headline Size Increased */
+  font-weight:600;
+  color:var(--ink);text-decoration:none;
+  line-height:1.5;letter-spacing:-.2px;
+  display:block;
+  transition:color .2s;
+}
+.headline:hover{color:var(--blue);}
+
+/* Time */
+.news-time {
+  font-family:'DM Mono',monospace;
+  font-size:.75rem;color:var(--ink3);
+  display:flex;align-items:center;gap:8px;
+  margin-top:4px;
+}
+.news-time .dot{
+  width:4px;height:4px;border-radius:50%;
+  background:var(--border2);flex-shrink:0;
+}
+
+/* ════════════════════════════════════
+   BSE ITEM
+════════════════════════════════════ */
+.bse-item {
+  padding:18px 28px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:16px;
+  transition:background .2s;
+  animation:fadeSlide .3s ease both;
+}
+.bse-item:hover{background:var(--surface2);}
+.bse-item:last-child{border-bottom:none;}
+.bse-left{flex-shrink:0;margin-top:3px;}
+.bse-body{flex:1;min-width:0;}
+.bse-title{
+  font-size:1.05rem;font-weight:600;
+  color:var(--ink);line-height:1.5;
+  margin-bottom:8px;
+}
+.bse-title a{color:inherit;text-decoration:none;transition: color .2s;}
+.bse-title a:hover{color:var(--blue);}
+.bse-meta{
+  display:flex;align-items:center;gap:10px;
+  font-size:.75rem;color:var(--ink3);
+  font-family:'DM Mono',monospace;
+}
+
+/* ════════════════════════════════════
+   EMPTY / LOADING
+════════════════════════════════════ */
+.state-msg {
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:80px 24px;
+  gap:16px;text-align:center;
+}
+.state-icon{font-size:2.5rem;opacity:.4;}
+.state-text{font-size:.95rem;color:var(--ink3);font-weight:500;}
+
+/* Section header inside list */
+.list-header {
+  padding:12px 28px 10px;
+  font-size:.7rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--ink3);
+  background:var(--surface2);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:105px;z-index:10;
+}
+
+/* ════════════════════════════════════
+   SPINNER
+════════════════════════════════════ */
+.spin{
+  display:inline-block;width:18px;height:18px;
+  border:2px solid var(--border2);
+  border-top-color:var(--blue);
+  border-radius:50%;animation:ro .6s linear infinite;
+  vertical-align:middle;
+}
+@keyframes ro{to{transform:rotate(360deg);}}
+
+/* ════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════ */
+@media(max-width:768px){
+  .wrapper{border-left:none;border-right:none;}
+  .headline{font-size:1.05rem;}
+  .news-item{padding:18px 20px;}
+  .bse-item{padding:16px 20px;}
+  .list-header{padding:10px 20px;top:100px;}
+  .update-time{display:none;}
+}
+@media(max-width:480px){
+  .ticker-label{display:none;}
+  .tab{padding:14px 16px 12px;font-size:.85rem;}
+}
+</style>
 </head>
 <body>
 
+<div id="ticker-bar">
+  <div class="ticker-label">MARKETS</div>
+  <div class="ticker-scroll">
+    <div class="ticker-inner" id="indices-container">
+      <div class="t-item"><span class="t-name">—</span></div>
+    </div>
+  </div>
+  <div class="ticker-right">
+    <span class="update-time" id="update-time">—</span>
+    <button class="tbtn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+    <button class="tbtn" onclick="refreshData()" id="refresh-btn">
+      <i class="fas fa-sync-alt" id="refresh-icon" style="font-size:.8rem"></i>
+      Refresh
+    </button>
+  </div>
+</div>
+
 <div class="wrapper">
-    <div id="top-bar">
-        <div class="indices-wrapper">
-            <span class="index-name" style="color: var(--text-headline); margin-right: 15px;">MARKETS:</span>
-            <div id="indices-container" style="display: flex;">Syncing...</div>
-        </div>
-        
-        <div class="theme-toggle" onclick="toggleTheme()">
-            <i id="theme-icon" class="fas fa-moon"></i>
-            <span>Theme</span>
-        </div>
-    </div>
 
-    <div id="tabs">
-        <div class="tab active" onclick="filterNews('ALL')">ALL</div>
-        <div class="tab" onclick="filterNews('STOCKS')">STOCKS (IN)</div>
-        <div class="tab" onclick="filterNews('INDEX')">INDEX (IN)</div>
-        <div class="tab" onclick="filterNews('GLOBAL')">GLOBAL</div>
-        <div class="tab" onclick="filterNews('RESULTS')">RESULTS</div>
+  <div id="tab-bar">
+    <div class="tab active" data-tab="ALL"     onclick="switchTab(this,'ALL')">
+      All <span class="tab-badge" id="cnt-ALL">—</span>
     </div>
+    <div class="tab" data-tab="STOCKS"   onclick="switchTab(this,'STOCKS')">
+      Stocks <span class="tab-badge" id="cnt-STOCKS">—</span>
+    </div>
+    <div class="tab" data-tab="INDEX"    onclick="switchTab(this,'INDEX')">
+      Index <span class="tab-badge" id="cnt-INDEX">—</span>
+    </div>
+    <div class="tab" data-tab="RESULTS"  onclick="switchTab(this,'RESULTS')">
+      Results <span class="tab-badge" id="cnt-RESULTS">—</span>
+    </div>
+    <div class="tab" data-tab="GLOBAL"   onclick="switchTab(this,'GLOBAL')">
+      Global <span class="tab-badge" id="cnt-GLOBAL">—</span>
+    </div>
+    <div class="tab" data-tab="BSE"      onclick="switchTab(this,'BSE')">
+      BSE/NSE <span class="tab-badge" id="cnt-BSE">—</span>
+    </div>
+  </div>
 
-    <div id="news-container">
-        <div id="loading">> INITIALIZING TERMINAL...</div>
+  <div id="news-container">
+    <div class="state-msg">
+      <div class="state-icon">📡</div>
+      <div class="state-text"><span class="spin"></span> &nbsp; Loading terminal data…</div>
     </div>
+  </div>
+
 </div>
 
 <script>
-    let allNewsData = [];
-    let currentFilter = 'ALL';
-    let lastNewsCount = 0;
-    const alertSound = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+'use strict';
 
-    // --- THEME LOGIC ---
-    function initTheme() {
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        updateThemeIcon(savedTheme);
-    }
+const WORKER_URL = 'https://news-fetcher.sumantasahoo.workers.dev';
+const TH_KEY     = 'mkt_theme_v1';
 
-    function toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateThemeIcon(newTheme);
-    }
+let allNews  = [];
+let bseNews  = [];
+let curTab   = 'ALL';
 
-    function updateThemeIcon(theme) {
-        const icon = document.getElementById('theme-icon');
-        if (theme === 'dark') {
-            icon.className = 'fas fa-moon';
-        } else {
-            icon.className = 'fas fa-sun';
-        }
-    }
+/* ── Theme ─────────────────────────────────────────── */
+(function(){
+  const t = localStorage.getItem(TH_KEY) || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('theme-btn').textContent = t === 'dark' ? '🌙' : '☀️';
+})();
+function toggleTheme(){
+  const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('theme-btn').textContent = t === 'dark' ? '🌙' : '☀️';
+  localStorage.setItem(TH_KEY, t);
+}
 
-    // --- DATA LOGIC ---
-    function timeAgo(dateString) {
-        const diffMins = Math.floor((new Date() - new Date(dateString)) / 60000);
-        if (diffMins < 1 || isNaN(diffMins)) return "JUST NOW";
-        if (diffMins < 60) return `${diffMins} MINS AGO`;
-        return `${Math.floor(diffMins / 60)} HOURS AGO`;
-    }
+/* ── Time helpers ───────────────────────────────────── */
+function timeAgo(dateStr){
+  const diff = Math.floor((new Date() - new Date(dateStr)) / 60000);
+  if (isNaN(diff) || diff < 1) return 'JUST NOW';
+  if (diff < 60)  return diff + ' MIN AGO';
+  return Math.floor(diff / 60) + ' HRS AGO';
+}
+function fmtTime(iso){
+  if (!iso) return '—';
+  return new Date(iso).toLocaleTimeString('en-IN', {
+    hour:'2-digit', minute:'2-digit', timeZone:'Asia/Kolkata'
+  });
+}
 
-    async function fetchTerminalData() {
-        try {
-            // REPLACE WITH YOUR ACTUAL WORKER URL
-            const res = await fetch('https://news-fetcher.sumantasahoo.workers.dev');
-            const data = await res.json();
-            
-            renderIndices(data.indices);
-            allNewsData = data.news || [];
-            
-            if (lastNewsCount !== 0 && allNewsData.length > lastNewsCount) {
-                alertSound.play().catch(() => {});
-            }
-            lastNewsCount = allNewsData.length;
-            renderNews();
-        } catch (e) {
-            document.getElementById('loading').innerText = "> CONNECTION ERROR. RETRYING...";
-        }
-    }
+/* ── Indices render ─────────────────────────────────── */
+function renderIndices(indices){
+  const c = document.getElementById('indices-container');
+  if (!indices?.length){ c.innerHTML = '<div class="t-item"><span class="t-name">No data</span></div>'; return; }
+  c.innerHTML = indices.map(idx => {
+    const v = parseFloat(idx.change);
+    const cls = v > 0 ? 'up' : v < 0 ? 'dn' : 'flat';
+    const sign = v > 0 ? '+' : '';
+    return `<div class="t-item">
+      <span class="t-name">${idx.symbol}</span>
+      <span class="t-val ${cls}">${idx.price} <span style="opacity:.7;font-size:.75rem">(${sign}${idx.change}%)</span></span>
+    </div>`;
+  }).join('');
+}
 
-    function renderIndices(indices) {
-        const container = document.getElementById('indices-container');
-        if (!indices) return;
-        container.innerHTML = '';
-        indices.forEach(idx => {
-            const val = parseFloat(idx.change);
-            const colorClass = val > 0 ? 'val-up' : (val < 0 ? 'val-down' : 'val-flat');
-            container.innerHTML += `
-                <div class="index-box">
-                    <span class="index-name">${idx.symbol}:</span>
-                    <span class="${colorClass}">${idx.price} (${val > 0 ? '+' : ''}${idx.change}%)</span>
-                </div>`;
-        });
-    }
+/* ── Tab counts ─────────────────────────────────────── */
+function updateCounts(){
+  const cats = ['STOCKS','INDEX','RESULTS','GLOBAL'];
+  let total = allNews.length;
+  cats.forEach(c => {
+    const n = allNews.filter(x => x.category === c).length;
+    document.getElementById('cnt-' + c).textContent = n;
+  });
+  document.getElementById('cnt-ALL').textContent = total;
+  document.getElementById('cnt-BSE').textContent = bseNews.length;
+}
 
-    function filterNews(category) {
-        currentFilter = category;
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        // Event detection for active tab highlight
-        if(event) event.target.classList.add('active');
-        renderNews();
-    }
+/* ── Tab switch ─────────────────────────────────────── */
+function switchTab(el, tab){
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  curTab = tab;
+  renderNews();
+}
 
-    function renderNews() {
-        const container = document.getElementById('news-container');
-        container.innerHTML = '';
-        const filtered = currentFilter === 'ALL' ? allNewsData : allNewsData.filter(n => n.category === currentFilter);
-        
-        if (filtered.length === 0) {
-            container.innerHTML = '<div id="loading">> NO DATA AVAILABLE IN THIS CATEGORY.</div>';
-            return;
-        }
+/* ── Tag color helper ───────────────────────────────── */
+function tagClass(cat){
+  const map = {
+    STOCKS:'tag-STOCKS', INDEX:'tag-INDEX', RESULTS:'tag-RESULTS',
+    GLOBAL:'tag-GLOBAL', DIVIDEND:'tag-DIVIDEND', BOARD:'tag-BOARD',
+    CORPORATE:'tag-CORPORATE', BUYBACK:'tag-BUYBACK', CAPITAL:'tag-CAPITAL',
+    FILING:'tag-FILING',
+  };
+  const key = cat.replace('/','\/');
+  return map[cat] || 'tag-FILING';
+}
 
-        filtered.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'news-item';
-            div.innerHTML = `
-                <div class="tag-row"><span class="tag tag-${item.category}">${item.category}</span></div>
-                <a href="${item.link}" target="_blank" class="headline">${item.title}</a>
-                <div class="meta">
-                    <span>${item.source}</span>
-                    <div class="dot"></div>
-                    <span>${timeAgo(item.pubDate)}</span>
-                </div>`;
-            container.appendChild(div);
-        });
-    }
+/* ── News render ────────────────────────────────────── */
+function renderNews(){
+  const container = document.getElementById('news-container');
 
-    // Start
-    initTheme();
-    setInterval(fetchTerminalData, 60000);
-    fetchTerminalData();
+  if (curTab === 'BSE') {
+    renderBSE(container);
+    return;
+  }
+
+  const list = curTab === 'ALL'
+    ? allNews
+    : allNews.filter(n => n.category === curTab);
+
+  if (!list.length){
+    container.innerHTML = `<div class="state-msg">
+      <div class="state-icon">🔍</div>
+      <div class="state-text">No news in this category right now.</div>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  list.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'news-item';
+    div.style.animationDelay = Math.min(i * 20, 300) + 'ms';
+    div.innerHTML = `
+      <div class="news-meta-top">
+        <span class="tag ${tagClass(item.category)}">${item.category}</span>
+        <span class="source-chip">${item.source || 'Feed'}</span>
+      </div>
+      <a href="${item.link}" target="_blank" rel="noopener" class="headline">${item.title}</a>
+      <div class="news-time">
+        <span>${fmtTime(item.pubDate)} IST</span>
+        <span class="dot"></span>
+        <span>${timeAgo(item.pubDate)}</span>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+/* ── BSE render ─────────────────────────────────────── */
+function renderBSE(container){
+  if (!bseNews.length){
+    container.innerHTML = `<div class="state-msg">
+      <div class="state-icon">🏛️</div>
+      <div class="state-text">No BSE announcements in the last 10 hours.</div>
+    </div>`;
+    return;
+  }
+
+  // Group by bseCat
+  const groups = {};
+  bseNews.forEach(item => {
+    const g = item.bseCat || 'FILING';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(item);
+  });
+
+  const order = ['DIVIDEND','RESULTS','BOARD','CORPORATE','BUYBACK','BONUS/SPLIT','CAPITAL','FILING'];
+  container.innerHTML = '';
+
+  for (const grp of order) {
+    if (!groups[grp]?.length) continue;
+    const hdr = document.createElement('div');
+    hdr.className = 'list-header';
+    hdr.textContent = grp + ' (' + groups[grp].length + ')';
+    container.appendChild(hdr);
+
+    groups[grp].forEach((item, i) => {
+      const div = document.createElement('div');
+      div.className = 'bse-item';
+      div.style.animationDelay = Math.min(i * 15, 250) + 'ms';
+      div.innerHTML = `
+        <div class="bse-left">
+          <span class="tag ${tagClass(grp)}">${grp}</span>
+        </div>
+        <div class="bse-body">
+          <div class="bse-title">
+            ${item.link
+              ? `<a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>`
+              : item.title}
+          </div>
+          <div class="bse-meta">
+            <span>BSE Filing</span>
+            <span>·</span>
+            <span>${fmtTime(item.pubDate)} IST</span>
+            <span>·</span>
+            <span>${timeAgo(item.pubDate)}</span>
+          </div>
+        </div>`;
+      container.appendChild(div);
+    });
+  }
+}
+
+/* ── Fetch data ─────────────────────────────────────── */
+async function refreshData(){
+  const icon = document.getElementById('refresh-icon');
+  const btn  = document.getElementById('refresh-btn');
+  icon.style.animation = 'ro .6s linear infinite';
+  btn.style.opacity = '.6';
+  btn.style.pointerEvents = 'none';
+
+  try {
+    const res  = await fetch(WORKER_URL + '?t=' + Date.now());
+    const data = await res.json();
+
+    renderIndices(data.indices || []);
+    allNews  = data.news || [];
+    bseNews  = data.bse  || [];
+
+    updateCounts();
+    renderNews();
+
+    const upd = data.updatedAt ? fmtTime(data.updatedAt) : new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'});
+    document.getElementById('update-time').textContent = 'Updated ' + upd;
+
+  } catch(e) {
+    document.getElementById('news-container').innerHTML = `<div class="state-msg">
+      <div class="state-icon">⚠️</div>
+      <div class="state-text">Connection error. Retrying in 60s…</div>
+    </div>`;
+  }
+
+  icon.style.animation = '';
+  btn.style.opacity    = '1';
+  btn.style.pointerEvents = '';
+}
+
+/* ── Auto-refresh timer ─────────────────────────────── */
+function startAutoRefresh(){
+  // Update "X min ago" timestamps every minute
+  setInterval(() => {
+    document.querySelectorAll('.news-time, .bse-meta').forEach(el => {
+      // Just re-render current view to update times
+    });
+    renderNews();
+  }, 60000);
+
+  // Re-fetch data every 5 minutes
+  setInterval(refreshData, 5 * 60 * 1000);
+}
+
+// ── Init ─────────────────────────────────────────────
+refreshData();
+startAutoRefresh();
 </script>
 </body>
 </html>
