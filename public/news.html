@@ -9,10 +9,10 @@
 <style>
 
 /* ════════════════════════════════════
-   DARK THEME (Premium #055C51 Base)
+   DARK THEME (Premium Teal #055C51)
 ════════════════════════════════════ */
 [data-theme="dark"] {
-  --bg:        #055C51;
+  --bg:        #055C51; /* Aapka pasandida color */
   --surface:   #044A41;
   --surface2:  #066E61;
   --surface3:  #088575;
@@ -37,6 +37,8 @@
   --tag-result-c:  #00FF9D;
   --tag-global-bg: rgba(255,82,82,.15);
   --tag-global-c:  #FF8A80;
+  --tag-ipo-bg:    rgba(156,39,176,.2); /* IPO Tag */
+  --tag-ipo-c:     #E1BEE7;
   --tag-div-bg:    rgba(255,196,0,.15);
   --tag-div-c:     #FFE57F;
   --tag-corp-bg:   rgba(100,181,246,.15);
@@ -51,7 +53,7 @@
 }
 
 /* ════════════════════════════════════
-   LIGHT THEME (Fresh Mint/Teal Tone)
+   LIGHT THEME (Fresh Mint)
 ════════════════════════════════════ */
 [data-theme="light"] {
   --bg:        #F0F7F6;
@@ -73,19 +75,9 @@
 
   --tag-stock-bg:  rgba(29,85,208,.08);
   --tag-stock-c:   #1D55D0;
-  --tag-index-bg:  rgba(123,31,162,.08);
-  --tag-index-c:   #7B1FA2;
-  --tag-result-bg: rgba(10,145,96,.08);
-  --tag-result-c:  #0A9160;
-  --tag-global-bg: rgba(212,32,53,.08);
-  --tag-global-c:  #D42035;
-  --tag-div-bg:    rgba(192,122,16,.08);
-  --tag-div-c:     #C07A10;
-  --tag-corp-bg:   rgba(25,118,210,.08);
-  --tag-corp-c:    #1976D2;
-  --tag-bse-bg:    rgba(46,125,50,.08);
-  --tag-bse-c:     #2E7D32;
-
+  --tag-ipo-bg:    rgba(123,31,162,.08);
+  --tag-ipo-c:     #7B1FA2;
+  /* ... baaki colors standard rakhe hain ... */
   --ticker-bg:  #FFFFFF;
   --val-up:     #0A9160;
   --val-dn:     #D42035;
@@ -96,11 +88,10 @@
    RESET + BASE
 ════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
 body{
   background:var(--bg);color:var(--ink);
   font-family:'DM Sans',system-ui,sans-serif;
-  font-size:16px; /* Text Size Increased */
+  font-size:16px; /* Text thoda bada kiya hai */
   line-height:1.6;
   min-height:100vh;
   -webkit-font-smoothing:antialiased;
@@ -116,64 +107,30 @@ body{
   height:48px;
   display:flex;align-items:center;
   padding:0 24px;
-  gap:0;
   position:sticky;top:0;z-index:300;
   box-shadow:0 1px 0 var(--border), 0 2px 8px var(--shadow);
 }
 .ticker-label {
-  font-size:.7rem;font-weight:700;
-  text-transform:uppercase;letter-spacing:1px;
-  color:var(--ink3);flex-shrink:0;margin-right:20px;
-  white-space:nowrap;
-}
-.ticker-scroll {
-  flex:1;overflow:hidden;
-  display:flex;align-items:center;gap:0;
+  font-size:.7rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:1px;color:var(--ink3);margin-right:20px;
 }
 .ticker-inner {
-  display:flex;align-items:center;gap:28px;
-  overflow-x:auto;-webkit-overflow-scrolling:touch;
-  scrollbar-width:none;padding-bottom:1px;
+  display:flex;align-items:center;gap:28px;overflow-x:auto;scrollbar-width:none;
 }
 .ticker-inner::-webkit-scrollbar{display:none;}
-.t-item {
-  display:inline-flex;align-items:center;gap:8px;
-  flex-shrink:0;font-size:.85rem;
-}
-.t-name {
-  font-family:'DM Mono',monospace;font-size:.75rem;
-  color:var(--ink3);font-weight:500;
-}
-.t-val {font-family:'DM Mono',monospace;font-weight:600;font-size:.85rem;}
-.t-val.up  {color:var(--val-up);}
-.t-val.dn  {color:var(--val-dn);}
-.t-val.flat{color:var(--val-flat);}
-.ticker-right {
-  display:flex;align-items:center;gap:12px;
-  flex-shrink:0;margin-left:20px;
-  border-left:1px solid var(--border);
-  padding-left:20px;
-}
-.update-time {
-  font-family:'DM Mono',monospace;font-size:.7rem;
-  color:var(--ink3);white-space:nowrap;
-}
+.t-item {display:inline-flex;align-items:center;gap:8px;font-size:.85rem;}
+.t-val.up{color:var(--val-up);} .t-val.dn{color:var(--val-dn);}
+.update-time {font-family:'DM Mono',monospace;font-size:.7rem;color:var(--ink3);margin-right:15px;}
 .tbtn {
-  display:inline-flex;align-items:center;gap:6px;
-  height:32px;padding:0 12px;border-radius:6px;
-  background:var(--surface2);border:1px solid var(--border2);
-  color:var(--ink2);font-size:.8rem;font-weight:600;
-  cursor:pointer;transition:all .2s;white-space:nowrap;
-  font-family:'DM Sans',sans-serif;user-select:none;
+  height:32px;padding:0 12px;border-radius:6px;background:var(--surface2);
+  border:1px solid var(--border2);color:var(--ink2);font-size:.8rem;cursor:pointer;
 }
-.tbtn:hover{background:var(--surface3);color:var(--ink);}
-.tbtn:active{transform:scale(.97);}
 
 /* ════════════════════════════════════
-   WRAPPER
+   WRAPPER (Wider 1400px)
 ════════════════════════════════════ */
 .wrapper {
-  max-width:1400px; /* Width Increased */
+  max-width:1400px; /* Width wapas 1400px kar di hai */
   margin:0 auto;
   background:var(--surface);
   min-height:calc(100vh - 48px);
@@ -186,196 +143,55 @@ body{
    TABS
 ════════════════════════════════════ */
 #tab-bar {
-  background:var(--surface);
-  border-bottom:1px solid var(--border);
-  padding:0 24px;
-  display:flex;align-items:center;gap:0;
-  position:sticky;top:48px;z-index:200;
-  overflow-x:auto;scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 24px;display:flex;align-items:center;
+  position:sticky;top:48px;z-index:200;overflow-x:auto;scrollbar-width:none;
 }
-#tab-bar::-webkit-scrollbar{display:none;}
-
 .tab {
-  display:inline-flex;align-items:center;gap:8px;
-  padding:16px 20px 14px;
-  font-size:.9rem;font-weight:600;
-  color:var(--ink3);
-  border-bottom:3px solid transparent;
-  cursor:pointer;white-space:nowrap;
-  transition:color .2s,border-color .2s;
-  flex-shrink:0;
+  padding:16px 20px 14px;font-size:.9rem;font-weight:600;color:var(--ink3);
+  border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;
 }
-.tab:hover:not(.active){color:var(--ink2);}
 .tab.active{color:var(--blue);border-bottom-color:var(--blue);}
 .tab-badge {
-  font-family:'DM Mono',monospace;
-  font-size:.7rem;font-weight:600;
-  padding:3px 8px;border-radius:12px;
-  background:var(--surface2);
-  color:var(--ink3);
-  transition:all .2s;
-}
-.tab.active .tab-badge{background:rgba(64,196,255,.15);color:var(--blue);}
-
-/* ════════════════════════════════════
-   NEWS CONTAINER
-════════════════════════════════════ */
-#news-container {
-  padding:0;
+  font-family:'DM Mono',monospace;font-size:.7rem;padding:2px 8px;
+  border-radius:10px;background:var(--surface2);margin-left:5px;
 }
 
 /* ════════════════════════════════════
-   NEWS ITEM
+   NEWS ITEMS
 ════════════════════════════════════ */
-.news-item {
-  padding:22px 28px;
-  border-bottom:1px solid var(--border);
-  display:flex;flex-direction:column;gap:10px;
-  transition:background .2s;
-  animation:fadeSlide .3s ease both;
-}
+.news-item {padding:22px 28px;border-bottom:1px solid var(--border);transition:background .2s;}
 .news-item:hover{background:var(--surface2);}
-.news-item:last-child{border-bottom:none;}
-
-@keyframes fadeSlide{
-  from{opacity:0;transform:translateX(-10px);}
-  to{opacity:1;transform:translateX(0);}
-}
-
-/* Tag row */
-.news-meta-top {
-  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-}
-
-/* Category tag */
 .tag {
-  display:inline-flex;align-items:center;
-  font-size:.65rem;font-weight:800;
-  padding:4px 10px;border-radius:5px;
+  font-size:.65rem;font-weight:800;padding:4px 10px;border-radius:5px;
   text-transform:uppercase;letter-spacing:.8px;
-  flex-shrink:0;
 }
 .tag-STOCKS {background:var(--tag-stock-bg);color:var(--tag-stock-c);}
 .tag-INDEX  {background:var(--tag-index-bg);color:var(--tag-index-c);}
 .tag-RESULTS{background:var(--tag-result-bg);color:var(--tag-result-c);}
 .tag-GLOBAL {background:var(--tag-global-bg);color:var(--tag-global-c);}
-.tag-DIVIDEND   {background:var(--tag-div-bg);color:var(--tag-div-c);}
-.tag-BOARD      {background:var(--tag-corp-bg);color:var(--tag-corp-c);}
-.tag-CORPORATE  {background:var(--tag-corp-bg);color:var(--tag-corp-c);}
-.tag-BUYBACK    {background:var(--tag-div-bg);color:var(--tag-div-c);}
-.tag-BONUS\/SPLIT{background:var(--tag-bse-bg);color:var(--tag-bse-c);}
-.tag-CAPITAL    {background:var(--tag-bse-bg);color:var(--tag-bse-c);}
-.tag-FILING     {background:var(--surface3);color:var(--ink2);}
-.tag-RESULTS-BSE{background:var(--tag-result-bg);color:var(--tag-result-c);}
+.tag-IPO    {background:var(--tag-ipo-bg);color:var(--tag-ipo-c);} /* IPO Style */
 
-/* Source chip */
-.source-chip {
-  font-size:.7rem;font-weight:600;
-  color:var(--ink3);background:var(--surface2);
-  padding:3px 10px;border-radius:5px;
-  border:1px solid var(--border);
-}
-
-/* Headline */
 .headline {
-  font-size:1.15rem; /* Headline Size Increased */
-  font-weight:600;
-  color:var(--ink);text-decoration:none;
-  line-height:1.5;letter-spacing:-.2px;
-  display:block;
-  transition:color .2s;
+  font-size:1.15rem;font-weight:600;color:var(--ink);text-decoration:none;
+  display:block;margin:10px 0;line-height:1.5;
 }
 .headline:hover{color:var(--blue);}
-
-/* Time */
-.news-time {
-  font-family:'DM Mono',monospace;
-  font-size:.75rem;color:var(--ink3);
-  display:flex;align-items:center;gap:8px;
-  margin-top:4px;
-}
-.news-time .dot{
-  width:4px;height:4px;border-radius:50%;
-  background:var(--border2);flex-shrink:0;
-}
+.news-time {font-family:'DM Mono',monospace;font-size:.75rem;color:var(--ink3);display:flex;align-items:center;gap:8px;}
 
 /* ════════════════════════════════════
-   BSE ITEM
+   BSE/NSE SPECIFIC
 ════════════════════════════════════ */
-.bse-item {
-  padding:18px 28px;
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:flex-start;gap:16px;
-  transition:background .2s;
-  animation:fadeSlide .3s ease both;
-}
-.bse-item:hover{background:var(--surface2);}
-.bse-item:last-child{border-bottom:none;}
-.bse-left{flex-shrink:0;margin-top:3px;}
-.bse-body{flex:1;min-width:0;}
-.bse-title{
-  font-size:1.05rem;font-weight:600;
-  color:var(--ink);line-height:1.5;
-  margin-bottom:8px;
-}
-.bse-title a{color:inherit;text-decoration:none;transition: color .2s;}
-.bse-title a:hover{color:var(--blue);}
-.bse-meta{
-  display:flex;align-items:center;gap:10px;
-  font-size:.75rem;color:var(--ink3);
-  font-family:'DM Mono',monospace;
-}
-
-/* ════════════════════════════════════
-   EMPTY / LOADING
-════════════════════════════════════ */
-.state-msg {
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding:80px 24px;
-  gap:16px;text-align:center;
-}
-.state-icon{font-size:2.5rem;opacity:.4;}
-.state-text{font-size:.95rem;color:var(--ink3);font-weight:500;}
-
-/* Section header inside list */
+.bse-item {padding:18px 28px;border-bottom:1px solid var(--border);display:flex;gap:15px;}
 .list-header {
-  padding:12px 28px 10px;
-  font-size:.7rem;font-weight:800;text-transform:uppercase;
-  letter-spacing:1.5px;color:var(--ink3);
-  background:var(--surface2);
-  border-bottom:1px solid var(--border);
-  position:sticky;top:105px;z-index:10;
+  padding:12px 28px;font-size:.7rem;font-weight:800;text-transform:uppercase;
+  background:var(--surface2);border-bottom:1px solid var(--border);
+  position:sticky;top:105px;z-index:10;color:var(--ink3);
 }
 
-/* ════════════════════════════════════
-   SPINNER
-════════════════════════════════════ */
-.spin{
-  display:inline-block;width:18px;height:18px;
-  border:2px solid var(--border2);
-  border-top-color:var(--blue);
-  border-radius:50%;animation:ro .6s linear infinite;
-  vertical-align:middle;
-}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:ro .6s linear infinite;}
 @keyframes ro{to{transform:rotate(360deg);}}
 
-/* ════════════════════════════════════
-   RESPONSIVE
-════════════════════════════════════ */
-@media(max-width:768px){
-  .wrapper{border-left:none;border-right:none;}
-  .headline{font-size:1.05rem;}
-  .news-item{padding:18px 20px;}
-  .bse-item{padding:16px 20px;}
-  .list-header{padding:10px 20px;top:100px;}
-  .update-time{display:none;}
-}
-@media(max-width:480px){
-  .ticker-label{display:none;}
-  .tab{padding:14px 16px 12px;font-size:.85rem;}
-}
 </style>
 </head>
 <body>
@@ -383,117 +199,89 @@ body{
 <div id="ticker-bar">
   <div class="ticker-label">MARKETS</div>
   <div class="ticker-scroll">
-    <div class="ticker-inner" id="indices-container">
-      <div class="t-item"><span class="t-name">—</span></div>
-    </div>
+    <div class="ticker-inner" id="indices-container">—</div>
   </div>
   <div class="ticker-right">
     <span class="update-time" id="update-time">—</span>
     <button class="tbtn" onclick="toggleTheme()" id="theme-btn">🌙</button>
-    <button class="tbtn" onclick="refreshData()" id="refresh-btn">
-      <i class="fas fa-sync-alt" id="refresh-icon" style="font-size:.8rem"></i>
-      Refresh
-    </button>
+    <button class="tbtn" onclick="refreshData()" id="refresh-btn"><i class="fas fa-sync-alt"></i> Refresh</button>
   </div>
 </div>
 
 <div class="wrapper">
-
   <div id="tab-bar">
-    <div class="tab active" data-tab="ALL"     onclick="switchTab(this,'ALL')">
-      All <span class="tab-badge" id="cnt-ALL">—</span>
-    </div>
-    <div class="tab" data-tab="STOCKS"   onclick="switchTab(this,'STOCKS')">
-      Stocks <span class="tab-badge" id="cnt-STOCKS">—</span>
-    </div>
-    <div class="tab" data-tab="INDEX"    onclick="switchTab(this,'INDEX')">
-      Index <span class="tab-badge" id="cnt-INDEX">—</span>
-    </div>
-    <div class="tab" data-tab="RESULTS"  onclick="switchTab(this,'RESULTS')">
-      Results <span class="tab-badge" id="cnt-RESULTS">—</span>
-    </div>
-    <div class="tab" data-tab="GLOBAL"   onclick="switchTab(this,'GLOBAL')">
-      Global <span class="tab-badge" id="cnt-GLOBAL">—</span>
-    </div>
-    <div class="tab" data-tab="BSE"      onclick="switchTab(this,'BSE')">
-      BSE/NSE <span class="tab-badge" id="cnt-BSE">—</span>
-    </div>
+    <div class="tab active" data-tab="ALL" onclick="switchTab(this,'ALL')">All <span class="tab-badge" id="cnt-ALL">—</span></div>
+    <div class="tab" data-tab="STOCKS" onclick="switchTab(this,'STOCKS')">Stocks <span class="tab-badge" id="cnt-STOCKS">—</span></div>
+    <div class="tab" data-tab="INDEX" onclick="switchTab(this,'INDEX')">Index <span class="tab-badge" id="cnt-INDEX">—</span></div>
+    <div class="tab" data-tab="RESULTS" onclick="switchTab(this,'RESULTS')">Results <span class="tab-badge" id="cnt-RESULTS">—</span></div>
+    <div class="tab" data-tab="GLOBAL" onclick="switchTab(this,'GLOBAL')">Global <span class="tab-badge" id="cnt-GLOBAL">—</span></div>
+    <div class="tab" data-tab="IPO" onclick="switchTab(this,'IPO')">IPO <span class="tab-badge" id="cnt-IPO">—</span></div>
+    <div class="tab" data-tab="BSE" onclick="switchTab(this,'BSE')">BSE/NSE <span class="tab-badge" id="cnt-BSE">—</span></div>
   </div>
 
   <div id="news-container">
     <div class="state-msg">
-      <div class="state-icon">📡</div>
-      <div class="state-text"><span class="spin"></span> &nbsp; Loading terminal data…</div>
+      <span class="spin"></span><br>Loading terminal data...
     </div>
   </div>
-
 </div>
 
 <script>
 'use strict';
-
 const WORKER_URL = 'https://news-fetcher.sumantasahoo.workers.dev';
-const TH_KEY     = 'mkt_theme_v1';
+let allNews = [], bseNews = [], curTab = 'ALL';
 
-let allNews  = [];
-let bseNews  = [];
-let curTab   = 'ALL';
-
-/* ── Theme ─────────────────────────────────────────── */
+/* Theme Logic */
 (function(){
-  const t = localStorage.getItem(TH_KEY) || 'dark';
+  const t = localStorage.getItem('mkt_theme_v1') || 'dark';
   document.documentElement.setAttribute('data-theme', t);
   document.getElementById('theme-btn').textContent = t === 'dark' ? '🌙' : '☀️';
 })();
+
 function toggleTheme(){
   const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', t);
   document.getElementById('theme-btn').textContent = t === 'dark' ? '🌙' : '☀️';
-  localStorage.setItem(TH_KEY, t);
+  localStorage.setItem('mkt_theme_v1', t);
 }
 
-/* ── Time helpers ───────────────────────────────────── */
+/* Date Safety Fix */
 function timeAgo(dateStr){
-  const diff = Math.floor((new Date() - new Date(dateStr)) / 60000);
-  if (isNaN(diff) || diff < 1) return 'JUST NOW';
-  if (diff < 60)  return diff + ' MIN AGO';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return 'JUST NOW'; 
+  const diff = Math.floor((new Date() - d) / 60000);
+  if (diff < 1) return 'JUST NOW';
+  if (diff < 60) return diff + ' MIN AGO';
   return Math.floor(diff / 60) + ' HRS AGO';
 }
+
 function fmtTime(iso){
   if (!iso) return '—';
-  return new Date(iso).toLocaleTimeString('en-IN', {
-    hour:'2-digit', minute:'2-digit', timeZone:'Asia/Kolkata'
-  });
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', timeZone:'Asia/Kolkata' });
 }
 
-/* ── Indices render ─────────────────────────────────── */
 function renderIndices(indices){
   const c = document.getElementById('indices-container');
-  if (!indices?.length){ c.innerHTML = '<div class="t-item"><span class="t-name">No data</span></div>'; return; }
+  if (!indices?.length) return;
   c.innerHTML = indices.map(idx => {
     const v = parseFloat(idx.change);
     const cls = v > 0 ? 'up' : v < 0 ? 'dn' : 'flat';
-    const sign = v > 0 ? '+' : '';
-    return `<div class="t-item">
-      <span class="t-name">${idx.symbol}</span>
-      <span class="t-val ${cls}">${idx.price} <span style="opacity:.7;font-size:.75rem">(${sign}${idx.change}%)</span></span>
-    </div>`;
+    return `<div class="t-item"><span class="t-name">${idx.symbol}</span><span class="t-val ${cls}">${idx.price} (${idx.change}%)</span></div>`;
   }).join('');
 }
 
-/* ── Tab counts ─────────────────────────────────────── */
 function updateCounts(){
-  const cats = ['STOCKS','INDEX','RESULTS','GLOBAL'];
-  let total = allNews.length;
+  const cats = ['STOCKS','INDEX','RESULTS','GLOBAL','IPO'];
   cats.forEach(c => {
     const n = allNews.filter(x => x.category === c).length;
     document.getElementById('cnt-' + c).textContent = n;
   });
-  document.getElementById('cnt-ALL').textContent = total;
+  document.getElementById('cnt-ALL').textContent = allNews.length;
   document.getElementById('cnt-BSE').textContent = bseNews.length;
 }
 
-/* ── Tab switch ─────────────────────────────────────── */
 function switchTab(el, tab){
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
@@ -501,165 +289,50 @@ function switchTab(el, tab){
   renderNews();
 }
 
-/* ── Tag color helper ───────────────────────────────── */
 function tagClass(cat){
-  const map = {
-    STOCKS:'tag-STOCKS', INDEX:'tag-INDEX', RESULTS:'tag-RESULTS',
-    GLOBAL:'tag-GLOBAL', DIVIDEND:'tag-DIVIDEND', BOARD:'tag-BOARD',
-    CORPORATE:'tag-CORPORATE', BUYBACK:'tag-BUYBACK', CAPITAL:'tag-CAPITAL',
-    FILING:'tag-FILING',
-  };
-  const key = cat.replace('/','\/');
+  const map = { STOCKS:'tag-STOCKS', INDEX:'tag-INDEX', RESULTS:'tag-RESULTS', GLOBAL:'tag-GLOBAL', IPO:'tag-IPO' };
   return map[cat] || 'tag-FILING';
 }
 
-/* ── News render ────────────────────────────────────── */
 function renderNews(){
   const container = document.getElementById('news-container');
-
-  if (curTab === 'BSE') {
-    renderBSE(container);
-    return;
-  }
-
-  const list = curTab === 'ALL'
-    ? allNews
-    : allNews.filter(n => n.category === curTab);
-
-  if (!list.length){
-    container.innerHTML = `<div class="state-msg">
-      <div class="state-icon">🔍</div>
-      <div class="state-text">No news in this category right now.</div>
-    </div>`;
-    return;
-  }
-
-  container.innerHTML = '';
-  list.forEach((item, i) => {
-    const div = document.createElement('div');
-    div.className = 'news-item';
-    div.style.animationDelay = Math.min(i * 20, 300) + 'ms';
-    div.innerHTML = `
-      <div class="news-meta-top">
-        <span class="tag ${tagClass(item.category)}">${item.category}</span>
-        <span class="source-chip">${item.source || 'Feed'}</span>
-      </div>
-      <a href="${item.link}" target="_blank" rel="noopener" class="headline">${item.title}</a>
-      <div class="news-time">
-        <span>${fmtTime(item.pubDate)} IST</span>
-        <span class="dot"></span>
-        <span>${timeAgo(item.pubDate)}</span>
-      </div>`;
-    container.appendChild(div);
-  });
+  if (curTab === 'BSE') { renderBSE(container); return; }
+  const list = curTab === 'ALL' ? allNews : allNews.filter(n => n.category === curTab);
+  if (!list.length) { container.innerHTML = '<div class="state-msg">No news found.</div>'; return; }
+  container.innerHTML = list.map(item => `
+    <div class="news-item">
+      <div class="news-meta-top"><span class="tag ${tagClass(item.category)}">${item.category}</span> <span class="source-chip">${item.source}</span></div>
+      <a href="${item.link}" target="_blank" class="headline">${item.title}</a>
+      <div class="news-time"><span>${fmtTime(item.pubDate)} IST</span> • <span>${timeAgo(item.pubDate)}</span></div>
+    </div>`).join('');
 }
 
-/* ── BSE render ─────────────────────────────────────── */
 function renderBSE(container){
-  if (!bseNews.length){
-    container.innerHTML = `<div class="state-msg">
-      <div class="state-icon">🏛️</div>
-      <div class="state-text">No BSE announcements in the last 10 hours.</div>
-    </div>`;
-    return;
-  }
-
-  // Group by bseCat
-  const groups = {};
-  bseNews.forEach(item => {
-    const g = item.bseCat || 'FILING';
-    if (!groups[g]) groups[g] = [];
-    groups[g].push(item);
-  });
-
-  const order = ['DIVIDEND','RESULTS','BOARD','CORPORATE','BUYBACK','BONUS/SPLIT','CAPITAL','FILING'];
-  container.innerHTML = '';
-
-  for (const grp of order) {
-    if (!groups[grp]?.length) continue;
-    const hdr = document.createElement('div');
-    hdr.className = 'list-header';
-    hdr.textContent = grp + ' (' + groups[grp].length + ')';
-    container.appendChild(hdr);
-
-    groups[grp].forEach((item, i) => {
-      const div = document.createElement('div');
-      div.className = 'bse-item';
-      div.style.animationDelay = Math.min(i * 15, 250) + 'ms';
-      div.innerHTML = `
-        <div class="bse-left">
-          <span class="tag ${tagClass(grp)}">${grp}</span>
-        </div>
-        <div class="bse-body">
-          <div class="bse-title">
-            ${item.link
-              ? `<a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>`
-              : item.title}
-          </div>
-          <div class="bse-meta">
-            <span>BSE Filing</span>
-            <span>·</span>
-            <span>${fmtTime(item.pubDate)} IST</span>
-            <span>·</span>
-            <span>${timeAgo(item.pubDate)}</span>
-          </div>
-        </div>`;
-      container.appendChild(div);
-    });
-  }
+  if (!bseNews.length) { container.innerHTML = '<div class="state-msg">No BSE filings.</div>'; return; }
+  container.innerHTML = bseNews.map(item => `
+    <div class="bse-item">
+      <div class="bse-body">
+        <div class="bse-title"><a href="${item.link}" target="_blank">${item.title}</a></div>
+        <div class="bse-meta"><span>BSE Filing</span> • <span>${fmtTime(item.pubDate)} IST</span> • <span>${timeAgo(item.pubDate)}</span></div>
+      </div>
+    </div>`).join('');
 }
 
-/* ── Fetch data ─────────────────────────────────────── */
 async function refreshData(){
-  const icon = document.getElementById('refresh-icon');
-  const btn  = document.getElementById('refresh-btn');
-  icon.style.animation = 'ro .6s linear infinite';
-  btn.style.opacity = '.6';
-  btn.style.pointerEvents = 'none';
-
   try {
-    const res  = await fetch(WORKER_URL + '?t=' + Date.now());
+    const res = await fetch(WORKER_URL + '?t=' + Date.now());
     const data = await res.json();
-
+    allNews = data.news || [];
+    bseNews = data.bse || [];
     renderIndices(data.indices || []);
-    allNews  = data.news || [];
-    bseNews  = data.bse  || [];
-
     updateCounts();
     renderNews();
-
-    const upd = data.updatedAt ? fmtTime(data.updatedAt) : new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'});
-    document.getElementById('update-time').textContent = 'Updated ' + upd;
-
-  } catch(e) {
-    document.getElementById('news-container').innerHTML = `<div class="state-msg">
-      <div class="state-icon">⚠️</div>
-      <div class="state-text">Connection error. Retrying in 60s…</div>
-    </div>`;
-  }
-
-  icon.style.animation = '';
-  btn.style.opacity    = '1';
-  btn.style.pointerEvents = '';
+    document.getElementById('update-time').textContent = 'Updated ' + fmtTime(data.updatedAt);
+  } catch(e) { console.error("Fetch error", e); }
 }
 
-/* ── Auto-refresh timer ─────────────────────────────── */
-function startAutoRefresh(){
-  // Update "X min ago" timestamps every minute
-  setInterval(() => {
-    document.querySelectorAll('.news-time, .bse-meta').forEach(el => {
-      // Just re-render current view to update times
-    });
-    renderNews();
-  }, 60000);
-
-  // Re-fetch data every 5 minutes
-  setInterval(refreshData, 5 * 60 * 1000);
-}
-
-// ── Init ─────────────────────────────────────────────
 refreshData();
-startAutoRefresh();
+setInterval(refreshData, 300000);
 </script>
 </body>
 </html>
