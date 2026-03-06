@@ -184,13 +184,16 @@ main{max-width:1440px;margin:0 auto;padding:18px 24px 60px;}
 /* ── LEVEL 1: Status Bar ── */
 .status-bar{
   display:flex;align-items:center;gap:0;
-  background:var(--card);border:1px solid var(--border);
-  border-radius:10px;padding:0;margin-bottom:14px;
+  background:var(--bg);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:0;
+  margin-bottom:14px;
   overflow:hidden;
 }
 .sb-item{
   display:flex;align-items:center;gap:8px;
-  padding:10px 18px;border-right:1px solid var(--border);
+  padding:10px 18px;border-right:1px solid var(--border2);
   flex:1;
 }
 .sb-item:last-child{border-right:none;}
@@ -204,61 +207,68 @@ main{max-width:1440px;margin:0 auto;padding:18px 24px 60px;}
 .mood-pill.bear{background:var(--r-dim);color:var(--r-text);border:1px solid var(--r-mid);}
 .mood-pill.mix {background:var(--bg3);color:var(--ink2);border:1px solid var(--border2);}
 
-/* ── LEVEL 2: Action Grid ── */
-.action-grid{
-  display:grid;grid-template-columns:repeat(4,1fr);
+/* ── Signal Card Grid (2-col, 3 rows) ── */
+.card-grid{
+  display:grid;grid-template-columns:1fr 1fr;
   gap:8px;margin-bottom:14px;
 }
+/* Row label */
+.row-label{
+  grid-column:1/-1;
+  display:flex;align-items:center;gap:8px;
+  font-size:.58rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:1.1px;color:var(--ink3);
+  padding:2px 2px 0;
+}
+.row-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.row-label-pip{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+
+/* Action card — rows 1 & 2 (slightly taller) */
 .action-card{
   background:var(--card);border:1px solid var(--border);
-  border-radius:9px;padding:14px 16px 12px;
+  border-radius:9px;padding:13px 16px 11px;
   position:relative;overflow:hidden;
   cursor:pointer;transition:transform .15s,box-shadow .15s;
   user-select:none;
 }
 .action-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px var(--shadow);}
-.action-card.active{border-color:var(--ac-color)!important;
-  box-shadow:0 0 0 1px var(--ac-color);}
+.action-card.active{border-color:var(--ac-color)!important;box-shadow:0 0 0 1px var(--ac-color);}
 .ac-bar{position:absolute;top:0;left:0;right:0;height:3px;border-radius:9px 9px 0 0;}
 .ac-label{font-size:.54rem;font-weight:700;text-transform:uppercase;
-  letter-spacing:1.2px;color:var(--ink3);margin-bottom:8px;}
-.ac-count{font-size:2rem;font-weight:700;line-height:1;margin-bottom:4px;}
+  letter-spacing:1.2px;color:var(--ink3);margin-bottom:6px;}
+.ac-count{font-size:1.9rem;font-weight:700;line-height:1;margin-bottom:3px;}
 .ac-desc{font-size:.63rem;color:var(--ink2);line-height:1.4;}
 .ac-count.g     {color:var(--g-text);}
 .ac-count.r     {color:var(--r-text);}
 .ac-count.teal  {color:var(--teal-text);}
 .ac-count.orange{color:var(--orange-text);}
 
-/* ── LEVEL 3: Watch Grid ── */
-.watch-grid{
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:8px;margin-bottom:18px;
-}
+/* Watch card — row 3 (shorter, same width) */
 .watch-card{
   background:var(--card);border:1px solid var(--border);
   border-radius:9px;overflow:hidden;
 }
 .watch-head{
   display:flex;align-items:center;justify-content:space-between;
-  padding:9px 14px;cursor:pointer;user-select:none;
+  padding:10px 16px;cursor:pointer;user-select:none;
   transition:background .15s;
 }
 .watch-head:hover{background:var(--bg2);}
 .watch-head-left{display:flex;align-items:center;gap:8px;}
 .watch-pip{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-.watch-title{font-size:.75rem;font-weight:600;color:var(--ink);}
-.watch-desc{font-size:.63rem;color:var(--ink2);}
+.watch-title{font-size:.75rem;font-weight:700;color:var(--ink);}
+.watch-desc{font-size:.63rem;color:var(--ink2);margin-top:1px;}
 .watch-right{display:flex;align-items:center;gap:8px;}
-.watch-cnt{font-family:'JetBrains Mono',monospace;font-size:.66rem;font-weight:600;
-  padding:2px 9px;border-radius:12px;}
+.watch-cnt{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:700;
+  padding:3px 11px;border-radius:12px;}
 .watch-cnt.b     {background:var(--b-mid);color:var(--b-text);}
 .watch-cnt.purple{background:var(--purple-mid);color:var(--purple-text);}
 .watch-arrow{font-size:.65rem;color:var(--ink3);transition:transform .2s;}
 .watch-arrow.open{transform:rotate(180deg);}
-.watch-body{display:none;}
-.watch-body.open{display:block;}
+/* watch-body inline removed — now uses scard pattern */
 .watch-head.b-head{border-left:3px solid var(--b);}
 .watch-head.purple-head{border-left:3px solid var(--purple);}
+.watch-head.wh-active{background:var(--bg2);}
 
 /* ── Signal Card (shared) ── */
 .scard{background:var(--card);border:1px solid var(--border);
@@ -296,10 +306,11 @@ main{max-width:1440px;margin:0 auto;padding:18px 24px 60px;}
 .sh-cnt.dim   {background:var(--bg3);      color:var(--ink3);}
 
 /* ── Guide panel ── */
-.guide-panel{background:var(--card);border:1px solid var(--border);
+.guide-panel{background:var(--b-dim);border:1px solid var(--b-mid);
   border-radius:9px;margin-bottom:14px;overflow:hidden;}
 .guide-hdr{display:flex;align-items:center;justify-content:space-between;
-  padding:10px 16px;cursor:pointer;user-select:none;transition:background .15s;}
+  padding:10px 16px;cursor:pointer;user-select:none;transition:background .15s;
+  background:transparent;}
 .guide-hdr:hover{background:var(--bg2);}
 .guide-hdr-left{display:flex;align-items:center;gap:9px;}
 .guide-title{font-size:.78rem;font-weight:600;color:var(--ink);}
@@ -375,7 +386,7 @@ tr.top-signal td.sym::after{content:'🔥';font-size:.6rem;margin-left:5px;}
 
 /* ════════════════════════════════════════ RESPONSIVE */
 @media(max-width:1100px){
-  .action-grid{grid-template-columns:repeat(2,1fr);}
+  .card-grid{gap:7px;}
   .guide-grid{grid-template-columns:repeat(2,1fr);}
   .st-strip{display:none;}
 }
@@ -392,8 +403,7 @@ tr.top-signal td.sym::after{content:'🔥';font-size:.6rem;margin-left:5px;}
   select#base-select{width:100%;max-width:100%;}
   .thresh-wrap{display:none;}
   main{padding:10px 10px 40px;}
-  .action-grid{grid-template-columns:repeat(2,1fr);gap:7px;}
-  .watch-grid{grid-template-columns:1fr;}
+
   .guide-grid{grid-template-columns:1fr 1fr;}
   .empty-flow{flex-direction:column;}
   .flow-step{border-right:none;border-bottom:1px solid var(--border);}
@@ -578,49 +588,54 @@ tr.top-signal td.sym::after{content:'🔥';font-size:.6rem;margin-left:5px;}
       </div>
     </div>
 
-    <!-- LEVEL 2 — Action Cards (clickable) -->
-    <div class="action-grid">
+    <!-- CARD GRID — 2 col × 3 rows -->
+    <div class="card-grid">
+
+      <!-- Row 1 label: Bullish -->
+      <div class="row-label"><div class="row-label-pip" style="background:var(--g)"></div>Bullish</div>
+
+      <!-- Row 1: Long Buildup | Short Covering -->
       <div class="action-card" onclick="showSection('long')" id="ac-long" style="--ac-color:var(--g)">
         <div class="ac-bar" style="background:var(--g)"></div>
         <div class="ac-label">Long Buildup</div>
         <div class="ac-count g" id="c-long">—</div>
-        <div class="ac-desc">OI ↑ · Vol ↑ · Price ↑</div>
-      </div>
-      <div class="action-card" onclick="showSection('short')" id="ac-short" style="--ac-color:var(--r)">
-        <div class="ac-bar" style="background:var(--r)"></div>
-        <div class="ac-label">Short Buildup</div>
-        <div class="ac-count r" id="c-short">—</div>
-        <div class="ac-desc">OI ↑ · Vol ↑ · Price ↓</div>
+        <div class="ac-desc">OI ↑ · Vol ↑ · Price ↑ — fresh aggressive buying</div>
       </div>
       <div class="action-card" onclick="showSection('cover')" id="ac-cover" style="--ac-color:var(--teal)">
         <div class="ac-bar" style="background:var(--teal)"></div>
         <div class="ac-label">Short Covering</div>
         <div class="ac-count teal" id="c-cover">—</div>
-        <div class="ac-desc">OI ↓ · Price ↑</div>
+        <div class="ac-desc">OI ↓ · Price ↑ — bears exiting, sharp upward possible</div>
+      </div>
+
+      <!-- Row 2 label: Bearish -->
+      <div class="row-label"><div class="row-label-pip" style="background:var(--r)"></div>Bearish</div>
+
+      <!-- Row 2: Short Buildup | Long Unwinding -->
+      <div class="action-card" onclick="showSection('short')" id="ac-short" style="--ac-color:var(--r)">
+        <div class="ac-bar" style="background:var(--r)"></div>
+        <div class="ac-label">Short Buildup</div>
+        <div class="ac-count r" id="c-short">—</div>
+        <div class="ac-desc">OI ↑ · Vol ↑ · Price ↓ — fresh aggressive selling</div>
       </div>
       <div class="action-card" onclick="showSection('unwind')" id="ac-unwind" style="--ac-color:var(--orange)">
         <div class="ac-bar" style="background:var(--orange)"></div>
         <div class="ac-label">Long Unwinding</div>
         <div class="ac-count orange" id="c-unwind">—</div>
-        <div class="ac-desc">OI ↓ · Price ↓</div>
+        <div class="ac-desc">OI ↓ · Price ↓ — bulls exiting, sharp drop possible</div>
       </div>
-    </div>
 
-    <!-- Action Signal Cards (shown on click) -->
-    <div id="sc-long"   class="scard"><div class="scard-head g">    <div class="sh-left"><span class="sh-title g">▲ Long Buildup</span><span class="sh-desc">OI Rising · Volume Spike · Price Rising ≥ threshold</span></div><span class="sh-cnt g"      id="cnt-long">0</span></div><div class="tscroll"><table><thead><tr><th>Symbol</th><th>OI Now</th><th>OI Base</th><th>OI Δ%</th><th>Price Now</th><th>Price Base</th><th>Price Δ%</th><th>Vol Speed</th></tr></thead><tbody id="tb-long"></tbody></table></div></div>
-    <div id="sc-short"  class="scard"><div class="scard-head r">    <div class="sh-left"><span class="sh-title r">▼ Short Buildup</span><span class="sh-desc">OI Rising · Volume Spike · Price Falling ≥ threshold</span></div><span class="sh-cnt r"     id="cnt-short">0</span></div><div class="tscroll"><table><thead><tr><th>Symbol</th><th>OI Now</th><th>OI Base</th><th>OI Δ%</th><th>Price Now</th><th>Price Base</th><th>Price Δ%</th><th>Vol Speed</th></tr></thead><tbody id="tb-short"></tbody></table></div></div>
-    <div id="sc-cover"  class="scard"><div class="scard-head teal"> <div class="sh-left"><span class="sh-title teal">↑ Short Covering</span><span class="sh-desc">OI Falling · Price Rising — bears exiting positions</span></div><span class="sh-cnt teal"   id="cnt-cover">0</span></div><div class="tscroll"><table><thead><tr><th>Symbol</th><th>OI Now</th><th>OI Base</th><th>OI Δ%</th><th>Price Now</th><th>Price Base</th><th>Price Δ%</th><th>Vol Speed</th></tr></thead><tbody id="tb-cover"></tbody></table></div></div>
-    <div id="sc-unwind" class="scard"><div class="scard-head orange"><div class="sh-left"><span class="sh-title orange">↓ Long Unwinding</span><span class="sh-desc">OI Falling · Price Falling — bulls exiting positions</span></div><span class="sh-cnt orange" id="cnt-unwind">0</span></div><div class="tscroll"><table><thead><tr><th>Symbol</th><th>OI Now</th><th>OI Base</th><th>OI Δ%</th><th>Price Now</th><th>Price Base</th><th>Price Δ%</th><th>Vol Speed</th></tr></thead><tbody id="tb-unwind"></tbody></table></div></div>
+      <!-- Row 3 label: Watch -->
+      <div class="row-label"><div class="row-label-pip" style="background:var(--ink3)"></div>Watch — potential next move</div>
 
-    <!-- LEVEL 3 — Watch Signals (collapsible) -->
-    <div class="watch-grid">
+      <!-- Row 3: Accumulation | Distribution -->
       <div class="watch-card">
-        <div class="watch-head b-head" onclick="toggleWatch('acc')">
+        <div class="watch-head b-head" id="wh-acc" onclick="toggleWatch('acc')">
           <div class="watch-head-left">
             <div class="watch-pip" style="background:var(--b)"></div>
             <div>
               <div class="watch-title">◆ Accumulation</div>
-              <div class="watch-desc">OI ↑ · Price ↑ · Vol Normal — quietly buying, watch for breakout</div>
+              <div class="watch-desc">OI ↑ · Price ↑ · Vol Normal — quietly buying, breakout up possible</div>
             </div>
           </div>
           <div class="watch-right">
@@ -628,17 +643,15 @@ tr.top-signal td.sym::after{content:'🔥';font-size:.6rem;margin-left:5px;}
             <span class="watch-arrow" id="arr-acc">▼</span>
           </div>
         </div>
-        <div class="watch-body" id="wb-acc">
-          <div class="tscroll"><table><thead><tr><th>Symbol</th><th>OI Now</th><th>OI Base</th><th>OI Δ%</th><th>Price Now</th><th>Price Base</th><th>Price Δ%</th><th>Vol Speed</th></tr></thead><tbody id="tb-acc"></tbody></table></div>
-        </div>
+        <div class="watch-body" id="wb-acc"></div>
       </div>
       <div class="watch-card">
-        <div class="watch-head purple-head" onclick="toggleWatch('dist')">
+        <div class="watch-head purple-head" id="wh-dist" onclick="toggleWatch('dist')">
           <div class="watch-head-left">
             <div class="watch-pip" style="background:var(--purple)"></div>
             <div>
               <div class="watch-title">◆ Distribution</div>
-              <div class="watch-desc">OI ↑ · Price ↓ · Vol Normal — quietly shorting, watch for breakdown</div>
+              <div class="watch-desc">OI ↑ · Price ↓ · Vol Normal — quietly shorting, breakdown possible</div>
             </div>
           </div>
           <div class="watch-right">
@@ -646,11 +659,18 @@ tr.top-signal td.sym::after{content:'🔥';font-size:.6rem;margin-left:5px;}
             <span class="watch-arrow" id="arr-dist">▼</span>
           </div>
         </div>
-        <div class="watch-body" id="wb-dist">
-          <div class="tscroll"><table><thead><tr><th>Symbol</th><th>OI Now</th><th>OI Base</th><th>OI Δ%</th><th>Price Now</th><th>Price Base</th><th>Price Δ%</th><th>Vol Speed</th></tr></thead><tbody id="tb-dist"></tbody></table></div>
-        </div>
+        <div class="watch-body" id="wb-dist"></div>
       </div>
-    </div>
+
+    </div><!-- /card-grid -->
+
+    <!-- Signal Tables — shown below full grid on card click -->
+    <div id="sc-long"   class="scard"><div class="scard-head g">    <div class="sh-left"><span class="sh-title g">▲ Long Buildup</span><span class="sh-desc">OI Rising · Volume Spike · Price Rising ≥ threshold</span></div><span class="sh-cnt g"      id="cnt-long">0</span></div><div class="tscroll"><table><thead><tr><th>Symbol</th><th>OI Now</th><th>OI Base</th><th>OI Δ%</th><th>Price Now</th><th>Price Base</th><th>Price Δ%</th><th>Vol Speed</th></tr></thead><tbody id="tb-long"></tbody></table></div></div>
+    <div id="sc-short"  class="scard"><div class="scard-head r">    <div class="sh-left"><span class="sh-title r">▼ Short Buildup</span><span class="sh-desc">OI Rising · Volume Spike · Price Falling ≥ threshold</span></div><span class="sh-cnt r"     id="cnt-short">0</span></div><div class="tscroll"><table><thead><tr><th>Symbol</th><th>OI Now</th><th>OI Base</th><th>OI Δ%</th><th>Price Now</th><th>Price Base</th><th>Price Δ%</th><th>Vol Speed</th></tr></thead><tbody id="tb-short"></tbody></table></div></div>
+    <div id="sc-cover"  class="scard"><div class="scard-head teal"> <div class="sh-left"><span class="sh-title teal">↑ Short Covering</span><span class="sh-desc">OI Falling · Price Rising — bears exiting positions</span></div><span class="sh-cnt teal"   id="cnt-cover">0</span></div><div class="tscroll"><table><thead><tr><th>Symbol</th><th>OI Now</th><th>OI Base</th><th>OI Δ%</th><th>Price Now</th><th>Price Base</th><th>Price Δ%</th><th>Vol Speed</th></tr></thead><tbody id="tb-cover"></tbody></table></div></div>
+    <div id="sc-unwind" class="scard"><div class="scard-head orange"><div class="sh-left"><span class="sh-title orange">↓ Long Unwinding</span><span class="sh-desc">OI Falling · Price Falling — bulls exiting positions</span></div><span class="sh-cnt orange" id="cnt-unwind">0</span></div><div class="tscroll"><table><thead><tr><th>Symbol</th><th>OI Now</th><th>OI Base</th><th>OI Δ%</th><th>Price Now</th><th>Price Base</th><th>Price Δ%</th><th>Vol Speed</th></tr></thead><tbody id="tb-unwind"></tbody></table></div></div>
+    <div id="sc-acc"    class="scard"><div class="scard-head b">     <div class="sh-left"><span class="sh-title b">◆ Accumulation</span><span class="sh-desc">OI Rising · Price Rising · Vol Normal — quietly buying, breakout up possible</span></div><span class="sh-cnt b"      id="cnt-acc-full">0</span></div><div class="tscroll"><table><thead><tr><th>Symbol</th><th>OI Now</th><th>OI Base</th><th>OI Δ%</th><th>Price Now</th><th>Price Base</th><th>Price Δ%</th><th>Vol Speed</th></tr></thead><tbody id="tb-acc"></tbody></table></div></div>
+    <div id="sc-dist"   class="scard"><div class="scard-head purple"><div class="sh-left"><span class="sh-title purple">◆ Distribution</span><span class="sh-desc">OI Rising · Price Falling · Vol Normal — quietly shorting, breakdown possible</span></div><span class="sh-cnt purple" id="cnt-dist-full">0</span></div><div class="tscroll"><table><thead><tr><th>Symbol</th><th>OI Now</th><th>OI Base</th><th>OI Δ%</th><th>Price Now</th><th>Price Base</th><th>Price Δ%</th><th>Vol Speed</th></tr></thead><tbody id="tb-dist"></tbody></table></div></div>
 
   </div><!-- /dash -->
 </main>
@@ -703,33 +723,43 @@ function oiCell(pct,cls){
   return `<td><div class="oic"><span class="oiv ${cls}">${sign}${(+pct).toFixed(2)}%</span><div class="oibar"><div class="oifill" style="width:${w}%;background:${col}"></div></div></div></td>`;
 }
 
-/* ── Section show/hide (click on action card) ── */
+/* ── Section show/hide — same rule for all 6 cards ── */
+const ALL_SECTIONS = ['long','short','cover','unwind','acc','dist'];
+
 function showSection(key){
-  const ids = ['long','short','cover','unwind'];
   if(_activeSection === key){
     // toggle off
     document.getElementById('sc-'+key).classList.remove('active');
-    document.getElementById('ac-'+key).classList.remove('active');
+    const ac = document.getElementById('ac-'+key);
+    if(ac) ac.classList.remove('active');
+    const wh = document.getElementById('wh-'+key);
+    if(wh) wh.classList.remove('wh-active');
     _activeSection = null;
     return;
   }
-  ids.forEach(id=>{
+  // close all
+  ALL_SECTIONS.forEach(id=>{
     document.getElementById('sc-'+id).classList.remove('active');
-    document.getElementById('ac-'+id).classList.remove('active');
+    const ac = document.getElementById('ac-'+id);
+    if(ac) ac.classList.remove('active');
   });
+  // remove active from watch heads
+  document.querySelectorAll('.watch-head').forEach(el=>el.classList.remove('wh-active'));
+
   document.getElementById('sc-'+key).classList.add('active');
-  document.getElementById('ac-'+key).classList.add('active');
+  const ac = document.getElementById('ac-'+key);
+  if(ac) ac.classList.add('active');
   _activeSection = key;
-  // scroll to it
   setTimeout(()=>document.getElementById('sc-'+key).scrollIntoView({behavior:'smooth',block:'nearest'}),50);
 }
 
-/* ── Watch section toggle ────────────────── */
+/* ── Watch card click — same expand rule ── */
 function toggleWatch(key){
-  const body = document.getElementById('wb-'+key);
-  const arr  = document.getElementById('arr-'+key);
-  const open = body.classList.toggle('open');
-  arr.classList.toggle('open', open);
+  // Highlight watch head
+  document.querySelectorAll('.watch-head').forEach(el=>el.classList.remove('wh-active'));
+  const wh = document.getElementById('wh-'+key);
+  if(wh) wh.classList.add('wh-active');
+  showSection(key);
 }
 
 /* ── Guide toggle ──────────────────────── */
@@ -900,6 +930,8 @@ function renderSignals(sig, baseTime, scanTime){
   document.getElementById('c-unwind').textContent = unwind.length;
   document.getElementById('cnt-acc').textContent  = acc.length;
   document.getElementById('cnt-dist').textContent = dist.length;
+  document.getElementById('cnt-acc-full').textContent  = acc.length;
+  document.getElementById('cnt-dist-full').textContent = dist.length;
   document.getElementById('cnt-long').textContent   = long.length;
   document.getElementById('cnt-short').textContent  = short.length;
   document.getElementById('cnt-cover').textContent  = cover.length;
@@ -916,7 +948,8 @@ function renderSignals(sig, baseTime, scanTime){
   // If active section still set, keep it visible
   if(_activeSection){
     document.getElementById('sc-'+_activeSection).classList.add('active');
-    document.getElementById('ac-'+_activeSection).classList.add('active');
+    const ac = document.getElementById('ac-'+_activeSection);
+    if(ac) ac.classList.add('active');
   }
 
   // Header status
