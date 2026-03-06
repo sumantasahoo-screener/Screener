@@ -464,7 +464,7 @@ td.b{color:var(--b-text);font-family:'JetBrains Mono',monospace;font-weight:500;
     <button class="hbtn save" id="save-btn" onclick="fetchAndSave()">
       📥 <span>Fetch &amp; Save</span>
     </button>
-    <button class="hbtn cmp" id="cmp-btn" onclick="compareAndSignal()" disabled>
+    <button class="hbtn cmp" id="cmp-btn" onclick="compareAndSignal()">
       🔄 <span>Compare</span>
     </button>
   </div>
@@ -476,11 +476,11 @@ td.b{color:var(--b-text);font-family:'JetBrains Mono',monospace;font-weight:500;
   <div id="empty">
     <div class="empty-icon">📊</div>
     <div class="empty-title">No data loaded yet</div>
-    <div class="empty-sub">Set a baseline snapshot, wait ~3 minutes for NSE data to refresh, then compare to generate LONG / SHORT / ACCUMULATION signals.</div>
+    <div class="empty-sub">Baseline server pe save hoti hai — koi bhi device use kar sakta hai. 9:15 AM se 3:30 PM IST ke beech kaam karega.</div>
     <div class="empty-flow">
       <div class="flow-step">
         <div class="fn">1</div>
-        <div>Click <strong>Fetch &amp; Save</strong><br>to set baseline</div>
+        <div>Click <strong>Fetch &amp; Save</strong><br>baseline server pe save hogi</div>
       </div>
       <div class="flow-step">
         <div class="fn">2</div>
@@ -488,7 +488,7 @@ td.b{color:var(--b-text);font-family:'JetBrains Mono',monospace;font-weight:500;
       </div>
       <div class="flow-step">
         <div class="fn">3</div>
-        <div>Click <strong>Compare</strong><br>→ signals appear</div>
+        <div>Click <strong>Compare</strong><br>15 min rolling base se signals</div>
       </div>
     </div>
   </div>
@@ -596,7 +596,7 @@ td.b{color:var(--b-text);font-family:'JetBrains Mono',monospace;font-weight:500;
 <script>
 'use strict';
 const WORKER = 'https://spurts-ul.sumantasahoo.workers.dev/';
-const K = { base:'spurt_ul_base4', time:'spurt_ul_time4', th:'spurt_ul_th4' };
+const K = { th:'spurt_ul_th4' };
 
 /* ── Theme ─────────────────────────────────────── */
 (function(){
@@ -635,13 +635,6 @@ function oiCell(pct, cls){
   </div></td>`;
 }
 
-/* ── Storage ───────────────────────────────────── */
-function saveBase(data, time){
-  try{ localStorage.setItem(K.base, JSON.stringify(data)); localStorage.setItem(K.time, time); }
-  catch(e){ console.warn('Storage:', e); }
-}
-function loadBase(){ try{ const d=localStorage.getItem(K.base); return d?JSON.parse(d):null; }catch{ return null; } }
-function baseTime(){ return localStorage.getItem(K.time)||null; }
 function toMap(arr){ const m={}; arr.forEach(r=>m[r.symbol]=r); return m; }
 
 /* ── Signal Engine ─────────────────────────────── */
@@ -685,13 +678,11 @@ function mkRows(rows, cls){
   }).join('');
 }
 
-function renderSignals(sig){
+function renderSignals(sig, baseTime, scanTime){
   const {long,short,acc} = sig;
-  // KPI
   document.getElementById('c-long').textContent  = long.length;
   document.getElementById('c-short').textContent = short.length;
   document.getElementById('c-acc').textContent   = acc.length;
-  // Top
   const all = [...long.map(r=>({...r,t:'LONG'})),...short.map(r=>({...r,t:'SHORT'})),...acc.map(r=>({...r,t:'ACC'}))];
   all.sort((a,b)=>b.oiPct-a.oiPct);
   if(all.length){
@@ -703,18 +694,20 @@ function renderSignals(sig){
     document.getElementById('c-top').textContent = '—';
     document.getElementById('h-top').textContent = 'No signals';
   }
-  // Counts
   document.getElementById('cnt-long').textContent  = long.length;
   document.getElementById('cnt-short').textContent = short.length;
   document.getElementById('cnt-acc').textContent   = acc.length;
-  // Tables
   document.getElementById('tb-long').innerHTML  = mkRows(long, 'g');
   document.getElementById('tb-short').innerHTML = mkRows(short,'r');
   document.getElementById('tb-acc').innerHTML   = mkRows(acc,  'b');
+  document.getElementById('st-base').textContent = fmtT(baseTime);
+  document.getElementById('st-base').className   = 'st-val on';
+  document.getElementById('st-cmp').textContent  = fmtT(scanTime);
+  document.getElementById('st-cmp').className    = 'st-val on';
   showDash();
 }
 
-function renderRaw(data){
+function renderRaw(data, scanTime){
   document.getElementById('c-long').textContent  = '—';
   document.getElementById('c-short').textContent = '—';
   document.getElementById('c-acc').textContent   = data.length;
@@ -729,7 +722,6 @@ function renderRaw(data){
   const nd = `<tr class="nodata"><td colspan="8">Baseline saved — ab ~3 min baad Compare karo</td></tr>`;
   document.getElementById('tb-long').innerHTML  = nd;
   document.getElementById('tb-short').innerHTML = nd;
-  // Top 12 by OI% in acc table
   const top = [...data].sort((a,b)=>b.chngOIPct-a.chngOIPct).slice(0,12);
   document.getElementById('tb-acc').innerHTML = top.map(r=>`
     <tr>
@@ -741,35 +733,28 @@ function renderRaw(data){
       <td class="dim">—</td><td class="dim">—</td>
       <td class="dim">${fmtN(r.volume)}</td>
     </tr>`).join('');
+  document.getElementById('st-base').textContent = fmtT(scanTime);
+  document.getElementById('st-base').className   = 'st-val on';
+  document.getElementById('st-cnt').textContent  = data.length + ' symbols';
   showDash();
-}
-
-/* ── Fetch ─────────────────────────────────────── */
-async function fetchData(){
-  const res = await fetch(WORKER + '?mode=fetch');
-  const j   = await res.json();
-  if(!j.ok) throw new Error(j.error || 'Worker error');
-  return j;
 }
 
 /* ── Btn 1: Fetch & Save ───────────────────────── */
 async function fetchAndSave(){
   const btn = document.getElementById('save-btn');
   btn.classList.add('loading');
-  btn.innerHTML = '<span class="spin"></span> <span>Fetching…</span>';
-  setBadge('saved', 'Fetching...');
+  btn.innerHTML = '<span class="spin"></span> <span>Saving…</span>';
+  setBadge('saved', 'Saving...');
   try{
-    const j = await fetchData();
-    saveBase(j.data, j.scanTime);
-    document.getElementById('st-base').textContent = fmtT(j.scanTime);
-    document.getElementById('st-base').className   = 'st-val on';
-    document.getElementById('st-cnt').textContent  = j.count + ' symbols';
-    setBadge('saved', '📥 Baseline Saved');
-    document.getElementById('cmp-btn').disabled = false;
-    renderRaw(j.data);
+    const res = await fetch(WORKER + '?mode=save');
+    const j   = await res.json();
+    if(!j.ok) throw new Error(j.error || 'Worker error');
+    document.getElementById('st-cnt').textContent = j.count + ' symbols';
+    setBadge('saved', '📥 Baseline Saved · ' + fmtT(j.scanTime));
+    renderRaw(j.data, j.scanTime);
   } catch(e){
     setBadge('err', 'Error');
-    alert('Fetch failed: ' + e.message);
+    alert('Save failed: ' + e.message);
   }
   btn.classList.remove('loading');
   btn.innerHTML = '📥 <span>Fetch &amp; Save</span>';
@@ -777,19 +762,18 @@ async function fetchAndSave(){
 
 /* ── Btn 2: Compare ────────────────────────────── */
 async function compareAndSignal(){
-  const base = loadBase();
-  if(!base){ alert('Pehle "Fetch & Save" karo!'); return; }
   const btn = document.getElementById('cmp-btn');
   btn.classList.add('loading');
   btn.innerHTML = '<span class="spin"></span> <span>Comparing…</span>';
   setBadge('', 'Comparing...');
   try{
-    const j      = await fetchData();
-    const sig    = genSignals(j.data, toMap(base));
-    document.getElementById('st-cmp').textContent = fmtT(j.scanTime);
-    document.getElementById('st-cmp').className   = 'st-val on';
-    renderSignals(sig);
-    setBadge('ready', '● Signals Ready');
+    const res = await fetch(WORKER + '?mode=compare');
+    const j   = await res.json();
+    if(!j.ok) throw new Error(j.error || 'Worker error');
+    const sig = genSignals(j.data, toMap(j.baseData));
+    document.getElementById('st-cnt').textContent = j.count + ' symbols';
+    setBadge('ready', '● Signals Ready · Base: ' + fmtT(j.baseTime));
+    renderSignals(sig, j.baseTime, j.scanTime);
   } catch(e){
     setBadge('err', 'Error');
     alert('Compare failed: ' + e.message);
@@ -797,17 +781,6 @@ async function compareAndSignal(){
   btn.classList.remove('loading');
   btn.innerHTML = '🔄 <span>Compare</span>';
 }
-
-/* ── Init ──────────────────────────────────────── */
-(function(){
-  const bt = baseTime();
-  if(bt){
-    document.getElementById('cmp-btn').disabled = false;
-    document.getElementById('st-base').textContent = fmtT(bt);
-    document.getElementById('st-base').className   = 'st-val pend';
-    setBadge('saved', '📥 Baseline Exists');
-  }
-})();
 </script>
 </body>
 </html>
