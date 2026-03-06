@@ -119,6 +119,26 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 .ph.ph-orange::before{background:#f97316;}
 .ph.ph-teal::before{background:#14b8a6;}
 .ph.ph-cyan::before{background:#06b6d4;}
+
+/* ── DISTINCT CARD HEADER BACKGROUNDS ── */
+.ph.ph-bull{background:linear-gradient(105deg,#1a2a1f 0%,#1e3328 60%,#223d2e 100%);border-bottom:1.5px solid rgba(34,197,94,.35);}
+.ph.ph-bear{background:linear-gradient(105deg,#2a1a20 0%,#331e24 60%,#3d2028 100%);border-bottom:1.5px solid rgba(244,63,94,.35);}
+.ph.ph-blue{background:linear-gradient(105deg,#1a2035 0%,#1e2a42 60%,#1f3050 100%);border-bottom:1.5px solid rgba(59,130,246,.35);}
+.ph.ph-gold{background:linear-gradient(105deg,#2a2210 0%,#352c14 60%,#3d3016 100%);border-bottom:1.5px solid rgba(245,158,11,.35);}
+.ph.ph-purp{background:linear-gradient(105deg,#22182a 0%,#2c1e36 60%,#341f3f 100%);border-bottom:1.5px solid rgba(168,85,247,.35);}
+.ph.ph-orange{background:linear-gradient(105deg,#2a1e12 0%,#362516 60%,#3d2a18 100%);border-bottom:1.5px solid rgba(249,115,22,.35);}
+.ph.ph-teal{background:linear-gradient(105deg,#102828 0%,#143232 60%,#163838 100%);border-bottom:1.5px solid rgba(20,184,166,.35);}
+.ph.ph-cyan{background:linear-gradient(105deg,#0e2530 0%,#122d3a 60%,#133440 100%);border-bottom:1.5px solid rgba(6,182,212,.35);}
+/* Light theme header overrides */
+.light-theme .ph.ph-bull{background:linear-gradient(105deg,#f0fdf4 0%,#dcfce7 100%);border-bottom:1.5px solid rgba(34,197,94,.3);}
+.light-theme .ph.ph-bear{background:linear-gradient(105deg,#fff1f2 0%,#ffe4e6 100%);border-bottom:1.5px solid rgba(244,63,94,.3);}
+.light-theme .ph.ph-blue{background:linear-gradient(105deg,#eff6ff 0%,#dbeafe 100%);border-bottom:1.5px solid rgba(59,130,246,.3);}
+.light-theme .ph.ph-gold{background:linear-gradient(105deg,#fffbeb 0%,#fef3c7 100%);border-bottom:1.5px solid rgba(245,158,11,.3);}
+.light-theme .ph.ph-purp{background:linear-gradient(105deg,#faf5ff 0%,#f3e8ff 100%);border-bottom:1.5px solid rgba(168,85,247,.3);}
+.light-theme .ph.ph-orange{background:linear-gradient(105deg,#fff7ed 0%,#ffedd5 100%);border-bottom:1.5px solid rgba(249,115,22,.3);}
+.light-theme .ph.ph-teal{background:linear-gradient(105deg,#f0fdfa 0%,#ccfbf1 100%);border-bottom:1.5px solid rgba(20,184,166,.3);}
+.light-theme .ph.ph-cyan{background:linear-gradient(105deg,#ecfeff 0%,#cffafe 100%);border-bottom:1.5px solid rgba(6,182,212,.3);}
+
 .ph.ph-bull .phi{background:var(--bull-lt);border-color:var(--bull-md);}
 .ph.ph-bear .phi{background:var(--bear-lt);border-color:var(--bear-md);}
 .ph.ph-blue .phi{background:var(--blue-lt);border-color:var(--blue-md);}
@@ -254,6 +274,17 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
   .ucard h1{font-size:1.6rem;}
   /* Bottom summary cards */
   .sum2{grid-template-columns:1fr!important;}
+
+  /* ── MOBILE COLLAPSE ── */
+  .panel-body{display:none;}
+  .panel.expanded .panel-body{display:block;}
+  .collapse-arrow{display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:6px;margin-left:8px;flex-shrink:0;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+    font-size:.65rem;color:var(--ink2);transition:transform .25s,background .2s;}
+  .panel.expanded .collapse-arrow{transform:rotate(180deg);background:rgba(255,255,255,.1);}
+  .ph{cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .ph:active{opacity:.85;}
 }
 
 /* ── THEME EXTRAS ── */
@@ -339,8 +370,9 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <div class="phl"><div class="phi">📊</div>
           <div><h3>OI Buildup Signals</h3><div class="ph-sub" id="oi-exp-lbl">Recent expiry — Price + OI change</div></div>
         </div>
-        <span class="pbadge" id="oi-b">—</span>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="pbadge" id="oi-b">—</span><span class="collapse-arrow">▼</span></div>
       </div>
+      <div class="panel-body">
       <div class="tabs">
         <div class="tab active" onclick="oiT('long',this)">🟢 Long Build</div>
         <div class="tab" onclick="oiT('short',this)">🔴 Short Build</div>
@@ -357,6 +389,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <span style="text-align:right">Signal</span>
       </div>
       <div class="sb" id="oi-bd"></div>
+      </div>
     </div>
 
     <div class="panel">
@@ -364,8 +397,9 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <div class="phl"><div class="phi">⚖️</div>
           <div><h3>Put-Call Ratio (PCR)</h3><div class="ph-sub" id="pcr-exp-lbl">Recent expiry — OI PCR + Vol PCR</div></div>
         </div>
-        <span class="pbadge" id="pcr-b">—</span>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="pbadge" id="pcr-b">—</span><span class="collapse-arrow">▼</span></div>
       </div>
+      <div class="panel-body">
       <div class="pcr-explainer">
         <div class="pe-item bull"><div class="pe-val bull">PCR &gt; 1.2</div><div class="pe-desc">🟢 Bullish<br>Zyada puts = support</div></div>
         <div class="pe-item neutral"><div class="pe-val neutral">0.8 – 1.2</div><div class="pe-desc">⚪ Neutral<br>Balanced market</div></div>
@@ -380,6 +414,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
       <div id="pcr-aw"></div>
       <div class="ch g-pcr"><span>Symbol</span><span>OI PCR Bar + Vol PCR</span><span style="text-align:right">OI PCR</span><span style="text-align:right">Signal</span></div>
       <div class="sb" id="pcr-bd"></div>
+      </div>
     </div>
   </div>
 
@@ -389,8 +424,9 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <div class="phl"><div class="phi">🎯</div>
           <div><h3>Max Pain</h3><div class="ph-sub" id="mp-exp-lbl">Recent expiry — Click row for full pain table</div></div>
         </div>
-        <span class="pbadge">Near Expiry</span>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="pbadge">Near Expiry</span><span class="collapse-arrow">▼</span></div>
       </div>
+      <div class="panel-body">
       <div class="tipbox">💡 <strong>Max Pain</strong> = Option sellers minimum loss point. &nbsp;<span style="color:var(--bear)">CE Wall</span> = Resistance &nbsp;|&nbsp; <span style="color:var(--bull)">PE Wall</span> = Support &nbsp;|&nbsp; Gap% = Spot vs Max Pain distance</div>
       <div class="sw"><input class="si" id="mps" placeholder="Symbol search karo..." oninput="rMP()"></div>
       <div class="ch g-mp">
@@ -403,6 +439,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <span class="sort-th" style="text-align:right" id="th-gap" onclick="sMP('gap')">Gap%</span>
       </div>
       <div class="sb" id="mp-bd"></div>
+      </div>
     </div>
 
     <div class="panel">
@@ -410,8 +447,9 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <div class="phl"><div class="phi">🔥</div>
           <div><h3>Most Active Options</h3><div class="ph-sub">Recent expiry — OI + Volume (all stocks)</div></div>
         </div>
-        <span class="pbadge">By OI+Vol</span>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="pbadge">By OI+Vol</span><span class="collapse-arrow">▼</span></div>
       </div>
+      <div class="panel-body">
       <div class="tabs">
         <div class="tab active" onclick="actT('CE',this)">📞 Calls (CE) — Resistance</div>
         <div class="tab" onclick="actT('PE',this)">📍 Puts (PE) — Support</div>
@@ -419,6 +457,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
       <div class="sw"><input class="si" id="acts" placeholder="Symbol search (RELIANCE, NIFTY, BANKNIFTY...)..." oninput="D.actSearch=this.value;rAct()"></div>
       <div class="ch g-act"><span>Symbol</span><span style="text-align:right">Strike</span><span style="text-align:right">OI(K)</span><span style="text-align:right">Vol(K)</span><span style="text-align:right">Type</span></div>
       <div class="sb" id="act-bd"></div>
+      </div>
     </div>
   </div>
 
@@ -429,26 +468,30 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <div class="phl"><div class="phi">🪤</div>
           <div><h3>Call Writer Trap</h3><div class="ph-sub">Spot ≥ CE Wall — Call writers under pressure 🟢 Bullish signal</div></div>
         </div>
-        <span class="pbadge" id="cwt-b">—</span>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="pbadge" id="cwt-b">—</span><span class="collapse-arrow">▼</span></div>
       </div>
+      <div class="panel-body">
       <div class="tipbox" style="color:var(--bull);">💡 Spot ne CE Wall ko touch/cross kiya → Call writers forced to cover → <strong>Upward squeeze possible</strong></div>
       <div class="ch" style="display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr;gap:10px;padding:10px 20px;">
         <span>Symbol</span><span style="text-align:right">Spot</span><span style="text-align:right">CE Wall</span><span style="text-align:right">Gap</span><span style="text-align:right">CE OI(K)</span>
       </div>
       <div class="sb" id="cwt-bd"></div>
+      </div>
     </div>
     <div class="panel">
       <div class="ph ph-bear">
         <div class="phl"><div class="phi">🪤</div>
           <div><h3>Put Writer Trap</h3><div class="ph-sub">Spot ≤ PE Wall — Put writers under pressure 🔴 Bearish signal</div></div>
         </div>
-        <span class="pbadge" id="pwt-b">—</span>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="pbadge" id="pwt-b">—</span><span class="collapse-arrow">▼</span></div>
       </div>
+      <div class="panel-body">
       <div class="tipbox" style="color:var(--bear);">💡 Spot ne PE Wall ko touch/break kiya → Put writers forced to cover → <strong>Downward squeeze possible</strong></div>
       <div class="ch" style="display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr;gap:10px;padding:10px 20px;">
         <span>Symbol</span><span style="text-align:right">Spot</span><span style="text-align:right">PE Wall</span><span style="text-align:right">Gap</span><span style="text-align:right">PE OI(K)</span>
       </div>
       <div class="sb" id="pwt-bd"></div>
+      </div>
     </div>
   </div>
 
@@ -458,17 +501,22 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <div class="phl"><div class="phi">📈</div>
           <div><h3>Top OI — Futures</h3><div class="ph-sub">🟢 Green=Long Build &nbsp;|&nbsp; 🔴 Red=Short Build &nbsp;|&nbsp; Hover for details</div></div>
         </div>
-        <span class="pbadge" id="fut-exp-lbl">Recent Expiry</span>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="pbadge" id="fut-exp-lbl">Recent Expiry</span><span class="collapse-arrow">▼</span></div>
       </div>
+      <div class="panel-body">
       <div class="cw"><canvas id="oic"></canvas></div>
+      </div>
     </div>
     <div class="panel">
       <div class="ph ph-cyan">
         <div class="phl"><div class="phi">🥧</div>
           <div><h3>PCR Distribution</h3><div class="ph-sub">Recent expiry OI PCR — All stocks breakdown</div></div>
         </div>
+        <span class="collapse-arrow">▼</span>
       </div>
+      <div class="panel-body">
       <div class="cw"><canvas id="pcrc"></canvas></div>
+      </div>
     </div>
   </div>
 
@@ -480,7 +528,9 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <div class="phl"><div class="phi">🏆</div>
           <div><h3>Top 5 OI Buildup</h3><div class="ph-sub">Strongest Long & Short signals today</div></div>
         </div>
+        <span class="collapse-arrow">▼</span>
       </div>
+      <div class="panel-body">
       <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border);">
         <div style="border-right:1px solid var(--border);">
           <div style="padding:8px 14px;background:var(--bull-lt);border-bottom:1px solid var(--border);font-size:.65rem;font-weight:700;color:var(--bull);letter-spacing:.8px;text-transform:uppercase;">🟢 Long Build</div>
@@ -491,6 +541,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
           <div id="sc-short"></div>
         </div>
       </div>
+      </div>
     </div>
 
     <!-- Market Pulse Card -->
@@ -499,8 +550,11 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <div class="phl"><div class="phi">📡</div>
           <div><h3>Market Pulse</h3><div class="ph-sub">Max Pain + PCR quick summary</div></div>
         </div>
+        <span class="collapse-arrow">▼</span>
       </div>
+      <div class="panel-body">
       <div id="sc-pulse" style="padding:14px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px;"></div>
+      </div>
     </div>
   </div>
 </main>
@@ -574,6 +628,7 @@ async function loadZip(f){
     if(D.exp.futNear){he.textContent='⏳ '+D.exp.futNear;he.style.display='';}
     document.getElementById('uscreen').classList.add('gone');
     document.getElementById('main').style.display='block';
+    initMobileCollapse();
   }catch(e){alert('Error loading ZIP: '+e.message);}
 }
 
@@ -1284,6 +1339,23 @@ function openPulseModal(type){
       </div>`).join('')}`;
   }
   document.getElementById('modal').classList.add('open');
+}
+
+// ── MOBILE COLLAPSE ──
+function initMobileCollapse(){
+  if(window.innerWidth>768)return;
+  document.querySelectorAll('.panel').forEach(panel=>{
+    const ph=panel.querySelector('.ph');
+    if(!ph)return;
+    // Remove any existing listener by cloning
+    const newPh=ph.cloneNode(true);
+    ph.parentNode.replaceChild(newPh,ph);
+    newPh.addEventListener('click',function(e){
+      // Don't collapse if clicking a tab, button, input or link inside header
+      if(e.target.closest('button,input,a,.tab'))return;
+      panel.classList.toggle('expanded');
+    });
+  });
 }
 
 function rSummaryCards(){
