@@ -626,13 +626,13 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 .badge-breakout     { background:#fff7ed; color:#c2410c; border:1px solid #fed7aa; }
 .badge-continuation { background:#ecfeff; color:#0e7490; border:1px solid #a5f3fc; }
 .badge-pullback     { background:#f5f3ff; color:#6d28d9; border:1px solid #c4b5fd; }
-.badge-smart        { background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; }
+.badge-smart        { background:linear-gradient(135deg,#f3e8ff,#ede9fe); color:#7c3aed; border:1px solid #c4b5fd; clip-path:polygon(8px 0%,calc(100% - 8px) 0%,100% 50%,calc(100% - 8px) 100%,8px 100%,0% 50%); padding:3px 14px; }
 .badge-neutral      { background:var(--bg-row-even); color:var(--text-muted); border:1px solid var(--border); }
 
 [data-theme="dark"] .badge-breakout     { background:linear-gradient(135deg,#2d0f00,#3d1800); color:#fb923c; border-color:#7c2d12; }
 [data-theme="dark"] .badge-continuation { background:linear-gradient(135deg,#001e2e,#003a50); color:#22d3ee; border-color:#155e75; }
 [data-theme="dark"] .badge-pullback     { background:linear-gradient(135deg,#180838,#240e50); color:#a78bfa; border-color:#4c1d95; }
-[data-theme="dark"] .badge-smart        { background:linear-gradient(135deg,#01202E,#022030); color:#6aacbf; border-color:#0b5e76; }
+[data-theme="dark"] .badge-smart        { background:linear-gradient(135deg,#3b0764,#4c1d95); color:#e9d5ff; border-color:#7c3aed; clip-path:polygon(8px 0%,calc(100% - 8px) 0%,100% 50%,calc(100% - 8px) 100%,8px 100%,0% 50%); padding:3px 14px; }
 
 .badge-cross-bull { background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; border-radius:6px; font-size:10px; }
 .badge-cross-bear { background:#fff1f2; color:#be123c; border:1px solid #fecdd3; border-radius:6px; font-size:10px; }
@@ -919,6 +919,17 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 }
 .chart-open-btn:hover { opacity: 0.88; }
 
+/* Confidence text */
+.conf-text {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+.conf-bar {
+    font-family: monospace;
+    letter-spacing: -1px;
+}
+
 /* watchlist filter btn style */
 .filter-btn.f-watch {
     color: #d97706;
@@ -941,7 +952,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
     <div class="header-title">
       F&amp;O Swing Screener <span class="v-badge">v5.0</span>
     </div>
-    <div class="header-updated">Last updated: <span>2026-03-08 13:11:37</span></div>
+    <div class="header-updated">Last Scan: <span>2026-03-08 13:31:31</span></div>
   </div>
   <div class="header-right">
     <div class="settings-btn" onclick="openSettings()">⚙️ Columns</div>
@@ -1914,10 +1925,18 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
       </div>
     </div>
 
-    <!-- Entry -->
+    <!-- Entry + Confidence -->
     <div style="margin-bottom:12px;">
       <div class="cinfo-label" style="margin-bottom:5px;">Entry Type</div>
-      <span id="ci-entry" class="badge"></span>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span id="ci-entry" class="badge"></span>
+        <div id="ci-conf" style="flex:1;min-width:120px;"></div>
+      </div>
+    </div>
+
+    <!-- Last Scan -->
+    <div style="margin-bottom:12px;font-size:11px;color:var(--text-muted);">
+      🕐 Last Scan: <span style="color:var(--text);font-weight:600;">2026-03-08 13:31:31</span>
     </div>
 
     <!-- SL / Targets -->
@@ -2500,7 +2519,7 @@ const symbolMap = {
 
 function showChart(sym, sig, entry, ltp, chg, rsi, adx, sl, t1, t2, rr) {
     const tvSym = symbolMap[sym] || ('NSE:' + sym.replace(/[\s&]/g,'').toUpperCase());
-    const tvUrl = 'https://www.tradingview.com/chart/?symbol=' + encodeURIComponent(tvSym) + '&interval=60';
+    const tvUrl = 'https://www.tradingview.com/chart/?symbol=' + encodeURIComponent(tvSym) + '&interval=D';
 
     // Header
     document.getElementById('chartSymbolName').textContent = sym;
@@ -2529,13 +2548,24 @@ function showChart(sym, sig, entry, ltp, chg, rsi, adx, sl, t1, t2, rr) {
     adxEl.textContent = adx;
     adxEl.style.color = parseFloat(adx) >= 25 ? '#16a34a' : (parseFloat(adx) >= 20 ? '#d97706' : '#dc2626');
 
-    // Entry badge
-    const entryEl  = document.getElementById('ci-entry');
+    // Entry badge + confidence — simple text, no JS objects
+    const entryEl = document.getElementById('ci-entry');
+    const confEl  = document.getElementById('ci-conf');
     entryEl.textContent = entry;
-    if (entry.includes('Breakout'))     entryEl.className = 'badge badge-breakout';
-    else if (entry.includes('Cont'))    entryEl.className = 'badge badge-continuation';
-    else if (entry.includes('Pull'))    entryEl.className = 'badge badge-pullback';
-    else                                entryEl.className = 'badge badge-smart';
+
+    if (entry.includes('Breakout')) {
+        entryEl.className = 'badge badge-breakout';
+        confEl.innerHTML  = '<span class="conf-text" style="color:#f97316;">⚡ High Confidence &nbsp; <span class="conf-bar">████████░░</span> 70%</span>';
+    } else if (entry.includes('Cont')) {
+        entryEl.className = 'badge badge-continuation';
+        confEl.innerHTML  = '<span class="conf-text" style="color:#0891b2;">↗ Very High Confidence &nbsp; <span class="conf-bar">█████████░</span> 85%</span>';
+    } else if (entry.includes('Pull')) {
+        entryEl.className = 'badge badge-pullback';
+        confEl.innerHTML  = '<span class="conf-text" style="color:#7c3aed;">↩ Best Confidence &nbsp; <span class="conf-bar">█████████▌</span> 90%</span>';
+    } else {
+        entryEl.className = 'badge badge-smart';
+        confEl.innerHTML  = '<span class="conf-text" style="color:#8b5cf6;">◈ Moderate Confidence &nbsp; <span class="conf-bar">███████░░░</span> 65%</span>';
+    }
 
     // Trade levels
     document.getElementById('ci-sl').textContent = '₹' + sl;
