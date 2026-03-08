@@ -111,6 +111,31 @@ body{
 .cp{font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,1);}
 .cl{font-size:12px;font-weight:700;line-height:1.2;margin-top:auto;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,1);}
 
+/* ── DESKTOP POPUP (near card) ── */
+#deskPopup{
+  display:none;position:fixed;z-index:9999;
+  background:#1a1a1a;border:1px solid #2e2e2e;
+  border-radius:14px;padding:14px 16px 16px;
+  box-shadow:0 8px 40px rgba(0,0,0,.9);
+  animation:popIn .15s ease;
+  min-width:260px;
+}
+@keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+#deskPopup .dp-sym{font-size:13px;font-weight:700;color:#4fc3f7;letter-spacing:.05em;margin-bottom:2px;}
+#deskPopup .dp-sub{font-size:10px;color:#444;margin-bottom:12px;}
+#deskPopup .dp-div{height:1px;background:#222;margin-bottom:12px;}
+#deskPopup .dp-btns{display:flex;gap:6px;}
+#deskPopup .dp-btn{
+  flex:1;background:#222;border:1px solid #333;border-radius:10px;
+  color:#888;font-family:inherit;font-size:10px;font-weight:700;
+  padding:8px 4px 7px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  transition:all .15s;
+}
+#deskPopup .dp-btn:hover{border-color:#4fc3f7;color:#fff;background:#1e2e38;}
+#deskPopup .dp-btn.active{border-color:#00cc44;background:#0a2e14;color:#00ee55;box-shadow:0 0 8px rgba(0,204,68,.3);}
+#deskPopup .dp-btn .tfl{font-size:10px;}
+
 /* ── MOBILE BOTTOM SHEET ── */
 #tvOverlay{
   display:none;position:fixed;inset:0;
@@ -178,7 +203,7 @@ body{
   <div class="hdr-left">
     <div class="logo">NSE F&amp;O<small>208 STOCKS</small></div>
     <div class="sep"></div>
-    <div class="ts">Scanned &nbsp;<b id="sct" data-scan-time="2026-03-09 00:44:41">2026-03-09 00:44:41</b></div>
+    <div class="ts">Scanned &nbsp;<b id="sct" data-scan-time="2026-03-09 00:50:30">2026-03-09 00:50:30</b></div>
     <div class="sep"></div>
     <div class="sw"><input id="srch" placeholder="Search..." oninput="doFilter()"></div>
   </div>
@@ -212,6 +237,14 @@ body{
     </div>
     <iframe id="tvIframe" src="" allow="fullscreen" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
   </div>
+</div>
+
+<!-- DESKTOP: popup near card -->
+<div id="deskPopup">
+  <div class="dp-sym" id="dpSym">NSE: —</div>
+  <div class="dp-sub">Timeframe select karo → chart opens</div>
+  <div class="dp-div"></div>
+  <div class="dp-btns" id="dpBtns"></div>
 </div>
 
 <!-- MOBILE: bottom sheet -->
@@ -255,16 +288,57 @@ function mkSVG(candles, lg){
 }
 
 /* ══════════════════════════════
-   DESKTOP — IFRAME PANEL
+   DESKTOP — POPUP + IFRAME PANEL
 ══════════════════════════════ */
 const iframePanel = document.getElementById('iframePanel');
 const ifrSym      = document.getElementById('ifrSym');
 const ifrTfs      = document.getElementById('ifrTfs');
 const tvIframe    = document.getElementById('tvIframe');
+const deskPopup   = document.getElementById('deskPopup');
+const dpSym       = document.getElementById('dpSym');
+const dpBtns      = document.getElementById('dpBtns');
+let popOpen = false;
 
 function tvURL(sym, tf){
-  return 'https://www.tradingview.com/chart/?symbol=NSE:'+sym+'&interval='+tf+'&theme=dark';
+  return 'https://www.tradingview.com/widgetbar-website-preview/?symbol=NSE:'+sym+'&interval='+tf+'&theme=dark&style=1&locale=en&hide_top_toolbar=0&save_image=0&allow_symbol_change=0';
 }
+
+/* Show popup near clicked card */
+function showDeskPopup(e, sym){
+  dpSym.textContent = 'NSE: ' + sym;
+  dpBtns.innerHTML = '';
+  const last = getLastTf();
+  TFS.forEach(tf=>{
+    const btn = document.createElement('button');
+    btn.className = 'dp-btn' + (tf.id===last?' active':'');
+    btn.innerHTML = mkSVG(tf.c, false) + '<span class="tfl">' + tf.label + '</span>';
+    btn.onclick = (ev)=>{
+      ev.stopPropagation();
+      closeDeskPopup();
+      openIframe(sym, tf.id);
+    };
+    dpBtns.appendChild(btn);
+  });
+  deskPopup.style.display = 'block';
+  popOpen = true;
+  /* Position near card, flip if near edge */
+  const pw = 268, ph = 120;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  let x = e.clientX + 12, y = e.clientY + 12;
+  if(x + pw > vw) x = e.clientX - pw - 12;
+  if(y + ph > vh) y = e.clientY - ph - 12;
+  deskPopup.style.left = Math.max(6, x) + 'px';
+  deskPopup.style.top  = Math.max(6, y) + 'px';
+}
+
+function closeDeskPopup(){
+  deskPopup.style.display = 'none';
+  popOpen = false;
+}
+
+document.addEventListener('click', e=>{
+  if(popOpen && !deskPopup.contains(e.target)) closeDeskPopup();
+});
 
 function openIframe(sym, tfId){
   setLastTf(tfId);
@@ -348,10 +422,11 @@ sheet.addEventListener('touchend',e=>{
 ══════════════════════════════ */
 let lpTimer=null, lpDone=false;
 
-/* Desktop: mouse click only (pointer:fine = mouse) */
+/* Desktop: mouse click → show popup near card */
 function onCardClick(e, sym){
   if(!window.matchMedia('(pointer:fine)').matches) return; /* skip on touch devices */
-  openIframe(sym, getLastTf());
+  e.stopPropagation();
+  showDeskPopup(e, sym);
 }
 
 /* Mobile: touchstart → long press timer */
@@ -378,7 +453,7 @@ function onTouchCancel(){
   lpDone=false;
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape') closeIframe();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDeskPopup();closeIframe();}});
 
 /* ══════════════════════════════
    FILTER / GRID
