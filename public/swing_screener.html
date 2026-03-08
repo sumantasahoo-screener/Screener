@@ -878,7 +878,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
     <div class="header-title">
       F&amp;O Swing Screener <span class="v-badge">v5.0</span>
     </div>
-    <div class="header-updated">Last updated: <span>2026-03-08 11:21:34</span></div>
+    <div class="header-updated">Last updated: <span>2026-03-08 13:02:42</span></div>
   </div>
   <div class="header-right">
     <div class="settings-btn" onclick="openSettings()">⚙️ Columns</div>
@@ -1827,10 +1827,20 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
       <span id="chartSymbolName" style="font-weight:700;font-size:15px;color:#e0f2fe;"></span>
       <span style="font-size:11px;color:#7ab8c8;margin-left:6px;">NSE · 1 Day Chart</span>
     </div>
-    <span class="chart-close" onclick="closeChart()">✕</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <a id="chartOpenLink" href="#" target="_blank" style="
+        font-size:11px;font-weight:600;color:#38bdf8;
+        background:rgba(8,145,178,0.15);border:1px solid rgba(8,145,178,0.3);
+        padding:4px 10px;border-radius:6px;text-decoration:none;
+        transition:all 0.15s;" onmouseover="this.style.background='rgba(8,145,178,0.3)'"
+        onmouseout="this.style.background='rgba(8,145,178,0.15)'">
+        🔗 TradingView mein kholo
+      </a>
+      <span class="chart-close" onclick="closeChart()">✕</span>
+    </div>
   </div>
   <div class="chart-body">
-    <div id="tradingview_widget"></div>
+    <div id="tradingview_widget" style="width:100%;height:100%;"></div>
   </div>
 </div>
 <div class="popup-overlay" id="popupOverlay" onclick="closePopup()"></div>
@@ -2154,7 +2164,7 @@ function closePopup() {
 }
 
 // ══════════════════════════════════════
-// CHART — Open TradingView in new tab
+// CHART — iframe popup + open in TradingView
 // ══════════════════════════════════════
 const symbolMap = {
     'NIFTY': 'NSE:NIFTY50',
@@ -2382,9 +2392,40 @@ const symbolMap = {
 };
 
 function showChart(sym) {
-    const tvSym = symbolMap[sym] || ('NSE:' + sym.replace(/[\s&]/g,'').toUpperCase());
-    const url   = 'https://www.tradingview.com/chart/?symbol=' + encodeURIComponent(tvSym);
-    window.open(url, '_blank');
+    const tvSym  = symbolMap[sym] || ('NSE:' + sym.replace(/[\s&]/g,'').toUpperCase());
+    const theme  = currentTheme === 'dark' ? 'dark' : 'light';
+    const tvUrl  = 'https://www.tradingview.com/chart/?symbol=' + encodeURIComponent(tvSym);
+
+    // Set symbol name in header
+    document.getElementById('chartSymbolName').textContent = sym;
+
+    // Set "open in TradingView" link
+    document.getElementById('chartOpenLink').href = tvUrl;
+
+    // Load iframe with TradingView widget embed
+    const embedUrl = 'https://s.tradingview.com/widgetembed/?'
+        + 'symbol=' + encodeURIComponent(tvSym)
+        + '&interval=D'
+        + '&timezone=Asia%2FKolkata'
+        + '&theme=' + theme
+        + '&style=1'
+        + '&locale=en'
+        + '&hide_side_toolbar=0'
+        + '&allow_symbol_change=1'
+        + '&hide_top_toolbar=0'
+        + '&save_image=0'
+        + '&studies=[]'
+        + '&v=4';
+
+    document.getElementById('tradingview_widget').innerHTML =
+        '<iframe src="' + embedUrl + '" '
+        + 'width="100%" height="100%" '
+        + 'frameborder="0" allowtransparency="true" '
+        + 'scrolling="no" allowfullscreen="" '
+        + 'style="display:block;"></iframe>';
+
+    document.getElementById('chartOverlay').classList.add('show');
+    setTimeout(() => document.getElementById('chartModal').classList.add('show'), 10);
 }
 
 function closeChart() {
@@ -2392,11 +2433,11 @@ function closeChart() {
     document.getElementById('chartOverlay').classList.remove('show');
     setTimeout(() => {
         document.getElementById('tradingview_widget').innerHTML = '';
-    }, 200);
+    }, 250);
 }
 
 document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closePopup(); closeSettings(); }
+    if (e.key === 'Escape') { closePopup(); closeSettings(); closeChart(); }
 });
 
 let touchStartY = 0;
