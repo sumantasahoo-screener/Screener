@@ -770,7 +770,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
     <div class="header-title">
       F&amp;O Swing Screener <span class="v-badge">v5.0</span>
     </div>
-    <div class="header-updated">Last updated: <span>2026-03-08 10:30:02</span></div>
+    <div class="header-updated">Last updated: <span>2026-03-08 10:40:40</span></div>
   </div>
   <div class="header-right">
     <div class="settings-btn" onclick="openSettings()">⚙️ Columns</div>
@@ -810,9 +810,9 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
       <input class="search-input" type="text" id="searchInput"
              placeholder="Search symbol..." oninput="applyFilters()">
     </div>
-    <button class="filter-btn f-all"  id="btnAll"  onclick="setSignalFilter('all')">All</button>
-    <button class="filter-btn"        id="btnBuy"  onclick="setSignalFilter('buy')">▲ Buy</button>
-    <button class="filter-btn"        id="btnSell" onclick="setSignalFilter('sell')">▼ Sell</button>
+    <button class="filter-btn f-all"  id="btnAll"  onclick="setSignalFilter('all')">All (<span id="cntAll">36</span>)</button>
+    <button class="filter-btn"        id="btnBuy"  onclick="setSignalFilter('buy')">▲ Buy (<span id="cntBuy">3</span>)</button>
+    <button class="filter-btn"        id="btnSell" onclick="setSignalFilter('sell')">▼ Sell (<span id="cntSell">33</span>)</button>
   </div>
 
   <!-- Row 2: Entry Type filter -->
@@ -829,6 +829,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 
 <!-- TABLE -->
 <div class="table-wrap">
+<div id="showingCount" style="font-size:12px;color:var(--text-muted);padding:6px 4px 8px;font-weight:500;"></div>
 <table id="mainTable">
 <thead><tr>
 <th data-col="0" onclick="sortTable(this)">Symbol <span class="sort-icon">⬍</span></th>
@@ -1777,14 +1778,45 @@ function setEntryFilter(f) {
 function applyFilters() {
     const q    = document.getElementById('searchInput').value.toLowerCase();
     const rows = document.querySelectorAll('#mainTable tbody tr');
+    let visible = 0, total = 0;
+    let cntAll = 0, cntBuy = 0, cntSell = 0;
+
     rows.forEach(r => {
         const sig   = r.dataset.signal || '';
         const entry = r.dataset.entry  || '';
-        const okSig   = sigFilter   === 'all' || sig   === sigFilter;
-        const okEntry = entryFilter === 'all' || entry === entryFilter;
-        const okSearch= !q || r.innerText.toLowerCase().includes(q);
-        r.style.display = (okSig && okEntry && okSearch) ? '' : 'none';
+        total++;
+
+        // Count for buttons (only entry + search filter, not signal filter)
+        const okEntry  = entryFilter === 'all' || entry === entryFilter;
+        const okSearch = !q || r.innerText.toLowerCase().includes(q);
+        if (okEntry && okSearch) {
+            cntAll++;
+            if (sig === 'buy')  cntBuy++;
+            if (sig === 'sell') cntSell++;
+        }
+
+        const okSig = sigFilter === 'all' || sig === sigFilter;
+        const show  = okSig && okEntry && okSearch;
+        r.style.display = show ? '' : 'none';
+        if (show) visible++;
     });
+
+    // Update button counts
+    const eAll  = document.getElementById('cntAll');
+    const eBuy  = document.getElementById('cntBuy');
+    const eSell = document.getElementById('cntSell');
+    if (eAll)  eAll.textContent  = cntAll;
+    if (eBuy)  eBuy.textContent  = cntBuy;
+    if (eSell) eSell.textContent = cntSell;
+
+    // Update "Showing X of Y" line
+    const sc = document.getElementById('showingCount');
+    if (sc) {
+        const isFiltered = sigFilter !== 'all' || entryFilter !== 'all' || q;
+        sc.innerHTML = isFiltered
+            ? `Showing <strong style="color:var(--text)">${visible}</strong> of <strong style="color:var(--text)">${total}</strong> stocks`
+            : `Showing all <strong style="color:var(--text)">${total}</strong> stocks`;
+    }
 }
 
 // ══════════════════════════════════════
@@ -1871,6 +1903,8 @@ function closeSettings() {
 
 // Load saved column prefs on start
 loadColPrefs();
+// Show initial count
+applyFilters();
 
 // ══════════════════════════════════════
 // ENTRY INFO POPUP
