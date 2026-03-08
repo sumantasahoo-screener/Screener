@@ -763,6 +763,139 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
     .settings-panel { width:92vw; }
 }
 
+/* Note button */
+.note-btn {
+    cursor: pointer;
+    font-size: 11px;
+    margin-right: 4px;
+    opacity: 0.25;
+    transition: opacity 0.15s, transform 0.15s;
+    user-select: none;
+    display: inline-block;
+}
+.note-btn:hover  { opacity: 0.8; transform: scale(1.2); }
+.note-btn.has-note { opacity: 1; filter: sepia(0) saturate(2); }
+
+/* Note popup */
+.note-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 500;
+    backdrop-filter: blur(2px);
+}
+.note-overlay.show { display: block; }
+
+.note-modal {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    width: min(360px, 92vw);
+    background: var(--bg-card);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+    z-index: 501;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    overflow: hidden;
+}
+[data-theme="dark"] .note-modal {
+    background: linear-gradient(180deg, #022030, #01202E);
+    border-color: #0b5e76;
+}
+.note-modal.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.note-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #010813, #044E61);
+    border-bottom: 1px solid #0b5e76;
+}
+.note-modal-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #e0f2fe;
+}
+.note-close {
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border-radius: 6px;
+    color: #7ab8c8; font-size: 14px;
+    border: 1px solid rgba(8,145,178,0.3);
+    transition: all 0.15s;
+}
+.note-close:hover { background: rgba(4,78,97,0.5); color: #fff; }
+
+.note-body { padding: 14px 16px 16px; }
+
+.note-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-row-even);
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    line-height: 1.5;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+    margin-bottom: 10px;
+}
+.note-textarea:focus {
+    border-color: #0891b2;
+    box-shadow: 0 0 0 3px rgba(8,145,178,0.18);
+}
+[data-theme="dark"] .note-textarea {
+    background: #022030;
+    border-color: #0b5e76;
+    color: #c8e8f0;
+}
+
+.note-actions {
+    display: flex;
+    gap: 8px;
+}
+.note-btn-del {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #fca5a5;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.note-btn-del:hover { background: #fecaca; }
+[data-theme="dark"] .note-btn-del {
+    background: #3b0505;
+    border-color: #7f1d1d;
+    color: #f87171;
+}
+.note-btn-save {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, #0891b2, #044E61);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.note-btn-save:hover { opacity: 0.88; }
+
 /* ══════════════════════════════════════
    STAR + SYMBOL LINK
 ══════════════════════════════════════ */
@@ -964,7 +1097,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
     <div class="header-title">
       F&amp;O Swing Screener <span class="v-badge">v5.0</span>
     </div>
-    <div class="header-updated">Last Scan: <span>2026-03-08 13:49:28</span></div>
+    <div class="header-updated">Last Scan: <span>2026-03-08 13:55:39</span></div>
   </div>
   <div class="header-right">
     <div class="settings-btn" onclick="openSettings()">⚙️ Columns</div>
@@ -1050,7 +1183,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 </tr></thead>
 <tbody>
 <tr data-signal="buy" data-entry="pullback">
-<td><span class="star-btn" onclick="toggleStar(this,'DIVISLAB')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('DIVISLAB','Swing Buy','Pullback Entry','6325.00','-0.62','52.54','29.96','6096.65','6638.80','6871.15','1.33')">DIVISLAB</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'DIVISLAB')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-DIVISLAB" onclick="openNote('DIVISLAB')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('DIVISLAB','Swing Buy','Pullback Entry','6325.00','-0.62','52.54','29.96','6096.65','6638.80','6871.15','1.33')">DIVISLAB</span></td>
 <td><span class="badge badge-buy">▲ Swing Buy</span></td>
 <td><span class="badge badge-pullback-buy legend-btn" onclick="showEntryInfo('pullback')">↩ Pullback</span></td>
 <td><span class="muted">—</span></td>
@@ -1071,7 +1204,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="buy" data-entry="breakout">
-<td><span class="star-btn" onclick="toggleStar(this,'LUPIN')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('LUPIN','Swing Buy','Breakout Entry','2330.00','-0.12','71.29','20.07','2273.95','2436.94','2506.80','1.33')">LUPIN</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'LUPIN')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-LUPIN" onclick="openNote('LUPIN')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('LUPIN','Swing Buy','Breakout Entry','2330.00','-0.12','71.29','20.07','2273.95','2436.94','2506.80','1.33')">LUPIN</span></td>
 <td><span class="badge badge-buy">▲ Swing Buy</span></td>
 <td><span class="badge badge-breakout legend-btn" onclick="showEntryInfo('breakout')">⚡ Breakout</span></td>
 <td><span class="muted">—</span></td>
@@ -1092,7 +1225,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="buy" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'SUNPHARMA')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('SUNPHARMA','Swing Buy','Smart Entry','1793.50','0.50','66.49','26.07','1749.76','1865.58','1915.22','1.33')">SUNPHARMA</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'SUNPHARMA')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-SUNPHARMA" onclick="openNote('SUNPHARMA')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('SUNPHARMA','Swing Buy','Smart Entry','1793.50','0.50','66.49','26.07','1749.76','1865.58','1915.22','1.33')">SUNPHARMA</span></td>
 <td><span class="badge badge-buy">▲ Swing Buy</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1113,7 +1246,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'NIFTY FMCG')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('NIFTY FMCG','Swing Sell','Smart Entry','50028.35','0.06','36.08','22.64','51117.32','48441.64','47294.92','1.33')">NIFTY FMCG</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'NIFTY FMCG')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-NIFTY FMCG" onclick="openNote('NIFTY FMCG')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('NIFTY FMCG','Swing Sell','Smart Entry','50028.35','0.06','36.08','22.64','51117.32','48441.64','47294.92','1.33')">NIFTY FMCG</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1134,7 +1267,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'SENSEX')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('SENSEX','Swing Sell','Smart Entry','78988.30','-1.28','31.51','26.33','80640.36','76623.62','74902.16','1.33')">SENSEX</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'SENSEX')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-SENSEX" onclick="openNote('SENSEX')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('SENSEX','Swing Sell','Smart Entry','78988.30','-1.28','31.51','26.33','80640.36','76623.62','74902.16','1.33')">SENSEX</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1155,7 +1288,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'ABCAPITAL')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('ABCAPITAL','Swing Sell','Smart Entry','326.10','-0.46','37.97','24.48','343.52','303.93','286.97','1.33')">ABCAPITAL</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'ABCAPITAL')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-ABCAPITAL" onclick="openNote('ABCAPITAL')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('ABCAPITAL','Swing Sell','Smart Entry','326.10','-0.46','37.97','24.48','343.52','303.93','286.97','1.33')">ABCAPITAL</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1176,7 +1309,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'AMBUJACEM')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('AMBUJACEM','Swing Sell','Smart Entry','466.10','-2.90','26.37','35.12','486.88','439.91','419.78','1.33')">AMBUJACEM</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'AMBUJACEM')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-AMBUJACEM" onclick="openNote('AMBUJACEM')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('AMBUJACEM','Swing Sell','Smart Entry','466.10','-2.90','26.37','35.12','486.88','439.91','419.78','1.33')">AMBUJACEM</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1197,7 +1330,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'NIFTY')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('NIFTY','Swing Sell','Smart Entry','24469.10','-1.20','33.45','24.12','24949.16','23785.51','23286.80','1.33')">NIFTY</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'NIFTY')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-NIFTY" onclick="openNote('NIFTY')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('NIFTY','Swing Sell','Smart Entry','24469.10','-1.20','33.45','24.12','24949.16','23785.51','23286.80','1.33')">NIFTY</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1218,7 +1351,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'ASIANPAINT')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('ASIANPAINT','Swing Sell','Smart Entry','2282.00','-0.25','28.12','34.32','2365.04','2165.44','2079.90','1.33')">ASIANPAINT</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'ASIANPAINT')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-ASIANPAINT" onclick="openNote('ASIANPAINT')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('ASIANPAINT','Swing Sell','Smart Entry','2282.00','-0.25','28.12','34.32','2365.04','2165.44','2079.90','1.33')">ASIANPAINT</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1239,7 +1372,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="breakout">
-<td><span class="star-btn" onclick="toggleStar(this,'BHARTIARTL')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('BHARTIARTL','Swing Sell','Breakout Entry','1873.00','-1.78','33.20','37.39','1937.49','1781.88','1715.19','1.33')">BHARTIARTL</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'BHARTIARTL')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-BHARTIARTL" onclick="openNote('BHARTIARTL')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('BHARTIARTL','Swing Sell','Breakout Entry','1873.00','-1.78','33.20','37.39','1937.49','1781.88','1715.19','1.33')">BHARTIARTL</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-breakout legend-btn" onclick="showEntryInfo('breakout')">⚡ Breakout</span></td>
 <td><span class="muted">—</span></td>
@@ -1260,7 +1393,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="pullback">
-<td><span class="star-btn" onclick="toggleStar(this,'BHEL')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('BHEL','Swing Sell','Pullback Entry','259.00','0.68','47.74','25.70','272.51','240.87','227.31','1.33')">BHEL</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'BHEL')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-BHEL" onclick="openNote('BHEL')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('BHEL','Swing Sell','Pullback Entry','259.00','0.68','47.74','25.70','272.51','240.87','227.31','1.33')">BHEL</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-pullback-sell legend-btn" onclick="showEntryInfo('pullback')">↩ Pullback</span></td>
 <td><span class="muted">—</span></td>
@@ -1281,7 +1414,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'DALBHARAT')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('DALBHARAT','Swing Sell','Smart Entry','1900.00','-1.49','30.34','30.87','1986.95','1783.60','1696.45','1.33')">DALBHARAT</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'DALBHARAT')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-DALBHARAT" onclick="openNote('DALBHARAT')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('DALBHARAT','Swing Sell','Smart Entry','1900.00','-1.49','30.34','30.87','1986.95','1783.60','1696.45','1.33')">DALBHARAT</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1302,7 +1435,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'EXIDEIND')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('EXIDEIND','Swing Sell','Smart Entry','316.05','-1.13','35.48','24.30','328.73','298.91','286.13','1.33')">EXIDEIND</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'EXIDEIND')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-EXIDEIND" onclick="openNote('EXIDEIND')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('EXIDEIND','Swing Sell','Smart Entry','316.05','-1.13','35.48','24.30','328.73','298.91','286.13','1.33')">EXIDEIND</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1323,7 +1456,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'GODREJCP')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('GODREJCP','Swing Sell','Smart Entry','1115.10','-1.53','30.98','24.96','1158.92','1060.18','1017.86','1.33')">GODREJCP</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'GODREJCP')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-GODREJCP" onclick="openNote('GODREJCP')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('GODREJCP','Swing Sell','Smart Entry','1115.10','-1.53','30.98','24.96','1158.92','1060.18','1017.86','1.33')">GODREJCP</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1344,7 +1477,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="pullback">
-<td><span class="star-btn" onclick="toggleStar(this,'HAL')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('HAL','Swing Sell','Pullback Entry','4030.00','3.55','44.52','29.68','4215.02','3768.60','3577.27','1.33')">HAL</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'HAL')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-HAL" onclick="openNote('HAL')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('HAL','Swing Sell','Pullback Entry','4030.00','3.55','44.52','29.68','4215.02','3768.60','3577.27','1.33')">HAL</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-pullback-sell legend-btn" onclick="showEntryInfo('pullback')">↩ Pullback</span></td>
 <td><span class="muted">—</span></td>
@@ -1365,7 +1498,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'NIFTY PVT BANK')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('NIFTY PVT BANK','Swing Sell','Smart Entry','27439.10','-2.19','29.72','20.75','28004.88','26636.90','26050.62','1.33')">NIFTY PVT BANK</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'NIFTY PVT BANK')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-NIFTY PVT BANK" onclick="openNote('NIFTY PVT BANK')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('NIFTY PVT BANK','Swing Sell','Smart Entry','27439.10','-2.19','29.72','20.75','28004.88','26636.90','26050.62','1.33')">NIFTY PVT BANK</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1386,7 +1519,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'HDFCBANK')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('HDFCBANK','Swing Sell','Smart Entry','857.20','-2.34','27.20','34.23','883.14','822.27','796.18','1.33')">HDFCBANK</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'HDFCBANK')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-HDFCBANK" onclick="openNote('HDFCBANK')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('HDFCBANK','Swing Sell','Smart Entry','857.20','-2.34','27.20','34.23','883.14','822.27','796.18','1.33')">HDFCBANK</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1407,7 +1540,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'HINDUNILVR')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('HINDUNILVR','Swing Sell','Smart Entry','2225.00','-1.33','34.02','25.39','2300.19','2126.38','2051.89','1.33')">HINDUNILVR</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'HINDUNILVR')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-HINDUNILVR" onclick="openNote('HINDUNILVR')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('HINDUNILVR','Swing Sell','Smart Entry','2225.00','-1.33','34.02','25.39','2300.19','2126.38','2051.89','1.33')">HINDUNILVR</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1428,7 +1561,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'ICICIGI')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('ICICIGI','Swing Sell','Smart Entry','1878.50','0.18','45.89','22.42','1945.28','1793.66','1728.68','1.33')">ICICIGI</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'ICICIGI')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-ICICIGI" onclick="openNote('ICICIGI')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('ICICIGI','Swing Sell','Smart Entry','1878.50','0.18','45.89','22.42','1945.28','1793.66','1728.68','1.33')">ICICIGI</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1449,7 +1582,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'HUDCO')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('HUDCO','Swing Sell','Smart Entry','176.50','-0.99','30.27','25.00','185.95','163.41','153.75','1.33')">HUDCO</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'HUDCO')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-HUDCO" onclick="openNote('HUDCO')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('HUDCO','Swing Sell','Smart Entry','176.50','-0.99','30.27','25.00','185.95','163.41','153.75','1.33')">HUDCO</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1470,7 +1603,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'INDIGO')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('INDIGO','Swing Sell','Smart Entry','4405.00','-2.39','32.23','22.40','4609.41','4130.36','3925.06','1.33')">INDIGO</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'INDIGO')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-INDIGO" onclick="openNote('INDIGO')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('INDIGO','Swing Sell','Smart Entry','4405.00','-2.39','32.23','22.40','4609.41','4130.36','3925.06','1.33')">INDIGO</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1491,7 +1624,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'JIOFIN')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('JIOFIN','Swing Sell','Smart Entry','239.70','-1.40','26.20','31.85','248.56','227.07','217.86','1.33')">JIOFIN</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'JIOFIN')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-JIOFIN" onclick="openNote('JIOFIN')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('JIOFIN','Swing Sell','Smart Entry','239.70','-1.40','26.20','31.85','248.56','227.07','217.86','1.33')">JIOFIN</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1512,7 +1645,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'LICI')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('LICI','Swing Sell','Smart Entry','821.20','-1.41','38.17','20.26','851.04','783.98','755.24','1.33')">LICI</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'LICI')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-LICI" onclick="openNote('LICI')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('LICI','Swing Sell','Smart Entry','821.20','-1.41','38.17','20.26','851.04','783.98','755.24','1.33')">LICI</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1533,7 +1666,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'INDHOTEL')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('INDHOTEL','Swing Sell','Smart Entry','624.00','-0.91','27.14','31.94','650.61','588.17','561.41','1.33')">INDHOTEL</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'INDHOTEL')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-INDHOTEL" onclick="openNote('INDHOTEL')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('INDHOTEL','Swing Sell','Smart Entry','624.00','-0.91','27.14','31.94','650.61','588.17','561.41','1.33')">INDHOTEL</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1554,7 +1687,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'LODHA')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('LODHA','Swing Sell','Smart Entry','892.25','-2.62','26.62','24.29','944.80','815.19','759.64','1.33')">LODHA</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'LODHA')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-LODHA" onclick="openNote('LODHA')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('LODHA','Swing Sell','Smart Entry','892.25','-2.62','26.62','24.29','944.80','815.19','759.64','1.33')">LODHA</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1575,7 +1708,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'MANAPPURAM')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('MANAPPURAM','Swing Sell','Smart Entry','263.40','-1.46','28.06','23.25','278.92','241.19','225.02','1.33')">MANAPPURAM</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'MANAPPURAM')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-MANAPPURAM" onclick="openNote('MANAPPURAM')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('MANAPPURAM','Swing Sell','Smart Entry','263.40','-1.46','28.06','23.25','278.92','241.19','225.02','1.33')">MANAPPURAM</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1596,7 +1729,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'MARUTI')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('MARUTI','Swing Sell','Smart Entry','14139.00','-1.91','34.59','28.43','14701.16','13436.12','12893.96','1.33')">MARUTI</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'MARUTI')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-MARUTI" onclick="openNote('MARUTI')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('MARUTI','Swing Sell','Smart Entry','14139.00','-1.91','34.59','28.43','14701.16','13436.12','12893.96','1.33')">MARUTI</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1617,7 +1750,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'NAUKRI')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('NAUKRI','Swing Sell','Smart Entry','979.90','-3.49','25.53','41.65','1038.66','902.02','843.46','1.33')">NAUKRI</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'NAUKRI')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-NAUKRI" onclick="openNote('NAUKRI')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('NAUKRI','Swing Sell','Smart Entry','979.90','-3.49','25.53','41.65','1038.66','902.02','843.46','1.33')">NAUKRI</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1638,7 +1771,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'NBCC')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('NBCC','Swing Sell','Smart Entry','85.84','-1.16','26.92','35.72','90.70','78.90','73.84','1.33')">NBCC</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'NBCC')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-NBCC" onclick="openNote('NBCC')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('NBCC','Swing Sell','Smart Entry','85.84','-1.16','26.92','35.72','90.70','78.90','73.84','1.33')">NBCC</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1659,7 +1792,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'OBEROIRLTY')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('OBEROIRLTY','Swing Sell','Smart Entry','1475.00','-0.48','39.85','27.43','1537.21','1391.12','1328.51','1.33')">OBEROIRLTY</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'OBEROIRLTY')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-OBEROIRLTY" onclick="openNote('OBEROIRLTY')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('OBEROIRLTY','Swing Sell','Smart Entry','1475.00','-0.48','39.85','27.43','1537.21','1391.12','1328.51','1.33')">OBEROIRLTY</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1680,7 +1813,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'PAYTM')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('PAYTM','Swing Sell','Smart Entry','1040.00','-1.23','30.83','36.44','1101.62','953.88','890.56','1.33')">PAYTM</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'PAYTM')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-PAYTM" onclick="openNote('PAYTM')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('PAYTM','Swing Sell','Smart Entry','1040.00','-1.23','30.83','36.44','1101.62','953.88','890.56','1.33')">PAYTM</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1701,7 +1834,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'GIFTNIFTY')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('GIFTNIFTY','Swing Sell','Smart Entry','24300.00','-0.98','30.87','32.71','24928.72','23461.70','22832.98','1.33')">GIFTNIFTY</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'GIFTNIFTY')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-GIFTNIFTY" onclick="openNote('GIFTNIFTY')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('GIFTNIFTY','Swing Sell','Smart Entry','24300.00','-0.98','30.87','32.71','24928.72','23461.70','22832.98','1.33')">GIFTNIFTY</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1722,7 +1855,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'PHOENIXLTD')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('PHOENIXLTD','Swing Sell','Smart Entry','1613.10','-1.25','32.30','22.91','1678.33','1504.66','1430.23','1.33')">PHOENIXLTD</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'PHOENIXLTD')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-PHOENIXLTD" onclick="openNote('PHOENIXLTD')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('PHOENIXLTD','Swing Sell','Smart Entry','1613.10','-1.25','32.30','22.91','1678.33','1504.66','1430.23','1.33')">PHOENIXLTD</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1743,7 +1876,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'PNBHOUSING')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('PNBHOUSING','Swing Sell','Smart Entry','772.20','-2.33','30.81','22.26','813.72','718.59','677.82','1.33')">PNBHOUSING</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'PNBHOUSING')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-PNBHOUSING" onclick="openNote('PNBHOUSING')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('PNBHOUSING','Swing Sell','Smart Entry','772.20','-2.33','30.81','22.26','813.72','718.59','677.82','1.33')">PNBHOUSING</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1764,7 +1897,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'PRESTIGE')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('PRESTIGE','Swing Sell','Smart Entry','1340.30','-2.57','28.90','30.47','1411.88','1233.66','1157.28','1.33')">PRESTIGE</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'PRESTIGE')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-PRESTIGE" onclick="openNote('PRESTIGE')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('PRESTIGE','Swing Sell','Smart Entry','1340.30','-2.57','28.90','30.47','1411.88','1233.66','1157.28','1.33')">PRESTIGE</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1785,7 +1918,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <td class="td-num"><span class="rr-low">1:1.3</span></td>
 </tr>
 <tr data-signal="sell" data-entry="smart">
-<td><span class="star-btn" onclick="toggleStar(this,'TRENT')" title="Add to Watchlist">☆</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('TRENT','Swing Sell','Smart Entry','3726.00','-1.71','33.66','26.18','3890.04','3499.82','3332.58','1.33')">TRENT</span></td>
+<td><span class="star-btn" onclick="toggleStar(this,'TRENT')" title="Watchlist">☆</span><span class="note-btn" id="notebtn-TRENT" onclick="openNote('TRENT')" title="Add Note">✏️</span><span class="td-symbol sym-link" title="View Chart" onclick="showChart('TRENT','Swing Sell','Smart Entry','3726.00','-1.71','33.66','26.18','3890.04','3499.82','3332.58','1.33')">TRENT</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
 <td><span class="badge badge-smart legend-btn" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
@@ -1948,7 +2081,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 
     <!-- Last Scan -->
     <div style="margin-bottom:12px;font-size:11px;color:var(--text-muted);">
-      🕐 Last Scan: <span style="color:var(--text);font-weight:600;">2026-03-08 13:49:28</span>
+      🕐 Last Scan: <span style="color:var(--text);font-weight:600;">2026-03-08 13:55:39</span>
     </div>
 
     <!-- SL / Targets -->
@@ -1982,6 +2115,22 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
   </div>
 </div>
 <div class="popup-overlay" id="popupOverlay" onclick="closePopup()"></div>
+
+<!-- NOTE POPUP -->
+<div class="note-overlay" id="noteOverlay" onclick="closeNote()"></div>
+<div class="note-modal" id="noteModal">
+  <div class="note-modal-header">
+    <span class="note-modal-title">✏️ Note — <span id="noteSymbolName"></span></span>
+    <span class="note-close" onclick="closeNote()">✕</span>
+  </div>
+  <div class="note-body">
+    <textarea class="note-textarea" id="noteTextarea" placeholder="Yahan apna note likho..."></textarea>
+    <div class="note-actions">
+      <button class="note-btn-del" onclick="deleteNote()">🗑️ Delete</button>
+      <button class="note-btn-save" onclick="saveNote()">💾 Save</button>
+    </div>
+  </div>
+</div>
 <div class="popup-sheet" id="popupSheet">
   <div class="popup-handle"></div>
   <div class="popup-header">
@@ -2217,6 +2366,7 @@ function initStars() {
 // Show initial count (watchlist now declared)
 applyFilters();
 initStars();
+initNotes();
 
 // ══════════════════════════════════════
 // ENTRY INFO POPUP
@@ -2598,8 +2748,62 @@ function closeChart() {
     document.getElementById('chartOverlay').classList.remove('show');
 }
 
+// ══════════════════════════════════════
+// NOTES
+// ══════════════════════════════════════
+let currentNoteSym = '';
+
+function openNote(sym) {
+    currentNoteSym = sym;
+    document.getElementById('noteSymbolName').textContent = sym;
+    const saved = localStorage.getItem('swing-note-' + sym) || '';
+    document.getElementById('noteTextarea').value = saved;
+    document.getElementById('noteOverlay').classList.add('show');
+    setTimeout(() => {
+        document.getElementById('noteModal').classList.add('show');
+        document.getElementById('noteTextarea').focus();
+    }, 10);
+}
+
+function closeNote() {
+    document.getElementById('noteModal').classList.remove('show');
+    document.getElementById('noteOverlay').classList.remove('show');
+}
+
+function saveNote() {
+    const text = document.getElementById('noteTextarea').value.trim();
+    if (text) {
+        localStorage.setItem('swing-note-' + currentNoteSym, text);
+    } else {
+        localStorage.removeItem('swing-note-' + currentNoteSym);
+    }
+    updateNoteIcon(currentNoteSym, !!text);
+    closeNote();
+}
+
+function deleteNote() {
+    localStorage.removeItem('swing-note-' + currentNoteSym);
+    document.getElementById('noteTextarea').value = '';
+    updateNoteIcon(currentNoteSym, false);
+    closeNote();
+}
+
+function updateNoteIcon(sym, hasNote) {
+    const el = document.getElementById('notebtn-' + sym);
+    if (el) el.classList.toggle('has-note', hasNote);
+}
+
+function initNotes() {
+    document.querySelectorAll('.note-btn').forEach(el => {
+        const sym = el.id.replace('notebtn-', '');
+        if (localStorage.getItem('swing-note-' + sym)) {
+            el.classList.add('has-note');
+        }
+    });
+}
+
 document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closePopup(); closeSettings(); closeChart(); }
+    if (e.key === 'Escape') { closePopup(); closeSettings(); closeChart(); closeNote(); }
 });
 
 let touchStartY = 0;
