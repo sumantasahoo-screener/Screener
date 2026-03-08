@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>F&O Swing Screener v3</title>
+<title>F&O Swing Screener v4</title>
 <style>
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -12,38 +12,44 @@
    LIGHT THEME
 ══════════════════════════════════════ */
 [data-theme="light"] {
-    --bg:            #f0f4f8;
-    --bg-card:       #ffffff;
-    --bg-header:     #0f172a;
-    --bg-thead:      #f8fafc;
-    --bg-row-even:   #f8fafc;
-    --bg-row-odd:    #ffffff;
-    --bg-row-hover:  #eff6ff;
-    --border:        #e2e8f0;
-    --text:          #1e293b;
-    --text-muted:    #64748b;
-    --text-dim:      #94a3b8;
-    --shadow:        0 1px 4px rgba(0,0,0,0.08);
-    --shadow-lg:     0 4px 16px rgba(0,0,0,0.10);
+    --bg:           #f0f4f8;
+    --bg-card:      #ffffff;
+    --bg-header-1:  #0f172a;
+    --bg-header-2:  #1e3a4a;
+    --bg-thead:     #f8fafc;
+    --bg-row-even:  #f8fafc;
+    --bg-row-odd:   #ffffff;
+    --bg-row-hover: #e8f4f8;
+    --border:       #e2e8f0;
+    --text:         #1e293b;
+    --text-muted:   #64748b;
+    --text-dim:     #94a3b8;
+    --shadow:       0 1px 4px rgba(0,0,0,0.08);
+    --shadow-lg:    0 4px 20px rgba(0,0,0,0.10);
+    --accent:       #044E61;
+    --accent-light: #0a7a98;
 }
 
 /* ══════════════════════════════════════
-   DARK THEME
+   DARK THEME — #044E61 Teal Gradient
 ══════════════════════════════════════ */
 [data-theme="dark"] {
-    --bg:            #0d1117;
-    --bg-card:       #161b22;
-    --bg-header:     #010409;
-    --bg-thead:      #1c2128;
-    --bg-row-even:   #1c2128;
-    --bg-row-odd:    #161b22;
-    --bg-row-hover:  #1f2d3d;
-    --border:        #30363d;
-    --text:          #e6edf3;
-    --text-muted:    #8b949e;
-    --text-dim:      #484f58;
-    --shadow:        0 1px 4px rgba(0,0,0,0.4);
-    --shadow-lg:     0 4px 16px rgba(0,0,0,0.5);
+    --bg:           #011E28;
+    --bg-card:      #022B38;
+    --bg-header-1:  #010F15;
+    --bg-header-2:  #044E61;
+    --bg-thead:     #033A4A;
+    --bg-row-even:  #033A4A;
+    --bg-row-odd:   #022B38;
+    --bg-row-hover: #055A73;
+    --border:       #0A6B85;
+    --text:         #d4eef5;
+    --text-muted:   #7ab8c8;
+    --text-dim:     #3a7a8a;
+    --shadow:       0 1px 6px rgba(0,0,0,0.5);
+    --shadow-lg:    0 4px 24px rgba(0,0,0,0.6);
+    --accent:       #044E61;
+    --accent-light: #0891b2;
 }
 
 /* ══════════════════════════════════════
@@ -55,88 +61,94 @@ body {
     color: var(--text);
     font-size: 13px;
     min-height: 100vh;
-    transition: background 0.2s, color 0.2s;
+    transition: background 0.25s, color 0.25s;
 }
 
 /* ══════════════════════════════════════
-   HEADER
+   HEADER — Gradient
 ══════════════════════════════════════ */
 .header {
-    background: var(--bg-header);
-    padding: 14px 24px;
+    background: linear-gradient(135deg, var(--bg-header-1) 0%, var(--bg-header-2) 60%, #033A4A 100%);
+    padding: 14px 20px 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    gap: 10px;
+    border-bottom: 1px solid rgba(4,78,97,0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle glow line at bottom of header */
+.header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #0891b2, #044E61, transparent);
+    opacity: 0.6;
 }
 
 .header-title {
     font-size: 18px;
     font-weight: 700;
-    color: #f8fafc;
+    color: #e0f2fe;
     letter-spacing: 0.01em;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.header-title .v-badge {
+.v-badge {
     font-size: 10px;
-    background: #3b82f6;
+    background: linear-gradient(135deg, #0891b2, #044E61);
     color: #fff;
-    padding: 2px 7px;
+    padding: 2px 8px;
     border-radius: 999px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.05em;
+    border: 1px solid rgba(8,145,178,0.4);
 }
 
 .header-updated {
     font-size: 11px;
-    color: #64748b;
+    color: #7ab8c8;
     margin-top: 3px;
 }
 
 .header-updated span { color: #38bdf8; font-weight: 600; }
 
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* ── Theme Toggle ── */
+/* Theme Toggle */
 .theme-toggle {
     display: flex;
     align-items: center;
     gap: 7px;
     cursor: pointer;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(4,78,97,0.35);
+    border: 1px solid rgba(8,145,178,0.3);
     border-radius: 999px;
-    padding: 5px 12px;
-    color: #94a3b8;
+    padding: 6px 14px;
+    color: #a8d8e8;
     font-size: 12px;
     font-weight: 600;
-    transition: all 0.15s;
+    transition: all 0.2s;
     user-select: none;
 }
 
 .theme-toggle:hover {
-    background: rgba(255,255,255,0.12);
-    color: #f8fafc;
+    background: rgba(4,78,97,0.6);
+    color: #e0f2fe;
+    border-color: rgba(8,145,178,0.6);
 }
 
-.theme-icon { font-size: 14px; }
-
 /* ══════════════════════════════════════
-   SUMMARY CARDS
+   SUMMARY CARDS — Clickable + Gradient dark
 ══════════════════════════════════════ */
 .cards {
     display: flex;
-    gap: 12px;
-    padding: 16px 24px 0;
+    gap: 10px;
+    padding: 14px 20px 0;
     flex-wrap: wrap;
 }
 
@@ -144,12 +156,56 @@ body {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 14px 20px;
-    min-width: 120px;
+    padding: 13px 18px;
+    min-width: 100px;
     flex: 1;
     box-shadow: var(--shadow);
-    transition: background 0.2s, border 0.2s;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    position: relative;
+    overflow: hidden;
 }
+
+/* Dark theme cards get teal gradient */
+[data-theme="dark"] .card {
+    background: linear-gradient(145deg, #022B38, #033A4A);
+    border-color: #0A6B85;
+}
+
+[data-theme="dark"] .card:hover {
+    background: linear-gradient(145deg, #033A4A, #055A73);
+    border-color: #0891b2;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(4,78,97,0.4);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: #0891b2;
+}
+
+.card.card-active {
+    border-color: #0891b2 !important;
+    box-shadow: 0 0 0 2px rgba(8,145,178,0.25) !important;
+}
+
+[data-theme="dark"] .card.card-active {
+    box-shadow: 0 0 0 2px rgba(8,145,178,0.4) !important;
+}
+
+/* Glow strip on active card */
+.card.card-active::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 12px 12px 0 0;
+}
+
+.card-total.card-active::before  { background: #3b82f6; }
+.card-buy.card-active::before    { background: #16a34a; }
+.card-sell.card-active::before   { background: #dc2626; }
 
 .card-label {
     font-size: 10px;
@@ -167,9 +223,20 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
-.card-value.c-total { color: #3b82f6; }
-.card-value.c-buy   { color: #16a34a; }
-.card-value.c-sell  { color: #dc2626; }
+.c-total { color: #3b82f6; }
+.c-buy   { color: #16a34a; }
+.c-sell  { color: #dc2626; }
+
+[data-theme="dark"] .c-total { color: #60a5fa; }
+[data-theme="dark"] .c-buy   { color: #4ade80; }
+[data-theme="dark"] .c-sell  { color: #f87171; }
+
+.card-hint {
+    font-size: 9.5px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+}
 
 /* ══════════════════════════════════════
    TOOLBAR
@@ -178,23 +245,24 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 14px 24px 10px;
+    padding: 14px 20px 8px;
     flex-wrap: wrap;
 }
 
 .search-wrap {
     position: relative;
     flex: 1;
+    min-width: 160px;
     max-width: 260px;
 }
 
-.search-wrap .search-icon {
+.search-wrap .s-icon {
     position: absolute;
     left: 10px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-muted);
-    font-size: 13px;
+    font-size: 12px;
     pointer-events: none;
 }
 
@@ -211,8 +279,19 @@ body {
 }
 
 .search-input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    border-color: #0891b2;
+    box-shadow: 0 0 0 3px rgba(8,145,178,0.18);
+}
+
+[data-theme="dark"] .search-input {
+    background: #022B38;
+    border-color: #0A6B85;
+    color: #d4eef5;
+}
+
+[data-theme="dark"] .search-input:focus {
+    border-color: #0891b2;
+    box-shadow: 0 0 0 3px rgba(8,145,178,0.25);
 }
 
 .filter-btn {
@@ -228,37 +307,71 @@ body {
     white-space: nowrap;
 }
 
-.filter-btn:hover            { background: var(--bg-row-hover); color: #3b82f6; }
-.filter-btn.f-all            { color: #3b82f6; border-color: #93c5fd; background: #dbeafe; }
-.filter-btn.f-buy            { color: #16a34a; border-color: #86efac; background: #dcfce7; }
-.filter-btn.f-sell           { color: #dc2626; border-color: #fca5a5; background: #fee2e2; }
+.filter-btn:hover { border-color: #0891b2; color: #0891b2; }
+.filter-btn.f-all  { color: #3b82f6; border-color: #93c5fd; background: #dbeafe; }
+.filter-btn.f-buy  { color: #16a34a; border-color: #86efac; background: #dcfce7; }
+.filter-btn.f-sell { color: #dc2626; border-color: #fca5a5; background: #fee2e2; }
 
-[data-theme="dark"] .filter-btn.f-all  { background: #1e3a5f; border-color: #3b82f6; color: #60a5fa; }
-[data-theme="dark"] .filter-btn.f-buy  { background: #14532d; border-color: #16a34a; color: #4ade80; }
-[data-theme="dark"] .filter-btn.f-sell { background: #450a0a; border-color: #dc2626; color: #f87171; }
+[data-theme="dark"] .filter-btn {
+    background: #022B38;
+    border-color: #0A6B85;
+    color: #7ab8c8;
+}
 
+[data-theme="dark"] .filter-btn:hover {
+    background: #033A4A;
+    border-color: #0891b2;
+    color: #38bdf8;
+}
+
+[data-theme="dark"] .filter-btn.f-all  {
+    background: linear-gradient(135deg, #0c2a4a, #0e3a5e);
+    border-color: #3b82f6; color: #60a5fa;
+}
+
+[data-theme="dark"] .filter-btn.f-buy  {
+    background: linear-gradient(135deg, #052e16, #0a3d1f);
+    border-color: #16a34a; color: #4ade80;
+}
+
+[data-theme="dark"] .filter-btn.f-sell {
+    background: linear-gradient(135deg, #3b0a0a, #4c0f0f);
+    border-color: #dc2626; color: #f87171;
+}
+
+/* ── Entry Legend Buttons (visible on all screens) ── */
 .entry-legend {
     display: flex;
     align-items: center;
     gap: 6px;
-    margin-left: auto;
     flex-wrap: wrap;
+    width: 100%;
+    padding: 0 20px 10px;
 }
 
-.legend-item {
+.legend-label {
     font-size: 10px;
-    font-weight: 600;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-right: 4px;
 }
+
+.legend-btn {
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    user-select: none;
+}
+
+.legend-btn:hover { transform: translateY(-1px); }
+.legend-btn:active { transform: scale(0.96); }
 
 /* ══════════════════════════════════════
    TABLE
 ══════════════════════════════════════ */
 .table-wrap {
-    padding: 0 24px 28px;
+    padding: 0 20px 28px;
     overflow-x: auto;
 }
 
@@ -272,9 +385,18 @@ table {
     box-shadow: var(--shadow-lg);
 }
 
+[data-theme="dark"] table {
+    border-color: #0A6B85;
+}
+
 thead tr {
     background: var(--bg-thead);
     border-bottom: 2px solid var(--border);
+}
+
+[data-theme="dark"] thead tr {
+    background: linear-gradient(90deg, #033A4A, #044E61, #033A4A);
+    border-bottom-color: #0A6B85;
 }
 
 th {
@@ -295,7 +417,13 @@ th {
     transition: color 0.12s;
 }
 
-th:hover { color: #3b82f6; }
+[data-theme="dark"] th {
+    background: linear-gradient(90deg, #033A4A, #044E61, #033A4A);
+    color: #7ab8c8;
+    border-bottom-color: #0A6B85;
+}
+
+th:hover { color: #0891b2; }
 
 th .sort-icon {
     font-size: 9px;
@@ -311,6 +439,8 @@ td {
     vertical-align: middle;
 }
 
+[data-theme="dark"] td { border-bottom-color: #0A6B85; }
+
 tr:nth-child(even) td { background: var(--bg-row-even); }
 tr:nth-child(odd)  td { background: var(--bg-row-odd); }
 tr:hover td { background: var(--bg-row-hover) !important; transition: background 0.1s; }
@@ -318,7 +448,6 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 .td-symbol {
     font-weight: 700;
     font-size: 13px;
-    color: var(--text);
     letter-spacing: 0.02em;
 }
 
@@ -329,7 +458,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 }
 
 /* ══════════════════════════════════════
-   BADGES — Signal
+   BADGES
 ══════════════════════════════════════ */
 .badge {
     display: inline-flex;
@@ -341,113 +470,98 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
     font-weight: 700;
     letter-spacing: 0.02em;
     white-space: nowrap;
+    cursor: pointer;
 }
 
 .badge-buy  { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
 .badge-sell { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
 
-[data-theme="dark"] .badge-buy  { background: #14532d; color: #4ade80; border-color: #166534; }
-[data-theme="dark"] .badge-sell { background: #450a0a; color: #f87171; border-color: #7f1d1d; }
+[data-theme="dark"] .badge-buy  {
+    background: linear-gradient(135deg, #052e16, #0a3d1f);
+    color: #4ade80; border-color: #166534;
+}
+[data-theme="dark"] .badge-sell {
+    background: linear-gradient(135deg, #3b0505, #4c0a0a);
+    color: #f87171; border-color: #7f1d1d;
+}
 
-/* ══════════════════════════════════════
-   BADGES — Entry Type (New Design)
-══════════════════════════════════════ */
-
-/* ⚡ Breakout — Bold orange, fire energy */
+/* Entry type badges */
 .badge-breakout {
-    background: #fff7ed;
-    color: #c2410c;
-    border: 1px solid #fed7aa;
-    border-radius: 6px;
+    background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa;
 }
-[data-theme="dark"] .badge-breakout {
-    background: #431407;
-    color: #fb923c;
-    border-color: #7c2d12;
+.badge-continuation {
+    background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc;
+}
+.badge-pullback {
+    background: #f5f3ff; color: #6d28d9; border: 1px solid #c4b5fd;
+}
+.badge-smart {
+    background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;
+}
+.badge-neutral {
+    background: var(--bg-row-even); color: var(--text-muted); border: 1px solid var(--border);
 }
 
-/* ↗ Continuation — Teal/cyan, steady momentum */
-.badge-continuation {
-    background: #ecfeff;
-    color: #0e7490;
-    border: 1px solid #a5f3fc;
-    border-radius: 6px;
+[data-theme="dark"] .badge-breakout {
+    background: linear-gradient(135deg, #3a1200, #5c1f00);
+    color: #fb923c; border-color: #7c2d12;
 }
 [data-theme="dark"] .badge-continuation {
-    background: #083344;
-    color: #22d3ee;
-    border-color: #155e75;
-}
-
-/* ↩ Pullback — Violet, calculated entry */
-.badge-pullback {
-    background: #f5f3ff;
-    color: #6d28d9;
-    border: 1px solid #c4b5fd;
-    border-radius: 6px;
+    background: linear-gradient(135deg, #012a38, #014a5e);
+    color: #22d3ee; border-color: #155e75;
 }
 [data-theme="dark"] .badge-pullback {
-    background: #2e1065;
-    color: #a78bfa;
-    border-color: #4c1d95;
-}
-
-/* ◎ Smart — Slate/neutral, logic-based */
-.badge-smart {
-    background: #f1f5f9;
-    color: #475569;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
+    background: linear-gradient(135deg, #1e0a3c, #2e1065);
+    color: #a78bfa; border-color: #4c1d95;
 }
 [data-theme="dark"] .badge-smart {
-    background: #1e293b;
-    color: #94a3b8;
-    border-color: #334155;
+    background: linear-gradient(135deg, #022B38, #033A4A);
+    color: #7ab8c8; border-color: #0A6B85;
 }
 
-.badge-neutral {
-    background: var(--bg-row-even);
-    color: var(--text-muted);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-}
-
-/* ── MACD Crossover badges ── */
 .badge-cross-bull {
-    background: #f0fdf4;
-    color: #15803d;
-    border: 1px solid #bbf7d0;
-    border-radius: 6px;
-    font-size: 10px;
+    background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0;
+    border-radius: 6px; font-size: 10px;
 }
 .badge-cross-bear {
-    background: #fff1f2;
-    color: #be123c;
-    border: 1px solid #fecdd3;
-    border-radius: 6px;
-    font-size: 10px;
+    background: #fff1f2; color: #be123c; border: 1px solid #fecdd3;
+    border-radius: 6px; font-size: 10px;
 }
-[data-theme="dark"] .badge-cross-bull { background: #052e16; color: #4ade80; border-color: #14532d; }
-[data-theme="dark"] .badge-cross-bear { background: #4c0519; color: #fb7185; border-color: #881337; }
+[data-theme="dark"] .badge-cross-bull {
+    background: linear-gradient(135deg, #022B38, #052e16);
+    color: #4ade80; border-color: #14532d;
+}
+[data-theme="dark"] .badge-cross-bear {
+    background: linear-gradient(135deg, #022B38, #3b0505);
+    color: #fb7185; border-color: #881337;
+}
 
-/* ══════════════════════════════════════
-   VALUE COLORS
-══════════════════════════════════════ */
+/* ── Value colors ── */
 .pos-val  { color: #16a34a; font-weight: 600; }
 .neg-val  { color: #dc2626; font-weight: 600; }
 .muted    { color: var(--text-dim); }
+[data-theme="dark"] .pos-val { color: #4ade80; }
+[data-theme="dark"] .neg-val { color: #f87171; }
 
 .rsi-hot  { color: #dc2626; font-weight: 700; }
 .rsi-ok   { color: #16a34a; font-weight: 600; }
 .rsi-cool { color: #2563eb; font-weight: 600; }
 .rsi-mid  { color: var(--text); }
+[data-theme="dark"] .rsi-hot  { color: #f87171; }
+[data-theme="dark"] .rsi-ok   { color: #4ade80; }
+[data-theme="dark"] .rsi-cool { color: #60a5fa; }
 
 .adx-strong { color: #16a34a; font-weight: 700; }
 .adx-mid    { color: #d97706; font-weight: 600; }
 .adx-weak   { color: #dc2626; font-weight: 600; }
+[data-theme="dark"] .adx-strong { color: #4ade80; }
+[data-theme="dark"] .adx-mid    { color: #fbbf24; }
+[data-theme="dark"] .adx-weak   { color: #f87171; }
 
 .hist-pos { color: #16a34a; font-weight: 600; }
 .hist-neg { color: #dc2626; font-weight: 600; }
+[data-theme="dark"] .hist-pos { color: #4ade80; }
+[data-theme="dark"] .hist-neg { color: #f87171; }
 
 .vol-high { color: #16a34a; font-weight: 700; }
 .vol-ok   { color: #d97706; font-weight: 600; }
@@ -456,20 +570,134 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 .rr-good { color: #16a34a; font-weight: 700; }
 .rr-ok   { color: #d97706; font-weight: 600; }
 .rr-low  { color: var(--text-muted); }
+[data-theme="dark"] .rr-good { color: #4ade80; }
+[data-theme="dark"] .rr-ok   { color: #fbbf24; }
+
+/* ══════════════════════════════════════
+   ENTRY INFO POPUP (Slide up from bottom)
+══════════════════════════════════════ */
+.popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 100;
+    backdrop-filter: blur(2px);
+}
+
+.popup-overlay.show { display: block; }
+
+.popup-sheet {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--bg-card);
+    border-radius: 20px 20px 0 0;
+    padding: 0 0 30px;
+    z-index: 101;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1px solid var(--border);
+    border-bottom: none;
+}
+
+[data-theme="dark"] .popup-sheet {
+    background: linear-gradient(180deg, #033A4A, #022B38);
+    border-color: #0A6B85;
+}
+
+.popup-sheet.show { transform: translateY(0); }
+
+.popup-handle {
+    width: 40px; height: 4px;
+    background: var(--border);
+    border-radius: 999px;
+    margin: 12px auto 0;
+}
+
+[data-theme="dark"] .popup-handle { background: #0A6B85; }
+
+.popup-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+[data-theme="dark"] .popup-header { border-bottom-color: #0A6B85; }
+
+.popup-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.popup-body {
+    padding: 16px 20px;
+}
+
+.popup-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 14px;
+}
+
+.popup-conditions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.popup-cond {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 12.5px;
+    color: var(--text);
+    background: var(--bg-row-even);
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+[data-theme="dark"] .popup-cond {
+    background: #033A4A;
+    border-color: #0A6B85;
+}
+
+.popup-cond-icon { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+.popup-cond-text { line-height: 1.5; }
+.popup-cond-text strong { color: var(--text); display: block; font-size: 12px; }
+.popup-cond-text span   { color: var(--text-muted); font-size: 11.5px; }
+
+.popup-best {
+    margin-top: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    border-left: 3px solid;
+}
 
 /* ══════════════════════════════════════
    MOBILE
 ══════════════════════════════════════ */
-@media (max-width: 768px) {
-    .header { padding: 12px 16px; }
-    .cards  { padding: 12px 16px 0; gap: 8px; }
-    .card   { padding: 10px 14px; min-width: 90px; }
-    .card-value { font-size: 22px; }
-    .toolbar { padding: 10px 16px 8px; }
-    .search-wrap { max-width: 100%; }
-    .entry-legend { display: none; }
-    .table-wrap { padding: 0 12px 20px; }
+@media (max-width: 640px) {
+    .header { padding: 12px 14px; }
+    .header-title { font-size: 16px; }
+    .cards { padding: 12px 14px 0; gap: 8px; }
+    .card { padding: 10px 12px; min-width: 80px; }
+    .card-value { font-size: 24px; }
+    .card-hint { display: none; }
+    .toolbar { padding: 10px 14px 6px; gap: 6px; }
+    .search-wrap { max-width: 100%; min-width: 0; flex: 1 1 140px; }
+    .entry-legend { padding: 6px 14px 10px; gap: 5px; }
+    .table-wrap { padding: 0 10px 20px; }
     th, td { padding: 7px 8px; font-size: 11px; }
+    .popup-sheet { border-radius: 16px 16px 0 0; }
 }
 
 </style>
@@ -481,51 +709,54 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
   <div>
     <div class="header-title">
       F&amp;O Swing Screener
-      <span class="v-badge">v3.0</span>
+      <span class="v-badge">v4.0</span>
     </div>
-    <div class="header-updated">Last updated: <span>2026-03-08 08:09:12</span></div>
+    <div class="header-updated">Last updated: <span>2026-03-08 08:39:06</span></div>
   </div>
-  <div class="header-right">
-    <div class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
-      <span class="theme-icon">🌙</span>
-      <span id="themeLabel">Dark</span>
-    </div>
+  <div class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
+    <span id="themeIcon">🌙</span>
+    <span id="themeLabel">Dark</span>
   </div>
 </div>
 
-<!-- CARDS -->
+<!-- CARDS (Clickable) -->
 <div class="cards">
-  <div class="card">
+  <div class="card card-total card-active" onclick="setFilter('all', this)">
     <div class="card-label">Total Signals</div>
     <div class="card-value c-total">36</div>
+    <div class="card-hint">Tap to show all</div>
   </div>
-  <div class="card">
+  <div class="card card-buy" onclick="setFilter('buy', this)">
     <div class="card-label">Swing Buy</div>
     <div class="card-value c-buy">3</div>
+    <div class="card-hint">Tap to filter</div>
   </div>
-  <div class="card">
+  <div class="card card-sell" onclick="setFilter('sell', this)">
     <div class="card-label">Swing Sell</div>
     <div class="card-value c-sell">33</div>
+    <div class="card-hint">Tap to filter</div>
   </div>
 </div>
 
 <!-- TOOLBAR -->
 <div class="toolbar">
   <div class="search-wrap">
-    <span class="search-icon">🔍</span>
+    <span class="s-icon">🔍</span>
     <input class="search-input" type="text" id="searchInput"
            placeholder="Search symbol..." oninput="applyFilters()">
   </div>
   <button class="filter-btn f-all"  id="btnAll"  onclick="setFilter('all')">All</button>
-  <button class="filter-btn"        id="btnBuy"  onclick="setFilter('buy')">▲ Swing Buy</button>
-  <button class="filter-btn"        id="btnSell" onclick="setFilter('sell')">▼ Swing Sell</button>
+  <button class="filter-btn"        id="btnBuy"  onclick="setFilter('buy')">▲ Buy</button>
+  <button class="filter-btn"        id="btnSell" onclick="setFilter('sell')">▼ Sell</button>
+</div>
 
-  <div class="entry-legend">
-    <span class="legend-item"><span class="badge badge-breakout" style="font-size:9px;padding:2px 6px;">⚡ Breakout</span></span>
-    <span class="legend-item"><span class="badge badge-continuation" style="font-size:9px;padding:2px 6px;">↗ Continuation</span></span>
-    <span class="legend-item"><span class="badge badge-pullback" style="font-size:9px;padding:2px 6px;">↩ Pullback</span></span>
-    <span class="legend-item"><span class="badge badge-smart" style="font-size:9px;padding:2px 6px;">◎ Smart</span></span>
-  </div>
+<!-- ENTRY LEGEND (visible on all screens) -->
+<div class="entry-legend">
+  <span class="legend-label">Entry:</span>
+  <span class="badge badge-breakout legend-btn"      onclick="showEntryInfo('breakout')">⚡ Breakout</span>
+  <span class="badge badge-continuation legend-btn"  onclick="showEntryInfo('continuation')">↗ Continuation</span>
+  <span class="badge badge-pullback legend-btn"      onclick="showEntryInfo('pullback')">↩ Pullback</span>
+  <span class="badge badge-smart legend-btn"         onclick="showEntryInfo('smart')">◎ Smart</span>
 </div>
 
 <!-- TABLE -->
@@ -557,7 +788,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="buy">
 <td><span class="td-symbol">DIVISLAB</span></td>
 <td><span class="badge badge-buy">▲ Swing Buy</span></td>
-<td><span class="badge badge-pullback">↩ Pullback</span></td>
+<td><span class="badge badge-pullback" onclick="showEntryInfo('pullback')">↩ Pullback</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">6325.00</td>
 <td class="td-num"><span class="neg-val">-0.62%</span></td>
@@ -578,7 +809,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="buy">
 <td><span class="td-symbol">LUPIN</span></td>
 <td><span class="badge badge-buy">▲ Swing Buy</span></td>
-<td><span class="badge badge-breakout">⚡ Breakout</span></td>
+<td><span class="badge badge-breakout" onclick="showEntryInfo('breakout')">⚡ Breakout</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">2330.00</td>
 <td class="td-num"><span class="neg-val">-0.12%</span></td>
@@ -599,7 +830,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="buy">
 <td><span class="td-symbol">SUNPHARMA</span></td>
 <td><span class="badge badge-buy">▲ Swing Buy</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">1793.50</td>
 <td class="td-num"><span class="pos-val">+0.50%</span></td>
@@ -620,7 +851,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">NIFTY FMCG</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">50028.35</td>
 <td class="td-num"><span class="pos-val">+0.06%</span></td>
@@ -641,7 +872,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">SENSEX</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">78988.30</td>
 <td class="td-num"><span class="neg-val">-1.28%</span></td>
@@ -662,7 +893,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">ABCAPITAL</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">326.10</td>
 <td class="td-num"><span class="neg-val">-0.46%</span></td>
@@ -683,7 +914,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">AMBUJACEM</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">466.10</td>
 <td class="td-num"><span class="neg-val">-2.90%</span></td>
@@ -704,7 +935,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">NIFTY</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">24469.10</td>
 <td class="td-num"><span class="neg-val">-1.20%</span></td>
@@ -725,7 +956,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">ASIANPAINT</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">2282.00</td>
 <td class="td-num"><span class="neg-val">-0.25%</span></td>
@@ -746,7 +977,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">BHARTIARTL</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-breakout">⚡ Breakout</span></td>
+<td><span class="badge badge-breakout" onclick="showEntryInfo('breakout')">⚡ Breakout</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">1873.00</td>
 <td class="td-num"><span class="neg-val">-1.78%</span></td>
@@ -767,7 +998,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">BHEL</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-pullback">↩ Pullback</span></td>
+<td><span class="badge badge-pullback" onclick="showEntryInfo('pullback')">↩ Pullback</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">259.00</td>
 <td class="td-num"><span class="pos-val">+0.68%</span></td>
@@ -788,7 +1019,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">DALBHARAT</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">1900.00</td>
 <td class="td-num"><span class="neg-val">-1.49%</span></td>
@@ -809,7 +1040,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">EXIDEIND</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">316.05</td>
 <td class="td-num"><span class="neg-val">-1.13%</span></td>
@@ -830,7 +1061,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">GODREJCP</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">1115.10</td>
 <td class="td-num"><span class="neg-val">-1.53%</span></td>
@@ -851,7 +1082,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">HAL</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-pullback">↩ Pullback</span></td>
+<td><span class="badge badge-pullback" onclick="showEntryInfo('pullback')">↩ Pullback</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">4030.00</td>
 <td class="td-num"><span class="pos-val">+3.55%</span></td>
@@ -872,7 +1103,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">NIFTY PVT BANK</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">27439.10</td>
 <td class="td-num"><span class="neg-val">-2.19%</span></td>
@@ -893,7 +1124,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">HDFCBANK</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">857.20</td>
 <td class="td-num"><span class="neg-val">-2.34%</span></td>
@@ -914,7 +1145,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">HINDUNILVR</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">2225.00</td>
 <td class="td-num"><span class="neg-val">-1.33%</span></td>
@@ -935,7 +1166,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">ICICIGI</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">1878.50</td>
 <td class="td-num"><span class="pos-val">+0.18%</span></td>
@@ -956,7 +1187,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">HUDCO</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">176.50</td>
 <td class="td-num"><span class="neg-val">-0.99%</span></td>
@@ -977,7 +1208,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">INDIGO</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">4405.00</td>
 <td class="td-num"><span class="neg-val">-2.39%</span></td>
@@ -998,7 +1229,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">JIOFIN</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">239.70</td>
 <td class="td-num"><span class="neg-val">-1.40%</span></td>
@@ -1019,7 +1250,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">LICI</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">821.20</td>
 <td class="td-num"><span class="neg-val">-1.41%</span></td>
@@ -1040,7 +1271,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">INDHOTEL</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">624.00</td>
 <td class="td-num"><span class="neg-val">-0.91%</span></td>
@@ -1061,7 +1292,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">LODHA</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">892.25</td>
 <td class="td-num"><span class="neg-val">-2.62%</span></td>
@@ -1082,7 +1313,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">MANAPPURAM</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">263.40</td>
 <td class="td-num"><span class="neg-val">-1.46%</span></td>
@@ -1103,7 +1334,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">MARUTI</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">14139.00</td>
 <td class="td-num"><span class="neg-val">-1.91%</span></td>
@@ -1124,7 +1355,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">NAUKRI</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">979.90</td>
 <td class="td-num"><span class="neg-val">-3.49%</span></td>
@@ -1145,7 +1376,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">NBCC</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">85.84</td>
 <td class="td-num"><span class="neg-val">-1.16%</span></td>
@@ -1166,7 +1397,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">OBEROIRLTY</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">1475.00</td>
 <td class="td-num"><span class="neg-val">-0.48%</span></td>
@@ -1187,7 +1418,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">PAYTM</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">1040.00</td>
 <td class="td-num"><span class="neg-val">-1.23%</span></td>
@@ -1208,7 +1439,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">GIFTNIFTY</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">24300.00</td>
 <td class="td-num"><span class="neg-val">-0.98%</span></td>
@@ -1229,7 +1460,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">PHOENIXLTD</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">1613.10</td>
 <td class="td-num"><span class="neg-val">-1.25%</span></td>
@@ -1250,7 +1481,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">PNBHOUSING</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">772.20</td>
 <td class="td-num"><span class="neg-val">-2.33%</span></td>
@@ -1271,7 +1502,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">PRESTIGE</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">1340.30</td>
 <td class="td-num"><span class="neg-val">-2.57%</span></td>
@@ -1292,7 +1523,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 <tr data-signal="sell">
 <td><span class="td-symbol">TRENT</span></td>
 <td><span class="badge badge-sell">▼ Swing Sell</span></td>
-<td><span class="badge badge-smart">◎ Smart</span></td>
+<td><span class="badge badge-smart" onclick="showEntryInfo('smart')">◎ Smart</span></td>
 <td><span class="muted">—</span></td>
 <td class="td-num">3726.00</td>
 <td class="td-num"><span class="neg-val">-1.71%</span></td>
@@ -1315,43 +1546,66 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 </table>
 </div>
 
+<!-- ENTRY INFO POPUP -->
+<div class="popup-overlay" id="popupOverlay" onclick="closePopup()"></div>
+<div class="popup-sheet" id="popupSheet">
+  <div class="popup-handle"></div>
+  <div class="popup-header">
+    <span id="popupBadge" class="badge"></span>
+    <span class="popup-title" id="popupTitle"></span>
+  </div>
+  <div class="popup-body">
+    <div class="popup-desc" id="popupDesc"></div>
+    <div class="popup-conditions" id="popupConds"></div>
+    <div class="popup-best" id="popupBest"></div>
+  </div>
+</div>
+
 <script>
-// ── Theme ──
-const html = document.documentElement;
-let currentTheme = localStorage.getItem('screener-theme') || 'light';
+// ══════════════════════════════════════
+// THEME
+// ══════════════════════════════════════
+const htmlEl = document.documentElement;
+let currentTheme = localStorage.getItem('swing-theme') || 'light';
 
 function applyTheme(t) {
-    html.setAttribute('data-theme', t);
-    const btn   = document.getElementById('themeBtn');
-    const label = document.getElementById('themeLabel');
-    if (t === 'dark') {
-        btn.querySelector('.theme-icon').textContent = '☀️';
-        label.textContent = 'Light';
-    } else {
-        btn.querySelector('.theme-icon').textContent = '🌙';
-        label.textContent = 'Dark';
-    }
-    localStorage.setItem('screener-theme', t);
+    htmlEl.setAttribute('data-theme', t);
+    document.getElementById('themeIcon').textContent  = t === 'dark' ? '☀️' : '🌙';
+    document.getElementById('themeLabel').textContent = t === 'dark' ? 'Light' : 'Dark';
+    localStorage.setItem('swing-theme', t);
+    currentTheme = t;
 }
 
 function toggleTheme() {
-    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
-    applyTheme(currentTheme);
+    applyTheme(currentTheme === 'light' ? 'dark' : 'light');
 }
 
 applyTheme(currentTheme);
 
-// ── Filter ──
+// ══════════════════════════════════════
+// FILTER (cards + buttons synced)
+// ══════════════════════════════════════
 let currentFilter = 'all';
 
-function setFilter(f) {
+function setFilter(f, cardEl) {
     currentFilter = f;
-    const all  = document.getElementById('btnAll');
-    const buy  = document.getElementById('btnBuy');
-    const sell = document.getElementById('btnSell');
-    all.className  = 'filter-btn' + (f === 'all'  ? ' f-all'  : '');
-    buy.className  = 'filter-btn' + (f === 'buy'  ? ' f-buy'  : '');
-    sell.className = 'filter-btn' + (f === 'sell' ? ' f-sell' : '');
+
+    // Sync filter buttons
+    document.getElementById('btnAll').className  = 'filter-btn' + (f === 'all'  ? ' f-all'  : '');
+    document.getElementById('btnBuy').className  = 'filter-btn' + (f === 'buy'  ? ' f-buy'  : '');
+    document.getElementById('btnSell').className = 'filter-btn' + (f === 'sell' ? ' f-sell' : '');
+
+    // Sync card active state
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('card-active'));
+    if (cardEl) {
+        cardEl.classList.add('card-active');
+    } else {
+        // Called from button — activate matching card
+        const map = { all: 'card-total', buy: 'card-buy', sell: 'card-sell' };
+        const el  = document.querySelector('.' + map[f]);
+        if (el) el.classList.add('card-active');
+    }
+
     applyFilters();
 }
 
@@ -1366,7 +1620,9 @@ function applyFilters() {
     });
 }
 
-// ── Sort ──
+// ══════════════════════════════════════
+// SORT
+// ══════════════════════════════════════
 function sortTable(th) {
     const table = th.closest('table');
     const idx   = [...th.parentNode.children].indexOf(th);
@@ -1385,6 +1641,116 @@ function sortTable(th) {
     const tbody = table.querySelector('tbody');
     rows.forEach(r => tbody.appendChild(r));
 }
+
+// ══════════════════════════════════════
+// ENTRY INFO POPUP
+// ══════════════════════════════════════
+const entryData = {
+    breakout: {
+        badge:  '⚡ Breakout',
+        cls:    'badge-breakout',
+        title:  'Breakout Entry',
+        desc:   'Jab price ne apna pichla Swing High ya Swing Low tod diya ho — volume spike ke saath. Yeh sabse aggressive aur high-momentum entry type hai.',
+        conds: [
+            { icon: '📈', title: 'Uptrend/Downtrend Confirm',  text: 'Price > EMA21 > EMA50 (buy) ya Price < EMA21 < EMA50 (sell)' },
+            { icon: '⚡', title: 'Swing High/Low Tuta',         text: 'Current close ne pichle confirmed swing high/low ko cross kiya' },
+            { icon: '📊', title: 'Volume Spike',                text: 'Volume 50-day average ka 1.5x se zyada — breakout genuine hai' },
+            { icon: '🔢', title: 'ADX ≥ 20',                   text: 'Market trending hai, sideways nahi — ADX filter pass' },
+            { icon: '📉', title: 'MACD Bullish/Bearish',        text: 'MACD line signal line se upar/neeche' },
+        ],
+        best:  '⚠️ High momentum entry — SL tight rakho, trail karo. Risk thoda zyada hota hai.',
+        bestCls: '#fed7aa', bestBorder: '#c2410c',
+    },
+    continuation: {
+        badge:  '↗ Continuation',
+        cls:    'badge-continuation',
+        title:  'Continuation Entry',
+        desc:   'Jab existing trend mein ek fresh MACD crossover hua ho — matlab trend abhi bhi jari hai aur ek naya leg shuru hone wala hai.',
+        conds: [
+            { icon: '📈', title: 'Trend Already Active',         text: 'Stock pehle se uptrend/downtrend mein hai (EMA21 > EMA50)' },
+            { icon: '✦',  title: 'Fresh MACD Crossover (Aaj)',   text: 'MACD line ne signal line ko abhi-abhi cross kiya — 1 candle ago' },
+            { icon: '🔢', title: 'ADX ≥ 20',                    text: 'Trend mein strength hai — fake signal ka risk kam' },
+            { icon: '📊', title: 'RSI Zone: 45-80',              text: 'Momentum overbought nahi, room for move' },
+        ],
+        best:  '✅ Best entry — trend + fresh signal dono saath. Medium risk, good R:R.',
+        bestCls: '#a5f3fc', bestBorder: '#0e7490',
+    },
+    pullback: {
+        badge:  '↩ Pullback',
+        cls:    'badge-pullback',
+        title:  'Pullback Entry',
+        desc:   'Uptrend mein stock thoda neeche aaya — EMA21 ke paas support liya. Yeh sabse calculated aur best Risk:Reward entry hoti hai.',
+        conds: [
+            { icon: '📈', title: 'Strong Uptrend',               text: 'ADX ≥ 25 (strong trend) + EMA21 > EMA50' },
+            { icon: '↩',  title: 'Price EMA21 Ke Paas',          text: 'Current price EMA21 se 0-1.5% upar — support zone mein' },
+            { icon: '📉', title: 'RSI Pulled Back: 35-58',        text: 'RSI ne overbought se rest liya — fresh momentum ke liye ready' },
+            { icon: '💚', title: 'MACD Still Bullish',            text: 'MACD > Signal — trend intact, sirf price pullback tha' },
+        ],
+        best:  '🎯 Best R:R entry — kam risk, zyada reward. SL EMA21 ke neeche.',
+        bestCls: '#c4b5fd', bestBorder: '#6d28d9',
+    },
+    smart: {
+        badge:  '◎ Smart',
+        cls:    'badge-smart',
+        title:  'Smart Entry',
+        desc:   'Sab indicators ek direction mein point kar rahe hain — trend, RSI, MACD — lekin koi specific breakout ya pullback nahi. Broad confirmation entry.',
+        conds: [
+            { icon: '📈', title: 'Trend Confirmed',              text: 'Price > EMA21 > EMA50 — clear uptrend structure' },
+            { icon: '🔢', title: 'ADX ≥ 20',                    text: 'Market sideways nahi, trending hai' },
+            { icon: '📊', title: 'RSI: 45-80',                   text: 'Momentum bullish zone mein' },
+            { icon: '💚', title: 'MACD + Histogram Both Up',     text: 'MACD bullish aur histogram 1+ candle se badhta hua' },
+        ],
+        best:  'ℹ️ Solid entry — specific trigger nahi mila lekin sab factors aligned hain.',
+        bestCls: '#cbd5e1', bestBorder: '#475569',
+    },
+};
+
+function showEntryInfo(type) {
+    const d = entryData[type];
+    if (!d) return;
+
+    document.getElementById('popupBadge').className     = 'badge ' + d.cls;
+    document.getElementById('popupBadge').textContent   = d.badge;
+    document.getElementById('popupTitle').textContent   = d.title;
+    document.getElementById('popupDesc').textContent    = d.desc;
+
+    const condsEl = document.getElementById('popupConds');
+    condsEl.innerHTML = d.conds.map(c => `
+        <div class="popup-cond">
+          <span class="popup-cond-icon">${c.icon}</span>
+          <div class="popup-cond-text">
+            <strong>${c.title}</strong>
+            <span>${c.text}</span>
+          </div>
+        </div>
+    `).join('');
+
+    const bestEl = document.getElementById('popupBest');
+    bestEl.textContent        = d.best;
+    bestEl.style.background   = currentTheme === 'dark' ? 'rgba(0,0,0,0.2)' : d.bestCls + '33';
+    bestEl.style.borderColor  = d.bestBorder;
+    bestEl.style.color        = currentTheme === 'dark' ? '#d4eef5' : '#1e293b';
+
+    document.getElementById('popupOverlay').classList.add('show');
+    setTimeout(() => document.getElementById('popupSheet').classList.add('show'), 10);
+}
+
+function closePopup() {
+    document.getElementById('popupSheet').classList.remove('show');
+    document.getElementById('popupOverlay').classList.remove('show');
+}
+
+// Close on ESC
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopup(); });
+
+// Swipe down to close
+let touchStartY = 0;
+document.getElementById('popupSheet').addEventListener('touchstart', e => {
+    touchStartY = e.touches[0].clientY;
+});
+document.getElementById('popupSheet').addEventListener('touchend', e => {
+    if (e.changedTouches[0].clientY - touchStartY > 60) closePopup();
+});
 </script>
 </body>
 </html>
