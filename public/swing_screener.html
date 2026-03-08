@@ -878,7 +878,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
     <div class="header-title">
       F&amp;O Swing Screener <span class="v-badge">v5.0</span>
     </div>
-    <div class="header-updated">Last updated: <span>2026-03-08 10:51:35</span></div>
+    <div class="header-updated">Last updated: <span>2026-03-08 10:55:51</span></div>
   </div>
   <div class="header-right">
     <div class="settings-btn" onclick="openSettings()">⚙️ Columns</div>
@@ -2032,8 +2032,43 @@ function closeSettings() {
 
 // Load saved column prefs on start
 loadColPrefs();
-// Show initial count
+
+// ══════════════════════════════════════
+// WATCHLIST — declared before applyFilters() call
+// ══════════════════════════════════════
+let watchlist = new Set(JSON.parse(localStorage.getItem('swing-watchlist') || '[]'));
+
+function saveWatchlist() {
+    localStorage.setItem('swing-watchlist', JSON.stringify([...watchlist]));
+}
+
+function toggleStar(el, sym) {
+    if (watchlist.has(sym)) {
+        watchlist.delete(sym);
+        el.textContent = '☆';
+        el.classList.remove('starred');
+    } else {
+        watchlist.add(sym);
+        el.textContent = '★';
+        el.classList.add('starred');
+    }
+    saveWatchlist();
+    applyFilters();
+}
+
+function initStars() {
+    document.querySelectorAll('.star-btn').forEach(el => {
+        const sym = el.nextElementSibling?.textContent?.trim();
+        if (sym && watchlist.has(sym)) {
+            el.textContent = '★';
+            el.classList.add('starred');
+        }
+    });
+}
+
+// Show initial count (watchlist now declared)
 applyFilters();
+initStars();
 
 // ══════════════════════════════════════
 // ENTRY INFO POPUP
@@ -2119,39 +2154,6 @@ function closePopup() {
 }
 
 // ══════════════════════════════════════
-// WATCHLIST
-// ══════════════════════════════════════
-let watchlist = new Set(JSON.parse(localStorage.getItem('swing-watchlist') || '[]'));
-
-function saveWatchlist() {
-    localStorage.setItem('swing-watchlist', JSON.stringify([...watchlist]));
-}
-
-function toggleStar(el, sym) {
-    if (watchlist.has(sym)) {
-        watchlist.delete(sym);
-        el.textContent = '☆';
-        el.classList.remove('starred');
-    } else {
-        watchlist.add(sym);
-        el.textContent = '★';
-        el.classList.add('starred');
-    }
-    saveWatchlist();
-    applyFilters();
-}
-
-function initStars() {
-    document.querySelectorAll('.star-btn').forEach(el => {
-        const sym = el.nextElementSibling?.textContent?.trim();
-        if (sym && watchlist.has(sym)) {
-            el.textContent = '★';
-            el.classList.add('starred');
-        }
-    });
-}
-
-// ══════════════════════════════════════
 // CHART POPUP (TradingView Widget)
 // ══════════════════════════════════════
 // Special symbol mappings for NSE/BSE
@@ -2214,9 +2216,6 @@ function closeChart() {
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') { closePopup(); closeSettings(); closeChart(); }
 });
-
-// Init stars on load
-initStars();
 
 let touchStartY = 0;
 document.getElementById('popupSheet').addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; });
