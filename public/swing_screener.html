@@ -878,7 +878,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
     <div class="header-title">
       F&amp;O Swing Screener <span class="v-badge">v5.0</span>
     </div>
-    <div class="header-updated">Last updated: <span>2026-03-08 11:01:46</span></div>
+    <div class="header-updated">Last updated: <span>2026-03-08 11:03:27</span></div>
   </div>
   <div class="header-right">
     <div class="settings-btn" onclick="openSettings()">⚙️ Columns</div>
@@ -2168,13 +2168,12 @@ const symbolMap = {
 function showChart(sym) {
     const tvSym = symbolMap[sym] || ('NSE:' + sym.replace(/\s+/g,''));
     document.getElementById('chartSymbolName').textContent = sym;
-    const isDark = currentTheme === 'dark';
-    const theme  = isDark ? 'dark' : 'light';
+    const theme = currentTheme === 'dark' ? 'dark' : 'light';
+    const encodedSym = encodeURIComponent(tvSym);
 
-    // Use iframe embed — most reliable for NSE symbols
     document.getElementById('tradingview_widget').innerHTML = `
         <iframe
-            src="https://www.tradingview.com/widgetembed/?symbol=${encodeURIComponent(tvSym)}&interval=D&timezone=Asia%2FKolkata&theme=${theme}&style=1&locale=en&hide_side_toolbar=0&allow_symbol_change=1&save_image=0&calendar=0&hide_volume=0"
+            src="https://s.tradingview.com/widgetembed/?symbol=${encodedSym}&interval=D&timezone=Asia%2FKolkata&theme=${theme}&style=1&locale=en&hide_side_toolbar=0&allow_symbol_change=1&hide_top_toolbar=0&save_image=0"
             width="100%"
             height="100%"
             frameborder="0"
