@@ -380,8 +380,9 @@ body {
         <a href="https://screener-epd.pages.dev/public/volatility_dashboard"    class="nav-link">Volatility <span style="font-size:10px;opacity:.6;margin-left:4px">Knowledge</span></a>
         <a href="https://screener2-584.pages.dev/fii_dashboard"           		class="nav-link">FII Data <span style="font-size:10px;opacity:.6;margin-left:4px">Knowledge</span></a>
 		<a href="https://screener-epd.pages.dev/public/StockTrade"              class="nav-link">OLD STOCK <span style="font-size:10px;opacity:.6;margin-left:4px">Backup</span></a>
-		<a href="https://screener-epd.pages.dev/public/OptionTrade"             class="nav-link">OLD OPTION<span style="font-size:10px;opacity:.6;margin-left:4px">Backup</span></a>	
-		<a href="https://screener-epd.pages.dev/public/oi_All"             class="nav-link">TEST NEW OI <span style="font-size:10px;opacity:.6;margin-left:4px">TEST</span></a>	
+		<a href="https://screener-epd.pages.dev/public/OptionTrade"             class="nav-link">OLD OPTION<span style="font-size:10px;opacity:.6;margin-left:4px">Backup</span></a>
+       	
+		
       </div>
     </div>
 
@@ -487,50 +488,16 @@ floatBtn.onclick = toggleFs;
 fsBtn.onclick    = toggleFs;
 
 // ── Nav links ───────────────────────────────────────────
-function loadInFrame(url, linkEl) {
-  // Reset frame first
-  frame.src = 'about:blank';
-  frame.classList.remove('active');
-  welcome.style.display = 'none';
-
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-  if (linkEl) linkEl.classList.add('active');
-  floatBtn.classList.add('visible');
-
-  // Small delay then load
-  setTimeout(() => {
-    frame.src = url;
-    frame.classList.add('active');
-  }, 50);
-
-  // After 4 seconds, check if iframe actually loaded
-  // If it got blocked (X-Frame-Options), contentDocument will be null or cross-origin error
-  setTimeout(() => {
-    try {
-      // If frame loaded same-origin page fine, this works
-      // If cross-origin but allowed, this throws — that's OK, means it loaded
-      const test = frame.contentDocument;
-      // If we get here and contentDocument is null, it was blocked
-      if (test === null) {
-        // Blocked — open in new tab as fallback
-        window.open(url, '_blank');
-        frame.src = 'about:blank';
-        frame.classList.remove('active');
-        welcome.style.display = '';
-        if (linkEl) linkEl.classList.remove('active');
-        floatBtn.classList.remove('visible');
-      }
-    } catch(err) {
-      // Cross-origin error = iframe DID load (just blocked by CORS from JS side) — this is fine!
-    }
-  }, 4000);
-}
-
 document.querySelectorAll('.nav-link:not(.external)').forEach(link => {
   link.addEventListener('click', function(e){
     if(!e.ctrlKey && !e.metaKey && e.button===0){
       e.preventDefault();
-      loadInFrame(this.href, this);
+      frame.src = this.href;
+      frame.classList.add('active');
+      welcome.style.display = 'none';
+      document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+      this.classList.add('active');
+      floatBtn.classList.add('visible');
       if(window.innerWidth < 768) sidebar.classList.remove('mobile-open');
     }
   });
