@@ -329,7 +329,7 @@ select, button, input { outline: none; font-family: inherit; }
   0%,100% { text-shadow: 0 0 4px var(--acc); opacity: 1; }
   50%      { text-shadow: 0 0 10px var(--acc), 0 0 18px var(--acc); opacity: .8; }
 }
-#scan-sel option.latest { color: var(--acc); font-weight: 700; }
+#scan-sel option.latest { color: var(--acc); font-weight: 700; font-size: 12px; }
 #scan-ii {
   background: linear-gradient(90deg, var(--bg4), var(--bg3));
   border-right: 2px solid var(--acc) !important;
@@ -344,14 +344,17 @@ select, button, input { outline: none; font-family: inherit; }
 .iv.bear { color: var(--pe-txt); }
 #scan-sel {
   background: transparent;
-  color: var(--acc);
+  color: var(--text);
   border: none;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   font-family: 'JetBrains Mono', monospace;
   cursor: pointer;
   letter-spacing: .03em;
-  min-width: 155px;
+  min-width: 279px;
+}
+#scan-sel.is-latest {
+  color: var(--acc);
 }
 #scan-sel option {
   background: var(--bg3);
@@ -860,7 +863,7 @@ select, button, input { outline: none; font-family: inherit; }
 
 <!-- INFOBAR -->
 <div id="infobar">
-  <div class="ii" id="scan-ii"><span class="il" style="color:var(--acc);opacity:.7;font-size:8px;letter-spacing:.15em;">⏱ SCAN</span><select id="scan-sel"></select></div>
+  <div class="ii" id="scan-ii"><span class="il" style="color:var(--acc);opacity:.9;font-size:12px;letter-spacing:.15em;font-weight:700;">⏱ SCAN</span><select id="scan-sel"></select></div>
   <div id="sym-search-wrap">
     <span id="sym-search-icon">⌕</span>
     <input id="sym-search" type="text" placeholder="search symbol..." autocomplete="off" spellcheck="false">
@@ -971,11 +974,20 @@ function buildScanSel() {
   all.forEach(({d,h}, i) => {
     const o = document.createElement('option');
     o.value = `${d}|${h}`;
-    o.textContent = `${d}  ${h.slice(0,2)}:${h.slice(2)}`;
+    o.textContent = i === 0 ? `${d}  ${h.slice(0,2)}:${h.slice(2)}  (Latest)` : `${d}  ${h.slice(0,2)}:${h.slice(2)}`;
     if (i === 0) o.className = 'latest';  // latest option highlight
     el.appendChild(o);
   });
   if (all.length) { curKey = `${all[0].d}|${all[0].h}`; el.value = curKey; }
+  // Color update on change
+  function updateSelColor() {
+    const isLatest = el.selectedIndex === 0;
+    el.classList.toggle('is-latest', isLatest);
+  }
+  el.removeEventListener('change', el._colorHandler);
+  el._colorHandler = updateSelColor;
+  el.addEventListener('change', updateSelColor);
+  updateSelColor();
   // Always show latest scan time in header
   updateLatestScanTime(all[0]);
 }
