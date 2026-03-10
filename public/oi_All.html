@@ -176,7 +176,7 @@ select, button, input { outline: none; font-family: inherit; }
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center;
-  gap: 6px; padding: 0 12px; height: 38px;
+  gap: 6px; padding: 0 12px; height: 49px;
   flex-wrap: nowrap; overflow-x: auto;
 }
 #topbar::-webkit-scrollbar { height: 0; }
@@ -307,10 +307,11 @@ select, button, input { outline: none; font-family: inherit; }
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center;
-  gap: 0; padding: 0 12px; height: 32px;
+  gap: 0; padding: 0 12px; height: 42px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px; overflow-x: auto;
   white-space: nowrap;
+  overflow: visible;
 }
 #infobar::-webkit-scrollbar { height: 0; }
 .ii { display: flex; align-items: center; gap: 5px; padding: 0 10px; border-right: 1px solid var(--border); height: 100%; }
@@ -329,6 +330,11 @@ select, button, input { outline: none; font-family: inherit; }
   50%      { text-shadow: 0 0 10px var(--acc), 0 0 18px var(--acc); opacity: .8; }
 }
 #scan-sel option.latest { color: var(--acc); font-weight: 700; }
+#scan-ii {
+  background: linear-gradient(90deg, var(--bg4), var(--bg3));
+  border-right: 2px solid var(--acc) !important;
+  padding-right: 14px;
+}
 .il { color: var(--text2); font-size: 9px; text-transform: uppercase; letter-spacing: .08em; }
 .iv { color: var(--text); font-weight: 600; }
 .iv.ce { color: var(--ce-txt); }
@@ -337,10 +343,118 @@ select, button, input { outline: none; font-family: inherit; }
 .iv.bull { color: var(--ce-txt); }
 .iv.bear { color: var(--pe-txt); }
 #scan-sel {
-  background: transparent; color: var(--text2);
-  border: none; font-size: 10.5px;
+  background: transparent;
+  color: var(--acc);
+  border: none;
+  font-size: 11.5px;
+  font-weight: 700;
   font-family: 'JetBrains Mono', monospace;
   cursor: pointer;
+  letter-spacing: .03em;
+  min-width: 155px;
+}
+#scan-sel option {
+  background: var(--bg3);
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* ── SYMBOL SEARCH ── */
+#sym-search-wrap {
+  position: relative;
+  display: flex; align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  border-right: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  height: 100%;
+  background: var(--bg3);
+}
+#sym-search-icon {
+  font-size: 11px;
+  color: var(--acc);
+  opacity: .8;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+#sym-search {
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--acc);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  width: 160px;
+  padding: 1px 2px;
+  text-transform: uppercase;
+  outline: none;
+  letter-spacing: .04em;
+  transition: border-color .15s, width .2s, box-shadow .15s;
+}
+#sym-search:focus {
+  border-color: var(--acc);
+  width: 200px;
+  box-shadow: 0 2px 0 var(--acc);
+}
+#sym-search::placeholder { color: var(--text3); text-transform: none; font-weight: 400; font-size: 10px; letter-spacing: 0; }
+#sym-dropdown {
+  display: none;
+  position: absolute;
+  top: 42px; left: 0;
+  min-width: 200px;
+  background: var(--bg2);
+  border: 1px solid var(--acc);
+  border-top: 2px solid var(--acc);
+  border-radius: 0 0 7px 7px;
+  z-index: 300;
+  box-shadow: 0 8px 28px rgba(0,0,0,.55), 0 0 0 1px rgba(90,154,255,.08);
+  max-height: 260px;
+  overflow-y: auto;
+}
+#sym-dropdown .sd-header {
+  padding: 4px 10px;
+  font-size: 9px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--acc);
+  opacity: .6;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+#sym-dropdown .sd-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+  transition: background .08s;
+}
+#sym-dropdown .sd-item:last-child { border-bottom: none; }
+#sym-dropdown .sd-item::before {
+  content: '▸';
+  font-size: 9px;
+  color: var(--text3);
+  flex-shrink: 0;
+}
+#sym-dropdown .sd-item:hover,
+#sym-dropdown .sd-item.active {
+  background: var(--bg4);
+  color: var(--acc);
+}
+#sym-dropdown .sd-item:hover::before,
+#sym-dropdown .sd-item.active::before { color: var(--acc); }
+#sym-dropdown .sd-item .sd-match {
+  color: var(--acc);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* ═══════════════════════════════════════
@@ -351,8 +465,8 @@ select, button, input { outline: none; font-family: inherit; }
   grid-template-columns: 50px 1fr 72px 1fr 56px;
   background: var(--bg2);
   border-bottom: 1px solid var(--border2);
-  position: sticky; top: 70px; z-index: 50;
-  height: 28px;
+  position: sticky; top: 91px; z-index: 50;
+  height: 36px;
 }
 #chain-hdr > div {
   display: flex; align-items: center;
@@ -746,7 +860,12 @@ select, button, input { outline: none; font-family: inherit; }
 
 <!-- INFOBAR -->
 <div id="infobar">
-  <div class="ii"><span class="il">Scan</span><select id="scan-sel"></select></div>
+  <div class="ii" id="scan-ii"><span class="il" style="color:var(--acc);opacity:.7;font-size:8px;letter-spacing:.15em;">⏱ SCAN</span><select id="scan-sel"></select></div>
+  <div id="sym-search-wrap">
+    <span id="sym-search-icon">⌕</span>
+    <input id="sym-search" type="text" placeholder="search symbol..." autocomplete="off" spellcheck="false">
+    <div id="sym-dropdown"></div>
+  </div>
   <div class="ii"><span class="il">Spot</span><span class="iv sp" id="iv-spot">—</span></div>
   <div class="ii"><span class="il">CE OI</span><span class="iv ce" id="iv-ce">—</span></div>
   <div class="ii"><span class="il">PE OI</span><span class="iv pe" id="iv-pe">—</span></div>
@@ -1271,6 +1390,72 @@ function wire() {
   };
   
   $('theme-grp').onclick = e => { if (e.target.dataset.v) applyTheme(e.target.dataset.v); };
+
+  // ── SYMBOL SEARCH ──
+  const searchInput = $('sym-search');
+  const searchDrop  = $('sym-dropdown');
+  let activeIdx = -1;
+
+  function highlightMatch(sym, q) {
+    const i = sym.indexOf(q);
+    if (i < 0 || !q) return sym;
+    return sym.slice(0,i) + '<span class="sd-match">' + sym.slice(i, i+q.length) + '</span>' + sym.slice(i+q.length);
+  }
+
+  function showDrop(q) {
+    const query = q.toUpperCase().trim();
+    if (!query) { searchDrop.style.display = 'none'; return; }
+    const filtered = symList.filter(s => s.includes(query));
+    if (!filtered.length) { searchDrop.style.display = 'none'; return; }
+    activeIdx = -1;
+    searchDrop.innerHTML =
+      '<div class="sd-header">' + filtered.length + ' result' + (filtered.length>1?'s':'') + '</div>' +
+      filtered.map((s,i) =>
+        '<div class="sd-item" data-sym="' + s + '">' + highlightMatch(s, query) + '</div>'
+      ).join('');
+    searchDrop.style.display = 'block';
+    searchDrop.querySelectorAll('.sd-item').forEach(item => {
+      item.onclick = () => jumpToSym(item.dataset.sym);
+    });
+  }
+
+  function jumpToSym(sym) {
+    const idx = symList.indexOf(sym);
+    if (idx < 0) return;
+    symIdx = idx;
+    $('sym-select').value = symIdx;
+    localStorage.setItem('oi_sym', sym);
+    searchInput.value = '';
+    searchDrop.style.display = 'none';
+    render();
+  }
+
+  searchInput.addEventListener('input', e => showDrop(e.target.value));
+
+  searchInput.addEventListener('keydown', e => {
+    const items = searchDrop.querySelectorAll('.sd-item');
+    if (!items.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIdx = Math.min(activeIdx + 1, items.length - 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIdx = Math.max(activeIdx - 1, 0);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const target = activeIdx >= 0 ? items[activeIdx] : items[0];
+      if (target) jumpToSym(target.dataset.sym);
+      return;
+    } else if (e.key === 'Escape') {
+      searchInput.value = ''; searchDrop.style.display = 'none'; return;
+    }
+    items.forEach((it, i) => it.classList.toggle('active', i === activeIdx));
+    if (items[activeIdx]) items[activeIdx].scrollIntoView({block:'nearest'});
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#sym-search-wrap')) searchDrop.style.display = 'none';
+  });
 
   $('tv-btn').onclick = () => {
     const s = curSym(); if (!s) return;
