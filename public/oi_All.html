@@ -1461,27 +1461,37 @@ async function updateTicker() {
 }
 
 function autoRefresh() {
+  // buildScanSel jaisa hi sort — latest key correctly nikalo
+  function getLatestKey(data) {
+    if (!data) return '';
+    const all = [];
+    for (const d of (data.dates || []))
+      for (const h of (data.scans[d] || [])) all.push({d, h});
+    all.sort((a, b) => (b.d + b.h).localeCompare(a.d + a.h));
+    return all.length ? `${all[0].d}|${all[0].h}` : '';
+  }
+
   setInterval(async () => {
     const n = new Date(), h = n.getHours(), m = n.getMinutes();
     if (!((h > 9 || (h === 9 && m >= 15)) && (h < 15 || (h === 15 && m <= 30)))) return;
     try {
-      const prev = JSON.stringify(indexData?.scans);
+      const prevKey = getLatestKey(indexData);
       await loadIndex();
-      if (JSON.stringify(indexData?.scans) !== prev) {
+      const newKey = getLatestKey(indexData);
+      if (newKey && newKey !== prevKey) {
         buildScanSel();
         const sel = document.getElementById('scan-sel');
         if (!sel.options.length) return;
-        const newKey = sel.options[0].value;
-        // Point-4: pehle naya scan pre-fetch karo cache mein, phir UI update karo
-        const [nd, nh] = newKey.split('|');
-        await loadScan(nd, nh);          // cache warm — ab blank nahi hoga
-        curKey = newKey;
+        const topKey = sel.options[0].value;
+        const [nd, nh] = topKey.split('|');
+        await loadScan(nd, nh);
+        curKey = topKey;
         sel.value = curKey;
         await render();
         await updateTicker();
       }
-    } catch {}
-  }, 3 * 60 * 1000);
+    } catch(e) { console.warn('autoRefresh error:', e); }
+  }, 10 * 1000);
 }
 
 (async () => {
