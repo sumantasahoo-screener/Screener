@@ -194,6 +194,8 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 .row.g-act{grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr;}
 
 .sym{font-weight:700;font-size:.85rem;letter-spacing:.4px;color:var(--ink);}
+.tv-icon{cursor:pointer;font-size:10px;opacity:.3;margin-left:4px;display:inline-block;transition:opacity .15s,transform .15s;}
+.tv-icon:hover{opacity:1;transform:scale(1.2);}
 .num{text-align:right;font-size:.82rem;}
 .ch span{font-size:.72rem!important;letter-spacing:1.2px;}
 .num.bull{color:var(--bull);}.num.bear{color:var(--bear);}.num.muted{color:var(--ink2);}.num.gold{color:var(--gold);}.num.blue{color:var(--blue);}
@@ -604,6 +606,9 @@ async function fetchFromNSE(){
   finally{btn.innerHTML='☁️ Fetch from NSE';btn.disabled=false;}
 }
 function downloadFromNSE(){window.open('https://www.nseindia.com/all-reports-derivatives','_blank');}
+const TV_MAP={NIFTY:'NSE:NIFTY',BANKNIFTY:'NSE:BANKNIFTY',FINNIFTY:'NSE:CNXFINANCE',MIDCPNIFTY:'NSE:MIDCPNIFTY',SENSEX:'BSE:SENSEX',BANKEX:'BSE:BANKEX',NIFTYNXT50:'NSE:NIFTYNXT50'};
+function openTV(sym,e){if(e)e.stopPropagation();const t=TV_MAP[sym]||('NSE:'+sym);window.open('https://www.tradingview.com/chart/?symbol='+t+'&interval=5','_blank');}
+function symSpan(sym){return '<span class="sym">'+sym+'</span><span class="tv-icon" data-tvsym="'+sym+'" title="TradingView 5m">&#x1F4C8;</span>';}
 
 // ─────────────────────────────────────────────
 // ZIP LOADER (CURRENT)
@@ -787,6 +792,14 @@ function pAct(txt){
 // RENDER
 // ─────────────────────────────────────────────
 function rAll(){rSumm();rOI();rPCR();rMP();rAct();rWriterTraps();rCharts();rSummaryCards();}
+document.addEventListener('click',function(e){
+  const ic=e.target.closest('.tv-icon[data-tvsym]');
+  if(!ic)return;
+  e.stopPropagation();
+  const sym=ic.dataset.tvsym;
+  const t=TV_MAP[sym]||('NSE:'+sym);
+  window.open('https://www.tradingview.com/chart/?symbol='+t+'&interval=5','_blank');
+});
 
 function rSumm(){
   const fv=Object.values(D.fut);
@@ -876,7 +889,7 @@ function rOI(){
     return `
     <div class="row g-oi">
       <div style="display:flex;align-items:center;gap:6px;">
-        <span class="sym">${d.sym}</span>
+        ${symSpan(d.sym)}
         ${pdTag}
       </div>
       <span class="num ${d.pct>=0?'bull':'bear'}">₹${d.close.toFixed(1)}</span>
@@ -960,7 +973,7 @@ function rMP(){
     const pdTxt = pd >= 0 ? `+${pd.toFixed(2)}% P` : `${pd.toFixed(2)}% D`;
 
     return`<div class="row g-mp" style="cursor:pointer" onclick="openMPModal('${d.sym}')" title="Click for full pain table">
-      <span class="sym">${d.sym}</span>
+      ${symSpan(d.sym)}
       <span class="num muted">₹${d.spot.toFixed(0)}</span>
       <div style="text-align:right">
         <div class="num blue">₹${d.fut.toFixed(0)}</div>
@@ -1035,7 +1048,7 @@ function rAct(){
   if(q)fil=fil.filter(d=>d.sym.toLowerCase().includes(q));
   document.getElementById('act-bd').innerHTML=fil.slice(0,40).map(d=>`
     <div class="row g-act">
-      <span class="sym">${d.sym}</span>
+      ${symSpan(d.sym)}
       <span class="num muted">${d.strike}</span>
       <span class="num ${d.type==='CE'?'bear':'bull'}">${(d.oi/1000).toFixed(1)}K</span>
       <span class="num muted">${(d.vol/1000).toFixed(1)}K</span>
@@ -1059,7 +1072,7 @@ function openModal(type){
     ${data.map((d,i)=>`
     <div style="display:grid;grid-template-columns:36px 80px 66px 60px 54px 80px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(42,52,80,.5);">
       <span style="font-size:.66rem;color:var(--muted)">${i+1}</span>
-      <span class="sym">${d.sym}</span>
+      ${symSpan(d.sym)}
       <span class="num ${d.pct>=0?'bull':'bear'}">₹${d.close.toFixed(1)}</span>
       <span class="num ${d.pct>=0?'bull':'bear'}">${d.pct>=0?'+':''}${d.pct.toFixed(2)}%</span>
       <span class="num muted">${(d.oi/1000).toFixed(1)}K</span>
@@ -1235,7 +1248,7 @@ function rWriterTraps(){
 
   const cwtRow=d=>`
     <div class="row" style="display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr;gap:10px;padding:8px 20px;">
-      <span class="sym">${d.sym}</span>
+      ${symSpan(d.sym)}
       <span class="num muted">₹${d.spot.toFixed(0)}</span>
       <span class="num bear">${d.ceWall}</span>
       <span class="num bull">${d.cwtGap>=0?'+':''}${d.cwtGap}%</span>
@@ -1244,7 +1257,7 @@ function rWriterTraps(){
 
   const pwtRow=d=>`
     <div class="row" style="display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr;gap:10px;padding:8px 20px;">
-      <span class="sym">${d.sym}</span>
+      ${symSpan(d.sym)}
       <span class="num muted">₹${d.spot.toFixed(0)}</span>
       <span class="num bull">${d.peWall}</span>
       <span class="num bear">-${d.pwtGap}%</span>
@@ -1297,7 +1310,7 @@ function openPulseModal(type){
         <span>Symbol</span><span style="text-align:right">Spot</span><span style="text-align:right">Max Pain</span><span style="text-align:right">Gap%</span>
       </div>
       ${data.map(d=>`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:8px 0;border-bottom:1px solid rgba(42,52,80,.4);">
-        <span class="sym">${d.sym}</span>
+        ${symSpan(d.sym)}
         <span class="num muted" style="text-align:right">₹${d.spot.toFixed(0)}</span>
         <span class="num gold" style="text-align:right">${d.mp}</span>
         <span class="num bull" style="text-align:right">+${d.gap}%</span>
@@ -1311,7 +1324,7 @@ function openPulseModal(type){
         <span>Symbol</span><span style="text-align:right">Spot</span><span style="text-align:right">Max Pain</span><span style="text-align:right">Gap%</span>
       </div>
       ${data.map(d=>`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:8px 0;border-bottom:1px solid rgba(42,52,80,.4);">
-        <span class="sym">${d.sym}</span>
+        ${symSpan(d.sym)}
         <span class="num muted" style="text-align:right">₹${d.spot.toFixed(0)}</span>
         <span class="num gold" style="text-align:right">${d.mp}</span>
         <span class="num bear" style="text-align:right">${d.gap}%</span>
@@ -1332,7 +1345,7 @@ function openPulseModal(type){
         <span>Symbol</span><span style="text-align:right">Spot</span><span style="text-align:right">Fut</span><span style="text-align:right">Premium/Disc%</span>
       </div>
       ${data.map(d=>`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:8px 0;border-bottom:1px solid rgba(42,52,80,.4);">
-        <span class="sym">${d.sym}</span>
+        ${symSpan(d.sym)}
         <span class="num muted" style="text-align:right">₹${d.spot.toFixed(0)}</span>
         <span class="num blue" style="text-align:right">₹${d.close.toFixed(0)}</span>
         <span class="num ${d.pd>=0?'bull':'bear'}" style="text-align:right">${d.pd>=0?'+':''}${d.pd}%</span>
@@ -1366,7 +1379,7 @@ function rSummaryCards(){
 
   const mkRow=(d,type)=>`
     <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid rgba(42,52,80,.4);">
-      <span style="font-weight:700;font-size:.85rem;color:var(--ink)">${d.sym}</span>
+      ${symSpan(d.sym)}
       <div style="text-align:right">
         <div style="font-size:.8rem;font-weight:700;color:var(--${type==='long'?'bull':'bear'})">${d.pct>=0?'+':''}${d.pct.toFixed(2)}%</div>
         <div style="font-size:.65rem;color:var(--muted)">${(d.oi/1000).toFixed(1)}K OI</div>
