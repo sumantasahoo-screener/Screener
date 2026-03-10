@@ -4,211 +4,628 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OI Scanner</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ════════════════ THEMES ════════════════ */
+/* ═══════════════════════════════════════
+   THEMES
+═══════════════════════════════════════ */
 [data-theme="dark"] {
-  --bg:#0c0c11; --bg2:#131318; --bg3:#1a1a22; --bg4:#22222e;
-  --border:#272730; --border2:#34344a;
-  --text:#e2e2ee; --text2:#7070a0; --text3:#3a3a55;
-  --ce:#00d27a; --ce2:rgba(0,210,122,.2); --ce3:rgba(0,210,122,.07);
-  --pe:#ff4060; --pe2:rgba(255,64,96,.2); --pe3:rgba(255,64,96,.07);
-  --atm:#ffaa00; --atm2:rgba(255,170,0,.09); --atm3:rgba(255,170,0,.45);
-  --acc:#5b8def; --shadow:0 4px 24px rgba(0,0,0,.55);
+  --bg:         #0d0d0f;
+  --bg2:        #111115;
+  --bg3:        #18181e;
+  --bg4:        #1e1e26;
+  --bg5:        #242430;
+  --border:     #232330;
+  --border2:    #272740;
+  --text:       #d8d8e8;
+  --text2:      #60609a;
+  --text3:      #30304a;
+  --strike:     #c0c0d8;
+  --ce:         #00ee7a;
+  --ce-bar:     rgba(0,238,122,.44);
+  --ce-edge:    #00ee7a;
+  --ce-dim:     rgba(0,238,122,.17);
+  --ce-txt:     #00ee7a;
+  --pe:         #ff2550;
+  --pe-bar:     rgba(255,37,80,.42);
+  --pe-edge:    #ff2550;
+  --pe-dim:     rgba(255,37,80,.16);
+  --pe-txt:     #ff2550;
+  --atm-bg:     rgba(255,165,0,.11);
+  --atm-line:   rgba(255,165,0,.68);
+  --atm-txt:    #ffa000;
+  --acc:        #4f8bff;
+  --cline:      #272740;
 }
 [data-theme="darkblue"] {
-  --bg:#010c1e; --bg2:#041228; --bg3:#071838; --bg4:#0d2045;
-  --border:#132445; --border2:#1e3060;
-  --text:#c8d8f5; --text2:#4a6890; --text3:#1e2e50;
-  --ce:#00e5ff; --ce2:rgba(0,229,255,.16); --ce3:rgba(0,229,255,.06);
-  --pe:#ff6baa; --pe2:rgba(255,107,170,.16); --pe3:rgba(255,107,170,.06);
-  --atm:#64c8ff; --atm2:rgba(100,200,255,.08); --atm3:rgba(100,200,255,.45);
-  --acc:#4d9eff; --shadow:0 4px 28px rgba(0,0,0,.7);
+  --bg:         #0d1520;
+  --bg2:        #111c28;
+  --bg3:        #162030;
+  --bg4:        #1a2638;
+  --bg5:        #1e2c40;
+  --border:     #1a2535;
+  --border2:    #1e2d40;
+  --text:       #c8d8e4;
+  --text2:      #607888;
+  --text3:      #2a3a48;
+  --strike:     #a8c4d4;
+  --ce:         #3dba6e;
+  --ce-bar:     rgba(45,165,90,.55);
+  --ce-edge:    #3dba6e;
+  --ce-dim:     rgba(45,165,90,.15);
+  --ce-txt:     #4dc878;
+  --pe:         #c84848;
+  --pe-bar:     rgba(185,55,55,.55);
+  --pe-edge:    #c84848;
+  --pe-dim:     rgba(185,55,55,.15);
+  --pe-txt:     #d45555;
+  --atm-bg:     rgba(210,170,0,.08);
+  --atm-line:   rgba(210,170,0,.55);
+  --atm-txt:    #c8a000;
+  --acc:        #5090c0;
+  --cline:      #1e2d40;
 }
 [data-theme="light"] {
-  --bg:#eef0f7; --bg2:#fff; --bg3:#e8eaf2; --bg4:#dcdfe8;
-  --border:#d0d3e2; --border2:#b8bcd0;
-  --text:#18182e; --text2:#505278; --text3:#9496b8;
-  --ce:#008f50; --ce2:rgba(0,143,80,.14); --ce3:rgba(0,143,80,.05);
-  --pe:#cc1133; --pe2:rgba(204,17,51,.14); --pe3:rgba(204,17,51,.05);
-  --atm:#c06000; --atm2:rgba(192,96,0,.07); --atm3:rgba(192,96,0,.4);
-  --acc:#2563eb; --shadow:0 2px 12px rgba(0,0,0,.12);
+  --bg:         #f2f4fa;
+  --bg2:        #ffffff;
+  --bg3:        #ebedf5;
+  --bg4:        #e0e3ee;
+  --bg5:        #d5d8e8;
+  --border:     #d0d4e8;
+  --border2:    #b8bdd8;
+  --text:       #151525;
+  --text2:      #4a4a78;
+  --text3:      #9898c0;
+  --strike:     #202040;
+  --ce:         #005528;
+  --ce-bar:     rgba(0,120,50,.65);
+  --ce-edge:    #005528;
+  --ce-dim:     rgba(0,120,50,.25);
+  --ce-txt:     #005528;
+  --pe:         #990018;
+  --pe-bar:     rgba(185,0,20,.65);
+  --pe-edge:    #990018;
+  --pe-dim:     rgba(185,0,20,.25);
+  --pe-txt:     #990018;
+  --atm-bg:     rgba(160,80,0,.13);
+  --atm-line:   rgba(160,80,0,.65);
+  --atm-txt:    #8a4800;
+  --acc:        #2060e0;
+  --cline:      #9090b8;
 }
 
-/* ════════════════ BASE ════════════════ */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{font-size:13px;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-::-webkit-scrollbar{width:4px;height:4px;}
-::-webkit-scrollbar-track{background:var(--bg);}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
-select,button,input{outline:none;font-family:inherit;}
-
-/* ════════════════ LOADING ════════════════ */
-#loading{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .3s;}
-#loading.gone{opacity:0;pointer-events:none;}
-.spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-#load-msg{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);}
-
-/* ════════════════ TOPBAR ════════════════ */
-#topbar{position:sticky;top:0;z-index:100;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;padding:6px 12px;flex-wrap:wrap;}
-.sym-nav{display:flex;align-items:center;gap:4px;}
-.nav-btn{width:26px;height:26px;background:var(--bg3);color:var(--text2);border:1px solid var(--border);border-radius:5px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
-.nav-btn:hover{color:var(--text);border-color:var(--acc);}
-#sym-select{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:14px;font-weight:600;cursor:pointer;min-width:120px;}
-.exp-tag{font-size:10px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 7px;white-space:nowrap;font-family:'JetBrains Mono',monospace;}
-.tb-sep{width:1px;height:20px;background:var(--border);flex-shrink:0;}
-.flex1{flex:1;}
-.bgrp{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
-.bgrp button{background:transparent;color:var(--text2);border:none;padding:4px 10px;font-size:11.5px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .15s;}
-.bgrp button:hover{color:var(--text);}
-.bgrp button.on{background:var(--bg4);color:var(--text);}
-.bgrp.ce button.on{color:var(--ce);}
-.bgrp.acc button.on{color:var(--acc);}
-#from-time{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px;font-family:'JetBrains Mono',monospace;height:26px;}
-#from-time:disabled{opacity:.3;cursor:not-allowed;}
-#from-time::-webkit-calendar-picker-indicator{filter:invert(.6);cursor:pointer;}
-.icon-btn{background:var(--bg3);color:var(--text2);border:1px solid var(--border);border-radius:6px;padding:3px 7px;height:26px;cursor:pointer;font-size:14px;display:flex;align-items:center;transition:all .15s;}
-.icon-btn:hover{color:var(--text);border-color:var(--acc);}
-
-/* ════════════════ INFOBAR ════════════════ */
-#infobar{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;padding:5px 14px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:11px;}
-.ip{display:flex;align-items:center;gap:5px;}
-.il{color:var(--text3);font-size:9px;text-transform:uppercase;letter-spacing:.08em;}
-.iv{color:var(--text);font-weight:500;}
-.iv.ce{color:var(--ce);} .iv.pe{color:var(--pe);} .iv.sp{color:var(--atm);}
-.iv.pcr-bull{color:var(--ce);} .iv.pcr-bear{color:var(--pe);}
-#scan-sel{background:var(--bg3);color:var(--text2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:10.5px;font-family:'JetBrains Mono',monospace;cursor:pointer;}
-
-/* ════════════════ CHAIN HEADER ════════════════ */
-.chain-hdr{
-  display:grid;
-  grid-template-columns: 55px 1fr 78px 1fr 55px;
-  background:var(--bg2);
-  border-bottom:2px solid var(--border2);
-  position:sticky; top:41px; z-index:50;
+/* ═══════════════════════════════════════
+   TOOLTIP
+═══════════════════════════════════════ */
+#oi-tooltip {
+  display: none;
+  position: fixed;
+  z-index: 500;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 7px;
+  padding: 10px 14px;
+  box-shadow: 0 6px 28px rgba(0,0,0,.55);
+  pointer-events: none;
+  min-width: 190px;
+  font-family: 'JetBrains Mono', monospace;
 }
-.chain-hdr>div{padding:5px 6px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);}
-.ch-r{text-align:right;} .ch-c{text-align:center;} .ch-l{text-align:left;}
-.ch-ce{color:rgba(0,210,122,.5)!important;} .ch-pe{color:rgba(255,64,96,.5)!important;}
-.ch-mid{border-left:1px solid var(--border);border-right:1px solid var(--border);}
-
-/* ════════════════ STRIKE GROUP ════════════════ */
-/*
-  Layout per strike group (2 rows × 5 cols):
-  col1=OI-val(CE/PE)  col2=OI-bar(CE/PE)  col3=Strike(span2)  col4=CHG-bar(CE/PE)  col5=CHG-val(CE/PE)
-*/
-.sg{
-  display:grid;
-  grid-template-columns: 55px 1fr 78px 1fr 55px;
-  grid-template-rows: 18px 18px;
-  border-bottom:1px solid var(--border);
-  transition:background .08s;
+#oi-tooltip .tt-strike {
+  font-size: 12px; font-weight: 600;
+  color: var(--atm-txt);
+  margin-bottom: 8px;
+  letter-spacing: .03em;
 }
-.sg:hover{background:rgba(255,255,255,.022);}
-.sg.atm{
-  background:var(--atm2)!important;
-  border-top:1px dashed var(--atm3);
-  border-bottom:1px dashed var(--atm3);
+#oi-tooltip .tt-row {
+  display: flex; align-items: baseline;
+  gap: 6px; margin-bottom: 4px;
+  font-size: 11.5px;
+}
+#oi-tooltip .tt-label { color: var(--text2); font-size: 10px; width: 28px; }
+#oi-tooltip .tt-oi { color: var(--text); font-weight: 600; }
+#oi-tooltip .tt-chg { font-size: 10.5px; }
+#oi-tooltip .tt-chg.pos { color: var(--ce-txt); }
+#oi-tooltip .tt-chg.neg { color: var(--pe-txt); }
+#oi-tooltip .tt-chg.zer { color: var(--text3); }
+
+/* ═══════════════════════════════════════
+   BASE
+═══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 13px; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+select, button, input { outline: none; font-family: inherit; }
+
+/* ═══════════════════════════════════════
+   LOADING
+═══════════════════════════════════════ */
+#loading {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px;
+  transition: opacity .3s;
+}
+#loading.gone { opacity: 0; pointer-events: none; }
+.spinner {
+  width: 32px; height: 32px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--acc);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#load-msg {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text2);
+}
+
+/* ═══════════════════════════════════════
+   TOPBAR  (matches screenshots exactly)
+═══════════════════════════════════════ */
+#topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  gap: 6px; padding: 0 12px; height: 38px;
+  flex-wrap: nowrap; overflow-x: auto;
+}
+#topbar::-webkit-scrollbar { height: 0; }
+
+.nav-btn {
+  width: 24px; height: 24px;
+  background: var(--bg3); color: var(--text2);
+  border: 1px solid var(--border);
+  border-radius: 4px; cursor: pointer;
+  font-size: 14px; display: flex;
+  align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all .15s;
+}
+.nav-btn:hover { color: var(--text); border-color: var(--acc); }
+
+#sym-select {
+  background: var(--bg3); color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; min-width: 110px;
+  padding: 2px 6px;
+}
+#sym-select option {
+  background: var(--bg3);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 8px;
+}
+
+.exp-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--text2);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 3px; padding: 2px 6px;
+  white-space: nowrap; flex-shrink: 0;
+}
+
+.tb-div { width: 1px; height: 18px; background: var(--border); flex-shrink: 0; margin: 0 2px; }
+.flex1 { flex: 0 0 auto; }
+
+/* ── SIGNAL TICKER ── */
+#sig-ticker {
+  flex: 1;
+  min-width: 0;
+  height: 26px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+#sig-track {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  white-space: nowrap;
+  position: absolute;
+  left: 0;
+}
+#sig-track.scrolling {
+  animation: ticker-scroll linear infinite;
+}
+#sig-track.scrolling:hover { animation-play-state: paused; }
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.sig-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color .15s, background .15s;
+  font-family: 'JetBrains Mono', monospace;
+}
+.sig-chip:hover { background: var(--bg4); }
+.sig-chip.bull { border-color: rgba(0,238,122,.4); color: var(--ce-txt); }
+.sig-chip.bear { border-color: rgba(255,37,80,.4); color: var(--pe-txt); }
+.sig-chip .sig-val { font-size: 10px; opacity: .7; }
+
+/* Button groups */
+.bg {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--bg3);
+  flex-shrink: 0;
+}
+.bg button {
+  background: transparent;
+  color: var(--text2);
+  border: none;
+  padding: 3px 9px;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .12s;
+}
+.bg button:hover { color: var(--text); }
+.bg button.on { background: var(--bg5); color: var(--text); }
+.bg.ce button.on { color: var(--ce-txt); }
+.bg.acc button.on { color: var(--acc); }
+
+.tv-btn {
+  background: var(--bg3); color: var(--text2);
+  border: 1px solid var(--border);
+  border-radius: 5px; padding: 3px 7px;
+  height: 26px; cursor: pointer;
+  font-size: 13px; display: flex;
+  align-items: center; flex-shrink: 0;
+  transition: all .12s;
+}
+.tv-btn:hover { color: var(--text); border-color: var(--acc); }
+
+/* ═══════════════════════════════════════
+   INFOBAR
+═══════════════════════════════════════ */
+#infobar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  gap: 0; padding: 0 12px; height: 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; overflow-x: auto;
+  white-space: nowrap;
+}
+#infobar::-webkit-scrollbar { height: 0; }
+.ii { display: flex; align-items: center; gap: 5px; padding: 0 10px; border-right: 1px solid var(--border); height: 100%; }
+.ii:first-child { padding-left: 0; }
+.ii-right {
+  margin-left: auto;
+  display: flex; align-items: center;
+  border-left: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.ii-right .ii { border-right: none; border-left: 1px solid var(--border); }
+.ii-right .ii:first-child { border-left: none; }
+.iv-scantime { color: var(--acc) !important; font-size: 11.5px; }
+.il { color: var(--text2); font-size: 9px; text-transform: uppercase; letter-spacing: .08em; }
+.iv { color: var(--text); font-weight: 600; }
+.iv.ce { color: var(--ce-txt); }
+.iv.pe { color: var(--pe-txt); }
+.iv.sp { color: var(--atm-txt); }
+.iv.bull { color: var(--ce-txt); }
+.iv.bear { color: var(--pe-txt); }
+#scan-sel {
+  background: transparent; color: var(--text2);
+  border: none; font-size: 10.5px;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+}
+
+/* ═══════════════════════════════════════
+   CHAIN HEADER
+═══════════════════════════════════════ */
+#chain-hdr {
+  display: grid;
+  grid-template-columns: 50px 1fr 72px 1fr 56px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border2);
+  position: sticky; top: 70px; z-index: 50;
+  height: 28px;
+}
+#chain-hdr > div {
+  display: flex; align-items: center;
+  padding: 0 8px;
+  font-size: 9px; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+.hce { color: var(--ce-txt); justify-content: flex-end; opacity: .9; }
+.hst { color: var(--text); justify-content: center; border-left: 1px solid var(--border2); border-right: 1px solid var(--border2); font-weight: 700; }
+.hpe { color: var(--pe-txt); opacity: .9; }
+.hoi { color: var(--ce-txt); justify-content: flex-end; opacity: .85; padding-right: 12px; }
+.hchg { color: var(--pe-txt); opacity: .85; padding-left: 12px; }
+
+/* ═══════════════════════════════════════
+   STRIKE GROUPS
+   Each group = 2 rows (CE top, PE bottom)
+   Cols: [OI-val | OI-bar | Strike | CHG-bar | CHG-val]
+═══════════════════════════════════════ */
+#chain-body { width: 100%; margin-top: 60px; }
+
+/* ── PC Fixed Info Boxes ── */
+#info-box-oi, #info-box-chg {
+  display: none;
+  position: fixed;
+  top: 98px;
+  z-index: 200;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,.5);
+  white-space: nowrap;
+}
+#info-box-oi  { left: calc(50px + 1fr + 72px + 15px); }
+#info-box-chg { right: 20px; }
+
+.ib-strike {
+  color: var(--atm-txt);
+  font-weight: 700;
+  font-size: 11px;
+  margin-bottom: 3px;
+}
+.ib-data-row {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.ib-cell {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.ib-label {
+  font-size: 10px;
+  color: var(--text2);
+  font-weight: 600;
+}
+.ib-val { color: var(--text); font-weight: 600; font-size: 11px; }
+.ib-chg { font-size: 10.5px; }
+.ib-chg.pos { color: var(--ce-txt); }
+.ib-chg.neg { color: var(--pe-txt); }
+.ib-chg.zer { color: var(--text3); }
+
+@media (max-width: 768px) {
+  #info-box-oi, #info-box-chg { display: none !important; }
+}
+
+.sg {
+  display: grid;
+  grid-template-columns: 50px 1fr 72px 1fr 56px;
+  grid-template-rows: 22px 22px;
+  border-bottom: 1px solid var(--border);
+  transition: background .08s;
+}
+.sg:hover { background: rgba(255,255,255,.018); }
+
+/* ATM */
+.sg.atm {
+  background: var(--atm-bg) !important;
+  border-top: 1px dashed var(--atm-line) !important;
+  border-bottom: 1px dashed var(--atm-line) !important;
 }
 
 /* ── Strike cell: spans 2 rows ── */
-.sc{
-  grid-column:3; grid-row:1/3;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;
-  color:var(--text);
-  border-left:1px solid var(--border);
-  border-right:1px solid var(--border);
-  cursor:default; user-select:none;
-  position:relative; z-index:1;
+.sc {
+  grid-column: 3; grid-row: 1 / 3;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 600;
+  color: var(--strike);
+  border-left: 1px solid var(--border2);
+  border-right: 1px solid var(--border2);
+  letter-spacing: -.3px;
+  user-select: none;
+  position: relative; z-index: 2;
 }
-.sg.atm .sc{color:var(--atm);text-shadow:0 0 10px rgba(255,170,0,.4);}
-.atm-star{font-size:7px;vertical-align:super;margin-left:2px;opacity:.7;}
-
-/* ── OI Value cells ── */
-.cv-oi{
-  display:flex;align-items:center;justify-content:flex-end;
-  padding:0 5px;
-  font-family:'JetBrains Mono',monospace;font-size:10px;
-  position:relative;z-index:1;
+.sg.atm .sc {
+  color: var(--atm-txt);
+  font-size: 12.5px;
 }
-.cv-ce{grid-column:1;grid-row:1;color:var(--ce);}
-.cv-pe{grid-column:1;grid-row:2;color:var(--pe);}
+.atm-star { font-size: 7px; vertical-align: super; margin-left: 1px; opacity: .8; }
 
-/* ── OI Bar cells: bar anchored to RIGHT, extends LEFT ── */
-.ob{position:relative;overflow:hidden;}
-.ob-ce{grid-column:2;grid-row:1;}
-.ob-pe{grid-column:2;grid-row:2;}
-
-.oi-bar{
-  position:absolute;
-  right:0; top:3px; bottom:3px;
-  transition:width .4s ease;
+/* ── OI Value (col 1) ── */
+.v-oi {
+  display: flex; align-items: center;
+  justify-content: flex-end;
+  padding: 0 6px 0 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; font-weight: 500;
+  white-space: nowrap;
+  position: relative; z-index: 2;
 }
-/* Deep = addition (chg ≥ 0) */
-.oi-bar.c-add{background:var(--ce2);border-left:2px solid var(--ce);}
-.oi-bar.p-add{background:var(--pe2);border-left:2px solid var(--pe);}
-/* Light/hollow = reduction (chg < 0) */
-.oi-bar.c-red{background:var(--ce3);border-left:1px dashed rgba(0,210,122,.4);}
-.oi-bar.p-red{background:var(--pe3);border-left:1px dashed rgba(255,64,96,.4);}
+.v-ce { grid-column: 1; grid-row: 1; color: var(--ce-txt); }
+.v-pe { grid-column: 1; grid-row: 2; color: var(--pe-txt); }
 
-/* max OI row glow */
-.sg.mx-ce .ob-ce{filter:brightness(1.2);}
-.sg.mx-pe .ob-pe{filter:brightness(1.2);}
-
-/* ── CHG Bar cells: from CENTER, right=plus, left=minus ── */
-.cb{position:relative;overflow:hidden;}
-.cb-ce{grid-column:4;grid-row:1;}
-.cb-pe{grid-column:4;grid-row:2;}
-
-/* center line */
-.cb::before{
-  content:'';position:absolute;
-  left:50%;top:0;bottom:0;width:1px;
-  background:var(--border2);z-index:0;
+/* ── OI Bar (col 2): LEFT-anchored 2-part bar ── */
+.b-oi {
+  grid-column: 2;
+  position: relative; overflow: hidden;
+  margin-right: 6px;
 }
-.chg-bar{
-  position:absolute;top:3px;bottom:3px;
-  z-index:1;transition:width .4s ease;
+.b-ce { grid-row: 1; }
+.b-pe { grid-row: 2; }
+
+/* Base bar = previous OI (light) */
+.oi-base {
+  position: absolute;
+  left: 0; top: 3px; bottom: 3px;
+  transition: width .4s ease;
+  border-radius: 0 1px 1px 0;
 }
-/* plus: extends RIGHT from 50% */
-.chg-bar.c-pos{left:50%;background:var(--ce2);border-right:2px solid var(--ce);}
-.chg-bar.p-pos{left:50%;background:var(--pe2);border-right:2px solid var(--pe);}
-/* minus: extends LEFT from 50% */
-.chg-bar.c-neg{right:50%;background:var(--ce3);border-left:2px solid rgba(0,210,122,.5);}
-.chg-bar.p-neg{right:50%;background:var(--pe3);border-left:2px solid rgba(255,64,96,.5);}
+.oi-base-ce { background: var(--ce-bar); }
+.oi-base-pe { background: var(--pe-bar); }
 
-/* ── CHG Value cells ── */
-.cv-chg{
-  display:flex;align-items:center;justify-content:flex-start;
-  padding:0 5px;
-  font-family:'JetBrains Mono',monospace;font-size:9.5px;
-  position:relative;z-index:1;
+/* Extension = addition (dark) or unwinding (hatched outline) */
+.oi-ext {
+  position: absolute;
+  top: 3px; bottom: 3px;
+  transition: width .4s ease, left .4s ease;
+  border-radius: 0 1px 1px 0;
 }
-.cv-ce-c{grid-column:5;grid-row:1;}
-.cv-pe-c{grid-column:5;grid-row:2;}
-.clr-p{color:var(--ce);} .clr-n{color:var(--pe);} .clr-z{color:var(--text3);}
-
-/* ════════════════ EMPTY / ERROR ════════════════ */
-.empty-msg{padding:60px 20px;text-align:center;color:var(--text3);font-size:12px;}
-.err-msg{color:var(--pe)!important;}
-
-/* ════════════════ TV MODAL ════════════════ */
-#tv-modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);align-items:center;justify-content:center;}
-#tv-modal.open{display:flex;}
-#tv-inner{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;width:92vw;max-width:1100px;height:82vh;position:relative;box-shadow:var(--shadow);}
-#tv-close-btn{position:absolute;top:8px;right:10px;z-index:10;background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;width:26px;height:26px;font-size:13px;display:flex;align-items:center;justify-content:center;}
-#tv-frame{width:100%;height:100%;border:none;}
-
-/* ════════════════ MOBILE ════════════════ */
-@media(max-width:580px){
-  .sg,.chain-hdr{grid-template-columns:38px 1fr 64px 1fr 38px;}
-  .sc{font-size:10px;}
-  .cv-oi,.cv-chg{font-size:9px;padding:0 3px;}
-  #from-time,.tb-sep{display:none;}
+/* Addition: dark solid with bright edge */
+.oi-add-ce {
+  background: var(--ce-edge);
+  opacity: .75;
 }
+.oi-add-pe {
+  background: var(--pe-edge);
+  opacity: .75;
+}
+/* Unwinding: outline only, transparent */
+.oi-red-ce {
+  background: transparent;
+  border: 1.5px solid var(--ce-edge);
+  border-radius: 0 2px 2px 0;
+}
+.oi-red-pe {
+  background: transparent;
+  border: 1.5px solid var(--pe-edge);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Max OI brightness boost */
+.sg.mx-ce .b-ce .oi-bar { filter: brightness(1.25); }
+.sg.mx-pe .b-pe .oi-bar { filter: brightness(1.25); }
+
+/* ── CHG Bar (col 4): CENTER-anchored ── */
+.b-chg {
+  grid-column: 4;
+  position: relative; overflow: hidden;
+  margin-left: 6px;
+}
+.bc-ce { grid-row: 1; }
+.bc-pe { grid-row: 2; }
+
+/* center divider */
+.b-chg::before {
+  content: '';
+  position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 1px; background: var(--cline); z-index: 0;
+}
+
+.chg-bar {
+  position: absolute;
+  top: 3px; bottom: 3px;
+  transition: width .45s cubic-bezier(.25,.46,.45,.94);
+  z-index: 1;
+  border-radius: 1px;
+}
+/* CE always green, PE always red — same color both directions */
+/* Positive: right from center */
+.chg-p-ce { left: 50%;  background: var(--ce-bar); border-right: 2px solid var(--ce-edge); }
+.chg-p-pe { left: 50%;  background: var(--pe-bar); border-right: 2px solid var(--pe-edge); }
+/* Negative: left from center (translateX trick) */
+.chg-n-ce { left: 50%;  background: var(--ce-bar); border-left: 2px solid var(--ce-edge); transform: translateX(-100%); }
+.chg-n-pe { left: 50%;  background: var(--pe-bar); border-left: 2px solid var(--pe-edge); transform: translateX(-100%); }
+
+/* ── CHG Value (col 5) ── */
+.v-chg {
+  display: flex; align-items: center;
+  justify-content: flex-start;
+  padding: 0 4px 0 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 500;
+  white-space: nowrap;
+  position: relative; z-index: 2;
+}
+.vc-ce { grid-column: 5; grid-row: 1; }
+.vc-pe { grid-column: 5; grid-row: 2; }
+.cp { color: var(--ce-txt); }
+.cn { color: var(--pe-txt); }
+.cz { color: var(--text3); }
+
+/* ═══════════════════════════════════════
+   PCR VIEW
+═══════════════════════════════════════ */
+.pcr-sg {
+  display: grid;
+  grid-template-columns: 50px 1fr 72px 1fr 56px;
+  grid-template-rows: 22px 22px;
+  border-bottom: 1px solid var(--border);
+  transition: background .08s;
+}
+.pcr-sg:hover { background: rgba(255,255,255,.018); }
+.pcr-sg.atm { background: var(--atm-bg) !important; border-top: 1px dashed var(--atm-line) !important; border-bottom: 1px dashed var(--atm-line) !important; }
+.pcr-track {
+  position: relative; overflow: hidden;
+}
+.pcr-fill { position: absolute; top: 3px; bottom: 3px; border-radius: 1px; transition: width .4s; }
+
+/* ═══════════════════════════════════════
+   EMPTY / ERROR
+═══════════════════════════════════════ */
+.empty-msg {
+  padding: 80px 20px; text-align: center;
+  color: var(--text3); font-size: 12px; line-height: 2;
+}
+.err { color: var(--pe-txt) !important; }
+
+/* ═══════════════════════════════════════
+   TV MODAL
+═══════════════════════════════════════ */
+#tv-modal {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.75);
+  align-items: center; justify-content: center;
+}
+#tv-modal.open { display: flex; }
+#tv-inner {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+  width: 94vw; max-width: 1100px; height: 84vh;
+  position: relative;
+}
+#tv-x {
+  position: absolute; top: 8px; right: 10px; z-index: 10;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--text2); cursor: pointer;
+  width: 26px; height: 26px; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+}
+#tv-frame { width: 100%; height: 100%; border: none; }
+
+/* ═══════════════════════════════════════
+   MOBILE
+═══════════════════════════════════════ */
+@media (max-width: 560px) {
+  .sg, #chain-hdr, .pcr-sg {
+    grid-template-columns: 36px 1fr 60px 1fr 44px;
+  }
+  .sc, .v-oi { font-size: 10px; }
+  .v-chg { font-size: 9px; }
+  }
 </style>
 </head>
 <body>
@@ -219,33 +636,103 @@ select,button,input{outline:none;font-family:inherit;}
   <span id="load-msg">Connecting to R2…</span>
 </div>
 
+<!-- PC FIXED INFO BOX - OI -->
+<div id="info-box-oi">
+  <div class="ib-strike" id="ib-oi-strike">Strike : —</div>
+  <div class="ib-data-row">
+    <div class="ib-cell">
+      <span class="ib-label" style="color:var(--ce-txt)">Call</span>
+      <span class="ib-val" id="ib-ce-oi">—</span>
+      <span class="ib-chg" id="ib-ce-chg">—</span>
+    </div>
+    <div class="ib-cell">
+      <span class="ib-label" style="color:var(--pe-txt)">Put</span>
+      <span class="ib-val" id="ib-pe-oi">—</span>
+      <span class="ib-chg" id="ib-pe-chg">—</span>
+    </div>
+  </div>
+</div>
+
+<!-- PC FIXED INFO BOX - CHG -->
+<div id="info-box-chg">
+  <div class="ib-strike" id="ib-chg-strike">Strike : —</div>
+  <div class="ib-data-row">
+    <div class="ib-cell">
+      <span class="ib-label" style="color:var(--ce-txt)">Call</span>
+      <span class="ib-chg" id="ib-ce-chg2">—</span>
+    </div>
+    <div class="ib-cell">
+      <span class="ib-label" style="color:var(--pe-txt)">Put</span>
+      <span class="ib-chg" id="ib-pe-chg2">—</span>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLTIP (mobile) -->
+<div id="oi-tooltip">
+  <div class="tt-strike" id="tt-strike"></div>
+  <!-- OI zone rows -->
+  <div id="tt-oi-section">
+    <div class="tt-row">
+      <span class="tt-label" style="color:var(--ce-txt)">Call</span>
+      <span class="tt-oi" id="tt-ce-oi"></span>
+      <span class="tt-chg" id="tt-ce-chg"></span>
+    </div>
+    <div class="tt-row">
+      <span class="tt-label" style="color:var(--pe-txt)">Put</span>
+      <span class="tt-oi" id="tt-pe-oi"></span>
+      <span class="tt-chg" id="tt-pe-chg"></span>
+    </div>
+  </div>
+  <!-- CHG zone rows -->
+  <div id="tt-chg-section">
+    <div class="tt-row">
+      <span class="tt-label" style="color:var(--ce-txt)">Call</span>
+      <span class="tt-chg" id="tt-ce-chg2"></span>
+    </div>
+    <div class="tt-row">
+      <span class="tt-label" style="color:var(--pe-txt)">Put</span>
+      <span class="tt-chg" id="tt-pe-chg2"></span>
+    </div>
+  </div>
+</div>
+
 <!-- TOPBAR -->
 <div id="topbar">
-  <div class="sym-nav">
-    <button class="nav-btn" id="prev-sym">‹</button>
-    <select id="sym-select"></select>
-    <button class="nav-btn" id="next-sym">›</button>
-    <span class="exp-tag" id="exp-tag">—</span>
-  </div>
-  <div class="tb-sep"></div>
-  <div class="bgrp ce" id="side-grp">
+  <button class="nav-btn" id="prev-sym">‹</button>
+  <select id="sym-select"></select>
+  <button class="nav-btn" id="next-sym">›</button>
+  <span class="exp-badge" id="exp-tag">—</span>
+
+  <div class="tb-div"></div>
+
+  <div class="bg ce" id="side-grp">
     <button data-v="both" class="on">Both</button>
     <button data-v="call">Call</button>
     <button data-v="put">Put</button>
   </div>
-  <div class="bgrp" id="view-grp">
+
+  <div class="bg" id="view-grp">
     <button data-v="oi" class="on">OI</button>
     <button data-v="pcr">Strike PCR</button>
   </div>
+
   <div class="flex1"></div>
-  <div class="bgrp acc" id="disp-grp">
+  <div id="sig-ticker"><div id="sig-track"></div></div>
+  <div class="flex1"></div>
+
+  <div class="bg acc" id="disp-grp">
     <button data-v="recent" class="on">Recent</button>
     <button data-v="avg">Avg Range</button>
     <button data-v="compare">Compare</button>
   </div>
-  <input type="datetime-local" id="from-time" disabled>
-  <button class="icon-btn" id="tv-btn" title="TradingView Chart">📈</button>
-  <div class="bgrp" id="theme-grp">
+
+
+
+  <button class="tv-btn" id="tv-btn" title="TradingView Chart">📈</button>
+  <input type="datetime-local" id="from-time" style="display:none">
+
+  <div class="bg" id="theme-grp">
     <button data-v="dark" class="on">Dark</button>
     <button data-v="darkblue">Blue</button>
     <button data-v="light">Light</button>
@@ -254,272 +741,772 @@ select,button,input{outline:none;font-family:inherit;}
 
 <!-- INFOBAR -->
 <div id="infobar">
-  <div class="ip"><span class="il">Scan</span><select id="scan-sel"></select></div>
-  <div class="ip"><span class="il">Spot</span><span class="iv sp" id="iv-spot">—</span></div>
-  <div class="ip"><span class="il">CE OI</span><span class="iv ce" id="iv-ce">—</span></div>
-  <div class="ip"><span class="il">PE OI</span><span class="iv pe" id="iv-pe">—</span></div>
-  <div class="ip"><span class="il">PCR</span><span class="iv" id="iv-pcr">—</span></div>
-  <div class="ip"><span class="il">Max CE @</span><span class="iv ce" id="iv-mce">—</span></div>
-  <div class="ip"><span class="il">Max PE @</span><span class="iv pe" id="iv-mpe">—</span></div>
+  <div class="ii"><span class="il">Scan</span><select id="scan-sel"></select></div>
+  <div class="ii"><span class="il">Spot</span><span class="iv sp" id="iv-spot">—</span></div>
+  <div class="ii"><span class="il">CE OI</span><span class="iv ce" id="iv-ce">—</span></div>
+  <div class="ii"><span class="il">PE OI</span><span class="iv pe" id="iv-pe">—</span></div>
+  <div class="ii"><span class="il">PCR</span><span class="iv" id="iv-pcr">—</span></div>
+  <div class="ii"><span class="il">Max CE @</span><span class="iv ce" id="iv-mce">—</span></div>
+  <div class="ii"><span class="il">Max PE @</span><span class="iv pe" id="iv-mpe">—</span></div>
+  <div class="ii-right">
+    <div class="ii" id="ii-vix" style="display:none"><span class="il">India VIX</span><span class="iv" id="iv-vix">—</span></div>
+    <div class="ii ii-scantime"><span class="il">Last Scan</span><span class="iv iv-scantime" id="iv-scantime">—</span></div>
+  </div>
 </div>
 
 <!-- HEADER -->
-<div class="chain-hdr">
-  <div class="ch-r ch-ce">OI</div>
-  <div class="ch-r ch-ce" style="padding-right:12px">← Open Interest</div>
-  <div class="ch-c ch-mid">Strike</div>
-  <div class="ch-l ch-pe" style="padding-left:12px">Change In OI →</div>
-  <div class="ch-l ch-pe">Chg</div>
+<div id="chain-hdr">
+  <div class="hce">OI</div>
+  <div class="hoi">← Open Interest</div>
+  <div class="hst">Strike</div>
+  <div class="hchg">Change In OI →</div>
+  <div class="hpe">Chg</div>
 </div>
 
 <!-- BODY -->
 <div id="chain-body"></div>
 
 <!-- TV MODAL -->
-<div id="tv-modal">
-  <div id="tv-inner">
-    <button id="tv-close-btn">✕</button>
-    <iframe id="tv-frame" src="" frameborder="0" allowtransparency="true"></iframe>
-  </div>
-</div>
 
 <script>
 'use strict';
-const R2='https://pub-0c01bff233cf4a249679f7d8fa4d6296.r2.dev/oi-scanner';
-const TV_MAP={NIFTY:'NSE:NIFTY',BANKNIFTY:'NSE:BANKNIFTY',FINNIFTY:'NSE:CNXFINANCE',SENSEX:'BSE:SENSEX'};
-const tvSym=s=>TV_MAP[s]||`NSE:${s}`;
 
-let indexData=null, scanCache={}, symList=[], symIdx=0, curKey=null;
-let dispMode=localStorage.getItem('oi_disp')||'recent';
-let sideMode='both', viewMode='oi';
-let theme=localStorage.getItem('oi_theme')||'dark';
-const curSym=()=>symList[symIdx]||null;
+const R2 = 'https://pub-0c01bff233cf4a249679f7d8fa4d6296.r2.dev/oi-scanner';
+const TV_MAP = {
+  NIFTY:       'NSE:NIFTY',
+  BANKNIFTY:   'NSE:BANKNIFTY',
+  FINNIFTY:    'NSE:CNXFINANCE',
+  MIDCPNIFTY:  'NSE:MIDCPNIFTY',
+  NIFTYNXT50:  'NSE:NIFTYNXT50',
+  SENSEX:      'BSE:SENSEX',
+};
+const tvSym = s => TV_MAP[s] || `NSE:${s}`;
+
+let indexData = null, scanCache = {}, symList = [], symIdx = 0, curKey = null;
+let dispMode = localStorage.getItem('oi_disp') || 'recent';
+let sideMode = 'both', viewMode = 'oi';
+let theme = localStorage.getItem('oi_theme') || 'dark';
+const curSym = () => symList[symIdx] || null;
 
 // ── FORMAT ──
-function fmtOI(v){
-  v=Math.abs(Number(v))||0;
-  if(v>=1e7)return(v/1e7).toFixed(2)+'Cr';
-  if(v>=1e5)return(v/1e5).toFixed(1)+'L';
-  if(v>=1e3)return(v/1e3).toFixed(0)+'K';
+function fmtOI(v) {
+  v = Math.abs(+v) || 0;
+  if (v >= 1e7) return (v/1e7).toFixed(2)+'Cr';
+  if (v >= 1e5) return (v/1e5).toFixed(1)+'L';
+  if (v >= 1e3) return (v/1e3).toFixed(0)+'K';
   return String(Math.round(v));
 }
-function fmtChg(v){
-  v=Number(v);
-  if(!v)return{t:'—',c:'clr-z'};
-  return{t:(v>0?'+':'-')+fmtOI(Math.abs(v)),c:v>0?'clr-p':'clr-n'};
+function fmtChg(v) {
+  v = +v;
+  if (!v) return {t:'—', c:'cz'};
+  return {t:(v>0?'+':'-')+fmtOI(Math.abs(v)), c:v>0?'cp':'cn'};
 }
-function fmtStr(v){v=Number(v);return v>=1000?v.toLocaleString('en-IN'):String(v);}
-function pct(v,mx){return mx?Math.min(100,Math.abs(Number(v))/mx*100).toFixed(2):0;}
+function fmtStr(v) {
+  v = +v;
+  return v >= 1000 ? v.toLocaleString('en-IN') : String(v);
+}
+function barPct(v, mx) { return mx ? Math.min(100, Math.abs(+v) / mx * 100).toFixed(2) : 0; }
 
 // ── FETCH ──
-async function getJSON(u){const r=await fetch(u+'?_='+Date.now());if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json();}
-async function loadIndex(){indexData=await getJSON(`${R2}/index.json`);}
-async function loadScan(d,h){const k=`${d}|${h}`;if(!scanCache[k])scanCache[k]=await getJSON(`${R2}/${d}/scan_${h}.json`);return scanCache[k];}
-async function scansInRange(fromDt){
-  if(!indexData)return[];
-  const out=[];
-  for(const date of[...indexData.dates].reverse()){
-    for(const hhmm of(indexData.scans[date]||[])){
-      const dt=new Date(`${date}T${hhmm.slice(0,2)}:${hhmm.slice(2)}:00`);
-      if(dt>=fromDt){try{out.push(await loadScan(date,hhmm));}catch{}}
+async function getJSON(u) {
+  const r = await fetch(u + '?t=' + Date.now());
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+async function loadIndex() { indexData = await getJSON(`${R2}/index.json`); }
+async function loadScan(d, h) {
+  const k = `${d}|${h}`;
+  if (!scanCache[k]) scanCache[k] = await getJSON(`${R2}/${d}/scan_${h}.json`);
+  return scanCache[k];
+}
+async function scansInRange(fromDt) {
+  if (!indexData) return [];
+  const out = [];
+  for (const date of [...indexData.dates].reverse())
+    for (const h of (indexData.scans[date] || [])) {
+      const dt = new Date(`${date}T${h.slice(0,2)}:${h.slice(2)}:00`);
+      if (dt >= fromDt) { try { out.push(await loadScan(date, h)); } catch {} }
     }
-  }
   return out;
 }
 
 // ── SELECTORS ──
-function buildScanSel(){
-  const el=document.getElementById('scan-sel');el.innerHTML='';
-  if(!indexData)return;
-  const all=[];
-  for(const d of indexData.dates)for(const h of(indexData.scans[d]||[]))all.push({d,h});
+function buildScanSel() {
+  const el = document.getElementById('scan-sel');
+  el.innerHTML = '';
+  if (!indexData) return;
+  const all = [];
+  for (const d of indexData.dates)
+    for (const h of (indexData.scans[d] || [])) all.push({d,h});
   all.reverse();
-  all.forEach(({d,h})=>{const o=document.createElement('option');o.value=`${d}|${h}`;o.textContent=`${d}  ${h.slice(0,2)}:${h.slice(2)}`;el.appendChild(o);});
-  if(all.length){curKey=`${all[0].d}|${all[0].h}`;el.value=curKey;}
+  all.forEach(({d,h}) => {
+    const o = document.createElement('option');
+    o.value = `${d}|${h}`;
+    o.textContent = `${d}  ${h.slice(0,2)}:${h.slice(2)}`;
+    el.appendChild(o);
+  });
+  if (all.length) { curKey = `${all[0].d}|${all[0].h}`; el.value = curKey; }
 }
-function buildSymSel(scan){
-  symList=scan?Object.keys(scan.symbols||[]):[];
-  const el=document.getElementById('sym-select');el.innerHTML='';
-  symList.forEach((s,i)=>{const o=document.createElement('option');o.value=i;o.textContent=s;el.appendChild(o);});
-  const saved=localStorage.getItem('oi_sym');
-  const si=symList.indexOf(saved);
-  symIdx=si>=0?si:0;el.value=symIdx;
+
+function buildSymSel(scan) {
+  const raw = scan ? Object.keys(scan.symbols || {}) : [];
+  // Indices first (NIFTY, BANKNIFTY, SENSEX, FINNIFTY, MIDCPNIFTY), then stocks A-Z
+  const INDICES = ['NIFTY','BANKNIFTY','SENSEX','FINNIFTY','MIDCPNIFTY','NIFTYNXT50'];
+  const indices = raw.filter(s => INDICES.includes(s))
+    .sort((a,b) => INDICES.indexOf(a) - INDICES.indexOf(b));
+  const stocks  = raw.filter(s => !INDICES.includes(s)).sort();
+  symList = [...indices, ...stocks];
+  const el = document.getElementById('sym-select');
+  el.innerHTML = '';
+  symList.forEach((s,i) => {
+    const o = document.createElement('option');
+    o.value = i; o.textContent = s; el.appendChild(o);
+  });
+  const saved = localStorage.getItem('oi_sym');
+  const si = symList.indexOf(saved);
+  symIdx = si >= 0 ? si : 0;
+  el.value = symIdx;
 }
 
 // ── COMPUTE ──
-async function computeDisplay(sym,base){
-  if(dispMode==='recent')return base.map(s=>({...s}));
-  const fromVal=document.getElementById('from-time').value;
-  if(!fromVal)return base.map(s=>({...s}));
-  const fromDt=new Date(fromVal);
-  let scans;try{scans=await scansInRange(fromDt);}catch{scans=[];}
-  if(!scans.length)return base.map(s=>({...s}));
-  const hist={};
-  scans.forEach(scan=>{
-    const sd=scan.symbols?.[sym];if(!sd)return;
-    sd.strikes.forEach(s=>{
-      if(!hist[s.strike])hist[s.strike]={ce_oi:[],pe_oi:[],ce_chg:[],pe_chg:[]};
-      hist[s.strike].ce_oi.push(s.ce_oi||0);hist[s.strike].pe_oi.push(s.pe_oi||0);
-      hist[s.strike].ce_chg.push(s.ce_chg||0);hist[s.strike].pe_chg.push(s.pe_chg||0);
+async function computeDisplay(sym, base) {
+  // LEFT column (OI) = hamesha base (selected scan) ka actual OI — koi change nahi
+  // Recent mode: RIGHT column bhi same scan ka chg
+  if (dispMode === 'recent') return base.map(s => ({...s}));
+
+  // ── COMPARE mode: selected scan = BASE, latest scan = CURRENT ──
+  if (dispMode === 'compare') {
+    const sel = document.getElementById('scan-sel');
+    const latestKey = sel.options[0]?.value;
+
+    // Point-3: selected = latest hai to Recent jaisa dikhao — koi reaction nahi
+    if (!latestKey || latestKey === curKey) return base.map(s => ({...s}));
+
+    let latestScan = null;
+    const [ld, lh] = latestKey.split('|');
+    try { latestScan = await loadScan(ld, lh); } catch {}
+
+    const latestChg = {};
+    if (latestScan?.symbols?.[sym]) {
+      latestScan.symbols[sym].strikes.forEach(s => {
+        latestChg[s.strike] = { ce_chg: s.ce_chg||0, pe_chg: s.pe_chg||0 };
+      });
+    }
+    return base.map(s => {
+      const lc = latestChg[s.strike];
+      return {
+        ...s,
+        // LEFT: selected scan ka OI unchanged
+        ce_chg: lc ? Math.round((lc.ce_chg||0) - (s.ce_chg||0)) : 0,
+        pe_chg: lc ? Math.round((lc.pe_chg||0) - (s.pe_chg||0)) : 0,
+      };
+    });
+  }
+
+  // ── AVG RANGE mode ──
+  const fromEl  = document.getElementById('from-time');
+  const fromVal = fromEl ? fromEl.value : '';
+  if (!fromVal) return base.map(s => ({...s}));
+  const fromDt = new Date(fromVal);
+
+  let scans;
+  try { scans = await scansInRange(fromDt); } catch { scans = []; }
+  if (!scans.length) return base.map(s => ({...s}));
+
+  // Avg Range: saare scans ka average chg
+  const hist = {};
+  scans.forEach(scan => {
+    const sd = scan.symbols?.[sym]; if (!sd) return;
+    sd.strikes.forEach(s => {
+      if (!hist[s.strike]) hist[s.strike] = { ce_chg:[], pe_chg:[] };
+      hist[s.strike].ce_chg.push(s.ce_chg||0);
+      hist[s.strike].pe_chg.push(s.pe_chg||0);
     });
   });
-  const avg=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;
-  return base.map(s=>{
-    const h=hist[s.strike];
-    if(!h)return{...s,ce_chg:0,pe_chg:0,is_new:true};
-    if(dispMode==='avg')return{...s,ce_oi:Math.round(avg(h.ce_oi)),pe_oi:Math.round(avg(h.pe_oi)),ce_chg:Math.round(avg(h.ce_chg)),pe_chg:Math.round(avg(h.pe_chg))};
-    return{...s,ce_chg:Math.round(s.ce_oi-avg(h.ce_oi)),pe_chg:Math.round(s.pe_oi-avg(h.pe_oi))};
+  const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+
+  return base.map(s => {
+    const h = hist[s.strike];
+    return {
+      ...s,
+      // LEFT unchanged — OI same
+      ce_chg: h ? Math.round(avg(h.ce_chg)) : 0,
+      pe_chg: h ? Math.round(avg(h.pe_chg)) : 0,
+    };
   });
 }
 
 // ── RENDER ──
-async function render(){
-  if(!curKey||!symList.length)return;
-  const[date,hhmm]=curKey.split('|');
-  let scan;try{scan=await loadScan(date,hhmm);}catch(e){showErr('Load failed: '+e.message);return;}
-  const sym=curSym(), sd=scan?.symbols?.[sym];
-  const body=document.getElementById('chain-body');
-  if(!sd){body.innerHTML=`<div class="empty-msg">No data for ${sym}</div>`;return;}
+async function render() {
+  if (!curKey || !symList.length) return;
+  const [date, hhmm] = curKey.split('|');
+  let scan;
+  try { scan = await loadScan(date, hhmm); }
+  catch(e) { showErr('Failed to load: ' + e.message); return; }
 
-  document.getElementById('exp-tag').textContent=sd.expiry||'—';
-  document.getElementById('iv-spot').textContent=sd.spot?sd.spot.toFixed(2):'—';
+  const sym = curSym();
+  const sd = scan?.symbols?.[sym];
+  const body = document.getElementById('chain-body');
 
-  const disp=await computeDisplay(sym,sd.strikes);
-  const totCE=disp.reduce((a,r)=>a+(r.ce_oi||0),0);
-  const totPE=disp.reduce((a,r)=>a+(r.pe_oi||0),0);
-  const pcr=totCE>0?totPE/totCE:0;
-  document.getElementById('iv-ce').textContent=fmtOI(totCE);
-  document.getElementById('iv-pe').textContent=fmtOI(totPE);
-  document.getElementById('iv-pcr').textContent=totCE>0?pcr.toFixed(2):'—';
-  document.getElementById('iv-pcr').className='iv '+(totCE>0?(pcr>=1?'pcr-bull':'pcr-bear'):'');
-
-  let maxCE=0,maxPE=0,maxCES='—',maxPES='—';
-  disp.forEach(r=>{if((r.ce_oi||0)>maxCE){maxCE=r.ce_oi;maxCES=fmtStr(r.strike);}if((r.pe_oi||0)>maxPE){maxPE=r.pe_oi;maxPES=fmtStr(r.strike);}});
-  document.getElementById('iv-mce').textContent=`${maxCES} (${fmtOI(maxCE)})`;
-  document.getElementById('iv-mpe').textContent=`${maxPES} (${fmtOI(maxPE)})`;
-
-  const maxOI=Math.max(maxCE,maxPE,1);
-  const maxChg=Math.max(...disp.map(r=>Math.max(Math.abs(r.ce_chg||0),Math.abs(r.pe_chg||0))),1);
-  const showCE=sideMode!=='put', showPE=sideMode!=='call';
-
-  // PCR VIEW
-  if(viewMode==='pcr'){
-    body.innerHTML=disp.map(row=>{
-      const ce=row.ce_oi||0,pe=row.pe_oi||0,tot=ce+pe||1;
-      const cePct=(ce/tot*100).toFixed(1),pePct=(pe/tot*100).toFixed(1);
-      const pcr=ce>0?pe/ce:Infinity;
-      const atm=row.is_atm?' atm':'';
-      return`<div class="sg${atm}">
-        <div class="cv-oi cv-ce">${showCE?cePct+'%':''}</div>
-        <div class="ob ob-ce">${showCE?`<div class="oi-bar c-add" style="width:${cePct}%"></div>`:''}</div>
-        <div class="sc">${fmtStr(row.strike)}${row.is_atm?'<span class="atm-star">★</span>':''}</div>
-        <div class="ob ob-pe">${showPE?`<div class="oi-bar p-add" style="width:${pePct}%"></div>`:''}</div>
-        <div class="cv-oi cv-pe" style="font-size:10px">${showPE?(isFinite(pcr)?pcr.toFixed(2):'∞'):''}</div>
-        <div class="cb cb-ce"></div><div class="cb cb-pe"></div>
-        <div class="cv-chg cv-ce-c"></div><div class="cv-chg cv-pe-c"></div>
-      </div>`;
-    }).join('');
-    scrollATM();return;
+  if (!sd) {
+    body.innerHTML = `<div class="empty-msg">No data for ${sym}</div>`;
+    return;
   }
 
-  // OI VIEW
-  body.innerHTML=disp.map(row=>{
-    const ceOIPct=pct(row.ce_oi,maxOI), peOIPct=pct(row.pe_oi,maxOI);
-    const ceChgPct=pct(row.ce_chg,maxChg), peChgPct=pct(row.pe_chg,maxChg);
-    const ceOICls=(row.ce_chg||0)>=0?'c-add':'c-red';
-    const peOICls=(row.pe_chg||0)>=0?'p-add':'p-red';
-    const ceChgCls=(row.ce_chg||0)>=0?'c-pos':'c-neg';
-    const peChgCls=(row.pe_chg||0)>=0?'p-pos':'p-neg';
-    const cef=fmtChg(row.ce_chg), pef=fmtChg(row.pe_chg);
-    const mce=(row.ce_oi||0)===maxCE?' mx-ce':'', mpe=(row.pe_oi||0)===maxPE?' mx-pe':'';
-    const atm=row.is_atm?' atm':'';
+  document.getElementById('exp-tag').textContent = sd.expiry || '—';
+  document.getElementById('iv-spot').textContent = sd.spot ? sd.spot.toFixed(2) : '—';
+  updateScanTime(scan);
 
-    return`<div class="sg${atm}${mce}${mpe}">
-      <div class="cv-oi cv-ce">${showCE?fmtOI(row.ce_oi):''}</div>
-      <div class="ob ob-ce">${showCE?`<div class="oi-bar ${ceOICls}" style="width:${ceOIPct}%"></div>`:''}</div>
+  const disp = await computeDisplay(sym, sd.strikes);
+
+  const totCE = disp.reduce((a,r) => a+(r.ce_oi||0), 0);
+  const totPE = disp.reduce((a,r) => a+(r.pe_oi||0), 0);
+  const pcr   = totCE > 0 ? totPE/totCE : 0;
+
+  document.getElementById('iv-ce').textContent = fmtOI(totCE);
+  document.getElementById('iv-pe').textContent = fmtOI(totPE);
+  document.getElementById('iv-pcr').textContent = totCE > 0 ? pcr.toFixed(2) : '—';
+  document.getElementById('iv-pcr').className = 'iv ' + (totCE > 0 ? (pcr >= 1 ? 'bull' : 'bear') : '');
+
+  let maxCE = 0, maxPE = 0, maxCES = '—', maxPES = '—';
+  disp.forEach(r => {
+    if ((r.ce_oi||0) > maxCE) { maxCE = r.ce_oi; maxCES = fmtStr(r.strike); }
+    if ((r.pe_oi||0) > maxPE) { maxPE = r.pe_oi; maxPES = fmtStr(r.strike); }
+  });
+  document.getElementById('iv-mce').textContent = `${maxCES} (${fmtOI(maxCE)})`;
+  document.getElementById('iv-mpe').textContent = `${maxPES} (${fmtOI(maxPE)})`;
+
+  // maxOI hamesha original base data (sd.strikes) se — mode se scale kabhi nahi badlega
+  const maxOI = Math.max(...sd.strikes.map(r => Math.max(
+    (r.ce_oi||0) + Math.abs(r.ce_chg||0),
+    (r.pe_oi||0) + Math.abs(r.pe_chg||0)
+  )), 1);
+  const maxChg = Math.max(...disp.map(r => Math.max(Math.abs(r.ce_chg||0), Math.abs(r.pe_chg||0))), 1);
+
+  const showCE = sideMode !== 'put';
+  const showPE = sideMode !== 'call';
+
+  // ── PCR VIEW ──
+  if (viewMode === 'pcr') {
+    body.innerHTML = disp.map(row => {
+      const ce = row.ce_oi||0, pe = row.pe_oi||0, tot = ce+pe||1;
+      const cePct = (ce/tot*100).toFixed(1), pePct = (pe/tot*100).toFixed(1);
+      const pcr   = ce > 0 ? pe/ce : Infinity;
+      const atm   = row.is_atm ? ' atm' : '';
+      return `<div class="pcr-sg${atm}">
+        <div class="v-oi v-ce">${showCE ? cePct+'%' : ''}</div>
+        <div class="b-oi b-ce pcr-track">
+          ${showCE ? `<div class="pcr-fill oi-add-ce" style="left:0;width:${cePct}%"></div>` : ''}
+        </div>
+        <div class="sc">${fmtStr(row.strike)}${row.is_atm?'<span class="atm-star">★</span>':''}</div>
+        <div class="b-oi b-pe pcr-track">
+          ${showPE ? `<div class="pcr-fill oi-add-pe" style="left:0;width:${pePct}%"></div>` : ''}
+        </div>
+        <div class="v-chg vc-pe ${(pcr<1?'cp':'cn')}">${showPE ? (isFinite(pcr)?pcr.toFixed(2):'∞') : ''}</div>
+        <div class="b-chg bc-ce"></div><div class="v-chg vc-ce"></div>
+        <div class="b-chg bc-pe"></div>
+      </div>`;
+    }).join('');
+    scrollATM(); return;
+  }
+
+  // ── OI VIEW ──
+  body.innerHTML = disp.map(row => {
+    const ceChgPct = barPct(row.ce_chg, maxChg);
+    const peChgPct = barPct(row.pe_chg, maxChg);
+    const ceChgCls = (row.ce_chg||0) >= 0 ? 'chg-p-ce' : 'chg-n-ce';
+    const peChgCls = (row.pe_chg||0) >= 0 ? 'chg-p-pe' : 'chg-n-pe';
+
+    const cef = fmtChg(row.ce_chg);
+    const pef = fmtChg(row.pe_chg);
+
+    const mce = (row.ce_oi||0) === maxCE ? ' mx-ce' : '';
+    const mpe = (row.pe_oi||0) === maxPE ? ' mx-pe' : '';
+    const atm = row.is_atm ? ' atm' : '';
+
+    // OI bars: base = total OI, ext = |change| always from base end
+    const ceBasePct = barPct(row.ce_oi, maxOI);
+    const peBasePct = barPct(row.pe_oi, maxOI);
+    const ceExtPct  = dispMode === 'recent' ? barPct(Math.abs(row.ce_chg||0), maxOI) : 0;
+    const peExtPct  = dispMode === 'recent' ? barPct(Math.abs(row.pe_chg||0), maxOI) : 0;
+
+    const ceExtCls = (row.ce_chg||0) >= 0 ? 'oi-add-ce' : 'oi-red-ce';
+    const peExtCls = (row.pe_chg||0) >= 0 ? 'oi-add-pe' : 'oi-red-pe';
+
+    // Label: currentOI (change)
+    const ceLbl = showCE ? `${fmtOI(row.ce_oi)}${row.ce_chg ? '('+fmtChg(row.ce_chg).t+')' : ''}` : '';
+    const peLbl = showPE ? `${fmtOI(row.pe_oi)}${row.pe_chg ? '('+fmtChg(row.pe_chg).t+')' : ''}` : '';
+
+    return `<div class="sg${atm}${mce}${mpe}" data-strike="${row.strike}" data-ce-oi="${row.ce_oi||0}" data-pe-oi="${row.pe_oi||0}" data-ce-chg="${row.ce_chg||0}" data-pe-chg="${row.pe_chg||0}">
+
+      <div class="v-oi v-ce">${ceLbl}</div>
+      <div class="b-oi b-ce">
+        ${showCE ? `
+          <div class="oi-base oi-base-ce" style="width:${ceBasePct}%"></div>
+          ${dispMode === 'recent' ? `<div class="oi-ext ${ceExtCls}" style="left:${ceBasePct}%;width:${ceExtPct}%"></div>` : ''}
+        ` : ''}
+      </div>
+
       <div class="sc">${fmtStr(row.strike)}${row.is_atm?'<span class="atm-star">★</span>':''}</div>
-      <div class="cb cb-ce">${showCE?`<div class="chg-bar ${ceChgCls}" style="width:${ceChgPct}%"></div>`:''}</div>
-      <div class="cv-chg cv-ce-c ${cef.c}">${showCE?cef.t:''}</div>
-      <div class="cv-oi cv-pe">${showPE?fmtOI(row.pe_oi):''}</div>
-      <div class="ob ob-pe">${showPE?`<div class="oi-bar ${peOICls}" style="width:${peOIPct}%"></div>`:''}</div>
-      <div class="cb cb-pe">${showPE?`<div class="chg-bar ${peChgCls}" style="width:${peChgPct}%"></div>`:''}</div>
-      <div class="cv-chg cv-pe-c ${pef.c}">${showPE?pef.t:''}</div>
+
+      <div class="b-chg bc-ce">
+        ${showCE ? `<div class="chg-bar ${ceChgCls}" style="width:${ceChgPct}%"></div>` : ''}
+      </div>
+      <div class="v-chg vc-ce ${cef.c}">${showCE ? cef.t : ''}</div>
+
+      <div class="v-oi v-pe">${peLbl}</div>
+      <div class="b-oi b-pe">
+        ${showPE ? `
+          <div class="oi-base oi-base-pe" style="width:${peBasePct}%"></div>
+          ${dispMode === 'recent' ? `<div class="oi-ext ${peExtCls}" style="left:${peBasePct}%;width:${peExtPct}%"></div>` : ''}
+        ` : ''}
+      </div>
+
+      <div class="b-chg bc-pe">
+        ${showPE ? `<div class="chg-bar ${peChgCls}" style="width:${peChgPct}%"></div>` : ''}
+      </div>
+      <div class="v-chg vc-pe ${pef.c}">${showPE ? pef.t : ''}</div>
+
     </div>`;
   }).join('');
+
   scrollATM();
 }
 
-function scrollATM(){const a=document.querySelector('.sg.atm');if(a)setTimeout(()=>a.scrollIntoView({block:'center',behavior:'smooth'}),80);}
-function setMsg(m){document.getElementById('load-msg').textContent=m;document.getElementById('loading').classList.remove('gone');}
-function hideLoad(){document.getElementById('loading').classList.add('gone');}
-function showErr(m){hideLoad();document.getElementById('chain-body').innerHTML=`<div class="empty-msg err-msg">${m}</div>`;}
+function scrollATM() {
+  const a = document.querySelector('.sg.atm, .pcr-sg.atm');
+  if (a) setTimeout(() => a.scrollIntoView({block:'center', behavior:'smooth'}), 100);
 
-function applyTheme(t){
-  theme=t;document.documentElement.setAttribute('data-theme',t);localStorage.setItem('oi_theme',t);
-  document.querySelectorAll('#theme-grp button').forEach(b=>b.classList.toggle('on',b.dataset.v===t));
+// ── TOOLTIP ──
+function fmtNum(v) {
+  v = Math.abs(+v)||0;
+  return v.toLocaleString('en-IN');
+}
+function setupTooltip() {
+  const tip     = document.getElementById('oi-tooltip');
+  const oiSec   = document.getElementById('tt-oi-section');
+  const chgSec  = document.getElementById('tt-chg-section');
+  const body    = document.getElementById('chain-body');
+  const boxOI   = document.getElementById('info-box-oi');
+  const boxChg  = document.getElementById('info-box-chg');
+  const isMobile = () => window.innerWidth <= 768;
+
+  function chgHtml(v, el) {
+    const n = +v;
+    el.textContent = (n>=0?'+':'') + n.toLocaleString('en-IN') + (n<0?' ▼':n>0?' ▲':'');
+    el.className   = 'tt-chg ' + (n>0?'pos':n<0?'neg':'zer');
+  }
+  function ibChg(v, el) {
+    const n = +v;
+    el.textContent = (n>=0?'+':'') + n.toLocaleString('en-IN') + (n<0?' ▼':n>0?' ▲':'');
+    el.className   = 'ib-chg ' + (n>0?'pos':n<0?'neg':'zer');
+  }
+
+  body.addEventListener('mouseover', e => {
+    const sg = e.target.closest('.sg');
+    if (!sg) {
+      tip.style.display = 'none';
+      if (!isMobile()) { boxOI.style.display='none'; boxChg.style.display='none'; }
+      return;
+    }
+    const strike = sg.dataset.strike;
+    if (!strike) return;
+    const label = 'Strike : ' + fmtStr(strike);
+
+    if (isMobile()) {
+      boxOI.style.display='none'; boxChg.style.display='none';
+      document.getElementById('tt-strike').textContent = label;
+      const rect   = sg.getBoundingClientRect();
+      const inLeft = e.clientX < rect.left + rect.width / 2;
+      if (inLeft) {
+        oiSec.style.display = 'block'; chgSec.style.display = 'none';
+        document.getElementById('tt-ce-oi').textContent = (+sg.dataset.ceOi||0).toLocaleString('en-IN');
+        document.getElementById('tt-pe-oi').textContent = (+sg.dataset.peOi||0).toLocaleString('en-IN');
+        chgHtml(sg.dataset.ceChg, document.getElementById('tt-ce-chg'));
+        chgHtml(sg.dataset.peChg, document.getElementById('tt-pe-chg'));
+      } else {
+        oiSec.style.display = 'none'; chgSec.style.display = 'block';
+        chgHtml(sg.dataset.ceChg, document.getElementById('tt-ce-chg2'));
+        chgHtml(sg.dataset.peChg, document.getElementById('tt-pe-chg2'));
+      }
+      tip.style.display = 'block';
+    } else {
+      tip.style.display = 'none';
+      document.getElementById('ib-oi-strike').textContent = label;
+      document.getElementById('ib-ce-oi').textContent = (+sg.dataset.ceOi||0).toLocaleString('en-IN');
+      document.getElementById('ib-pe-oi').textContent = (+sg.dataset.peOi||0).toLocaleString('en-IN');
+      ibChg(sg.dataset.ceChg, document.getElementById('ib-ce-chg'));
+      ibChg(sg.dataset.peChg, document.getElementById('ib-pe-chg'));
+      // Position OI box just left of strike column
+      const sc = sg.querySelector('.sc');
+      if (sc) {
+        const scRect = sc.getBoundingClientRect();
+        boxOI.style.left = 'auto';
+        boxOI.style.right = (window.innerWidth - scRect.left + 15) + 'px';
+      }
+      boxOI.style.display = 'block';
+      document.getElementById('ib-chg-strike').textContent = label;
+      ibChg(sg.dataset.ceChg, document.getElementById('ib-ce-chg2'));
+      ibChg(sg.dataset.peChg, document.getElementById('ib-pe-chg2'));
+      boxChg.style.display = 'block';
+    }
+  });
+
+  body.addEventListener('mousemove', e => {
+    if (!isMobile()) return;
+    const sg = e.target.closest('.sg');
+    if (!sg) { tip.style.display='none'; return; }
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    let x = e.clientX + 16, y = e.clientY - th/2;
+    if (x + tw > window.innerWidth - 10) x = e.clientX - tw - 16;
+    if (y < 10) y = 10;
+    if (y + th > window.innerHeight - 10) y = window.innerHeight - th - 10;
+    tip.style.left = x + 'px';
+    tip.style.top  = y + 'px';
+  });
+
+  body.addEventListener('mouseleave', () => {
+    tip.style.display = 'none';
+    if (!isMobile()) { boxOI.style.display='none'; boxChg.style.display='none'; }
+  });
+}
+setupTooltip();
+}
+function setMsg(m) {
+  document.getElementById('load-msg').textContent = m;
+  document.getElementById('loading').classList.remove('gone');
+}
+function hideLoad() { document.getElementById('loading').classList.add('gone'); }
+function showErr(m) {
+  hideLoad();
+  document.getElementById('chain-body').innerHTML = `<div class="empty-msg err">${m}</div>`;
 }
 
-function wire(){
-  document.getElementById('prev-sym').onclick=()=>{if(!symList.length)return;symIdx=(symIdx-1+symList.length)%symList.length;document.getElementById('sym-select').value=symIdx;localStorage.setItem('oi_sym',curSym());render();};
-  document.getElementById('next-sym').onclick=()=>{if(!symList.length)return;symIdx=(symIdx+1)%symList.length;document.getElementById('sym-select').value=symIdx;localStorage.setItem('oi_sym',curSym());render();};
-  document.getElementById('sym-select').onchange=e=>{symIdx=+e.target.value;localStorage.setItem('oi_sym',curSym());render();};
-  document.getElementById('scan-sel').onchange=e=>{curKey=e.target.value;render();};
-  document.getElementById('side-grp').onclick=e=>{if(!e.target.dataset.v)return;sideMode=e.target.dataset.v;document.querySelectorAll('#side-grp button').forEach(b=>b.classList.toggle('on',b.dataset.v===sideMode));render();};
-  document.getElementById('view-grp').onclick=e=>{if(!e.target.dataset.v)return;viewMode=e.target.dataset.v;document.querySelectorAll('#view-grp button').forEach(b=>b.classList.toggle('on',b.dataset.v===viewMode));render();};
-  document.getElementById('disp-grp').onclick=e=>{
-    if(!e.target.dataset.v)return;
-    dispMode=e.target.dataset.v;localStorage.setItem('oi_disp',dispMode);
-    document.querySelectorAll('#disp-grp button').forEach(b=>b.classList.toggle('on',b.dataset.v===dispMode));
-    document.getElementById('from-time').disabled=dispMode==='recent';
+function applyTheme(t) {
+  theme = t;
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('oi_theme', t);
+  document.querySelectorAll('#theme-grp button').forEach(b => b.classList.toggle('on', b.dataset.v === t));
+}
+
+function wire() {
+  const $ = id => document.getElementById(id);
+
+  $('prev-sym').onclick = () => {
+    if (!symList.length) return;
+    symIdx = (symIdx - 1 + symList.length) % symList.length;
+    $('sym-select').value = symIdx;
+    localStorage.setItem('oi_sym', curSym()); render();
+  };
+  $('next-sym').onclick = () => {
+    if (!symList.length) return;
+    symIdx = (symIdx + 1) % symList.length;
+    $('sym-select').value = symIdx;
+    localStorage.setItem('oi_sym', curSym()); render();
+  };
+  $('sym-select').onchange = e => {
+    symIdx = +e.target.value;
+    localStorage.setItem('oi_sym', curSym()); render();
+  };
+  $('scan-sel').onchange = e => {
+    curKey = e.target.value;
+    // Point-5: time change pe Recent mode force karo
+    if (dispMode !== 'recent') {
+      dispMode = 'recent';
+      localStorage.setItem('oi_disp', dispMode);
+      document.querySelectorAll('#disp-grp button').forEach(b => b.classList.toggle('on', b.dataset.v === dispMode));
+      
+    }
+    render();
+    updateTicker();
+  };
+
+  $('side-grp').onclick = e => {
+    if (!e.target.dataset.v) return;
+    sideMode = e.target.dataset.v;
+    document.querySelectorAll('#side-grp button').forEach(b => b.classList.toggle('on', b.dataset.v === sideMode));
     render();
   };
-  document.getElementById('from-time').onchange=()=>{if(dispMode!=='recent')render();};
-  document.getElementById('theme-grp').onclick=e=>{if(e.target.dataset.v)applyTheme(e.target.dataset.v);};
-  document.getElementById('tv-btn').onclick=()=>{
-    const s=curSym();if(!s)return;
-    document.getElementById('tv-frame').src=`https://s.tradingview.com/widgetembed/?symbol=${tvSym(s)}&interval=5&theme=${theme==='light'?'light':'dark'}&style=1&locale=en&withdateranges=1&hideideas=1`;
-    document.getElementById('tv-modal').classList.add('open');
+  $('view-grp').onclick = e => {
+    if (!e.target.dataset.v) return;
+    viewMode = e.target.dataset.v;
+    document.querySelectorAll('#view-grp button').forEach(b => b.classList.toggle('on', b.dataset.v === viewMode));
+    render();
   };
-  document.getElementById('tv-close-btn').onclick=closeTv;
-  document.getElementById('tv-modal').onclick=e=>{if(e.target===document.getElementById('tv-modal'))closeTv();};
-  function closeTv(){document.getElementById('tv-modal').classList.remove('open');document.getElementById('tv-frame').src='';}
-  document.addEventListener('keydown',e=>{
-    const t=e.target.tagName;if(t==='INPUT'||t==='SELECT')return;
-    if(e.key==='ArrowLeft'||e.key==='a')document.getElementById('prev-sym').click();
-    if(e.key==='ArrowRight'||e.key==='d')document.getElementById('next-sym').click();
-    if(e.key==='Escape')document.getElementById('tv-modal').classList.remove('open');
+  $('disp-grp').onclick = e => {
+    if (!e.target.dataset.v) return;
+    dispMode = e.target.dataset.v;
+    localStorage.setItem('oi_disp', dispMode);
+    document.querySelectorAll('#disp-grp button').forEach(b => b.classList.toggle('on', b.dataset.v === dispMode));
+    
+    // Point-1: Recent click pe latest scan pe reset
+    if (dispMode === 'recent') {
+      const sel = document.getElementById('scan-sel');
+      if (sel.options.length) { curKey = sel.options[0].value; sel.value = curKey; }
+    }
+    render();
+  };
+  
+  $('theme-grp').onclick = e => { if (e.target.dataset.v) applyTheme(e.target.dataset.v); };
+
+  $('tv-btn').onclick = () => {
+    const s = curSym(); if (!s) return;
+    const url = `https://www.tradingview.com/chart/?symbol=${tvSym(s)}&interval=5`;
+    window.open(url, '_blank');
+  };
+
+  document.addEventListener('keydown', e => {
+    const t = e.target.tagName;
+    if (t === 'INPUT' || t === 'SELECT') return;
+    if (e.key === 'ArrowLeft'  || e.key === 'a') $('prev-sym').click();
+    if (e.key === 'ArrowRight' || e.key === 'd') $('next-sym').click();
+    if (e.key === 'Escape') $('tv-modal').classList.remove('open');
   });
 }
 
-function autoRefresh(){
-  setInterval(async()=>{
-    const n=new Date(),h=n.getHours(),m=n.getMinutes();
-    if(!((h>9||(h===9&&m>=15))&&(h<15||(h===15&&m<=30))))return;
-    try{
-      const prev=JSON.stringify(indexData?.scans);await loadIndex();
-      if(JSON.stringify(indexData?.scans)!==prev){
-        buildScanSel();
-        const sel=document.getElementById('scan-sel');
-        if(sel.options.length){curKey=sel.options[0].value;sel.value=curKey;render();}
-      }
-    }catch{}
-  },3*60*1000);
+// ── SCAN TIME DISPLAY ──
+function updateScanTime(scan) {
+  const el  = document.getElementById('iv-scantime');
+
+  const t   = scan?.scan_time;
+  if (!t) {
+    if (el) el.textContent = '—';
+  
+    return;
+  }
+  const parts = t.split(' ');
+  const date  = parts[0] || '';
+  const time  = parts[1] ? parts[1].slice(0,5) : t;
+  const txt   = `${date}  ${time}`;
+  if (el) el.textContent = txt;
+
 }
 
-(async()=>{
+// ── INDIA VIX FETCH ──
+async function fetchVIX() {
+  try {
+    const resp = await fetch('https://www.nseindia.com/api/allIndices', {
+      headers: { 'Accept': 'application/json' },
+      credentials: 'include',
+    });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const vix  = data?.data?.find(d => d.index === 'INDIA VIX');
+    if (!vix) return;
+    const el    = document.getElementById('iv-vix');
+    const wrap  = document.getElementById('ii-vix');
+    const val   = parseFloat(vix.last);
+    const chg   = parseFloat(vix.percentChange);
+    if (el && wrap) {
+      el.textContent = `${val.toFixed(2)}  (${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%)`;
+      el.className   = 'iv ' + (chg > 0 ? 'pe' : 'ce');
+      wrap.style.display = 'flex';
+    }
+  } catch {
+    // CORS ya network issue — silently ignore
+  }
+}
+
+// ── SIGNAL DETECTION ──────────────────────────────────────────
+// ATM±3 strikes ka CE vs PE chg compare karo
+// CE buildup > PE buildup → Bearish | PE buildup > CE buildup → Bullish
+// Previous scan se compare karke spike detect karo
+
+const SIG_WINDOW   = 3;    // ATM ke upar neeche kitne strikes
+const SIG_MIN_CHG  = 50000; // minimum absolute change (50K) to count as signal
+
+async function computeSignals() {
+  if (!indexData) return [];
+
+  const sel      = document.getElementById('scan-sel');
+  const allOpts  = Array.from(sel.options);
+  if (allOpts.length < 2) return [];
+
+  // Latest scan aur usse pehle wala
+  const [curD, curH]   = allOpts[0].value.split('|');
+  const [prevD, prevH] = allOpts[1].value.split('|');
+
+  let curScan, prevScan;
+  try {
+    curScan  = await loadScan(curD,  curH);
+    prevScan = await loadScan(prevD, prevH);
+  } catch { return []; }
+
+  const signals = [];
+
+  for (const sym of Object.keys(curScan.symbols || {})) {
+    const curSd  = curScan.symbols[sym];
+    const prevSd = prevScan?.symbols?.[sym];
+    if (!curSd) continue;
+
+    // ATM index dhundo
+    const strikes = curSd.strikes;
+    const atmIdx  = strikes.findIndex(s => s.is_atm);
+    if (atmIdx < 0) continue;
+
+    const from = Math.max(0, atmIdx - SIG_WINDOW);
+    const to   = Math.min(strikes.length - 1, atmIdx + SIG_WINDOW);
+    const win  = strikes.slice(from, to + 1);
+
+    // Current scan ka CE/PE total chg in window
+    const curCE  = win.reduce((a, s) => a + (s.ce_chg || 0), 0);
+    const curPE  = win.reduce((a, s) => a + (s.pe_chg || 0), 0);
+
+    // Previous scan ka CE/PE total chg in window
+    let prevCE = 0, prevPE = 0;
+    if (prevSd) {
+      const prevStrikes = prevSd.strikes;
+      const prevAtm     = prevStrikes.findIndex(s => s.is_atm);
+      if (prevAtm >= 0) {
+        const pFrom = Math.max(0, prevAtm - SIG_WINDOW);
+        const pTo   = Math.min(prevStrikes.length - 1, prevAtm + SIG_WINDOW);
+        const pWin  = prevStrikes.slice(pFrom, pTo + 1);
+        prevCE = pWin.reduce((a, s) => a + (s.ce_chg || 0), 0);
+        prevPE = pWin.reduce((a, s) => a + (s.pe_chg || 0), 0);
+      }
+    }
+
+    // Spike = current - previous
+    const spikeCE = curCE - prevCE;
+    const spikePE = curPE - prevPE;
+
+    const absCE = Math.abs(spikeCE);
+    const absPE = Math.abs(spikePE);
+
+    // Signal condition: ek side mein significant spike aaya
+    if (absCE < SIG_MIN_CHG && absPE < SIG_MIN_CHG) continue;
+
+    let type, val;
+    if (absCE > absPE) {
+      // CE side dominant
+      type = spikeCE > 0 ? 'bear' : 'bull';  // CE buildup = bear, CE unwinding = bull
+      val  = spikeCE;
+    } else {
+      // PE side dominant
+      type = spikePE > 0 ? 'bull' : 'bear';  // PE buildup = bull, PE unwinding = bear
+      val  = spikePE;
+    }
+
+    signals.push({ sym, type, val, strength: Math.max(absCE, absPE) });
+  }
+
+  // Strength ke hisaab se sort karo
+  signals.sort((a, b) => b.strength - a.strength);
+  return signals;
+}
+
+function fmtSigVal(v) {
+  const a = Math.abs(v);
+  if (a >= 10000000) return (v/10000000).toFixed(1) + 'Cr';
+  if (a >= 100000)   return (v/100000).toFixed(1) + 'L';
+  if (a >= 1000)     return (v/1000).toFixed(1) + 'K';
+  return String(v);
+}
+
+let tickerInterval = null;
+
+async function updateTicker() {
+  const track = document.getElementById('sig-track');
+  if (!track) return;
+
+  const signals = await computeSignals();
+
+  if (!signals.length) {
+    track.innerHTML = '';
+    track.className = 'static';
+    return;
+  }
+
+  // Chips banao
+  const makeChips = () => signals.map(s => {
+    const arrow = s.type === 'bull' ? '▲' : '▼';
+    const label = s.type === 'bull' ? 'Bullish' : 'Bearish';
+    return `<span class="sig-chip ${s.type}" data-sym="${s.sym}" title="${s.sym} ${label}">
+      ${arrow} ${s.sym} <span class="sig-val">${fmtSigVal(s.val)}</span>
+    </span>`;
+  }).join('');
+
+  if (signals.length <= 2) {
+    // Static — scroll nahi
+    track.innerHTML = makeChips();
+    track.className = 'static';
+  } else {
+    // Scroll — duplicate chips for seamless loop
+    track.innerHTML = makeChips() + makeChips();
+    track.className = 'scrolling';
+    // Speed: chips ki count pe depend karo
+    const duration = Math.max(8, signals.length * 4);
+    track.style.animationDuration = duration + 's';
+  }
+
+  // Click handler — us symbol pe jump karo
+  track.querySelectorAll('.sig-chip').forEach(chip => {
+    chip.onclick = () => {
+      const sym  = chip.dataset.sym;
+      const idx  = symList.indexOf(sym);
+      if (idx < 0) return;
+      symIdx = idx;
+      const el = document.getElementById('sym-select');
+      el.value = symIdx;
+      render();
+    };
+  });
+}
+
+function autoRefresh() {
+  setInterval(async () => {
+    const n = new Date(), h = n.getHours(), m = n.getMinutes();
+    if (!((h > 9 || (h === 9 && m >= 15)) && (h < 15 || (h === 15 && m <= 30)))) return;
+    try {
+      const prev = JSON.stringify(indexData?.scans);
+      await loadIndex();
+      if (JSON.stringify(indexData?.scans) !== prev) {
+        buildScanSel();
+        const sel = document.getElementById('scan-sel');
+        if (!sel.options.length) return;
+        const newKey = sel.options[0].value;
+        // Point-4: pehle naya scan pre-fetch karo cache mein, phir UI update karo
+        const [nd, nh] = newKey.split('|');
+        await loadScan(nd, nh);          // cache warm — ab blank nahi hoga
+        curKey = newKey;
+        sel.value = curKey;
+        await render();
+        await updateTicker();
+      }
+    } catch {}
+  }, 3 * 60 * 1000);
+}
+
+(async () => {
   applyTheme(theme);
-  document.querySelectorAll('#disp-grp button').forEach(b=>b.classList.toggle('on',b.dataset.v===dispMode));
-  document.getElementById('from-time').disabled=dispMode==='recent';
-  const n=new Date(),pad=x=>String(x).padStart(2,'0');
-  document.getElementById('from-time').value=`${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}T09:15`;
+  document.querySelectorAll('#disp-grp button').forEach(b => b.classList.toggle('on', b.dataset.v === dispMode));
+  
+
+  const n = new Date(), pad = x => String(x).padStart(2,'0');
+  document.getElementById('from-time').value =
+    `${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}T09:15`;
+
+
   wire();
-  try{
-    setMsg('Connecting to R2…');await loadIndex();buildScanSel();
-    if(!curKey){showErr('No scan data yet. Run OI_SCANNER.py first.');return;}
+
+  try {
+    setMsg('Connecting to R2…');
+    await loadIndex();
+    buildScanSel();
+    if (!curKey) { showErr('No scan data yet. Run OI_SCANNER.py first.'); return; }
     setMsg('Loading scan…');
-    const[d,h]=curKey.split('|');const scan=await loadScan(d,h);
-    buildSymSel(scan);hideLoad();render();autoRefresh();
-  }catch(e){showErr('Error: '+e.message);console.error(e);}
+    const [d, h] = curKey.split('|');
+    const scan = await loadScan(d, h);
+    buildSymSel(scan);
+    hideLoad();
+    render();
+    updateTicker();
+    fetchVIX();
+    autoRefresh();
+  } catch(e) {
+    showErr('Error: ' + e.message);
+    console.error(e);
+  }
 })();
 </script>
 </body>
