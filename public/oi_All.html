@@ -1001,7 +1001,7 @@ async function render() {
 
   // ── PCR VIEW ──
   if (viewMode === 'pcr') {
-    body.innerHTML = disp.map(row => {
+    body.innerHTML = disp.slice().reverse().map(row => {
       const ce = row.ce_oi||0, pe = row.pe_oi||0, tot = ce+pe||1;
       const cePct = (ce/tot*100).toFixed(1), pePct = (pe/tot*100).toFixed(1);
       const pcr   = ce > 0 ? pe/ce : Infinity;
@@ -1024,7 +1024,7 @@ async function render() {
   }
 
   // ── OI VIEW ──
-  body.innerHTML = disp.map(row => {
+  body.innerHTML = disp.slice().reverse().map(row => {
     const ceChgPct = barPct(row.ce_chg, maxChg);
     const peChgPct = barPct(row.pe_chg, maxChg);
     const ceChgCls = (row.ce_chg||0) >= 0 ? 'chg-p-ce' : 'chg-n-ce';
