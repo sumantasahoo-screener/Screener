@@ -912,6 +912,9 @@ async function computeDisplay(sym, base) {
         // LEFT: selected scan ka OI unchanged
         ce_chg: lc ? Math.round((lc.ce_chg||0) - (s.ce_chg||0)) : 0,
         pe_chg: lc ? Math.round((lc.pe_chg||0) - (s.pe_chg||0)) : 0,
+        // raw = original day chg (left tooltip ke liye)
+        ce_raw_chg: s.ce_chg||0,
+        pe_raw_chg: s.pe_chg||0,
       };
     });
   }
@@ -945,6 +948,9 @@ async function computeDisplay(sym, base) {
       // LEFT unchanged — OI same
       ce_chg: h ? Math.round(avg(h.ce_chg)) : 0,
       pe_chg: h ? Math.round(avg(h.pe_chg)) : 0,
+      // raw = original day chg (left tooltip ke liye)
+      ce_raw_chg: s.ce_chg||0,
+      pe_raw_chg: s.pe_chg||0,
     };
   });
 }
@@ -1050,7 +1056,7 @@ async function render() {
     const ceLbl = showCE ? `${fmtOI(row.ce_oi)}${row.ce_chg ? '('+fmtChg(row.ce_chg).t+')' : ''}` : '';
     const peLbl = showPE ? `${fmtOI(row.pe_oi)}${row.pe_chg ? '('+fmtChg(row.pe_chg).t+')' : ''}` : '';
 
-    return `<div class="sg${atm}${mce}${mpe}" data-strike="${row.strike}" data-ce-oi="${row.ce_oi||0}" data-pe-oi="${row.pe_oi||0}" data-ce-chg="${row.ce_chg||0}" data-pe-chg="${row.pe_chg||0}">
+    return `<div class="sg${atm}${mce}${mpe}" data-strike="${row.strike}" data-ce-oi="${row.ce_oi||0}" data-pe-oi="${row.pe_oi||0}" data-ce-chg="${row.ce_chg||0}" data-pe-chg="${row.pe_chg||0}" data-ce-raw-chg="${row.ce_raw_chg!=null?row.ce_raw_chg:(row.ce_chg||0)}" data-pe-raw-chg="${row.pe_raw_chg!=null?row.pe_raw_chg:(row.pe_chg||0)}">
 
       <div class="v-oi v-ce">${ceLbl}</div>
       <div class="b-oi b-ce">
@@ -1132,12 +1138,14 @@ function setupTooltip() {
       const rect   = sg.getBoundingClientRect();
       const inLeft = e.clientX < rect.left + rect.width / 2;
       if (inLeft) {
+        // LEFT zone: actual OI + original day chg
         oiSec.style.display = 'block'; chgSec.style.display = 'none';
         document.getElementById('tt-ce-oi').textContent = (+sg.dataset.ceOi||0).toLocaleString('en-IN');
         document.getElementById('tt-pe-oi').textContent = (+sg.dataset.peOi||0).toLocaleString('en-IN');
-        chgHtml(sg.dataset.ceChg, document.getElementById('tt-ce-chg'));
-        chgHtml(sg.dataset.peChg, document.getElementById('tt-pe-chg'));
+        chgHtml(sg.dataset.ceRawChg, document.getElementById('tt-ce-chg'));
+        chgHtml(sg.dataset.peRawChg, document.getElementById('tt-pe-chg'));
       } else {
+        // RIGHT zone: computed chg (bar wala — mode dependent)
         oiSec.style.display = 'none'; chgSec.style.display = 'block';
         chgHtml(sg.dataset.ceChg, document.getElementById('tt-ce-chg2'));
         chgHtml(sg.dataset.peChg, document.getElementById('tt-pe-chg2'));
@@ -1145,11 +1153,12 @@ function setupTooltip() {
       tip.style.display = 'block';
     } else {
       tip.style.display = 'none';
+      // LEFT box: actual OI + original day chg
       document.getElementById('ib-oi-strike').textContent = label;
       document.getElementById('ib-ce-oi').textContent = (+sg.dataset.ceOi||0).toLocaleString('en-IN');
       document.getElementById('ib-pe-oi').textContent = (+sg.dataset.peOi||0).toLocaleString('en-IN');
-      ibChg(sg.dataset.ceChg, document.getElementById('ib-ce-chg'));
-      ibChg(sg.dataset.peChg, document.getElementById('ib-pe-chg'));
+      ibChg(sg.dataset.ceRawChg, document.getElementById('ib-ce-chg'));
+      ibChg(sg.dataset.peRawChg, document.getElementById('ib-pe-chg'));
       // Position OI box just left of strike column
       const sc = sg.querySelector('.sc');
       if (sc) {
@@ -1158,6 +1167,7 @@ function setupTooltip() {
         boxOI.style.right = (window.innerWidth - scRect.left + 15) + 'px';
       }
       boxOI.style.display = 'block';
+      // RIGHT box: computed chg (bar wala — mode dependent)
       document.getElementById('ib-chg-strike').textContent = label;
       ibChg(sg.dataset.ceChg, document.getElementById('ib-ce-chg2'));
       ibChg(sg.dataset.peChg, document.getElementById('ib-pe-chg2'));
