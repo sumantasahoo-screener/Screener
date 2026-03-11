@@ -19,9 +19,14 @@ body{
 /* ── HEADER ── */
 .hdr{
   display:grid;grid-template-columns:auto 1fr auto;
-  align-items:center;gap:12px;
+  align-items:center;gap:8px;
   background:#141414;border:1px solid #222;
-  border-radius:10px;padding:7px 14px;flex-shrink:0;
+  border-radius:10px;padding:6px 10px;flex-shrink:0;
+}
+@media(max-width:600px){
+  .hdr{grid-template-columns:1fr auto;gap:6px;}
+  .hdr-left .sep, .hdr-left .sw{display:none;}
+  .breadth{display:none;}
 }
 .hdr-left{display:flex;align-items:center;gap:10px;}
 .logo{font-size:14px;font-weight:700;color:#4fc3f7;letter-spacing:.05em;}
@@ -121,9 +126,9 @@ body{
 .graph-view.active{display:flex;}
 .graph-panel{
   flex:1;background:#0e0e0e;border:1px solid #1e1e1e;
-  border-radius:10px;padding:12px 16px;
-  display:flex;flex-direction:column;gap:8px;
-  overflow:hidden;
+  border-radius:10px;padding:8px 12px 8px 12px;
+  display:flex;flex-direction:column;gap:4px;
+  overflow:hidden;min-height:0;
 }
 .graph-title{font-size:11px;font-weight:700;color:#666;letter-spacing:.1em;text-transform:uppercase;}
 .graph-legend{display:flex;gap:14px;}
@@ -132,8 +137,85 @@ body{
 .leg-dot.adv{background:#00cc44;}
 .leg-dot.dec{background:#dd1111;}
 .leg-dot.neu{background:#cc8800;}
-#graphCanvas{flex:1;width:100%;min-height:0;}
+#graphCanvas{flex:1;width:100%;min-height:0;display:block;}
+/* Fixed corner tooltip */
+#graphTooltip{
+  position:fixed;top:60px;right:16px;
+  background:rgba(10,10,10,0.92);
+  border:1px solid #333;border-radius:10px;
+  padding:10px 14px;z-index:8000;
+  display:none;pointer-events:none;
+  box-shadow:0 4px 24px rgba(0,0,0,.8);
+  min-width:120px;
+}
+body.light #graphTooltip{background:rgba(255,255,255,0.95);border-color:#ccc;box-shadow:0 4px 24px rgba(0,0,0,.15);}
+#graphTooltip .gt-time{font-size:12px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:.04em;}
+body.light #graphTooltip .gt-time{color:#222;}
+#graphTooltip .gt-row{font-size:13px;font-weight:700;line-height:1.8;}
 
+
+/* ── VIX PANEL ── */
+.vix-panel{
+  height:130px;flex-shrink:0;
+  background:#0e0e0e;border:1px solid #1e1e1e;
+  border-radius:10px;padding:8px 12px;
+  display:flex;flex-direction:column;gap:4px;
+  overflow:hidden;
+}
+body.light .vix-panel{background:#f8f8f8;border-color:#ddd;}
+.vix-header{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.vix-title{font-size:10px;font-weight:700;color:#666;letter-spacing:.1em;text-transform:uppercase;}
+.vix-badge{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:700;
+}
+.vix-val{color:#fff;font-size:15px;}
+body.light .vix-val{color:#111;}
+.vix-chg{font-size:11px;font-weight:700;}
+.vix-chg.up{color:#ff4444;}
+.vix-chg.dn{color:#00cc44;}
+#vixCanvas{flex:1;width:100%;min-height:0;display:block;}
+
+/* ── VIX POPUP ── */
+#vixOverlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.75);z-index:9100;
+  backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;
+}
+#vixOverlay.show{display:flex;}
+#vixPopup{
+  background:#141414;border:1px solid #2a2a2a;
+  border-radius:16px;padding:18px 20px 16px;
+  width:min(700px,96vw);
+  box-shadow:0 16px 60px rgba(0,0,0,.95);
+  animation:popIn .18s ease;
+  display:flex;flex-direction:column;gap:10px;
+}
+body.light #vixPopup{background:#fff;border-color:#ddd;}
+.vix-popup-hdr{display:flex;justify-content:space-between;align-items:center;}
+.vix-popup-title{
+  font-size:15px;font-weight:700;color:#ff9800;
+  display:flex;align-items:center;gap:8px;letter-spacing:.03em;
+}
+.vix-popup-meta{display:flex;align-items:center;gap:12px;}
+.vix-popup-val{font-size:20px;font-weight:800;color:#fff;}
+body.light .vix-popup-val{color:#111;}
+.vix-popup-chg{font-size:13px;font-weight:700;}
+.vix-popup-chg.up{color:#ff4444;}
+.vix-popup-chg.dn{color:#00cc44;}
+.vix-popup-close{
+  background:transparent;border:1px solid #333;border-radius:8px;
+  color:#666;font-size:16px;padding:3px 10px;cursor:pointer;
+  transition:all .15s;margin-left:12px;
+}
+.vix-popup-close:hover{border-color:#666;color:#ccc;}
+body.light .vix-popup-close{border-color:#ccc;color:#999;}
+body.light .vix-popup-close:hover{border-color:#888;color:#333;}
+#vixPopupCanvas{width:100%;height:280px;display:block;}
+.vix-popup-footer{font-size:9px;color:#333;text-align:right;}
+body.light .vix-popup-footer{color:#bbb;}
+.fb.on-vix{background:#1a1200;border-color:#ff9800;color:#ff9800;}
 /* ── MINI CHART MODAL ── */
 #miniOverlay{
   display:none;position:fixed;inset:0;
@@ -145,12 +227,14 @@ body{
 #miniModal{
   background:#141414;border:1px solid #2a2a2a;
   border-radius:14px;padding:16px;
-  width:420px;max-width:94vw;
+  width:min(460px, 94vw);
+  box-sizing:border-box;
   box-shadow:0 12px 60px rgba(0,0,0,.9);
   animation:popIn .18s ease;
 }
 @keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
-.mini-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.mini-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:6px;}
+#miniCanvas{width:100%!important;display:block;box-sizing:border-box;}
 .mini-sym{font-size:14px;font-weight:700;color:#4fc3f7;}
 .mini-info{display:flex;gap:10px;align-items:center;}
 .mini-ltp{font-size:13px;font-weight:700;color:#fff;}
@@ -200,10 +284,11 @@ body{
   display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;
   background:#161616;border-radius:18px 18px 0 0;
   border-top:1px solid #2a2a2a;
-  padding:0 18px 32px;
+  padding:0 16px 28px;
   box-shadow:0 -8px 40px rgba(0,0,0,.8);
   transform:translateY(100%);
   transition:transform .3s cubic-bezier(.4,0,.2,1);
+  max-height:80vh;overflow-y:auto;
 }
 #tvSheet.open{transform:translateY(0);}
 #sheetDrag{width:36px;height:4px;background:#333;border-radius:2px;margin:10px auto 14px;}
@@ -235,6 +320,43 @@ body{
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 #loader p{font-size:11px;color:#444;}
+
+/* ── LIGHT THEME ── */
+body.light{background:#f0f0f0;color:#111;}
+body.light .hdr{background:#ffffff;border-color:#ddd;}
+body.light .logo{color:#0077aa;}
+body.light .logo small{color:#aaa;}
+body.light .sep{background:#ddd;}
+body.light .ts{color:#888;}
+body.light .ts b{color:#0077aa;}
+body.light .sw input{background:#f5f5f5;border-color:#ccc;color:#333;}
+body.light .bar-row{background:#e0e0e0;border-color:#ccc;}
+body.light .bstats{color:#555;}
+body.light .bstats b{color:#333;}
+body.light .fb{color:#888;border-color:#ccc;}
+body.light .fb:hover{color:#333;border-color:#888;}
+body.light .fb.on-all{background:#e0f0ff;border-color:#0077aa;color:#0077aa;}
+body.light .fb.on-n50{background:#ede0ff;border-color:#7b5ea7;color:#7b5ea7;}
+body.light .fb.on-graph{background:#e8ffe0;border-color:#33aa00;color:#33aa00;}
+body.light .top5-box{background:#fff;border-color:#ddd;}
+body.light .top5-title.g{color:#007a20;}
+body.light .top5-title.r{color:#aa0000;}
+body.light .top5-row:hover{background:#f5f5f5;border-color:#ddd;}
+body.light .top5-sym{color:#333;}
+body.light .graph-panel{background:#f8f8f8;border-color:#ddd;}
+body.light .graph-title{color:#888;}
+body.light .leg-item{color:#555;}
+body.light #loader{background:#f0f0f0;}
+body.light #loader p{color:#999;}
+body.light .card.adv{background:#d6f5e0;border-color:#7ecf99;}
+body.light .card.dec{background:#fde0e0;border-color:#e89090;}
+body.light .card.nt{background:#fff8d6;border-color:#dfc860;}
+body.light .card.adv .cs{color:#005a18;}
+body.light .card.dec .cs{color:#7a0000;}
+body.light .card.nt  .cs{color:#6b5000;}
+body.light .card.adv .cf{background:#00bb33;}
+body.light .card.dec .cf{background:#cc1111;}
+body.light .card.nt  .cf{background:#bb8800;}
 </style>
 </head>
 <body>
@@ -272,6 +394,8 @@ body{
     <button class="fb on-all" id="bAll" onclick="setF('all')">All F&amp;O</button>
     <button class="fb" id="bN50" onclick="setF('nifty')">Nifty 50</button>
     <button class="fb" id="bGraph" onclick="toggleGraph()">📈 Graph</button>
+    <button class="fb" id="bVix" onclick="openVixPopup()">⚡ VIX</button>
+    <button class="fb" id="bTheme" onclick="toggleTheme()">☀️</button>
   </div>
 </div>
 
@@ -302,7 +426,26 @@ body{
         </div>
       </div>
       <canvas id="graphCanvas"></canvas>
+<div id="graphTooltip"><div class="gt-time" id="gtTime">—</div><div class="gt-row" id="gtAdv" style="color:#00ee55"></div><div class="gt-row" id="gtDec" style="color:#ff3333"></div><div class="gt-row" id="gtNeu" style="color:#ffaa00"></div></div>
     </div>
+
+  </div>
+</div>
+
+
+<!-- VIX POPUP -->
+<div id="vixOverlay" onclick="closeVixPopup(event)">
+  <div id="vixPopup">
+    <div class="vix-popup-hdr">
+      <div class="vix-popup-title">⚡ India VIX — Intraday</div>
+      <div class="vix-popup-meta">
+        <span class="vix-popup-val" id="vixPopupVal">—</span>
+        <span class="vix-popup-chg" id="vixPopupChg"></span>
+        <button class="vix-popup-close" onclick="closeVixPopupBtn()">✕</button>
+      </div>
+    </div>
+    <canvas id="vixPopupCanvas"></canvas>
+    <div class="vix-popup-footer">India VIX · NSE · 1-min · Today</div>
   </div>
 </div>
 
@@ -529,6 +672,14 @@ function setF(f){
   currentFilter = f;
   document.getElementById('bAll').className  = 'fb'+(f==='all'?' on-all':'');
   document.getElementById('bN50').className  = 'fb'+(f==='nifty'?' on-n50':'');
+  // Always switch to heatmap view
+  if(graphMode){
+    graphMode = false;
+    document.getElementById('grid').style.display      = 'grid';
+    document.getElementById('top5Panel').style.display = 'flex';
+    document.getElementById('graphView').classList.remove('active');
+    document.getElementById('bGraph').classList.remove('on-graph');
+  }
   doFilter();
 }
 
@@ -576,7 +727,10 @@ function doFilter(){
   document.getElementById('stNeu').textContent=neu;
 }
 
-window.addEventListener('resize',doFilter);
+window.addEventListener('resize', ()=>{
+  doFilter();
+  if(graphMode){ drawGraph(graphData); drawVix(vixData); }
+});
 
 // ══════════════════════════════════════════════════════
 // GRAPH VIEW
@@ -587,13 +741,18 @@ function toggleGraph(){
   document.getElementById('top5Panel').style.display = graphMode?'none':'flex';
   document.getElementById('graphView').classList.toggle('active', graphMode);
   document.getElementById('bGraph').classList.toggle('on-graph', graphMode);
-
+  // Reset filter button highlights when switching to heatmap
+  if(!graphMode){
+    document.getElementById('bAll').className = 'fb'+(currentFilter==='all'?' on-all':'');
+    document.getElementById('bN50').className = 'fb'+(currentFilter==='nifty'?' on-n50':'');
+  }
   if(graphMode) loadAndRenderGraph();
 }
 
 async function loadAndRenderGraph(){
   graphData = await fetchGraph();
   drawGraph(graphData);
+  await loadAndRenderVix();
 }
 
 function drawGraph(data){
@@ -621,91 +780,300 @@ function drawGraph(data){
     return;
   }
 
-  const pad = {t:10, r:10, b:30, l:36};
+  const pad = {t:10, r:54, b:28, l:36};
   const cw  = W - pad.l - pad.r;
   const ch  = H - pad.t - pad.b;
-
-  const maxVal = Math.max(...data.map(d=>Math.max(d.adv,d.dec,d.neutral||0)), 1);
-  const n      = data.length;
+  const top = pad.t;
+  const bot = pad.t + ch;
+  const n   = data.length;
 
   function xp(i){ return pad.l + (i/(n-1))*cw; }
-  function yp(v){ return pad.t + ch - (v/maxVal)*ch; }
 
-  // Grid lines
-  ctx.strokeStyle='#1a1a1a';
-  ctx.lineWidth=1;
-  for(let i=0;i<=4;i++){
-    const y = pad.t + (ch/4)*i;
-    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cw,y);ctx.stroke();
-    const val = Math.round(maxVal*(1-i/4));
-    ctx.fillStyle='#333';ctx.font='9px Segoe UI';ctx.textAlign='right';
-    ctx.fillText(val, pad.l-4, y+3);
+  // Per-point percentage — green from top, red from bottom, neutral in gap
+  // Use per-point total so they NEVER overlap
+  function getPct(d){
+    const total = (d.adv||0) + (d.dec||0) + (d.neutral||0);
+    if(total === 0) return {advPct:0, decPct:0, neuPct:0};
+    return {
+      advPct: (d.adv||0) / total,
+      decPct: (d.dec||0) / total,
+      neuPct: (d.neutral||0) / total
+    };
   }
 
-  // Draw filled area — neutral
-  if(data.some(d=>d.neutral>0)){
-    ctx.beginPath();
-    ctx.moveTo(xp(0), yp(0));
-    data.forEach((d,i)=>ctx.lineTo(xp(i),yp(d.neutral||0)));
-    ctx.lineTo(xp(n-1),yp(0));ctx.closePath();
-    ctx.fillStyle='rgba(204,136,0,0.2)';ctx.fill();
+  // yAdv = bottom edge of green (from top down)
+  // yDec = top edge of red (from bottom up)
+  // Neutral minimum 4px so it is always visible
+  const MIN_NEU_PX = 4;
+  function yAdvLine(d){
+    const {advPct, neuPct} = getPct(d);
+    const rawY = top + advPct * ch;
+    if(neuPct > 0) return Math.min(rawY, bot - (d.dec||0)/(((d.adv||0)+(d.dec||0)+(d.neutral||0))||1)*ch - MIN_NEU_PX);
+    return rawY;
+  }
+  function yDecLine(d){
+    const {decPct, neuPct} = getPct(d);
+    const rawY = bot - decPct * ch;
+    if(neuPct > 0) return Math.max(rawY, top + (d.adv||0)/(((d.adv||0)+(d.dec||0)+(d.neutral||0))||1)*ch + MIN_NEU_PX);
+    return rawY;
   }
 
-  // Draw filled area — dec
-  ctx.beginPath();
-  ctx.moveTo(xp(0), yp(0));
-  data.forEach((d,i)=>ctx.lineTo(xp(i),yp(d.dec)));
-  ctx.lineTo(xp(n-1),yp(0));ctx.closePath();
-  ctx.fillStyle='rgba(221,17,17,0.35)';ctx.fill();
+  const isLight = document.body.classList.contains('light');
+  // ── Background ──────────────────────────────────────
+  ctx.fillStyle = isLight ? '#f8f8f8' : '#0c0c0c';
+  ctx.fillRect(pad.l, top, cw, ch);
 
-  // Draw filled area — adv
-  ctx.beginPath();
-  ctx.moveTo(xp(0), yp(0));
-  data.forEach((d,i)=>ctx.lineTo(xp(i),yp(d.adv)));
-  ctx.lineTo(xp(n-1),yp(0));ctx.closePath();
-  ctx.fillStyle='rgba(0,204,68,0.25)';ctx.fill();
+  // ── Grid lines ──────────────────────────────────────
+  ctx.lineWidth = 1;
+  for(let i=0; i<=4; i++){
+    const y   = top + (ch/4)*i;
+    const pct = Math.round((1 - i/4) * 100);
+    ctx.strokeStyle = isLight ? '#e0e0e0' : '#181818';
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cw,y); ctx.stroke();
+    ctx.fillStyle = isLight ? '#999' : '#333'; ctx.font='8px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText(pct+'%', pad.l-4, y+3);
+  }
 
-  // Lines
-  function drawLine(key, color){
+  // ── Advance fill (green, top → advLine) ─────────────
+  const gradAdv = ctx.createLinearGradient(0, top, 0, bot);
+  gradAdv.addColorStop(0,   'rgba(0,210,60,0.92)');
+  gradAdv.addColorStop(0.7, 'rgba(0,170,50,0.60)');
+  gradAdv.addColorStop(1,   'rgba(0,130,40,0.20)');
+  ctx.beginPath();
+  ctx.moveTo(xp(0), top);
+  data.forEach((d,i) => ctx.lineTo(xp(i), yAdvLine(d)));
+  ctx.lineTo(xp(n-1), top);
+  ctx.closePath();
+  ctx.fillStyle = gradAdv;
+  ctx.fill();
+
+  // ── Decline fill (red, bot → decLine) ───────────────
+  const gradDec = ctx.createLinearGradient(0, bot, 0, top);
+  gradDec.addColorStop(0,   'rgba(210,20,20,0.92)');
+  gradDec.addColorStop(0.7, 'rgba(170,15,15,0.60)');
+  gradDec.addColorStop(1,   'rgba(130,10,10,0.20)');
+  ctx.beginPath();
+  ctx.moveTo(xp(0), bot);
+  data.forEach((d,i) => ctx.lineTo(xp(i), yDecLine(d)));
+  ctx.lineTo(xp(n-1), bot);
+  ctx.closePath();
+  ctx.fillStyle = gradDec;
+  ctx.fill();
+
+  // ── Neutral gap fill (amber between the two lines) ──
+  const hasNeutral = data.some(d=>(d.neutral||0)>0);
+  if(hasNeutral){
+    // Fill
     ctx.beginPath();
-    ctx.strokeStyle=color;ctx.lineWidth=1.8;ctx.lineJoin='round';
     data.forEach((d,i)=>{
-      if(i===0)ctx.moveTo(xp(i),yp(d[key]||0));
-      else ctx.lineTo(xp(i),yp(d[key]||0));
+      if(i===0) ctx.moveTo(xp(i), yAdvLine(d));
+      else       ctx.lineTo(xp(i), yAdvLine(d));
+    });
+    for(let i=n-1;i>=0;i--)
+      ctx.lineTo(xp(i), yDecLine(data[i]));
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(220,160,0,0.55)';
+    ctx.fill();
+    // Top border of neutral (= bottom of green)
+    ctx.beginPath();
+    ctx.strokeStyle = '#ffaa00'; ctx.lineWidth = 1.5; ctx.setLineDash([3,3]);
+    data.forEach((d,i)=>{
+      if((d.neutral||0) === 0) return;
+      if(i===0) ctx.moveTo(xp(i), yAdvLine(d));
+      else       ctx.lineTo(xp(i), yAdvLine(d));
     });
     ctx.stroke();
-
-    // Dots
-    ctx.fillStyle=color;
-    data.forEach((d,i)=>{
-      ctx.beginPath();
-      ctx.arc(xp(i),yp(d[key]||0),2.5,0,Math.PI*2);
-      ctx.fill();
-    });
+    ctx.setLineDash([]);
   }
 
-  drawLine('neutral','#cc8800');
-  drawLine('dec',    '#dd1111');
-  drawLine('adv',    '#00cc44');
-
-  // X axis labels
-  ctx.fillStyle='#444';ctx.font='8px Segoe UI';ctx.textAlign='center';
-  const step = Math.max(1, Math.floor(n/10));
+  // ── Edge lines ───────────────────────────────────────
+  // Green bottom edge
+  ctx.beginPath();
+  ctx.strokeStyle = '#00dd44'; ctx.lineWidth = 1.8; ctx.lineJoin='round';
   data.forEach((d,i)=>{
-    if(i%step===0){
-      ctx.fillText(d.time, xp(i), H-pad.b+14);
-    }
+    if(i===0) ctx.moveTo(xp(i), yAdvLine(d));
+    else       ctx.lineTo(xp(i), yAdvLine(d));
+  });
+  ctx.stroke();
+
+  // Red top edge
+  ctx.beginPath();
+  ctx.strokeStyle = '#ff2222'; ctx.lineWidth = 1.8; ctx.lineJoin='round';
+  data.forEach((d,i)=>{
+    if(i===0) ctx.moveTo(xp(i), yDecLine(d));
+    else       ctx.lineTo(xp(i), yDecLine(d));
+  });
+  ctx.stroke();
+
+  // ── Last-point dots ──────────────────────────────────
+  const last = data[n-1];
+  const lx   = pad.l + cw + 6;
+  function dot(x, y, color){
+    ctx.fillStyle=color; ctx.strokeStyle='#000'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  }
+  dot(xp(n-1), yAdvLine(last), '#00ee55');
+  dot(xp(n-1), yDecLine(last), '#ff3333');
+
+  // ── Right labels ─────────────────────────────────────
+  const {advPct:lAdvP, decPct:lDecP} = getPct(last);
+  ctx.font='bold 10px Segoe UI'; ctx.textAlign='left';
+  ctx.fillStyle='#00ee55';
+  ctx.fillText('▲ '+(last.adv||0)+' ('+(lAdvP*100).toFixed(0)+'%)', lx, Math.max(top+10, yAdvLine(last)+4));
+  ctx.fillStyle='#ff3333';
+  ctx.fillText('▼ '+(last.dec||0)+' ('+(lDecP*100).toFixed(0)+'%)', lx, Math.min(bot-4, yDecLine(last)-2));
+  if(last.neutral){
+    const midY = (yAdvLine(last)+yDecLine(last))/2;
+    ctx.fillStyle='#cc8800';
+    ctx.fillText('● '+(last.neutral||0), lx, midY+4);
+  }
+
+  // ── 30-min vertical marker lines ────────────────────
+  const is30min = t => { const [h,m]=t.split(':').map(Number); return m%30===0 && m!==0; };
+  const isHour  = t => { const [h,m]=t.split(':').map(Number); return m===0; };
+  data.forEach((d,i)=>{
+    const x30 = xp(i);
+    const isH = isHour(d.time);
+    const is30 = is30min(d.time);
+    if(!isH && !is30) return;
+    ctx.save();
+    ctx.strokeStyle = isLight
+      ? (isH ? 'rgba(0,0,0,0.28)' : 'rgba(0,0,0,0.14)')
+      : (isH ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.12)');
+    ctx.lineWidth = isH ? 1.5 : 1;
+    if(is30) ctx.setLineDash([5,5]);
+    ctx.beginPath(); ctx.moveTo(x30, top); ctx.lineTo(x30, bot); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = isLight
+      ? (isH ? '#555' : '#888')
+      : (isH ? '#aaa' : '#666');
+    ctx.font = (isH ? 'bold ' : '') + '9px Segoe UI';
+    ctx.textAlign='center';
+    ctx.fillText(d.time, x30, bot+13);
+    ctx.restore();
   });
 
-  // Last value labels
-  const last = data[n-1];
-  ctx.font='9px Segoe UI';ctx.textAlign='left';
-  ctx.fillStyle='#00cc44';ctx.fillText('▲ '+last.adv,    pad.l+cw+4, yp(last.adv)+3);
-  ctx.fillStyle='#dd1111';ctx.fillText('▼ '+last.dec,    pad.l+cw+4, yp(last.dec)+3);
-  if(last.neutral){
-    ctx.fillStyle='#cc8800';ctx.fillText('— '+last.neutral, pad.l+cw+4, yp(last.neutral)+3);
-  }
+  // ── X axis labels ────────────────────────────────────
+  ctx.fillStyle = document.body.classList.contains('light') ? '#888' : '#444';
+  ctx.font='8px Segoe UI'; ctx.textAlign='center';
+  const step = Math.max(1, Math.floor(n/10));
+  data.forEach((d,i)=>{
+    if(i%step===0 && !is30min(data[i].time))
+      ctx.fillText(d.time, xp(i), H-pad.b+12);
+  });
+
+  // ── Corner labels ────────────────────────────────────
+  ctx.font='bold 9px Segoe UI'; ctx.textAlign='left';
+  ctx.fillStyle='rgba(0,230,60,0.5)';
+  ctx.fillText('▲ ADVANCE', pad.l+4, top+12);
+  ctx.fillStyle='rgba(220,30,30,0.5)';
+  ctx.fillText('▼ DECLINE', pad.l+4, bot-5);
+
+  // ── Metadata for tooltip ─────────────────────────────
+  canvas._graphData = data;
+  canvas._graphPad  = pad;
+  canvas._graphCW   = cw;
+  canvas._graphN    = n;
+  canvas._graphTop  = top;
+  canvas._graphBot  = bot;
 }
+
+// ── Graph hover (overlay crosshair + fixed corner tooltip) ──
+(function(){
+  let overlayCanvas = null;
+
+  function getOverlay(canvas){
+    if(!overlayCanvas){
+      overlayCanvas = document.createElement('canvas');
+      overlayCanvas.style.cssText='position:fixed;pointer-events:none;background:transparent;z-index:7000;';
+      document.body.appendChild(overlayCanvas);
+    }
+    const rect = canvas.getBoundingClientRect();
+    overlayCanvas.style.left   = rect.left + 'px';
+    overlayCanvas.style.top    = rect.top  + 'px';
+    overlayCanvas.style.width  = rect.width  + 'px';
+    overlayCanvas.style.height = rect.height + 'px';
+    const dpr = window.devicePixelRatio||1;
+    overlayCanvas.width  = rect.width  * dpr;
+    overlayCanvas.height = rect.height * dpr;
+    return overlayCanvas;
+  }
+
+  function showTip(d){
+    const tip = document.getElementById('graphTooltip');
+    if(!tip) return;
+    document.getElementById('gtTime').textContent = d.time;
+    document.getElementById('gtAdv').textContent  = '▲ Adv  ' + (d.adv||0);
+    document.getElementById('gtDec').textContent  = '▼ Dec  ' + (d.dec||0);
+    const neu = document.getElementById('gtNeu');
+    if(d.neutral){ neu.textContent='● Neu  '+d.neutral; neu.style.display='block'; }
+    else          { neu.style.display='none'; }
+    tip.style.display = 'block';
+  }
+
+  function hideTip(){
+    const tip = document.getElementById('graphTooltip');
+    if(tip) tip.style.display='none';
+    if(overlayCanvas) overlayCanvas.getContext('2d').clearRect(0,0,overlayCanvas.width,overlayCanvas.height);
+  }
+
+  document.addEventListener('mousemove', e=>{
+    const canvas = document.getElementById('graphCanvas');
+    if(!canvas || !canvas._graphData) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx   = e.clientX - rect.left;
+    const pad  = canvas._graphPad;
+    const cw   = canvas._graphCW;
+    const n    = canvas._graphN;
+    const data = canvas._graphData;
+    const top  = canvas._graphTop;
+    const bot  = canvas._graphBot;
+    const dpr  = window.devicePixelRatio||1;
+
+    if(mx < pad.l || mx > pad.l+cw){ hideTip(); return; }
+
+    const idx = Math.round(((mx - pad.l) / cw) * (n-1));
+    if(idx<0||idx>=n){ hideTip(); return; }
+
+    const d  = data[idx];
+    const x2 = pad.l + (idx/(n-1))*cw;
+
+    showTip(d);
+
+    // Crosshair on overlay
+    const ov  = getOverlay(canvas);
+    const ctx = ov.getContext('2d');
+    ctx.clearRect(0,0,ov.width,ov.height);
+    ctx.save();
+    ctx.scale(dpr,dpr);
+    ctx.strokeStyle = document.body.classList.contains('light')
+      ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.22)';
+    ctx.lineWidth=1; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(x2,top); ctx.lineTo(x2,bot); ctx.stroke();
+    ctx.setLineDash([]);
+    // Dots
+    const maxTotal = Math.max(...data.map(d2=>(d2.adv||0)+(d2.dec||0)+(d2.neutral||0)),1);
+    const ch  = bot-top;
+    const tot = (d.adv||0)+(d.dec||0)+(d.neutral||0)||1;
+    const advY = top + (d.adv||0)/tot*ch;
+    const decY = bot  - (d.dec||0)/tot*ch;
+    ctx.fillStyle='#00ee55'; ctx.strokeStyle='#000'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(x2,advY,5,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#ff3333';
+    ctx.beginPath(); ctx.arc(x2,decY,5,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.restore();
+  });
+
+  document.addEventListener('mouseleave', hideTip);
+  window.addEventListener('resize', ()=>{
+    if(overlayCanvas){ overlayCanvas.remove(); overlayCanvas=null; }
+  });
+
+  // Hide tooltip when graph closes
+  document.getElementById('bGraph').addEventListener('click', hideTip);
+  document.getElementById('bAll').addEventListener('click',  hideTip);
+  document.getElementById('bN50').addEventListener('click',  hideTip);
+})();
 
 // ══════════════════════════════════════════════════════
 // MINI CHART
@@ -726,8 +1094,10 @@ async function openMiniChart(sym, ltp, pct){
 function drawMiniChart(history, color){
   const canvas = document.getElementById('miniCanvas');
   const dpr    = window.devicePixelRatio||1;
-  const W      = canvas.parentElement.clientWidth;
-  const H      = 160;
+  // Use the modal inner width (subtract modal padding 32px)
+  const modal  = document.getElementById('miniModal');
+  const W      = modal.clientWidth - 32;
+  const H      = Math.min(180, Math.round(W * 0.38));
   canvas.width  = W*dpr;
   canvas.height = H*dpr;
   canvas.style.width  = W+'px';
@@ -738,7 +1108,7 @@ function drawMiniChart(history, color){
   ctx.clearRect(0,0,W,H);
 
   if(!history||history.length<2){
-    ctx.fillStyle='#333';ctx.font='11px Segoe UI';
+    ctx.fillStyle='#555';ctx.font='11px Segoe UI';
     ctx.textAlign='center';
     ctx.fillText('No history data', W/2, H/2);
     return;
@@ -751,53 +1121,62 @@ function drawMiniChart(history, color){
   const maxP   = Math.max(...prices);
   const range  = maxP-minP || 1;
 
-  const pad = {t:8,r:8,b:24,l:52};
-  const cw  = W-pad.l-pad.r;
-  const ch  = H-pad.t-pad.b;
+  const pad = {t:8, r:16, b:22, l:56};
+  const cw  = W - pad.l - pad.r;
+  const ch  = H - pad.t - pad.b;
 
   function xp(i){ return pad.l + (i/(n-1))*cw; }
   function yp(v){ return pad.t + ch - ((v-minP)/range)*ch; }
 
+  // Background
+  ctx.fillStyle='#111';ctx.fillRect(0,0,W,H);
+
   // Grid
-  ctx.strokeStyle='#1a1a1a';ctx.lineWidth=1;
+  ctx.strokeStyle='#1e1e1e';ctx.lineWidth=1;
   for(let i=0;i<=3;i++){
     const y = pad.t+(ch/3)*i;
     ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cw,y);ctx.stroke();
     const v = maxP - (range/3)*i;
-    ctx.fillStyle='#333';ctx.font='8px Segoe UI';ctx.textAlign='right';
-    ctx.fillText(v.toFixed(1),pad.l-4,y+3);
+    ctx.fillStyle='#444';ctx.font='9px Segoe UI';ctx.textAlign='right';
+    ctx.fillText(v.toFixed(1), pad.l-4, y+3);
   }
 
-  // Fill
+  // Fill gradient
+  const isGreen = color.includes('cc44') || color.includes('00cc');
   const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
-  grad.addColorStop(0, color==='#00cc44'?'rgba(0,204,68,0.3)':'rgba(221,17,17,0.3)');
+  grad.addColorStop(0, isGreen?'rgba(0,204,68,0.35)':'rgba(221,17,17,0.35)');
   grad.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.beginPath();
-  ctx.moveTo(xp(0),yp(prices[0]));
+  ctx.moveTo(xp(0), yp(prices[0]));
   prices.forEach((p,i)=>ctx.lineTo(xp(i),yp(p)));
-  ctx.lineTo(xp(n-1),pad.t+ch);
-  ctx.lineTo(xp(0),pad.t+ch);
+  ctx.lineTo(xp(n-1), pad.t+ch);
+  ctx.lineTo(xp(0),   pad.t+ch);
   ctx.closePath();
-  ctx.fillStyle=grad;ctx.fill();
+  ctx.fillStyle=grad; ctx.fill();
 
   // Line
   ctx.beginPath();
-  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.lineCap='round';
   prices.forEach((p,i)=>{
-    if(i===0)ctx.moveTo(xp(i),yp(p));
-    else ctx.lineTo(xp(i),yp(p));
+    if(i===0) ctx.moveTo(xp(i),yp(p));
+    else      ctx.lineTo(xp(i),yp(p));
   });
   ctx.stroke();
 
-  // Last dot
-  ctx.fillStyle=color;
-  ctx.beginPath();ctx.arc(xp(n-1),yp(prices[n-1]),4,0,Math.PI*2);ctx.fill();
+  // Last dot — clamped inside canvas
+  const dotX = Math.min(xp(n-1), pad.l+cw-4);
+  const dotY = Math.max(pad.t+4, Math.min(pad.t+ch-4, yp(prices[n-1])));
+  ctx.fillStyle=color; ctx.strokeStyle='#111'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(dotX, dotY, 4, 0, Math.PI*2); ctx.fill(); ctx.stroke();
 
   // X labels
-  ctx.fillStyle='#444';ctx.font='8px Segoe UI';ctx.textAlign='center';
+  ctx.fillStyle='#555'; ctx.font='8px Segoe UI'; ctx.textAlign='center';
   const step=Math.max(1,Math.floor(n/6));
   times.forEach((t,i)=>{
-    if(i%step===0) ctx.fillText(t,xp(i),H-pad.b+12);
+    if(i%step===0){
+      const lx = Math.max(pad.l+10, Math.min(pad.l+cw-10, xp(i)));
+      ctx.fillText(t, lx, H-4);
+    }
   });
 }
 
@@ -939,6 +1318,332 @@ document.getElementById('tvSheet').addEventListener('touchend',e=>{
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDeskPopup();closeMiniBtn();}});
 
+
+// ══════════════════════════════════════════════════════
+// INDIA VIX CHART
+// ══════════════════════════════════════════════════════
+let vixData = [];
+
+async function fetchVix(){
+  try{
+    const r = await fetch(r2url(`${todayStr()}/vix.json`));
+    if(!r.ok) return [];
+    return r.json();
+  }catch(e){ return []; }
+}
+
+function drawVix(data){
+  const canvas = document.getElementById('vixCanvas');
+  if(!canvas) return;
+
+  const dpr = window.devicePixelRatio||1;
+  const W   = canvas.parentElement.clientWidth - 24;
+  const H   = canvas.parentElement.clientHeight - 38;
+
+  canvas.width  = W*dpr; canvas.height = H*dpr;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+
+  const isLight = document.body.classList.contains('light');
+
+  if(!data || data.length < 2){
+    ctx.fillStyle='#444'; ctx.font='10px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText('VIX data loading...', W/2, H/2);
+    return;
+  }
+
+  // Update badge
+  const last  = data[data.length-1];
+  const first = data[0];
+  const chg   = last.vix - first.vix;
+  document.getElementById('vixVal').textContent = last.vix.toFixed(2);
+  const chgEl = document.getElementById('vixChg');
+  chgEl.textContent = (chg>=0?'+':'')+chg.toFixed(2);
+  chgEl.className   = 'vix-chg ' + (chg>=0?'up':'dn');
+
+  const n     = data.length;
+  const vals  = data.map(d=>d.vix);
+  const minV  = Math.min(...vals);
+  const maxV  = Math.max(...vals);
+  const range = maxV - minV || 0.5;
+
+  const pad = {t:4, r:48, b:18, l:10};
+  const cw  = W - pad.l - pad.r;
+  const ch  = H - pad.t - pad.b;
+
+  function xp(i){ return pad.l + (i/(n-1))*cw; }
+  function yp(v){ return pad.t + ch - ((v-minV)/range)*ch; }
+
+  // Background
+  ctx.fillStyle = isLight ? '#f8f8f8' : '#0c0c0c';
+  ctx.fillRect(0,0,W,H);
+
+  // Grid lines (3)
+  for(let i=0;i<=2;i++){
+    const y = pad.t + (ch/2)*i;
+    const v = maxV - (range/2)*i;
+    ctx.strokeStyle = isLight?'#e8e8e8':'#1a1a1a';
+    ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cw,y); ctx.stroke();
+    ctx.fillStyle=isLight?'#999':'#444'; ctx.font='8px Segoe UI'; ctx.textAlign='left';
+    ctx.fillText(v.toFixed(1), pad.l+cw+4, y+3);
+  }
+
+  // 30-min markers
+  const is30 = t => { const [h,m]=t.split(':').map(Number); return m%30===0; };
+  data.forEach((d,i)=>{
+    if(!is30(d.time)) return;
+    ctx.strokeStyle=isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.08)';
+    ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(xp(i),pad.t); ctx.lineTo(xp(i),pad.t+ch); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=isLight?'#bbb':'#333'; ctx.font='7px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText(d.time, xp(i), pad.t+ch+12);
+  });
+
+  // VIX color — orange/yellow (neutral indicator)
+  const vixColor = '#ff9800';
+  const vixColorFade = 'rgba(255,152,0,';
+
+  // Fill gradient
+  const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+  grad.addColorStop(0, vixColorFade+'0.40)');
+  grad.addColorStop(1, vixColorFade+'0.03)');
+  ctx.beginPath();
+  ctx.moveTo(xp(0), pad.t+ch);
+  data.forEach((d,i)=>ctx.lineTo(xp(i), yp(d.vix)));
+  ctx.lineTo(xp(n-1), pad.t+ch);
+  ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle=vixColor; ctx.lineWidth=1.8; ctx.lineJoin='round'; ctx.lineCap='round';
+  data.forEach((d,i)=>{
+    if(i===0) ctx.moveTo(xp(i),yp(d.vix));
+    else       ctx.lineTo(xp(i),yp(d.vix));
+  });
+  ctx.stroke();
+
+  // Last dot
+  ctx.fillStyle=vixColor; ctx.strokeStyle='#000'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(xp(n-1), yp(last.vix), 4, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+
+  // Last value label
+  ctx.fillStyle=vixColor; ctx.font='bold 9px Segoe UI'; ctx.textAlign='left';
+  ctx.fillText(last.vix.toFixed(2), pad.l+cw+4, yp(last.vix)+3);
+}
+
+async function loadAndRenderVix(){
+  vixData = await fetchVix();
+  drawVix(vixData);
+}
+
+
+// ══════════════════════════════════════════════════════
+// VIX POPUP
+// ══════════════════════════════════════════════════════
+
+function drawVixPopup(data){
+  const canvas = document.getElementById('vixPopupCanvas');
+  if(!canvas) return;
+
+  const dpr  = window.devicePixelRatio||1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const W    = rect.width - 40;
+  const H    = 280;
+  canvas.width  = W*dpr; canvas.height = H*dpr;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+
+  const isLight = document.body.classList.contains('light');
+
+  if(!data || data.length < 2){
+    ctx.fillStyle='#555'; ctx.font='13px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText('VIX data not available yet — run adv_dec_data.py first', W/2, H/2);
+    return;
+  }
+
+  // Update badge
+  const last  = data[data.length-1];
+  const first = data[0];
+  const chg   = +(last.vix - first.vix).toFixed(2);
+  const chgPct= +((chg/first.vix)*100).toFixed(2);
+  document.getElementById('vixPopupVal').textContent = last.vix.toFixed(2);
+  const chgEl = document.getElementById('vixPopupChg');
+  chgEl.textContent = (chg>=0?'+':'')+chg+' ('+(chgPct>=0?'+':'')+chgPct+'%)';
+  chgEl.className   = 'vix-popup-chg '+(chg>=0?'up':'dn');
+
+  const n    = data.length;
+  const vals = data.map(d=>d.vix);
+  const minV = Math.min(...vals) * 0.998;
+  const maxV = Math.max(...vals) * 1.002;
+  const range= maxV - minV || 0.5;
+
+  const pad = {t:12, r:56, b:24, l:12};
+  const cw  = W - pad.l - pad.r;
+  const ch  = H - pad.t - pad.b;
+
+  function xp(i){ return pad.l + (i/(n-1))*cw; }
+  function yp(v){ return pad.t + ch - ((v-minV)/range)*ch; }
+
+  // Background
+  ctx.fillStyle = isLight ? '#f8f8f8' : '#0d0d0d';
+  ctx.fillRect(0,0,W,H);
+
+  // Grid lines (5)
+  for(let i=0;i<=4;i++){
+    const y = pad.t + (ch/4)*i;
+    const v = maxV - (range/4)*i;
+    ctx.strokeStyle = isLight?'#e8e8e8':'#1a1a1a';
+    ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cw,y); ctx.stroke();
+    ctx.fillStyle=isLight?'#888':'#555'; ctx.font='9px Segoe UI'; ctx.textAlign='left';
+    ctx.fillText(v.toFixed(2), pad.l+cw+4, y+3);
+  }
+
+  // 30-min + hour markers
+  data.forEach((d,i)=>{
+    const [h,m] = d.time.split(':').map(Number);
+    const isH   = m===0;
+    const is30  = m===30;
+    if(!isH && !is30) return;
+    const x = xp(i);
+    ctx.strokeStyle = isLight
+      ? (isH?'rgba(0,0,0,0.20)':'rgba(0,0,0,0.10)')
+      : (isH?'rgba(255,255,255,0.18)':'rgba(255,255,255,0.07)');
+    ctx.lineWidth = isH?1.2:1;
+    if(is30) ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(x,pad.t); ctx.lineTo(x,pad.t+ch); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = isLight?(isH?'#666':'#aaa'):(isH?'#888':'#444');
+    ctx.font = (isH?'bold ':'')+'8px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText(d.time, x, pad.t+ch+14);
+  });
+
+  // Prev close reference line (first value)
+  const refY = yp(first.vix);
+  ctx.strokeStyle = isLight?'rgba(0,0,0,0.15)':'rgba(255,255,255,0.12)';
+  ctx.lineWidth=1; ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(pad.l,refY); ctx.lineTo(pad.l+cw,refY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Fill gradient
+  const vixColor = '#ff9800';
+  const aboveRef = last.vix >= first.vix;
+  const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+  if(aboveRef){
+    grad.addColorStop(0,'rgba(255,80,80,0.40)');
+    grad.addColorStop(1,'rgba(255,80,80,0.03)');
+  } else {
+    grad.addColorStop(0,'rgba(0,200,80,0.35)');
+    grad.addColorStop(1,'rgba(0,200,80,0.03)');
+  }
+  ctx.beginPath();
+  ctx.moveTo(xp(0), pad.t+ch);
+  data.forEach((d,i)=>ctx.lineTo(xp(i), yp(d.vix)));
+  ctx.lineTo(xp(n-1), pad.t+ch);
+  ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle=vixColor; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.lineCap='round';
+  data.forEach((d,i)=>{
+    if(i===0) ctx.moveTo(xp(i),yp(d.vix));
+    else       ctx.lineTo(xp(i),yp(d.vix));
+  });
+  ctx.stroke();
+
+  // Last dot
+  ctx.fillStyle=vixColor; ctx.strokeStyle=isLight?'#fff':'#000'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(xp(n-1),yp(last.vix),5,0,Math.PI*2); ctx.fill(); ctx.stroke();
+
+  // Last value right label
+  ctx.fillStyle=vixColor; ctx.font='bold 10px Segoe UI'; ctx.textAlign='left';
+  ctx.fillText(last.vix.toFixed(2), pad.l+cw+4, yp(last.vix)+3);
+
+  // Store for hover
+  canvas._vixData = data;
+  canvas._vixPad  = pad;
+  canvas._vixCW   = cw;
+  canvas._vixCH   = ch;
+  canvas._vixN    = n;
+  canvas._vixMinV = minV;
+  canvas._vixMaxV = maxV;
+}
+
+async function openVixPopup(){
+  document.getElementById('vixOverlay').classList.add('show');
+  document.getElementById('bVix').classList.add('on-vix');
+  const data = await fetchVix();
+  vixData = data;
+  // Small delay so popup is rendered before canvas sizing
+  setTimeout(()=>drawVixPopup(data), 50);
+}
+
+function closeVixPopup(e){
+  if(e && e.target !== document.getElementById('vixOverlay')) return;
+  closeVixPopupBtn();
+}
+function closeVixPopupBtn(){
+  document.getElementById('vixOverlay').classList.remove('show');
+  document.getElementById('bVix').classList.remove('on-vix');
+}
+
+// ESC closes VIX popup too
+const _origKD = document.onkeydown;
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape') closeVixPopupBtn();
+});
+
+// VIX hover tooltip
+(function(){
+  let vixTip = null;
+  function getVixTip(){
+    if(!vixTip){
+      vixTip = document.createElement('div');
+      vixTip.style.cssText='position:fixed;pointer-events:none;display:none;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;font-family:Segoe UI,Arial,sans-serif;z-index:9200;line-height:1.7;box-shadow:0 4px 20px rgba(0,0,0,.8);';
+      document.body.appendChild(vixTip);
+    }
+    return vixTip;
+  }
+
+  document.addEventListener('mousemove', e=>{
+    const canvas = document.getElementById('vixPopupCanvas');
+    if(!canvas||!canvas._vixData) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const pad= canvas._vixPad;
+    const cw = canvas._vixCW;
+    const n  = canvas._vixN;
+    const data=canvas._vixData;
+    const tip = getVixTip();
+    if(mx<pad.l||mx>pad.l+cw){tip.style.display='none';return;}
+    const idx = Math.round(((mx-pad.l)/cw)*(n-1));
+    if(idx<0||idx>=n){tip.style.display='none';return;}
+    const d = data[idx];
+    const chg = +(d.vix - data[0].vix).toFixed(2);
+    tip.innerHTML=
+      `<span style="color:#888;font-size:10px">${d.time}</span><br>`+
+      `<span style="color:#ff9800">VIX &nbsp;<b style="color:#fff">${d.vix.toFixed(2)}</b></span><br>`+
+      `<span style="color:${chg>=0?'#ff4444':'#00cc44'};font-size:10px">${chg>=0?'▲':'▼'} ${Math.abs(chg).toFixed(2)}</span>`;
+    const tx=Math.min(e.clientX+14,window.innerWidth-140);
+    const ty=Math.min(e.clientY-10,window.innerHeight-80);
+    tip.style.left=tx+'px';tip.style.top=ty+'px';tip.style.display='block';
+  });
+
+  document.getElementById('vixPopupCanvas') && document.addEventListener('mouseleave',()=>{
+    if(vixTip) vixTip.style.display='none';
+  });
+})();
+
 // ══════════════════════════════════════════════════════
 // AUTO REFRESH
 // ══════════════════════════════════════════════════════
@@ -950,6 +1655,9 @@ async function refresh(){
       if(graphMode){
         graphData = await fetchGraph();
         drawGraph(graphData);
+        // VIX refresh
+        vixData = await fetchVix();
+        drawVix(vixData);
       }
     }
   }catch(e){
@@ -966,6 +1674,16 @@ setInterval(()=>{
   setTimeout(()=>c.style.filter='',350);
 },2500);
 
+
+// ── THEME TOGGLE ────────────────────────────────────────
+let isDark = true;
+function toggleTheme(){
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('bTheme').textContent = isDark ? '☀️' : '🌙';
+  if(graphMode){ drawGraph(graphData); drawVix(vixData); }
+}
+
 // ══════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════
@@ -974,6 +1692,15 @@ async function init(){
     const data = await fetchLatest();
     renderHeatmap(data);
     document.getElementById('loader').style.display='none';
+    // Open graph view by default
+    graphMode = true;
+    document.getElementById('grid').style.display      = 'none';
+    document.getElementById('top5Panel').style.display = 'none';
+    document.getElementById('graphView').classList.add('active');
+    document.getElementById('bGraph').classList.add('on-graph');
+    graphData = await fetchGraph();
+    drawGraph(graphData);
+    await loadAndRenderVix();
   }catch(e){
     document.getElementById('loader').innerHTML='<p style="color:#ff4444">Failed to load data.<br>Check R2_BASE URL in config.</p>';
   }
