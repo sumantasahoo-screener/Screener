@@ -184,9 +184,30 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .dots span:nth-child(2){animation-delay:.2s;}.dots span:nth-child(3){animation-delay:.4s;}
 @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
 .typing-txt{font-size:11.5px;color:var(--text3);}
-.qqs{display:flex;gap:5px;padding:7px 16px;background:var(--bg2);border-top:1px solid var(--border);overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
-.qqs::-webkit-scrollbar{display:none;}
-.qq{flex-shrink:0;padding:4px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:11.5px;cursor:pointer;white-space:nowrap;}
+.sp-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.sp-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;width:min(680px,95vw);max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.5);}
+.sp-head{padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.sp-title{font-size:15px;font-weight:700;color:var(--text);}
+.sp-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.sp-close{width:30px;height:30px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;cursor:pointer;font-size:16px;color:var(--text2);display:flex;align-items:center;justify-content:center;}
+.sp-close:hover{background:var(--bg4);color:var(--red);}
+.sp-search-wrap{padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sp-search{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;}
+.sp-search:focus{border-color:var(--accent);}
+.sp-search::placeholder{color:var(--text3);}
+.sp-cats{display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
+.sp-cats::-webkit-scrollbar{display:none;}
+.sp-cat{padding:4px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.sp-cat.active,.sp-cat:hover{border-color:var(--accent);color:var(--accent);background:var(--adim);}
+.sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px;padding:12px 14px;overflow-y:auto;flex:1;}
+.sp-grid::-webkit-scrollbar{width:4px;}
+.sp-grid::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.sp-chip{padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;cursor:pointer;text-align:center;transition:all 0.15s;}
+.sp-chip:hover{border-color:var(--accent);background:var(--adim);transform:scale(1.03);}
+.sp-chip .sc-sym{font-size:12px;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;}
+.sp-chip .sc-sec{font-size:9.5px;color:var(--text3);margin-top:2px;}
+.sp-no{padding:30px;text-align:center;color:var(--text3);font-size:13px;}
+.sp-footer{padding:8px 14px;border-top:1px solid var(--border);font-size:10.5px;color:var(--text3);text-align:center;flex-shrink:0;}
 .qq:hover{border-color:var(--accent);color:var(--accent);}
 .inp-wrap{padding:9px 16px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0;}
 .inp-row{display:flex;gap:7px;align-items:flex-end;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 10px;transition:border-color .2s;}
@@ -228,6 +249,36 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .lc-send:hover{opacity:.85;}
 .lc-send:disabled{opacity:.3;cursor:not-allowed;}
 .lc-disc{text-align:center;font-size:9.5px;color:var(--text3);margin-top:5px;}
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .body-split{flex-direction:column;}
+  .left-pane{width:100%;border-right:none;border-bottom:1px solid var(--border);}
+  .right-pane{width:100%;height:220px;border-top:1px solid var(--border);}
+  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .tab{font-size:10.5px;padding:0 9px;}
+  .rg{grid-template-columns:1fr;}
+  .idx-grid{grid-template-columns:1fr 1fr;}
+  .sent-signals{grid-template-columns:1fr 1fr;}
+  .vix-card{flex-direction:column;gap:12px;}
+  .ic-price{font-size:18px;}
+  .sig-val{font-size:15px;}
+  html,body{height:100%;overflow:auto;}
+  .body-split{flex:none;min-height:0;}
+  .left-pane{min-height:60vh;}
+  .msgs{padding:10px 12px;}
+  .bub{font-size:12.5px;}
+  .topbar{padding:8px 12px;}
+  .logo-name{font-size:15px;}
+  .inp-wrap{padding:8px 12px;}
+  .sym-pick-btn span.sym-label{display:none;}
+  .sp-modal{max-height:90vh;border-radius:10px 10px 0 0;align-self:flex-end;width:100%;}
+  .sp-overlay{align-items:flex-end;}
+  .sp-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr));}
+}
+@media(max-width:480px){
+  .idx-grid{grid-template-columns:1fr;}
+  .tab{padding:0 7px;font-size:10px;}
+}
 </style>
 </head>
 <body>
@@ -264,19 +315,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
           <p>Live NSE data + AI analysis. Koi bhi NSE stock ya index pucho — entry, SL, target ke saath.</p>
         </div>
       </div>
-      <div class="qqs">
-        <button class="qq" onclick="qa('Aaj ke top intraday stocks kaun se hain? Entry SL target batao.')">🔥 Top Intraday</button>
-        <button class="qq" onclick="qa('Nifty aur Bank Nifty ka aaj ka setup batao — entry, SL, target.')">📊 Nifty/BNF</button>
-        <button class="qq" onclick="qa('India VIX kitna hai aur market pe kya impact hai?')">🌡️ VIX</button>
-        <button class="qq" onclick="qa('Volume spike wale stocks batao aaj ke reason ke saath.')">⚡ Vol Spikes</button>
-        <button class="qq" onclick="qa('Best scalping setups aaj ke — tight SL ke saath.')">🎯 Scalping</button>
-        <button class="qq" onclick="qa('Reliance ka aaj ka intraday setup batao.')">RELIANCE</button>
-        <button class="qq" onclick="qa('TCS ka aaj ka setup — entry, SL, target.')">TCS</button>
-        <button class="qq" onclick="qa('Aaj market overall bullish hai ya bearish?')">📊 Market View</button>
-      </div>
       <div class="inp-wrap">
         <div class="inp-row">
           <textarea id="inp" rows="1" placeholder="Koi bhi NSE stock ya index pucho..." onkeydown="hk(event)" oninput="ri(this)"></textarea>
+          <button class="sym-pick-btn" onclick="openSymPicker()" title="Stock list se chunno">📋 <span class="sym-label">Symbol</span></button>
           <button class="send" id="sendBtn" onclick="sendChat()">↑</button>
         </div>
         <div class="inp-hint">⚠️ Educational only — apni research ke baad hi trade karo</div>
@@ -460,6 +502,99 @@ function fmt(t){t=t.replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>");t=t.replace(
 async function sendChat(){const inp=document.getElementById("inp"),btn=document.getElementById("sendBtn"),text=inp.value.trim();if(!text||busy)return;busy=true;btn.disabled=true;inp.value="";inp.style.height="auto";document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));document.querySelector(".tab").classList.add("active");document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));document.getElementById("chatP").classList.add("active");addMsg("user",esc(text));showTyp();try{const r=await fetch(`${W}/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text,history:chatHist})});if(!r.ok)throw new Error("HTTP "+r.status);const d=await r.json();if(d.error)throw new Error(d.error);hideTyp();addMsg("ai",fmt(d.reply));chatHist.push({role:"user",content:text},{role:"assistant",content:d.reply});if(chatHist.length>20)chatHist=chatHist.slice(-20);}catch(e){hideTyp();addMsg("ai",`<span style="color:var(--red)">⚠️ ${esc(e.message)}</span>`);}busy=false;btn.disabled=false;document.getElementById("inp").focus();}
 function qa(t){document.getElementById("inp").value=t;sendChat();}
 
+// ── SYMBOL PICKER ──
+const SP_STOCKS = [
+  {s:"RELIANCE",  sec:"energy"},  {s:"TCS",        sec:"it"},     {s:"HDFCBANK",   sec:"banks"},
+  {s:"ICICIBANK", sec:"banks"},   {s:"INFY",        sec:"it"},     {s:"AXISBANK",   sec:"banks"},
+  {s:"SBIN",      sec:"banks"},   {s:"BHARTIARTL",  sec:"infra"},  {s:"KOTAKBANK",  sec:"banks"},
+  {s:"LT",        sec:"infra"},   {s:"HINDUNILVR",  sec:"fmcg"},   {s:"ITC",        sec:"fmcg"},
+  {s:"BAJFINANCE",sec:"finance"}, {s:"TATAMOTORS",  sec:"auto"},   {s:"TATASTEEL",  sec:"metal"},
+  {s:"HCLTECH",   sec:"it"},      {s:"WIPRO",       sec:"it"},     {s:"NTPC",       sec:"energy"},
+  {s:"POWERGRID", sec:"energy"},  {s:"COALINDIA",   sec:"energy"}, {s:"ONGC",       sec:"energy"},
+  {s:"BPCL",      sec:"energy"},  {s:"JSWSTEEL",    sec:"metal"},  {s:"HINDALCO",   sec:"metal"},
+  {s:"VEDL",      sec:"metal"},   {s:"DLF",         sec:"infra"},  {s:"SUNPHARMA",  sec:"pharma"},
+  {s:"DRREDDY",   sec:"pharma"},  {s:"CIPLA",       sec:"pharma"}, {s:"DIVISLAB",   sec:"pharma"},
+  {s:"LUPIN",     sec:"pharma"},  {s:"TECHM",       sec:"it"},     {s:"LTIM",       sec:"it"},
+  {s:"BAJAJ-AUTO",sec:"auto"},    {s:"HEROMOTOCO",  sec:"auto"},   {s:"TVSMOTOR",   sec:"auto"},
+  {s:"BAJAJFINSV",sec:"finance"}, {s:"HDFCAMC",     sec:"finance"},{s:"SBILIFE",    sec:"finance"},
+  {s:"ICICIPRULI",sec:"finance"}, {s:"ICICIGI",     sec:"finance"},{s:"HDFCLIFE",   sec:"finance"},
+  {s:"SHRIRAMFIN",sec:"finance"}, {s:"MUTHOOTFIN",  sec:"finance"},{s:"CHOLAFIN",   sec:"finance"},
+  {s:"FEDERALBNK",sec:"banks"},   {s:"BANDHANBNK",  sec:"banks"},  {s:"IDFCFIRSTB", sec:"banks"},
+  {s:"PNB",       sec:"banks"},   {s:"BANKBARODA",  sec:"banks"},  {s:"CANBK",      sec:"banks"},
+  {s:"INDUSINDBK",sec:"banks"},   {s:"M&M",         sec:"auto"},   {s:"MARUTI",     sec:"auto"},
+  {s:"TITAN",     sec:"fmcg"},    {s:"TATACONSUM",  sec:"fmcg"},   {s:"TATAPOWER",  sec:"energy"},
+  {s:"TATACHEM",  sec:"metal"},   {s:"ADANIENT",    sec:"infra"},  {s:"ADANIPORTS", sec:"infra"},
+  {s:"GRASIM",    sec:"infra"},   {s:"ULTRACEMCO",  sec:"infra"},  {s:"AMBUJACEM",  sec:"infra"},
+  {s:"POLYCAB",   sec:"infra"},   {s:"HAVELLS",     sec:"infra"},  {s:"SIEMENS",    sec:"infra"},
+  {s:"ABB",       sec:"infra"},   {s:"BEL",         sec:"infra"},  {s:"HAL",        sec:"infra"},
+  {s:"BHEL",      sec:"infra"},   {s:"IRCTC",       sec:"infra"},  {s:"CONCOR",     sec:"infra"},
+  {s:"NAUKRI",    sec:"it"},      {s:"ZOMATO",      sec:"it"},     {s:"PERSISTENT", sec:"it"},
+  {s:"COFORGE",   sec:"it"},      {s:"MPHASIS",     sec:"it"},     {s:"AUROPHARMA", sec:"pharma"},
+  {s:"ALKEM",     sec:"pharma"},  {s:"APOLLOHOSP",  sec:"pharma"}, {s:"BIOCON",     sec:"pharma"},
+  {s:"OBEROIRLTY",sec:"infra"},   {s:"GODREJPROP",  sec:"infra"},  {s:"GODREJCP",   sec:"fmcg"},
+  {s:"PIDILITIND",sec:"fmcg"},    {s:"BRITANNIA",   sec:"fmcg"},   {s:"NESTLEIND",  sec:"fmcg"},
+  {s:"DABUR",     sec:"fmcg"},    {s:"MARICO",      sec:"fmcg"},   {s:"GAIL",       sec:"energy"},
+  {s:"IOC",       sec:"energy"},  {s:"SAIL",        sec:"metal"},  {s:"NMDC",       sec:"metal"},
+  {s:"NATIONALUM",sec:"metal"},   {s:"UPL",         sec:"pharma"}, {s:"TORNTPHARM", sec:"pharma"},
+  {s:"PAGEIND",   sec:"fmcg"},    {s:"TRENT",       sec:"fmcg"},   {s:"FORTIS",     sec:"pharma"},
+  {s:"DIXON",     sec:"it"},      {s:"RECLTD",      sec:"finance"},{s:"PFC",        sec:"finance"},
+  {s:"EICHERMOT", sec:"auto"},
+];
+const SEC_LABELS = {banks:"🏦 Banks",it:"💻 IT",auto:"🚗 Auto",pharma:"💊 Pharma",metal:"⚙️ Metal",energy:"⚡ Energy",fmcg:"🛒 FMCG",infra:"🏗️ Infra",finance:"💰 Finance"};
+let spActiveCat = "all";
+
+function openSymPicker() {
+  document.getElementById("spOverlay").style.display = "flex";
+  document.getElementById("spSearch").value = "";
+  spActiveCat = "all";
+  document.querySelectorAll(".sp-cat").forEach(b => b.classList.remove("active"));
+  document.querySelector(".sp-cat").classList.add("active");
+  spRender(SP_STOCKS);
+  setTimeout(() => document.getElementById("spSearch").focus(), 80);
+}
+
+function closeSymPicker() {
+  document.getElementById("spOverlay").style.display = "none";
+}
+
+function spBgClick(e) {
+  if (e.target === document.getElementById("spOverlay")) closeSymPicker();
+}
+
+function spCat(el, cat) {
+  spActiveCat = cat;
+  document.querySelectorAll(".sp-cat").forEach(b => b.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById("spSearch").value = "";
+  const filtered = cat === "all" ? SP_STOCKS : SP_STOCKS.filter(s => s.sec === cat);
+  spRender(filtered);
+}
+
+function spFilter() {
+  const q = document.getElementById("spSearch").value.trim().toUpperCase();
+  if (!q) { spRender(spActiveCat === "all" ? SP_STOCKS : SP_STOCKS.filter(s => s.sec === spActiveCat)); return; }
+  spRender(SP_STOCKS.filter(s => s.s.includes(q)));
+}
+
+function spRender(list) {
+  const g = document.getElementById("spGrid");
+  if (!list.length) { g.innerHTML = '<div class="sp-no">Koi stock nahi mila 🤷</div>'; return; }
+  g.innerHTML = list.map(s =>
+    `<div class="sp-chip" onclick="spPick('${s.s}')">
+      <div class="sc-sym">${s.s}</div>
+      <div class="sc-sec">${SEC_LABELS[s.sec] || s.sec}</div>
+    </div>`
+  ).join("");
+}
+
+function spPick(sym) {
+  closeSymPicker();
+  qa(`${sym} ka aaj ka live intraday setup batao — entry price, stop loss, target 1 aur target 2, aur reason bhi batao.`);
+}
+
+// Close on Escape key
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeSymPicker(); });
+
 // TICKER
 async function loadTicker(){try{const r=await fetch(`${W}/market-summary`);if(!r.ok)throw new Error();const d=await r.json();const idx=d.indices?.data||{};const html=Object.values(idx).map(d=>{if(d.error)return"";const c=d.changePct>0?"up":d.changePct<0?"dn":"neu",a=d.changePct>0?"▲":d.changePct<0?"▼":"—";return`<div class="ti" onclick="qa('${d.name} ka setup batao.')"><span class="ti-name">${d.name}</span><span class="ti-price">${d.price?.toLocaleString("en-IN")}</span><span class="ti-chg ${c}">${a}${Math.abs(d.changePct)}%</span></div>`;}).join("");document.getElementById("ticker").innerHTML=html||'<div class="ti"><span class="ti-name neu">Unavailable</span></div>';document.getElementById("liveStatus").textContent="LIVE";}catch(e){document.getElementById("liveStatus").textContent="ERR";}}
 
@@ -490,5 +625,35 @@ setInterval(loadTicker,3*60*1000);
 pollLC();
 setInterval(pollLC,4000);
 </script>
+<!-- SYMBOL PICKER MODAL -->
+<div class="sp-overlay" id="spOverlay" style="display:none;" onclick="spBgClick(event)">
+  <div class="sp-modal">
+    <div class="sp-head">
+      <div>
+        <div class="sp-title">📋 NSE F&O Stock चुनो</div>
+        <div class="sp-sub">100 liquid F&O stocks · Click करो → Chat में analysis आएगा</div>
+      </div>
+      <button class="sp-close" onclick="closeSymPicker()">✕</button>
+    </div>
+    <div class="sp-search-wrap">
+      <input class="sp-search" id="spSearch" placeholder="🔍  Symbol type karo... (e.g. HDFC, TATA, INFY)" oninput="spFilter()" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="sp-cats" id="spCats">
+      <button class="sp-cat active" onclick="spCat(this,'all')">All (100)</button>
+      <button class="sp-cat" onclick="spCat(this,'banks')">🏦 Banks</button>
+      <button class="sp-cat" onclick="spCat(this,'it')">💻 IT</button>
+      <button class="sp-cat" onclick="spCat(this,'auto')">🚗 Auto</button>
+      <button class="sp-cat" onclick="spCat(this,'pharma')">💊 Pharma</button>
+      <button class="sp-cat" onclick="spCat(this,'metal')">⚙️ Metal</button>
+      <button class="sp-cat" onclick="spCat(this,'energy')">⚡ Energy</button>
+      <button class="sp-cat" onclick="spCat(this,'fmcg')">🛒 FMCG</button>
+      <button class="sp-cat" onclick="spCat(this,'infra')">🏗️ Infra</button>
+      <button class="sp-cat" onclick="spCat(this,'finance')">💰 Finance</button>
+    </div>
+    <div class="sp-grid" id="spGrid"></div>
+    <div class="sp-footer">Kisi bhi stock pe click karo — AI instantly analysis karega</div>
+  </div>
+</div>
+
 </body>
 </html>
