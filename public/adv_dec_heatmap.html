@@ -7,23 +7,34 @@
   const c = document.createElement('canvas');
   c.width = c.height = 64;
   const x = c.getContext('2d');
-  // Left half — green (A)
+  const r = 12;
+
+  // Poora rounded rect clip karo — dono halves is boundary mein rahein
+  x.beginPath();
+  x.moveTo(r, 0);
+  x.lineTo(64-r, 0); x.arcTo(64, 0, 64, r, r);
+  x.lineTo(64, 64-r); x.arcTo(64, 64, 64-r, 64, r);
+  x.lineTo(r, 64); x.arcTo(0, 64, 0, 64-r, r);
+  x.lineTo(0, r); x.arcTo(0, 0, r, 0, r);
+  x.closePath();
+  x.clip();
+
+  // Left half green
   x.fillStyle = '#00aa33';
-  x.beginPath();
-  x.roundRect(0, 0, 32, 64, [12, 0, 0, 12]);
-  x.fill();
-  // Right half — red (D)
+  x.fillRect(0, 0, 32, 64);
+
+  // Right half red
   x.fillStyle = '#cc1111';
-  x.beginPath();
-  x.roundRect(32, 0, 32, 64, [0, 12, 12, 0]);
-  x.fill();
+  x.fillRect(32, 0, 32, 64);
+
   // White text
-  x.font = 'bold 30px Arial';
+  x.font = 'bold 28px Arial';
   x.textAlign = 'center';
   x.textBaseline = 'middle';
   x.fillStyle = '#ffffff';
-  x.fillText('A', 16, 34);
-  x.fillText('D', 48, 34);
+  x.fillText('A', 16, 33);
+  x.fillText('D', 48, 33);
+
   const l = document.createElement('link');
   l.rel = 'icon'; l.type = 'image/png';
   l.href = c.toDataURL('image/png');
