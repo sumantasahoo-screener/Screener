@@ -60,8 +60,8 @@ body{
   /* Fix 5: Cards minimum height on mobile */
   .card{min-height:52px;}
   /* Fix 6: Graph — portrait mein tall, landscape mein compact */
-  .graph-view{min-height:0;height:auto;overflow:visible;flex:none;}
-  .graph-panel{height:calc(50svh - 60px);min-height:200px;flex:none;}
+  .graph-view{min-height:0;height:auto;overflow:visible;flex:none;display:flex;flex-direction:column;gap:6px;}
+  .graph-panel{height:38vh;min-height:180px;flex:none;}
   #graphCanvas{flex:1;min-height:0;height:100%;}
   .vix-panel{height:120px;flex-shrink:0;}
 }
@@ -236,7 +236,7 @@ body.light .vix-val{color:#111;}
 @media(max-width:768px) and (orientation:portrait){
   #vixFloat{
     position:static!important;top:auto!important;
-    width:100%!important;height:calc(50svh - 60px)!important;min-height:200px!important;
+    width:100%!important;height:38vh!important;min-height:180px!important;
     border-radius:10px;cursor:default;box-shadow:none;
     backdrop-filter:none;
   }
@@ -461,7 +461,7 @@ body.light .card.nt  .cf{background:#bb8800;}
     <button class="fb on-all" id="bAll" onclick="setF('all')">All F&amp;O</button>
     <button class="fb" id="bN50" onclick="setF('nifty')">Nifty 50</button>
     <button class="fb" id="bGraph" onclick="toggleGraph()">📈 Graph</button>
-    <button class="fb" id="bVix" onclick="openVixPopup()">⚡ VIX</button>
+    <button class="fb" id="bVix" onclick="openVixPopup()" style="display:none">⚡ VIX</button>
     <button class="fb" id="bTheme" onclick="toggleTheme()">☀️</button>
   </div>
 </div>
@@ -840,8 +840,11 @@ function toggleGraph(){
   if(!graphMode){
     document.getElementById('bAll').className = 'fb'+(currentFilter==='all'?' on-all':'');
     document.getElementById('bN50').className = 'fb'+(currentFilter==='nifty'?' on-n50':'');
+    // Hide vixFloat when leaving graph
+    const vf = document.getElementById('vixFloat');
+    if(vf) vf.classList.remove('active');
   }
-  if(graphMode) loadAndRenderGraph();
+  if(graphMode) requestAnimationFrame(()=>requestAnimationFrame(()=>loadAndRenderGraph()));
 }
 
 async function loadAndRenderGraph(){
