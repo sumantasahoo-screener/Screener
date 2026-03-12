@@ -386,7 +386,7 @@ body.light .card.nt  .cf{background:#bb8800;}
 <!-- HEADER -->
 <div class="hdr">
   <div class="hdr-left">
-    <div class="logo">NSE F&amp;O VI <small>ADVANCE / DECLINE</small></div>
+    <div class="logo">NSE F&amp;O<small>ADVANCE / DECLINE</small></div>
     <div class="sep"></div>
     <div class="ts">Scanned <b id="sct" data-scan-time="">—</b></div>
     <div class="sep"></div>
@@ -639,10 +639,24 @@ function renderHeatmap(data){
         <div class="cl">${Number(ltp).toFixed(2)}</div>
       </div>`;
 
-    card.addEventListener('click',  e => onCardClick(e, sym));
-    card.addEventListener('touchstart', e => onTouchStart(e, sym), {passive:true});
-    card.addEventListener('touchend',   e => onTouchEnd(e, sym));
-    card.addEventListener('touchmove',  onTouchCancel);
+    card.addEventListener('click', e => {
+      e.stopPropagation();
+      popupSym = sym;
+      const isMobile = !window.matchMedia('(pointer:fine)').matches;
+      if(isMobile){
+        const stock = allStocks.find(s=>s.Symbol===sym);
+        if(stock){
+          document.getElementById('sheetSym').textContent='NSE: '+sym;
+          buildSheetBtns(sym);
+          const overlay=document.getElementById('tvOverlay');
+          const sheet=document.getElementById('tvSheet');
+          overlay.style.display='block';sheet.style.display='block';
+          requestAnimationFrame(()=>sheet.classList.add('open'));
+        }
+      } else {
+        showDeskPopup(e, sym);
+      }
+    });
     grid.appendChild(card);
   });
 
@@ -1209,6 +1223,7 @@ function closeMiniBtn(){
 // ══════════════════════════════════════════════════════
 let lpTimer=null, lpDone=false;
 let popupSym=null;
+let touchStartX=0, touchStartY=0, touchMoved=false;
 
 function onCardClick(e, sym){
   if(!window.matchMedia('(pointer:fine)').matches) return;
@@ -1219,7 +1234,11 @@ function onCardClick(e, sym){
 
 function onTouchStart(e, sym){
   lpDone=false;
+  touchMoved=false;
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
   lpTimer=setTimeout(()=>{
+    if(touchMoved) return;
     lpDone=true;
     const tf=TFS.find(t=>t.id===getLastTf())||TFS[1];
     window.open('https://www.tradingview.com/chart/?symbol=NSE:'+sym+'&interval='+tf.tv+'&theme=dark','_blank');
@@ -1230,6 +1249,8 @@ function onTouchStart(e, sym){
 function onTouchEnd(e, sym){
   clearTimeout(lpTimer);
   if(lpDone) return;
+  // Agar scroll hua to popup mat kholo
+  if(touchMoved) return;
   e.preventDefault();
   const stock = allStocks.find(s=>s.Symbol===sym);
   if(stock){
@@ -1243,7 +1264,14 @@ function onTouchEnd(e, sym){
   }
 }
 
-function onTouchCancel(){ clearTimeout(lpTimer);lpDone=false; }
+function onTouchCancel(e){
+  // Check if finger moved more than 8px = scroll ho raha hai
+  if(e.touches && e.touches.length>0){
+    const dx = Math.abs(e.touches[0].clientX - touchStartX);
+    const dy = Math.abs(e.touches[0].clientY - touchStartY);
+    if(dx>8 || dy>8){ touchMoved=true; clearTimeout(lpTimer); }
+  }
+}
 
 // Desktop popup
 function showDeskPopup(e, sym){
