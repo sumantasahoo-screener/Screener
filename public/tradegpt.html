@@ -255,6 +255,30 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 #lcInp{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;resize:none;max-height:64px;line-height:1.5;}
 #lcInp::placeholder{color:var(--text3);}
 .lc-disc{text-align:center;font-size:9.5px;color:var(--text3);margin-top:5px;}
+.lc-img-preview{position:relative;display:inline-block;margin-bottom:6px;}
+.lc-img-preview img{max-width:100%;max-height:90px;border-radius:6px;border:1px solid var(--border2);display:block;}
+.lc-img-preview .rm-img{position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;font-size:10px;line-height:16px;text-align:center;cursor:pointer;font-weight:700;border:none;}
+.lc-bub img{max-width:100%;max-height:200px;border-radius:6px;border:1px solid var(--border2);display:block;margin-top:4px;cursor:pointer;}
+.lc-paste-hint{font-size:9px;color:var(--text3);text-align:center;margin-top:3px;}
+#imgFullOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;}
+#imgFullOverlay img{max-width:95vw;max-height:90vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.6);}
+.lc-lock-btn{width:24px;height:24px;background:none;border:1px solid var(--border);border-radius:5px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:all .2s;}
+.lc-lock-btn:hover{border-color:var(--accent);color:var(--accent);}
+.lc-lock-btn.unlocked{border-color:var(--red);color:var(--red);background:rgba(255,51,85,.1);}
+.lc-del-btn{display:none;width:18px;height:18px;background:rgba(255,51,85,.15);border:1px solid rgba(255,51,85,.4);border-radius:4px;cursor:pointer;font-size:10px;color:var(--red);align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .15s;}
+.lc-del-btn:hover{background:var(--red);color:#fff;}
+.admin-on .lc-del-btn{display:flex;}
+.pw-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:8888;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.pw-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px;width:260px;display:flex;flex-direction:column;gap:12px;box-shadow:0 16px 48px rgba(0,0,0,0.5);}
+.pw-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;}
+.pw-inp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+.pw-inp:focus{border-color:var(--accent);}
+.pw-err{font-size:11px;color:var(--red);display:none;text-align:center;}
+.pw-btns{display:flex;gap:8px;}
+.pw-ok{flex:1;padding:8px;background:var(--accent);border:none;border-radius:7px;color:#000;font-weight:700;font-size:12.5px;cursor:pointer;}
+.pw-ok:hover{opacity:.85;}
+.pw-cancel{flex:1;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-size:12.5px;cursor:pointer;}
+.pw-cancel:hover{background:var(--bg4);}
 
 /* Symbol Picker */
 .sp-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
@@ -347,17 +371,25 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
   <div class="right-pane">
     <div class="lc-head">
       <div class="lc-title"><div class="live-dot"></div>Community Chat</div>
-      <span class="lc-badge" id="lcBadge">Live</span>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span class="lc-badge" id="lcBadge">Live</span>
+        <button class="lc-lock-btn" id="lcLockBtn" onclick="toggleAdminLock()" title="Admin Login">🔒</button>
+      </div>
     </div>
     <div class="lc-msgs" id="lcMsgs">
       <div class="lc-empty">Koi message nahi.<br>Pehle bhejo! 👋</div>
     </div>
     <div class="lc-inp">
       <input class="lc-nf" id="lcName" placeholder="Aapka naam..." maxlength="20">
+      <div id="lcImgPreview" style="display:none;" class="lc-img-preview">
+        <img id="lcImgThumb" src="" alt="preview">
+        <button class="rm-img" onclick="removeImg()" title="Remove">✕</button>
+      </div>
       <div class="lc-row">
         <button class="lc-send" id="lcSend" onclick="sendLC()">↑</button>
         <textarea id="lcInp" rows="1" placeholder="Market view share karo..." maxlength="300" onkeydown="lck(event)" oninput="ri(this)"></textarea>
       </div>
+      <div class="lc-paste-hint">📸 Ctrl+V se screenshot paste kar sakte ho</div>
       <div class="lc-disc">⚠️ Public chat · Educational only</div>
     </div>
   </div>
@@ -387,9 +419,24 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
   </div>
 </div>
 
+<div id="pwOverlay" class="pw-overlay" style="display:none;">
+  <div class="pw-modal">
+    <div class="pw-title">🔑 Admin Password</div>
+    <input class="pw-inp" id="pwInp" type="password" placeholder="Password daalo..." onkeydown="if(event.key==='Enter')pwSubmit()">
+    <div class="pw-err" id="pwErr">❌ Wrong password!</div>
+    <div class="pw-btns">
+      <button class="pw-cancel" onclick="pwClose()">Cancel</button>
+      <button class="pw-ok" onclick="pwSubmit()">Unlock 🔓</button>
+    </div>
+  </div>
+</div>
+
+<div id="imgFullOverlay" style="display:none;" onclick="this.style.display='none'"><img id="imgFullSrc" src="" alt="full"></div>
+
 <script>
 const W="https://tradegpt-worker.sumantasahoo.workers.dev";
 let theme="dark",busy=false,chatHist=[],scanCache=null,newsCache=null,nf="all";
+let lcPastedImg=null;
 let breakoutCache=null,swingCache=null;
 let lcLastTs=0,lcIds=new Set(),currentTab="chat";
 const AVC=["#00d46a","#ff6b35","#60a5fa","#fbbf24","#a78bfa","#f472b6","#34d399","#fb923c"];
@@ -623,10 +670,12 @@ async function sendLC(){
   const nE=document.getElementById("lcName"),iE=document.getElementById("lcInp"),btn=document.getElementById("lcSend");
   const name=nE.value.trim(),text=iE.value.trim();
   if(!name){nE.style.borderColor="var(--red)";const p=nE.placeholder;nE.placeholder="⚠️ Naam daalo!";nE.focus();setTimeout(()=>{nE.style.borderColor="";nE.placeholder=p;},2500);return;}
-  if(!text)return;
+  if(!text&&!lcPastedImg)return;
   btn.disabled=true;
   localStorage.setItem("tgN",name.slice(0,20));
-  try{const r=await fetch(`${W}/livechat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name.slice(0,20),text})});const d=await r.json();if(d.ok){iE.value="";iE.style.height="auto";await pollLC();}}catch(e){}
+  const payload={name:name.slice(0,20),text:text||(lcPastedImg?"[img]":"")};
+  if(lcPastedImg)payload.img=lcPastedImg;
+  try{const r=await fetch(`${W}/livechat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});const d=await r.json();if(d.ok){iE.value="";iE.style.height="auto";removeImg();await pollLC();}}catch(e){}
   btn.disabled=false;
 }
 async function pollLC(){
@@ -642,7 +691,9 @@ async function pollLC(){
       lcIds.add(m.id);lcLastTs=Math.max(lcLastTs,m.ts);
       const mine=myN&&m.name===myN,col=avc(m.name);
       const dv=document.createElement("div");dv.className=`lc-msg${mine?" mine":""}`;
-      dv.innerHTML=`<div class="lc-av-wrap"><div class="lc-av" style="background:${col}">${ini(m.name)}</div><div class="lc-av-name">${esc(m.name)}</div></div><div class="lc-body"><div class="lc-bub">${esc(m.text)}</div><div class="lc-time">${ft(m.ts)}</div></div>`;
+      const imgHtml=m.img?`<img src="${m.img}" alt="screenshot" onclick="openImgFull(this.src)" style="cursor:zoom-in">`:""
+      const txtHtml=(m.text&&m.text!=="[img]")?`<div>${esc(m.text)}</div>`:"";
+      dv.innerHTML=`<div class="lc-av-wrap"><div class="lc-av" style="background:${col}">${ini(m.name)}</div><div class="lc-av-name">${esc(m.name)}</div></div><div class="lc-body"><div class="lc-bub">${txtHtml}${imgHtml}</div><div class="lc-time">${ft(m.ts)}</div></div><button class="lc-del-btn" onclick="deleteMsg(${m.id},this)" title="Delete">🗑</button>`;
       c.appendChild(dv);
     });
     document.getElementById("lcBadge").textContent=lcIds.size+" msg"+(lcIds.size===1?"":"s");
@@ -691,6 +742,104 @@ function spFilter(){const q=document.getElementById("spSearch").value.trim().toU
 function spRender(list){const g=document.getElementById("spGrid");if(!list.length){g.innerHTML='<div class="sp-no">Koi stock nahi mila 🤷</div>';return;}g.innerHTML=list.map(s=>`<div class="sp-chip" onclick="spPick('${s.s}')"><div class="sc-sym">${s.s}</div><div class="sc-sec">${SEC_LABELS[s.sec]||s.sec}</div></div>`).join("");}
 function spPick(sym){closeSymPicker();qa(`${sym} ka aaj ka live intraday setup batao — entry, SL, targets ke saath.`);}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSymPicker();});
+
+// ── ADMIN LOCK ──
+let adminMode=sessionStorage.getItem("tgAdmin")==="1";
+function applyAdminMode(){
+  const btn=document.getElementById("lcLockBtn");
+  const msgs=document.getElementById("lcMsgs");
+  if(adminMode){
+    btn.textContent="🔓";btn.classList.add("unlocked");
+    msgs.classList.add("admin-on");
+  }else{
+    btn.textContent="🔒";btn.classList.remove("unlocked");
+    msgs.classList.remove("admin-on");
+  }
+}
+function toggleAdminLock(){
+  if(adminMode){
+    // Already unlocked — lock karo
+    adminMode=false;
+    sessionStorage.removeItem("tgAdmin");
+    applyAdminMode();
+  } else {
+    // Password maango
+    document.getElementById("pwOverlay").style.display="flex";
+    document.getElementById("pwInp").value="";
+    document.getElementById("pwErr").style.display="none";
+    setTimeout(()=>document.getElementById("pwInp").focus(),80);
+  }
+}
+function pwClose(){document.getElementById("pwOverlay").style.display="none";}
+async function pwSubmit(){
+  const pw=document.getElementById("pwInp").value;
+  if(!pw)return;
+  // Worker se verify karwao — ek dummy delete call se password check
+  try{
+    const r=await fetch(`${W}/livechat/delete`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:"__check__",password:pw})});
+    const d=await r.json();
+    if(d.error==="Wrong password"){
+      document.getElementById("pwErr").style.display="block";
+      document.getElementById("pwInp").value="";
+      document.getElementById("pwInp").focus();
+      return;
+    }
+    // Password sahi — unlock
+    adminMode=true;
+    sessionStorage.setItem("tgAdmin","1");
+    sessionStorage.setItem("tgAdminPw",pw);
+    applyAdminMode();
+    pwClose();
+  }catch(e){
+    document.getElementById("pwErr").textContent="⚠️ Server error";
+    document.getElementById("pwErr").style.display="block";
+  }
+}
+async function deleteMsg(id,btn){
+  if(!adminMode)return;
+  if(!confirm("Yeh message permanently delete karein?"))return;
+  const pw=sessionStorage.getItem("tgAdminPw")||"";
+  btn.disabled=true;btn.textContent="⏳";
+  try{
+    const r=await fetch(`${W}/livechat/delete`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,password:pw})});
+    const d=await r.json();
+    if(d.ok){
+      const msgEl=btn.closest(".lc-msg");
+      if(msgEl){msgEl.style.opacity="0";msgEl.style.transition="opacity .3s";setTimeout(()=>msgEl.remove(),300);}
+      lcIds.delete(id);
+      document.getElementById("lcBadge").textContent=lcIds.size+" msg"+(lcIds.size===1?"":"s");
+    } else {
+      btn.disabled=false;btn.textContent="🗑";
+      alert("Delete failed: "+(d.error||"Unknown error"));
+    }
+  }catch(e){btn.disabled=false;btn.textContent="🗑";}
+}
+// Page load pe admin state restore karo
+window.addEventListener("DOMContentLoaded",()=>{ if(adminMode)applyAdminMode(); });
+
+// ── SCREENSHOT PASTE ──
+function removeImg(){lcPastedImg=null;const p=document.getElementById("lcImgPreview");if(p)p.style.display="none";}
+function openImgFull(src){document.getElementById("imgFullSrc").src=src;document.getElementById("imgFullOverlay").style.display="flex";}
+document.addEventListener("paste",function(e){
+  const items=e.clipboardData&&e.clipboardData.items;
+  if(!items)return;
+  for(let i=0;i<items.length;i++){
+    if(items[i].type.startsWith("image/")){
+      const file=items[i].getAsFile();
+      const reader=new FileReader();
+      reader.onload=function(ev){
+        lcPastedImg=ev.target.result;
+        const thumb=document.getElementById("lcImgThumb");
+        const prev=document.getElementById("lcImgPreview");
+        if(thumb&&prev){thumb.src=lcPastedImg;prev.style.display="inline-block";}
+        document.getElementById("lcInp").focus();
+      };
+      reader.readAsDataURL(file);
+      e.preventDefault();
+      break;
+    }
+  }
+});
 
 // INIT
 loadTicker();
