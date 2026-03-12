@@ -543,6 +543,16 @@ function swingCard(s,ts){
   </div>`;
 }
 
+function bounceCard(s,ts){
+  const timeStr=ts?`<div class="sc-scantime">🕐 Scan: ${new Date(ts).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true})}</div>`:"";
+  return`<div class="scard" style="border-left:3px solid var(--gold)" onclick="qa('${s.sym} bahut gira hai, kya bounce possible hai? reversal setup batao.')">
+    ${timeStr}
+    <div class="sc-top"><span class="sc-sym">${s.sym}</span><div class="sc-r"><div class="sc-price">₹${s.price}</div><div class="sc-chg dn">${s.change}% <span style="font-size:11px;color:var(--gold)">⚡ Oversold</span></div></div></div>
+    <div><span class="sc-tag" style="background:rgba(255,180,0,.15);color:var(--gold)">⚡ BOUNCE WATCH</span><span class="sc-sln">Short mat karo — Reversal possible</span></div>
+    <div class="sc-lv"><span class="lve" style="color:var(--gold)">Watch:₹${s.entry}</span><span class="lvsl">SL:₹${s.sl}</span><span class="lvt">T1:₹${s.t1}</span></div>
+    <div class="sc-rsn">${s.reason}</div>
+  </div>`;
+}
 function breakoutCard(s,ts){
   const tag=s.breakoutType==='52W High'?'🔝 Near 52W High':'📈 52W Low Bounce';
   const timeStr = ts ? `<div class="sc-scantime">🕐 Scan: ${new Date(ts).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true})}</div>` : "";
@@ -565,16 +575,23 @@ async function loadIntraBuy(f){
 }
 
 async function loadIntraSell(f){
-  // Sirf network fetch rok — DOM hamesha re-render karo
-  sl("Sell setups scan ho raha hai...","Top 5 bearish · Negative change only");
+  sl("Sell setups scan ho raha hai...","Fresh breakdowns -0.3% to -3.5% + Bounce Watch");
   try{
     const d=await fScan(f);
-    const s=(d.topSell||[]).filter(x=>x.change<0).slice(0,5);
+    const s=(d.topSell||[]).slice(0,5);
+    const bounce=(d.bounceWatch||[]).slice(0,5);
     const remaining=Math.max(0,Math.ceil((5*60*1000-(Date.now()-scanLastFetch))/60000));
-    const cacheNote=remaining>0?` · <span style="color:var(--gold)">⏳ Next refresh ~${remaining} min</span>`:"";
-    if(!s.length){document.getElementById("welmsg").innerHTML='<div style="padding:30px;text-align:center;color:var(--text3);font-size:13px">📈 Koi bearish setup nahi — Market up ya closed.<br><br>🔄 Refresh karo.</div>';return;}
-    const col1=s.slice(0,3),col2=s.slice(3);
-    document.getElementById("welmsg").innerHTML=`<div class="ph"><div><div class="pt">📉 Sell Top 5</div><div class="ps">Best bearish setups · Short only</div></div><button class="rbtn" onclick="loadIntraSell(true)">🔄 Refresh</button></div><div class="rg"><div class="sc-col">${col1.map(x=>sc(x,"sell",d.ts)).join("")}</div><div class="sc-col">${col2.map(x=>sc(x,"sell",d.ts)).join("")}</div></div><div style="padding:0 16px 12px;font-size:11px;color:var(--text3)">✅ ${d.total||0} stocks scanned · ${scanTime(d.ts)}${cacheNote}</div>`;
+    const cacheNote=remaining>0?` · <span style="color:var(--gold)">⏳ ~${remaining} min</span>`:"";
+    const sellHtml=s.length
+      ?`<div class="rg"><div class="sc-col">${s.slice(0,3).map(x=>sc(x,"sell",d.ts)).join("")}</div><div class="sc-col">${s.slice(3).map(x=>sc(x,"sell",d.ts)).join("")}</div></div>`
+      :`<div style="padding:14px 16px;font-size:12px;color:var(--text3)">Koi fresh breakdown nahi — sab ya to up hain ya already bahut gir chuke hain.</div>`;
+    const bounceHtml=bounce.length
+      ?`<div style="padding:6px 16px 4px;border-top:1px solid var(--border);margin-top:4px"><div class="sc-hd" style="color:var(--gold);font-size:12px;padding:4px 0">⚡ BOUNCE WATCH — ${bounce.length} stocks (Already fallen >3.5%)</div><div style="font-size:11px;color:var(--text3);margin-bottom:8px">⚠️ Short karna risky — Oversold bounce possible. Reversal candle confirm karo pehle.</div></div><div class="rg"><div class="sc-col">${bounce.slice(0,3).map(x=>bounceCard(x,d.ts)).join("")}</div><div class="sc-col">${bounce.slice(3).map(x=>bounceCard(x,d.ts)).join("")}</div></div>`
+      :"";
+    document.getElementById("welmsg").innerHTML=`<div class="ph"><div><div class="pt">📉 Sell Top 5</div><div class="ps">Fresh breakdowns -0.3% to -3.5% · Short only</div></div><button class="rbtn" onclick="loadIntraSell(true)">🔄 Refresh</button></div>
+    <div style="padding:4px 16px 6px"><div class="sc-hd s" style="font-size:12px">📉 FRESH SELL — ${s.length} stocks</div></div>
+    ${sellHtml}${bounceHtml}
+    <div style="padding:0 16px 12px;font-size:11px;color:var(--text3)">✅ ${d.total||0} stocks scanned · ${scanTime(d.ts)}${cacheNote}</div>`;
   }catch(e){se(e.message);}
 }
 
