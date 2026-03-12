@@ -170,29 +170,34 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .sc-hd.b{color:var(--green);}.sc-hd.s{color:var(--red);}.sc-hd.g{color:var(--gold);}
 .sc-hd.bull{color:var(--green);}.sc-hd.bear{color:var(--red);}
 
-.scard{background:var(--card);border:1px solid var(--cb);border-radius:9px;padding:12px 14px;cursor:pointer;transition:border-color .15s;}
+.scard{background:var(--card);border:1px solid var(--cb);border-radius:8px;padding:8px 12px;cursor:pointer;transition:border-color .15s;}
 .scard:hover{border-color:var(--accent);}
 .scard.buy{border-left:3px solid var(--green);}
 .scard.sell{border-left:3px solid var(--red);}
 .scard.spike{border-left:3px solid var(--gold);}
+.scard.watch-acc{border-left:3px solid var(--blue);}
+.scard.watch-dist{border-left:3px solid var(--purple);}
 .scard.bull-swing{border-left:3px solid var(--green);border-top:1px solid rgba(0,230,118,0.2);}
 .scard.bear-swing{border-left:3px solid var(--red);border-top:1px solid rgba(255,51,85,0.2);}
 
-.sc-scantime{font-size:10px;font-weight:600;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 7px;margin-bottom:7px;display:inline-block;letter-spacing:.2px;}
-.sc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.sc-scantime{font-size:11px;font-weight:600;color:var(--text2);background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 7px;margin-bottom:5px;display:inline-block;letter-spacing:.2px;}
+.sc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
 .sc-sym{font-size:15px;font-weight:700;font-family:'JetBrains Mono',monospace;}
 .sc-r{text-align:right;}
 .sc-price{font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text2);}
 .sc-chg{font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;}
-.vr{color:var(--gold);font-size:11px;font-weight:700;}
-.sc-lv{display:flex;gap:6px;flex-wrap:wrap;font-size:12px;font-family:'JetBrains Mono',monospace;margin:6px 0;}
-.sc-lv span{background:var(--bg3);padding:3px 8px;border-radius:4px;}
+.vr{color:var(--gold);font-size:12px;font-weight:700;}
+.sc-lv{display:flex;gap:5px;flex-wrap:wrap;font-size:12px;font-family:'JetBrains Mono',monospace;margin:4px 0;}
+.sc-lv span{background:var(--bg3);padding:2px 7px;border-radius:4px;}
 .lve{color:var(--blue);}.lvsl{color:var(--red);}.lvt{color:var(--green);}
-.sc-rsn{font-size:12px;color:var(--text2);line-height:1.6;padding-top:6px;border-top:1px solid var(--border);margin-top:5px;}
-.sc-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:9px;margin-bottom:4px;}
+.sc-rsn{font-size:12px;color:var(--text2);line-height:1.5;padding-top:4px;border-top:1px solid var(--border);margin-top:4px;}
+.sc-sln{font-size:12px;color:var(--text3);margin-left:5px;}
+.sc-tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:9px;margin-bottom:2px;}
 .sc-tag.bull-tag{background:var(--up);color:var(--green);}
 .sc-tag.bear-tag{background:var(--dn);color:var(--red);}
-.swing-meta{font-size:11.5px;color:var(--blue);margin:3px 0 5px;font-family:'JetBrains Mono',monospace;}
+.sc-tag.blue-tag{background:rgba(96,165,250,.15);color:var(--blue);}
+.sc-tag.purple-tag{background:rgba(167,139,250,.15);color:var(--purple);}
+.swing-meta{font-size:12px;color:var(--blue);margin:2px 0 4px;font-family:'JetBrains Mono',monospace;}
 
 .idx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;padding:12px 16px;}
 .icard{background:var(--card);border:1px solid var(--cb);border-radius:9px;padding:14px;cursor:pointer;transition:border-color .15s;}
@@ -344,9 +349,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
   <div class="left-pane">
     <div class="tabs">
       <div class="tab active" onclick="switchTab(this,'chat')">💬 AI Chat</div>
-      <div class="tab" onclick="switchTab(this,'intraday')">📈 Top Intraday</div>
+      <div class="tab" onclick="switchTab(this,'intrabuy')">📈 Buy Top 5</div>
+      <div class="tab" onclick="switchTab(this,'intrasell')">📉 Sell Top 5</div>
+      <div class="tab" onclick="switchTab(this,'watch')">👁 Keep Watching</div>
       <div class="tab" onclick="switchTab(this,'index')">📊 Index Setup</div>
-      <div class="tab" onclick="switchTab(this,'breakout')">🚀 Breakout</div>
       <div class="tab" onclick="switchTab(this,'swing')">📅 Swing Top 5</div>
       <div class="tab" onclick="switchTab(this,'news')">📰 News</div>
     </div>
@@ -460,10 +466,10 @@ function switchTab(el,tab){
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   el.classList.add("active"); currentTab=tab;
   if(tab==="chat")showChatView();
-  else if(tab==="intraday")loadIntraday();
-  else if(tab==="spike")loadSpike();
+  else if(tab==="intrabuy")loadIntraBuy();
+  else if(tab==="intrasell")loadIntraSell();
+  else if(tab==="watch")loadWatch();
   else if(tab==="index")loadIndex();
-  else if(tab==="breakout")loadBreakout();
   else if(tab==="swing")loadSwing();
   else if(tab==="news")loadNews();
 }
@@ -488,11 +494,14 @@ async function loadTicker(){
   }catch(e){document.getElementById("liveStatus").textContent="ERR";}
 }
 
+let scanLastFetch=0;
 async function fScan(f){
-  if(scanCache&&!f)return scanCache;
+  const now=Date.now();
+  // Issue 6: 5 minute throttle — force=true se bypass hoga
+  if(scanCache&&!f&&(now-scanLastFetch)<5*60*1000)return scanCache;
   const r=await fetch(`${W}/scan`);if(!r.ok)throw new Error("HTTP "+r.status);
   const d=await r.json();if(d.error)throw new Error(d.error);
-  scanCache=d;return d;
+  scanCache=d;scanLastFetch=now;return d;
 }
 
 // Card renderers
@@ -504,8 +513,8 @@ function sc(s,t,ts){
     : `<span class="sc-tag bull-tag">📈 BUY LONG</span>`;
   const entryLbl = isSell ? `<span class="lvsl">SHORT:₹${s.entry}</span>` : `<span class="lve">BUY:₹${s.entry}</span>`;
   const slNote = isSell
-    ? `<span style="font-size:10.5px;color:var(--text3);margin-left:4px">(SL ऊपर · Target नीचे)</span>`
-    : `<span style="font-size:10.5px;color:var(--text3);margin-left:4px">(SL नीचे · Target ऊपर)</span>`;
+    ? `<span class="sc-sln">(SL ऊपर · Target नीचे)</span>`
+    : `<span class="sc-sln">(SL नीचे · Target ऊपर)</span>`;
   const timeStr = ts ? `<div class="sc-scantime">🕐 Scan: ${new Date(ts).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true})}</div>` : "";
   return`<div class="scard ${cls}" onclick="qa('${s.sym} ka detailed intraday setup batao.')">
     ${timeStr}
@@ -540,28 +549,78 @@ function breakoutCard(s,ts){
   return`<div class="scard buy" onclick="qa('${s.sym} ka breakout analysis batao.')">${timeStr}<div class="sc-top"><span class="sc-sym">${s.sym}</span><div class="sc-r"><div class="sc-price">₹${s.price}</div><div class="sc-chg up">+${s.change}%</div></div></div><div><span class="sc-tag bull-tag">${tag}</span></div><div class="sc-lv"><span class="lve">E:₹${s.entry}</span><span class="lvsl">SL:₹${s.sl}</span><span class="lvt">T1:₹${s.t1}</span><span class="lvt">T2:₹${s.t2}</span></div><div class="sc-rsn">${s.reason}</div></div>`;
 }
 
-// ── INTRADAY ──
-async function loadIntraday(f){
-  if(!f&&currentTab==="intraday"&&document.getElementById("welmsg").innerHTML.includes("scard"))return;
-  sl("60 NSE stocks scan ho raha hai...","Liquid F&O pool — 5-8 seconds");
+// ── INTRADAY BUY — Top 5 strictly positive change ──
+async function loadIntraBuy(f){
+  // Sirf network fetch rok (fScan already caches) — DOM hamesha re-render karo
+  sl("Buy setups scan ho raha hai...","Top 5 bullish · Positive change only");
   try{
-    const d=await fScan(f);const b=d.topBuy||[],s=d.topSell||[];
-    if(!b.length&&!s.length){document.getElementById("welmsg").innerHTML=noD();return;}
-    document.getElementById("welmsg").innerHTML=`<div class="ph"><div><div class="pt">📈 Top Intraday Picks</div><div class="ps">60 liquid NSE stocks — Buy + Sell setups</div></div><button class="rbtn" onclick="loadIntraday(true)">🔄 Refresh</button></div><div class="rg"><div class="sc-col"><div class="sc-hd b">📈 BUY — Top ${b.length}</div>${b.map(x=>sc(x,"buy",d.ts)).join("")}</div><div class="sc-col"><div class="sc-hd s">📉 SELL — Top ${s.length}</div>${s.map(x=>sc(x,"sell",d.ts)).join("")}</div></div><div style="padding:0 16px 12px;font-size:10.5px;color:var(--text3)">✅ ${d.total||0} stocks scanned · ${scanTime(d.ts)}</div>`;
+    const d=await fScan(f);
+    const b=(d.topBuy||[]).filter(s=>s.change>0).slice(0,5);
+    const remaining=Math.max(0,Math.ceil((5*60*1000-(Date.now()-scanLastFetch))/60000));
+    const cacheNote=remaining>0?` · <span style="color:var(--gold)">⏳ Next refresh ~${remaining} min</span>`:"";
+    if(!b.length){document.getElementById("welmsg").innerHTML='<div style="padding:30px;text-align:center;color:var(--text3);font-size:13px">📉 Koi bullish setup nahi — Market down ya closed.<br><br>🔄 Refresh karo.</div>';return;}
+    const col1=b.slice(0,3),col2=b.slice(3);
+    document.getElementById("welmsg").innerHTML=`<div class="ph"><div><div class="pt">📈 Buy Top 5</div><div class="ps">Best bullish setups · Long only</div></div><button class="rbtn" onclick="loadIntraBuy(true)">🔄 Refresh</button></div><div class="rg"><div class="sc-col">${col1.map(x=>sc(x,"buy",d.ts)).join("")}</div><div class="sc-col">${col2.map(x=>sc(x,"buy",d.ts)).join("")}</div></div><div style="padding:0 16px 12px;font-size:11px;color:var(--text3)">✅ ${d.total||0} stocks scanned · ${scanTime(d.ts)}${cacheNote}</div>`;
   }catch(e){se(e.message);}
 }
 
-// ── VOL SPIKE — completely different stocks from intraday ──
-async function loadSpike(f){
-  if(!f&&currentTab==="spike"&&document.getElementById("welmsg").innerHTML.includes("scard"))return;
-  sl("Volume spikes dhundh rahe hain...","Intraday picks se alag stocks sirf");
+async function loadIntraSell(f){
+  // Sirf network fetch rok — DOM hamesha re-render karo
+  sl("Sell setups scan ho raha hai...","Top 5 bearish · Negative change only");
   try{
-    const d=await fScan(f);const sp=d.volSpike||[];
-    const up=sp.filter(s=>s.change>=0),dn=sp.filter(s=>s.change<0);
-    if(!sp.length){document.getElementById("welmsg").innerHTML=noD();return;}
-    document.getElementById("welmsg").innerHTML=`<div class="ph"><div><div class="pt">⚡ Volume Spike</div><div class="ps">Top intraday stocks se alag — pure volume signal</div></div><button class="rbtn" onclick="loadSpike(true)">🔄 Refresh</button></div><div class="rg"><div class="sc-col"><div class="sc-hd b">🔥 Up Spikes</div>${up.map(s=>sc(s,"spike",d.ts)).join("")||noD()}</div><div class="sc-col"><div class="sc-hd s">💥 Down Spikes</div>${dn.map(s=>sc(s,"spike",d.ts)).join("")||noD()}</div></div><div style="padding:0 16px 12px;font-size:10.5px;color:var(--text3)">${sp.length} spikes · ${scanTime(d.ts)}</div>`;
+    const d=await fScan(f);
+    const s=(d.topSell||[]).filter(x=>x.change<0).slice(0,5);
+    const remaining=Math.max(0,Math.ceil((5*60*1000-(Date.now()-scanLastFetch))/60000));
+    const cacheNote=remaining>0?` · <span style="color:var(--gold)">⏳ Next refresh ~${remaining} min</span>`:"";
+    if(!s.length){document.getElementById("welmsg").innerHTML='<div style="padding:30px;text-align:center;color:var(--text3);font-size:13px">📈 Koi bearish setup nahi — Market up ya closed.<br><br>🔄 Refresh karo.</div>';return;}
+    const col1=s.slice(0,3),col2=s.slice(3);
+    document.getElementById("welmsg").innerHTML=`<div class="ph"><div><div class="pt">📉 Sell Top 5</div><div class="ps">Best bearish setups · Short only</div></div><button class="rbtn" onclick="loadIntraSell(true)">🔄 Refresh</button></div><div class="rg"><div class="sc-col">${col1.map(x=>sc(x,"sell",d.ts)).join("")}</div><div class="sc-col">${col2.map(x=>sc(x,"sell",d.ts)).join("")}</div></div><div style="padding:0 16px 12px;font-size:11px;color:var(--text3)">✅ ${d.total||0} stocks scanned · ${scanTime(d.ts)}${cacheNote}</div>`;
   }catch(e){se(e.message);}
 }
+
+// ── KEEP WATCHING — Accumulation & Distribution ──
+// Logic: High vol (≥1.2x) + price barely moved (±2%) = sideways + volume = smart money
+function watchCard(s,type,ts){
+  const isAcc=type==="acc";
+  const cls=isAcc?"watch-acc":"watch-dist";
+  const badge=isAcc
+    ? `<span class="sc-tag blue-tag">🔵 ACCUMULATION</span>`
+    : `<span class="sc-tag purple-tag">🟣 DISTRIBUTION</span>`;
+  const note=isAcc
+    ? `<span class="sc-sln">High vol · Flat price · Silently khareed rahe hain</span>`
+    : `<span class="sc-sln">High vol · Flat price · Silently bech rahe hain</span>`;
+  const timeStr=ts?`<div class="sc-scantime">🕐 Scan: ${new Date(ts).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true})}</div>`:"";
+  return`<div class="scard ${cls}" onclick="qa('${s.sym} mein accumulation ya distribution ho raha hai? volume aur price action explain karo.')">
+    ${timeStr}
+    <div class="sc-top"><span class="sc-sym">${s.sym}</span><div class="sc-r"><div class="sc-price">₹${s.price}</div><div class="sc-chg ${s.change>=0?"up":"dn"}">${s.change>0?"+":""}${s.change}% <span class="vr">${s.volRatio}x vol</span></div></div></div>
+    <div>${badge}${note}</div>
+    <div class="sc-rsn">📊 Vol ${s.volRatio}x avg · Range ₹${s.low}–₹${s.high} · Breakout/Breakdown ke liye watch karo</div>
+  </div>`;
+}
+async function loadWatch(f){
+  sl("Smart money scan ho raha hai...","Vol ≥2x + Price barely moved = Real signal");
+  try{
+    const d=await fScan(f);
+    const acc=d.watchAcc||[];
+    const dist=d.watchDist||[];
+    const remaining=Math.max(0,Math.ceil((5*60*1000-(Date.now()-scanLastFetch))/60000));
+    const cacheNote=remaining>0?` · <span style="color:var(--gold)">⏳ ~${remaining} min</span>`:"";
+    if(!acc.length&&!dist.length){
+      document.getElementById("welmsg").innerHTML=`<div style="padding:30px;text-align:center;color:var(--text3);font-size:13px">👁 Abhi koi smart money activity nahi dikh raha.<br><span style="font-size:11px">Signal condition: Vol ≥2x avg + Price change ≤±0.8%<br>Matlab price barely hili lekin volume bahut zyada tha.<br>Market hours (9:15–3:30) mein zyada signal milte hain.</span><br><br>🔄 Refresh karo</div>`;
+      return;
+    }
+    document.getElementById("welmsg").innerHTML=`<div class="ph"><div><div class="pt">👁 Keep Watching</div><div class="ps">Vol ≥2x + Change ≤±0.8% = Koi bada player quietly active</div></div><button class="rbtn" onclick="loadWatch(true)">🔄 Refresh</button></div>
+    <div class="rg">
+      <div class="sc-col"><div class="sc-hd" style="color:var(--blue);font-size:12px">🔵 ACCUMULATION — ${acc.length} stocks</div>${acc.length?acc.map(s=>watchCard(s,"acc",d.ts)).join(""):'<div style="padding:12px;color:var(--text3);font-size:12px">Koi nahi mila</div>'}</div>
+      <div class="sc-col"><div class="sc-hd" style="color:var(--purple);font-size:12px">🟣 DISTRIBUTION — ${dist.length} stocks</div>${dist.length?dist.map(s=>watchCard(s,"dist",d.ts)).join(""):'<div style="padding:12px;color:var(--text3);font-size:12px">Koi nahi mila</div>'}</div>
+    </div>
+    <div style="padding:0 16px 12px;font-size:11px;color:var(--text3)">📌 ${d.total||0} stocks scanned · Vol ≥2x + |Change| ≤0.8% = Smart money signal · ${scanTime(d.ts)}${cacheNote}</div>`;
+  }catch(e){se(e.message);}
+}
+
+// ── LEGACY ──
+async function loadSpike(f){loadIntraBuy(f);}
+async function loadIntraday(f){loadIntraBuy(f);}
 
 // ── INDEX SETUP ──
 async function loadIndex(f){
@@ -676,11 +735,11 @@ async function sendChat(){
 function qa(t){document.getElementById("inp").value=t;sendChat();}
 
 function refreshAll(){
-  scanCache=null;newsCache=null;breakoutCache=null;swingCache=null;loadTicker();
-  if(currentTab==="intraday")loadIntraday(true);
-  else if(currentTab==="spike")loadSpike(true);
+  scanCache=null;newsCache=null;breakoutCache=null;swingCache=null;scanLastFetch=0;loadTicker();
+  if(currentTab==="intrabuy")loadIntraBuy(true);
+  else if(currentTab==="intrasell")loadIntraSell(true);
+  else if(currentTab==="watch")loadWatch(true);
   else if(currentTab==="index")loadIndex(true);
-  else if(currentTab==="breakout")loadBreakout(true);
   else if(currentTab==="swing")loadSwing(true);
   else if(currentTab==="news")loadNews(true);
 }
