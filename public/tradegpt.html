@@ -2,6 +2,60 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<script>
+(function(){
+  const c = document.createElement('canvas');
+  c.width = c.height = 64;
+  const x = c.getContext('2d');
+  const r = 12;
+
+  // Rounded rect clip
+  x.beginPath();
+  x.moveTo(r,0);
+  x.lineTo(64-r,0); x.arcTo(64,0,64,r,r);
+  x.lineTo(64,64-r); x.arcTo(64,64,64-r,64,r);
+  x.lineTo(r,64); x.arcTo(0,64,0,64-r,r);
+  x.lineTo(0,r); x.arcTo(0,0,r,0,r);
+  x.closePath();
+  x.clip();
+
+  // Dark background
+  x.fillStyle = '#0d0d0d';
+  x.fillRect(0,0,64,64);
+
+  // Subtle gradient glow
+  const g = x.createLinearGradient(0,0,64,64);
+  g.addColorStop(0,'rgba(255,60,60,0.15)');
+  g.addColorStop(1,'rgba(255,140,0,0.10)');
+  x.fillStyle = g;
+  x.fillRect(0,0,64,64);
+
+  // "AI" text — red to orange gradient
+  const tg = x.createLinearGradient(4,0,60,0);
+  tg.addColorStop(0,'#ff3c3c');
+  tg.addColorStop(1,'#ff8c00');
+  x.font = 'bold 28px Arial';
+  x.textAlign = 'center';
+  x.textBaseline = 'middle';
+  x.fillStyle = tg;
+  x.fillText('AI', 30, 36);
+
+  // Small spark dot top-right
+  x.beginPath();
+  x.arc(50, 14, 5, 0, Math.PI*2);
+  x.fillStyle = '#ff8c00';
+  x.fill();
+  x.beginPath();
+  x.arc(50, 14, 3, 0, Math.PI*2);
+  x.fillStyle = '#ffffff';
+  x.fill();
+
+  const l = document.createElement('link');
+  l.rel='icon'; l.type='image/png';
+  l.href = c.toDataURL('image/png');
+  document.head.appendChild(l);
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>TradeGPT</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
