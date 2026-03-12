@@ -4,62 +4,21 @@
 <meta charset="utf-8">
 <script>
 (function(){
-  const c = document.createElement('canvas');
-  c.width = c.height = 64;
-  const x = c.getContext('2d');
-  const r = 12;
-
-  // Poora rounded rect clip karo — dono halves is boundary mein rahein
+  const c=document.createElement('canvas');
+  c.width=c.height=64;
+  const x=c.getContext('2d'),r=12;
   x.beginPath();
-  x.moveTo(r, 0);
-  x.lineTo(64-r, 0); x.arcTo(64, 0, 64, r, r);
-  x.lineTo(64, 64-r); x.arcTo(64, 64, 64-r, 64, r);
-  x.lineTo(r, 64); x.arcTo(0, 64, 0, 64-r, r);
-  x.lineTo(0, r); x.arcTo(0, 0, r, 0, r);
-  x.closePath();
-  x.clip();
-
-  // Left half green
-  x.fillStyle = '#00aa33';
-  x.fillRect(0, 0, 32, 64);
-
-  // Right half red
-  x.fillStyle = '#cc1111';
-  x.fillRect(32, 0, 32, 64);
-
-  // White text
-  x.font = 'bold 28px Arial';
-  x.textAlign = 'center';
-  x.textBaseline = 'middle';
-  x.fillStyle = '#ffffff';
-  x.fillText('A', 16, 33);
-  x.fillText('D', 48, 33);
-
-  const l = document.createElement('link');
-  l.rel = 'icon'; l.type = 'image/png';
-  l.href = c.toDataURL('image/png');
-  document.head.appendChild(l);
-})();
-</script>
-<script>
-(function(){
-  const c = document.createElement('canvas');
-  c.width = c.height = 64;
-  const x = c.getContext('2d');
-  x.fillStyle = '#0a0a0a';
-  x.beginPath();
-  x.roundRect(0, 0, 64, 64, 12);
-  x.fill();
-  x.font = 'bold 30px Arial';
-  x.textAlign = 'center';
-  x.textBaseline = 'middle';
-  x.fillStyle = '#ffffff';
-  x.fillText('A', 20, 34);
-  x.fillStyle = '#ffffff';
-  x.fillText('D', 44, 34);
-  const l = document.createElement('link');
-  l.rel = 'icon'; l.type = 'image/png';
-  l.href = c.toDataURL('image/png');
+  x.moveTo(r,0);x.lineTo(64-r,0);x.arcTo(64,0,64,r,r);
+  x.lineTo(64,64-r);x.arcTo(64,64,64-r,64,r);
+  x.lineTo(r,64);x.arcTo(0,64,0,64-r,r);
+  x.lineTo(0,r);x.arcTo(0,0,r,0,r);
+  x.closePath();x.clip();
+  x.fillStyle='#00aa33';x.fillRect(0,0,32,64);
+  x.fillStyle='#cc1111';x.fillRect(32,0,32,64);
+  x.font='bold 28px Arial';x.textAlign='center';x.textBaseline='middle';
+  x.fillStyle='#ffffff';x.fillText('A',16,33);x.fillText('D',48,33);
+  const l=document.createElement('link');
+  l.rel='icon';l.type='image/png';l.href=c.toDataURL('image/png');
   document.head.appendChild(l);
 })();
 </script>
@@ -243,26 +202,46 @@ body.light #graphTooltip .gt-time{color:#222;}
 
 
 /* ── VIX PANEL ── */
-.vix-panel{
-  height:130px;flex-shrink:0;
-  background:#0e0e0e;border:1px solid #1e1e1e;
-  border-radius:10px;padding:8px 12px;
-  display:flex;flex-direction:column;gap:4px;
-  overflow:hidden;
+/* ── VIX FLOATING PANEL ── */
+#vixFloat{
+  position:absolute;
+  bottom:16px;right:16px;
+  width:min(600px,90%);height:340px;
+  background:#141414;
+  border:1px solid #2a2a2a;
+  border-radius:16px;
+  display:none;flex-direction:column;
+  overflow:hidden;z-index:100;
+  cursor:grab;user-select:none;
+  box-shadow:0 16px 60px rgba(0,0,0,.95);
 }
-body.light .vix-panel{background:#f8f8f8;border-color:#ddd;}
-.vix-header{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+body.light #vixFloat{background:rgba(248,248,248,0.94);border-color:#ccc;}
+#vixFloat.active{display:flex;}
+#vixFloat:active{cursor:grabbing;}
+.vix-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:5px 12px 4px;flex-shrink:0;
+  border-bottom:1px solid #222;
+}
+body.light .vix-header{border-color:#ddd;}
 .vix-title{font-size:10px;font-weight:700;color:#666;letter-spacing:.1em;text-transform:uppercase;}
-.vix-badge{
-  display:flex;align-items:center;gap:8px;
-  font-size:13px;font-weight:700;
-}
+.vix-badge{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;}
 .vix-val{color:#fff;font-size:15px;}
 body.light .vix-val{color:#111;}
 .vix-chg{font-size:11px;font-weight:700;}
 .vix-chg.up{color:#ff4444;}
 .vix-chg.dn{color:#00cc44;}
 #vixCanvas{flex:1;width:100%;min-height:0;display:block;}
+/* Mobile portrait — graph ke neeche stacked */
+@media(max-width:768px) and (orientation:portrait){
+  #vixFloat{
+    position:static!important;top:auto!important;
+    width:100%!important;height:300px!important;
+    border-radius:10px;cursor:default;box-shadow:none;
+    backdrop-filter:none;
+  }
+  .graph-view{flex-direction:column;}
+}
 
 /* ── VIX POPUP ── */
 #vixOverlay{
@@ -504,7 +483,7 @@ body.light .card.nt  .cf{background:#bb8800;}
 
   <!-- GRAPH VIEW -->
   <div class="graph-view" id="graphView">
-    <div class="graph-panel">
+    <div class="graph-panel" style="position:relative;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <div class="graph-title">Advance / Decline — Intraday History</div>
         <div class="graph-legend">
@@ -515,6 +494,17 @@ body.light .card.nt  .cf{background:#bb8800;}
       </div>
       <canvas id="graphCanvas"></canvas>
 <div id="graphTooltip"><div class="gt-time" id="gtTime">—</div><div class="gt-row" id="gtAdv" style="color:#00ee55"></div><div class="gt-row" id="gtDec" style="color:#ff3333"></div><div class="gt-row" id="gtNeu" style="color:#ffaa00"></div></div>
+      <!-- VIX FLOATING PANEL -->
+      <div id="vixFloat">
+        <div class="vix-header">
+          <span class="vix-title">⚡ India VIX</span>
+          <span class="vix-badge">
+            <span class="vix-val" id="vixVal">—</span>
+            <span class="vix-chg" id="vixChg"></span>
+          </span>
+        </div>
+        <canvas id="vixCanvas"></canvas>
+      </div>
     </div>
 
   </div>
@@ -1479,8 +1469,8 @@ function drawVix(data){
   if(!canvas) return;
 
   const dpr = window.devicePixelRatio||1;
-  const W   = canvas.parentElement.clientWidth - 24;
-  const H   = canvas.parentElement.clientHeight - 38;
+  const W   = Math.max(canvas.parentElement.clientWidth, 100);
+  const H   = Math.max(canvas.parentElement.clientHeight, 40);
 
   canvas.width  = W*dpr; canvas.height = H*dpr;
   canvas.style.width=W+'px'; canvas.style.height=H+'px';
@@ -1581,8 +1571,57 @@ function drawVix(data){
 
 async function loadAndRenderVix(){
   vixData = await fetchVix();
+  const vf = document.getElementById('vixFloat');
+  if(vf) vf.classList.add('active');
   drawVix(vixData);
 }
+
+// ── DRAGGABLE VIX (vertical only) ──
+(function(){
+  let drag=false, ox=0, oy=0;
+  function isMobPort(){ return window.innerWidth<=768 && window.innerHeight>window.innerWidth; }
+  document.addEventListener('DOMContentLoaded', function(){
+    const el = document.getElementById('vixFloat');
+    if(!el) return;
+    el.addEventListener('mousedown', function(e){
+      if(isMobPort()) return;
+      drag=true;
+      const r=el.getBoundingClientRect();
+      ox=e.clientX-r.left; oy=e.clientY-r.top;
+      el.style.cursor='grabbing'; e.preventDefault();
+    });
+    el.addEventListener('touchstart', function(e){
+      if(isMobPort()) return;
+      drag=true;
+      const r=el.getBoundingClientRect();
+      ox=e.touches[0].clientX-r.left; oy=e.touches[0].clientY-r.top;
+      e.preventDefault();
+    },{passive:false});
+    window.addEventListener('mousemove', function(e){
+      if(!drag) return;
+      const par = el.parentElement.getBoundingClientRect();
+      let nx = e.clientX - par.left - ox;
+      let ny = e.clientY - par.top  - oy;
+      nx = Math.max(0, Math.min(nx, par.width  - el.offsetWidth));
+      ny = Math.max(0, Math.min(ny, par.height - el.offsetHeight));
+      el.style.right='auto'; el.style.bottom='auto';
+      el.style.left=nx+'px'; el.style.top=ny+'px';
+    });
+    window.addEventListener('touchmove', function(e){
+      if(!drag) return;
+      const par = el.parentElement.getBoundingClientRect();
+      let nx = e.touches[0].clientX - par.left - ox;
+      let ny = e.touches[0].clientY - par.top  - oy;
+      nx = Math.max(0, Math.min(nx, par.width  - el.offsetWidth));
+      ny = Math.max(0, Math.min(ny, par.height - el.offsetHeight));
+      el.style.right='auto'; el.style.bottom='auto';
+      el.style.left=nx+'px'; el.style.top=ny+'px';
+      e.preventDefault();
+    },{passive:false});
+    window.addEventListener('mouseup',  function(){ drag=false; if(el) el.style.cursor='grab'; });
+    window.addEventListener('touchend', function(){ drag=false; });
+  });
+})();
 
 
 // ══════════════════════════════════════════════════════
