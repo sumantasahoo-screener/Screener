@@ -23,29 +23,26 @@ body{
   background:#141414;border:1px solid #222;
   border-radius:10px;padding:6px 10px;flex-shrink:0;
 }
-@media(max-width:600px){
-  .hdr{
-    grid-template-columns:1fr auto;
-    gap:6px;
-    flex-wrap:wrap;
-  }
+@media(max-width:800px){
+  .hdr{grid-template-columns:1fr;gap:6px;}
   .hdr-left .sep, .hdr-left .sw{display:none;}
   .breadth{display:none;}
-
-  /* Problem 1 fix — Top5 panel hide */
-  .top5{display:none;}
-
-  /* Problem 2 fix — Buttons visible */
-  .hdr-right{
-    display:flex;
-    flex-wrap:wrap;
-    gap:4px;
-    overflow:visible;
-  }
-  .fb{
-    font-size:9px;
-    padding:3px 8px;
-  }
+  /* Fix 1: Top5 panel hide on mobile */
+  .top5{display:none!important;}
+  /* Fix 2: Buttons visible and wrapping on mobile */
+  .hdr-right{display:flex;flex-wrap:wrap;gap:5px;overflow:visible;width:100%;}
+  .fb{font-size:10px;padding:5px 10px;}
+  /* Fix 3: Body and main scrollable on mobile */
+  html,body{overflow:auto;height:auto;}
+  .main{overflow:visible;min-height:0;flex:none;}
+  /* Fix 4: Grid columns and scrollable */
+  .grid{grid-template-columns:repeat(5,1fr)!important;grid-auto-rows:auto!important;overflow-y:auto!important;min-height:300px;}
+  /* Fix 5: Cards minimum height on mobile */
+  .card{min-height:52px;}
+  /* Fix 6: Graph view height on mobile */
+  .graph-view{min-height:400px;}
+  .graph-panel{min-height:350px;}
+  #graphCanvas{min-height:280px;}
 }
 .hdr-left{display:flex;align-items:center;gap:10px;}
 .logo{font-size:14px;font-weight:700;color:#4fc3f7;letter-spacing:.05em;}
@@ -389,7 +386,7 @@ body.light .card.nt  .cf{background:#bb8800;}
 <!-- HEADER -->
 <div class="hdr">
   <div class="hdr-left">
-    <div class="logo">NSE F&amp;O V1<small>ADVANCE / DECLINE</small></div>
+    <div class="logo">NSE F&amp;O<small>ADVANCE / DECLINE</small></div>
     <div class="sep"></div>
     <div class="ts">Scanned <b id="sct" data-scan-time="">—</b></div>
     <div class="sep"></div>
@@ -695,7 +692,7 @@ function setF(f){
   if(graphMode){
     graphMode = false;
     document.getElementById('grid').style.display      = 'grid';
-    document.getElementById('top5Panel').style.display = 'flex';
+    document.getElementById('top5Panel').style.display = window.innerWidth<=800?'none':'flex';
     document.getElementById('graphView').classList.remove('active');
     document.getElementById('bGraph').classList.remove('on-graph');
   }
@@ -757,7 +754,7 @@ window.addEventListener('resize', ()=>{
 function toggleGraph(){
   graphMode = !graphMode;
   document.getElementById('grid').style.display      = graphMode?'none':'grid';
-  document.getElementById('top5Panel').style.display = graphMode?'none':'flex';
+  document.getElementById('top5Panel').style.display = (graphMode||window.innerWidth<=800)?'none':'flex';
   document.getElementById('graphView').classList.toggle('active', graphMode);
   document.getElementById('bGraph').classList.toggle('on-graph', graphMode);
   // Reset filter button highlights when switching to heatmap
