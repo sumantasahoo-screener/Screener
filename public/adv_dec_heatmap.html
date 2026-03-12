@@ -39,11 +39,21 @@ body{
   .grid{grid-template-columns:repeat(5,1fr)!important;grid-auto-rows:auto!important;overflow-y:auto!important;min-height:300px;}
   /* Fix 5: Cards minimum height on mobile */
   .card{min-height:52px;}
-  /* Fix 6: Graph view height on mobile — fixed height, scroll nahi katega */
+  /* Fix 6: Graph — portrait mein tall, landscape mein compact */
   .graph-view{min-height:0;height:auto;overflow:visible;flex:none;}
-  .graph-panel{min-height:320px;height:320px;flex:none;}
-  #graphCanvas{min-height:240px;height:240px;}
-  .vix-panel{height:130px;flex-shrink:0;}
+  .graph-panel{height:calc(100svh - 270px);min-height:260px;flex:none;}
+  #graphCanvas{flex:1;min-height:0;height:100%;}
+  .vix-panel{height:120px;flex-shrink:0;}
+}
+
+/* ── LANDSCAPE MOBILE ── */
+@media(max-width:900px) and (orientation:landscape){
+  .graph-panel{height:calc(100svh - 140px);min-height:160px;flex:none;}
+  #graphCanvas{flex:1;min-height:0;height:100%;}
+  .vix-panel{height:100px;flex-shrink:0;}
+  /* Landscape mein header compact karo */
+  .hdr{padding:4px 10px;}
+  .bar-row{height:14px;}
 }
 .hdr-left{display:flex;align-items:center;gap:10px;}
 .logo{font-size:14px;font-weight:700;color:#4fc3f7;letter-spacing:.05em;}
@@ -387,7 +397,7 @@ body.light .card.nt  .cf{background:#bb8800;}
 <!-- HEADER -->
 <div class="hdr">
   <div class="hdr-left">
-    <div class="logo">NSE F&amp;O V1<small>ADVANCE / DECLINE</small></div>
+    <div class="logo">NSE F&amp;O v3<small>ADVANCE / DECLINE</small></div>
     <div class="sep"></div>
     <div class="ts">Scanned <b id="sct" data-scan-time="">—</b></div>
     <div class="sep"></div>
