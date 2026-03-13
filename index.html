@@ -1,523 +1,343 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="teal-dark">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>F&O Screener Hub | Premium</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 
-/* ===== THEMES ===== */
-html[data-theme="teal-dark"] {
-  --bg:          #012E30;
-  --bg1:         #011e20;
-  --bg2:         #01383b;
-  --sidebar-bg:  #011a1c;
-  --border:      rgba(0,210,220,.12);
-  --border2:     rgba(0,210,220,.22);
-  --ink:         #c8eced;
-  --ink2:        rgba(200,236,237,.65);
-  --ink3:        rgba(200,236,237,.35);
-  --accent:      #00c8d2;
-  --acc-dim:     rgba(0,200,210,.1);
-  --acc-mid:     rgba(0,200,210,.22);
-  --active-bg:   rgba(0,200,210,.14);
-  --hover-bg:    rgba(0,200,210,.07);
-  --shadow:      rgba(0,0,0,.45);
-  --live-color:  #34d399;
-  --live-bg:     rgba(52,211,153,.1);
-  --live-bd:     rgba(52,211,153,.3);
-  --scrollbar:   rgba(0,200,210,.2);
+html[data-theme="dark"]{
+  --bg:#080d12;--bg1:#0d1520;--bg2:#111d2e;--bg3:#162438;
+  --sidebar:#0a1220;--border:rgba(0,200,200,.08);--border2:rgba(0,200,200,.18);--border3:rgba(0,200,200,.30);
+  --ink:#e8f4f5;--ink2:rgba(200,230,232,.6);--ink3:rgba(200,230,232,.3);
+  --accent:#00d4e0;--accent2:#00b8c8;--acc-glow:rgba(0,212,224,.12);--acc-dim:rgba(0,212,224,.07);--acc-mid:rgba(0,212,224,.15);
+  --live:#10d98a;--live-bg:rgba(16,217,138,.08);--live-bd:rgba(16,217,138,.25);
+  --shadow:rgba(0,0,0,.6);--scrl:rgba(0,212,224,.15);--red:#f05a5a;--amber:#f5a623;
 }
-
-html[data-theme="teal-medium"] {
-  --bg:          #026773;
-  --bg1:         #025a65;
-  --bg2:         #027480;
-  --sidebar-bg:  #014d58;
-  --border:      rgba(255,255,255,.14);
-  --border2:     rgba(255,255,255,.24);
-  --ink:         #ffffff;
-  --ink2:        rgba(255,255,255,.7);
-  --ink3:        rgba(255,255,255,.4);
-  --accent:      #C5E2E6;
-  --acc-dim:     rgba(197,226,230,.12);
-  --acc-mid:     rgba(197,226,230,.25);
-  --active-bg:   rgba(197,226,230,.18);
-  --hover-bg:    rgba(197,226,230,.08);
-  --shadow:      rgba(0,0,0,.3);
-  --live-color:  #34d399;
-  --live-bg:     rgba(52,211,153,.12);
-  --live-bd:     rgba(52,211,153,.35);
-  --scrollbar:   rgba(255,255,255,.2);
+html[data-theme="light"]{
+  --bg:#f0f4f8;--bg1:#ffffff;--bg2:#e8f0f5;--bg3:#dce8ee;
+  --sidebar:#ffffff;--border:rgba(2,90,110,.08);--border2:rgba(2,90,110,.16);--border3:rgba(2,90,110,.28);
+  --ink:#0d2030;--ink2:rgba(13,32,48,.6);--ink3:rgba(13,32,48,.35);
+  --accent:#0099aa;--accent2:#007888;--acc-glow:rgba(0,153,170,.10);--acc-dim:rgba(0,153,170,.07);--acc-mid:rgba(0,153,170,.14);
+  --live:#059669;--live-bg:rgba(5,150,105,.08);--live-bd:rgba(5,150,105,.22);
+  --shadow:rgba(0,0,0,.08);--scrl:rgba(0,153,170,.2);--red:#dc2626;--amber:#d97706;
+}
+html[data-theme="teal"]{
+  --bg:#012f35;--bg1:#01232a;--bg2:#023940;--bg3:#02424a;
+  --sidebar:#011d23;--border:rgba(0,210,220,.10);--border2:rgba(0,210,220,.20);--border3:rgba(0,210,220,.32);
+  --ink:#c8eced;--ink2:rgba(200,236,237,.6);--ink3:rgba(200,236,237,.3);
+  --accent:#00d4d8;--accent2:#00b8bc;--acc-glow:rgba(0,212,216,.12);--acc-dim:rgba(0,212,216,.08);--acc-mid:rgba(0,212,216,.16);
+  --live:#34d399;--live-bg:rgba(52,211,153,.08);--live-bd:rgba(52,211,153,.25);
+  --shadow:rgba(0,0,0,.5);--scrl:rgba(0,212,216,.18);--red:#f87171;--amber:#fbbf24;
 }
 
-html[data-theme="light-mist"] {
-  --bg:          #edf7f8;
-  --bg1:         #ffffff;
-  --bg2:         #daeef0;
-  --sidebar-bg:  #f5fbfc;
-  --border:      rgba(2,103,115,.12);
-  --border2:     rgba(2,103,115,.22);
-  --ink:         #012E30;
-  --ink2:        rgba(1,46,48,.65);
-  --ink3:        rgba(1,46,48,.4);
-  --accent:      #026773;
-  --acc-dim:     rgba(2,103,115,.08);
-  --acc-mid:     rgba(2,103,115,.18);
-  --active-bg:   rgba(2,103,115,.1);
-  --hover-bg:    rgba(2,103,115,.05);
-  --shadow:      rgba(0,0,0,.08);
-  --live-color:  #059669;
-  --live-bg:     rgba(5,150,105,.08);
-  --live-bd:     rgba(5,150,105,.25);
-  --scrollbar:   rgba(2,103,115,.2);
-}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow:hidden;transition:background .3s,color .3s;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--scrl);border-radius:3px;}
 
-/* ===== BASE ===== */
-body {
-  font-family: 'DM Sans', -apple-system, sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-  min-height: 100vh;
-  overflow: hidden;
-  transition: background .3s, color .3s;
+/* TOPBAR */
+.topbar{
+  position:fixed;top:0;left:0;right:0;height:56px;
+  background:var(--bg1);border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;padding:0 16px;z-index:200;gap:12px;
+  box-shadow:0 1px 30px var(--shadow);
+  overflow:hidden;
 }
+.topbar::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.4;}
+.topbar.hidden{display:none;}
 
-/* ===== SCROLLBAR ===== */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
+.hamburger{background:none;border:none;cursor:pointer;color:var(--ink3);padding:7px;border-radius:8px;transition:all .15s;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.hamburger:hover{background:var(--acc-dim);color:var(--accent);}
+.hamburger svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
 
-/* ===== LAYOUT ===== */
-.layout { display: flex; min-height: 100vh; }
+.logo-area{display:flex;align-items:center;gap:10px;flex-shrink:0;min-width:0;}
+.logo-mark{width:34px;height:34px;border-radius:9px;flex-shrink:0;background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px var(--acc-glow);position:relative;overflow:hidden;}
+.logo-mark::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2) 0%,transparent 60%);}
+.logo-mark-text{font-size:12px;font-weight:700;color:#fff;letter-spacing:-.5px;position:relative;}
+.logo-text{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:.2px;white-space:nowrap;}
+.logo-text em{font-style:normal;color:var(--accent);}
+.logo-tag{font-size:9px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--accent);background:var(--acc-dim);border:1px solid var(--border2);padding:2px 7px;border-radius:4px;margin-left:4px;font-family:'JetBrains Mono',monospace;}
 
-/* ===== TOPBAR ===== */
-.topbar {
-  position: fixed; top: 0; left: 0; right: 0; height: 58px;
-  background: var(--bg1);
-  border-bottom: 1px solid var(--border2);
-  display: flex; align-items: center; padding: 0 20px;
-  z-index: 200;
-  box-shadow: 0 1px 20px var(--shadow);
-  gap: 14px;
-}
-.topbar.hidden { display: none; }
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
 
-.hamburger {
-  background: none; border: none;
-  font-size: 18px; cursor: pointer;
-  color: var(--ink2); padding: 6px;
-  border-radius: 8px; transition: background .15s, color .15s;
-  flex-shrink: 0;
-}
-.hamburger:hover { background: var(--hover-bg); color: var(--ink); }
+.topbar-clock{flex:1;text-align:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--ink2);letter-spacing:1px;}
 
-.logo-area { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
-.logo-area img { height: 38px; flex-shrink: 0; }
-.logo-text {
-  font-size: 16px; font-weight: 700;
-  color: var(--ink); letter-spacing: .5px;
-  white-space: nowrap;
-}
-.logo-text span { color: var(--accent); }
+.live-badge{display:flex;align-items:center;gap:5px;background:var(--live-bg);border:1px solid var(--live-bd);color:var(--live);padding:5px 11px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.6px;font-family:'JetBrains Mono',monospace;}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--live);animation:pulse 1.8s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.7);}}
 
-.topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.theme-switcher{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);padding:3px;border-radius:8px;}
+.theme-btn{width:22px;height:22px;border-radius:5px;border:1.5px solid transparent;cursor:pointer;transition:all .15s;flex-shrink:0;}
+.theme-btn:hover{transform:scale(1.1);}
+.theme-btn.active{border-color:var(--ink2);}
 
-/* Theme dots */
-.theme-dots { display: flex; gap: 6px; align-items: center; }
-.theme-dot {
-  width: 18px; height: 18px; border-radius: 50%;
-  border: 2px solid transparent;
-  cursor: pointer; transition: transform .15s, border-color .15s;
-}
-.theme-dot:hover { transform: scale(1.2); }
-.theme-dot.active { border-color: var(--ink); }
+.fs-btn{background:var(--bg2);border:1px solid var(--border2);color:var(--ink2);cursor:pointer;border-radius:8px;padding:6px 10px;transition:all .15s;display:flex;align-items:center;font-family:'JetBrains Mono',monospace;font-size:12px;}
+.fs-btn:hover{background:var(--acc-dim);color:var(--accent);border-color:var(--border3);}
 
-/* Live badge */
-.live-badge {
-  display: flex; align-items: center; gap: 5px;
-  background: var(--live-bg);
-  border: 1px solid var(--live-bd);
-  color: var(--live-color);
-  padding: 5px 12px; border-radius: 20px;
-  font-size: 11px; font-weight: 700;
-  font-family: 'DM Mono', monospace;
-}
-.live-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--live-color);
-  animation: pulse 1.8s ease-in-out infinite;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: .4; transform: scale(.8); }
-}
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:56px;width:230px;height:calc(100vh - 56px);background:var(--sidebar);border-right:1px solid var(--border2);overflow-y:auto;z-index:100;transition:transform .3s ease;display:flex;flex-direction:column;}
+.sidebar.hidden-fs{display:none;}
 
-/* Fullscreen btn */
-.fs-btn {
-  background: var(--acc-dim); border: 1px solid var(--border2);
-  color: var(--ink2); cursor: pointer; border-radius: 8px;
-  padding: 6px 10px; font-size: 14px;
-  transition: all .15s;
-}
-.fs-btn:hover { background: var(--acc-mid); color: var(--ink); }
+.sidebar-header{padding:14px 16px 10px;border-bottom:1px solid var(--border);}
+.sidebar-label{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);font-weight:600;font-family:'JetBrains Mono',monospace;}
 
-/* ===== SIDEBAR ===== */
-.sidebar {
-  position: fixed; left: 0; top: 58px;
-  width: 240px; height: calc(100vh - 58px);
-  background: var(--sidebar-bg);
-  border-right: 1px solid var(--border);
-  overflow-y: auto; z-index: 100;
-  transition: transform .3s ease;
-  display: flex; flex-direction: column;
-}
-.sidebar.hidden-fs { display: none; }
+.nav-section{border-bottom:1px solid var(--border);}
+.section-header{width:100%;padding:11px 16px;background:none;border:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .15s;gap:8px;}
+.section-header:hover{background:var(--acc-dim);}
+.section-icon-title{display:flex;align-items:center;gap:8px;}
+.section-icon{width:26px;height:26px;border-radius:7px;background:var(--acc-dim);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.section-title{font-size:12px;font-weight:600;color:var(--ink);letter-spacing:.3px;}
+.section-count{font-size:9px;color:var(--ink3);font-family:'JetBrains Mono',monospace;margin-left:2px;}
+.section-arrow{color:var(--ink3);font-size:9px;transition:transform .25s;flex-shrink:0;}
+.section-arrow.open{transform:rotate(180deg);}
 
-/* Sidebar section */
-.nav-section { border-bottom: 1px solid var(--border); }
+.submenu{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+.submenu.open{max-height:600px;}
 
-.section-header {
-  width: 100%; padding: 14px 18px 10px;
-  background: none; border: none;
-  display: flex; align-items: center; justify-content: space-between;
-  cursor: pointer; transition: background .15s;
-  gap: 10px;
-}
-.section-header:hover { background: var(--hover-bg); }
+.nav-link{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 8px 50px;font-size:12px;color:var(--ink2);text-decoration:none;transition:all .15s;position:relative;border-left:2px solid transparent;gap:8px;}
+.nav-link::before{content:'';position:absolute;left:34px;width:6px;height:1px;background:var(--border2);}
+.nav-link:hover{background:var(--acc-dim);color:var(--ink);border-left-color:var(--border2);padding-left:52px;}
+.nav-link.active{background:var(--acc-mid);color:var(--accent);border-left-color:var(--accent);font-weight:500;}
+.nav-link.active::before{background:var(--accent);}
+.nav-link.external::after{content:'↗';font-size:10px;color:var(--ink3);margin-left:auto;}
+.nav-badge{font-size:9px;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-weight:500;flex-shrink:0;}
+.nav-badge.live{background:var(--live-bg);color:var(--live);border:1px solid var(--live-bd);}
+.nav-badge.offline{background:rgba(245,166,35,.08);color:var(--amber);border:1px solid rgba(245,166,35,.2);}
+.nav-badge.info{background:var(--acc-dim);color:var(--accent);border:1px solid var(--border2);}
 
-.section-icon-title {
-  display: flex; align-items: center; gap: 9px;
-}
-.section-icon {
-  font-size: 14px;
-  width: 28px; height: 28px;
-  background: var(--acc-dim);
-  border: 1px solid var(--border2);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.section-title {
-  font-size: 13px; font-weight: 600;
-  color: var(--ink); letter-spacing: .2px;
-}
-.section-arrow {
-  color: var(--ink3); font-size: 10px;
-  transition: transform .25s; flex-shrink: 0;
-}
-.section-arrow.open { transform: rotate(180deg); }
+.sidebar-footer{margin-top:auto;padding:14px 16px;border-top:1px solid var(--border);}
+.sidebar-footer-text{font-size:10px;color:var(--ink3);line-height:1.6;font-family:'JetBrains Mono',monospace;}
 
-/* Submenu */
-.submenu {
-  max-height: 0; overflow: hidden;
-  transition: max-height .3s ease;
-}
-.submenu.open { max-height: 600px; }
+/* MAIN */
+.main{margin-left:230px;width:calc(100% - 230px);margin-top:56px;height:calc(100vh - 56px);display:flex;flex-direction:column;transition:margin .3s,width .3s;}
 
-.nav-link {
-  display: flex; align-items: center; gap: 8px;
-  padding: 9px 18px 9px 55px;
-  font-size: 13px; color: var(--ink2);
-  text-decoration: none;
-  transition: all .15s; position: relative;
-  border-left: 3px solid transparent;
-}
-.nav-link::before {
-  content: ''; position: absolute; left: 43px;
-  width: 4px; height: 4px; border-radius: 50%;
-  background: var(--ink3); transition: background .15s;
-}
-.nav-link:hover {
-  color: var(--ink); background: var(--hover-bg);
-  padding-left: 58px;
-}
-.nav-link:hover::before { background: var(--accent); }
-.nav-link.active {
-  color: var(--accent); background: var(--active-bg);
-  border-left-color: var(--accent); font-weight: 600;
-}
-.nav-link.active::before { background: var(--accent); }
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:var(--bg);position:relative;overflow:hidden;}
+.welcome-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 50%,var(--acc-glow) 0%,transparent 70%);pointer-events:none;}
+.welcome-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 20%,transparent 80%);pointer-events:none;opacity:.5;}
 
-.nav-link.external::after {
-  content: '↗'; font-size: 10px; margin-left: auto;
-  color: var(--ink3); flex-shrink: 0;
-}
+.welcome-inner{position:relative;text-align:center;max-width:420px;padding:0 20px;}
+.welcome-logo{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 0 40px var(--acc-glow),0 0 80px var(--acc-glow);}
+.welcome-logo-text{font-size:28px;font-weight:700;color:#fff;}
+.welcome-title{font-size:28px;font-weight:700;color:var(--ink);letter-spacing:-.5px;line-height:1.2;margin-bottom:10px;}
+.welcome-title em{font-style:normal;color:var(--accent);}
+.welcome-sub{font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:24px;}
+.welcome-hint{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--ink3);font-family:'JetBrains Mono',monospace;background:var(--bg2);border:1px solid var(--border2);padding:7px 16px;border-radius:20px;}
+.welcome-stats{display:flex;gap:16px;justify-content:center;margin-top:28px;}
+.w-stat{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px 20px;text-align:center;}
+.w-stat-val{font-size:20px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;}
+.w-stat-label{font-size:10px;color:var(--ink3);letter-spacing:.5px;margin-top:2px;}
 
-/* ===== MAIN CONTENT ===== */
-.main {
-  margin-left: 240px; margin-top: 58px;
-  flex: 1; width: calc(100% - 240px);
-  height: calc(100vh - 58px);
-  transition: all .3s;
-  display: flex; flex-direction: column;
-}
-.main.fullscreen { margin: 0; width: 100%; height: 100vh; }
+.content-frame{flex:1;width:100%;border:none;background:#fff;display:none;}
+.content-frame.active{display:block;}
 
-.frame-area { flex: 1; display: flex; flex-direction: column; }
+.float-btn{display:none;position:fixed;bottom:20px;right:20px;z-index:300;background:var(--accent);color:var(--bg);border:none;cursor:pointer;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;box-shadow:0 4px 20px var(--acc-glow);transition:transform .15s;font-family:'JetBrains Mono',monospace;}
+.float-btn.visible{display:block;}
+.float-btn:hover{transform:scale(1.05);}
 
-/* Welcome screen */
-.welcome {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 16px; text-align: center; padding: 40px 20px;
-}
-.welcome-icon {
-  width: 64px; height: 64px; border-radius: 18px;
-  background: var(--acc-dim); border: 1px solid var(--border2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 28px;
-}
-.welcome-title { font-size: 22px; font-weight: 700; color: var(--ink); }
-.welcome-sub { font-size: 14px; color: var(--ink2); max-width: 280px; line-height: 1.6; }
-.welcome-hint {
-  font-size: 12px; color: var(--ink3);
-  font-family: 'DM Mono', monospace;
-  background: var(--acc-dim); border: 1px solid var(--border);
-  padding: 6px 14px; border-radius: 20px;
-}
-
-.content-frame { flex: 1; width: 100%; border: none; background: #fff; display: none; }
-.content-frame.active { display: block; }
-
-/* Floating fullscreen button */
-.float-btn {
-  display: none; position: fixed;
-  bottom: 20px; right: 20px; z-index: 300;
-  background: var(--accent); color: var(--bg1);
-  border: none; cursor: pointer;
-  border-radius: 12px; padding: 10px 14px;
-  font-size: 16px; font-weight: 700;
-  box-shadow: 0 4px 20px var(--shadow);
-  transition: transform .15s, opacity .15s;
-}
-.float-btn.visible { display: block; }
-.float-btn:hover { transform: scale(1.05); }
-
-/* ===== MOBILE ===== */
-@media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.mobile-open { transform: translateX(0); }
-  .main { margin-left: 0; width: 100%; }
-  .logo-text { font-size: 14px; }
-  .theme-dots { display: none; }
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.mobile-open{transform:translateX(0);}
+  .main{margin-left:0;width:100%;}
+  .market-strip{display:none;}
+  .logo-tag{display:none;}
 }
 </style>
 </head>
-
 <body>
-<div class="layout" id="layout">
 
-  <button class="float-btn" id="float-btn">⛶</button>
+<button class="float-btn" id="float-btn">⛶ EXIT</button>
 
-  <!-- TOPBAR -->
-  <nav class="topbar" id="topbar">
-    <button class="hamburger" id="hamburger">☰</button>
-    <div class="logo-area">
-      <img src="https://sumantasahoo-screener.github.io/Screener/LOGO.png" alt="Logo" onerror="this.style.display='none'">
-      <span class="logo-text">F&amp;O <span>Screener</span></span>
+<nav class="topbar" id="topbar">
+  <button class="hamburger" id="hamburger">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+
+  <div class="logo-area">
+    <div class="logo-mark"><span class="logo-mark-text">F&amp;O</span></div>
+    <span class="logo-text"><em>Screener</em> Hub</span>
+    <span class="logo-tag">PREMIUM</span>
+  </div>
+
+  <div class="topbar-clock" id="topbar-clock">--:--:-- IST</div>
+
+  <div class="topbar-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div class="theme-switcher">
+      <div class="theme-btn active" style="background:#080d12" title="Dark" onclick="setTheme('dark',this)"></div>
+      <div class="theme-btn" style="background:#012f35" title="Teal" onclick="setTheme('teal',this)"></div>
+      <div class="theme-btn" style="background:#f0f4f8;border:1px solid #ccc" title="Light" onclick="setTheme('light',this)"></div>
     </div>
-    <div class="topbar-right">
-      <div class="theme-dots">
-        <div class="theme-dot" style="background:#012E30" title="Dark Teal" onclick="setTheme('teal-dark')"></div>
-        <div class="theme-dot" style="background:#026773" title="Medium Teal" onclick="setTheme('teal-medium')"></div>
-        <div class="theme-dot" style="background:#C5E2E6" title="Light Mist" onclick="setTheme('light-mist')"></div>
+    <button class="fs-btn" id="fs-btn">⛶</button>
+  </div>
+</nav>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-label">Navigation</div>
+  </div>
+
+  <div class="nav-section">
+    <button class="section-header" onclick="toggleSub(this,'scalper-sub')">
+      <div class="section-icon-title">
+        <div class="section-icon">⚡</div>
+        <div><span class="section-title">Basic Tools</span><span class="section-count"> 3</span></div>
       </div>
-      <div class="live-badge">
-        <div class="live-dot"></div>
-        LIVE
-      </div>
-      <button class="fs-btn" id="fs-btn" title="Toggle Fullscreen">⛶</button>
+      <span class="section-arrow">▼</span>
+    </button>
+    <div class="submenu" id="scalper-sub">
+      <a href="https://screener-epd.pages.dev/public/tradegpt.html" class="nav-link">AI Chat Tool <span class="nav-badge info">AI</span></a>
+      <a href="https://screener-epd.pages.dev/public/adv_dec_heatmap" class="nav-link">Advance Decline</a>
+      <a href="https://screener-epd.pages.dev/public/oi_All" class="nav-link">Open Interest</a>
     </div>
-  </nav>
+  </div>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
+  <div class="nav-section">
+    <button class="section-header" onclick="toggleSub(this,'data-sub')">
+      <div class="section-icon-title">
+        <div class="section-icon">📈</div>
+        <div><span class="section-title">Data Analysis</span><span class="section-count"> 5</span></div>
+      </div>
+      <span class="section-arrow">▼</span>
+    </button>
+    <div class="submenu" id="data-sub">
+      <a href="https://screener2-584.pages.dev/StockTrade" class="nav-link">Stock Trade <span class="nav-badge live">LIVE</span></a>
+      <a href="https://screener2-584.pages.dev/OptionTrade" class="nav-link">Option Trade <span class="nav-badge live">LIVE</span></a>
+      <a href="https://screener-epd.pages.dev/public/Bhavdata" class="nav-link">Bhav Data <span class="nav-badge offline">OFFLINE</span></a>
+      <a href="https://screener-epd.pages.dev/public/volatility_dashboard" class="nav-link">Volatility <span class="nav-badge info">KB</span></a>
+      <a href="https://screener2-584.pages.dev/fii_dashboard" class="nav-link">FII Data <span class="nav-badge info">KB</span></a>
+    </div>
+  </div>
 
-    <div class="nav-section">
-      <button class="section-header" onclick="toggleSub(this,'scalper-sub')">
-        <div class="section-icon-title">
-          <div class="section-icon">⚡</div>
-          <span class="section-title">Scalper</span>
+  <div class="nav-section">
+    <button class="section-header" onclick="toggleSub(this,'swing-sub')">
+      <div class="section-icon-title">
+        <div class="section-icon">🔄</div>
+        <div><span class="section-title">Swing</span><span class="section-count"> 2</span></div>
+      </div>
+      <span class="section-arrow">▼</span>
+    </button>
+    <div class="submenu" id="swing-sub">
+      <a href="https://screener-epd.pages.dev/public/swing_screener" class="nav-link">Swing F&amp;O</a>
+      <a href="https://screener-epd.pages.dev/public/swing_screener2" class="nav-link">Swing All</a>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <button class="section-header" onclick="toggleSub(this,'ext-sub')">
+      <div class="section-icon-title">
+        <div class="section-icon">🔗</div>
+        <div><span class="section-title">External Links</span><span class="section-count"> 6</span></div>
+      </div>
+      <span class="section-arrow">▼</span>
+    </button>
+    <div class="submenu" id="ext-sub">
+      <a href="https://upstox.com/fno-discovery/open-interest-analysis/nifty-pcr/" class="nav-link external" target="_blank">PCR Data</a>
+      <a href="https://groww.in/indices/global-indices" class="nav-link external" target="_blank">Global Index</a>
+      <a href="https://web.quantsapp.com/signin" class="nav-link external" target="_blank">Quantsapp</a>
+      <a href="https://login.dhan.co/?location=DH_WEB" class="nav-link external" target="_blank">Dhan</a>
+      <a href="https://www.nseindia.com/option-chain" class="nav-link external" target="_blank">Nifty Option Chain</a>
+      <a href="https://nifty-pe-ratio.com" class="nav-link external" target="_blank">Nifty PE Ratio</a>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-footer-text">
+      F&amp;O Screener Hub v2.0<br>
+      <span id="clock-time">--:--:-- IST</span>
+    </div>
+  </div>
+</aside>
+
+<main class="main" id="main">
+  <div style="flex:1;display:flex;flex-direction:column;" id="frame-area">
+    <div class="welcome" id="welcome">
+      <div class="welcome-bg"></div>
+      <div class="welcome-grid"></div>
+      <div class="welcome-inner">
+        <div class="welcome-logo"><span class="welcome-logo-text">F</span></div>
+        <div class="welcome-title">F&amp;O <em>Screener</em> Hub</div>
+        <div class="welcome-sub">Professional tools for Options &amp; Futures traders. Real-time data, AI analysis, and market insights — all in one place.</div>
+        <div class="welcome-hint">← Select a tool from the sidebar to begin</div>
+        <div class="welcome-stats">
+          <div class="w-stat"><div class="w-stat-val">10+</div><div class="w-stat-label">TOOLS</div></div>
+          <div class="w-stat"><div class="w-stat-val">LIVE</div><div class="w-stat-label">DATA</div></div>
+          <div class="w-stat"><div class="w-stat-val">AI</div><div class="w-stat-label">POWERED</div></div>
         </div>
-        <span class="section-arrow open">▼</span>
-      </button>
-      <div class="submenu open" id="scalper-sub">
-        <a href="https://screener-epd.pages.dev/public/signal"              class="nav-link">Banking Scalper</a>
-        <a href="https://screener-epd.pages.dev/public/signal3"             class="nav-link">Nifty Scalper</a>
-        <a href="https://screener-epd.pages.dev/public/adv_dec_heatmap"     class="nav-link">Advance Decline</a>
       </div>
     </div>
-
-    <div class="nav-section">
-      <button class="section-header" onclick="toggleSub(this,'oi-sub')">
-        <div class="section-icon-title">
-          <div class="section-icon">📊</div>
-          <span class="section-title">Open Interest</span>
-        </div>
-        <span class="section-arrow open">▼</span>
-      </button>
-      <div class="submenu open" id="oi-sub">
-       
-        <a href="https://screener-epd.pages.dev/public/oi_All" class="nav-link">ALL OI-Test</a>
-		
-      </div>
-    </div>
-
-    <div class="nav-section">
-      <button class="section-header" onclick="toggleSub(this,'data-sub')">
-        <div class="section-icon-title">
-          <div class="section-icon">📈</div>
-          <span class="section-title">Data Analysis</span>
-        </div>
-        <span class="section-arrow open">▼</span>
-      </button>
-      <div class="submenu open" id="data-sub">
-		<a href="https://screener2-584.pages.dev/StockTrade"                    class="nav-link">STOCK TRADE<span style="font-size:10px;opacity:.6;margin-left:4px">Live</span></a>
-		<a href="https://screener2-584.pages.dev/OptionTrade"                   class="nav-link">OPTION TRADE<span style="font-size:10px;opacity:.6;margin-left:4px">Live</span></a>
-		<a href="https://screener-epd.pages.dev/public/Bhavdata"                class="nav-link">Bhav Data <span style="font-size:10px;opacity:.6;margin-left:4px">OFFLINE</span></a>
-        <a href="https://screener-epd.pages.dev/public/volatility_dashboard"    class="nav-link">Volatility <span style="font-size:10px;opacity:.6;margin-left:4px">Knowledge</span></a>
-        <a href="https://screener2-584.pages.dev/fii_dashboard"           		class="nav-link">FII Data <span style="font-size:10px;opacity:.6;margin-left:4px">Knowledge</span></a>
-		
-		
-      </div>
-    </div>
-
-    <div class="nav-section">
-      <button class="section-header" onclick="toggleSub(this,'swing-sub')">
-        <div class="section-icon-title">
-          <div class="section-icon">🔄</div>
-          <span class="section-title">Swing</span>
-        </div>
-        <span class="section-arrow open">▼</span>
-      </button>
-      <div class="submenu open" id="swing-sub">
-        <a href="https://screener-epd.pages.dev/public/swing_screener"  class="nav-link">Swing F&amp;O</a>
-        <a href="https://screener-epd.pages.dev/public/swing_screener2" class="nav-link">Swing All</a>
-      </div>
-    </div>
-
-    <div class="nav-section">
-      <button class="section-header" onclick="toggleSub(this,'news-sub')">
-        <div class="section-icon-title">
-          <div class="section-icon">📰</div>
-          <span class="section-title">News</span>
-        </div>
-        <span class="section-arrow open">▼</span>
-      </button>
-      <div class="submenu open" id="news-sub">
-        <a href="https://screener2-584.pages.dev/news" class="nav-link">News Terminal</a>
-		<a href="https://screener-epd.pages.dev/public/tradegpt.html" class="nav-link">TRADE GPT -TEST</a>
-      </div>
-    </div>
-	
-
-
-    <div class="nav-section">
-      <button class="section-header" onclick="toggleSub(this,'ext-sub')">
-        <div class="section-icon-title">
-          <div class="section-icon">🔗</div>
-          <span class="section-title">External Links</span>
-        </div>
-        <span class="section-arrow open">▼</span>
-      </button>
-      <div class="submenu open" id="ext-sub">
-        <a href="https://upstox.com/fno-discovery/open-interest-analysis/nifty-pcr/" class="nav-link external" target="_blank">PCR Data</a>
-        <a href="https://groww.in/indices/global-indices"   class="nav-link external" target="_blank">Global Index</a>
-        <a href="https://web.quantsapp.com/signin"          class="nav-link external" target="_blank">Quantsapp</a>
-        <a href="https://login.dhan.co/?location=DH_WEB"    class="nav-link external" target="_blank">Dhan</a>
-        <a href="https://www.nseindia.com/option-chain"     class="nav-link external" target="_blank">Nifty Option Chain</a>
-        <a href="https://nifty-pe-ratio.com"                class="nav-link external" target="_blank">Nifty PE Ratio</a>
-      </div>
-    </div>
-
-  </aside>
-
-  <!-- MAIN -->
-  <main class="main" id="main">
-    <div class="frame-area" id="frame-area">
-
-      <!-- Welcome screen -->
-      <div class="welcome" id="welcome">
-        <div class="welcome-icon">📊</div>
-        <div class="welcome-title">F&amp;O Screener Hub</div>
-        <div class="welcome-sub">Select a tool from the sidebar to get started. Left click loads in frame, right click opens in new tab.</div>
-        <div class="welcome-hint">← Select a tool to begin</div>
-      </div>
-
-      <iframe src="about:blank" id="main-frame" class="content-frame"></iframe>
-    </div>
-  </main>
-
-</div>
+    <iframe src="about:blank" id="main-frame" class="content-frame"></iframe>
+  </div>
+</main>
 
 <script>
-const frame    = document.getElementById('main-frame');
-const welcome  = document.getElementById('welcome');
-const sidebar  = document.getElementById('sidebar');
-const topbar   = document.getElementById('topbar');
-const main     = document.getElementById('main');
-const floatBtn = document.getElementById('float-btn');
-const fsBtn    = document.getElementById('fs-btn');
+const frame=document.getElementById('main-frame'),welcome=document.getElementById('welcome'),sidebar=document.getElementById('sidebar'),topbar=document.getElementById('topbar'),main=document.getElementById('main'),floatBtn=document.getElementById('float-btn'),fsBtn=document.getElementById('fs-btn');
 
-// ── Theme ───────────────────────────────────────────────
-function setTheme(t){
-  document.documentElement.setAttribute('data-theme', t);
-  localStorage.setItem('fo_theme', t);
-  document.querySelectorAll('.theme-dot').forEach((d,i)=>{
-    d.classList.toggle('active', ['teal-dark','teal-medium','light-mist'][i]===t);
-  });
+function setTheme(t,el){
+  document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('fo_theme',t);
+  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
+  if(el)el.classList.add('active');
 }
-setTheme(localStorage.getItem('fo_theme')||'teal-dark');
+const saved=localStorage.getItem('fo_theme')||'dark';
+document.documentElement.setAttribute('data-theme',saved);
+const themeMap={'dark':0,'teal':1,'light':2};
+const btns=document.querySelectorAll('.theme-btn');
+if(btns[themeMap[saved]])btns[themeMap[saved]].classList.add('active');
 
-// ── Fullscreen ──────────────────────────────────────────
-let isFs = false;
+function updateClock(){
+  const n=new Date(),ist=new Date(n.getTime()+(5.5*60*60*1000-n.getTimezoneOffset()*60*1000));
+  const hh=ist.getHours().toString().padStart(2,'0');
+  const mm=ist.getMinutes().toString().padStart(2,'0');
+  const ss=ist.getSeconds().toString().padStart(2,'0');
+  const timeStr=hh+':'+mm+':'+ss+' IST';
+  document.getElementById('clock-time').textContent=timeStr;
+  document.getElementById('topbar-clock').textContent=timeStr;
+}
+setInterval(updateClock,1000);updateClock();
+
+let isFs=false;
 function toggleFs(){
-  isFs = !isFs;
-  topbar.classList.toggle('hidden', isFs);
-  sidebar.classList.toggle('hidden-fs', isFs);
-  if(isFs){
-    main.style.marginLeft='0'; main.style.width='100%';
-    main.style.marginTop='0'; main.style.height='100vh';
-  } else {
-    main.style.marginLeft='240px'; main.style.width='calc(100% - 240px)';
-    main.style.marginTop='58px'; main.style.height='calc(100vh - 58px)';
-  }
+  isFs=!isFs;
+  topbar.classList.toggle('hidden',isFs);
+  sidebar.classList.toggle('hidden-fs',isFs);
+  if(isFs){main.style.marginLeft='0';main.style.width='100%';main.style.marginTop='0';main.style.height='100vh';floatBtn.classList.add('visible');}
+  else{main.style.marginLeft='230px';main.style.width='calc(100% - 230px)';main.style.marginTop='56px';main.style.height='calc(100vh - 56px)';floatBtn.classList.remove('visible');}
 }
-floatBtn.onclick = toggleFs;
-fsBtn.onclick    = toggleFs;
+floatBtn.onclick=toggleFs;fsBtn.onclick=toggleFs;
 
-// ── Nav links ───────────────────────────────────────────
-document.querySelectorAll('.nav-link:not(.external)').forEach(link => {
-  link.addEventListener('click', function(e){
-    if(!e.ctrlKey && !e.metaKey && e.button===0){
-      e.preventDefault();
-      frame.src = this.href;
-      frame.classList.add('active');
-      welcome.style.display = 'none';
-      document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
-      this.classList.add('active');
-      floatBtn.classList.add('visible');
-      if(window.innerWidth < 768) sidebar.classList.remove('mobile-open');
+document.querySelectorAll('.nav-link:not(.external)').forEach(link=>{
+  link.addEventListener('click',function(e){
+    if(!e.ctrlKey&&!e.metaKey&&e.button===0){
+      e.preventDefault();frame.src=this.href;frame.classList.add('active');welcome.style.display='none';
+      document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));this.classList.add('active');
+      if(window.innerWidth<768)sidebar.classList.remove('mobile-open');
     }
   });
 });
 
-// ── Accordion ───────────────────────────────────────────
-function toggleSub(btn, id){
-  const sub   = document.getElementById(id);
-  const arrow = btn.querySelector('.section-arrow');
-  const isOpen = sub.classList.contains('open');
-  sub.classList.toggle('open', !isOpen);
-  arrow.classList.toggle('open', !isOpen);
+// ── Accordion (ek open = baaki band) ──────────────────
+function toggleSub(btn,id){
+  const allSubs=['scalper-sub','data-sub','swing-sub','ext-sub'];
+  const isOpen=document.getElementById(id).classList.contains('open');
+  allSubs.forEach(sid=>{
+    const s=document.getElementById(sid);
+    const b=s.previousElementSibling;
+    const a=b.querySelector('.section-arrow');
+    s.classList.remove('open');
+    if(a)a.classList.remove('open');
+  });
+  if(!isOpen){
+    document.getElementById(id).classList.add('open');
+    btn.querySelector('.section-arrow').classList.add('open');
+  }
 }
 
-// ── Hamburger ───────────────────────────────────────────
-document.getElementById('hamburger').onclick = () => {
-  sidebar.classList.toggle('mobile-open');
-};
+document.getElementById('hamburger').onclick=()=>sidebar.classList.toggle('mobile-open');
+
 </script>
 </body>
 </html>
