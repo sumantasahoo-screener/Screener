@@ -148,11 +148,14 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--ink
   .topbar-right .theme-switcher{display:none;}
   .topbar-right .live-badge{padding:4px 8px;font-size:9px;}
 }
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:299;backdrop-filter:blur(2px);}
+#overlay.active{display:block;}
 </style>
 </head>
 <body>
 
 <button class="float-btn" id="float-btn">⛶ EXIT</button>
+<div id="overlay"></div>
 
 <nav class="topbar" id="topbar">
   <button class="hamburger" id="hamburger">
@@ -339,7 +342,24 @@ function toggleSub(btn,id){
   }
 }
 
-document.getElementById('hamburger').onclick=()=>sidebar.classList.toggle('mobile-open');
+document.getElementById('hamburger').onclick=()=>{
+  const isOpen=sidebar.classList.toggle('mobile-open');
+  // mobile pe welcome screen hide karo jab menu open ho
+  if(window.innerWidth<768){
+    document.getElementById('overlay').classList.toggle('active',isOpen);
+  }
+};
+
+// overlay click se sidebar band
+document.getElementById('overlay').onclick=()=>{
+  sidebar.classList.remove('mobile-open');
+  document.getElementById('overlay').classList.remove('active');
+};
+
+// default dark theme always
+if(!localStorage.getItem('fo_theme')){
+  localStorage.setItem('fo_theme','dark');
+}
 
 </script>
 </body>
