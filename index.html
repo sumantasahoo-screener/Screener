@@ -139,18 +139,21 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--ink
 .float-btn:hover{transform:scale(1.05);}
 
 @media(max-width:768px){
-  .sidebar{transform:translateX(-100%);}
+  .sidebar{transform:translateX(-100%);z-index:300;width:280px;}
   .sidebar.mobile-open{transform:translateX(0);}
   .main{margin-left:0;width:100%;}
   .market-strip{display:none;}
   .logo-tag{display:none;}
   .welcome{display:none !important;}
 }
+#mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:299;}
+#mob-overlay.on{display:block;}
 </style>
 </head>
 <body>
 
 <button class="float-btn" id="float-btn">⛶ EXIT</button>
+<div id="mob-overlay"></div>
 
 <nav class="topbar" id="topbar">
   <button class="hamburger" id="hamburger">
@@ -285,6 +288,7 @@ function setTheme(t,el){
 }
 const saved=localStorage.getItem('fo_theme')||'dark';
 document.documentElement.setAttribute('data-theme',saved);
+localStorage.setItem('fo_theme',saved);
 const themeMap={'dark':0,'teal':1,'light':2};
 const btns=document.querySelectorAll('.theme-btn');
 if(btns[themeMap[saved]])btns[themeMap[saved]].classList.add('active');
@@ -315,7 +319,10 @@ document.querySelectorAll('.nav-link:not(.external)').forEach(link=>{
     if(!e.ctrlKey&&!e.metaKey&&e.button===0){
       e.preventDefault();frame.src=this.href;frame.classList.add('active');welcome.style.display='none';
       document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));this.classList.add('active');
-      if(window.innerWidth<768)sidebar.classList.remove('mobile-open');
+      if(window.innerWidth<768){
+        sidebar.classList.remove('mobile-open');
+        mobOverlay.classList.remove('on');
+      }
     }
   });
 });
@@ -337,7 +344,15 @@ function toggleSub(btn,id){
   }
 }
 
-document.getElementById('hamburger').onclick=()=>sidebar.classList.toggle('mobile-open');
+const mobOverlay=document.getElementById('mob-overlay');
+document.getElementById('hamburger').onclick=()=>{
+  const isOpen=sidebar.classList.toggle('mobile-open');
+  mobOverlay.classList.toggle('on',isOpen);
+};
+mobOverlay.onclick=()=>{
+  sidebar.classList.remove('mobile-open');
+  mobOverlay.classList.remove('on');
+};
 
 </script>
 </body>
