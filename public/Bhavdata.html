@@ -107,7 +107,8 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
 
 /* ── PANEL ── */
-.panel{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:visible;}
+.panel>.ph,.panel>.tabs,.panel>.sw,.panel>.ch,.panel>.tipbox,.panel>.pcr-explainer,.panel>.oi-warn,.panel>.alert{overflow:hidden;}
 .ph{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;
   border-bottom:1px solid var(--border);background:var(--card2);position:relative;}
 .ph::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
@@ -176,9 +177,14 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 .tipbox{padding:10px 20px;font-size:.75rem;color:var(--blue);background:var(--blue-lt);
   border-bottom:1px solid rgba(59,130,246,.2);line-height:1.6;}
 
-/* Col headers */
+/* Col headers — sticky inside panel */
 .ch{display:grid;gap:10px;padding:10px 20px;background:var(--bg3);
   border-bottom:1px solid var(--border);font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;}
+/* Sticky scroll wrapper — ch + sb together */
+.sticky-wrap{max-height:450px;overflow-y:auto;overflow-x:visible;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.sticky-wrap::-webkit-scrollbar{width:3px;}
+.sticky-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.sticky-wrap .ch{position:sticky;top:0;z-index:10;}
 .g-oi {grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 1.2fr;}
 .g-pcr{grid-template-columns: 2fr 3fr 1fr 1.2fr;}
 .g-mp {grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;}
@@ -194,8 +200,31 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 .row.g-act{grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr;}
 
 .sym{font-weight:700;font-size:.85rem;letter-spacing:.4px;color:var(--ink);}
-.tv-icon{cursor:pointer;font-size:10px;opacity:.3;margin-left:4px;display:inline-block;transition:opacity .15s,transform .15s;}
+.tv-icon{cursor:pointer;font-size:14px;opacity:.4;margin-left:4px;display:inline-block;transition:opacity .15s,transform .15s;}
 .tv-icon:hover{opacity:1;transform:scale(1.2);}
+
+/* ── SIGNAL TOOLTIP ICON ── */
+.sig-tip{display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:50%;font-size:11px;margin-left:5px;
+  cursor:help;position:relative;vertical-align:middle;flex-shrink:0;
+  transition:transform .15s;}
+.sig-tip:hover{transform:scale(1.15);}
+.sig-tip.bull{background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.5);color:var(--bull);}
+.sig-tip.bear{background:rgba(244,63,94,.18);border:1px solid rgba(244,63,94,.5);color:var(--bear);}
+.sig-tip.neutral{background:rgba(160,174,192,.15);border:1px solid rgba(160,174,192,.4);color:var(--ink2);}
+.sig-tip.warn{background:rgba(245,158,11,.18);border:1px solid rgba(245,158,11,.5);color:var(--gold);}
+.sig-tip .tip-box{
+  display:none;position:absolute;left:50%;transform:translateX(-50%);
+  bottom:calc(100% + 7px);width:220px;
+  background:#1a2032;border:1px solid var(--border2);border-radius:8px;
+  padding:9px 12px;font-size:.72rem;line-height:1.6;color:var(--ink);
+  font-family:'IBM Plex Mono',monospace;z-index:999;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);pointer-events:none;white-space:normal;text-align:left;}
+.sig-tip .tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:#1a2032;}
+.sig-tip:hover .tip-box{display:block;}
+.light-theme .sig-tip .tip-box{background:#fff;border-color:var(--border2);color:var(--ink);box-shadow:0 8px 24px rgba(0,0,0,.15);}
+.light-theme .sig-tip .tip-box::after{border-top-color:#fff;}
 .num{text-align:right;font-size:.82rem;}
 .ch span{font-size:.72rem!important;letter-spacing:1.2px;}
 .num.bull{color:var(--bull);}.num.bear{color:var(--bear);}.num.muted{color:var(--ink2);}.num.gold{color:var(--gold);}.num.blue{color:var(--blue);}
@@ -228,9 +257,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 .si{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;
   padding:10px 15px;font-family:var(--fm);font-size:.85rem;color:var(--ink);outline:none;}
 
-.sb{max-height:450px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
-.sb::-webkit-scrollbar{width:3px;}
-.sb::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.sb{overflow:visible;}
 .cw{height:250px;padding:15px 20px;}
 .empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:.85rem;}
 
@@ -255,7 +282,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
   #hdate{font-size:.68rem;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   #hexp{display:none!important;}
   main{padding:12px 10px;}
-  .smr{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .smr{display:none;}  /* 6 top cards mobile pe hide */
   .sval{font-size:1.8rem;}
   .sc{padding:14px 14px;}
   .g2{grid-template-columns:1fr;gap:14px;}
@@ -289,7 +316,20 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
   .ph:active{opacity:.85;}
 }
 
-/* ── THEME EXTRAS ── */
+/* ── OCEAN BLUE THEME ── */
+.ocean-theme {
+  --bg:#020d14;--bg2:#041520;--bg3:#06202e;
+  --card:#071c2a;--card2:#0a2438;
+  --border:#0e3348;--border2:#135070;
+  --ink:#d0eef8;--ink2:#6db8d4;--muted:#3a7a94;
+  --bull:#00e5c0;--bull-lt:rgba(0,229,192,.12);--bull-md:rgba(0,229,192,.25);--bull-dk:#00b89a;
+  --bear:#ff4d6d;--bear-lt:rgba(255,77,109,.12);--bear-md:rgba(255,77,109,.25);--bear-dk:#cc2244;
+  --gold:#fbbf24;--gold-lt:rgba(251,191,36,.12);--gold-md:rgba(251,191,36,.25);
+  --blue:#22d3ee;--blue-lt:rgba(34,211,238,.12);--blue-md:rgba(34,211,238,.25);
+  --purp:#818cf8;--purp-lt:rgba(129,140,248,.12);
+}
+.ocean-theme header{background:rgba(2,13,20,.96);}
+.ocean-theme .sig-tip .tip-box{background:#071c2a;border-color:#135070;}
 .light-theme header {background:rgba(253,250,245,.95);}
 .theme-toggle {background:var(--bg3); border:1px solid var(--border2); color:var(--ink); padding:6px 12px; border-radius:8px; cursor:pointer; font-size:1.1rem;}
 
@@ -384,7 +424,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
   <div class="logo"><div class="ldot"></div>F&amp;<em>O</em> Intelligence</div>
   
   <div class="hdr-r">
-    <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌑</button>
     <span id="hdate">—</span>
     <span id="hexp" style="font-size:.63rem;color:var(--gold);background:var(--gold-lt);border:1px solid var(--gold-md);padding:3px 10px;border-radius:12px;display:none;"></span>
     
@@ -456,6 +496,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <div class="tab" onclick="oiT('long_unwind',this)">⚪ Long Unwind</div>
       </div>
       <div class="sw"><input class="si" id="ois" placeholder="Symbol search (RELIANCE, NIFTY...)..." oninput="D.oiSearch=this.value;rOI()"></div>
+      <div class="sticky-wrap">
       <div class="ch g-oi" id="oi-ch">
         <span>Symbol</span>
         <span class="oi-sort-th" id="oith-price" onclick="oiSort('price')">Price</span>
@@ -465,6 +506,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <span style="text-align:right">Signal</span>
       </div>
       <div class="sb" id="oi-bd"></div>
+      </div>
     </div>
   </div>
 
@@ -488,6 +530,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
       </div>
       <div class="sw"><input class="si" id="pcrs" placeholder="Symbol search karo..." oninput="D.pcrSearch=this.value;rPCR()"></div>
       <div id="pcr-aw"></div>
+      <div class="sticky-wrap">
       <div class="ch g-pcr">
         <span>Symbol</span>
         <span style="display:flex;align-items:center;gap:5px;">
@@ -498,6 +541,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <span style="text-align:right">Signal</span>
       </div>
       <div class="sb" id="pcr-bd"></div>
+      </div>
     </div>
   </div>
 
@@ -511,6 +555,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
       </div>
       <div class="tipbox">💡 <strong>Max Pain</strong> = Option sellers minimum loss point. &nbsp;<span style="color:var(--bear)">CE Wall</span> = Resistance &nbsp;|&nbsp; <span style="color:var(--bull)">PE Wall</span> = Support &nbsp;|&nbsp; Gap% = Spot vs Max Pain distance</div>
       <div class="sw"><input class="si" id="mps" placeholder="Symbol search karo..." oninput="rMP()"></div>
+      <div class="sticky-wrap">
       <div class="ch g-mp">
         <span class="sort-th" id="th-sym" onclick="sMP('sym')">Symbol</span>
         <span class="sort-th" style="text-align:right" id="th-spot" onclick="sMP('spot')">Spot</span>
@@ -522,6 +567,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <span style="text-align:right;color:var(--bull);font-size:.62rem;">↓ PE<br>Dist%</span>
       </div>
       <div class="sb" id="mp-bd"></div>
+      </div>
     </div>
   </div>
 
@@ -538,8 +584,10 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <div class="tab" onclick="actT('PE',this)">📍 Puts (PE) — Support</div>
       </div>
       <div class="sw"><input class="si" id="acts" placeholder="Symbol search (RELIANCE, NIFTY, BANKNIFTY...)..." oninput="D.actSearch=this.value;rAct()"></div>
+      <div class="sticky-wrap">
       <div class="ch g-act"><span>Symbol</span><span style="text-align:right">Strike</span><span style="text-align:right">OI(K)</span><span style="text-align:right">Vol(K)</span><span style="text-align:right">Type</span></div>
       <div class="sb" id="act-bd"></div>
+      </div>
     </div>
   </div>
 
@@ -552,10 +600,12 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <span class="pbadge" id="cwt-b">—</span>
       </div>
       <div class="tipbox" style="color:var(--bull);">💡 Spot ne CE Wall ko touch/cross kiya → Call writers forced to cover → <strong>Upward squeeze possible</strong></div>
+      <div class="sticky-wrap">
       <div class="ch" style="display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr;gap:10px;padding:10px 20px;">
         <span>Symbol</span><span style="text-align:right">Spot</span><span style="text-align:right">CE Wall</span><span style="text-align:right">Gap</span><span style="text-align:right">CE OI(K)</span>
       </div>
       <div class="sb" id="cwt-bd"></div>
+      </div>
     </div>
   </div>
 
@@ -568,10 +618,12 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
         <span class="pbadge" id="pwt-b">—</span>
       </div>
       <div class="tipbox" style="color:var(--bear);">💡 Spot ne PE Wall ko touch/break kiya → Put writers forced to cover → <strong>Downward squeeze possible</strong></div>
+      <div class="sticky-wrap">
       <div class="ch" style="display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr;gap:10px;padding:10px 20px;">
         <span>Symbol</span><span style="text-align:right">Spot</span><span style="text-align:right">PE Wall</span><span style="text-align:right">Gap</span><span style="text-align:right">PE OI(K)</span>
       </div>
       <div class="sb" id="pwt-bd"></div>
+      </div>
     </div>
   </div>
 
@@ -678,6 +730,29 @@ function downloadFromNSE(){window.open('https://www.nseindia.com/all-reports-der
 const TV_MAP={NIFTY:'NSE:NIFTY',BANKNIFTY:'NSE:BANKNIFTY',FINNIFTY:'NSE:CNXFINANCE',MIDCPNIFTY:'NSE:MIDCPNIFTY',SENSEX:'BSE:SENSEX',BANKEX:'BSE:BANKEX',NIFTYNXT50:'NSE:NIFTYNXT50'};
 function openTV(sym,e){if(e)e.stopPropagation();const t=TV_MAP[sym]||('NSE:'+sym);window.open('https://www.tradingview.com/chart/?symbol='+t+'&interval=5','_blank');}
 function symSpan(sym){return '<span class="sym">'+sym+'</span><span class="tv-icon" data-tvsym="'+sym+'" title="TradingView 5m">&#x1F4C8;</span>';}
+
+// Signal Tooltip Icon
+const SIG_TIPS={
+  'long_build':   {cls:'bull', icon:'▲', text:'📈 Long Build — Price ↑ + OI ↑<br>Fresh buying ho rahi hai! Bulls naye positions bana rahe hain. Strong uptrend ka signal.'},
+  'short_build':  {cls:'bear', icon:'▼', text:'📉 Short Build — Price ↓ + OI ↑<br>Fresh selling ho rahi hai! Bears naye positions bana rahe hain. Strong downtrend ka signal.'},
+  'short_unwind': {cls:'warn', icon:'↑', text:'⚠️ Short Unwind — Price ↑ + OI ↓<br>Bears apni short positions band kar rahe hain. Price upar ja sakta hai lekin fresh buying nahi hai — weak move.'},
+  'long_unwind':  {cls:'warn', icon:'↓', text:'⚠️ Long Unwind — Price ↓ + OI ↓<br>Bulls apni long positions band kar rahe hain. Weak market, exit ho raha hai — direction confirm nahi.'},
+  'pcr_bull':     {cls:'bull', icon:'P', text:'🟢 PCR Bullish (&gt;1.2)<br>Zyada PUT options liye gaye hain vs CALL — Option sellers support de rahe hain. Market girne par buyers aayenge.'},
+  'pcr_bear':     {cls:'bear', icon:'P', text:'🔴 PCR Bearish (&lt;0.8)<br>Zyada CALL options liye gaye hain vs PUT — Market mein resistance zyada hai. Upar jaana mushkil.'},
+  'pcr_neutral':  {cls:'neutral', icon:'P', text:'⚪ PCR Neutral (0.8–1.2)<br>PUT aur CALL buying balanced hai — Market sideways ya uncertain direction mein hai.'},
+  'pcr_mixed':    {cls:'warn', icon:'⚠', text:'⚠️ Mixed Signal<br>OI PCR aur Volume PCR alag direction bol rahe hain — Confusing signal, trade carefully!'},
+  'mp_above':     {cls:'bull', icon:'M', text:'🟢 Max Pain Spot se Upar Hai<br>Option sellers chahte hain price upar jaye. Expiry tak upward pull expected — price Max Pain ki taraf khichega.'},
+  'mp_below':     {cls:'bear', icon:'M', text:'🔴 Max Pain Spot se Neeche Hai<br>Option sellers chahte hain price neeche jaye. Expiry tak downward pull expected — price Max Pain ki taraf khichega.'},
+  'mp_at':        {cls:'neutral', icon:'M', text:'🎯 Spot Bilkul Max Pain Pe Hai<br>Option sellers ke liye ideal position. Price yahan stable reh sakta hai — big move ki zyada chances nahi.'},
+  'ce_near':      {cls:'bear', icon:'C', text:'🔴 CE Wall (Resistance) Ke Paas<br>Yahan bahut saare CALL sellers hain jo price ko upar jaane se rokenge. Strong resistance zone — breakout mushkil.'},
+  'ce_broken':    {cls:'bull', icon:'C', text:'🚀 CE Wall Toot Gayi! Bullish Breakout<br>Resistance break ho gaya — Strong bullish signal! CALL sellers ko badi loss ho rahi hai. Shorts squeeze possible.'},
+  'pe_near':      {cls:'bull', icon:'P', text:'🟢 PE Wall (Support) Ke Paas<br>Yahan bahut saare PUT sellers hain jo price ko girane se rokenge. Strong support zone — breakdown mushkil.'},
+  'pe_broken':    {cls:'bear', icon:'P', text:'💥 PE Wall Toot Gayi! Bearish Breakdown<br>Support break ho gaya — Strong bearish signal! PUT sellers ko badi loss ho rahi hai. Longs squeeze possible.'},
+};
+function sigIcon(type){
+  const t=SIG_TIPS[type];if(!t)return '';
+  return `<span class="sig-tip ${t.cls}"><span class="tip-box">${t.text}</span>${t.icon}</span>`;
+}
 
 // ─────────────────────────────────────────────
 // ZIP LOADER (CURRENT)
@@ -989,8 +1064,9 @@ function rOI(){
       <div style="display:flex;align-items:center;gap:6px;">
         ${symSpan(d.sym)}
         ${pdTag}
+        ${sigIcon(d.sg.l==='Long Build'?'long_build':d.sg.l==='Short Build'?'short_build':d.sg.l==='Short Unwind'?'short_unwind':'long_unwind')}
       </div>
-      <span class="num ${d.pct>=0?'bull':'bear'}">₹${d.close.toFixed(1)}</span>
+      <span class="num ${d.pct>=0?'bull':'bear'}">₹${d.close.toFixed(2)}</span>
       <span class="num ${d.pct>=0?'bull':'bear'}">${d.pct>=0?'+':''}${d.pct.toFixed(2)}%</span>
       
       <div style="text-align:right;">
@@ -1035,7 +1111,7 @@ function rPCR(){
     const volBc=d.pcrVol>1.2?'var(--bull)':d.pcrVol>0&&d.pcrVol<0.8?'var(--bear)':'var(--muted)';
     const mixedSignal = d.pcrVol>0 && ((d.pcrOI>1.2&&d.pcrVol<0.8)||(d.pcrOI<0.8&&d.pcrVol>1.2));
     return`<div class="row g-pcr">
-      <span class="sym">${d.s}${mixedSignal?'<span style="font-size:10px;margin-left:4px;" title="Mixed signal — OI PCR aur Vol PCR agree nahi kar rahe">⚠️</span>':''}</span>
+      <div style="display:flex;align-items:center;gap:4px;">${symSpan(d.s)}${mixedSignal?sigIcon('pcr_mixed'):sigIcon(d.pcrOI>1.2?'pcr_bull':d.pcrOI<0.8?'pcr_bear':'pcr_neutral')}</div>
       <div>
         <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;">
           <span style="font-size:.62rem;color:var(--ink2);width:46px;flex-shrink:0;">OI PCR</span>
@@ -1092,10 +1168,10 @@ function rMP(){
     const peDistCls = peBroken ? 'bull' : 'bear';
 
     return`<div class="row g-mp" style="cursor:pointer" onclick="openMPModal('${d.sym}')" title="Click for full pain table">
-      <div style="display:flex;align-items:center;gap:5px;min-width:0;">${symSpan(d.sym)}</div>
-      <span class="num muted">₹${d.spot.toFixed(0)}</span>
+      <div style="display:flex;align-items:center;gap:5px;min-width:0;">${symSpan(d.sym)}${sigIcon(d.gap>0?'mp_above':d.gap<0?'mp_below':'mp_at')}</div>
+      <span class="num muted">₹${d.spot.toFixed(2)}</span>
       <div style="text-align:right">
-        <div class="num blue">₹${d.fut.toFixed(0)}</div>
+        <div class="num blue">₹${d.fut.toFixed(2)}</div>
         <div style="font-size:0.75rem;color:var(--${pdCls});margin-top:2px;font-weight:600;">${pdTxt}</div>
       </div>
       <span class="num gold">${d.mp}</span>
@@ -1126,7 +1202,7 @@ function openMPModal(sym){
       </div>
       <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;">
         <div style="font-size:.72rem;color:var(--ink2);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Spot 📍</div>
-        <div style="font-family:var(--fs);font-size:1.4rem;color:var(--ink)">₹${d.spot.toFixed(1)}</div>
+        <div style="font-family:var(--fs);font-size:1.4rem;color:var(--ink)">₹${d.spot.toFixed(2)}</div>
       </div>
       <div style="background:var(--bear-lt);border:1px solid var(--bear-md);border-radius:8px;padding:10px;text-align:center;">
         <div style="font-size:.72rem;color:var(--ink2);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">CE Wall</div>
@@ -1197,7 +1273,7 @@ function openModal(type){
     <div style="display:grid;grid-template-columns:36px 80px 66px 60px 54px 80px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(42,52,80,.5);">
       <span style="font-size:.66rem;color:var(--muted)">${i+1}</span>
       ${symSpan(d.sym)}
-      <span class="num ${d.pct>=0?'bull':'bear'}">₹${d.close.toFixed(1)}</span>
+      <span class="num ${d.pct>=0?'bull':'bear'}">₹${d.close.toFixed(2)}</span>
       <span class="num ${d.pct>=0?'bull':'bear'}">${d.pct>=0?'+':''}${d.pct.toFixed(2)}%</span>
       <span class="num muted">${(d.oi/1000).toFixed(1)}K</span>
       <div style="text-align:right"><span class="tag ${d.sg.c}">${d.sg.l}</span></div>
@@ -1219,7 +1295,7 @@ function rCharts(){
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{
         title:ctx=>t12[ctx[0].dataIndex][0],
-        label:ctx=>{const[,v]=t12[ctx.dataIndex];return[` OI: ${ctx.raw}K`,` Price: ₹${v.close.toFixed(1)}`,` Change: ${v.pct>=0?'+':''}${v.pct.toFixed(2)}%`,` Signal: ${sig(v).l}`];}
+        label:ctx=>{const[,v]=t12[ctx.dataIndex];return[` OI: ${ctx.raw}K`,` Price: ₹${v.close.toFixed(2)}`,` Change: ${v.pct>=0?'+':''}${v.pct.toFixed(2)}%`,` Signal: ${sig(v).l}`];}
       }}},
       scales:{
         x:{grid:{display:false},ticks:{color:'#5a6a8a',font:{family:'IBM Plex Mono',size:9}}},
@@ -1258,12 +1334,23 @@ us.addEventListener('drop',e=>{e.preventDefault();ud.classList.remove('drag');co
 document.addEventListener('dragover',e=>e.preventDefault());
 document.addEventListener('drop',e=>{e.preventDefault();if(us.classList.contains('gone')){const f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.zip'))loadZip(f);}});
 
-// Theme Toggle Logic
-if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-theme');
-function toggleTheme() {
-  document.body.classList.toggle('light-theme');
-  localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+// Theme Toggle Logic — cycles: dark → light → ocean
+const THEMES=['dark','light','ocean'];
+const THEME_ICONS={dark:'🌑',light:'🌤️',ocean:'🌊'};
+function applyTheme(t){
+  document.body.classList.remove('light-theme','ocean-theme');
+  if(t==='light')document.body.classList.add('light-theme');
+  if(t==='ocean')document.body.classList.add('ocean-theme');
+  const btn=document.getElementById('theme-btn');
+  if(btn)btn.textContent=THEME_ICONS[t]||'🌑';
+  localStorage.setItem('theme',t);
 }
+function toggleTheme(){
+  const cur=localStorage.getItem('theme')||'dark';
+  const next=THEMES[(THEMES.indexOf(cur)+1)%THEMES.length];
+  applyTheme(next);
+}
+applyTheme(localStorage.getItem('theme')||'dark');
 
 // ─────────────────────────────────────────────
 // FETCH PREV OI — NSE Archives Auto Fetch
@@ -1372,8 +1459,8 @@ function rWriterTraps(){
 
   const cwtRow=d=>`
     <div class="row" style="display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr;gap:10px;padding:8px 20px;">
-      <div style="display:flex;align-items:center;gap:5px;">${symSpan(d.sym)}</div>
-      <span class="num muted">₹${d.spot.toFixed(0)}</span>
+      <div style="display:flex;align-items:center;gap:5px;">${symSpan(d.sym)}${sigIcon(d.cwtGap>0?'ce_broken':'ce_near')}</div>
+      <span class="num muted">₹${d.spot.toFixed(2)}</span>
       <span class="num bear">${d.ceWall}</span>
       <span class="num bull">${d.cwtGap>=0?'+':''}${d.cwtGap}%</span>
       <span class="num muted">${D.ceOi[d.sym]?(D.ceOi[d.sym]/1000).toFixed(1)+'K':'—'}</span>
@@ -1381,8 +1468,8 @@ function rWriterTraps(){
 
   const pwtRow=d=>`
     <div class="row" style="display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr;gap:10px;padding:8px 20px;">
-      <div style="display:flex;align-items:center;gap:5px;">${symSpan(d.sym)}</div>
-      <span class="num muted">₹${d.spot.toFixed(0)}</span>
+      <div style="display:flex;align-items:center;gap:5px;">${symSpan(d.sym)}${sigIcon(d.pwtGap>0?'pe_broken':'pe_near')}</div>
+      <span class="num muted">₹${d.spot.toFixed(2)}</span>
       <span class="num bull">${d.peWall}</span>
       <span class="num bear">-${d.pwtGap}%</span>
       <span class="num muted">${D.peOi[d.sym]?(D.peOi[d.sym]/1000).toFixed(1)+'K':'—'}</span>
@@ -1435,7 +1522,7 @@ function openPulseModal(type){
       </div>
       ${data.map(d=>`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:8px 0;border-bottom:1px solid rgba(42,52,80,.4);">
         ${symSpan(d.sym)}
-        <span class="num muted" style="text-align:right">₹${d.spot.toFixed(0)}</span>
+        <span class="num muted" style="text-align:right">₹${d.spot.toFixed(2)}</span>
         <span class="num gold" style="text-align:right">${d.mp}</span>
         <span class="num bull" style="text-align:right">+${d.gap}%</span>
       </div>`).join('')}`;
@@ -1449,7 +1536,7 @@ function openPulseModal(type){
       </div>
       ${data.map(d=>`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:8px 0;border-bottom:1px solid rgba(42,52,80,.4);">
         ${symSpan(d.sym)}
-        <span class="num muted" style="text-align:right">₹${d.spot.toFixed(0)}</span>
+        <span class="num muted" style="text-align:right">₹${d.spot.toFixed(2)}</span>
         <span class="num gold" style="text-align:right">${d.mp}</span>
         <span class="num bear" style="text-align:right">${d.gap}%</span>
       </div>`).join('')}`;
@@ -1470,8 +1557,8 @@ function openPulseModal(type){
       </div>
       ${data.map(d=>`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:8px 0;border-bottom:1px solid rgba(42,52,80,.4);">
         ${symSpan(d.sym)}
-        <span class="num muted" style="text-align:right">₹${d.spot.toFixed(0)}</span>
-        <span class="num blue" style="text-align:right">₹${d.close.toFixed(0)}</span>
+        <span class="num muted" style="text-align:right">₹${d.spot.toFixed(2)}</span>
+        <span class="num blue" style="text-align:right">₹${d.close.toFixed(2)}</span>
         <span class="num ${d.pd>=0?'bull':'bear'}" style="text-align:right">${d.pd>=0?'+':''}${d.pd}%</span>
       </div>`).join('')}`;
   }
