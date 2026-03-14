@@ -139,6 +139,15 @@ tr:hover td{background:var(--card2);}
 .step-desc{font-size:.8rem;color:var(--ink2);margin-top:3px;line-height:1.5;}
 .hl-box{background:var(--gold-lt);border:1px solid var(--gold-md);border-radius:8px;padding:12px 14px;margin-top:12px;font-size:.85rem;color:var(--ink2);line-height:1.7;}
 .hl-box strong{color:var(--gold);}
+/* ── CARD COLOR VARIANTS ── */
+.acc-item.color-bull{border-left:3px solid var(--bull);}
+.acc-item.color-bear{border-left:3px solid var(--bear);}
+.acc-item.color-gold{border-left:3px solid var(--gold);}
+.acc-item.color-blue{border-left:3px solid var(--blue);}
+.acc-item.color-purp{border-left:3px solid var(--purp);}
+.acc-item.color-teal{border-left:3px solid #14b8a6;}
+.acc-item.color-orange{border-left:3px solid #f97316;}
+
 @media(max-width:600px){
   .info-grid{grid-template-columns:1fr;}
   .page{padding:12px;}
@@ -164,35 +173,45 @@ tr:hover td{background:var(--card2);}
 </div>
 <div class="tabs-bar">
   <div class="tabs-inner">
-    <div class="mtab active" onclick="showPage('spreads',this)">📊 Spreads</div>
-    <div class="mtab" onclick="showPage('fo',this)">🎯 F&amp;O Signals</div>
+    <div class="mtab active" onclick="showPage('fo',this)">🎯 F&amp;O Signals</div>
     <div class="mtab" onclick="showPage('bhav',this)">📦 Bhav Data</div>
     <div class="mtab" onclick="showPage('chain',this)">🔗 Option Chain</div>
+    <div class="mtab" onclick="showPage('spreads',this)">📊 Spreads</div>
   </div>
 </div>
 
 <!-- PAGE 1: SPREADS -->
-<div class="page active" id="page-spreads">
-  <div class="sec-title">All Strategies at a Glance</div>
-  <div class="tbl-wrap">
-    <table>
-      <tr><th>Strategy</th><th>Type</th><th>View</th><th>IV</th><th>Max Profit</th><th>Max Loss</th></tr>
-      <tr><td class="td-bull">Bull Call Spread</td><td><span class="tag tag-bear">Debit</span></td><td>Bullish</td><td class="td-bear">Low</td><td>Spread minus Debit</td><td>Debit paid</td></tr>
-      <tr><td class="td-bear">Bear Put Spread</td><td><span class="tag tag-bear">Debit</span></td><td>Bearish</td><td class="td-bear">Low</td><td>Spread minus Debit</td><td>Debit paid</td></tr>
-      <tr><td class="td-gold">Calendar Spread</td><td><span class="tag tag-bear">Debit</span></td><td>Neutral</td><td class="td-bear">Low front</td><td>At short strike</td><td>Debit paid</td></tr>
-      <tr><td class="td-gold">Diagonal Spread</td><td><span class="tag tag-bear">Debit</span></td><td>Directional</td><td class="td-bear">Low</td><td>Variable</td><td>Debit paid</td></tr>
-      <tr><td class="td-bull">Bull Put Spread</td><td><span class="tag tag-bull">Credit</span></td><td>Bullish</td><td class="td-bull">High</td><td>Credit received</td><td>Spread minus Credit</td></tr>
-      <tr><td class="td-bear">Bear Call Spread</td><td><span class="tag tag-bull">Credit</span></td><td>Bearish</td><td class="td-bull">High</td><td>Credit received</td><td>Spread minus Credit</td></tr>
-      <tr><td class="td-blue">Iron Condor</td><td><span class="tag tag-bull">Credit</span></td><td>Neutral</td><td class="td-bull">High</td><td>Credit received</td><td>Spread minus Credit</td></tr>
-      <tr><td class="td-blue">Iron Butterfly</td><td><span class="tag tag-bull">Credit</span></td><td>Neutral</td><td class="td-bull">Very High</td><td>Credit received</td><td>Spread minus Credit</td></tr>
-      <tr><td class="td-purp">Jade Lizard</td><td><span class="tag tag-bull">Credit</span></td><td>Slight Bull</td><td class="td-bull">High</td><td>Full credit</td><td>Put spread loss</td></tr>
-      <tr><td class="td-purp">Broken Wing Butterfly</td><td><span class="tag tag-bull">Credit</span></td><td>Directional</td><td class="td-bull">High</td><td>Credit plus width</td><td>Skipped wing</td></tr>
-    </table>
+<div class="page active" id="page-fo">
+  <div class="acc" id="acc-glance">
+    <div class="acc-item color-blue">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-glance')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Overview</span><div class="acc-info"><div class="acc-title">All Strategies at a Glance</div><div class="acc-sub">Quick comparison — all spreads in one table</div></div></div>
+        <span class="acc-type-label neutral">(Quick Reference)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>Strategy</th><th>Type</th><th>View</th><th>IV</th><th>Max Profit</th><th>Max Loss</th></tr>
+            <tr><td class="td-bull">Bull Call Spread</td><td><span class="tag tag-bear">Debit</span></td><td>Bullish</td><td class="td-bear">Low</td><td>Spread minus Debit</td><td>Debit paid</td></tr>
+            <tr><td class="td-bear">Bear Put Spread</td><td><span class="tag tag-bear">Debit</span></td><td>Bearish</td><td class="td-bear">Low</td><td>Spread minus Debit</td><td>Debit paid</td></tr>
+            <tr><td class="td-gold">Calendar Spread</td><td><span class="tag tag-bear">Debit</span></td><td>Neutral</td><td class="td-bear">Low front</td><td>At short strike</td><td>Debit paid</td></tr>
+            <tr><td class="td-gold">Diagonal Spread</td><td><span class="tag tag-bear">Debit</span></td><td>Directional</td><td class="td-bear">Low</td><td>Variable</td><td>Debit paid</td></tr>
+            <tr><td class="td-bull">Bull Put Spread</td><td><span class="tag tag-bull">Credit</span></td><td>Bullish</td><td class="td-bull">High</td><td>Credit received</td><td>Spread minus Credit</td></tr>
+            <tr><td class="td-bear">Bear Call Spread</td><td><span class="tag tag-bull">Credit</span></td><td>Bearish</td><td class="td-bull">High</td><td>Credit received</td><td>Spread minus Credit</td></tr>
+            <tr><td class="td-blue">Iron Condor</td><td><span class="tag tag-bull">Credit</span></td><td>Neutral</td><td class="td-bull">High</td><td>Credit received</td><td>Spread minus Credit</td></tr>
+            <tr><td class="td-blue">Iron Butterfly</td><td><span class="tag tag-bull">Credit</span></td><td>Neutral</td><td class="td-bull">Very High</td><td>Credit received</td><td>Spread minus Credit</td></tr>
+            <tr><td class="td-purp">Jade Lizard</td><td><span class="tag tag-bull">Credit</span></td><td>Slight Bull</td><td class="td-bull">High</td><td>Full credit</td><td>Put spread loss</td></tr>
+            <tr><td class="td-purp">Broken Wing Butterfly</td><td><span class="tag tag-bull">Credit</span></td><td>Directional</td><td class="td-bull">High</td><td>Credit plus width</td><td>Skipped wing</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="sec-title">Debit Spreads — You Pay to Enter</div>
   <div class="acc" id="acc-debit">
-    <div class="acc-item">
+    <div class="acc-item color-bull">
       <div class="acc-hdr" onclick="openAcc(this,'acc-debit')">
         <div class="acc-hdr-l"><span class="acc-badge badge-debit">Debit</span><div class="acc-info"><div class="acc-title">Bull Call Spread</div><div class="acc-sub">Buy lower call + Sell higher call · Same expiry</div></div></div>
         <span class="acc-type-label debit">(Debit Spread)</span>
@@ -216,7 +235,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-bear">
       <div class="acc-hdr" onclick="openAcc(this,'acc-debit')">
         <div class="acc-hdr-l"><span class="acc-badge badge-debit">Debit</span><div class="acc-info"><div class="acc-title">Bear Put Spread</div><div class="acc-sub">Buy higher put + Sell lower put · Same expiry</div></div></div>
         <span class="acc-type-label debit">(Debit Spread)</span>
@@ -240,7 +259,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-gold">
       <div class="acc-hdr" onclick="openAcc(this,'acc-debit')">
         <div class="acc-hdr-l"><span class="acc-badge badge-debit">Debit</span><div class="acc-info"><div class="acc-title">Calendar Spread</div><div class="acc-sub">Sell near-month + Buy far-month · Same strike</div></div></div>
         <span class="acc-type-label debit">(Debit Spread)</span>
@@ -264,7 +283,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-orange">
       <div class="acc-hdr" onclick="openAcc(this,'acc-debit')">
         <div class="acc-hdr-l"><span class="acc-badge badge-debit">Debit</span><div class="acc-info"><div class="acc-title">Call and Put Ratio Spread</div><div class="acc-sub">Buy 1 option + Sell 2 options at further strike — Advanced only</div></div></div>
         <span class="acc-type-label debit">(Debit Spread)</span>
@@ -285,7 +304,7 @@ tr:hover td{background:var(--card2);}
 
   <div class="sec-title">Credit Spreads — You Receive Premium</div>
   <div class="acc" id="acc-credit">
-    <div class="acc-item">
+    <div class="acc-item color-bull">
       <div class="acc-hdr" onclick="openAcc(this,'acc-credit')">
         <div class="acc-hdr-l"><span class="acc-badge badge-credit">Credit</span><div class="acc-info"><div class="acc-title">Bull Put Spread</div><div class="acc-sub">Sell higher put + Buy lower put · Same expiry</div></div></div>
         <span class="acc-type-label credit">(Credit Spread)</span>
@@ -310,7 +329,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-bear">
       <div class="acc-hdr" onclick="openAcc(this,'acc-credit')">
         <div class="acc-hdr-l"><span class="acc-badge badge-credit">Credit</span><div class="acc-info"><div class="acc-title">Bear Call Spread</div><div class="acc-sub">Sell lower call + Buy higher call · Same expiry</div></div></div>
         <span class="acc-type-label credit">(Credit Spread)</span>
@@ -335,7 +354,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-bull">
       <div class="acc-hdr" onclick="openAcc(this,'acc-credit')">
         <div class="acc-hdr-l"><span class="acc-badge badge-credit">Credit</span><div class="acc-info"><div class="acc-title">Iron Condor</div><div class="acc-sub">Bull Put Spread + Bear Call Spread combined</div></div></div>
         <span class="acc-type-label credit">(Credit Spread)</span>
@@ -359,7 +378,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-teal">
       <div class="acc-hdr" onclick="openAcc(this,'acc-credit')">
         <div class="acc-hdr-l"><span class="acc-badge badge-credit">Credit</span><div class="acc-info"><div class="acc-title">Iron Butterfly</div><div class="acc-sub">ATM short straddle + OTM long wings</div></div></div>
         <span class="acc-type-label credit">(Credit Spread)</span>
@@ -377,7 +396,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-purp">
       <div class="acc-hdr" onclick="openAcc(this,'acc-credit')">
         <div class="acc-hdr-l"><span class="acc-badge badge-purp">Advanced</span><div class="acc-info"><div class="acc-title">Jade Lizard and Broken Wing Butterfly</div><div class="acc-sub">Advanced credit strategies — unique risk profiles</div></div></div>
         <span class="acc-type-label credit">(Credit Spread)</span>
@@ -392,7 +411,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-gold">
       <div class="acc-hdr" onclick="openAcc(this,'acc-credit')">
         <div class="acc-hdr-l"><span class="acc-badge badge-gold">IV Guide</span><div class="acc-info"><div class="acc-title">IV Role — When to Buy vs Sell Spreads</div><div class="acc-sub">Implied Volatility decides your strategy</div></div></div>
         <span class="acc-type-label neutral">(Guide)</span>
@@ -418,7 +437,7 @@ tr:hover td{background:var(--card2);}
 <div class="page" id="page-fo">
   <div class="acc" id="acc-fo">
     <div class="sec-title">OI Buildup Signals</div>
-    <div class="acc-item">
+    <div class="acc-item color-bull">
       <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
         <div class="acc-hdr-l"><span class="acc-badge badge-credit">Bullish</span><div class="acc-info"><div class="acc-title">Long Build — Price up + OI up</div><div class="acc-sub">Fresh buying entering the market</div></div></div>
         <span class="acc-type-label credit">(Credit Spread)</span>
@@ -441,7 +460,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-bear">
       <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
         <div class="acc-hdr-l"><span class="acc-badge badge-debit">Bearish</span><div class="acc-info"><div class="acc-title">Short Build — Price down + OI up</div><div class="acc-sub">Fresh selling entering the market</div></div></div>
         <span class="acc-type-label debit">(Debit Spread)</span>
@@ -464,7 +483,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-gold">
       <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
         <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Unwind</span><div class="acc-info"><div class="acc-title">Short Unwind and Long Unwind — OI falling</div><div class="acc-sub">Existing positions closing — weak signals</div></div></div>
         <span class="acc-type-label neutral">(Reference)</span>
@@ -482,7 +501,7 @@ tr:hover td{background:var(--card2);}
     </div>
 
     <div class="sec-title">Max Pain</div>
-    <div class="acc-item">
+    <div class="acc-item color-gold">
       <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
         <div class="acc-hdr-l"><span class="acc-badge badge-gold">Max Pain</span><div class="acc-info"><div class="acc-title">Max Pain — Option Sellers Magnet</div><div class="acc-sub">The price where most option buyers lose money at expiry</div></div></div>
         <span class="acc-type-label neutral">(Guide)</span>
@@ -513,7 +532,7 @@ tr:hover td{background:var(--card2);}
     </div>
 
     <div class="sec-title">PCR — Put Call Ratio</div>
-    <div class="acc-item">
+    <div class="acc-item color-blue">
       <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
         <div class="acc-hdr-l"><span class="acc-badge badge-neutral">PCR</span><div class="acc-info"><div class="acc-title">PCR Complete Guide</div><div class="acc-sub">PCR = Total Put OI divided by Total Call OI</div></div></div>
         <span class="acc-type-label neutral">(Reference)</span>
@@ -540,7 +559,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-orange">
       <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
         <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Walls</span><div class="acc-info"><div class="acc-title">CE Wall and PE Wall</div><div class="acc-sub">Highest OI strikes = key resistance and support levels</div></div></div>
         <span class="acc-type-label neutral">(Reference)</span>
@@ -562,7 +581,7 @@ tr:hover td{background:var(--card2);}
     </div>
 
     <div class="sec-title">Futures Premium and Discount</div>
-    <div class="acc-item">
+    <div class="acc-item color-teal">
       <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
         <div class="acc-hdr-l"><span class="acc-badge badge-gold">Futures</span><div class="acc-info"><div class="acc-title">Futures Premium and Discount Guide</div><div class="acc-sub">Futures Price vs Spot Price difference tells you market direction</div></div></div>
         <span class="acc-type-label neutral">(Guide)</span>
@@ -591,7 +610,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-purp">
       <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
         <div class="acc-hdr-l"><span class="acc-badge badge-purp">Checklist</span><div class="acc-info"><div class="acc-title">5-Point Pre-Trade Checklist</div><div class="acc-sub">Use all 5 together for highest probability trades</div></div></div>
         <span class="acc-type-label credit">(Credit Spread)</span>
@@ -617,7 +636,7 @@ tr:hover td{background:var(--card2);}
 <!-- PAGE 3: BHAV DATA -->
 <div class="page" id="page-bhav">
   <div class="acc" id="acc-bhav">
-    <div class="acc-item">
+    <div class="acc-item color-blue">
       <div class="acc-hdr" onclick="openAcc(this,'acc-bhav')">
         <div class="acc-hdr-l"><span class="acc-badge badge-neutral">What</span><div class="acc-info"><div class="acc-title">What is Bhav Data?</div><div class="acc-sub">NSE end-of-day F&O file — your daily data source</div></div></div>
         <span class="acc-type-label neutral">(Reference)</span>
@@ -632,7 +651,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-teal">
       <div class="acc-hdr" onclick="openAcc(this,'acc-bhav')">
         <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Load Data</span><div class="acc-info"><div class="acc-title">How to Load Data — Step by Step</div><div class="acc-sub">Auto fetch or manual ZIP upload</div></div></div>
         <span class="acc-type-label neutral">(Reference)</span>
@@ -648,7 +667,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-bull">
       <div class="acc-hdr" onclick="openAcc(this,'acc-bhav')">
         <div class="acc-hdr-l"><span class="acc-badge badge-credit">OI Tab</span><div class="acc-info"><div class="acc-title">How to Read OI Buildup Tab</div><div class="acc-sub">Main tab — most important signals are here</div></div></div>
         <span class="acc-type-label credit">(Credit Spread)</span>
@@ -664,7 +683,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-gold">
       <div class="acc-hdr" onclick="openAcc(this,'acc-bhav')">
         <div class="acc-hdr-l"><span class="acc-badge badge-gold">Max Pain Tab</span><div class="acc-info"><div class="acc-title">How to Read Max Pain Tab</div><div class="acc-sub">Find expiry targets and wall levels</div></div></div>
         <span class="acc-type-label neutral">(Guide)</span>
@@ -680,7 +699,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-blue">
       <div class="acc-hdr" onclick="openAcc(this,'acc-bhav')">
         <div class="acc-hdr-l"><span class="acc-badge badge-neutral">PCR Tab</span><div class="acc-info"><div class="acc-title">How to Read PCR Tab</div><div class="acc-sub">Market sentiment stock by stock</div></div></div>
         <span class="acc-type-label neutral">(Reference)</span>
@@ -695,7 +714,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-bear">
       <div class="acc-hdr" onclick="openAcc(this,'acc-bhav')">
         <div class="acc-hdr-l"><span class="acc-badge badge-debit">Traps Tab</span><div class="acc-info"><div class="acc-title">Call Trap and Put Trap Tabs</div><div class="acc-sub">Breakout and breakdown squeeze signals</div></div></div>
         <span class="acc-type-label debit">(Debit Spread)</span>
@@ -715,7 +734,7 @@ tr:hover td{background:var(--card2);}
 <!-- PAGE 4: OPTION CHAIN -->
 <div class="page" id="page-chain">
   <div class="acc" id="acc-chain">
-    <div class="acc-item">
+    <div class="acc-item color-blue">
       <div class="acc-hdr" onclick="openAcc(this,'acc-chain')">
         <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Basics</span><div class="acc-info"><div class="acc-title">What is an Option Chain?</div><div class="acc-sub">A table showing all calls and puts for a stock or index</div></div></div>
         <span class="acc-type-label neutral">(Reference)</span>
@@ -740,7 +759,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-teal">
       <div class="acc-hdr" onclick="openAcc(this,'acc-chain')">
         <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Columns</span><div class="acc-info"><div class="acc-title">What Each Column Means</div><div class="acc-sub">OI, IV, Price, Volume — explained simply</div></div></div>
         <span class="acc-type-label neutral">(Reference)</span>
@@ -756,7 +775,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-gold">
       <div class="acc-hdr" onclick="openAcc(this,'acc-chain')">
         <div class="acc-hdr-l"><span class="acc-badge badge-gold">Reading OI</span><div class="acc-info"><div class="acc-title">How to Read OI in Option Chain</div><div class="acc-sub">The most important skill for F&O traders</div></div></div>
         <span class="acc-type-label neutral">(Guide)</span>
@@ -778,7 +797,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-orange">
       <div class="acc-hdr" onclick="openAcc(this,'acc-chain')">
         <div class="acc-hdr-l"><span class="acc-badge badge-neutral">ITM/ATM/OTM</span><div class="acc-info"><div class="acc-title">ITM, ATM, OTM Explained</div><div class="acc-sub">Which strikes to use for buying and selling</div></div></div>
         <span class="acc-type-label neutral">(Reference)</span>
@@ -797,7 +816,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-purp">
       <div class="acc-hdr" onclick="openAcc(this,'acc-chain')">
         <div class="acc-hdr-l"><span class="acc-badge badge-purp">Greeks</span><div class="acc-info"><div class="acc-title">Option Greeks Simply Explained</div><div class="acc-sub">Delta, Gamma, Theta, Vega — what they mean for you</div></div></div>
         <span class="acc-type-label credit">(Credit Spread)</span>
@@ -817,7 +836,7 @@ tr:hover td{background:var(--card2);}
       </div>
     </div>
 
-    <div class="acc-item">
+    <div class="acc-item color-bull">
       <div class="acc-hdr" onclick="openAcc(this,'acc-chain')">
         <div class="acc-hdr-l"><span class="acc-badge badge-credit">Morning Routine</span><div class="acc-info"><div class="acc-title">30-Second Option Chain Morning Scan</div><div class="acc-sub">Do this every day before trading</div></div></div>
         <span class="acc-type-label credit">(Credit Spread)</span>
