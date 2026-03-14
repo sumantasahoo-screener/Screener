@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="teal">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -10,12 +10,12 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 
 html[data-theme="dark"]{
-  --bg:#080d12;--bg1:#0d1520;--bg2:#111d2e;--bg3:#162438;
-  --sidebar:#0a1220;--border:rgba(0,200,200,.08);--border2:rgba(0,200,200,.18);--border3:rgba(0,200,200,.30);
-  --ink:#e8f4f5;--ink2:rgba(200,230,232,.6);--ink3:rgba(200,230,232,.3);
-  --accent:#00d4e0;--accent2:#00b8c8;--acc-glow:rgba(0,212,224,.12);--acc-dim:rgba(0,212,224,.07);--acc-mid:rgba(0,212,224,.15);
-  --live:#10d98a;--live-bg:rgba(16,217,138,.08);--live-bd:rgba(16,217,138,.25);
-  --shadow:rgba(0,0,0,.6);--scrl:rgba(0,212,224,.15);--red:#f05a5a;--amber:#f5a623;
+  --bg:#0f1117;--bg1:#161b27;--bg2:#1e2535;--bg3:#222b3d;
+  --sidebar:#161b27;--border:rgba(42,52,80,.7);--border2:rgba(51,65,102,.8);--border3:rgba(59,130,246,.4);
+  --ink:#e8eaf0;--ink2:#a0aec0;--ink3:#5a6a8a;
+  --accent:#3b82f6;--accent2:#2563eb;--acc-glow:rgba(59,130,246,.15);--acc-dim:rgba(59,130,246,.08);--acc-mid:rgba(59,130,246,.15);
+  --live:#22c55e;--live-bg:rgba(34,197,94,.08);--live-bd:rgba(34,197,94,.25);
+  --shadow:rgba(0,0,0,.6);--scrl:rgba(59,130,246,.2);--red:#f43f5e;--amber:#f59e0b;
 }
 html[data-theme="light"]{
   --bg:#f0f4f8;--bg1:#ffffff;--bg2:#e8f0f5;--bg3:#dce8ee;
@@ -77,6 +77,9 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--ink
 
 .fs-btn{background:var(--bg2);border:1px solid var(--border2);color:var(--ink2);cursor:pointer;border-radius:8px;padding:6px 10px;transition:all .15s;display:flex;align-items:center;font-family:'JetBrains Mono',monospace;font-size:12px;}
 .fs-btn:hover{background:var(--acc-dim);color:var(--accent);border-color:var(--border3);}
+
+.apk-btn{display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.4px;cursor:pointer;text-decoration:none;transition:all .2s;white-space:nowrap;box-shadow:0 2px 10px var(--acc-glow);}
+.apk-btn:hover{opacity:.85;transform:translateY(-1px);box-shadow:0 4px 16px var(--acc-glow);}
 
 /* SIDEBAR */
 .sidebar{position:fixed;left:0;top:56px;width:230px;height:calc(100vh - 56px);background:var(--sidebar);border-right:1px solid var(--border2);overflow-y:auto;z-index:100;transition:transform .3s ease;display:flex;flex-direction:column;}
@@ -144,7 +147,13 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--ink
   .main{margin-left:0;width:100%;}
   .market-strip{display:none;}
   .logo-tag{display:none;}
-  .welcome{display:none !important;}
+  .topbar-clock{display:none;}
+  .apk-btn{font-size:10px;padding:5px 9px;}
+  .welcome{display:flex !important;}
+  .welcome-sub{display:none;}
+  .welcome-hint{display:none;}
+  .welcome-stats{display:none;}
+  .welcome-title{font-size:20px;}
   .section-title{font-size:16px !important;}
   .section-count{font-size:13px !important;}
   .nav-link{font-size:15px !important;padding:12px 20px 12px 56px !important;}
@@ -173,11 +182,16 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--ink
 
   <div class="topbar-clock" id="topbar-clock">--:--:-- IST</div>
 
+  <a href="https://screener-epd.pages.dev/public/Screenerv1.apk" download class="apk-btn" title="Download Android App">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M8 12l4 4 4-4"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+    APK
+  </a>
+
   <div class="topbar-right">
     <div class="live-badge"><div class="live-dot"></div>LIVE</div>
     <div class="theme-switcher">
-      <div class="theme-btn active" style="background:#080d12" title="Dark" onclick="setTheme('dark',this)"></div>
-      <div class="theme-btn" style="background:#012f35" title="Teal" onclick="setTheme('teal',this)"></div>
+      <div class="theme-btn" style="background:#0f1117;border:1px solid #2a3450" title="Dark" onclick="setTheme('dark',this)"></div>
+      <div class="theme-btn active" style="background:#012f35" title="Teal" onclick="setTheme('teal',this)"></div>
       <div class="theme-btn" style="background:#f0f4f8;border:1px solid #ccc" title="Light" onclick="setTheme('light',this)"></div>
     </div>
     <button class="fs-btn" id="fs-btn">⛶</button>
@@ -276,6 +290,12 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--ink
           <div class="w-stat"><div class="w-stat-val">LIVE</div><div class="w-stat-label">DATA</div></div>
           <div class="w-stat"><div class="w-stat-val">AI</div><div class="w-stat-label">POWERED</div></div>
         </div>
+        <div style="margin-top:24px;">
+          <a href="https://screener-epd.pages.dev/public/Screenerv1.apk" download class="apk-btn" style="font-size:14px;padding:12px 28px;border-radius:12px;justify-content:center;gap:8px;display:inline-flex;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg>
+            📲 Download Android App (APK)
+          </a>
+        </div>
       </div>
     </div>
     <iframe src="about:blank" id="main-frame" class="content-frame"></iframe>
@@ -291,7 +311,7 @@ function setTheme(t,el){
   document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
   if(el)el.classList.add('active');
 }
-const saved=localStorage.getItem('fo_theme')||'dark';
+const saved=localStorage.getItem('fo_theme')||'teal';
 document.documentElement.setAttribute('data-theme',saved);
 localStorage.setItem('fo_theme',saved);
 const themeMap={'dark':0,'teal':1,'light':2};
