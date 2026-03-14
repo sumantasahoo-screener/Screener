@@ -149,22 +149,62 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--ink
   .logo-tag{display:none;}
   .topbar-clock{display:none;}
   .apk-btn{font-size:10px;padding:5px 9px;}
-  .welcome{display:flex !important;}
-  .welcome-sub{display:none;}
-  .welcome-hint{display:none;}
-  .welcome-stats{display:none;}
-  .welcome-title{font-size:20px;}
+  .welcome{display:none !important;}
   .section-title{font-size:16px !important;}
   .section-count{font-size:13px !important;}
   .nav-link{font-size:15px !important;padding:12px 20px 12px 56px !important;}
   .section-header{padding:14px 18px !important;}
   .sidebar-label{font-size:11px !important;}
   .sidebar-footer-text{font-size:13px !important;}
+  /* APK button in sidebar only on mobile */
+  .mob-apk-wrap{display:block !important;}
 }
 #mob-overlay{display:none !important;}
+
+/* ── DISCLAIMER OVERLAY ── */
+#disclaimer-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:rgba(0,0,0,.88);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;padding:20px;}
+#disclaimer-box{
+  background:#0f1117;border:1px solid rgba(59,130,246,.35);border-radius:16px;
+  max-width:480px;width:100%;padding:32px 28px;text-align:center;
+  box-shadow:0 0 60px rgba(59,130,246,.12),0 24px 60px rgba(0,0,0,.6);
+  font-family:'JetBrains Mono',monospace;}
+.d-icon{font-size:36px;margin-bottom:14px;}
+#disclaimer-box h2{font-size:15px;font-weight:700;color:#e8eaf0;letter-spacing:.5px;margin-bottom:10px;line-height:1.5;}
+#disclaimer-box p{font-size:11px;color:#a0aec0;line-height:1.8;margin-bottom:16px;}
+.d-legal{font-size:10px;color:#5a6a8a;line-height:1.8;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:10px 14px;margin-bottom:22px;text-align:left;}
+.d-legal strong{color:#8a9ab8;}
+#disclaimer-agree{
+  background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;
+  border:none;border-radius:10px;padding:12px 32px;font-size:13px;font-weight:700;
+  cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:.4px;
+  transition:all .2s;box-shadow:0 4px 16px rgba(59,130,246,.3);}
+#disclaimer-agree:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,130,246,.4);}
+#disclaimer-decline{display:block;margin-top:12px;font-size:10px;color:#5a6a8a;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:'JetBrains Mono',monospace;}
 </style>
 </head>
 <body>
+
+<!-- ── DISCLAIMER ── -->
+<div id="disclaimer-overlay">
+  <div id="disclaimer-box">
+    <div class="d-icon">⚖️</div>
+    <h2>Personal Use Only<br>— Not for Commercial Use —</h2>
+    <p>Yeh platform sirf personal/educational use ke liye banaya gaya hai.<br>Iska commercial istemal strictly prohibited hai.</p>
+    <div class="d-legal">
+      <strong>⚠️ Legal Disclaimer:</strong><br>
+      • Yeh tool kisi registered financial advisor ya SEBI-registered entity ka product nahi hai.<br>
+      • Yahan diya gaya koi bhi data investment advice nahi hai.<br>
+      • Creator kisi bhi financial loss ke liye zimmedar nahi hoga.<br>
+      • Unauthorized redistribution, resale, or commercial use is strictly prohibited.<br>
+      • By clicking "I Agree", you confirm this is for personal use only.
+    </div>
+    <button id="disclaimer-agree" onclick="acceptDisclaimer()">✓ &nbsp;I Agree — Personal Use Only</button>
+    <button id="disclaimer-decline" onclick="declineDisclaimer()">I do not agree — Exit</button>
+  </div>
+</div>
 
 <button class="float-btn" id="float-btn">⛶ EXIT</button>
 <div id="mob-overlay"></div>
@@ -268,6 +308,11 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--ink
   </div>
 
   <div class="sidebar-footer">
+    <div class="mob-apk-wrap" style="display:none;margin-bottom:12px;">
+      <a href="https://screener-epd.pages.dev/public/Screenerv1.apk" download class="apk-btn" style="width:100%;justify-content:center;font-size:13px;padding:10px 16px;border-radius:10px;display:flex;gap:8px;box-sizing:border-box;">
+        📲 Download Android APK
+      </a>
+    </div>
     <div class="sidebar-footer-text">
       F&amp;O Screener Hub v2.0<br>
       <span id="clock-time">--:--:-- IST</span>
@@ -290,12 +335,6 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--ink
           <div class="w-stat"><div class="w-stat-val">LIVE</div><div class="w-stat-label">DATA</div></div>
           <div class="w-stat"><div class="w-stat-val">AI</div><div class="w-stat-label">POWERED</div></div>
         </div>
-        <div style="margin-top:24px;">
-          <a href="https://screener-epd.pages.dev/public/Screenerv1.apk" download class="apk-btn" style="font-size:14px;padding:12px 28px;border-radius:12px;justify-content:center;gap:8px;display:inline-flex;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg>
-            📲 Download Android App (APK)
-          </a>
-        </div>
       </div>
     </div>
     <iframe src="about:blank" id="main-frame" class="content-frame"></iframe>
@@ -303,6 +342,19 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--ink
 </main>
 
 <script>
+// ── DISCLAIMER ──
+function acceptDisclaimer(){
+  sessionStorage.setItem('fo_disclaimer','accepted');
+  document.getElementById('disclaimer-overlay').style.display='none';
+}
+function declineDisclaimer(){
+  document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0f1117;font-family:JetBrains Mono,monospace;color:#5a6a8a;font-size:13px;">Access denied. Please close this tab.</div>';
+}
+// Show disclaimer every session (sessionStorage clears on browser close)
+if(sessionStorage.getItem('fo_disclaimer')==='accepted'){
+  document.getElementById('disclaimer-overlay').style.display='none';
+}
+
 const frame=document.getElementById('main-frame'),welcome=document.getElementById('welcome'),sidebar=document.getElementById('sidebar'),topbar=document.getElementById('topbar'),main=document.getElementById('main'),floatBtn=document.getElementById('float-btn'),fsBtn=document.getElementById('fs-btn');
 
 function setTheme(t,el){
@@ -311,12 +363,14 @@ function setTheme(t,el){
   document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
   if(el)el.classList.add('active');
 }
-const saved=localStorage.getItem('fo_theme')||'teal';
-document.documentElement.setAttribute('data-theme',saved);
-localStorage.setItem('fo_theme',saved);
+// Default = teal, unless user has explicitly chosen something
+const saved = localStorage.getItem('fo_theme') || 'teal';
+// If someone had 'dark' saved from old version, keep it; new users get teal
+document.documentElement.setAttribute('data-theme', saved);
+localStorage.setItem('fo_theme', saved);
 const themeMap={'dark':0,'teal':1,'light':2};
 const btns=document.querySelectorAll('.theme-btn');
-if(btns[themeMap[saved]])btns[themeMap[saved]].classList.add('active');
+if(btns[themeMap[saved]]) btns[themeMap[saved]].classList.add('active');
 
 function updateClock(){
   const n=new Date(),ist=new Date(n.getTime()+(5.5*60*60*1000-n.getTimezoneOffset()*60*1000));
