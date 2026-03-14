@@ -213,18 +213,19 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 .sig-tip.bear{background:rgba(244,63,94,.18);border:1px solid rgba(244,63,94,.5);color:var(--bear);}
 .sig-tip.neutral{background:rgba(160,174,192,.15);border:1px solid rgba(160,174,192,.4);color:var(--ink2);}
 .sig-tip.warn{background:rgba(245,158,11,.18);border:1px solid rgba(245,158,11,.5);color:var(--gold);}
-.sig-tip .tip-box{
-  display:none;position:absolute;left:50%;transform:translateX(-50%);
-  bottom:calc(100% + 7px);width:220px;
-  background:#1a2032;border:1px solid var(--border2);border-radius:8px;
-  padding:9px 12px;font-size:.72rem;line-height:1.6;color:var(--ink);
-  font-family:'IBM Plex Mono',monospace;z-index:999;
-  box-shadow:0 8px 24px rgba(0,0,0,.5);pointer-events:none;white-space:normal;text-align:left;}
-.sig-tip .tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+
+/* Tooltip popup — fixed so no overflow clipping */
+#sig-tooltip{
+  display:none;position:fixed;z-index:9999;
+  width:230px;background:#1a2032;border:1px solid var(--border2);border-radius:10px;
+  padding:10px 13px;font-size:.72rem;line-height:1.7;color:var(--ink);
+  font-family:'IBM Plex Mono',monospace;
+  box-shadow:0 8px 28px rgba(0,0,0,.6);pointer-events:none;white-space:normal;}
+#sig-tooltip::after{content:'';position:absolute;top:100%;left:20px;
   border:5px solid transparent;border-top-color:#1a2032;}
-.sig-tip:hover .tip-box{display:block;}
-.light-theme .sig-tip .tip-box{background:#fff;border-color:var(--border2);color:var(--ink);box-shadow:0 8px 24px rgba(0,0,0,.15);}
-.light-theme .sig-tip .tip-box::after{border-top-color:#fff;}
+.light-theme #sig-tooltip{background:#fff;border-color:var(--border2);color:var(--ink);box-shadow:0 8px 24px rgba(0,0,0,.15);}
+.light-theme #sig-tooltip::after{border-top-color:#fff;}
+.ocean-theme #sig-tooltip{background:#071c2a;border-color:#135070;}
 .num{text-align:right;font-size:.82rem;}
 .ch span{font-size:.72rem!important;letter-spacing:1.2px;}
 .num.bull{color:var(--bull);}.num.bear{color:var(--bear);}.num.muted{color:var(--ink2);}.num.gold{color:var(--gold);}.num.blue{color:var(--blue);}
@@ -282,7 +283,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
   #hdate{font-size:.68rem;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   #hexp{display:none!important;}
   main{padding:12px 10px;}
-  .smr{display:none;}  /* 6 top cards mobile pe hide */
+  .smr{display:none!important;}  /* 6 top cards mobile pe hide */
   .sval{font-size:1.8rem;}
   .sc{padding:14px 14px;}
   .g2{grid-template-columns:1fr;gap:14px;}
@@ -419,6 +420,8 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
     <div class="mb" id="m-body"></div>
   </div>
 </div>
+
+<div id="sig-tooltip"></div>
 
 <header>
   <div class="logo"><div class="ldot"></div>F&amp;<em>O</em> Intelligence</div>
@@ -751,8 +754,38 @@ const SIG_TIPS={
 };
 function sigIcon(type){
   const t=SIG_TIPS[type];if(!t)return '';
-  return `<span class="sig-tip ${t.cls}"><span class="tip-box">${t.text}</span>${t.icon}</span>`;
+  return `<span class="sig-tip ${t.cls}" data-tip="${t.text.replace(/"/g,'&quot;')}">${t.icon}</span>`;
 }
+
+// Global tooltip via mousemove
+(function(){
+  const tt=document.getElementById('sig-tooltip');
+  document.addEventListener('mouseover',function(e){
+    const el=e.target.closest('.sig-tip[data-tip]');
+    if(!el){tt.style.display='none';return;}
+    tt.innerHTML=el.dataset.tip;
+    tt.style.display='block';
+    posTooltip(e,tt);
+  });
+  document.addEventListener('mousemove',function(e){
+    if(tt.style.display==='none')return;
+    posTooltip(e,tt);
+  });
+  document.addEventListener('mouseout',function(e){
+    if(!e.target.closest('.sig-tip[data-tip]'))tt.style.display='none';
+  });
+  function posTooltip(e,tt){
+    const x=e.clientX,y=e.clientY;
+    const tw=tt.offsetWidth||230,th=tt.offsetHeight||80;
+    let left=x-tw/2;
+    let top=y-th-14;
+    if(left<6)left=6;
+    if(left+tw>window.innerWidth-6)left=window.innerWidth-tw-6;
+    if(top<6)top=y+20; // flip below if no space above
+    tt.style.left=left+'px';
+    tt.style.top=top+'px';
+  }
+})();
 
 // ─────────────────────────────────────────────
 // ZIP LOADER (CURRENT)
