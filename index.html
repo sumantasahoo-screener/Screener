@@ -1,472 +1,885 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="teal">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>F&O Screener Hub | Premium</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>F&O Complete Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-
-html[data-theme="dark"]{
-  --bg:#0f1117;--bg1:#161b27;--bg2:#1e2535;--bg3:#222b3d;
-  --sidebar:#161b27;--border:rgba(42,52,80,.7);--border2:rgba(51,65,102,.8);--border3:rgba(59,130,246,.4);
+:root{
+  --bg:#0f1117;--bg2:#161b27;--bg3:#1e2535;
+  --card:#1a2032;--card2:#222b3d;
+  --border:#2a3450;--border2:#334166;
   --ink:#e8eaf0;--ink2:#a0aec0;--ink3:#5a6a8a;
-  --accent:#3b82f6;--accent2:#2563eb;--acc-glow:rgba(59,130,246,.15);--acc-dim:rgba(59,130,246,.08);--acc-mid:rgba(59,130,246,.15);
-  --live:#22c55e;--live-bg:rgba(34,197,94,.08);--live-bd:rgba(34,197,94,.25);
-  --shadow:rgba(0,0,0,.6);--scrl:rgba(59,130,246,.2);--red:#f43f5e;--amber:#f59e0b;
+  --bull:#22c55e;--bull-lt:rgba(34,197,94,.12);--bull-md:rgba(34,197,94,.25);
+  --bear:#f43f5e;--bear-lt:rgba(244,63,94,.12);--bear-md:rgba(244,63,94,.25);
+  --gold:#f59e0b;--gold-lt:rgba(245,158,11,.12);--gold-md:rgba(245,158,11,.25);
+  --blue:#3b82f6;--blue-lt:rgba(59,130,246,.12);--blue-md:rgba(59,130,246,.25);
+  --purp:#a855f7;--purp-lt:rgba(168,85,247,.12);--purp-md:rgba(168,85,247,.25);
 }
-html[data-theme="light"]{
-  --bg:#f0f4f8;--bg1:#ffffff;--bg2:#e8f0f5;--bg3:#dce8ee;
-  --sidebar:#ffffff;--border:rgba(2,90,110,.08);--border2:rgba(2,90,110,.16);--border3:rgba(2,90,110,.28);
-  --ink:#0d2030;--ink2:rgba(13,32,48,.6);--ink3:rgba(13,32,48,.35);
-  --accent:#0099aa;--accent2:#007888;--acc-glow:rgba(0,153,170,.10);--acc-dim:rgba(0,153,170,.07);--acc-mid:rgba(0,153,170,.14);
-  --live:#059669;--live-bg:rgba(5,150,105,.08);--live-bd:rgba(5,150,105,.22);
-  --shadow:rgba(0,0,0,.08);--scrl:rgba(0,153,170,.2);--red:#dc2626;--amber:#d97706;
+[data-theme="light"]{
+  --bg:#f5f7fc;--bg2:#edf0f8;--bg3:#e2e8f4;
+  --card:#ffffff;--card2:#f0f4fc;
+  --border:#d0d8ee;--border2:#b8c4de;
+  --ink:#0f172a;--ink2:#475569;--ink3:#94a3b8;
+  --bull:#16a34a;--bull-lt:rgba(22,163,74,.1);--bull-md:rgba(22,163,74,.25);
+  --bear:#dc2626;--bear-lt:rgba(220,38,38,.1);--bear-md:rgba(220,38,38,.25);
+  --gold:#d97706;--gold-lt:rgba(217,119,6,.1);--gold-md:rgba(217,119,6,.25);
+  --blue:#2563eb;--blue-lt:rgba(37,99,235,.1);--blue-md:rgba(37,99,235,.25);
+  --purp:#7c3aed;--purp-lt:rgba(124,58,237,.1);--purp-md:rgba(124,58,237,.25);
 }
-html[data-theme="teal"]{
-  --bg:#012f35;--bg1:#01232a;--bg2:#023940;--bg3:#02424a;
-  --sidebar:#011d23;--border:rgba(0,210,220,.10);--border2:rgba(0,210,220,.20);--border3:rgba(0,210,220,.32);
-  --ink:#c8eced;--ink2:rgba(200,236,237,.6);--ink3:rgba(200,236,237,.3);
-  --accent:#00d4d8;--accent2:#00b8bc;--acc-glow:rgba(0,212,216,.12);--acc-dim:rgba(0,212,216,.08);--acc-mid:rgba(0,212,216,.16);
-  --live:#34d399;--live-bg:rgba(52,211,153,.08);--live-bd:rgba(52,211,153,.25);
-  --shadow:rgba(0,0,0,.5);--scrl:rgba(0,212,216,.18);--red:#f87171;--amber:#fbbf24;
+[data-theme="teal"]{
+  --bg:#011e24;--bg2:#035363;--bg3:#044d5c;
+  --card:#032e38;--card2:#044050;
+  --border:rgba(0,210,220,.15);--border2:rgba(0,210,220,.28);
+  --ink:#c8eef2;--ink2:#7ec8d0;--ink3:#3a8a94;
+  --bull:#00e5c0;--bull-lt:rgba(0,229,192,.12);--bull-md:rgba(0,229,192,.28);
+  --bear:#ff4d6d;--bear-lt:rgba(255,77,109,.12);--bear-md:rgba(255,77,109,.28);
+  --gold:#fbbf24;--gold-lt:rgba(251,191,36,.12);--gold-md:rgba(251,191,36,.28);
+  --blue:#22d3ee;--blue-lt:rgba(34,211,238,.12);--blue-md:rgba(34,211,238,.28);
+  --purp:#a78bfa;--purp-lt:rgba(167,139,250,.12);--purp-md:rgba(167,139,250,.28);
 }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6;}
 
-body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow:hidden;transition:background .3s,color .3s;}
-::-webkit-scrollbar{width:3px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--scrl);border-radius:3px;}
+/* ── LAYOUT WRAPPER — everything aligned to 1400px ── */
+.layout-wrap{max-width:1400px;margin:0 auto;padding:0 24px;}
 
-/* TOPBAR */
-.topbar{
-  position:fixed;top:0;left:0;right:0;height:44px;
-  background:var(--bg1);border-bottom:1px solid var(--border2);
-  display:flex;align-items:center;padding:0 16px;z-index:200;gap:12px;
-  box-shadow:0 1px 30px var(--shadow);
-  overflow:hidden;
+.topbar{position:sticky;top:0;z-index:100;background:var(--bg2);border-bottom:1px solid var(--border2);height:52px;}
+.topbar-inner{max-width:1400px;margin:0 auto;padding:0 24px;height:100%;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-size:1.1rem;font-weight:700;color:var(--ink);}
+.logo em{font-style:normal;color:var(--bull);}
+.theme-btns{display:flex;gap:4px;}
+.theme-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--ink2);padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;transition:all .15s;}
+.theme-btn:hover{border-color:var(--blue);color:var(--ink);}
+.theme-btn.active{border-color:var(--blue);color:var(--ink);background:var(--blue-lt);}
+
+.tabs-bar{background:var(--bg2);border-bottom:1px solid var(--border2);}
+.tabs-inner{max-width:1400px;margin:0 auto;padding:0 24px;display:flex;overflow-x:auto;scrollbar-width:none;}
+.tabs-inner::-webkit-scrollbar{display:none;}
+.mtab{padding:14px 18px;font-size:13px;font-weight:500;cursor:pointer;color:var(--ink3);border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;}
+.mtab:hover{color:var(--ink2);}
+.mtab.active{color:var(--ink);border-bottom-color:var(--blue);}
+
+.page{display:none;max-width:1400px;margin:0 auto;padding:20px 24px;}
+.page.active{display:block;}
+.sec-title{font-size:.7rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);padding:20px 0 10px;display:flex;align-items:center;gap:10px;}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.acc{display:flex;flex-direction:column;gap:8px;}
+.acc-item{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s;}
+.acc-item.open{border-color:var(--border2);}
+.acc-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;transition:background .15s;gap:12px;}
+.acc-hdr:hover{background:var(--card2);}
+.acc-hdr-l{display:flex;align-items:center;gap:12px;min-width:0;}
+.acc-badge{font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:5px;letter-spacing:.5px;text-transform:uppercase;flex-shrink:0;}
+.badge-debit{background:var(--bear-lt);color:var(--bear);border:1px solid var(--bear-md);}
+.badge-credit{background:var(--bull-lt);color:var(--bull);border:1px solid var(--bull-md);}
+.badge-neutral{background:var(--blue-lt);color:var(--blue);border:1px solid var(--blue-md);}
+.badge-gold{background:var(--gold-lt);color:var(--gold);border:1px solid var(--gold-md);}
+.badge-purp{background:var(--purp-lt);color:var(--purp);border:1px solid var(--purp-md);}
+.acc-info{min-width:0;}
+.acc-title{font-size:.95rem;font-weight:600;color:var(--ink);}
+.acc-sub{font-size:.78rem;color:var(--ink3);margin-top:1px;}
+.acc-arrow{font-size:.75rem;color:var(--ink3);transition:transform .25s;flex-shrink:0;}
+.acc-item.open .acc-arrow{transform:rotate(180deg);}
+.acc-type-label{font-size:.68rem;color:var(--ink3);white-space:nowrap;flex-shrink:0;margin-left:auto;margin-right:12px;padding:2px 8px;border-radius:4px;background:var(--bg3);border:1px solid var(--border);}
+.acc-type-label.debit{color:var(--bear);background:var(--bear-lt);border-color:var(--bear-md);}
+.acc-type-label.credit{color:var(--bull);background:var(--bull-lt);border-color:var(--bull-md);}
+.acc-type-label.neutral{color:var(--blue);background:var(--blue-lt);border-color:var(--blue-md);}
+.acc-body{display:none;padding:0 18px 18px;}
+.acc-item.open .acc-body{display:block;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+.info-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+.info-label{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:5px;}
+.info-val{font-size:.88rem;color:var(--ink);line-height:1.5;}
+.info-val.bull{color:var(--bull);}
+.info-val.bear{color:var(--bear);}
+.info-val.gold{color:var(--gold);}
+.info-val.blue{color:var(--blue);}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.tag{font-size:.72rem;font-weight:500;padding:3px 10px;border-radius:20px;}
+.tag-bull{background:var(--bull-lt);color:var(--bull);}
+.tag-bear{background:var(--bear-lt);color:var(--bear);}
+.tag-gold{background:var(--gold-lt);color:var(--gold);}
+.tag-blue{background:var(--blue-lt);color:var(--blue);}
+.tag-neutral{background:var(--bg3);color:var(--ink2);border:1px solid var(--border);}
+.use-box{background:var(--bg3);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:12px 14px;margin-top:12px;}
+.use-box.bull{border-left-color:var(--bull);}
+.use-box.bear{border-left-color:var(--bear);}
+.use-box.gold{border-left-color:var(--gold);}
+.use-box.purp{border-left-color:var(--purp);}
+.use-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:6px;}
+.use-text{font-size:.85rem;color:var(--ink2);line-height:1.7;}
+.use-text strong{color:var(--ink);}
+.ex-box{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:10px;}
+.ex-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:8px;}
+.ex-row{display:flex;align-items:flex-start;gap:8px;padding:4px 0;font-size:.83rem;color:var(--ink2);}
+.ex-row span{line-height:1.5;}
+.ex-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+.ex-dot.bull{background:var(--bull);}
+.ex-dot.bear{background:var(--bear);}
+.ex-dot.gold{background:var(--gold);}
+.ex-dot.blue{background:var(--blue);}
+.ex-dot.neutral{background:var(--ink3);}
+.tbl-wrap{overflow-x:auto;margin-top:12px;border-radius:8px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:.82rem;}
+th{background:var(--bg3);color:var(--ink3);padding:9px 12px;text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;font-weight:600;border-bottom:1px solid var(--border2);}
+td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--ink);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--card2);}
+.td-bull{color:var(--bull);font-weight:600;}
+.td-bear{color:var(--bear);font-weight:600;}
+.td-gold{color:var(--gold);}
+.td-blue{color:var(--blue);}
+.td-purp{color:var(--purp);}
+.steps{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.step{display:flex;gap:12px;align-items:flex-start;background:var(--bg3);border-radius:8px;padding:12px 14px;}
+.step-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;background:var(--blue-lt);color:var(--blue);border:1px solid var(--blue-md);}
+.step-title{font-size:.88rem;font-weight:600;color:var(--ink);}
+.step-desc{font-size:.8rem;color:var(--ink2);margin-top:3px;line-height:1.5;}
+.hl-box{background:var(--gold-lt);border:1px solid var(--gold-md);border-radius:8px;padding:12px 14px;margin-top:12px;font-size:.85rem;color:var(--ink2);line-height:1.7;}
+.hl-box strong{color:var(--gold);}
+/* ── CARD COLOR VARIANTS ── */
+.acc-item.color-bull{border-left:3px solid var(--bull);}
+.acc-item.color-bear{border-left:3px solid var(--bear);}
+.acc-item.color-gold{border-left:3px solid var(--gold);}
+.acc-item.color-blue{border-left:3px solid var(--blue);}
+.acc-item.color-purp{border-left:3px solid var(--purp);}
+.acc-item.color-teal{border-left:3px solid #14b8a6;}
+.acc-item.color-orange{border-left:3px solid #f97316;}
+
+@media(max-width:600px){
+  .info-grid{grid-template-columns:1fr;}
+  .page{padding:12px;}
+  .tabs-inner{padding:0 12px;}
+  .topbar-inner{padding:0 12px;}
+  .mtab{padding:12px 10px;font-size:12px;}
+  table{font-size:.75rem;}
+  th,td{padding:7px 8px;}
+  .acc-type-label{display:none;}
 }
-.topbar::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.4;}
-.topbar.hidden{display:none;}
-
-.hamburger{background:none;border:none;cursor:pointer;color:var(--ink3);padding:7px;border-radius:8px;transition:all .15s;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
-.hamburger:hover{background:var(--acc-dim);color:var(--accent);}
-.hamburger svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
-
-.logo-area{display:flex;align-items:center;gap:10px;flex-shrink:0;min-width:0;}
-.logo-mark{width:34px;height:34px;border-radius:9px;flex-shrink:0;background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px var(--acc-glow);position:relative;overflow:hidden;}
-.logo-mark::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2) 0%,transparent 60%);}
-.logo-mark-text{font-size:12px;font-weight:700;color:#fff;letter-spacing:-.5px;position:relative;}
-.logo-text{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:.2px;white-space:nowrap;}
-.logo-text em{font-style:normal;color:var(--accent);}
-.logo-tag{font-size:9px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--accent);background:var(--acc-dim);border:1px solid var(--border2);padding:2px 7px;border-radius:4px;margin-left:4px;font-family:'JetBrains Mono',monospace;}
-
-.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-
-.topbar-clock{flex:1;text-align:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--ink2);letter-spacing:1px;}
-
-.live-badge{display:flex;align-items:center;gap:5px;background:var(--live-bg);border:1px solid var(--live-bd);color:var(--live);padding:5px 11px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.6px;font-family:'JetBrains Mono',monospace;}
-.live-dot{width:5px;height:5px;border-radius:50%;background:var(--live);animation:pulse 1.8s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.7);}}
-
-.theme-switcher{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);padding:3px;border-radius:8px;}
-.theme-btn{width:22px;height:22px;border-radius:5px;border:1.5px solid transparent;cursor:pointer;transition:all .15s;flex-shrink:0;}
-.theme-btn:hover{transform:scale(1.1);}
-.theme-btn.active{border-color:var(--ink2);}
-
-.mob-apk-wrap{display:none;}
-.fs-btn{background:var(--bg2);border:1px solid var(--border2);color:var(--ink2);cursor:pointer;border-radius:8px;padding:6px 10px;transition:all .15s;display:flex;align-items:center;font-family:'JetBrains Mono',monospace;font-size:12px;}
-.fs-btn:hover{background:var(--acc-dim);color:var(--accent);border-color:var(--border3);}
-
-.apk-btn{display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.4px;cursor:pointer;text-decoration:none;transition:all .2s;white-space:nowrap;box-shadow:0 2px 10px var(--acc-glow);}
-.apk-btn:hover{opacity:.85;transform:translateY(-1px);box-shadow:0 4px 16px var(--acc-glow);}
-
-/* SIDEBAR */
-.sidebar{position:fixed;left:0;top:44px;width:230px;height:calc(100vh - 44px);background:var(--sidebar);border-right:1px solid var(--border2);overflow-y:auto;z-index:100;transition:transform .3s ease;display:flex;flex-direction:column;}
-.sidebar.hidden-fs{display:none;}
-
-.sidebar-header{padding:14px 16px 10px;border-bottom:1px solid var(--border);}
-.sidebar-label{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);font-weight:600;font-family:'JetBrains Mono',monospace;}
-
-.nav-section{border-bottom:1px solid var(--border);}
-.section-header{width:100%;padding:11px 16px;background:none;border:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .15s;gap:8px;}
-.section-header:hover{background:var(--acc-dim);}
-.section-icon-title{display:flex;align-items:center;gap:8px;}
-.section-icon{width:26px;height:26px;border-radius:7px;background:var(--acc-dim);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
-.section-title{font-size:12px;font-weight:600;color:var(--ink);letter-spacing:.3px;}
-.section-count{font-size:9px;color:var(--ink3);font-family:'JetBrains Mono',monospace;margin-left:2px;}
-.section-arrow{color:var(--ink3);font-size:9px;transition:transform .25s;flex-shrink:0;}
-.section-arrow.open{transform:rotate(180deg);}
-
-.submenu{max-height:0;overflow:hidden;transition:max-height .3s ease;}
-.submenu.open{max-height:600px;}
-
-.nav-link{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 8px 50px;font-size:12px;color:var(--ink2);text-decoration:none;transition:all .15s;position:relative;border-left:2px solid transparent;gap:8px;}
-.nav-link::before{content:'';position:absolute;left:34px;width:6px;height:1px;background:var(--border2);}
-.nav-link:hover{background:var(--acc-dim);color:var(--ink);border-left-color:var(--border2);padding-left:52px;}
-.nav-link.active{background:var(--acc-mid);color:var(--accent);border-left-color:var(--accent);font-weight:500;}
-.nav-link.active::before{background:var(--accent);}
-.nav-link.external::after{content:'↗';font-size:10px;color:var(--ink3);margin-left:auto;}
-.nav-badge{font-size:9px;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-weight:500;flex-shrink:0;}
-.nav-badge.live{background:var(--live-bg);color:var(--live);border:1px solid var(--live-bd);}
-.nav-badge.offline{background:rgba(245,166,35,.08);color:var(--amber);border:1px solid rgba(245,166,35,.2);}
-.nav-badge.info{background:var(--acc-dim);color:var(--accent);border:1px solid var(--border2);}
-
-.sidebar-footer{margin-top:auto;padding:14px 16px;border-top:1px solid var(--border);}
-.sidebar-footer-text{font-size:10px;color:var(--ink3);line-height:1.6;font-family:'JetBrains Mono',monospace;}
-
-/* MAIN */
-.main{margin-left:230px;width:calc(100% - 230px);margin-top:44px;height:calc(100vh - 44px);display:flex;flex-direction:column;transition:margin .3s,width .3s;}
-
-.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:var(--bg);position:relative;overflow:hidden;}
-.welcome-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 50%,var(--acc-glow) 0%,transparent 70%);pointer-events:none;}
-.welcome-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 20%,transparent 80%);pointer-events:none;opacity:.5;}
-
-.welcome-inner{position:relative;text-align:center;max-width:420px;padding:0 20px;}
-.welcome-logo{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 0 40px var(--acc-glow),0 0 80px var(--acc-glow);}
-.welcome-logo-text{font-size:28px;font-weight:700;color:#fff;}
-.welcome-title{font-size:28px;font-weight:700;color:var(--ink);letter-spacing:-.5px;line-height:1.2;margin-bottom:10px;}
-.welcome-title em{font-style:normal;color:var(--accent);}
-.welcome-sub{font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:24px;}
-.welcome-hint{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--ink3);font-family:'JetBrains Mono',monospace;background:var(--bg2);border:1px solid var(--border2);padding:7px 16px;border-radius:20px;}
-.welcome-stats{display:flex;gap:16px;justify-content:center;margin-top:28px;}
-.w-stat{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px 20px;text-align:center;}
-.w-stat-val{font-size:20px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;}
-.w-stat-label{font-size:10px;color:var(--ink3);letter-spacing:.5px;margin-top:2px;}
-
-.content-frame{flex:1;width:100%;border:none;background:#fff;display:none;}
-.content-frame.active{display:block;}
-
-@media(min-width:769px){
-  .content-frame.active{margin-top:36px;}
-}
-
-.float-btn{display:none;position:fixed;bottom:20px;right:20px;z-index:300;background:var(--accent);color:var(--bg);border:none;cursor:pointer;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;box-shadow:0 4px 20px var(--acc-glow);transition:transform .15s;font-family:'JetBrains Mono',monospace;}
-.float-btn.visible{display:block;}
-.float-btn:hover{transform:scale(1.05);}
-
-@media(max-width:768px){
-  .sidebar{transform:translateX(-100%);z-index:500;width:100vw;background:var(--sidebar) !important;opacity:1 !important;}
-  .sidebar.mobile-open{transform:translateX(0);}
-  .main{margin-left:0;width:100%;}
-  .market-strip{display:none;}
-  .logo-tag{display:none;}
-  .topbar-clock{display:none;}
-  .apk-btn{font-size:10px;padding:5px 9px;}
-  .welcome{display:none !important;}
-  .section-title{font-size:16px !important;}
-  .section-count{font-size:13px !important;}
-  .nav-link{font-size:15px !important;padding:12px 20px 12px 56px !important;}
-  .section-header{padding:14px 18px !important;}
-  .sidebar-label{font-size:11px !important;}
-  .sidebar-footer-text{font-size:13px !important;}
-  /* APK button in sidebar only on mobile */
-  .mob-apk-wrap{display:block !important;}
-}
-#mob-overlay{display:none !important;}
-
-/* ── DISCLAIMER OVERLAY ── */
-#disclaimer-overlay{
-  position:fixed;inset:0;z-index:9999;
-  background:rgba(0,0,0,.88);backdrop-filter:blur(8px);
-  display:flex;align-items:center;justify-content:center;padding:20px;}
-#disclaimer-box{
-  background:#0f1117;border:1px solid rgba(59,130,246,.35);border-radius:16px;
-  max-width:480px;width:100%;padding:32px 28px;text-align:center;
-  box-shadow:0 0 60px rgba(59,130,246,.12),0 24px 60px rgba(0,0,0,.6);
-  font-family:'JetBrains Mono',monospace;}
-.d-icon{font-size:36px;margin-bottom:14px;}
-#disclaimer-box h2{font-size:15px;font-weight:700;color:#e8eaf0;letter-spacing:.5px;margin-bottom:10px;line-height:1.5;}
-#disclaimer-box p{font-size:11px;color:#a0aec0;line-height:1.8;margin-bottom:16px;}
-.d-legal{font-size:10px;color:#5a6a8a;line-height:1.8;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:10px 14px;margin-bottom:22px;text-align:left;}
-.d-legal strong{color:#8a9ab8;}
-#disclaimer-agree{
-  background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;
-  border:none;border-radius:10px;padding:12px 32px;font-size:13px;font-weight:700;
-  cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:.4px;
-  transition:all .2s;box-shadow:0 4px 16px rgba(59,130,246,.3);}
-#disclaimer-agree:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,130,246,.4);}
-#disclaimer-decline{display:block;margin-top:12px;font-size:10px;color:#5a6a8a;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:'JetBrains Mono',monospace;}
 </style>
 </head>
 <body>
-
-<!-- ── DISCLAIMER ── -->
-<div id="disclaimer-overlay">
-  <div id="disclaimer-box">
-    <div class="d-icon">⚖️</div>
-    <h2>Personal Use Only<br>— Not for Commercial Use —</h2>
-    <p>This platform is built strictly for personal and educational purposes.<br>Commercial use of any kind is not permitted.</p>
-    <div class="d-legal">
-      <strong>⚠️ Legal Disclaimer:</strong><br>
-      • This tool is not a product of any SEBI-registered entity or financial advisor.<br>
-      • No data or signal on this platform constitutes investment advice.<br>
-      • The creator bears no responsibility for any financial loss or decision made using this tool.<br>
-      • Unauthorized redistribution, resale, or commercial use is strictly prohibited.<br>
-      • By clicking "I Agree", you confirm that you will use this for personal use only.
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">F&amp;<em>O</em> Complete Guide</div>
+    <div class="theme-btns">
+      <button class="theme-btn active" id="tbtn-dark" onclick="setTheme('dark')">🌑 Dark</button>
+      <button class="theme-btn" id="tbtn-teal" onclick="setTheme('teal')">🌊 Teal</button>
+      <button class="theme-btn" id="tbtn-light" onclick="setTheme('light')">🌤 Light</button>
     </div>
-    <button id="disclaimer-agree" onclick="acceptDisclaimer()">✓ &nbsp;I Agree — Personal Use Only</button>
-    <button id="disclaimer-decline" onclick="declineDisclaimer()">I Do Not Agree — Exit</button>
+  </div>
+</div>
+<div class="tabs-bar">
+  <div class="tabs-inner">
+    <div class="mtab active" onclick="showPage('fo',this)">🎯 F&amp;O Signals</div>
+    <div class="mtab" onclick="showPage('bhav',this)">📦 Bhav Data</div>
+    <div class="mtab" onclick="showPage('chain',this)">🔗 Option Chain</div>
+    <div class="mtab" onclick="showPage('spreads',this)">📊 Spreads</div>
   </div>
 </div>
 
-<button class="float-btn" id="float-btn">⛶ EXIT</button>
-<div id="mob-overlay"></div>
-
-<nav class="topbar" id="topbar">
-  <button class="hamburger" id="hamburger">
-    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-  </button>
-
-  <div class="logo-area">
-    <div class="logo-mark"><span class="logo-mark-text">F&amp;O</span></div>
-    <span class="logo-text"><em>Screener</em> Hub</span>
-    <span class="logo-tag">PREMIUM</span>
-  </div>
-
-  <div class="topbar-clock" id="topbar-clock">--:--:-- IST</div>
-
-  <a href="https://screener-epd.pages.dev/public/Screenerv1.apk" download class="apk-btn" title="Download Android App">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M8 12l4 4 4-4"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
-    APK
-  </a>
-
-  <div class="topbar-right">
-    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
-    <div class="theme-switcher">
-      <div class="theme-btn active" style="background:#0f1117;border:1px solid #2a3450" title="Dark" onclick="setTheme('dark',this)"></div>
-      <div class="theme-btn" style="background:#012f35" title="Teal" onclick="setTheme('teal',this)"></div>
-      <div class="theme-btn" style="background:#f0f4f8;border:1px solid #ccc" title="Light" onclick="setTheme('light',this)"></div>
-    </div>
-    <button class="fs-btn" id="fs-btn">⛶</button>
-  </div>
-</nav>
-
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <div class="sidebar-label">Navigation</div>
-  </div>
-
-
-
-  <div class="nav-section">
-    <button class="section-header" onclick="toggleSub(this,'scalper-sub')">
-      <div class="section-icon-title">
-        <div class="section-icon">⚡</div>
-        <div><span class="section-title">Basic Tools</span><span class="section-count"> 3</span></div>
+<!-- PAGE 1: SPREADS -->
+<div class="page active" id="page-fo">
+  <div class="acc" id="acc-glance">
+    <div class="acc-item color-blue">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-glance')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Overview</span><div class="acc-info"><div class="acc-title">All Strategies at a Glance</div><div class="acc-sub">Quick comparison — all spreads in one table</div></div></div>
+        <span class="acc-type-label neutral">(Quick Reference)</span>
+        <span class="acc-arrow">▼</span>
       </div>
-      <span class="section-arrow">▼</span>
-    </button>
-    <div class="submenu" id="scalper-sub">
-      <a href="https://screener-epd.pages.dev/public/tradegpt.html" class="nav-link">AI Chat Tool <span class="nav-badge info">AI</span></a>
-      <a href="https://screener-epd.pages.dev/public/adv_dec_heatmap" class="nav-link">Advance Decline</a>
-      <a href="https://screener-epd.pages.dev/public/oi_All" class="nav-link">Open Interest</a>
-    </div>
-  </div>
-
-  <div class="nav-section">
-    <button class="section-header" onclick="toggleSub(this,'data-sub')">
-      <div class="section-icon-title">
-        <div class="section-icon">📈</div>
-        <div><span class="section-title">Data Analysis</span><span class="section-count"> 5</span></div>
-      </div>
-      <span class="section-arrow">▼</span>
-    </button>
-    <div class="submenu" id="data-sub">
-      <a href="https://screener2-584.pages.dev/StockTrade" class="nav-link">Stock Trade <span class="nav-badge live">LIVE</span></a>
-      <a href="https://screener2-584.pages.dev/OptionTrade" class="nav-link">Option Trade <span class="nav-badge live">LIVE</span></a>
-      <a href="https://screener-epd.pages.dev/public/Bhavdata" class="nav-link">Bhav Data <span class="nav-badge offline">OFFLINE</span></a>
-      <a href="https://screener-epd.pages.dev/public/volatility_dashboard" class="nav-link">Volatility <span class="nav-badge info">KB</span></a>
-      <a href="https://screener2-584.pages.dev/fii_dashboard" class="nav-link">FII Data <span class="nav-badge info">KB</span></a>
-    </div>
-  </div>
-
-  <div class="nav-section">
-    <button class="section-header" onclick="toggleSub(this,'swing-sub')">
-      <div class="section-icon-title">
-        <div class="section-icon">🔄</div>
-        <div><span class="section-title">Swing</span><span class="section-count"> 2</span></div>
-      </div>
-      <span class="section-arrow">▼</span>
-    </button>
-    <div class="submenu" id="swing-sub">
-      <a href="https://screener-epd.pages.dev/public/swing_screener" class="nav-link">Swing F&amp;O</a>
-      <a href="https://screener-epd.pages.dev/public/swing_screener2" class="nav-link">Swing All</a>
-    </div>
-  </div>
-
-  <div class="nav-section">
-    <button class="section-header" onclick="toggleSub(this,'ext-sub')">
-      <div class="section-icon-title">
-        <div class="section-icon">🔗</div>
-        <div><span class="section-title">External Links</span><span class="section-count"> 6</span></div>
-      </div>
-      <span class="section-arrow">▼</span>
-    </button>
-    <div class="submenu" id="ext-sub">
-      <a href="https://upstox.com/fno-discovery/open-interest-analysis/nifty-pcr/" class="nav-link external" target="_blank">PCR Data</a>
-      <a href="https://groww.in/indices/global-indices" class="nav-link external" target="_blank">Global Index</a>
-      <a href="https://web.quantsapp.com/signin" class="nav-link external" target="_blank">Quantsapp</a>
-      <a href="https://login.dhan.co/?location=DH_WEB" class="nav-link external" target="_blank">Dhan</a>
-      <a href="https://www.nseindia.com/option-chain" class="nav-link external" target="_blank">Nifty Option Chain</a>
-      <a href="https://nifty-pe-ratio.com" class="nav-link external" target="_blank">Nifty PE Ratio</a>
-    </div>
-  </div>
-
-  <div class="sidebar-footer">
-    <div class="mob-apk-wrap">
-      <a href="https://screener-epd.pages.dev/Screenerv1.apk" target="_blank" class="apk-btn" 
-         style="width:100%;justify-content:center;font-size:13px;padding:10px 16px;border-radius:10px;display:flex;gap:8px;box-sizing:border-box;margin-bottom:12px;"
-         oncontextmenu="return false;"
-         ontouchstart="startCopy(this)" ontouchend="cancelCopy()"
-         title="Tap to open | Long press to copy link">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.42.07 2.38.74 3.2.8 1.21-.24 2.37-.93 3.67-.84 1.58.13 2.77.74 3.54 1.88-3.26 1.95-2.49 5.96.59 7.13-.57 1.39-1.3 2.76-3 3.91zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
-        F&amp;O APK v1
-      </a>
-    </div>
-    <div class="sidebar-footer-text">
-      F&amp;O APK v1<br>
-      <span id="clock-time">--:--:-- IST</span>
-    </div>
-  </div>
-</aside>
-
-<main class="main" id="main">
-  <div style="flex:1;display:flex;flex-direction:column;" id="frame-area">
-    <div class="welcome" id="welcome">
-      <div class="welcome-bg"></div>
-      <div class="welcome-grid"></div>
-      <div class="welcome-inner">
-        <div class="welcome-logo"><span class="welcome-logo-text">F</span></div>
-        <div class="welcome-title">F&amp;O <em>Screener</em> Hub</div>
-        <div class="welcome-sub">Professional tools for Options &amp; Futures traders. Real-time data, AI analysis, and market insights — all in one place.</div>
-        <div class="welcome-hint">← Select a tool from the sidebar to begin</div>
-        <div class="welcome-stats">
-          <div class="w-stat"><div class="w-stat-val">10+</div><div class="w-stat-label">TOOLS</div></div>
-          <div class="w-stat"><div class="w-stat-val">LIVE</div><div class="w-stat-label">DATA</div></div>
-          <div class="w-stat"><div class="w-stat-val">AI</div><div class="w-stat-label">POWERED</div></div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>Strategy</th><th>Type</th><th>View</th><th>IV</th><th>Max Profit</th><th>Max Loss</th></tr>
+            <tr><td class="td-bull">Bull Call Spread</td><td><span class="tag tag-bear">Debit</span></td><td>Bullish</td><td class="td-bear">Low</td><td>Spread minus Debit</td><td>Debit paid</td></tr>
+            <tr><td class="td-bear">Bear Put Spread</td><td><span class="tag tag-bear">Debit</span></td><td>Bearish</td><td class="td-bear">Low</td><td>Spread minus Debit</td><td>Debit paid</td></tr>
+            <tr><td class="td-gold">Calendar Spread</td><td><span class="tag tag-bear">Debit</span></td><td>Neutral</td><td class="td-bear">Low front</td><td>At short strike</td><td>Debit paid</td></tr>
+            <tr><td class="td-gold">Diagonal Spread</td><td><span class="tag tag-bear">Debit</span></td><td>Directional</td><td class="td-bear">Low</td><td>Variable</td><td>Debit paid</td></tr>
+            <tr><td class="td-bull">Bull Put Spread</td><td><span class="tag tag-bull">Credit</span></td><td>Bullish</td><td class="td-bull">High</td><td>Credit received</td><td>Spread minus Credit</td></tr>
+            <tr><td class="td-bear">Bear Call Spread</td><td><span class="tag tag-bull">Credit</span></td><td>Bearish</td><td class="td-bull">High</td><td>Credit received</td><td>Spread minus Credit</td></tr>
+            <tr><td class="td-blue">Iron Condor</td><td><span class="tag tag-bull">Credit</span></td><td>Neutral</td><td class="td-bull">High</td><td>Credit received</td><td>Spread minus Credit</td></tr>
+            <tr><td class="td-blue">Iron Butterfly</td><td><span class="tag tag-bull">Credit</span></td><td>Neutral</td><td class="td-bull">Very High</td><td>Credit received</td><td>Spread minus Credit</td></tr>
+            <tr><td class="td-purp">Jade Lizard</td><td><span class="tag tag-bull">Credit</span></td><td>Slight Bull</td><td class="td-bull">High</td><td>Full credit</td><td>Put spread loss</td></tr>
+            <tr><td class="td-purp">Broken Wing Butterfly</td><td><span class="tag tag-bull">Credit</span></td><td>Directional</td><td class="td-bull">High</td><td>Credit plus width</td><td>Skipped wing</td></tr>
+          </table>
         </div>
       </div>
     </div>
-    <iframe src="about:blank" id="main-frame" class="content-frame"></iframe>
   </div>
-</main>
+
+  <div class="sec-title">Debit Spreads — You Pay to Enter</div>
+  <div class="acc" id="acc-debit">
+    <div class="acc-item color-bull">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-debit')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-debit">Debit</span><div class="acc-info"><div class="acc-title">Bull Call Spread</div><div class="acc-sub">Buy lower call + Sell higher call · Same expiry</div></div></div>
+        <span class="acc-type-label debit">(Debit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tags"><span class="tag tag-bull">Moderately Bullish</span><span class="tag tag-bear">Low IV preferred</span><span class="tag tag-gold">30-45 days to expiry</span></div>
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Setup</div><div class="info-val">Buy Call 500 + Sell Call 520</div></div>
+          <div class="info-box"><div class="info-label">You Pay</div><div class="info-val bear">Net Debit e.g. Rs 7</div></div>
+          <div class="info-box"><div class="info-label">Max Profit</div><div class="info-val bull">Rs 13 (Spread 20 minus Debit 7)</div></div>
+          <div class="info-box"><div class="info-label">Max Loss</div><div class="info-val bear">Rs 7 only (debit paid)</div></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">Real Example</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Stock at Rs 500. Buy 500 CE at Rs 15, sell 520 CE at Rs 8. Net cost = Rs 7.</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>If stock goes above Rs 520 at expiry: Max profit = Rs 13.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>If stock stays below Rs 500: Max loss = Rs 7 only. You lose what you paid.</span></div>
+        </div>
+        <div class="use-box bull"><div class="use-label">When to Use and IV Role</div><div class="use-text">Use when you expect <strong>moderate upside</strong> — not a breakout, just steady rise. <strong>Low IV</strong> = options are cheap = better entry. Avoid in high IV — you pay too much and IV crush will hurt after any event.</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-bear">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-debit')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-debit">Debit</span><div class="acc-info"><div class="acc-title">Bear Put Spread</div><div class="acc-sub">Buy higher put + Sell lower put · Same expiry</div></div></div>
+        <span class="acc-type-label debit">(Debit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tags"><span class="tag tag-bear">Moderately Bearish</span><span class="tag tag-bear">Low IV preferred</span><span class="tag tag-gold">30-45 days to expiry</span></div>
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Setup</div><div class="info-val">Buy Put 500 + Sell Put 480</div></div>
+          <div class="info-box"><div class="info-label">You Pay</div><div class="info-val bear">Net Debit e.g. Rs 8</div></div>
+          <div class="info-box"><div class="info-label">Max Profit</div><div class="info-val bull">Rs 12 (Spread 20 minus Debit 8)</div></div>
+          <div class="info-box"><div class="info-label">Max Loss</div><div class="info-val bear">Rs 8 only (debit paid)</div></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">Real Example</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Stock at Rs 500. Buy 500 PE at Rs 18, sell 480 PE at Rs 10. Net cost = Rs 8.</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>If stock falls below Rs 480 at expiry: Max profit = Rs 12.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>If stock stays above Rs 500: Max loss = Rs 8 only.</span></div>
+        </div>
+        <div class="use-box bear"><div class="use-label">When to Use and IV Role</div><div class="use-text">Use when you expect <strong>moderate downside</strong>. <strong>Low IV</strong> = cheap entry. Post high-IV event (earnings fear spike) crushes premium — bad time to buy puts.</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-gold">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-debit')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-debit">Debit</span><div class="acc-info"><div class="acc-title">Calendar Spread</div><div class="acc-sub">Sell near-month + Buy far-month · Same strike</div></div></div>
+        <span class="acc-type-label debit">(Debit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tags"><span class="tag tag-blue">Neutral / Sideways</span><span class="tag tag-bull">Low front IV needed</span><span class="tag tag-gold">Front: 7-21 days</span></div>
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Setup</div><div class="info-val">Sell March 22000 CE + Buy April 22000 CE</div></div>
+          <div class="info-box"><div class="info-label">Profit From</div><div class="info-val bull">Time decay on short leg</div></div>
+          <div class="info-box"><div class="info-label">Best Case</div><div class="info-val bull">Price stays near strike at front expiry</div></div>
+          <div class="info-box"><div class="info-label">Max Loss</div><div class="info-val bear">Net debit paid</div></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">Real Example</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Nifty at 22,000. Sell March 22000 CE at Rs 150, Buy April 22000 CE at Rs 200. Net cost = Rs 50.</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>Nifty stays near 22,000: March CE expires worthless, April CE still has value. Profit!</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Nifty moves sharply in any direction: Both legs hurt. Max loss = Rs 50.</span></div>
+        </div>
+        <div class="use-box"><div class="use-label">When to Use and IV Role</div><div class="use-text">Best when market expected to stay <strong>sideways</strong>. Works when <strong>front month IV is high</strong> (sell expensive) and back month IV is low (buy cheap).</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-orange">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-debit')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-debit">Debit</span><div class="acc-info"><div class="acc-title">Call and Put Ratio Spread</div><div class="acc-sub">Buy 1 option + Sell 2 options at further strike — Advanced only</div></div></div>
+        <span class="acc-type-label debit">(Debit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tags"><span class="tag tag-bull">Mildly Directional</span><span class="tag tag-bear">Low IV preferred</span><span class="tag tag-bear">Warning: Risky</span></div>
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Call Ratio Setup</div><div class="info-val">Buy 1 Call 500 + Sell 2 Calls 520</div></div>
+          <div class="info-box"><div class="info-label">Risk</div><div class="info-val bear">Unlimited if price moves hard past short strikes</div></div>
+          <div class="info-box"><div class="info-label">Max Profit</div><div class="info-val bull">At the short strike at expiry</div></div>
+          <div class="info-box"><div class="info-label">Best For</div><div class="info-val">Slow controlled move only</div></div>
+        </div>
+        <div class="use-box bear"><div class="use-label">When to Use and IV Role</div><div class="use-text">Use only when expecting a <strong>slow, controlled move</strong> — never a breakout. <strong>Low IV</strong> makes it cheaper. Always set a hard stop loss. Not for beginners.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title">Credit Spreads — You Receive Premium</div>
+  <div class="acc" id="acc-credit">
+    <div class="acc-item color-bull">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-credit')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-credit">Credit</span><div class="acc-info"><div class="acc-title">Bull Put Spread</div><div class="acc-sub">Sell higher put + Buy lower put · Same expiry</div></div></div>
+        <span class="acc-type-label credit">(Credit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tags"><span class="tag tag-bull">Slightly Bullish</span><span class="tag tag-bull">High IV preferred</span><span class="tag tag-gold">15-30 days to expiry</span></div>
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Setup</div><div class="info-val">Sell Put 22000 + Buy Put 21800</div></div>
+          <div class="info-box"><div class="info-label">You Receive</div><div class="info-val bull">Net Credit e.g. Rs 35</div></div>
+          <div class="info-box"><div class="info-label">Max Profit</div><div class="info-val bull">Rs 35 — if price stays above 22000</div></div>
+          <div class="info-box"><div class="info-label">Max Loss</div><div class="info-val bear">Rs 165 (Spread 200 minus Credit 35)</div></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">Real Example</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Nifty at 22,200. Sell 22000 PE at Rs 80, Buy 21800 PE at Rs 45. Credit = Rs 35.</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>Nifty stays above 22,000: Both PEs expire worthless. Keep full Rs 35 credit.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Nifty falls below 21,800: Max loss = Rs 165.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Time decay works FOR you every day the price stays above your sold strike.</span></div>
+        </div>
+        <div class="use-box bull"><div class="use-label">When to Use and IV Role</div><div class="use-text"><strong>High IV = fatter credit = better odds.</strong> Favourite of professional traders. Best after a volatility spike when fear is high. Works well when PE Wall is strong below your sold strike.</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-bear">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-credit')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-credit">Credit</span><div class="acc-info"><div class="acc-title">Bear Call Spread</div><div class="acc-sub">Sell lower call + Buy higher call · Same expiry</div></div></div>
+        <span class="acc-type-label credit">(Credit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tags"><span class="tag tag-bear">Slightly Bearish</span><span class="tag tag-bull">High IV preferred</span><span class="tag tag-gold">15-30 days to expiry</span></div>
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Setup</div><div class="info-val">Sell Call 500 + Buy Call 520</div></div>
+          <div class="info-box"><div class="info-label">You Receive</div><div class="info-val bull">Net Credit e.g. Rs 7</div></div>
+          <div class="info-box"><div class="info-label">Max Profit</div><div class="info-val bull">Rs 7 — if price stays below 500</div></div>
+          <div class="info-box"><div class="info-label">Max Loss</div><div class="info-val bear">Rs 13 (Spread 20 minus Credit 7)</div></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">Real Example</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Stock at Rs 490. CE Wall at Rs 500. Sell 500 CE at Rs 12, Buy 520 CE at Rs 5. Credit = Rs 7.</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>Stock stays below Rs 500: Both expire worthless. Profit = Rs 7.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Stock breaks above Rs 520: Max loss = Rs 13.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>CE Wall at Rs 500 is the natural resistance = ideal sell strike!</span></div>
+        </div>
+        <div class="use-box bear"><div class="use-label">When to Use and IV Role</div><div class="use-text">Use when market is <strong>capped or bearish</strong>. Sell at or above CE Wall. <strong>High IV</strong> = collect more premium. Time decay works for you. Ideal after a bounce into strong resistance.</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-bull">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-credit')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-credit">Credit</span><div class="acc-info"><div class="acc-title">Iron Condor</div><div class="acc-sub">Bull Put Spread + Bear Call Spread combined</div></div></div>
+        <span class="acc-type-label credit">(Credit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tags"><span class="tag tag-blue">Neutral / Sideways</span><span class="tag tag-bull">High IV preferred</span><span class="tag tag-gold">20-40 days to expiry</span></div>
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Setup</div><div class="info-val">Sell Put 21700 + Buy Put 21500 + Sell Call 22300 + Buy Call 22500</div></div>
+          <div class="info-box"><div class="info-label">Profit Zone</div><div class="info-val bull">Price stays between 21700 and 22300</div></div>
+          <div class="info-box"><div class="info-label">Max Profit</div><div class="info-val bull">Total credit received</div></div>
+          <div class="info-box"><div class="info-label">Max Loss</div><div class="info-val bear">Larger spread minus total credit</div></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">Real Example</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Nifty at 22,000. Use CE Wall as upper boundary, PE Wall as lower boundary for sold strikes.</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>Nifty stays in range: All 4 legs expire worthless. Keep full credit.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>PCR neutral + Max Pain near center = ideal Iron Condor confirmation.</span></div>
+        </div>
+        <div class="use-box"><div class="use-label">When to Use and IV Role</div><div class="use-text">Best in <strong>high IV + sideways market</strong>. After earnings when IV crush happens. Use CE Wall as upper sell strike and PE Wall as lower sell strike.</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-teal">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-credit')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-credit">Credit</span><div class="acc-info"><div class="acc-title">Iron Butterfly</div><div class="acc-sub">ATM short straddle + OTM long wings</div></div></div>
+        <span class="acc-type-label credit">(Credit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tags"><span class="tag tag-blue">Strictly Neutral</span><span class="tag tag-bull">Very High IV</span><span class="tag tag-gold">15-25 days to expiry</span></div>
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Setup</div><div class="info-val">Buy Put 480 + Sell Put 500 + Sell Call 500 + Buy Call 520</div></div>
+          <div class="info-box"><div class="info-label">Sweet Spot</div><div class="info-val bull">Price exactly at 500 at expiry</div></div>
+          <div class="info-box"><div class="info-label">Max Profit</div><div class="info-val bull">Highest of all credit strategies</div></div>
+          <div class="info-box"><div class="info-label">Max Loss</div><div class="info-val bear">Spread width minus credit</div></div>
+        </div>
+        <div class="use-box"><div class="use-label">When to Use and IV Role</div><div class="use-text">Only in <strong>very high IV</strong>. Pin trade — use Max Pain as center strike. Tight profit zone needs active management.</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-purp">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-credit')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-purp">Advanced</span><div class="acc-info"><div class="acc-title">Jade Lizard and Broken Wing Butterfly</div><div class="acc-sub">Advanced credit strategies — unique risk profiles</div></div></div>
+        <span class="acc-type-label credit">(Credit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Jade Lizard</div><div class="info-val">Bull Put Spread + Naked Call above. <span style="color:var(--bull)">No upside risk</span> if credit is greater than call spread. High IV needed.</div></div>
+          <div class="info-box"><div class="info-label">Broken Wing Butterfly</div><div class="info-val">Asymmetric butterfly. Enter for <span style="color:var(--bull)">zero cost or small credit</span>. One wing wider = skewed risk. Popular with index traders.</div></div>
+        </div>
+        <div class="use-box purp"><div class="use-label">When to Use</div><div class="use-text">Both work best in <strong>high IV</strong>. Study these only after mastering basic spreads. Jade Lizard = slightly bullish lean. BWB = enter for free with defined risk.</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-gold">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-credit')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-gold">IV Guide</span><div class="acc-info"><div class="acc-title">IV Role — When to Buy vs Sell Spreads</div><div class="acc-sub">Implied Volatility decides your strategy</div></div></div>
+        <span class="acc-type-label neutral">(Guide)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>IV Level</th><th>Meaning</th><th>Use These</th><th>Avoid</th></tr>
+            <tr><td class="td-bear">Very High (VIX spike)</td><td>Options very expensive</td><td class="td-bull">Iron Condor, Credit Spreads, Jade Lizard</td><td class="td-bear">Buying any debit spread</td></tr>
+            <tr><td class="td-gold">High (elevated)</td><td>Good premium to sell</td><td class="td-bull">Bull Put, Bear Call, Iron Butterfly</td><td>—</td></tr>
+            <tr><td>Normal</td><td>Average premiums</td><td>Any strategy</td><td>—</td></tr>
+            <tr><td class="td-bull">Low</td><td>Options cheap to buy</td><td class="td-bull">Bull Call, Bear Put, Calendar</td><td class="td-bear">Naked selling (low reward)</td></tr>
+            <tr><td class="td-purp">IV Crush (post-event)</td><td>IV drops sharply</td><td class="td-bull">Pre-event credit spreads benefit</td><td class="td-bear">Buying options before events</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2: F&O SIGNALS -->
+<div class="page" id="page-fo">
+  <div class="acc" id="acc-fo">
+    <div class="sec-title">OI Buildup Signals</div>
+    <div class="acc-item color-bull">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-credit">Bullish</span><div class="acc-info"><div class="acc-title">Long Build — Price up + OI up</div><div class="acc-sub">Fresh buying entering the market</div></div></div>
+        <span class="acc-type-label credit">(Credit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-label">What it means</div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>New long positions being added. Bulls are confident and entering fresh.</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>Strong signal when price up 1%+ AND OI up 5%+ together.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Confirm with PCR above 1.2 and Max Pain above spot for highest confidence.</span></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">Real Example</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Reliance at Rs 2800. OI jumps from 50L to 65L. Price moves from Rs 2800 to Rs 2850.</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>Signal: Strong Long Build. Fresh buyers entering above Rs 2800 level.</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>Trade: Buy 2900 CE or enter Bull Put Spread below Rs 2800 support.</span></div>
+        </div>
+        <div class="use-box bull"><div class="use-label">How to Trade</div><div class="use-text">Buy calls or <strong>Bull Call Spread</strong> on strong Long Build stocks. Sell <strong>Bull Put Spread</strong> below support for income. Best entry: first confirmation candle after Long Build signal appears.</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-bear">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-debit">Bearish</span><div class="acc-info"><div class="acc-title">Short Build — Price down + OI up</div><div class="acc-sub">Fresh selling entering the market</div></div></div>
+        <span class="acc-type-label debit">(Debit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-label">What it means</div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>New short positions entering. Bears are actively selling futures.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Larger the OI increase with falling price = stronger the bearish signal.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Short covering rally can be sharp — always define your stop loss first.</span></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">Real Example</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>IT stock at Rs 3200. OI rises 40%. Price falls Rs 3200 to Rs 3100 in 2 days.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Signal: Strong Short Build. Institutions shorting futures aggressively.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Trade: Bear Put Spread or Bear Call Spread above current resistance.</span></div>
+        </div>
+        <div class="use-box bear"><div class="use-label">How to Trade</div><div class="use-text">Buy puts or <strong>Bear Put Spread</strong> on Short Build stocks. Sell <strong>Bear Call Spread</strong> above resistance for income. Combine with CE Wall for high confidence entries.</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-gold">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Unwind</span><div class="acc-info"><div class="acc-title">Short Unwind and Long Unwind — OI falling</div><div class="acc-sub">Existing positions closing — weak signals</div></div></div>
+        <span class="acc-type-label neutral">(Reference)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>Signal</th><th>Price</th><th>OI</th><th>Meaning</th><th>Action</th></tr>
+            <tr><td class="td-bull">Short Unwind</td><td>Up</td><td>Down</td><td>Shorts covering — weak rally, not fresh buying</td><td class="td-gold">Ride the bounce but do not chase</td></tr>
+            <tr><td class="td-bear">Long Unwind</td><td>Down</td><td>Down</td><td>Longs exiting — distribution happening</td><td class="td-gold">Avoid buying dips — institutional exit</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-title">Max Pain</div>
+    <div class="acc-item color-gold">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-gold">Max Pain</span><div class="acc-info"><div class="acc-title">Max Pain — Option Sellers Magnet</div><div class="acc-sub">The price where most option buyers lose money at expiry</div></div></div>
+        <span class="acc-type-label neutral">(Guide)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-label">Core Concept</div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Max Pain = strike where total option buyer loss is maximum. Large players (option sellers) tend to pull price here near expiry.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Most reliable in the last 5 trading days before expiry. Less useful 3+ weeks out.</span></div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Gap% = how far spot is from Max Pain. Larger gap = stronger expected pull toward Max Pain.</span></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">Real Example</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Nifty at 22,100. Max Pain at 22,000. Gap = minus 0.45%.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Max Pain below spot = Downward pull expected toward 22,000.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Trade: Sell Bear Call Spread at 22,200 to 22,400. Or sell Iron Butterfly at 22,000.</span></div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Situation</th><th>Signal</th><th>Strategy</th></tr>
+            <tr><td class="td-bull">Max Pain above spot</td><td>Upward pull expected</td><td class="td-bull">Bull Put Spread below spot</td></tr>
+            <tr><td class="td-bear">Max Pain below spot</td><td>Downward pull expected</td><td class="td-bear">Bear Call Spread above spot</td></tr>
+            <tr><td class="td-gold">Max Pain equals Spot</td><td>Price likely to stay pinned here</td><td class="td-gold">Iron Butterfly at Max Pain strike</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-title">PCR — Put Call Ratio</div>
+    <div class="acc-item color-blue">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">PCR</span><div class="acc-info"><div class="acc-title">PCR Complete Guide</div><div class="acc-sub">PCR = Total Put OI divided by Total Call OI</div></div></div>
+        <span class="acc-type-label neutral">(Reference)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>PCR Value</th><th>Signal</th><th>Meaning</th><th>Strategy</th></tr>
+            <tr><td class="td-bull">Above 1.5</td><td>Very Bullish</td><td>Too many puts — market likely to rally</td><td class="td-bull">Bull Put Spread, Long Calls</td></tr>
+            <tr><td class="td-bull">1.2 to 1.5</td><td>Bullish</td><td>Strong put support below — bullish bias</td><td class="td-bull">Bull Put Spread, Bull Call Spread</td></tr>
+            <tr><td>0.8 to 1.2</td><td>Neutral</td><td>Balanced — sideways market likely</td><td class="td-blue">Iron Condor, Iron Butterfly</td></tr>
+            <tr><td class="td-bear">0.5 to 0.8</td><td>Bearish</td><td>Too many calls — resistance above</td><td class="td-bear">Bear Call Spread, Bear Put Spread</td></tr>
+            <tr><td class="td-bear">Below 0.5</td><td>Very Bearish</td><td>Extreme call buying — market likely to fall</td><td class="td-bear">Bear Call Spread, Long Puts</td></tr>
+          </table>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">Real Example</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Nifty PCR = 0.62. Bearish reading. Too many call buyers vs put buyers.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Signal: Market has resistance above. Upside is limited.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Trade: Sell Bear Call Spread at CE Wall level. Avoid buying calls.</span></div>
+        </div>
+        <div class="hl-box"><strong>OI PCR vs Volume PCR:</strong> OI PCR uses open interest = longer-term view, more reliable. Vol PCR uses today's volume = intraday sentiment, faster. When both agree = strong confirmation. When both disagree = wait for clarity before trading.</div>
+      </div>
+    </div>
+
+    <div class="acc-item color-orange">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Walls</span><div class="acc-info"><div class="acc-title">CE Wall and PE Wall</div><div class="acc-sub">Highest OI strikes = key resistance and support levels</div></div></div>
+        <span class="acc-type-label neutral">(Reference)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">CE Wall (Resistance)</div><div class="info-val">Strike with highest Call OI. Large call writers defend this. Price struggles to cross above. If broken = bullish breakout!</div></div>
+          <div class="info-box"><div class="info-label">PE Wall (Support)</div><div class="info-val">Strike with highest Put OI. Large put writers defend this. Price bounces from here. If broken = bearish breakdown!</div></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">Real Example</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Nifty at 22,100. CE Wall at 22,200. PE Wall at 22,000.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Market sandwiched. Likely stays between 22,000 and 22,200. Sell Iron Condor in this range.</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>Nifty breaks 22,200 with volume: Short squeeze! Enter Bull Call Spread.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Nifty breaks 22,000 with volume: Long squeeze! Enter Bear Put Spread.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-title">Futures Premium and Discount</div>
+    <div class="acc-item color-teal">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-gold">Futures</span><div class="acc-info"><div class="acc-title">Futures Premium and Discount Guide</div><div class="acc-sub">Futures Price vs Spot Price difference tells you market direction</div></div></div>
+        <span class="acc-type-label neutral">(Guide)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Premium (Futures above Spot)</div><div class="info-val bull">Futures trading above spot price. Participants expect price to rise. Bullish sentiment.</div></div>
+          <div class="info-box"><div class="info-label">Discount (Futures below Spot)</div><div class="info-val bear">Futures trading below spot price. Participants expect price to fall. Bearish sentiment.</div></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">Real Example</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Reliance Spot = Rs 2800. Futures = Rs 2812. Premium = +0.43%. Bullish bias.</span></div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>INOXWIND Spot = Rs 79.77. Futures = Rs 80.00. Small +0.29% premium = mild bullish.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>If futures go to discount = longs exiting or shorts building. Watch for trend change.</span></div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Situation</th><th>Signal</th><th>Action</th></tr>
+            <tr><td class="td-bull">Rising premium + Long Build</td><td>Strong bullish</td><td class="td-bull">Enter bullish spreads, ride momentum</td></tr>
+            <tr><td class="td-bear">Falling to Discount + Short Build</td><td>Strong bearish</td><td class="td-bear">Enter bearish spreads, avoid longs</td></tr>
+            <tr><td class="td-gold">Premium shrinking fast</td><td>Longs exiting</td><td class="td-gold">Book profits on long trades</td></tr>
+            <tr><td class="td-purp">Discount + Short Unwind</td><td>Potential reversal</td><td class="td-purp">Watch for bounce and short squeeze</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-purp">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-fo')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-purp">Checklist</span><div class="acc-info"><div class="acc-title">5-Point Pre-Trade Checklist</div><div class="acc-sub">Use all 5 together for highest probability trades</div></div></div>
+        <span class="acc-type-label credit">(Credit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>#</th><th>Check</th><th>Bullish Signal</th><th>Bearish Signal</th></tr>
+            <tr><td class="td-gold">1</td><td>OI Buildup</td><td class="td-bull">Long Build</td><td class="td-bear">Short Build</td></tr>
+            <tr><td class="td-gold">2</td><td>PCR</td><td class="td-bull">PCR above 1.2</td><td class="td-bear">PCR below 0.8</td></tr>
+            <tr><td class="td-gold">3</td><td>Max Pain</td><td class="td-bull">Max Pain above spot</td><td class="td-bear">Max Pain below spot</td></tr>
+            <tr><td class="td-gold">4</td><td>CE and PE Wall</td><td class="td-bull">PE Wall strong below</td><td class="td-bear">CE Wall strong above</td></tr>
+            <tr><td class="td-gold">5</td><td>Futures</td><td class="td-bull">Premium expanding</td><td class="td-bear">Discount or shrinking</td></tr>
+          </table>
+        </div>
+        <div class="hl-box" style="margin-top:12px"><strong>Score Rule:</strong> 5 out of 5 = Full size trade. 4 out of 5 = Normal size. 3 out of 5 = Half size. 2 or less = Skip the trade.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3: BHAV DATA -->
+<div class="page" id="page-bhav">
+  <div class="acc" id="acc-bhav">
+    <div class="acc-item color-blue">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-bhav')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">What</span><div class="acc-info"><div class="acc-title">What is Bhav Data?</div><div class="acc-sub">NSE end-of-day F&O file — your daily data source</div></div></div>
+        <span class="acc-type-label neutral">(Reference)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Bhav Data = NSE official daily F&O data. Contains every futures and options contract price, OI, and volume for that day.</span></div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Available after market close (around 6 PM) on NSE website as a ZIP file.</span></div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Our tool processes this file and shows all signals — OI Buildup, Max Pain, PCR, CE and PE Wall — in one dashboard.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-teal">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-bhav')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Load Data</span><div class="acc-info"><div class="acc-title">How to Load Data — Step by Step</div><div class="acc-sub">Auto fetch or manual ZIP upload</div></div></div>
+        <span class="acc-type-label neutral">(Reference)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Click Fetch from NSE button</div><div class="step-desc">The tool automatically downloads today's bhavcopy from NSE. Fastest option — works after market close around 3:45 PM.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">OR download ZIP manually from NSE</div><div class="step-desc">Go to NSE website, All Reports, then Derivatives. Download the F&O Bhavcopy ZIP for today. Then drag and drop it on the tool upload area.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Load Previous OI — Recommended</div><div class="step-desc">Click Load Prev OI and upload yesterday's ZIP. This enables the OI Change% column which shows how much OI changed since yesterday. This is the key to Long Build and Short Build signals.</div></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Dashboard is ready</div><div class="step-desc">All tabs activate: OI Buildup, PCR, Max Pain, Most Active, Call Trap, Put Trap, Charts, Top 5, Pulse.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-bull">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-bhav')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-credit">OI Tab</span><div class="acc-info"><div class="acc-title">How to Read OI Buildup Tab</div><div class="acc-sub">Main tab — most important signals are here</div></div></div>
+        <span class="acc-type-label credit">(Credit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Select Signal Type</div><div class="step-desc">4 tabs: Long Build (bullish), Short Build (bearish), Short Unwind, Long Unwind. Start with Long Build and Short Build tabs.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Read the Columns</div><div class="step-desc">Price = Futures close price. Chg% = Price change today. OI(K) = Open interest in thousands. OI Chg% = How much OI changed vs yesterday (needs Prev OI loaded). P badge = futures at Premium (bullish). D badge = Discount (bearish).</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Find the Strongest Signals</div><div class="step-desc">Best Long Build = Price up 1% or more AND OI up 5% or more together. Sort by Chg% to find top movers quickly.</div></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Use Signal Icons</div><div class="step-desc">Each symbol has a small colored circle next to it. Hover over it for full explanation of what the signal means and how to trade it.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-gold">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-bhav')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-gold">Max Pain Tab</span><div class="acc-info"><div class="acc-title">How to Read Max Pain Tab</div><div class="acc-sub">Find expiry targets and wall levels</div></div></div>
+        <span class="acc-type-label neutral">(Guide)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Check Gap% Column</div><div class="step-desc">Gap% = (Max Pain minus Spot) / Spot x 100. Positive = Max Pain above spot (upward pull). Negative = Max Pain below spot (downward pull). Larger number = stronger pull.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Check CE Wall and PE Wall Columns</div><div class="step-desc">CE Wall = resistance level. PE Wall = support level. CE Dist% = how far spot is from CE Wall. If CE Dist = 0% or negative = CE Wall broken = bullish breakout signal!</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Click Any Row for Pain Table</div><div class="step-desc">Shows every strike with Call Pain, Put Pain, and Total Pain. Gold highlighted row = Max Pain strike. Blue = nearest strike to current spot.</div></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Sort by Gap% for Opportunities</div><div class="step-desc">Stocks with large Gap% have the most room to move toward Max Pain. Best candidates for credit spreads near expiry week.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-blue">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-bhav')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">PCR Tab</span><div class="acc-info"><div class="acc-title">How to Read PCR Tab</div><div class="acc-sub">Market sentiment stock by stock</div></div></div>
+        <span class="acc-type-label neutral">(Reference)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Check Overall Banner at Top</div><div class="step-desc">Shows market-wide average PCR. If it says Overall Bearish with Avg PCR 0.62 then market is generally bearish. Do not fight the overall trend.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Filter by Bullish or Bearish Tab</div><div class="step-desc">Bullish tab = stocks where PCR above 1.2 (put support strong). Bearish tab = stocks where PCR below 0.8 (call resistance strong). These are your best trade candidates.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Watch for Mixed Signal Icon</div><div class="step-desc">Yellow warning icon means OI PCR and Volume PCR disagree. Skip or reduce size on these stocks until signals align.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-bear">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-bhav')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-debit">Traps Tab</span><div class="acc-info"><div class="acc-title">Call Trap and Put Trap Tabs</div><div class="acc-sub">Breakout and breakdown squeeze signals</div></div></div>
+        <span class="acc-type-label debit">(Debit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Call Writer Trap</div><div class="info-val">Spot reached CE Wall. Call writers who sold calls are now losing. They are forced to buy back. Result: <span style="color:var(--bull)">Upward squeeze possible.</span></div></div>
+          <div class="info-box"><div class="info-label">Put Writer Trap</div><div class="info-val">Spot reached PE Wall. Put writers who sold puts are now losing. They are forced to sell. Result: <span style="color:var(--bear)">Downward squeeze possible.</span></div></div>
+        </div>
+        <div class="hl-box" style="margin-top:10px"><strong>Trading Tip:</strong> Call Trap = Buy CE or Bull Call Spread with stop below CE Wall. Put Trap = Buy PE or Bear Put Spread with stop above PE Wall. Confirm with volume spike for best entries.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 4: OPTION CHAIN -->
+<div class="page" id="page-chain">
+  <div class="acc" id="acc-chain">
+    <div class="acc-item color-blue">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-chain')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Basics</span><div class="acc-info"><div class="acc-title">What is an Option Chain?</div><div class="acc-sub">A table showing all calls and puts for a stock or index</div></div></div>
+        <span class="acc-type-label neutral">(Reference)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Option chain = a live table showing every available strike price for a stock or index. CALL options on the left side. PUT options on the right side.</span></div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Center column = Strike Price. This is your reference point for everything.</span></div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Green rows = In The Money (ITM). White rows = Out of The Money (OTM). ATM = closest strike to current market price.</span></div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th colspan="3" style="text-align:center;color:var(--bull)">CALLS (Left Side)</th><th style="text-align:center">Strike</th><th colspan="3" style="text-align:center;color:var(--bear)">PUTS (Right Side)</th></tr>
+            <tr><th>OI</th><th>IV</th><th>Price</th><th style="text-align:center">Strike</th><th>Price</th><th>IV</th><th>OI</th></tr>
+            <tr><td>12,500</td><td>18%</td><td class="td-bull">Rs 45</td><td style="text-align:center;font-weight:600">22,000</td><td class="td-bear">Rs 38</td><td>17%</td><td>10,200</td></tr>
+            <tr style="background:var(--blue-lt)"><td>8,200</td><td>16%</td><td class="td-bull">Rs 28</td><td style="text-align:center;font-weight:700;color:var(--gold)">22,100 ATM</td><td class="td-bear">Rs 52</td><td>16%</td><td>15,600</td></tr>
+            <tr><td>5,100</td><td>14%</td><td class="td-bull">Rs 15</td><td style="text-align:center;font-weight:600">22,200</td><td class="td-bear">Rs 71</td><td>19%</td><td>22,400</td></tr>
+          </table>
+        </div>
+        <div class="hl-box" style="margin-top:10px">Notice: 22,200 strike has very high Put OI (22,400) = PE Wall = Strong support below. This is where put writers are defending.</div>
+      </div>
+    </div>
+
+    <div class="acc-item color-teal">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-chain')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Columns</span><div class="acc-info"><div class="acc-title">What Each Column Means</div><div class="acc-sub">OI, IV, Price, Volume — explained simply</div></div></div>
+        <span class="acc-type-label neutral">(Reference)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">OI</div><div class="step-content"><div class="step-title">Open Interest</div><div class="step-desc">Total active contracts at that strike. High OI = many people have positions there = strong support or resistance. Highest Call OI = CE Wall. Highest Put OI = PE Wall.</div></div></div>
+          <div class="step"><div class="step-num">IV</div><div class="step-content"><div class="step-title">Implied Volatility</div><div class="step-desc">How much movement the market expects. High IV = expensive options = good to sell. Low IV = cheap options = good to buy. OTM options usually have higher IV than ATM.</div></div></div>
+          <div class="step"><div class="step-num">LTP</div><div class="step-content"><div class="step-title">Last Traded Price</div><div class="step-desc">Current market price of that option. What you pay to buy or receive to sell. ATM options are most liquid — best to trade for tight spreads.</div></div></div>
+          <div class="step"><div class="step-num">Vol</div><div class="step-content"><div class="step-title">Volume</div><div class="step-desc">How many contracts traded today. High volume at a strike = strong activity. If volume is greater than OI = new positions being created aggressively = important signal.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-gold">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-chain')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-gold">Reading OI</span><div class="acc-info"><div class="acc-title">How to Read OI in Option Chain</div><div class="acc-sub">The most important skill for F&O traders</div></div></div>
+        <span class="acc-type-label neutral">(Guide)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Find CE Wall (Resistance)</div><div class="step-desc">Look at the Call OI column. Find the strike with highest OI. That is your CE Wall. Market will struggle to go above this level.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Find PE Wall (Support)</div><div class="step-desc">Look at the Put OI column. Find the strike with highest OI. That is your PE Wall. Market will bounce from this level.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Calculate PCR</div><div class="step-desc">Add up all Put OI numbers. Add up all Call OI numbers. Divide Put total by Call total = PCR. Above 1.2 = bullish. Below 0.8 = bearish.</div></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Watch for Wall Shifts</div><div class="step-desc">If Call OI at a strike is falling rapidly during the day = shorts covering = bullish breakout possible. If Put OI at a strike falls rapidly = longs unwinding = bearish breakdown possible.</div></div></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">Real Example</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Nifty at 22,100. Highest Call OI at 22,200 = CE Wall. Highest Put OI at 22,000 = PE Wall.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Market range for this expiry: 22,000 to 22,200. PCR = 1.3 = Bullish.</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>Trade: Sell Iron Condor with PE wall at 22,000 and CE wall at 22,200. Collect premium for sideways market.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-orange">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-chain')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">ITM/ATM/OTM</span><div class="acc-info"><div class="acc-title">ITM, ATM, OTM Explained</div><div class="acc-sub">Which strikes to use for buying and selling</div></div></div>
+        <span class="acc-type-label neutral">(Reference)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>Type</th><th>For Calls</th><th>For Puts</th><th>Characteristics</th><th>Best Use</th></tr>
+            <tr><td class="td-bull">ITM</td><td>Strike below spot</td><td>Strike above spot</td><td>Expensive, high delta, behaves like stock</td><td>Buy when you want stock-like exposure</td></tr>
+            <tr><td class="td-gold">ATM</td><td>Strike near spot</td><td>Strike near spot</td><td>Most active, high gamma, 0.5 delta</td><td>Most liquid — best for buying or selling spreads</td></tr>
+            <tr><td class="td-bear">OTM</td><td>Strike above spot</td><td>Strike below spot</td><td>Cheap, low delta, lottery ticket</td><td>Sell OTM for credit spreads — high chance of expiring worthless</td></tr>
+          </table>
+        </div>
+        <div class="hl-box" style="margin-top:10px"><strong>Simple Rule:</strong> Buy ATM or slightly ITM for directional trades. Sell OTM for credit spreads. Never buy deep OTM options hoping for big moves — they expire worthless more than 80% of the time.</div>
+      </div>
+    </div>
+
+    <div class="acc-item color-purp">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-chain')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-purp">Greeks</span><div class="acc-info"><div class="acc-title">Option Greeks Simply Explained</div><div class="acc-sub">Delta, Gamma, Theta, Vega — what they mean for you</div></div></div>
+        <span class="acc-type-label credit">(Credit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>Greek</th><th>What it measures</th><th>Simple meaning</th><th>Buyer wants</th><th>Seller wants</th></tr>
+            <tr><td class="td-blue">Delta</td><td>Price sensitivity</td><td>If stock moves Rs 1, ATM option moves Rs 0.50. Range is 0 to 1.</td><td class="td-bull">High delta (ITM)</td><td class="td-bear">Low delta (OTM)</td></tr>
+            <tr><td class="td-purp">Gamma</td><td>Delta change rate</td><td>How fast delta changes. High gamma = option reacts quickly. Highest at ATM near expiry.</td><td class="td-bull">High gamma</td><td class="td-bear">Low gamma</td></tr>
+            <tr><td class="td-bear">Theta</td><td>Time decay</td><td>How much option loses per day just from time passing. Enemy of buyers, friend of sellers.</td><td class="td-bear">Slow theta</td><td class="td-bull">Fast theta</td></tr>
+            <tr><td class="td-gold">Vega</td><td>IV sensitivity</td><td>How much option value changes when IV moves 1%. High IV = expensive option = high vega.</td><td class="td-bull">Rising IV</td><td class="td-bear">Falling IV</td></tr>
+          </table>
+        </div>
+        <div class="hl-box" style="margin-top:10px"><strong>Key Insight:</strong> Option buyers fight against Theta every single day. Option sellers profit from Theta every single day. This is why credit spreads in high IV environments are the professional approach — you collect premium AND time decay works in your favor.</div>
+      </div>
+    </div>
+
+    <div class="acc-item color-bull">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-chain')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-credit">Morning Routine</span><div class="acc-info"><div class="acc-title">30-Second Option Chain Morning Scan</div><div class="acc-sub">Do this every day before trading</div></div></div>
+        <span class="acc-type-label credit">(Credit Spread)</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Find ATM Strike</div><div class="step-desc">Nifty at 22,100 = ATM is 22,100 or the nearest round number. This is your anchor for everything else.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Identify CE Wall and PE Wall</div><div class="step-desc">Scan Call OI column for highest number = CE Wall. Scan Put OI column for highest number = PE Wall. These are your support and resistance for the day.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Calculate or Check PCR</div><div class="step-desc">Above 1.2 = bullish. Below 0.8 = bearish. Between = neutral. Do not fight the overall PCR direction.</div></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Check ATM IV vs Last Week</div><div class="step-desc">IV rising = options getting expensive = prefer selling. IV falling = options getting cheap = prefer buying.</div></div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Choose Your Strategy</div><div class="step-desc">Price between CE and PE Wall with neutral PCR = Iron Condor. PCR bullish + price near PE Wall = Bull Put Spread. PCR bearish + price near CE Wall = Bear Call Spread.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
-// ── DISCLAIMER ──
-function acceptDisclaimer(){
-  sessionStorage.setItem('fo_disclaimer','accepted');
-  document.getElementById('disclaimer-overlay').style.display='none';
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  document.querySelectorAll('.acc-item').forEach(item=>item.classList.remove('open'));
 }
-function declineDisclaimer(){
-  document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0f1117;font-family:JetBrains Mono,monospace;color:#5a6a8a;font-size:13px;">Access denied. Please close this tab.</div>';
+function openAcc(hdr,groupId){
+  const item=hdr.closest('.acc-item');
+  const isOpen=item.classList.contains('open');
+  const group=document.getElementById(groupId);
+  if(group) group.querySelectorAll('.acc-item').forEach(i=>i.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
 }
-// Show disclaimer every session (sessionStorage clears on browser close)
-if(sessionStorage.getItem('fo_disclaimer')==='accepted'){
-  document.getElementById('disclaimer-overlay').style.display='none';
-}
-
-const frame=document.getElementById('main-frame'),welcome=document.getElementById('welcome'),sidebar=document.getElementById('sidebar'),topbar=document.getElementById('topbar'),main=document.getElementById('main'),floatBtn=document.getElementById('float-btn'),fsBtn=document.getElementById('fs-btn');
-
-function setTheme(t,el){
+function setTheme(t){
   document.documentElement.setAttribute('data-theme',t);
-  localStorage.setItem('fo_theme_v2',t);
+  localStorage.setItem('fo_guide_theme',t);
   document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
-  if(el)el.classList.add('active');
+  const btn=document.getElementById('tbtn-'+t);
+  if(btn) btn.classList.add('active');
 }
-// Default = dark always, unless user has explicitly chosen something this session
-const saved = localStorage.getItem('fo_theme_v2') || 'dark';
-document.documentElement.setAttribute('data-theme', saved);
-localStorage.setItem('fo_theme_v2', saved);
-const themeMap={'dark':0,'teal':1,'light':2};
-const btns=document.querySelectorAll('.theme-btn');
-if(btns[themeMap[saved]]) btns[themeMap[saved]].classList.add('active');
-
-function updateClock(){
-  const n=new Date(),ist=new Date(n.getTime()+(5.5*60*60*1000-n.getTimezoneOffset()*60*1000));
-  const hh=ist.getHours().toString().padStart(2,'0');
-  const mm=ist.getMinutes().toString().padStart(2,'0');
-  const ss=ist.getSeconds().toString().padStart(2,'0');
-  const timeStr=hh+':'+mm+':'+ss+' IST';
-  document.getElementById('clock-time').textContent=timeStr;
-  document.getElementById('topbar-clock').textContent=timeStr;
-}
-setInterval(updateClock,1000);updateClock();
-
-let isFs=false;
-function toggleFs(){
-  isFs=!isFs;
-  topbar.classList.toggle('hidden',isFs);
-  sidebar.classList.toggle('hidden-fs',isFs);
-  if(isFs){main.style.marginLeft='0';main.style.width='100%';main.style.marginTop='0';main.style.height='100vh';floatBtn.classList.add('visible');}
-  else{main.style.marginLeft='230px';main.style.width='calc(100% - 230px)';main.style.marginTop='56px';main.style.height='calc(100vh - 56px)';floatBtn.classList.remove('visible');}
-}
-floatBtn.onclick=toggleFs;fsBtn.onclick=toggleFs;
-
-document.querySelectorAll('.nav-link:not(.external)').forEach(link=>{
-  link.addEventListener('click',function(e){
-    if(!e.ctrlKey&&!e.metaKey&&e.button===0){
-      e.preventDefault();frame.src=this.href;frame.classList.add('active');welcome.style.display='none';
-      document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));this.classList.add('active');
-      if(window.innerWidth<768){
-        sidebar.classList.remove('mobile-open');
-        mobOverlay.classList.remove('on');
-        frame.style.visibility='visible';
-      }
-    }
-  });
-});
-
-// ── Accordion (ek open = baaki band) ──────────────────
-function toggleSub(btn,id){
-  const allSubs=['scalper-sub','data-sub','swing-sub','ext-sub'];
-  const isOpen=document.getElementById(id).classList.contains('open');
-  allSubs.forEach(sid=>{
-    const s=document.getElementById(sid);
-    const b=s.previousElementSibling;
-    const a=b.querySelector('.section-arrow');
-    s.classList.remove('open');
-    if(a)a.classList.remove('open');
-  });
-  if(!isOpen){
-    document.getElementById(id).classList.add('open');
-    btn.querySelector('.section-arrow').classList.add('open');
-  }
-}
-
-// Long press to copy APK link
-let _copyTimer=null;
-function startCopy(el){
-  _copyTimer=setTimeout(()=>{
-    const url=el.href;
-    if(navigator.clipboard){
-      navigator.clipboard.writeText(url).then(()=>{
-        const orig=el.innerHTML;
-        el.innerHTML='✅ Link Copied!';
-        setTimeout(()=>el.innerHTML=orig,2000);
-      });
-    }
-  },600);
-}
-function cancelCopy(){clearTimeout(_copyTimer);}
-
-const mobOverlay=document.getElementById('mob-overlay');
-document.getElementById('hamburger').onclick=()=>{
-  const isOpen=sidebar.classList.toggle('mobile-open');
-  if(window.innerWidth<768) frame.style.visibility=isOpen?'hidden':'visible';
-};
-mobOverlay.onclick=()=>{
-  sidebar.classList.remove('mobile-open');
-  frame.style.visibility='visible';
-};
-
-// Mobile pe page load hote hi sidebar auto-open
-if(window.innerWidth<768){
-  sidebar.classList.add('mobile-open');
-  frame.style.visibility='hidden';
-}
-
+// Load saved theme
+const savedTheme=localStorage.getItem('fo_guide_theme')||'dark';
+setTheme(savedTheme);
 </script>
 </body>
 </html>
