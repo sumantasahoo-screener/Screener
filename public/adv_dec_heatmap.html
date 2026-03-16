@@ -58,7 +58,8 @@ body{
   /* Fix 4: Grid columns and scrollable */
   .grid{grid-template-columns:repeat(5,1fr)!important;grid-auto-rows:auto!important;overflow-y:auto!important;min-height:300px;}
   /* Fix 5: Cards minimum height on mobile */
-  .card{min-height:52px;}
+  .card{min-height:64px;}
+  .cspark{min-height:14px;max-height:20px;}
   /* Fix 6: Graph — portrait mein tall, landscape mein compact */
   .graph-view{min-height:0;height:auto;overflow:visible;flex:none;display:flex;flex-direction:column;gap:6px;}
   .graph-panel{height:38vh;min-height:180px;flex:none;}
@@ -109,11 +110,7 @@ body{
 .main{flex:1;display:flex;gap:4px;overflow:hidden;min-height:0;}
 
 /* ── TOP5 PANEL ── */
-.top5{
-  width:130px;flex-shrink:0;
-  display:flex;flex-direction:column;gap:4px;
-  overflow:hidden;
-}
+.top5{display:none!important;}
 .top5-box{
   flex:1;background:#111;border:1px solid #1e1e1e;
   border-radius:8px;padding:6px 7px;
@@ -137,33 +134,37 @@ body{
 /* ── HEATMAP GRID ── */
 .grid{
   flex:1;display:grid;
-  grid-template-columns:repeat(21,1fr);
+  grid-template-columns:repeat(12,1fr);
   grid-auto-rows:1fr;
   gap:3px;overflow:hidden;
 }
 
 /* ── CARDS ── */
 .card{position:relative;border-radius:6px;overflow:hidden;cursor:pointer;transition:transform .13s,box-shadow .15s;min-height:0;}
-.card:hover{transform:scale(1.04);z-index:10;box-shadow:0 4px 18px rgba(0,0,0,.6);}
-.card.adv{background:#0a2810;border:1px solid #1a5022;}
-.card.adv:hover{box-shadow:0 4px 14px rgba(0,180,50,.25);}
-.card.dec{background:#280a0a;border:1px solid #501a1a;}
-.card.dec:hover{box-shadow:0 4px 14px rgba(200,20,20,.2);}
-.card.nt{background:#262000;border:1px solid #584800;}
-.cf{position:absolute;bottom:0;left:0;right:0;pointer-events:none;border-radius:0 0 5px 5px;}
-.card.adv .cf{background:#00cc44;}
-.card.dec .cf{background:#dd1111;}
-.card.nt  .cf{background:#cc8800;}
-.card.top-gain{border:2px solid #ffd700!important;box-shadow:0 0 8px rgba(255,215,0,.4);}
-.card.top-loss{border:2px solid #ff6600!important;box-shadow:0 0 8px rgba(255,100,0,.35);}
-.ct{position:relative;z-index:2;display:flex;flex-direction:column;padding:4px 5px 3px;height:100%;gap:2px;}
+.card:hover{transform:scale(1.03);z-index:10;box-shadow:0 4px 18px rgba(0,0,0,.7);}
+.card.adv{background:#0a0a0a;border:1px solid #1a3a22;border-left:3px solid #00cc44;border-radius:0 6px 6px 0;}
+.card.adv:hover{box-shadow:0 0 0 1px #00cc44;border-color:#00cc44;border-left:3px solid #00cc44;}
+.card.dec{background:#0a0a0a;border:1px solid #3a1a1a;border-left:3px solid #dd2222;border-radius:0 6px 6px 0;}
+.card.dec:hover{box-shadow:0 0 0 1px #dd2222;border-color:#dd2222;border-left:3px solid #dd2222;}
+.card.nt{background:#0a0a0a;border:1px solid #222;border-left:3px solid #444;border-radius:0 6px 6px 0;}
+.card.nt:hover{box-shadow:0 0 0 1px #555;border-color:#444;border-left:3px solid #555;}
+.card.top-gain{border:2px solid #ffd700!important;box-shadow:0 0 8px rgba(255,215,0,.3);}
+.card.top-loss{border:2px solid #ff6600!important;box-shadow:0 0 8px rgba(255,100,0,.3);}
+.ct{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;padding:4px 6px;height:100%;gap:3px;overflow:hidden;}
 .ndot{width:4px;height:4px;border-radius:50%;background:#4fc3f7;flex-shrink:0;display:inline-block;margin-right:3px;vertical-align:middle;}
-.cs{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;}
-.card.adv .cs{color:#bbffcc;}
-.card.dec .cs{color:#ffbbbb;}
-.card.nt  .cs{color:#ffe066;}
-.cp{font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,1);}
-.cl{font-size:11px;font-weight:700;line-height:1.2;margin-top:auto;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,1);}
+.crow1{display:flex;justify-content:space-between;align-items:center;gap:3px;}
+.crow2{display:flex;justify-content:space-between;align-items:center;gap:3px;}
+.cs{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;flex:1;color:#ddd;}
+.cp{font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;}
+.card.adv .cp{color:#00ee55;}
+.card.dec .cp{color:#ff4444;}
+.card.nt  .cp{color:#666;}
+.cl{font-size:12px;font-weight:700;white-space:nowrap;}
+.card.adv .cl{color:#fff;}
+.card.dec .cl{color:#fff;}
+.card.nt  .cl{color:#888;}
+.cchg{font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;color:#fff;}
+.card.nt  .cchg{color:#666;}
 
 /* ── GRAPH VIEW ── */
 .graph-view{
@@ -284,20 +285,25 @@ body.light .vix-popup-close:hover{border-color:#888;color:#333;}
 body.light .vix-popup-footer{color:#bbb;}
 .fb.on-vix{background:#1a1200;border-color:#ff9800;color:#ff9800;}
 /* ── MINI CHART MODAL ── */
-#miniOverlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.7);z-index:9000;
-  backdrop-filter:blur(3px);
-  align-items:center;justify-content:center;
-}
-#miniOverlay.show{display:flex;}
+#miniOverlay{display:none;}
 #miniModal{
+  display:none;position:fixed;z-index:9000;
   background:#141414;border:1px solid #2a2a2a;
-  border-radius:14px;padding:16px;
-  width:min(460px, 94vw);
+  border-radius:14px;padding:14px;
+  width:min(340px, 94vw);
   box-sizing:border-box;
-  box-shadow:0 12px 60px rgba(0,0,0,.9);
-  animation:popIn .18s ease;
+  box-shadow:0 12px 60px rgba(0,0,0,.95);
+  animation:popIn .15s ease;
+  pointer-events:auto;
+}
+#miniModal.show{display:block;}
+@media(max-width:600px){
+  #miniModal{
+    width:calc(100vw - 20px)!important;
+    left:10px!important;
+    bottom:10px!important;
+    top:auto!important;
+  }
 }
 @keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
 .mini-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:6px;}
@@ -305,9 +311,11 @@ body.light .vix-popup-footer{color:#bbb;}
 .mini-sym{font-size:14px;font-weight:700;color:#4fc3f7;}
 .mini-info{display:flex;gap:10px;align-items:center;}
 .mini-ltp{font-size:13px;font-weight:700;color:#fff;}
+.mini-chg{font-size:12px;font-weight:700;color:#fff;}
 .mini-pct{font-size:12px;font-weight:700;}
 .mini-pct.g{color:#00dd55;}
 .mini-pct.r{color:#ff4444;}
+.mini-pct.n{color:#666;}
 .mini-close{
   background:transparent;border:1px solid #333;border-radius:6px;
   color:#666;font-size:14px;padding:2px 8px;cursor:pointer;
@@ -389,8 +397,8 @@ body.light .vix-popup-footer{color:#bbb;}
 #loader p{font-size:11px;color:#444;}
 
 /* ── LIGHT THEME ── */
-body.light{background:#f0f0f0;color:#111;}
-body.light .hdr{background:#ffffff;border-color:#ddd;}
+body.light{background:#E6F0F0;color:#111;}
+body.light .hdr{background:#d4e8e8;border-color:#c0d8d8;}
 body.light .logo{color:#0077aa;}
 body.light .logo small{color:#aaa;}
 body.light .sep{background:#ddd;}
@@ -415,15 +423,22 @@ body.light .graph-title{color:#888;}
 body.light .leg-item{color:#555;}
 body.light #loader{background:#f0f0f0;}
 body.light #loader p{color:#999;}
-body.light .card.adv{background:#d6f5e0;border-color:#7ecf99;}
-body.light .card.dec{background:#fde0e0;border-color:#e89090;}
-body.light .card.nt{background:#fff8d6;border-color:#dfc860;}
-body.light .card.adv .cs{color:#005a18;}
-body.light .card.dec .cs{color:#7a0000;}
-body.light .card.nt  .cs{color:#6b5000;}
-body.light .card.adv .cf{background:#00bb33;}
-body.light .card.dec .cf{background:#cc1111;}
-body.light .card.nt  .cf{background:#bb8800;}
+/* Cards — off white bg, left border thick green/red */
+body.light .card.adv{background:#ddeaea;border:1px solid #c0d8d8;border-left:3px solid #00aa33;border-radius:0 6px 6px 0;}
+body.light .card.adv:hover{border-color:#00aa33;border-left:3px solid #00aa33;}
+body.light .card.dec{background:#ddeaea;border:1px solid #c0d8d8;border-left:3px solid #cc1111;border-radius:0 6px 6px 0;}
+body.light .card.dec:hover{border-color:#cc1111;border-left:3px solid #cc1111;}
+body.light .card.nt{background:#ddeaea;border:1px solid #c8d8d8;border-left:3px solid #aaa;border-radius:0 6px 6px 0;}
+body.light .card.nt:hover{border-left:3px solid #888;}
+body.light .cs{color:#111;}
+body.light .card.adv .cp{color:#007a20;}
+body.light .card.dec .cp{color:#cc0000;}
+body.light .card.nt  .cp{color:#888;}
+body.light .card.adv .cl{color:#000;}
+body.light .card.dec .cl{color:#000;}
+body.light .card.nt  .cl{color:#444;}
+body.light .cchg{color:#111;}
+body.light .card.nt .cchg{color:#888;}
 </style>
 </head>
 <body>
@@ -528,19 +543,19 @@ body.light .card.nt  .cf{background:#bb8800;}
 </div>
 
 <!-- MINI CHART MODAL -->
-<div id="miniOverlay" onclick="closeMini(event)">
-  <div id="miniModal">
+<div id="miniOverlay"></div>
+<div id="miniModal" onclick="event.stopPropagation()">
     <div class="mini-hdr">
       <div class="mini-sym" id="miniSym">—</div>
       <div class="mini-info">
         <div class="mini-ltp" id="miniLtp">—</div>
+        <div class="mini-chg" id="miniChg">—</div>
         <div class="mini-pct" id="miniPct">—</div>
         <button class="mini-close" onclick="closeMiniBtn()">✕</button>
       </div>
     </div>
     <canvas id="miniCanvas"></canvas>
     <div class="mini-footer">1-min candles · Today</div>
-  </div>
 </div>
 
 <!-- TV POPUP (desktop) -->
@@ -620,9 +635,22 @@ async function fetchGraph(){
 async function fetchSymbolHistory(sym){
   try{
     if(!window._symbolsAllCache){
-      const r = await fetch(r2url(`${todayStr()}/symbols_all.json`));
-      if(!r.ok) return [];
-      window._symbolsAllCache = await r.json();
+      // Aaj ki date try karo, nahi mila to 5 din peeche tak
+      const today = new Date();
+      for(let i=0; i<5; i++){
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const ds = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+        try{
+          const r = await fetch(r2url(ds+'/symbols_all.json'));
+          if(r.ok){
+            window._symbolsAllCache = await r.json();
+            console.log('symbols_all loaded from:', ds);
+            break;
+          }
+        }catch(e){}
+      }
+      if(!window._symbolsAllCache) return [];
     }
     return window._symbolsAllCache[sym] || [];
   }catch(e){return [];}
@@ -696,16 +724,41 @@ function renderHeatmap(data){
     card.dataset.nifty  = isN50?'1':'0';
     card.dataset.status = status;
     card.dataset.pct    = pct;
+    const pctStr = sign+pct.toFixed(2)+'%';
+    const chgVal = stock['Change Price']||0;
+    const chgStr = (chgVal>=0?'+':'')+Number(chgVal).toFixed(2);
     card.innerHTML = `
-      <div class="cf" style="height:${h.toFixed(1)}%"></div>
       <div class="ct">
-        <div class="cs">${ndot}${sym}</div>
-        <div class="cp">${arrow} ${sign}${pct.toFixed(2)}%</div>
-        <div class="cl">${Number(ltp).toFixed(2)}</div>
+        <div class="crow1">
+          <div class="cs">${ndot}${sym}</div>
+          <span class="cp">${arrow} ${pctStr}</span>
+        </div>
+        <div class="crow2">
+          <span class="cl">${Number(ltp).toFixed(2)}</span>
+          <span class="cchg">${chgStr}</span>
+        </div>
       </div>`;
 
+    // Mouse over → mini chart (desktop only)
+    let _hoverTimer = null;
+    card.addEventListener('mouseenter', e => {
+      _hoverTimer = setTimeout(()=>{
+        const s = allStocks.find(x=>x.Symbol===sym);
+        if(s) openMiniChart(sym, s.LTP, s['Change %'], card);
+      }, 300);
+    });
+    card.addEventListener('mouseleave', e=>{
+      clearTimeout(_hoverTimer);
+      // Agar mouse miniModal pe gaya → band mat karo
+      const modal = document.getElementById('miniModal');
+      const related = e.relatedTarget;
+      if(modal && related && (modal === related || modal.contains(related))) return;
+      closeMiniBtn();
+    });
+    // Click → TV/candle popup
     card.addEventListener('click', e => {
       e.stopPropagation();
+      clearTimeout(_hoverTimer);
       popupSym = sym;
       const isMobile = !window.matchMedia('(pointer:fine)').matches;
       if(isMobile){
@@ -719,13 +772,14 @@ function renderHeatmap(data){
           requestAnimationFrame(()=>sheet.classList.add('open'));
         }
       } else {
+        closeMiniBtn();
         showDeskPopup(e, sym);
       }
     });
     grid.appendChild(card);
   });
 
-  renderTop5(sorted, topGain, topLoss);
+  // Top5 panel removed
   doFilter();
 }
 
@@ -760,6 +814,62 @@ function renderTop5(sorted, topGain, topLoss){
   });
 }
 
+
+// ══════════════════════════════════════════════════════
+// SPARK LINE — card ke andar mini chart
+// ══════════════════════════════════════════════════════
+function drawOneSpark(canvas){
+  if(!window._symbolsAllCache) return;
+  const cache = window._symbolsAllCache;
+  const sym = canvas.id.replace('spark_','');
+  const pts = cache[sym];
+  const stock = allStocks.find(s=>s.Symbol===sym);
+  const isAdv = stock&&stock.Status==='ADV';
+  const isDec = stock&&stock.Status==='DEC';
+  const color = isAdv?'#00ee55':isDec?'#ff4444':'#444';
+  const fillColor = isAdv?'rgba(0,238,85,0.18)':isDec?'rgba(255,68,68,0.18)':'rgba(80,80,80,0.1)';
+  const w = canvas.parentElement ? canvas.parentElement.clientWidth || 80 : 80;
+  const h = 22;
+  const dpr = window.devicePixelRatio||1;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  canvas.style.width = w+'px'; canvas.style.height = h+'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+  if(!pts||pts.length<2){
+    ctx.strokeStyle=color; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2); ctx.stroke();
+    return;
+  }
+  const vals = pts.map(p=>p.ltp);
+  const mn = Math.min(...vals), mx = Math.max(...vals);
+  const rng = mx-mn||1;
+  const pad = 2;
+  const n = vals.length;
+  const xp = i=> n>1 ? (i/(n-1))*(w-pad*2)+pad : w/2;
+  const yp = v=>h-pad-((v-mn)/rng)*(h-pad*2);
+  // Fill
+  ctx.beginPath();
+  ctx.moveTo(xp(0), h);
+  vals.forEach((v,i)=>ctx.lineTo(xp(i),yp(v)));
+  ctx.lineTo(xp(n-1), h);
+  ctx.closePath();
+  ctx.fillStyle = fillColor; ctx.fill();
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.lineJoin='round'; ctx.lineCap='round';
+  vals.forEach((v,i)=>i===0?ctx.moveTo(xp(i),yp(v)):ctx.lineTo(xp(i),yp(v)));
+  ctx.stroke();
+}
+
+async function drawSparks(){
+  await fetchSymbolHistory('');  // cache load karo
+  if(!window._symbolsAllCache) return;
+  // requestAnimationFrame se draw karo — DOM render hone ke baad
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.cspark').forEach(canvas=>drawOneSpark(canvas));
+  });
+}
 // ══════════════════════════════════════════════════════
 // FILTER
 // ══════════════════════════════════════════════════════
@@ -771,7 +881,7 @@ function setF(f){
   if(graphMode){
     graphMode = false;
     document.getElementById('grid').style.display      = 'grid';
-    document.getElementById('top5Panel').style.display = window.innerWidth<=800?'none':'flex';
+    document.getElementById('top5Panel').style.display = 'none';
     document.getElementById('graphView').classList.remove('active');
     document.getElementById('bGraph').classList.remove('on-graph');
   }
@@ -780,12 +890,13 @@ function setF(f){
 
 function getColumns(count){
   const w=window.innerWidth;
-  if(w<=480) return Math.min(count,3);
-  if(w<=768) return Math.min(count,5);
-  if(w<=1024)return Math.min(count,12);
-  if(count<=50)  return Math.min(count,10);
-  if(count<=100) return Math.min(count,14);
-  return 21;
+  if(w<=400) return Math.min(count,2);
+  if(w<=600) return Math.min(count,3);
+  if(w<=800) return Math.min(count,4);
+  if(w<=1024)return Math.min(count,6);
+  if(count<=50)  return Math.min(count,7);
+  if(count<=100) return Math.min(count,9);
+  return 12;
 }
 
 function doFilter(){
@@ -1199,17 +1310,45 @@ function drawGraph(data){
 // ══════════════════════════════════════════════════════
 // MINI CHART
 // ══════════════════════════════════════════════════════
-async function openMiniChart(sym, ltp, pct){
+async function openMiniChart(sym, ltp, pct, anchorEl){
   currentSym = sym;
+  // Get change price from allStocks
+  const stockData = allStocks.find(s=>s.Symbol===sym);
+  const chgVal = stockData ? (stockData['Change Price']||0) : 0;
+  const chgStr = (chgVal>=0?'+':'')+Number(chgVal).toFixed(2);
+
   document.getElementById('miniSym').textContent = sym;
   document.getElementById('miniLtp').textContent = Number(ltp).toFixed(2);
+
+  const mc = document.getElementById('miniChg');
+  mc.textContent = chgStr;
+  mc.style.color = pct>0?'#00ee55':pct<0?'#ff4444':'#666';
+
   const pc = document.getElementById('miniPct');
   pc.textContent = (pct>=0?'+':'')+Number(pct).toFixed(2)+'%';
-  pc.className   = 'mini-pct '+(pct>=0?'g':'r');
-  document.getElementById('miniOverlay').classList.add('show');
+  pc.className   = 'mini-pct '+(pct>0?'g':pct<0?'r':'n');
+
+  // Position near card
+  const modal = document.getElementById('miniModal');
+  if(!anchorEl){
+    modal.style.left = ((window.innerWidth-340)/2)+'px';
+    modal.style.top  = ((window.innerHeight-250)/2)+'px';
+  } else {
+    const rect = anchorEl.getBoundingClientRect();
+    const mw = 340;
+    let left = rect.right + 8;
+    let top  = rect.top;
+    if(left + mw > window.innerWidth) left = rect.left - mw - 8;
+    if(top + 220 > window.innerHeight) top = window.innerHeight - 230;
+    if(top < 8) top = 8;
+    modal.style.left = left + 'px';
+    modal.style.top  = top  + 'px';
+  }
+  modal.classList.add('show');
 
   const history = await fetchSymbolHistory(sym);
-  drawMiniChart(history, pct>=0?'#00cc44':'#dd1111');
+  const chartColor = pct>0?'#00cc44':pct<0?'#dd1111':'#555';
+  drawMiniChart(history, chartColor);
 }
 
 function drawMiniChart(history, color){
@@ -1306,8 +1445,18 @@ function closeMini(e){
     document.getElementById('miniOverlay').classList.remove('show');
 }
 function closeMiniBtn(){
-  document.getElementById('miniOverlay').classList.remove('show');
+  document.getElementById('miniModal').classList.remove('show');
 }
+// Mini modal mouseleave → band karo
+(function(){
+  const modal = document.getElementById('miniModal');
+  if(modal){
+    modal.addEventListener('mouseleave', e=>{
+      // Agar mouse wapas card pe gaya → card ka mouseenter handle karega
+      closeMiniBtn();
+    });
+  }
+})();
 
 // ══════════════════════════════════════════════════════
 // CARD EVENTS
@@ -1842,6 +1991,7 @@ async function refresh(){
     if(data.scan_time !== lastScanTime){
       window._symbolsAllCache = null;  // naya scan → fresh fetch
       renderHeatmap(data);
+      if(!graphMode){ fetchSymbolHistory('').then(()=>drawSparks()); }
       if(graphMode){
         graphData = await fetchGraph();
         drawGraph(graphData);
@@ -1882,6 +2032,7 @@ async function init(){
     const data = await fetchLatest();
     renderHeatmap(data);
     document.getElementById('loader').style.display='none';
+    fetchSymbolHistory('').then(()=>drawSparks());
     // Open graph view by default
     graphMode = true;
     document.getElementById('grid').style.display      = 'none';
