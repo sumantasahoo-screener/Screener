@@ -1166,10 +1166,18 @@ function drawGraph(data){
   // ── X axis labels ────────────────────────────────────
   ctx.fillStyle = document.body.classList.contains('light') ? '#555' : '#888';
   ctx.font='bold 10px Segoe UI'; ctx.textAlign='center';
-  const step = Math.max(1, Math.floor(n/10));
+  const isMobileView = W < 500;
   data.forEach((d,i)=>{
-    if(i%step===0 && !is30min(data[i].time))
-      ctx.fillText(d.time, xp(i), H-pad.b+13);
+    const t = d.time;
+    if(isMobileView){
+      // Mobile: sirf exact hours dikhao (10:00, 11:00, 12:00...)
+      if(t && t.endsWith(':00') && !t.startsWith('09'))
+        ctx.fillText(t.split(':')[0], xp(i), H-pad.b+13);
+    } else {
+      const step = Math.max(1, Math.floor(n/10));
+      if(i%step===0 && !is30min(d.time))
+        ctx.fillText(t, xp(i), H-pad.b+13);
+    }
   });
 
   // ── Corner labels ────────────────────────────────────
