@@ -1166,7 +1166,7 @@ function drawGraph(data){
   // ── X axis labels ────────────────────────────────────
   ctx.fillStyle = document.body.classList.contains('light') ? '#555' : '#888';
   ctx.font='bold 10px Segoe UI'; ctx.textAlign='center';
-  const isMobileView = W < 500;
+  const isMobileView = window.innerWidth < 600;
   data.forEach((d,i)=>{
     const t = d.time;
     if(isMobileView){
@@ -1684,16 +1684,20 @@ function drawVix(data){
     ctx.fillText(v.toFixed(1), pad.l+cw+4, y+3);
   }
 
-  // 30-min markers
-  const is30 = t => { const [h,m]=t.split(':').map(Number); return m%30===0; };
+  // 30-min markers + time labels
+  const is30vix = t => { const [h,m]=t.split(':').map(Number); return m%30===0; };
+  const isHour  = t => t && t.endsWith(':00');
+  const isMobVix = window.innerWidth < 600;
   data.forEach((d,i)=>{
-    if(!is30(d.time)) return;
+    const show = isMobVix ? isHour(d.time) : is30vix(d.time);
+    if(!show) return;
     ctx.strokeStyle=isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.08)';
     ctx.lineWidth=1; ctx.setLineDash([3,3]);
     ctx.beginPath(); ctx.moveTo(xp(i),pad.t); ctx.lineTo(xp(i),pad.t+ch); ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle=isLight?'#bbb':'#333'; ctx.font='7px Segoe UI'; ctx.textAlign='center';
-    ctx.fillText(d.time, xp(i), pad.t+ch+12);
+    const label = isMobVix ? d.time.split(':')[0] : d.time;
+    ctx.fillText(label, xp(i), pad.t+ch+12);
   });
 
   // VIX color — orange/yellow (neutral indicator)
@@ -1957,7 +1961,18 @@ document.addEventListener('keydown', e=>{
   }
 
   document.addEventListener('mousemove', e=>{
-    const canvas = document.getElementById('vixPopupCanvas');
+    // vixCanvas (panel) ya vixPopupCanvas dono handle karo
+    let canvas = null;
+    const vc = document.getElementById('vixCanvas');
+    const vpc = document.getElementById('vixPopupCanvas');
+    if(vc && vc._vixData){
+      const r=vc.getBoundingClientRect();
+      if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom) canvas=vc;
+    }
+    if(!canvas && vpc && vpc._vixData){
+      const r=vpc.getBoundingClientRect();
+      if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom) canvas=vpc;
+    }
     if(!canvas||!canvas._vixData) return;
     const rect = canvas.getBoundingClientRect();
     const mx = e.clientX - rect.left;
