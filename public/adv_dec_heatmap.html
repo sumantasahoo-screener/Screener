@@ -69,7 +69,7 @@ body{
   /* Fix 6: Graph — portrait mein tall */
   .graph-view{min-height:0;height:auto;overflow:visible;flex:none;display:flex;flex-direction:column;gap:6px;}
   .graph-panel{height:55vw;min-height:220px;flex:none;}
-  #graphCanvas{width:100%;height:100%;display:block;}
+  #graphCanvas{position:absolute;top:36px;left:8px;right:8px;bottom:8px;width:calc(100% - 16px);height:calc(100% - 44px);display:block;}
   .vix-panel{height:55vw;min-height:200px;flex-shrink:0;}
   /* Graph title compact on mobile */
   .graph-title{font-size:9px;}
@@ -195,7 +195,7 @@ body{
 .leg-dot.adv{background:#00cc44;}
 .leg-dot.dec{background:#dd1111;}
 .leg-dot.neu{background:#cc8800;}
-#graphCanvas{flex:1;width:100%;min-height:0;display:block;height:100%;}
+#graphCanvas{position:absolute;top:36px;left:8px;right:8px;bottom:8px;width:calc(100% - 16px);height:calc(100% - 44px);display:block;}
 /* Fixed corner tooltip */
 #graphTooltip{
   position:fixed;top:60px;right:16px;
@@ -242,7 +242,7 @@ body.light .vix-val{color:#111;}
 .vix-chg{font-size:11px;font-weight:700;}
 .vix-chg.up{color:#ff4444;}
 .vix-chg.dn{color:#00cc44;}
-#vixCanvas{flex:1;width:100%;min-height:0;display:block;}
+#vixCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
 /* Mobile portrait — graph ke neeche stacked */
 @media(max-width:768px) and (orientation:portrait){
   #vixFloat{
@@ -965,19 +965,7 @@ function toggleGraph(){
     const vf = document.getElementById('vixFloat');
     if(vf) vf.classList.remove('active');
   }
-  if(graphMode){
-    // Panel visible hone ke baad sahi size milegi
-    const panel = document.querySelector('.graph-panel');
-    if(panel && typeof ResizeObserver !== 'undefined'){
-      const ro = new ResizeObserver(entries=>{
-        ro.disconnect();
-        loadAndRenderGraph();
-      });
-      ro.observe(panel);
-    } else {
-      setTimeout(()=>loadAndRenderGraph(), 80);
-    }
-  }
+  if(graphMode) setTimeout(()=>loadAndRenderGraph(), 50);
 }
 
 async function loadAndRenderGraph(){
@@ -990,17 +978,10 @@ function drawGraph(data){
   const canvas = document.getElementById('graphCanvas');
   if(!canvas) return;
 
-  const dpr  = window.devicePixelRatio||1;
-  // Panel rect — canvas style se nahi, panel CSS se
-  const panel = canvas.parentElement;
-  const panelRect = panel.getBoundingClientRect();
-  // Header area (title + legend) ~40px
-  const W = Math.max(panelRect.width - 24, 100);
-  const H = Math.max(panelRect.height - 44, 80);
-
-  // Canvas style pehle set karo, phir pixel size
-  canvas.style.width  = W + 'px';
-  canvas.style.height = H + 'px';
+  const dpr = window.devicePixelRatio||1;
+  // Canvas CSS se size lo — position:absolute hai to panel grow nahi karega
+  const W = Math.max(canvas.offsetWidth,  100);
+  const H = Math.max(canvas.offsetHeight, 80);
   canvas.width  = Math.round(W * dpr);
   canvas.height = Math.round(H * dpr);
 
@@ -1648,15 +1629,11 @@ function drawVix(data){
   const canvas = document.getElementById('vixCanvas');
   if(!canvas) return;
 
-  const dpr  = window.devicePixelRatio||1;
-  const rect = canvas.parentElement.getBoundingClientRect();
-  const W    = Math.max(rect.width, 100);
-  const H    = Math.max(rect.height, 40);
-
-  canvas.style.width  = W+'px';
-  canvas.style.height = H+'px';
-  canvas.width  = W*dpr;
-  canvas.height = H*dpr;
+  const dpr = window.devicePixelRatio||1;
+  const W = Math.max(canvas.offsetWidth,  100);
+  const H = Math.max(canvas.offsetHeight, 40);
+  canvas.width  = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
 
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr,dpr);
@@ -2071,17 +2048,7 @@ async function init(){
     document.getElementById('graphView').classList.add('active');
     document.getElementById('bGraph').classList.add('on-graph');
     graphData = await fetchGraph();
-    const panel = document.querySelector('.graph-panel');
-    if(panel && typeof ResizeObserver !== 'undefined'){
-      const ro = new ResizeObserver(entries=>{
-        ro.disconnect();
-        drawGraph(graphData);
-        loadAndRenderVix();
-      });
-      ro.observe(panel);
-    } else {
-      setTimeout(()=>{ drawGraph(graphData); loadAndRenderVix(); }, 150);
-    }
+    setTimeout(()=>{ drawGraph(graphData); loadAndRenderVix(); }, 80);
   }catch(e){
     document.getElementById('loader').innerHTML='<p style="color:#ff4444">Failed to load data.<br>Check R2_BASE URL in config.</p>';
   }
