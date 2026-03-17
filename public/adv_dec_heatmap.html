@@ -965,7 +965,7 @@ function toggleGraph(){
     const vf = document.getElementById('vixFloat');
     if(vf) vf.classList.remove('active');
   }
-  if(graphMode) requestAnimationFrame(()=>requestAnimationFrame(()=>loadAndRenderGraph()));
+  if(graphMode) setTimeout(()=>loadAndRenderGraph(), 50);
 }
 
 async function loadAndRenderGraph(){
@@ -978,14 +978,15 @@ function drawGraph(data){
   const canvas = document.getElementById('graphCanvas');
   if(!canvas) return;
 
-  const dpr = window.devicePixelRatio||1;
-  const W   = canvas.parentElement.clientWidth - 32;
-  const H   = canvas.parentElement.clientHeight - 60;
+  const dpr  = window.devicePixelRatio||1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const W    = Math.max(rect.width - 32, 100);
+  const H    = Math.max(rect.height - 60, 80);
 
-  canvas.width  = W * dpr;
-  canvas.height = H * dpr;
   canvas.style.width  = W+'px';
   canvas.style.height = H+'px';
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
 
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
@@ -1631,12 +1632,15 @@ function drawVix(data){
   const canvas = document.getElementById('vixCanvas');
   if(!canvas) return;
 
-  const dpr = window.devicePixelRatio||1;
-  const W   = Math.max(canvas.parentElement.clientWidth, 100);
-  const H   = Math.max(canvas.parentElement.clientHeight, 40);
+  const dpr  = window.devicePixelRatio||1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const W    = Math.max(rect.width, 100);
+  const H    = Math.max(rect.height, 40);
 
-  canvas.width  = W*dpr; canvas.height = H*dpr;
-  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  canvas.style.width  = W+'px';
+  canvas.style.height = H+'px';
+  canvas.width  = W*dpr;
+  canvas.height = H*dpr;
 
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr,dpr);
@@ -2051,8 +2055,7 @@ async function init(){
     document.getElementById('graphView').classList.add('active');
     document.getElementById('bGraph').classList.add('on-graph');
     graphData = await fetchGraph();
-    drawGraph(graphData);
-    await loadAndRenderVix();
+    setTimeout(()=>{ drawGraph(graphData); loadAndRenderVix(); }, 100);
   }catch(e){
     document.getElementById('loader').innerHTML='<p style="color:#ff4444">Failed to load data.<br>Check R2_BASE URL in config.</p>';
   }
