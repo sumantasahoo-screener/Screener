@@ -999,7 +999,7 @@ function drawGraph(data){
     return;
   }
 
-  const pad = {t:10, r:54, b:28, l:36};
+  const pad = {t:10, r:10, b:28, l:36};
   const cw  = W - pad.l - pad.r;
   const ch  = H - pad.t - pad.b;
   const top = pad.t;
@@ -1134,17 +1134,18 @@ function drawGraph(data){
   dot(xp(n-1), yAdvLine(last), '#00ee55');
   dot(xp(n-1), yDecLine(last), '#ff3333');
 
-  // ── Right labels ─────────────────────────────────────
+  // ── Right labels — andar rakho (textAlign right) ────
   const {advPct:lAdvP, decPct:lDecP} = getPct(last);
-  ctx.font='bold 10px Segoe UI'; ctx.textAlign='left';
+  const rlx = pad.l + cw - 4;   // right edge ke andar
+  ctx.font='bold 10px Segoe UI'; ctx.textAlign='right';
   ctx.fillStyle='#00ee55';
-  ctx.fillText('▲ '+(last.adv||0)+' ('+(lAdvP*100).toFixed(0)+'%)', lx, Math.max(top+10, yAdvLine(last)+4));
+  ctx.fillText('▲ '+(last.adv||0)+' ('+(lAdvP*100).toFixed(0)+'%)', rlx, Math.max(top+10, yAdvLine(last)+4));
   ctx.fillStyle='#ff3333';
-  ctx.fillText('▼ '+(last.dec||0)+' ('+(lDecP*100).toFixed(0)+'%)', lx, Math.min(bot-4, yDecLine(last)-2));
+  ctx.fillText('▼ '+(last.dec||0)+' ('+(lDecP*100).toFixed(0)+'%)', rlx, Math.min(bot-4, yDecLine(last)-2));
   if(last.neutral){
     const midY = (yAdvLine(last)+yDecLine(last))/2;
     ctx.fillStyle='#cc8800';
-    ctx.fillText('● '+(last.neutral||0), lx, midY+4);
+    ctx.fillText('● '+(last.neutral||0), rlx, midY+4);
   }
 
   // ── 30-min vertical marker lines ────────────────────
