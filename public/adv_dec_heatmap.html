@@ -68,9 +68,9 @@ body{
   .cchg{font-size:10px;}
   /* Fix 6: Graph — portrait mein tall */
   .graph-view{min-height:0;height:auto;overflow:visible;flex:none;display:flex;flex-direction:column;gap:6px;}
-  .graph-panel{height:55vw;min-height:220px;flex:none;}
-  #graphCanvas{position:absolute;top:36px;left:8px;right:8px;bottom:8px;width:calc(100% - 16px);height:calc(100% - 44px);display:block;z-index:1;}
-  .vix-panel{height:55vw;min-height:200px;flex-shrink:0;}
+  .graph-panel{height:55vw;min-height:200px;flex:none;}
+  #graphCanvas{flex:1;width:100%;min-height:0;display:block;}
+  .vix-panel{height:45vw;min-height:160px;flex:none;}
   /* Graph title compact on mobile */
   .graph-title{font-size:9px;}
   .graph-legend{flex-wrap:wrap;gap:6px;}
@@ -179,15 +179,16 @@ body{
 /* ── GRAPH VIEW ── */
 .graph-view{
   flex:1;display:none;flex-direction:column;gap:6px;
-  overflow:hidden;
+  overflow:hidden;min-height:0;
 }
 .graph-view.active{display:flex;}
 .graph-panel{
-  flex:1;background:#0e0e0e;border:1px solid #1e1e1e;
-  border-radius:10px;padding:8px 12px 8px 12px;
+  flex:2;background:#0e0e0e;border:1px solid #1e1e1e;
+  border-radius:10px;padding:8px 12px 6px;
   display:flex;flex-direction:column;gap:4px;
   overflow:hidden;min-height:0;
 }
+.graph-hdr{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
 .graph-title{font-size:11px;font-weight:700;color:#666;letter-spacing:.1em;text-transform:uppercase;}
 .graph-legend{display:flex;gap:14px;}
 .leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:#888;}
@@ -195,7 +196,14 @@ body{
 .leg-dot.adv{background:#00cc44;}
 .leg-dot.dec{background:#dd1111;}
 .leg-dot.neu{background:#cc8800;}
-#graphCanvas{position:absolute;top:36px;left:8px;right:8px;bottom:8px;width:calc(100% - 16px);height:calc(100% - 44px);display:block;z-index:1;}
+#graphCanvas{flex:1;width:100%;min-height:0;display:block;}
+/* VIX panel — alag sibling */
+.vix-panel{
+  flex:1;background:#0e0e0e;border:1px solid #1e1e1e;
+  border-radius:10px;overflow:hidden;
+  display:none;flex-direction:column;min-height:0;
+}
+.vix-panel.active{display:flex;}
 /* Fixed corner tooltip */
 #graphTooltip{
   position:fixed;top:60px;right:16px;
@@ -213,22 +221,8 @@ body.light #graphTooltip .gt-time{color:#222;}
 
 
 /* ── VIX PANEL ── */
-/* ── VIX FLOATING PANEL ── */
-#vixFloat{
-  position:absolute;
-  bottom:16px;right:16px;
-  width:min(600px,90%);height:340px;
-  background:#141414;
-  border:1px solid #2a2a2a;
-  border-radius:16px;
-  display:none;flex-direction:column;
-  overflow:hidden;z-index:100;
-  cursor:grab;user-select:none;
-  box-shadow:0 16px 60px rgba(0,0,0,.95);
-}
-body.light #vixFloat{background:rgba(248,248,248,0.94);border-color:#ccc;}
-#vixFloat.active{display:flex;}
-#vixFloat:active{cursor:grabbing;}
+#vixFloat{} /* vix-panel CSS se handle hoga */
+body.light .vix-panel{background:#f4f4f4;border-color:#ccc;}
 .vix-header{
   display:flex;justify-content:space-between;align-items:center;
   padding:5px 12px 4px;flex-shrink:0;
@@ -242,16 +236,11 @@ body.light .vix-val{color:#111;}
 .vix-chg{font-size:11px;font-weight:700;}
 .vix-chg.up{color:#ff4444;}
 .vix-chg.dn{color:#00cc44;}
-#vixCanvas{flex:1;width:100%;min-height:0;display:block;}
-/* Mobile portrait — graph ke neeche stacked */
+#vixCanvas{flex:1;width:100%;min-height:0;display:block;margin-top:4px;}
+/* Mobile portrait */
 @media(max-width:768px) and (orientation:portrait){
-  #vixFloat{
-    position:static!important;top:auto!important;
-    width:100%!important;height:38vh!important;min-height:180px!important;
-    border-radius:10px;cursor:default;box-shadow:none;
-    backdrop-filter:none;
-  }
   .graph-view{flex-direction:column;}
+  .vix-panel{min-height:160px;}
 }
 
 /* ── VIX POPUP ── */
@@ -508,8 +497,10 @@ body.light .card.nt .cchg{color:#888;}
 
   <!-- GRAPH VIEW -->
   <div class="graph-view" id="graphView">
-    <div class="graph-panel" style="position:relative;">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
+
+    <!-- ADV/DEC Graph Panel -->
+    <div class="graph-panel">
+      <div class="graph-hdr">
         <div class="graph-title">Advance / Decline — Intraday History</div>
         <div class="graph-legend">
           <div class="leg-item"><div class="leg-dot adv"></div>Advance</div>
@@ -518,18 +509,19 @@ body.light .card.nt .cchg{color:#888;}
         </div>
       </div>
       <canvas id="graphCanvas"></canvas>
-<div id="graphTooltip"><div class="gt-time" id="gtTime">—</div><div class="gt-row" id="gtAdv" style="color:#00ee55"></div><div class="gt-row" id="gtDec" style="color:#ff3333"></div><div class="gt-row" id="gtNeu" style="color:#ffaa00"></div></div>
-      <!-- VIX FLOATING PANEL -->
-      <div id="vixFloat">
-        <div class="vix-header">
-          <span class="vix-title">⚡ India VIX</span>
-          <span class="vix-badge">
-            <span class="vix-val" id="vixVal">—</span>
-            <span class="vix-chg" id="vixChg"></span>
-          </span>
-        </div>
-        <canvas id="vixCanvas"></canvas>
+      <div id="graphTooltip"><div class="gt-time" id="gtTime">—</div><div class="gt-row" id="gtAdv" style="color:#00ee55"></div><div class="gt-row" id="gtDec" style="color:#ff3333"></div><div class="gt-row" id="gtNeu" style="color:#ffaa00"></div></div>
+    </div>
+
+    <!-- VIX Panel — alag sibling, graph-panel se bahar -->
+    <div class="vix-panel" id="vixFloat">
+      <div class="vix-header">
+        <span class="vix-title">⚡ India VIX</span>
+        <span class="vix-badge">
+          <span class="vix-val" id="vixVal">—</span>
+          <span class="vix-chg" id="vixChg"></span>
+        </span>
       </div>
+      <canvas id="vixCanvas"></canvas>
     </div>
 
   </div>
@@ -979,9 +971,9 @@ function drawGraph(data){
   if(!canvas) return;
 
   const dpr = window.devicePixelRatio||1;
-  // Canvas CSS se size lo — position:absolute hai to panel grow nahi karega
   const W = Math.max(canvas.offsetWidth,  100);
-  const H = Math.max(canvas.offsetHeight, 80);
+  const H = Math.max(canvas.offsetHeight, 60);
+  if(W < 10 || H < 10) return;  // DOM ready nahi — skip
   canvas.width  = Math.round(W * dpr);
   canvas.height = Math.round(H * dpr);
 
