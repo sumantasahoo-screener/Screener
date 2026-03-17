@@ -204,6 +204,7 @@ body{
   display:none;flex-direction:column;min-height:0;
 }
 .vix-panel.active{display:flex;}
+#vixFloat.active{display:flex;}
 /* Fixed corner tooltip */
 #graphTooltip{
   position:fixed;top:60px;right:16px;
@@ -971,9 +972,12 @@ function drawGraph(data){
   if(!canvas) return;
 
   const dpr = window.devicePixelRatio||1;
-  const W = Math.max(canvas.offsetWidth,  100);
-  const H = Math.max(canvas.offsetHeight, 60);
-  if(W < 10 || H < 10) return;  // DOM ready nahi — skip
+  const W = canvas.offsetWidth;
+  const H = canvas.offsetHeight;
+  if(W < 10 || H < 10){
+    setTimeout(()=>drawGraph(data), 60);
+    return;
+  }
   canvas.width  = Math.round(W * dpr);
   canvas.height = Math.round(H * dpr);
 
@@ -1166,7 +1170,7 @@ function drawGraph(data){
   // ── X axis labels ────────────────────────────────────
   ctx.fillStyle = document.body.classList.contains('light') ? '#555' : '#888';
   ctx.font='bold 10px Segoe UI'; ctx.textAlign='center';
-  const isMobileView = window.innerWidth < 600;
+  const isMobileView = window.innerWidth <= 800;
   data.forEach((d,i)=>{
     const t = d.time;
     if(isMobileView){
@@ -1630,8 +1634,12 @@ function drawVix(data){
   if(!canvas) return;
 
   const dpr = window.devicePixelRatio||1;
-  const W = Math.max(canvas.offsetWidth,  100);
-  const H = Math.max(canvas.offsetHeight, 40);
+  const W = canvas.offsetWidth;
+  const H = canvas.offsetHeight;
+  if(W < 10 || H < 10){
+    setTimeout(()=>drawVix(data), 60);
+    return;
+  }
   canvas.width  = Math.round(W * dpr);
   canvas.height = Math.round(H * dpr);
 
@@ -1687,7 +1695,7 @@ function drawVix(data){
   // 30-min markers + time labels
   const is30vix = t => { const [h,m]=t.split(':').map(Number); return m%30===0; };
   const isHour  = t => t && t.endsWith(':00');
-  const isMobVix = window.innerWidth < 600;
+  const isMobVix = window.innerWidth <= 800;
   data.forEach((d,i)=>{
     const show = isMobVix ? isHour(d.time) : is30vix(d.time);
     if(!show) return;
