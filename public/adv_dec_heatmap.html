@@ -66,11 +66,15 @@ body{
   .cp{font-size:10px;}
   .cl{font-size:11px;}
   .cchg{font-size:10px;}
-  /* Fix 6: Graph — portrait mein tall, landscape mein compact */
+  /* Fix 6: Graph — portrait mein tall */
   .graph-view{min-height:0;height:auto;overflow:visible;flex:none;display:flex;flex-direction:column;gap:6px;}
-  .graph-panel{height:38vh;min-height:180px;flex:none;}
-  #graphCanvas{flex:1;min-height:0;height:100%;}
-  .vix-panel{height:120px;flex-shrink:0;}
+  .graph-panel{height:55vw;min-height:200px;flex:none;}
+  #graphCanvas{flex:1;width:100%;min-height:0;display:block;}
+  .vix-panel{height:45vw;min-height:160px;flex:none;}
+  /* Graph title compact on mobile */
+  .graph-title{font-size:9px;}
+  .graph-legend{flex-wrap:wrap;gap:6px;}
+  .leg-item{font-size:9px;}
 }
 
 /* ── LANDSCAPE MOBILE ── */
@@ -175,15 +179,16 @@ body{
 /* ── GRAPH VIEW ── */
 .graph-view{
   flex:1;display:none;flex-direction:column;gap:6px;
-  overflow:hidden;
+  overflow:hidden;min-height:0;
 }
 .graph-view.active{display:flex;}
 .graph-panel{
-  flex:1;background:#0e0e0e;border:1px solid #1e1e1e;
-  border-radius:10px;padding:8px 12px 8px 12px;
+  flex:2;background:#0e0e0e;border:1px solid #1e1e1e;
+  border-radius:10px;padding:8px 12px 6px;
   display:flex;flex-direction:column;gap:4px;
   overflow:hidden;min-height:0;
 }
+.graph-hdr{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
 .graph-title{font-size:11px;font-weight:700;color:#666;letter-spacing:.1em;text-transform:uppercase;}
 .graph-legend{display:flex;gap:14px;}
 .leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:#888;}
@@ -192,6 +197,14 @@ body{
 .leg-dot.dec{background:#dd1111;}
 .leg-dot.neu{background:#cc8800;}
 #graphCanvas{flex:1;width:100%;min-height:0;display:block;}
+/* VIX panel — alag sibling */
+.vix-panel{
+  flex:1;background:#0e0e0e;border:1px solid #1e1e1e;
+  border-radius:10px;overflow:hidden;
+  display:none;flex-direction:column;min-height:0;
+}
+.vix-panel.active{display:flex;}
+#vixFloat.active{display:flex;}
 /* Fixed corner tooltip */
 #graphTooltip{
   position:fixed;top:60px;right:16px;
@@ -209,22 +222,8 @@ body.light #graphTooltip .gt-time{color:#222;}
 
 
 /* ── VIX PANEL ── */
-/* ── VIX FLOATING PANEL ── */
-#vixFloat{
-  position:absolute;
-  bottom:16px;right:16px;
-  width:min(600px,90%);height:340px;
-  background:#141414;
-  border:1px solid #2a2a2a;
-  border-radius:16px;
-  display:none;flex-direction:column;
-  overflow:hidden;z-index:100;
-  cursor:grab;user-select:none;
-  box-shadow:0 16px 60px rgba(0,0,0,.95);
-}
-body.light #vixFloat{background:rgba(248,248,248,0.94);border-color:#ccc;}
-#vixFloat.active{display:flex;}
-#vixFloat:active{cursor:grabbing;}
+#vixFloat{} /* vix-panel CSS se handle hoga */
+body.light .vix-panel{background:#f4f4f4;border-color:#ccc;}
 .vix-header{
   display:flex;justify-content:space-between;align-items:center;
   padding:5px 12px 4px;flex-shrink:0;
@@ -238,16 +237,11 @@ body.light .vix-val{color:#111;}
 .vix-chg{font-size:11px;font-weight:700;}
 .vix-chg.up{color:#ff4444;}
 .vix-chg.dn{color:#00cc44;}
-#vixCanvas{flex:1;width:100%;min-height:0;display:block;}
-/* Mobile portrait — graph ke neeche stacked */
+#vixCanvas{flex:1;width:100%;min-height:0;display:block;margin-top:4px;}
+/* Mobile portrait */
 @media(max-width:768px) and (orientation:portrait){
-  #vixFloat{
-    position:static!important;top:auto!important;
-    width:100%!important;height:38vh!important;min-height:180px!important;
-    border-radius:10px;cursor:default;box-shadow:none;
-    backdrop-filter:none;
-  }
   .graph-view{flex-direction:column;}
+  .vix-panel{min-height:160px;}
 }
 
 /* ── VIX POPUP ── */
@@ -312,6 +306,13 @@ body.light .vix-popup-footer{color:#bbb;}
   }
 }
 @keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+@keyframes cardBlink{
+  0%,100%{filter:brightness(1);}
+  25%{filter:brightness(2.2);}
+  50%{filter:brightness(1);}
+  75%{filter:brightness(2.2);}
+}
+.card.blinking{animation:cardBlink 0.6s ease-in-out;}
 .mini-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:6px;}
 #miniCanvas{width:100%!important;display:block;box-sizing:border-box;}
 .mini-sym{font-size:14px;font-weight:700;color:#4fc3f7;}
@@ -504,8 +505,10 @@ body.light .card.nt .cchg{color:#888;}
 
   <!-- GRAPH VIEW -->
   <div class="graph-view" id="graphView">
-    <div class="graph-panel" style="position:relative;">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
+
+    <!-- ADV/DEC Graph Panel -->
+    <div class="graph-panel">
+      <div class="graph-hdr">
         <div class="graph-title">Advance / Decline — Intraday History</div>
         <div class="graph-legend">
           <div class="leg-item"><div class="leg-dot adv"></div>Advance</div>
@@ -514,18 +517,19 @@ body.light .card.nt .cchg{color:#888;}
         </div>
       </div>
       <canvas id="graphCanvas"></canvas>
-<div id="graphTooltip"><div class="gt-time" id="gtTime">—</div><div class="gt-row" id="gtAdv" style="color:#00ee55"></div><div class="gt-row" id="gtDec" style="color:#ff3333"></div><div class="gt-row" id="gtNeu" style="color:#ffaa00"></div></div>
-      <!-- VIX FLOATING PANEL -->
-      <div id="vixFloat">
-        <div class="vix-header">
-          <span class="vix-title">⚡ India VIX</span>
-          <span class="vix-badge">
-            <span class="vix-val" id="vixVal">—</span>
-            <span class="vix-chg" id="vixChg"></span>
-          </span>
-        </div>
-        <canvas id="vixCanvas"></canvas>
+      <div id="graphTooltip"><div class="gt-time" id="gtTime">—</div><div class="gt-row" id="gtAdv" style="color:#00ee55"></div><div class="gt-row" id="gtDec" style="color:#ff3333"></div><div class="gt-row" id="gtNeu" style="color:#ffaa00"></div></div>
+    </div>
+
+    <!-- VIX Panel — alag sibling, graph-panel se bahar -->
+    <div class="vix-panel" id="vixFloat">
+      <div class="vix-header">
+        <span class="vix-title">⚡ India VIX</span>
+        <span class="vix-badge">
+          <span class="vix-val" id="vixVal">—</span>
+          <span class="vix-chg" id="vixChg"></span>
+        </span>
       </div>
+      <canvas id="vixCanvas"></canvas>
     </div>
 
   </div>
@@ -699,6 +703,9 @@ function renderHeatmap(data){
   document.getElementById('stAdv').textContent   = adv;
   document.getElementById('stDec').textContent   = dec;
   document.getElementById('stNeu').textContent   = neu;
+
+  // Changed cards blink karo — grid rebuild se PEHLE
+  blinkChangedCards(allStocks);
 
   // Build cards
   grid.innerHTML = '';
@@ -883,6 +890,8 @@ function setF(f){
   currentFilter = f;
   document.getElementById('bAll').className  = 'fb'+(f==='all'?' on-all':'');
   document.getElementById('bN50').className  = 'fb'+(f==='nifty'?' on-n50':'');
+  localStorage.setItem('selectedView', 'heatmap');
+  localStorage.setItem('selectedFilter', f);
   // Always switch to heatmap view
   if(graphMode){
     graphMode = false;
@@ -953,6 +962,7 @@ function toggleGraph(){
   document.getElementById('top5Panel').style.display = (graphMode||window.innerWidth<=800)?'none':'flex';
   document.getElementById('graphView').classList.toggle('active', graphMode);
   document.getElementById('bGraph').classList.toggle('on-graph', graphMode);
+  localStorage.setItem('selectedView', graphMode?'graph':'heatmap');
   // Reset filter button highlights when switching to heatmap
   if(!graphMode){
     document.getElementById('bAll').className = 'fb'+(currentFilter==='all'?' on-all':'');
@@ -961,7 +971,7 @@ function toggleGraph(){
     const vf = document.getElementById('vixFloat');
     if(vf) vf.classList.remove('active');
   }
-  if(graphMode) requestAnimationFrame(()=>requestAnimationFrame(()=>loadAndRenderGraph()));
+  if(graphMode) setTimeout(()=>loadAndRenderGraph(), 50);
 }
 
 async function loadAndRenderGraph(){
@@ -975,13 +985,14 @@ function drawGraph(data){
   if(!canvas) return;
 
   const dpr = window.devicePixelRatio||1;
-  const W   = canvas.parentElement.clientWidth - 32;
-  const H   = canvas.parentElement.clientHeight - 60;
-
-  canvas.width  = W * dpr;
-  canvas.height = H * dpr;
-  canvas.style.width  = W+'px';
-  canvas.style.height = H+'px';
+  const W = canvas.offsetWidth;
+  const H = canvas.offsetHeight;
+  if(W < 10 || H < 10){
+    setTimeout(()=>drawGraph(data), 60);
+    return;
+  }
+  canvas.width  = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
 
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
@@ -995,7 +1006,7 @@ function drawGraph(data){
     return;
   }
 
-  const pad = {t:10, r:54, b:28, l:36};
+  const pad = {t:10, r:10, b:36, l:36};
   const cw  = W - pad.l - pad.r;
   const ch  = H - pad.t - pad.b;
   const top = pad.t;
@@ -1130,17 +1141,18 @@ function drawGraph(data){
   dot(xp(n-1), yAdvLine(last), '#00ee55');
   dot(xp(n-1), yDecLine(last), '#ff3333');
 
-  // ── Right labels ─────────────────────────────────────
+  // ── Right labels — andar rakho (textAlign right) ────
   const {advPct:lAdvP, decPct:lDecP} = getPct(last);
-  ctx.font='bold 10px Segoe UI'; ctx.textAlign='left';
+  const rlx = pad.l + cw - 4;   // right edge ke andar
+  ctx.font='bold 10px Segoe UI'; ctx.textAlign='right';
   ctx.fillStyle='#00ee55';
-  ctx.fillText('▲ '+(last.adv||0)+' ('+(lAdvP*100).toFixed(0)+'%)', lx, Math.max(top+10, yAdvLine(last)+4));
+  ctx.fillText('▲ '+(last.adv||0)+' ('+(lAdvP*100).toFixed(0)+'%)', rlx, Math.max(top+10, yAdvLine(last)+4));
   ctx.fillStyle='#ff3333';
-  ctx.fillText('▼ '+(last.dec||0)+' ('+(lDecP*100).toFixed(0)+'%)', lx, Math.min(bot-4, yDecLine(last)-2));
+  ctx.fillText('▼ '+(last.dec||0)+' ('+(lDecP*100).toFixed(0)+'%)', rlx, Math.min(bot-4, yDecLine(last)-2));
   if(last.neutral){
     const midY = (yAdvLine(last)+yDecLine(last))/2;
     ctx.fillStyle='#cc8800';
-    ctx.fillText('● '+(last.neutral||0), lx, midY+4);
+    ctx.fillText('● '+(last.neutral||0), rlx, midY+4);
   }
 
   // ── 30-min vertical marker lines ────────────────────
@@ -1171,10 +1183,22 @@ function drawGraph(data){
   // ── X axis labels ────────────────────────────────────
   ctx.fillStyle = document.body.classList.contains('light') ? '#555' : '#888';
   ctx.font='bold 10px Segoe UI'; ctx.textAlign='center';
-  const step = Math.max(1, Math.floor(n/10));
+  const isMobileView = window.innerWidth <= 800;
   data.forEach((d,i)=>{
-    if(i%step===0 && !is30min(data[i].time))
-      ctx.fillText(d.time, xp(i), H-pad.b+13);
+    const t = d.time;
+    if(isMobileView){
+      // Mobile: sirf hour marks (10, 11, 12...) + 9:15 first label
+      const isFirstPoint = i===0;
+      const isHourMark   = t && t.endsWith(':00') && !t.startsWith('09');
+      if(isFirstPoint || isHourMark){
+        const lbl = isFirstPoint ? t : t.split(':')[0];
+        ctx.fillText(lbl, xp(i), H-pad.b+13);
+      }
+    } else {
+      const step = Math.max(1, Math.floor(n/10));
+      if(i%step===0 && !is30min(d.time))
+        ctx.fillText(t, xp(i), H-pad.b+13);
+    }
   });
 
   // ── Corner labels ────────────────────────────────────
@@ -1627,11 +1651,14 @@ function drawVix(data){
   if(!canvas) return;
 
   const dpr = window.devicePixelRatio||1;
-  const W   = Math.max(canvas.parentElement.clientWidth, 100);
-  const H   = Math.max(canvas.parentElement.clientHeight, 40);
-
-  canvas.width  = W*dpr; canvas.height = H*dpr;
-  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  const W = canvas.offsetWidth;
+  const H = canvas.offsetHeight;
+  if(W < 10 || H < 10){
+    setTimeout(()=>drawVix(data), 60);
+    return;
+  }
+  canvas.width  = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
 
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr,dpr);
@@ -1660,7 +1687,7 @@ function drawVix(data){
   const maxV  = Math.max(...vals);
   const range = maxV - minV || 0.5;
 
-  const pad = {t:4, r:48, b:18, l:10};
+  const pad = {t:4, r:10, b:18, l:36};
   const cw  = W - pad.l - pad.r;
   const ch  = H - pad.t - pad.b;
 
@@ -1682,16 +1709,20 @@ function drawVix(data){
     ctx.fillText(v.toFixed(1), pad.l+cw+4, y+3);
   }
 
-  // 30-min markers
-  const is30 = t => { const [h,m]=t.split(':').map(Number); return m%30===0; };
+  // 30-min markers + time labels
+  const is30vix = t => { const [h,m]=t.split(':').map(Number); return m%30===0; };
+  const isHour  = t => t && t.endsWith(':00');
+  const isMobVix = window.innerWidth <= 800;
   data.forEach((d,i)=>{
-    if(!is30(d.time)) return;
+    const show = isMobVix ? isHour(d.time) : is30vix(d.time);
+    if(!show) return;
     ctx.strokeStyle=isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.08)';
     ctx.lineWidth=1; ctx.setLineDash([3,3]);
     ctx.beginPath(); ctx.moveTo(xp(i),pad.t); ctx.lineTo(xp(i),pad.t+ch); ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle=isLight?'#bbb':'#333'; ctx.font='7px Segoe UI'; ctx.textAlign='center';
-    ctx.fillText(d.time, xp(i), pad.t+ch+12);
+    const label = isMobVix ? d.time.split(':')[0] : d.time;
+    ctx.fillText(label, xp(i), pad.t+ch+12);
   });
 
   // VIX color — orange/yellow (neutral indicator)
@@ -1724,7 +1755,16 @@ function drawVix(data){
 
   // Last value label
   ctx.fillStyle=vixColor; ctx.font='bold 9px Segoe UI'; ctx.textAlign='left';
-  ctx.fillText(last.vix.toFixed(2), pad.l+cw+4, yp(last.vix)+3);
+  ctx.fillText(last.vix.toFixed(2), pad.l+cw-4, yp(last.vix)+3);
+
+  // Hover tooltip ke liye metadata store karo
+  canvas._vixData = data;
+  canvas._vixPad  = pad;
+  canvas._vixCW   = cw;
+  canvas._vixCH   = ch;
+  canvas._vixN    = n;
+  canvas._vixMinV = minV;
+  canvas._vixMaxV = maxV;
 }
 
 async function loadAndRenderVix(){
@@ -1906,7 +1946,7 @@ function drawVixPopup(data){
 
   // Last value right label
   ctx.fillStyle=vixColor; ctx.font='bold 10px Segoe UI'; ctx.textAlign='left';
-  ctx.fillText(last.vix.toFixed(2), pad.l+cw+4, yp(last.vix)+3);
+  ctx.fillText(last.vix.toFixed(2), pad.l+cw-4, yp(last.vix)+3);
 
   // Store for hover
   canvas._vixData = data;
@@ -1948,14 +1988,25 @@ document.addEventListener('keydown', e=>{
   function getVixTip(){
     if(!vixTip){
       vixTip = document.createElement('div');
-      vixTip.style.cssText='position:fixed;pointer-events:none;display:none;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;font-family:Segoe UI,Arial,sans-serif;z-index:9200;line-height:1.7;box-shadow:0 4px 20px rgba(0,0,0,.8);';
+      vixTip.style.cssText='position:fixed;pointer-events:none;display:none;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;font-family:Segoe UI,Arial,sans-serif;z-index:9999;line-height:1.7;box-shadow:0 4px 20px rgba(0,0,0,.8);';
       document.body.appendChild(vixTip);
     }
     return vixTip;
   }
 
   document.addEventListener('mousemove', e=>{
-    const canvas = document.getElementById('vixPopupCanvas');
+    // vixCanvas (panel) ya vixPopupCanvas dono handle karo
+    let canvas = null;
+    const vc = document.getElementById('vixCanvas');
+    const vpc = document.getElementById('vixPopupCanvas');
+    if(vc && vc._vixData){
+      const r=vc.getBoundingClientRect();
+      if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom) canvas=vc;
+    }
+    if(!canvas && vpc && vpc._vixData){
+      const r=vpc.getBoundingClientRect();
+      if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom) canvas=vpc;
+    }
     if(!canvas||!canvas._vixData) return;
     const rect = canvas.getBoundingClientRect();
     const mx = e.clientX - rect.left;
@@ -1964,11 +2015,12 @@ document.addEventListener('keydown', e=>{
     if(mx < 0 || mx > rect.width || my < 0 || my > rect.height){
       const tip = getVixTip(); if(tip) tip.style.display='none'; return;
     }
-    const pad= canvas._vixPad;
-    const cw = canvas._vixCW;
-    const n  = canvas._vixN;
-    const data=canvas._vixData;
+    const pad = canvas._vixPad;
+    const n   = canvas._vixN;
+    const data= canvas._vixData;
     const tip = getVixTip();
+    // CSS pixels mein cw use karo — rect.width se pad nikalo
+    const cw  = rect.width - pad.l - pad.r;
     if(mx<pad.l||mx>pad.l+cw){tip.style.display='none';return;}
     const idx = Math.round(((mx-pad.l)/cw)*(n-1));
     if(idx<0||idx>=n){tip.style.display='none';return;}
@@ -1983,7 +2035,12 @@ document.addEventListener('keydown', e=>{
     tip.style.left=tx+'px';tip.style.top=ty+'px';tip.style.display='block';
   });
 
-  document.getElementById('vixPopupCanvas') && document.addEventListener('mouseleave',()=>{
+  // vixCanvas aur vixPopupCanvas dono pe mouseleave — tooltip hide karo
+  document.addEventListener('mouseleave',()=>{
+    if(vixTip) vixTip.style.display='none';
+  });
+  const _vcEl = document.getElementById('vixCanvas');
+  if(_vcEl) _vcEl.addEventListener('mouseleave',()=>{
     if(vixTip) vixTip.style.display='none';
   });
 })();
@@ -2011,14 +2068,29 @@ async function refresh(){
   }
 }
 
-// Random card shimmer
-setInterval(()=>{
-  const nodes=[...document.getElementById('grid').querySelectorAll('.card')].filter(n=>n.style.display!=='none');
-  if(!nodes.length)return;
-  const c=nodes[Math.floor(Math.random()*nodes.length)];
-  c.style.filter='brightness(1.5)';
-  setTimeout(()=>c.style.filter='',350);
-},2500);
+// Changed symbol blink — sirf woh card blink kare jiska LTP change hua
+let _lastLtpMap = {};  // {symbol: ltp} — previous scan ka
+
+function blinkChangedCards(stocks){
+  stocks.forEach(stock => {
+    const sym = stock.Symbol;
+    const ltp = stock.LTP;
+    const prev = _lastLtpMap[sym];
+    if(prev !== undefined && prev !== ltp){
+      // LTP change hua — card dhundho aur blink karo
+      const card = document.querySelector(`.card[data-sym="${sym}"]`);
+      if(card){
+        card.classList.remove('blinking');
+        void card.offsetWidth; // reflow — animation restart ke liye
+        card.classList.add('blinking');
+        card.addEventListener('animationend', ()=>{
+          card.classList.remove('blinking');
+        }, {once: true});
+      }
+    }
+    _lastLtpMap[sym] = ltp;
+  });
+}
 
 
 // ── THEME TOGGLE ────────────────────────────────────────
@@ -2038,16 +2110,32 @@ async function init(){
     const data = await fetchLatest();
     renderHeatmap(data);
     document.getElementById('loader').style.display='none';
-    fetchSymbolHistory('').then(()=>drawSparks());
-    // Open graph view by default
-    graphMode = true;
-    document.getElementById('grid').style.display      = 'none';
-    document.getElementById('top5Panel').style.display = 'none';
-    document.getElementById('graphView').classList.add('active');
-    document.getElementById('bGraph').classList.add('on-graph');
-    graphData = await fetchGraph();
-    drawGraph(graphData);
-    await loadAndRenderVix();
+
+    // ── Saved state restore karo (localStorage) ──
+    const savedView   = localStorage.getItem('selectedView') || 'graph';  // default graph
+    const savedFilter = localStorage.getItem('selectedFilter') || 'all';
+
+    if(savedView === 'graph'){
+      graphMode = true;
+      document.getElementById('grid').style.display      = 'none';
+      document.getElementById('top5Panel').style.display = 'none';
+      document.getElementById('graphView').classList.add('active');
+      document.getElementById('bGraph').classList.add('on-graph');
+      document.getElementById('bAll').className = 'fb';
+      document.getElementById('bN50').className = 'fb';
+      graphData = await fetchGraph();
+      setTimeout(()=>{ drawGraph(graphData); loadAndRenderVix(); }, 80);
+    } else {
+      graphMode = false;
+      currentFilter = savedFilter;
+      document.getElementById('bGraph').classList.remove('on-graph');
+      document.getElementById('bAll').className = 'fb'+(savedFilter==='all'?' on-all':'');
+      document.getElementById('bN50').className = 'fb'+(savedFilter==='nifty'?' on-n50':'');
+      document.getElementById('graphView').classList.remove('active');
+      document.getElementById('grid').style.display = 'grid';
+      fetchSymbolHistory('').then(()=>drawSparks());
+      applyFilter();
+    }
   }catch(e){
     document.getElementById('loader').innerHTML='<p style="color:#ff4444">Failed to load data.<br>Check R2_BASE URL in config.</p>';
   }
