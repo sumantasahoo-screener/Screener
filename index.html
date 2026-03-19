@@ -287,11 +287,11 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--ink
       <span class="section-arrow">▼</span>
     </button>
     <div class="submenu" id="data-sub">
-      <a href="https://screener2-584.pages.dev/StockTrade" class="nav-link">Stock Trade <span class="nav-badge live">LIVE</span></a>
-      <a href="https://screener2-584.pages.dev/OptionTrade" class="nav-link">Option Trade <span class="nav-badge live">LIVE</span></a>
+      <a href="#" class="nav-link" data-p="U3RvY2tUcmFkZQ==">Stock Trade <span class="nav-badge live">LIVE</span></a>
+      <a href="#" class="nav-link" data-p="T3B0aW9uVHJhZGU=">Option Trade <span class="nav-badge live">LIVE</span></a>
       <a href="https://screener-epd.pages.dev/public/Bhavdata" class="nav-link">Bhav Data <span class="nav-badge offline">OFFLINE</span></a>
       <a href="https://screener-epd.pages.dev/public/volatility_dashboard" class="nav-link">Volatility <span class="nav-badge info">KB</span></a>
-      <a href="https://screener2-584.pages.dev/fii_dashboard" class="nav-link">FII Data <span class="nav-badge info">KB</span></a>
+      <a href="#" class="nav-link" data-p="ZmlpX2Rhc2hib2FyZA==">FII Data <span class="nav-badge info">KB</span></a>
     </div>
   </div>
 
@@ -417,10 +417,26 @@ function toggleFs(){
 }
 floatBtn.onclick=toggleFs;fsBtn.onclick=toggleFs;
 
+// Base domain — split karke rakha hai taaki View Source mein seedha na dikhe
+const _h = ['scr','ener2','-584','.pages','.dev'];
+const _b = _h.join('');
+
+function _resolveHref(link){
+  const p = link.getAttribute('data-p');
+  if(p){
+    // decode base64 path
+    const path = atob(p);
+    return 'https://' + _b + '/' + path;
+  }
+  return link.href;
+}
+
 document.querySelectorAll('.nav-link:not(.external)').forEach(link=>{
   link.addEventListener('click',function(e){
     if(!e.ctrlKey&&!e.metaKey&&e.button===0){
-      e.preventDefault();frame.src=this.href;frame.classList.add('active');welcome.style.display='none';
+      e.preventDefault();
+      const url = _resolveHref(this);
+      frame.src=url;frame.classList.add('active');welcome.style.display='none';
       document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));this.classList.add('active');
       if(window.innerWidth<768){
         sidebar.classList.remove('mobile-open');
