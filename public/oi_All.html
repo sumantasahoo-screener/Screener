@@ -764,8 +764,34 @@ select, button, input { outline: none; font-family: inherit; }
 #tv-frame { width: 100%; height: 100%; border: none; }
 
 /* ═══════════════════════════════════════
-   MOBILE
+   SCAN-SEL2 (TO dropdown)
 ═══════════════════════════════════════ */
+#scan-sel2 {
+  background: transparent;
+  color: var(--text2);
+  border: none;
+  border-left: 1px dashed var(--border2);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  letter-spacing: .03em;
+  min-width: 180px;
+  padding-left: 10px;
+  margin-left: 6px;
+}
+#scan-sel2.is-latest { color: var(--acc); }
+#scan-sel2 option {
+  background: var(--bg3);
+  color: var(--text);
+  font-weight: 500;
+}
+.scan-arrow {
+  font-size: 11px;
+  color: var(--text3);
+  margin: 0 2px;
+  flex-shrink: 0;
+}
 @media (max-width: 560px) {
   .sg, #chain-hdr, .pcr-sg {
     grid-template-columns: 36px 1fr 60px 1fr 44px;
@@ -888,7 +914,7 @@ select, button, input { outline: none; font-family: inherit; }
 
 <!-- INFOBAR -->
 <div id="infobar">
-  <div class="ii" id="scan-ii"><span class="il" style="color:var(--acc);opacity:.9;font-size:12px;letter-spacing:.15em;font-weight:700;">⏱ SCAN</span><select id="scan-sel"></select></div>
+  <div class="ii" id="scan-ii"><span class="il" style="color:var(--acc);opacity:.9;font-size:12px;letter-spacing:.15em;font-weight:700;">⏱ SCAN</span><select id="scan-sel"></select><span class="scan-arrow">→</span><select id="scan-sel2"></select></div>
   <div id="sym-search-wrap">
     <span id="sym-search-icon">⌕</span>
     <input id="sym-search" type="text" placeholder="search symbol..." autocomplete="off" spellcheck="false">
@@ -1015,6 +1041,61 @@ function buildScanSel() {
   updateSelColor();
   // Always show latest scan time in header
   updateLatestScanTime(all[0]);
+
+  // Rebuild scan-sel2 whenever scan-sel changes
+  el.removeEventListener('change', el._sel2Handler);
+  el._sel2Handler = () => buildScanSel2(el.value);
+  el.addEventListener('change', el._sel2Handler);
+
+  // Build scan-sel2 for initial selection
+  buildScanSel2(curKey);
+}
+
+// ── BUILD 2ND DROPDOWN (TO scan) ──
+function buildScanSel2(fromKey) {
+  const el2 = document.getElementById('scan-sel2');
+  if (!el2 || !indexData) return;
+  el2.innerHTML = '';
+
+  // All scans sorted descending
+  const all = [];
+  for (const d of indexData.dates)
+    for (const h of (indexData.scans[d] || [])) all.push({d, h});
+  all.sort((a, b) => (b.d + b.h).localeCompare(a.d + a.h));
+
+  // Only scans strictly AFTER fromKey
+  const fromRaw = fromKey ? fromKey.replace('|', '') : '';
+  const filtered = all.filter(({d, h}) => (d + h) > fromRaw);
+
+  if (!filtered.length) {
+    // No scans after selected — show disabled placeholder
+    const o = document.createElement('option');
+    o.value = ''; o.textContent = '— no later scans —';
+    el2.appendChild(o);
+    el2.classList.remove('is-latest');
+    return;
+  }
+
+  filtered.forEach(({d, h}, i) => {
+    const o = document.createElement('option');
+    o.value = `${d}|${h}`;
+    o.textContent = i === 0
+      ? `${d}  ${h.slice(0,2)}:${h.slice(2)}  (Latest)`
+      : `${d}  ${h.slice(0,2)}:${h.slice(2)}`;
+    if (i === 0) o.className = 'latest';
+    el2.appendChild(o);
+  });
+
+  // Default = latest (first option)
+  el2.value = `${filtered[0].d}|${filtered[0].h}`;
+  el2.classList.add('is-latest');
+
+  // Color update on change
+  el2.removeEventListener('change', el2._colorHandler);
+  el2._colorHandler = () => {
+    el2.classList.toggle('is-latest', el2.selectedIndex === 0);
+  };
+  el2.addEventListener('change', el2._colorHandler);
 }
 
 function buildSymSel(scan) {
@@ -1043,16 +1124,19 @@ async function computeDisplay(sym, base) {
   // Recent mode: RIGHT column bhi same scan ka chg
   if (dispMode === 'recent') return base.map(s => ({...s}));
 
-  // ── COMPARE mode: selected scan = BASE, latest scan = CURRENT ──
+  // ── COMPARE mode: selected scan = BASE, scan-sel2 (or latest) = CURRENT ──
   if (dispMode === 'compare') {
-    const sel = document.getElementById('scan-sel');
-    const latestKey = sel.options[0]?.value;
+    const sel  = document.getElementById('scan-sel');
+    const sel2 = document.getElementById('scan-sel2');
 
-    // Point-3: selected = latest hai to Recent jaisa dikhao — koi reaction nahi
-    if (!latestKey || latestKey === curKey) return base.map(s => ({...s}));
+    // Use scan-sel2 value if available, else fall back to latest (options[0])
+    const toKey = (sel2 && sel2.value) ? sel2.value : sel.options[0]?.value;
+
+    // Point-3: selected = toKey hai to Recent jaisa dikhao — koi reaction nahi
+    if (!toKey || toKey === curKey) return base.map(s => ({...s}));
 
     let latestScan = null;
-    const [ld, lh] = latestKey.split('|');
+    const [ld, lh] = toKey.split('|');
     try { latestScan = await loadScan(ld, lh); } catch {}
 
     const latestChg = {};
