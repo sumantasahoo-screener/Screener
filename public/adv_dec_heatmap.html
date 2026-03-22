@@ -235,8 +235,8 @@ body.light .vix-header{border-color:#ddd;}
 .vix-val{color:#fff;font-size:15px;}
 body.light .vix-val{color:#111;}
 .vix-chg{font-size:11px;font-weight:700;}
-.vix-chg.up{color:#ff4444;}
-.vix-chg.dn{color:#00cc44;}
+.vix-chg.up{color:#00cc44;}
+.vix-chg.dn{color:#ff4444;}
 #vixCanvas{flex:1;width:100%;min-height:0;display:block;margin-top:4px;}
 /* Mobile portrait */
 @media(max-width:768px) and (orientation:portrait){
@@ -270,8 +270,8 @@ body.light #vixPopup{background:#fff;border-color:#ddd;}
 .vix-popup-val{font-size:20px;font-weight:800;color:#fff;}
 body.light .vix-popup-val{color:#111;}
 .vix-popup-chg{font-size:13px;font-weight:700;}
-.vix-popup-chg.up{color:#ff4444;}
-.vix-popup-chg.dn{color:#00cc44;}
+.vix-popup-chg.up{color:#00cc44;}
+.vix-popup-chg.dn{color:#ff4444;}
 .vix-popup-close{
   background:transparent;border:1px solid #333;border-radius:8px;
   color:#666;font-size:16px;padding:3px 10px;cursor:pointer;
@@ -558,6 +558,7 @@ body.light .card.nt .cchg{color:#888;}
     <div class="mini-hdr">
       <div class="mini-sym" id="miniSym">—</div>
       <div class="mini-info">
+        <div class="mini-open" id="miniOpen" style="font-size:11px;color:#aaa;margin-right:4px;">—</div>
         <div class="mini-ltp" id="miniLtp">—</div>
         <div class="mini-chg" id="miniChg">—</div>
         <div class="mini-pct" id="miniPct">—</div>
@@ -606,6 +607,7 @@ function r2url(path){
 // ══════════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════════
+let activeSessionDate = todayStr();
 let allStocks     = [];
 let nifty50Set    = new Set();
 let currentFilter = 'all';
@@ -636,7 +638,7 @@ async function fetchLatest(){
 
 async function fetchGraph(){
   try{
-    const r = await fetch(r2url(`${todayStr()}/graph.json`));
+    const r = await fetch(r2url(`${activeSessionDate}/graph.json`));
     if(!r.ok) return [];
     return r.json();
   }catch(e){return [];}
@@ -682,6 +684,9 @@ function renderHeatmap(data){
 
   // Update header
   const st = data.scan_time || '';
+  if (st) {
+    activeSessionDate = st.split(' ')[0]; // extract date portion
+  }
   document.getElementById('sct').textContent = st;
   document.getElementById('sct').setAttribute('data-scan-time', st);
   lastScanTime = st;
@@ -1345,10 +1350,13 @@ async function openMiniChart(sym, ltp, pct, anchorEl){
   // Get change price from allStocks
   const stockData = allStocks.find(s=>s.Symbol===sym);
   const chgVal = stockData ? (stockData['Change Price']||0) : 0;
+  const opnVal = stockData ? (stockData['Open']||0) : 0;
   const chgStr = (chgVal>=0?'+':'')+Number(chgVal).toFixed(2);
 
   document.getElementById('miniSym').textContent = sym;
   document.getElementById('miniLtp').textContent = Number(ltp).toFixed(2);
+  const mOpen = document.getElementById('miniOpen');
+  if(mOpen) mOpen.textContent = 'O: ' + Number(opnVal).toFixed(2);
 
   const mc = document.getElementById('miniChg');
   mc.textContent = chgStr;
@@ -1640,7 +1648,7 @@ let vixData = [];
 
 async function fetchVix(){
   try{
-    const r = await fetch(r2url(`${todayStr()}/vix.json`));
+    const r = await fetch(r2url(`${activeSessionDate}/vix.json`));
     if(!r.ok) return [];
     return r.json();
   }catch(e){ return []; }
@@ -1918,11 +1926,11 @@ function drawVixPopup(data){
   const aboveRef = last.vix >= first.vix;
   const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
   if(aboveRef){
-    grad.addColorStop(0,'rgba(255,80,80,0.40)');
-    grad.addColorStop(1,'rgba(255,80,80,0.03)');
-  } else {
     grad.addColorStop(0,'rgba(0,200,80,0.35)');
     grad.addColorStop(1,'rgba(0,200,80,0.03)');
+  } else {
+    grad.addColorStop(0,'rgba(255,80,80,0.40)');
+    grad.addColorStop(1,'rgba(255,80,80,0.03)');
   }
   ctx.beginPath();
   ctx.moveTo(xp(0), pad.t+ch);
