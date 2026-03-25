@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>F&O Intelligence Dashboard</title>
+<title>MulBhav F&O Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -401,13 +401,13 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 
 <div id="uscreen">
   <div class="ucard">
-    <span class="ucorner tl">NSE F&amp;O</span><span class="ucorner tr">BHAVCOPY</span>
+    <span class="ucorner tl">Exchange F&amp;O</span><span class="ucorner tr">Market Copy</span>
     <div class="uicon">📦</div>
-    <h1>Drop your<br><i>F&amp;O ZIP</i></h1>
-    <p class="udesc">ZIP mein <code>fo*.csv</code> aur <code>op*.csv</code> honi chahiye<br>NSE Bhavcopy — rozana download karo, yahan drop karo</p>
+    <h1>Drop your<br><i>Market ZIP</i></h1>
+    <p class="udesc">ZIP mein <code>fo*.csv</code> aur <code>op*.csv</code> honi chahiye<br>Market Copy — rozana download karo, yahan drop karo</p>
     <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px;">
-      <button class="ubtn" style="background:linear-gradient(135deg,#1e40af,#3b82f6);box-shadow:0 4px 16px rgba(59,130,246,.3);" onclick="fetchFromNSE()" id="fbtn">☁️ Fetch from NSE</button>
-      <button class="ubtn" style="background:linear-gradient(135deg,#92400e,#f59e0b);box-shadow:0 4px 16px rgba(245,158,11,.25);" onclick="downloadFromNSE()">⬇️ Download from NSE</button>
+      <button class="ubtn" style="background:linear-gradient(135deg,#1e40af,#3b82f6);box-shadow:0 4px 16px rgba(59,130,246,.3);" onclick="fetchFromNSE()" id="fbtn">☁️ Fetch Data</button>
+      <button class="ubtn" style="background:linear-gradient(135deg,#92400e,#f59e0b);box-shadow:0 4px 16px rgba(245,158,11,.25);" onclick="downloadFromNSE()">⬇️ Market Site</button>
     </div>
     <div class="udrop" id="udrop"><strong>Yahan drag &amp; drop karo</strong><p>ya neeche browse karo</p></div>
     <input type="file" id="fi" accept=".zip">
@@ -426,7 +426,7 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
 <div id="sig-tooltip"></div>
 
 <header>
-  <div class="logo"><div class="ldot"></div>F&amp;<em>O</em> Intelligence</div>
+  <div class="logo"><div class="ldot"></div>MulBhav F&amp;<em>O</em> Intelligence</div>
   
   <div class="hdr-r">
     <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌑</button>
@@ -434,8 +434,8 @@ main{padding:20px 30px;max-width:100%;margin:0 auto;display:none;}
     <span id="hexp" style="font-size:.63rem;color:var(--gold);background:var(--gold-lt);border:1px solid var(--gold-md);padding:3px 10px;border-radius:12px;display:none;"></span>
     
     <input type="file" id="fi-ref" accept=".zip" style="display:none;">
-    <button class="hbtn" style="background:var(--gold-lt); color:var(--gold); border-color:var(--gold-md);" onclick="document.getElementById('fi-ref').click()">📂 Load Prev OI</button>
-    <button class="hbtn" id="fpbtn" style="background:var(--blue-lt); color:var(--blue); border-color:var(--blue-md);" onclick="fetchPrevOI()">☁️ Fetch Prev OI</button>
+    <button class="hbtn" style="background:var(--gold-lt); color:var(--gold); border-color:var(--gold-md);" onclick="document.getElementById('fi-ref').click()">📂 Load Prev Data</button>
+    <button class="hbtn" id="fpbtn" style="background:var(--blue-lt); color:var(--blue); border-color:var(--blue-md);" onclick="fetchPrevOI()">☁️ Fetch Prev Data</button>
     
     <input type="file" id="fi2" accept=".zip" style="display:none;">
     <button class="hbtn" onclick="document.getElementById('fi2').click()">↑ New ZIP</button>
@@ -729,12 +729,19 @@ async function fetchFromNSE(){
   const btn=document.getElementById('fbtn');btn.innerHTML='⏳ Fetching...';btn.disabled=true;
   try{const r=await fetch(WORKER_URL);if(!r.ok)throw new Error('Fetch failed');await loadZip(await r.blob());}
   catch(e){alert('Fetch Error: '+e.message);}
-  finally{btn.innerHTML='☁️ Fetch from NSE';btn.disabled=false;}
+  finally{btn.innerHTML='☁️ Fetch Data';btn.disabled=false;}
 }
 function downloadFromNSE(){window.open('https://www.nseindia.com/all-reports-derivatives','_blank');}
-const TV_MAP={NIFTY:'NSE:NIFTY',BANKNIFTY:'NSE:BANKNIFTY',FINNIFTY:'NSE:CNXFINANCE',MIDCPNIFTY:'NSE:MIDCPNIFTY',SENSEX:'BSE:SENSEX',BANKEX:'BSE:BANKEX',NIFTYNXT50:'NSE:NIFTYNXT50'};
-function openTV(sym,e){if(e)e.stopPropagation();const t=TV_MAP[sym]||('NSE:'+sym);window.open('https://www.tradingview.com/chart/?symbol='+t+'&interval=5','_blank');}
-function symSpan(sym){return '<span class="sym-wrap"><span class="sym">'+sym+'</span><span class="tv-icon" data-tvsym="'+sym+'" title="TradingView 5m">&#x1F4C8;</span></span>';}
+const INDICES_MAP = { 'NIFTY': true, 'BANKNIFTY': true, 'FINNIFTY': true, 'MIDCPNIFTY': true, 'SENSEX': true, 'BANKEX': true };
+function openQuote(sym, e) {
+  if (e) e.stopPropagation();
+  const isIdx = INDICES_MAP[sym];
+  const url = isIdx 
+    ? `https://www.nseindia.com/get-quotes/derivatives?symbol=${encodeURIComponent(sym)}`
+    : `https://www.nseindia.com/get-quotes/equity?symbol=${encodeURIComponent(sym)}`;
+  window.open(url, '_blank');
+}
+function symSpan(sym){return '<span class="sym-wrap"><span class="sym">'+sym+'</span><span class="tv-icon" onclick="openQuote(\''+sym+'\',event)" title="Exchange Quote">&#x1F517;</span></span>';}
 
 // Signal Tooltip Icon
 const SIG_TIPS={
