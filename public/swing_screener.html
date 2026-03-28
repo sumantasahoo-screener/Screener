@@ -626,6 +626,24 @@ let sortCol     = -1;
 let sortAsc     = true;
 
 // ══════════════════════════════════════════════════
+// UNIVERSAL FILTER CONFIG
+// ══════════════════════════════════════════════════
+const INDEX_MASTER = {
+  'NIFTY50': ['ADANIENT','ADANIPORTS','APOLLOHOSP','ASIANPAINT','AXISBANK','BAJAJ-AUTO','BAJAJFINSV','BAJFINANCE','BHARTIARTL','BPCL','BRITANNIA','CIPLA','COALINDIA','DIVISLAB','DRREDDY','EICHERMOT','GRASIM','HCLTECH','HDFCBANK','HDFCLIFE','HEROMOTOCO','HINDALCO','HINDUNILVR','ICICIBANK','INDUSINDBK','INFY','ITC','JSWSTEEL','KOTAKBANK','LTIM','LT','M&M','MARUTI','NESTLEIND','NTPC','ONGC','POWERGRID','RELIANCE','SBILIFE','SBIN','SUNPHARMA','TATACONSUM','TATAMOTORS','TATASTEEL','TCS','TECHM','TITAN','ULTRACEMCO','UPL','WIPRO'],
+  'BANKNIFTY': ['AUBANK','AXISBANK','BANDHANBNK','BANKBARODA','FEDERALBNK','HDFCBANK','ICICIBANK','IDFCFIRSTB','INDUSINDBK','KOTAKBANK','PNB','SBIN'],
+  'FINNIFTY': ['AXISBANK','BAJAJFINSV','BAJFINANCE','CHOLAFIN','HDFCBANK','HDFCLIFE','ICICIBANK','ICICIGI','ICICIPRULI','IDFCFIRSTB','KOTAKBANK','RELIANCE','MUTHOOTFIN','PFC','RECLTD','SBICARD','SBILIFE','SBIN','SHRIRAMFIN','TATACOMM']
+};
+
+const SECTOR_INDEX_MAP = {
+  'NIFTYIT': 'Technology',
+  'NIFTYFMCG': 'Consumer Defensive',
+  'NIFTYAUTO': 'Consumer Cyclical',
+  'NIFTYPHARMA': 'Healthcare',
+  'NIFTYREALTY': 'Real Estate',
+  'NIFTYOILGAS': 'Energy'
+};
+
+// ══════════════════════════════════════════════════
 // THEME
 // ══════════════════════════════════════════════════
 let theme = localStorage.getItem('swing-theme') || 'dark';
@@ -685,6 +703,7 @@ const IDX_LABELS = {
 function renderIndices(indices) {
   const strip = document.getElementById('indexStrip');
   strip.innerHTML = '';
+  
   Object.entries(indices).forEach(([key, d]) => {
     const up  = d.change_pct >= 0;
     const ltp = typeof d.ltp === 'number' ? d.ltp.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
@@ -692,6 +711,11 @@ function renderIndices(indices) {
     const card = document.createElement('div');
     card.className = 'idx-card';
     card.innerHTML = `<div class="idx-name">${IDX_LABELS[key]||key}</div><div class="idx-ltp">${ltp}</div><div class="idx-chg ${up?'up':'dn'}">${chg}</div>`;
+    
+    // Universal Filter logic
+    card.onclick = () => setSecFilter(key);
+    card.title = `Filter by ${IDX_LABELS[key]||key}`;
+
     strip.appendChild(card);
   });
 }
@@ -759,8 +783,20 @@ function renderTable() {
     const okSig   = sigFilter==='all' || sig===sigFilter || (sigFilter==='watch' && watchlist.has(sym));
     const okEntry = entryFilter==='all' || entry===entryFilter;
     const okMacd  = macdFilter==='all' || macd===macdFilter;
-    const okSec   = secFilter==='all' || sector===secFilter;
-    const okQ     = !q || sym.toLowerCase().includes(q) || sector.toLowerCase().includes(q);
+    
+    // Universal Logic: Check if card key exists in Master List or Sector Map
+    let okSec = (secFilter==='all');
+    if (!okSec) {
+      if (INDEX_MASTER[secFilter]) {
+        okSec = INDEX_MASTER[secFilter].includes(sym);
+      } else if (SECTOR_INDEX_MAP[secFilter]) {
+        okSec = sector === SECTOR_INDEX_MAP[secFilter];
+      } else {
+        okSec = sector === secFilter;
+      }
+    }
+
+    const okQ = !q || sym.toLowerCase().includes(q) || sector.toLowerCase().includes(q);
 
     if (okEntry && okMacd && okSec && okQ) {
       cntAll++;
