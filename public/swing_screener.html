@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>F&O Swing Screener v5</title>
+<title>F&O Swing Screener v6</title>
 <style>
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -351,12 +351,14 @@ body {
 
 .efb-all          { background:#f1f5f9; color:#475569; border-color:#cbd5e1; }
 .efb-breakout     { background:#fff7ed; color:#c2410c; border-color:#fed7aa; }
+.efb-breakdown    { background:#fff1f2; color:#be123c; border-color:#fecdd3; }
 .efb-continuation { background:#ecfeff; color:#0e7490; border-color:#a5f3fc; }
 .efb-pullback     { background:#f5f3ff; color:#6d28d9; border-color:#c4b5fd; }
 .efb-smart        { background:#f1f5f9; color:#475569; border-color:#cbd5e1; }
 
 [data-theme="dark"] .efb-all          { background:#01202E; color:#6aacbf; border-color:#0b5e76; }
 [data-theme="dark"] .efb-breakout     { background:linear-gradient(135deg,#2d0f00,#3d1800); color:#fb923c; border-color:#7c2d12; }
+[data-theme="dark"] .efb-breakdown    { background:linear-gradient(135deg,#3b0505,#4c0a0a); color:#f87171; border-color:#7f1d1d; }
 [data-theme="dark"] .efb-continuation { background:linear-gradient(135deg,#001e2e,#003a50); color:#22d3ee; border-color:#155e75; }
 [data-theme="dark"] .efb-pullback     { background:linear-gradient(135deg,#180838,#240e50); color:#a78bfa; border-color:#4c1d95; }
 [data-theme="dark"] .efb-smart        { background:linear-gradient(135deg,#01202E,#022030); color:#6aacbf; border-color:#0b5e76; }
@@ -624,6 +626,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 [data-theme="dark"] .badge-sell { background:linear-gradient(135deg,#3b0505,#4c0a0a); color:#f87171; border-color:#7f1d1d; }
 
 .badge-breakout     { background:#fff7ed; color:#c2410c; border:1px solid #fed7aa; }
+.badge-breakdown    { background:#fff1f2; color:#be123c; border:1px solid #fecdd3; }
 .badge-continuation { background:#ecfeff; color:#0e7490; border:1px solid #a5f3fc; }
 .badge-pullback-buy  { background:#dcfce7; color:#166534; border:1px solid #4ade80; }
 .badge-pullback-sell { background:#ffe4e6; color:#9f1239; border:1px solid #fb7185; }
@@ -634,6 +637,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 .badge-neutral      { background:var(--bg-row-even); color:var(--text-muted); border:1px solid var(--border); }
 
 [data-theme="dark"] .badge-breakout     { background:linear-gradient(135deg,#2d0f00,#3d1800); color:#fb923c; border-color:#7c2d12; }
+[data-theme="dark"] .badge-breakdown    { background:linear-gradient(135deg,#3b0505,#4c0a0a); color:#f87171; border-color:#7f1d1d; }
 [data-theme="dark"] .badge-continuation { background:linear-gradient(135deg,#001e2e,#003a50); color:#22d3ee; border-color:#155e75; }
 [data-theme="dark"] .badge-smart        { background:linear-gradient(135deg,#3b0764,#4c1d95); color:#e9d5ff; border-color:#7c3aed; }
 
@@ -1097,7 +1101,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
     <div class="header-title">
       F&amp;O Swing Screener <span class="v-badge">v5.0</span>
     </div>
-    <div class="header-updated">Last Scan: <span>2026-03-28 23:08:02</span></div>
+    <div class="header-updated">Last Scan: <span>2026-03-28 23:22:08</span></div>
   </div>
   <div class="header-right">
     <div class="settings-btn" onclick="openSettings()">⚙️ Columns</div>
@@ -1148,6 +1152,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
     <span class="toolbar-label">Entry:</span>
     <button class="entry-filter-btn efb-all active"          id="efbAll"  onclick="setEntryFilter('all')">All Types</button>
     <button class="entry-filter-btn efb-breakout"            id="efbBreakout"     onclick="setEntryFilter('breakout')">⚡ Breakout</button>
+    <button class="entry-filter-btn efb-breakdown"           id="efbBreakdown"    onclick="setEntryFilter('breakdown')">⚡ Breakdown</button>
     <button class="entry-filter-btn efb-continuation"        id="efbContinuation" onclick="setEntryFilter('continuation')">↗ Continuation</button>
     <button class="entry-filter-btn efb-pullback"            id="efbPullback"     onclick="setEntryFilter('pullback')">↩ Pullback</button>
     <button class="entry-filter-btn efb-smart"               id="efbSmart"        onclick="setEntryFilter('smart')">◎ Smart</button>
@@ -1598,7 +1603,7 @@ tr:hover td { background: var(--bg-row-hover) !important; transition: background
 
     <!-- Last Scan -->
     <div style="margin-bottom:12px;font-size:11px;color:var(--text-muted);">
-      🕐 Last Scan: <span style="color:var(--text);font-weight:600;">2026-03-28 23:08:02</span>
+      🕐 Last Scan: <span style="color:var(--text);font-weight:600;">2026-03-28 23:22:08</span>
     </div>
 
     <!-- SL / Targets -->
@@ -1704,7 +1709,7 @@ function setSignalFilter(f, cardEl) {
 function setEntryFilter(f) {
     entryFilter = f;
     // Update button active states
-    ['All','Breakout','Continuation','Pullback','Smart'].forEach(k => {
+    ['All','Breakout','Breakdown','Continuation','Pullback','Smart'].forEach(k => {
         const id = 'efb' + k;
         const el = document.getElementById(id);
         if (el) el.classList.toggle('active', k.toLowerCase() === f || (k==='All' && f==='all'));
@@ -1891,15 +1896,27 @@ initNotes();
 const entryData = {
     breakout: {
         badge:'⚡ Breakout', cls:'badge-breakout', title:'Breakout Entry',
-        desc:'Jab price ne apna pichla Swing High ya Swing Low tod diya ho — volume spike ke saath. Sabse aggressive, high-momentum entry.',
+        desc:'Jab price ne apna pichla Swing High tod diya ho — volume spike ke saath. Sabse aggressive, high-momentum Buy entry.',
         conds:[
-            {icon:'📈',title:'Uptrend/Downtrend Confirm',text:'Price > EMA21 > EMA50 (buy) ya Price < EMA21 < EMA50 (sell)'},
-            {icon:'⚡',title:'Swing High/Low Tuta',text:'Current close ne pichle confirmed swing high/low ko cross kiya'},
+            {icon:'📈',title:'Uptrend Confirm',text:'Price > EMA21 > EMA50 — clear uptrend structure'},
+            {icon:'⚡',title:'Swing High Tuta',text:'Current close ne pichle confirmed swing high ko cross kiya'},
             {icon:'📊',title:'Volume Spike',text:'Volume 50-day average ka 1.5x se zyada — breakout genuine hai'},
             {icon:'🔢',title:'ADX ≥ 20',text:'Market trending hai, sideways nahi'},
         ],
-        best:'⚠️ High momentum — SL tight rakho, trail karo. Risk thoda zyada.',
+        best:'⚠️ High momentum Buy — SL tight rakho, trail karo. Risk thoda zyada.',
         bestBorder:'#c2410c',
+    },
+    breakdown: {
+        badge:'⚡ Breakdown', cls:'badge-breakdown', title:'Breakdown Entry',
+        desc:'Jab price ne apna pichla Swing Low tod diya ho — volume spike ke saath. Sabse aggressive, high-momentum Sell entry.',
+        conds:[
+            {icon:'📉',title:'Downtrend Confirm',text:'Price < EMA21 < EMA50 — clear downtrend structure'},
+            {icon:'⚡',title:'Swing Low Tuta',text:'Current close ne pichle confirmed swing low ko neeche cross kiya'},
+            {icon:'📊',title:'Volume Spike',text:'Volume 50-day average ka 1.5x se zyada — breakdown genuine hai'},
+            {icon:'🔢',title:'ADX ≥ 20',text:'Market trending hai, sideways nahi'},
+        ],
+        best:'⚠️ High momentum Sell — SL tight rakho upar swing high pe. Risk thoda zyada.',
+        bestBorder:'#be123c',
     },
     continuation: {
         badge:'↗ Continuation', cls:'badge-continuation', title:'Continuation Entry',
@@ -1915,24 +1932,24 @@ const entryData = {
     },
     pullback: {
         badge:'↩ Pullback', cls:'badge-pullback', title:'Pullback Entry',
-        desc:'Uptrend mein stock thoda neeche aaya — EMA21 ke paas support liya. Sabse calculated aur best Risk:Reward entry.',
+        desc:'Buy: Uptrend mein stock thoda neeche aaya — EMA21 ke paas support liya. Sell: Downtrend mein stock thoda upar aaya — EMA21 resistance pe aaya. Sabse calculated aur best Risk:Reward entry.',
         conds:[
-            {icon:'📈',title:'Strong Uptrend',text:'ADX ≥ 25 (strong) + EMA21 > EMA50'},
-            {icon:'↩',title:'Price EMA21 Ke Paas',text:'Current price EMA21 se 0-1.5% upar — support zone mein'},
-            {icon:'📉',title:'RSI Pulled Back: 35-58',text:'RSI ne rest liya — fresh momentum ke liye ready'},
-            {icon:'💚',title:'MACD Still Bullish',text:'MACD > Signal — trend intact, sirf price pullback tha'},
+            {icon:'📈',title:'Strong Trend',text:'ADX ≥ 25 (strong) + EMA21 > EMA50 (buy) ya EMA21 < EMA50 (sell)'},
+            {icon:'↩',title:'Price EMA21 Ke Paas',text:'Buy: price EMA21 se 0-1.5% upar | Sell: price EMA21 se 0-1.5% neeche'},
+            {icon:'📉',title:'RSI Pulled Back: 35-65',text:'RSI ne rest liya — fresh momentum ke liye ready'},
+            {icon:'💚',title:'MACD Direction',text:'Buy: MACD > Signal | Sell: MACD < Signal — trend intact'},
         ],
-        best:'🎯 Best R:R entry — kam risk, zyada reward. SL EMA21 ke neeche.',
+        best:'🎯 Best R:R entry — kam risk, zyada reward. SL EMA21 ke opposite side pe.',
         bestBorder:'#6d28d9',
     },
     smart: {
         badge:'◎ Smart', cls:'badge-smart', title:'Smart Entry',
-        desc:'Sab indicators ek direction mein — trend, RSI, MACD aligned. Koi specific breakout/pullback nahi, lekin sab confirm hai.',
+        desc:'Buy: Sab indicators bullish aligned — trend, RSI, MACD. Sell: Sab indicators bearish aligned. Koi specific trigger nahi, lekin sab confirm hai.',
         conds:[
-            {icon:'📈',title:'Trend Confirmed',text:'Price > EMA21 > EMA50 — clear uptrend structure'},
+            {icon:'📈',title:'Trend Confirmed',text:'Buy: Price > EMA21 > EMA50 | Sell: Price < EMA21 < EMA50'},
             {icon:'🔢',title:'ADX ≥ 20',text:'Market sideways nahi, trending hai'},
-            {icon:'📊',title:'RSI: 45-80',text:'Momentum bullish zone mein'},
-            {icon:'💚',title:'MACD + Histogram',text:'MACD bullish aur histogram badhta hua'},
+            {icon:'📊',title:'RSI Range',text:'Buy: 45-80 (bullish zone) | Sell: 20-55 (bearish zone)'},
+            {icon:'💚',title:'MACD Aligned',text:'Buy: MACD bullish + histogram badhta hua | Sell: MACD bearish + histogram girta hua'},
         ],
         best:'ℹ️ Solid entry — sab aligned hai, specific trigger nahi.',
         bestBorder:'#475569',
@@ -2232,7 +2249,10 @@ function showChart(sym, sig, entry, ltp, chg, rsi, adx, sl, t1, t2, rr) {
     const confEl  = document.getElementById('ci-conf');
     entryEl.textContent = entry;
 
-    if (entry.includes('Breakout')) {
+    if (entry.includes('Breakdown')) {
+        entryEl.className = 'badge badge-breakdown';
+        confEl.innerHTML = '<div class="conf-label" style="color:#be123c;">High Confidence — 70%</div><div class="conf-bg"><div class="conf-fill" style="width:70%;background:linear-gradient(90deg,#be123c,#f43f5e);"></div></div>';
+    } else if (entry.includes('Breakout')) {
         entryEl.className = 'badge badge-breakout';
         confEl.innerHTML = '<div class="conf-label" style="color:#f97316;">High Confidence — 70%</div><div class="conf-bg"><div class="conf-fill" style="width:70%;background:linear-gradient(90deg,#f97316,#fb923c);"></div></div>';
     } else if (entry.includes('Cont')) {
