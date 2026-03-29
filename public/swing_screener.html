@@ -257,6 +257,18 @@ body {
 [data-theme="dark"] .sec-btn { background: #01202E; border-color: #0b5e76; color: #6aacbf; }
 [data-theme="dark"] .sec-btn.active { background: #0891b2; color: #fff; border-color: #0891b2; }
 
+/* Filter Dropdown */
+.filter-dropdown {
+  padding: 5px 28px 5px 10px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--bg-card); color: var(--text); font-size: 12px; font-weight: 600;
+  cursor: pointer; outline: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236aacbf' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center;
+  transition: border-color 0.15s; min-width: 150px;
+}
+.filter-dropdown:focus { border-color: #0891b2; box-shadow: 0 0 0 3px rgba(8,145,178,0.18); }
+[data-theme="dark"] .filter-dropdown { background-color: #01202E; border-color: #0b5e76; color: #c8e8f0; }
+
 /* MACD filter */
 .macd-btn {
   padding: 4px 11px; border-radius: 6px; font-size: 11px; font-weight: 700;
@@ -542,29 +554,25 @@ td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: now
     <button class="fno-btn" id="btnFno" onclick="toggleFno()">⚡ F&amp;O Only</button>
   </div>
 
-  <!-- Row 2: Entry Type -->
+  <!-- Row 2: Entry Type Dropdown -->
   <div class="toolbar-row">
     <span class="toolbar-label">Entry:</span>
-    <button class="efb efb-all active"          id="efbAll"   onclick="setEntryFilter('all')">All Types</button>
-    <button class="efb efb-breakout"             id="efbBo"    onclick="setEntryFilter('breakout')">⚡ Breakout</button>
-    <button class="efb efb-breakdown"            id="efbBd"    onclick="setEntryFilter('breakdown')">⚡ Breakdown</button>
-    <button class="efb efb-continuation"         id="efbCont"  onclick="setEntryFilter('continuation')">↗ Continuation</button>
-    <button class="efb efb-pullback"             id="efbPb"    onclick="setEntryFilter('pullback')">↩ Pullback</button>
-    <button class="efb efb-reversal"             id="efbRev"   onclick="setEntryFilter('reversal')">🔃 Reversal</button>
+    <select class="filter-dropdown" id="entryDropdown" onchange="setEntryFilter(this.value)">
+      <option value="all">All Types</option>
+      <option value="breakout">⚡ Breakout</option>
+      <option value="breakdown">⚡ Breakdown</option>
+      <option value="continuation">↗ Continuation</option>
+      <option value="pullback">↩ Pullback</option>
+      <option value="reversal">🔃 Reversal</option>
+    </select>
   </div>
 
-  <!-- Row 3: MACD Filter -->
-  <div class="toolbar-row">
-    <span class="toolbar-label">MACD:</span>
-    <button class="macd-btn macd-all active"  id="macdAll"  onclick="setMacdFilter('all')">All</button>
-    <button class="macd-btn macd-bull"        id="macdBull" onclick="setMacdFilter('bullish')">✦ Bull Cross</button>
-    <button class="macd-btn macd-bear"        id="macdBear" onclick="setMacdFilter('bearish')">✦ Bear Cross</button>
-  </div>
-
-  <!-- Row 4: Sector -->
+  <!-- Row 3: Sector Dropdown -->
   <div class="toolbar-row">
     <span class="toolbar-label">Sector:</span>
-    <div class="sector-scroll" id="sectorBtns"></div>
+    <select class="filter-dropdown" id="sectorDropdown" onchange="setSecFilter(this.value)">
+      <option value="all">All Sectors</option>
+    </select>
   </div>
 
 </div>
@@ -847,15 +855,16 @@ function renderIndices(indices) {
 // ══════════════════════════════════════════════════
 function buildSectorBtns() {
   const sectors = ['all', ...new Set(allStocks.map(s => s.sector||'Unknown').filter(Boolean).sort())];
-  const wrap = document.getElementById('sectorBtns');
-  wrap.innerHTML = '';
+  const dd = document.getElementById('sectorDropdown');
+  if (!dd) return;
+  dd.innerHTML = '';
   sectors.forEach(sec => {
-    const btn = document.createElement('button');
-    btn.className = 'sec-btn' + (sec==='all' ? ' active' : '');
-    btn.textContent = sec==='all' ? 'All Sectors' : sec;
-    btn.onclick = () => setSecFilter(sec);
-    wrap.appendChild(btn);
+    const opt = document.createElement('option');
+    opt.value = sec;
+    opt.textContent = sec === 'all' ? 'All Sectors' : sec;
+    dd.appendChild(opt);
   });
+  dd.value = secFilter;
 }
 
 // ══════════════════════════════════════════════════
@@ -1037,14 +1046,11 @@ function setSigFilter(f, cardEl) {
   renderTable();
 }
 
-// Entry filter — toggle
+// Entry filter — dropdown
 function setEntryFilter(f) {
-  entryFilter = (entryFilter === f && f !== 'all') ? 'all' : f;
-  ['efbAll','efbBo','efbBd','efbCont','efbPb','efbRev'].forEach(id => {
-    document.getElementById(id)?.classList.remove('active');
-  });
-  const map = { all:'efbAll', breakout:'efbBo', breakdown:'efbBd', continuation:'efbCont', pullback:'efbPb', reversal:'efbRev' };
-  document.getElementById(map[entryFilter])?.classList.add('active');
+  entryFilter = f || 'all';
+  const dd = document.getElementById('entryDropdown');
+  if (dd) dd.value = entryFilter;
   renderTable();
 }
 
@@ -1057,12 +1063,11 @@ function setMacdFilter(f) {
   renderTable();
 }
 
-// Sector filter — toggle
+// Sector filter — dropdown
 function setSecFilter(f) {
-  secFilter = (secFilter === f && f !== 'all') ? 'all' : f;
-  document.querySelectorAll('.sec-btn').forEach(b => {
-    b.classList.toggle('active', b.textContent === (secFilter === 'all' ? 'All Sectors' : secFilter));
-  });
+  secFilter = f || 'all';
+  const dd = document.getElementById('sectorDropdown');
+  if (dd) dd.value = secFilter;
   renderTable();
 }
 
@@ -1073,9 +1078,8 @@ function setIndexFilter(key) {
   indexFilter = (indexFilter === key && key !== 'all') ? 'all' : key;
   if (indexFilter !== 'all') {
     secFilter = 'all';
-    document.querySelectorAll('.sec-btn').forEach(b => {
-      b.classList.toggle('active', b.textContent === 'All Sectors');
-    });
+    const sectorDd = document.getElementById('sectorDropdown');
+    if (sectorDd) sectorDd.value = 'all';
   }
   document.querySelectorAll('.idx-card').forEach(c => c.classList.remove('idx-active'));
   const resetBtn = document.getElementById('idxResetBtn');
@@ -1114,18 +1118,13 @@ function resetAllFilters() {
   const totalCard = document.querySelector('.card-total');
   if (totalCard) totalCard.classList.add('card-active');
 
-  // Entry buttons
-  ['efbAll','efbBo','efbBd','efbCont','efbPb','efbRev'].forEach(id => document.getElementById(id)?.classList.remove('active'));
-  document.getElementById('efbAll')?.classList.add('active');
+  // Entry dropdown
+  const entryDd = document.getElementById('entryDropdown');
+  if (entryDd) entryDd.value = 'all';
 
-  // MACD buttons
-  ['macdAll','macdBull','macdBear'].forEach(id => document.getElementById(id)?.classList.remove('active'));
-  document.getElementById('macdAll')?.classList.add('active');
-
-  // Sector buttons
-  document.querySelectorAll('.sec-btn').forEach(b => {
-    b.classList.toggle('active', b.textContent === 'All Sectors');
-  });
+  // Sector dropdown
+  const sectorDd = document.getElementById('sectorDropdown');
+  if (sectorDd) sectorDd.value = 'all';
 
   // Index cards
   document.querySelectorAll('.idx-card').forEach(c => c.classList.remove('idx-active'));
