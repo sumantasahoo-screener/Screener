@@ -475,14 +475,14 @@ td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: now
   .levels-grid { grid-template-columns: repeat(2, 1fr); }
   .modal { max-width: 100%; border-radius: 16px 16px 0 0; }
   .modal-overlay.show { align-items: flex-end; padding: 0; }
+  /* Mobile pe page scroll — table fixed height nahi */
+  .table-scroll { height: auto !important; overflow-y: visible; }
 }
 @media (max-width: 480px) {
   .search-wrap { max-width: 100%; min-width: 0; flex: 1 1 100%; }
   .hdr-btn span:last-child { display: none; }
   .card-label { font-size: 9px; }
   .card-value { font-size: 20px; }
-  .table-scroll { overflow-y: visible; height: auto; }
-  body { overflow-x: hidden; }
 }
 </style>
 </head>
@@ -810,7 +810,10 @@ async function loadData(date) {
 
     renderTable();
     document.getElementById('loadingScreen').style.display = 'none';
-    requestAnimationFrame(() => requestAnimationFrame(setTableHeight));
+    requestAnimationFrame(() => {
+      requestAnimationFrame(setTableHeight);
+      initMobileStickyHeader();
+    });
   } catch(e) {
     if (!isLatest) {
       document.getElementById('tableBody').innerHTML =
@@ -1279,20 +1282,108 @@ function deleteNote() {
 }
 
 // ══════════════════════════════════════════════════
-// TABLE HEIGHT — column header sticky fix
-// table-scroll ka height = window - upar ka sab content
-// Isse th { top:0 } perfectly sticky rehta hai
+// TABLE HEIGHT — PC ke liye (unchanged)
 // ══════════════════════════════════════════════════
 function setTableHeight() {
-  const scroll = document.querySelector('.table-scroll');
-  if (!scroll) return;
-  const rect = scroll.getBoundingClientRect();
-  const available = window.innerHeight - rect.top - 16;
-  if (available > 100) {
-    document.documentElement.style.setProperty('--table-h', available + 'px');
+  if (window.innerWidth > 768) {
+    const scroll = document.querySelector('.table-scroll');
+    if (!scroll) return;
+    const rect = scroll.getBoundingClientRect();
+    const available = window.innerHeight - rect.top - 16;
+    if (available > 100) {
+      document.documentElement.style.setProperty('--table-h', available + 'px');
+    }
   }
 }
-window.addEventListener('resize', () => requestAnimationFrame(setTableHeight));
+window.addEventListener('resize', () => {
+  requestAnimationFrame(setTableHeight);
+  if (window.innerWidth <= 768) initMobileStickyHeader();
+});
+
+// ══════════════════════════════════════════════════
+// MOBILE STICKY HEADER — JS fixed position approach
+// ══════════════════════════════════════════════════
+function initMobileStickyHeader() {
+  if (window.innerWidth > 768) return; // sirf mobile
+
+  const tableScroll = document.querySelector('.table-scroll');
+  const table       = document.querySelector('#mainTable');
+  const thead       = document.querySelector('#mainTable thead');
+  const appHeader   = document.querySelector('.header');
+  if (!tableScroll || !table || !thead || !appHeader) return;
+
+  // Clone thead — yeh fixed rahega
+  let fixedThead = document.getElementById('fixedThead');
+  if (!fixedThead) {
+    fixedThead = document.createElement('div');
+    fixedThead.id = 'fixedThead';
+    fixedThead.style.cssText = `
+      position: fixed;
+      left: 0; right: 0;
+      z-index: 200;
+      overflow: hidden;
+      display: none;
+      background: var(--bg-thead-1);
+    `;
+    document.body.appendChild(fixedThead);
+
+    const cloneTable = document.createElement('table');
+    cloneTable.style.cssText = `
+      width: max-content;
+      border-collapse: collapse;
+      min-width: 700px;
+    `;
+    const cloneThead = thead.cloneNode(true);
+    cloneTable.appendChild(cloneThead);
+    fixedThead.appendChild(cloneTable);
+  }
+
+  // Sync column widths
+  function syncWidths() {
+    const origThs  = thead.querySelectorAll('th');
+    const cloneThs = fixedThead.querySelectorAll('th');
+    origThs.forEach((th, i) => {
+      if (cloneThs[i]) {
+        cloneThs[i].style.width    = th.offsetWidth + 'px';
+        cloneThs[i].style.minWidth = th.offsetWidth + 'px';
+        cloneThs[i].style.padding  = '8px 8px';
+        cloneThs[i].style.fontSize = '10px';
+        cloneThs[i].style.fontWeight = '700';
+        cloneThs[i].style.textTransform = 'uppercase';
+        cloneThs[i].style.color = '#7ab8c8';
+        cloneThs[i].style.borderBottom = '2px solid #0891b2';
+        cloneThs[i].style.whiteSpace = 'nowrap';
+      }
+    });
+  }
+
+  // Sync horizontal scroll
+  tableScroll.addEventListener('scroll', () => {
+    if (fixedThead.style.display !== 'none') {
+      fixedThead.querySelector('table').style.marginLeft = -tableScroll.scrollLeft + 'px';
+    }
+  }, { passive: true });
+
+  // Show/hide on page scroll
+  window.addEventListener('scroll', () => {
+    const headerH    = appHeader.getBoundingClientRect().height;
+    const theadRect  = thead.getBoundingClientRect();
+
+    if (theadRect.top < headerH) {
+      // thead screen se upar chali gayi — fixed show karo
+      syncWidths();
+      fixedThead.style.top     = headerH + 'px';
+      fixedThead.style.display = 'block';
+      fixedThead.querySelector('table').style.marginLeft = -tableScroll.scrollLeft + 'px';
+      // Original thead invisible karo (space rakho)
+      thead.style.visibility = 'hidden';
+    } else {
+      // thead visible hai — fixed hato
+      fixedThead.style.display = 'none';
+      thead.style.visibility   = '';
+    }
+  }, { passive: true });
+}
 
 // ══════════════════════════════════════════════════
 // INIT
