@@ -127,21 +127,24 @@ body {
 [data-theme="dark"] .fno-btn { border-color: #fbbf24; color: #fbbf24; background: rgba(251,191,36,0.08); }
 [data-theme="dark"] .fno-btn.fno-active { background: rgba(251,191,36,0.2); }
 
+/* ── ALL INDICES RESET BUTTON ── */
 .idx-reset-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
   background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 10px; padding: 8px 12px; min-width: 90px;
+  border-radius: 10px; padding: 8px 14px; min-width: 90px;
   flex-shrink: 0; cursor: pointer;
   font-size: 11px; font-weight: 700; color: var(--text-muted);
-  transition: all 0.15s; white-space: nowrap;
-  box-shadow: var(--shadow); letter-spacing: 0.04em;
+  transition: all 0.15s; white-space: nowrap; box-shadow: var(--shadow);
+  line-height: 1.4;
 }
-.idx-reset-btn:hover { border-color: #0891b2; color: #0891b2; }
+.idx-reset-btn:hover { border-color: #0891b2; color: #0891b2; transform: translateY(-2px); }
 .idx-reset-btn.idx-reset-active {
-  background: linear-gradient(145deg,#022a3a,#044E61) !important;
-  color: #38bdf8 !important; border-color: #0891b2 !important;
+  border-color: #0891b2 !important;
   box-shadow: 0 0 0 2px rgba(8,145,178,0.45) !important;
+  color: #38bdf8 !important;
 }
 [data-theme="dark"] .idx-reset-btn { background: linear-gradient(145deg, #01202E, #022030); border-color: #0b5e76; color: #6aacbf; }
+[data-theme="dark"] .idx-reset-btn.idx-reset-active { background: linear-gradient(145deg,#022a3a,#044E61) !important; }
 
 /* ── DATE DROPDOWN ── */
 .date-wrap { display: flex; align-items: center; gap: 6px; }
@@ -282,7 +285,8 @@ thead tr {
 th {
   padding: 9px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.06em; color: #7ab8c8; white-space: nowrap; cursor: pointer;
-  border-bottom: 2px solid #0891b2; user-select: none; position: sticky; top: 0;
+  border-bottom: 2px solid #0891b2; user-select: none; position: sticky;
+  top: var(--th-top, 0px);
   background: var(--bg-thead-1);
   z-index: 10;
 }
@@ -496,7 +500,9 @@ td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: now
 
 <!-- INDEX STRIP -->
 <div class="index-strip" id="indexStrip">
-  <div class="idx-reset-btn idx-reset-active" id="idxResetBtn" onclick="setIndexFilter('all')">🔄 All Indices</div>
+  <div class="idx-reset-btn idx-reset-active" id="idxResetBtn" onclick="setIndexFilter('all')">
+    <span>🔄</span><span>All Indices</span>
+  </div>
 </div>
 
 <!-- SIGNAL CARDS -->
@@ -783,6 +789,10 @@ async function loadData(date) {
 
     renderTable();
     document.getElementById('loadingScreen').style.display = 'none';
+    // Sticky header fix — data render hone ke baad header height sahi set karo
+    requestAnimationFrame(() => {
+      requestAnimationFrame(fixStickyHeader);
+    });
   } catch(e) {
     if (!isLatest) {
       document.getElementById('tableBody').innerHTML =
@@ -805,20 +815,27 @@ const IDX_LABELS = {
 };
 function renderIndices(indices) {
   const strip = document.getElementById('indexStrip');
-  // Reset button preserve karo — sirf idx-cards clear karo
+  // Pehle reset button ko detach karo DOM se (innerHTML clear se pehle)
   const resetBtn = document.getElementById('idxResetBtn');
+  if (resetBtn && resetBtn.parentNode) resetBtn.parentNode.removeChild(resetBtn);
+
+  // Ab strip clear karo
   strip.innerHTML = '';
-  // Reset button wapas pehle rakho
+
+  // Reset button wapas pehle append karo
   if (resetBtn) {
     strip.appendChild(resetBtn);
   } else {
+    // Fallback: naya banao
     const rb = document.createElement('div');
     rb.className = 'idx-reset-btn idx-reset-active';
     rb.id = 'idxResetBtn';
-    rb.textContent = '🔄 All Indices';
+    rb.innerHTML = '<span>🔄</span><span>All Indices</span>';
     rb.onclick = () => setIndexFilter('all');
     strip.appendChild(rb);
   }
+
+  // Index cards banao
   Object.entries(indices).forEach(([key, d]) => {
     const up  = d.change_pct >= 0;
     const ltp = typeof d.ltp === 'number' ? d.ltp.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
@@ -1051,9 +1068,20 @@ function setIndexFilter(key) {
   } else {
     indexFilter = key;
   }
-  // All idx-card active class clear karo
+
+  // Jab bhi index card change ho — sector filter reset karo
+  // (Technology sector + Bank Nifty = blank result problem fix)
+  if (indexFilter !== 'all') {
+    secFilter = 'all';
+    document.querySelectorAll('.sec-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent === 'All Sectors');
+    });
+  }
+
+  // Sab idx-card active class hato
   document.querySelectorAll('.idx-card').forEach(c => c.classList.remove('idx-active'));
-  // All Indices reset button
+
+  // Reset button state
   const resetBtn = document.getElementById('idxResetBtn');
   if (indexFilter === 'all') {
     if (resetBtn) resetBtn.classList.add('idx-reset-active');
@@ -1062,6 +1090,7 @@ function setIndexFilter(key) {
     const el = document.getElementById('idxCard_' + indexFilter);
     if (el) el.classList.add('idx-active');
   }
+
   renderTable();
 }
 
@@ -1198,24 +1227,17 @@ function deleteNote() {
 }
 
 // ══════════════════════════════════════════════════
-// STICKY HEADER DYNAMIC FIX
+// STICKY HEADER — DYNAMIC FIX
 // ══════════════════════════════════════════════════
 function fixStickyHeader() {
   const header = document.querySelector('.header');
   if (!header) return;
-  const h = header.getBoundingClientRect().height;
-  document.querySelectorAll('#tableHead th').forEach(th => {
-    th.style.top = h + 'px';
-  });
+  const h = Math.ceil(header.getBoundingClientRect().height);
+  if (h === 0) return; // Abhi render nahi hua, skip
+  document.documentElement.style.setProperty('--th-top', h + 'px');
 }
-// Page load pe aur resize pe run karo
-window.addEventListener('resize', fixStickyHeader);
-// Table render ke baad bhi call karo — buildColHeaders ke baad
-const _origBuildColHeaders = buildColHeaders;
-buildColHeaders = function() {
-  _origBuildColHeaders();
-  setTimeout(fixStickyHeader, 0);
-};
+// Resize pe recalculate (mobile rotate, browser zoom)
+window.addEventListener('resize', () => requestAnimationFrame(fixStickyHeader));
 
 // ══════════════════════════════════════════════════
 // INIT
