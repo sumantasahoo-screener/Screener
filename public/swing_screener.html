@@ -726,23 +726,29 @@ applyTheme(theme);
 // DATE DROPDOWN HELPERS
 // ══════════════════════════════════════════════════
 function buildDateDropdown(generatedAt) {
-  // Build last 10 days options based on today
-  const sel = document.getElementById('dateSelect');
-  // Keep only "Today (Live)" option first
-  sel.innerHTML = '<option value="latest">Today (Live)</option>';
-
-  const today = new Date();
-  for (let i = 1; i <= 10; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    const dateStr  = d.toISOString().split('T')[0]; // YYYY-MM-DD
-    const label    = d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric', weekday:'short' });
-    const opt      = document.createElement('option');
-    opt.value      = dateStr;
-    opt.textContent= label;
-    sel.appendChild(opt);
-  }
-  sel.value = selectedDate;
+  // dates_index.json se real available dates load karo
+  const R2_DATES_INDEX = R2_BASE + '/dates_index.json?t=' + Date.now();
+  fetch(R2_DATES_INDEX)
+    .then(r => r.ok ? r.json() : Promise.reject('not found'))
+    .then(data => {
+      const sel = document.getElementById('dateSelect');
+      sel.innerHTML = '<option value="latest">Today (Live)</option>';
+      const dates = data.dates || [];
+      dates.forEach(dateStr => {
+        const d     = new Date(dateStr + 'T00:00:00');
+        const label = d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric', weekday:'short' });
+        const opt   = document.createElement('option');
+        opt.value       = dateStr;
+        opt.textContent = label;
+        sel.appendChild(opt);
+      });
+      sel.value = selectedDate;
+    })
+    .catch(() => {
+      // Fallback: sirf Today dikhao
+      const sel = document.getElementById('dateSelect');
+      sel.innerHTML = '<option value="latest">Today (Live)</option>';
+    });
 }
 
 async function onDateChange() {
