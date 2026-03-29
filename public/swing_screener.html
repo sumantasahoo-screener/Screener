@@ -126,6 +126,26 @@ body {
 .fno-btn.fno-active { background: rgba(245,158,11,0.25); box-shadow: 0 0 0 2px rgba(245,158,11,0.4); }
 [data-theme="dark"] .fno-btn { border-color: #fbbf24; color: #fbbf24; background: rgba(251,191,36,0.08); }
 [data-theme="dark"] .fno-btn.fno-active { background: rgba(251,191,36,0.2); }
+
+/* ── DATE DROPDOWN ── */
+.date-wrap { display: flex; align-items: center; gap: 6px; }
+.date-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); white-space: nowrap; }
+.date-select {
+  padding: 5px 28px 5px 10px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--bg-card); color: var(--text); font-size: 12px; font-weight: 600;
+  cursor: pointer; outline: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236aacbf' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center;
+  transition: border-color 0.15s; min-width: 130px;
+}
+.date-select:focus { border-color: #0891b2; }
+[data-theme="dark"] .date-select { background-color: #01202E; border-color: #0b5e76; color: #c8e8f0; }
+.date-live-badge {
+  font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 999px;
+  background: rgba(22,163,74,0.15); color: #4ade80; border: 1px solid rgba(22,163,74,0.3);
+  white-space: nowrap; animation: pulse-badge 2s infinite;
+}
+@keyframes pulse-badge { 0%,100%{opacity:1} 50%{opacity:0.6} }
 .idx-name { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 3px; }
 .idx-ltp  { font-size: 15px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
 .idx-chg  { font-size: 10px; font-weight: 600; margin-top: 1px; }
@@ -446,6 +466,13 @@ td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: now
     <div class="header-sub">Last Scan: <span id="lastScan">—</span></div>
   </div>
   <div class="header-right">
+    <div class="date-wrap">
+      <span class="date-label">📅 Date:</span>
+      <select class="date-select" id="dateSelect" onchange="onDateChange()">
+        <option value="latest">Today (Live)</option>
+      </select>
+      <span class="date-live-badge" id="liveBadge">● LIVE</span>
+    </div>
     <div class="hdr-btn" onclick="toggleSettings()">⚙️ <span>Columns</span></div>
     <div class="hdr-btn" onclick="toggleTheme()"><span id="themeIcon">☀️</span> <span id="themeLabel">Light</span></div>
   </div>
@@ -601,24 +628,10 @@ td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: now
 // ══════════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════════
-const R2_URL     = 'https://pub-66800ada06c14469a0ff98b0eaf41f8e.r2.dev/screener_data.json';
+const R2_URL  = 'https://pub-66800ada06c14469a0ff98b0eaf41f8e.r2.dev/screener_data.json';
+const R2_BASE = 'https://pub-66800ada06c14469a0ff98b0eaf41f8e.r2.dev';
 
-// ── Index Constituents ──
-const INDEX_MEMBERS = {
-  NIFTY50: ["ADANIENT","ADANIPORTS","APOLLOHOSP","ASIANPAINT","AXISBANK","BAJAJ-AUTO","BAJFINANCE","BAJAJFINSV","BPCL","BHARTIARTL","BRITANNIA","CIPLA","COALINDIA","DIVISLAB","DRREDDY","EICHERMOT","GRASIM","HCLTECH","HDFCBANK","HDFCLIFE","HEROMOTOCO","HINDALCO","HINDUNILVR","ICICIBANK","INDUSINDBK","INFY","ITC","JSWSTEEL","KOTAKBANK","LT","LTIM","M&M","MARUTI","NESTLEIND","NTPC","ONGC","POWERGRID","RELIANCE","SBILIFE","SHRIRAMFIN","SBIN","SUNPHARMA","TATACONSUM","TATAMOTORS","TATASTEEL","TCS","TECHM","TITAN","ULTRACEMCO","WIPRO"],
-  BANKNIFTY: ["AUBANK","AXISBANK","BANDHANBNK","FEDERALBNK","HDFCBANK","ICICIBANK","IDFCFIRSTB","INDUSINDBK","KOTAKBANK","PNB","SBIN","YESBANK"],
-  FINNIFTY: ["AUBANK","AXISBANK","BAJFINANCE","BAJAJFINSV","BANDHANBNK","CHOLAFIN","FEDERALBNK","HDFCBANK","HDFCLIFE","ICICIBANK","IDFCFIRSTB","INDUSINDBK","KOTAKBANK","MUTHOOTFIN","PFC","PNB","RECLTD","SBIN","SBILIFE","SHRIRAMFIN"],
-  MIDCPNIFTY: ["ABCAPITAL","AUBANK","BANDHANBNK","BHARTIARTL","CANBK","COFORGE","CONCOR","CROMPTON","CUMMINSIND","DMART","FEDERALBNK","GMRAIRPORT","GODREJPROP","IDFCFIRSTB","INDHOTEL","INDUSTOWER","KPITTECH","L&TFH","LUPIN","MFSL","NMDC","OBEROIRLTY","OFSS","PAGEIND","PERSISTENT","PETRONET","PIIND","PRESTIGE","SUNDARMFIN","TORNTPHARM","TRENT","VOLTAS","ZYDUSLIFE"],
-  NIFTYIT: ["TCS","INFY","HCLTECH","WIPRO","TECHM","LTIM","MPHASIS","COFORGE","PERSISTENT","LTTS","OFSS","KPITTECH"],
-  NIFTYFMCG: ["HINDUNILVR","ITC","NESTLEIND","BRITANNIA","DABUR","MARICO","GODREJCP","COLPAL","EMAMILTD","TATACONSUM","UBL","MCDOWELL-N","PGHH","VBL"],
-  NIFTYAUTO: ["MARUTI","TATAMOTORS","M&M","BAJAJ-AUTO","EICHERMOT","HEROMOTOCO","TVSMOTOR","ASHOKLEY","MOTHERSON","BALKRISIND","BOSCHLTD","MRF","BHARATFORG","APOLLOTYRE","ESCORTS"],
-  NIFTYOILGAS: ["RELIANCE","ONGC","IOC","BPCL","GAIL","OIL","PETRONET","IGL","MGL","GUJARATGAS","CASTROLIND","DEEPAKNTR"],
-  NIFTYPHARMA: ["SUNPHARMA","DRREDDY","CIPLA","DIVISLAB","APOLLOHOSP","LUPIN","AUROPHARMA","BIOCON","ALKEM","TORNTPHARM","IPCALAB","ABBOTINDIA","GLAXO","PFIZER"],
-  NIFTYREALTY: ["DLF","GODREJPROP","OBEROIRLTY","PRESTIGE","PHOENIXLTD","BRIGADE","SOBHA","MAHLIFE","SUNTECK","IBREALEST","LODHA","SIGNATURE"]
-};
-
-// ── F&O Stocks (NSE) ──
-const FNO_STOCKS = ["AARTIIND","ABB","ABBOTINDIA","ABCAPITAL","ABFRL","ACC","ADANIENT","ADANIPORTS","ALKEM","AMBUJACEM","APOLLOHOSP","APOLLOTYRE","ASHOKLEY","ASIANPAINT","ASTRAL","ATUL","AUBANK","AUROPHARMA","AXISBANK","BAJAJ-AUTO","BAJAJFINSV","BAJFINANCE","BALKRISIND","BANDHANBNK","BANKBARODA","BATAINDIA","BEL","BERGER","BHARATFORG","BHARTIARTL","BHEL","BIOCON","BOSCHLTD","BPCL","BRITANNIA","BSOFT","CANBK","CANFINHOME","CASTROLIND","CHOLAFIN","CIPLA","COALINDIA","COFORGE","COLPAL","CONCOR","COROMANDEL","CROMPTON","CUB","CUMMINSIND","DABUR","DALBHARAT","DEEPAKNTR","DELTACORP","DHANI","DIVISLAB","DLF","DRREDDY","EICHERMOT","EMAMILTD","ESCORTS","EXIDEIND","FACT","FEDERALBNK","GAIL","GLENMARK","GMRAIRPORT","GNFC","GODREJCP","GODREJPROP","GRANULES","GRASIM","GUJGASLTD","HAL","HCLTECH","HDFCAMC","HDFCBANK","HDFCLIFE","HEROMOTOCO","HINDALCO","HINDCOPPER","HINDPETRO","HINDUNILVR","HONAUT","IBREALEST","ICICIBANK","ICICIGI","ICICIPRULI","IDEA","IDFCFIRSTB","IEX","IGL","INDHOTEL","INDIACEM","INDIAMART","INDUSINDBK","INDUSTOWER","INFY","IOC","IPCALAB","IRCTC","ITC","JINDALSTEL","JSWSTEEL","JUBLFOOD","KOTAKBANK","KPITTECH","L&TFH","LALPATHLAB","LAURUSLABS","LICHSGFIN","LT","LTIM","LTTS","LUPIN","M&M","M&MFIN","MANAPPURAM","MARICO","MARUTI","MCDOWELL-N","MCX","MFSL","MGL","MOTHERSON","MPHASIS","MRF","MUTHOOTFIN","NATIONALUM","NAUKRI","NAVINFLUOR","NESTLEIND","NMDC","NTPC","OBEROIRLTY","OFSS","OIL","ONGC","PAGEIND","PEL","PERSISTENT","PETRONET","PFC","PHOENIXLTD","PIDILITIND","PIIND","PNB","POLYCAB","POWERGRID","PRESTIGE","PVRINOX","RAMCOCEM","RECLTD","RELIANCE","SAIL","SBIN","SBICARD","SBILIFE","SHRIRAMFIN","SIEMENS","SRF","SUNPHARMA","SUNTV","TATACHEM","TATACOMM","TATACONSUM","TATAMOTORS","TATAPOWER","TATASTEEL","TCS","TECHM","TITAN","TORNTPHARM","TRENT","TVSMOTOR","UBL","ULTRACEMCO","UPL","VEDL","VOLTAS","WHIRLPOOL","WIPRO","YESBANK","ZYDUSLIFE","INDIGO","DMART","GICRE","NIACL","CHOLAHLDNG","HFCL","RBLBANK","IDFCFIRSTB","AUBANK","VBL","EMAMILTD","BALKRISIND"];
+// ── Index & F&O data comes from JSON now (no hardcode) ──
 
 const COLS = [
   { key:'symbol',     label:'Symbol',      hidden:false, numeric:false },
@@ -657,6 +670,7 @@ let sortCol     = -1;
 let sortAsc     = true;
 let indexFilter = 'all';
 let fnoOnly     = false;
+let selectedDate = 'latest';
 
 // ══════════════════════════════════════════════════
 // THEME
@@ -673,11 +687,54 @@ function toggleTheme() { applyTheme(theme==='dark' ? 'light' : 'dark'); }
 applyTheme(theme);
 
 // ══════════════════════════════════════════════════
+// DATE DROPDOWN HELPERS
+// ══════════════════════════════════════════════════
+function buildDateDropdown(generatedAt) {
+  // Build last 10 days options based on today
+  const sel = document.getElementById('dateSelect');
+  // Keep only "Today (Live)" option first
+  sel.innerHTML = '<option value="latest">Today (Live)</option>';
+
+  const today = new Date();
+  for (let i = 1; i <= 10; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const dateStr  = d.toISOString().split('T')[0]; // YYYY-MM-DD
+    const label    = d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric', weekday:'short' });
+    const opt      = document.createElement('option');
+    opt.value      = dateStr;
+    opt.textContent= label;
+    sel.appendChild(opt);
+  }
+  sel.value = selectedDate;
+}
+
+async function onDateChange() {
+  selectedDate = document.getElementById('dateSelect').value;
+  const badge  = document.getElementById('liveBadge');
+  if (selectedDate === 'latest') {
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+  // Show mini loading in table area
+  document.getElementById('tableBody').innerHTML =
+    '<tr><td colspan="20" style="text-align:center;padding:30px;color:var(--text-muted);">⏳ Loading data for ' + selectedDate + '...</td></tr>';
+  await loadData(selectedDate);
+}
+
+// ══════════════════════════════════════════════════
 // FETCH DATA
 // ══════════════════════════════════════════════════
-async function loadData() {
+async function loadData(date) {
+  const isLatest = !date || date === 'latest';
+  const url      = isLatest
+    ? R2_URL + '?t=' + Date.now()
+    : R2_BASE + '/screener_data_' + date + '.json?t=' + Date.now();
+
   try {
-    const res  = await fetch(R2_URL + '?t=' + Date.now());
+    const res  = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
 
     allStocks = data.stocks || [];
@@ -695,14 +752,27 @@ async function loadData() {
     // Build sector buttons
     buildSectorBtns();
 
+    // Build date dropdown (only on first load)
+    if (isLatest) buildDateDropdown(meta.generated_at);
+
     // Build table
     buildColHeaders();
     buildColCheckboxes();
-    renderTable();
 
+    // Reset filters on date change
+    indexFilter = 'all';
+    document.querySelectorAll('.idx-card').forEach(c => c.classList.remove('idx-active'));
+
+    renderTable();
     document.getElementById('loadingScreen').style.display = 'none';
   } catch(e) {
-    document.querySelector('.load-text').textContent = '❌ Failed to load data. Check R2 URL.';
+    if (!isLatest) {
+      document.getElementById('tableBody').innerHTML =
+        '<tr><td colspan="20" style="text-align:center;padding:30px;color:#f87171;">❌ ' + date + ' ka data R2 mein nahi mila. Cloudflare pe check karo.</td></tr>';
+      document.getElementById('showingCount').textContent = '';
+    } else {
+      document.querySelector('.load-text').textContent = '❌ Failed to load data. Check R2 URL.';
+    }
     console.error(e);
   }
 }
@@ -796,8 +866,11 @@ function renderTable() {
     const okMacd  = macdFilter==='all' || macd===macdFilter;
     const okSec   = secFilter==='all' || sector===secFilter;
     const okQ     = !q || sym.toLowerCase().includes(q) || sector.toLowerCase().includes(q);
-    const okIndex = indexFilter==='all' || (INDEX_MEMBERS[indexFilter] && INDEX_MEMBERS[indexFilter].includes(sym));
-    const okFno   = !fnoOnly || FNO_STOCKS.includes(sym);
+    // Index filter — uses indices field from JSON
+    const symIndices = (s.indices || '').split(',').map(x => x.trim()).filter(Boolean);
+    const okIndex = indexFilter==='all' || symIndices.includes(indexFilter);
+    // F&O filter — uses isFnO field from JSON
+    const okFno   = !fnoOnly || s.isFnO === true;
 
     if (okEntry && okMacd && okSec && okQ && okIndex && okFno) {
       cntAll++;
@@ -1091,7 +1164,7 @@ function deleteNote() {
 // ══════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════
-loadData();
+loadData('latest');
 </script>
 </body>
 </html>
