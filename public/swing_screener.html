@@ -1281,7 +1281,12 @@ function deleteNote() {
 // Isse th { top:0 } perfectly sticky rehta hai
 // ══════════════════════════════════════════════════
 function setTableHeight() {
-  // Page level scroll handle karta hai — fixed height nahi chahiye
+  const header = document.querySelector('.header');
+  if (!header) return;
+  const headerH = header.getBoundingClientRect().height;
+  document.querySelectorAll('#tableHead th').forEach(th => {
+    th.style.top = headerH + 'px';
+  });
 }
 window.addEventListener('resize', () => requestAnimationFrame(setTableHeight));
 
