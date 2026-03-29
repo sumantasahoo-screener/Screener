@@ -44,9 +44,6 @@
   --shadow-lg:    0 4px 24px rgba(0,0,0,0.7);
 }
 
-html, body {
-  overflow-x: auto;
-}
 body {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   background: var(--bg);
@@ -275,7 +272,13 @@ body {
 [data-theme="dark"] .macd-bear { background:linear-gradient(135deg,#3b0808,#4c0e0e); color:#f87171; border-color:#dc2626; }
 
 /* ── TABLE ── */
-.table-outer { padding: 6px 16px 16px; }
+.table-outer { padding: 6px 16px 0; }
+.table-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  height: var(--table-h, 60vh);
+}
 .showing-count { font-size: 12px; color: var(--text-muted); padding: 6px 0 8px; font-weight: 500; }
 
 table { width: 100%; border-collapse: collapse; min-width: 860px; }
@@ -284,7 +287,8 @@ th {
   padding: 9px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.06em; color: #7ab8c8; white-space: nowrap; cursor: pointer;
   border-bottom: 2px solid #0891b2; user-select: none;
-  position: sticky; top: var(--th-top, 0px);
+  position: -webkit-sticky; position: sticky;
+  top: 0;
   background: var(--bg-thead-1);
   z-index: 10;
 }
@@ -498,8 +502,8 @@ td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: now
 
 <!-- INDEX STRIP -->
 <div class="index-strip" id="indexStrip">
-  <div class="idx-reset-btn idx-reset-active" id="idxResetBtn" onclick="setIndexFilter('all')">
-    <span>🔄</span><span>All Indices</span>
+  <div class="idx-reset-btn idx-reset-active" id="idxResetBtn" onclick="resetAllFilters()">
+    <span>↺ Reset</span>
   </div>
 </div>
 
@@ -568,12 +572,14 @@ td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: now
 <!-- TABLE -->
 <div class="table-outer">
   <div class="showing-count" id="showingCount"></div>
-  <table id="mainTable">
-    <thead>
-      <tr id="tableHead"></tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
+  <div class="table-scroll">
+    <table id="mainTable">
+      <thead>
+        <tr id="tableHead"></tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
 </div>
 
 <!-- SETTINGS PANEL -->
@@ -787,7 +793,7 @@ async function loadData(date) {
 
     renderTable();
     document.getElementById('loadingScreen').style.display = 'none';
-    requestAnimationFrame(() => requestAnimationFrame(fixStickyHeader));
+    requestAnimationFrame(() => requestAnimationFrame(setTableHeight));
   } catch(e) {
     if (!isLatest) {
       document.getElementById('tableBody').innerHTML =
@@ -819,8 +825,8 @@ function renderIndices(indices) {
     const rb = document.createElement('div');
     rb.className = 'idx-reset-btn idx-reset-active';
     rb.id = 'idxResetBtn';
-    rb.innerHTML = '<span>🔄</span><span>All Indices</span>';
-    rb.onclick = () => setIndexFilter('all');
+    rb.innerHTML = '<span>↺ Reset</span>';
+    rb.onclick = () => resetAllFilters();
     strip.appendChild(rb);
   }
   Object.entries(indices).forEach(([key, d]) => {
@@ -1003,58 +1009,68 @@ function renderTable() {
 function applyFilters() { renderTable(); }
 
 // ══════════════════════════════════════════════════
-// FILTER SETTERS
+// FILTER SETTERS — sab toggle karte hain
 // ══════════════════════════════════════════════════
+
+// Signal filter — card aur button dono se
 function setSigFilter(f, cardEl) {
-  sigFilter = f;
+  // Toggle: same value dobara click = 'all' pe reset
+  if (sigFilter === f && f !== 'all') {
+    sigFilter = 'all';
+  } else {
+    sigFilter = f;
+  }
+  // Buttons update
   ['btnAll','btnBuy','btnSell','btnWatch'].forEach(id => {
     const el = document.getElementById(id);
-    el.className = 'filter-btn';
+    if (el) el.className = 'filter-btn';
   });
-  const map = { all:'f-all', buy:'f-buy', sell:'f-sell', watch:'f-watch' };
-  if (map[f]) document.getElementById({all:'btnAll',buy:'btnBuy',sell:'btnSell',watch:'btnWatch'}[f]).className = 'filter-btn ' + map[f];
+  const btnMap = { all:'btnAll', buy:'btnBuy', sell:'btnSell', watch:'btnWatch' };
+  const clsMap = { all:'f-all', buy:'f-buy', sell:'f-sell', watch:'f-watch' };
+  const activeBtn = document.getElementById(btnMap[sigFilter]);
+  if (activeBtn) activeBtn.className = 'filter-btn ' + (clsMap[sigFilter] || 'f-all');
+  // Cards update
   document.querySelectorAll('.card').forEach(c => c.classList.remove('card-active'));
-  if (cardEl) { cardEl.classList.add('card-active'); }
-  else { const m = {all:'card-total',buy:'card-buy',sell:'card-sell'}; const el=document.querySelector('.'+(m[f]||'card-total')); if(el) el.classList.add('card-active'); }
+  const cardMap = { all:'card-total', buy:'card-buy', sell:'card-sell' };
+  const activeCard = document.querySelector('.' + (cardMap[sigFilter] || 'card-total'));
+  if (activeCard) activeCard.classList.add('card-active');
   renderTable();
 }
 
+// Entry filter — toggle
 function setEntryFilter(f) {
-  entryFilter = f;
+  entryFilter = (entryFilter === f && f !== 'all') ? 'all' : f;
   ['efbAll','efbBo','efbBd','efbCont','efbPb','efbRev'].forEach(id => {
     document.getElementById(id)?.classList.remove('active');
   });
-  const map = {all:'efbAll',breakout:'efbBo',breakdown:'efbBd',continuation:'efbCont',pullback:'efbPb',reversal:'efbRev'};
-  document.getElementById(map[f])?.classList.add('active');
+  const map = { all:'efbAll', breakout:'efbBo', breakdown:'efbBd', continuation:'efbCont', pullback:'efbPb', reversal:'efbRev' };
+  document.getElementById(map[entryFilter])?.classList.add('active');
   renderTable();
 }
 
+// MACD filter — toggle
 function setMacdFilter(f) {
-  macdFilter = f;
+  macdFilter = (macdFilter === f && f !== 'all') ? 'all' : f;
   ['macdAll','macdBull','macdBear'].forEach(id => document.getElementById(id)?.classList.remove('active'));
-  const map = {all:'macdAll',bullish:'macdBull',bearish:'macdBear'};
-  document.getElementById(map[f])?.classList.add('active');
+  const map = { all:'macdAll', bullish:'macdBull', bearish:'macdBear' };
+  document.getElementById(map[macdFilter])?.classList.add('active');
   renderTable();
 }
 
+// Sector filter — toggle
 function setSecFilter(f) {
-  secFilter = f;
+  secFilter = (secFilter === f && f !== 'all') ? 'all' : f;
   document.querySelectorAll('.sec-btn').forEach(b => {
-    b.classList.toggle('active', b.textContent === (f==='all' ? 'All Sectors' : f));
+    b.classList.toggle('active', b.textContent === (secFilter === 'all' ? 'All Sectors' : secFilter));
   });
   renderTable();
 }
 
 // ══════════════════════════════════════════════════
-// INDEX FILTER
+// INDEX FILTER — toggle + sector reset
 // ══════════════════════════════════════════════════
 function setIndexFilter(key) {
-  if (indexFilter === key && key !== 'all') {
-    indexFilter = 'all';
-  } else {
-    indexFilter = key;
-  }
-  // Naya index select — sector filter reset
+  indexFilter = (indexFilter === key && key !== 'all') ? 'all' : key;
   if (indexFilter !== 'all') {
     secFilter = 'all';
     document.querySelectorAll('.sec-btn').forEach(b => {
@@ -1070,6 +1086,55 @@ function setIndexFilter(key) {
     const el = document.getElementById('idxCard_' + indexFilter);
     if (el) el.classList.add('idx-active');
   }
+  renderTable();
+}
+
+// ══════════════════════════════════════════════════
+// RESET ALL FILTERS
+// ══════════════════════════════════════════════════
+function resetAllFilters() {
+  // Sab state reset
+  sigFilter   = 'all';
+  entryFilter = 'all';
+  macdFilter  = 'all';
+  secFilter   = 'all';
+  indexFilter = 'all';
+  fnoOnly     = false;
+  document.getElementById('searchInput').value = '';
+
+  // Signal buttons
+  ['btnAll','btnBuy','btnSell','btnWatch'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.className = 'filter-btn';
+  });
+  const btnAll = document.getElementById('btnAll');
+  if (btnAll) btnAll.className = 'filter-btn f-all';
+
+  // Signal cards
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('card-active'));
+  const totalCard = document.querySelector('.card-total');
+  if (totalCard) totalCard.classList.add('card-active');
+
+  // Entry buttons
+  ['efbAll','efbBo','efbBd','efbCont','efbPb','efbRev'].forEach(id => document.getElementById(id)?.classList.remove('active'));
+  document.getElementById('efbAll')?.classList.add('active');
+
+  // MACD buttons
+  ['macdAll','macdBull','macdBear'].forEach(id => document.getElementById(id)?.classList.remove('active'));
+  document.getElementById('macdAll')?.classList.add('active');
+
+  // Sector buttons
+  document.querySelectorAll('.sec-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === 'All Sectors');
+  });
+
+  // Index cards
+  document.querySelectorAll('.idx-card').forEach(c => c.classList.remove('idx-active'));
+  const resetBtn = document.getElementById('idxResetBtn');
+  if (resetBtn) resetBtn.classList.add('idx-reset-active');
+
+  // F&O button
+  document.getElementById('btnFno')?.classList.remove('fno-active');
+
   renderTable();
 }
 
@@ -1206,16 +1271,20 @@ function deleteNote() {
 }
 
 // ══════════════════════════════════════════════════
-// STICKY HEADER FIX
+// TABLE HEIGHT — column header sticky fix
+// table-scroll ka height = window - upar ka sab content
+// Isse th { top:0 } perfectly sticky rehta hai
 // ══════════════════════════════════════════════════
-function fixStickyHeader() {
-  const header = document.querySelector('.header');
-  if (!header) return;
-  const h = Math.ceil(header.getBoundingClientRect().height);
-  if (h === 0) return;
-  document.documentElement.style.setProperty('--th-top', h + 'px');
+function setTableHeight() {
+  const scroll = document.querySelector('.table-scroll');
+  if (!scroll) return;
+  const rect = scroll.getBoundingClientRect();
+  const available = window.innerHeight - rect.top - 16;
+  if (available > 100) {
+    document.documentElement.style.setProperty('--table-h', available + 'px');
+  }
 }
-window.addEventListener('resize', () => requestAnimationFrame(fixStickyHeader));
+window.addEventListener('resize', () => requestAnimationFrame(setTableHeight));
 
 // ══════════════════════════════════════════════════
 // INIT
