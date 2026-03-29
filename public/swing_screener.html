@@ -50,10 +50,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-size: 13px;
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  min-height: 100vh;
   transition: background 0.25s, color 0.25s;
 }
 
@@ -288,13 +285,12 @@ body {
 [data-theme="dark"] .macd-bear { background:linear-gradient(135deg,#3b0808,#4c0e0e); color:#f87171; border-color:#dc2626; }
 
 /* ── TABLE ── */
-.table-outer { padding: 6px 16px 0; flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+.table-outer { padding: 6px 16px 0; }
 .table-scroll {
   overflow-x: auto;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  flex: 1;
-  min-height: 0;
+  height: var(--table-h, 60vh);
 }
 .showing-count { font-size: 12px; color: var(--text-muted); padding: 6px 0 8px; font-weight: 500; }
 
@@ -1289,12 +1285,16 @@ function setTableHeight() {
   const scroll = document.querySelector('.table-scroll');
   if (!scroll) return;
   const rect = scroll.getBoundingClientRect();
-  const available = window.innerHeight - rect.top - 16;
+  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  const available = vh - rect.top - 8;
   if (available > 100) {
     document.documentElement.style.setProperty('--table-h', available + 'px');
   }
 }
 window.addEventListener('resize', () => requestAnimationFrame(setTableHeight));
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', () => requestAnimationFrame(setTableHeight));
+}
 
 // ══════════════════════════════════════════════════
 // INIT
