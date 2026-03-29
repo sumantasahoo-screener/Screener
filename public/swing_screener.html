@@ -114,6 +114,18 @@ body {
 }
 [data-theme="dark"] .idx-card { background: linear-gradient(145deg, #01202E, #022030); border-color: #0b5e76; }
 .idx-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: #0891b2; }
+.idx-card.idx-active { border-color: #0891b2 !important; box-shadow: 0 0 0 2px rgba(8,145,178,0.45) !important; }
+[data-theme="dark"] .idx-card.idx-active { background: linear-gradient(145deg,#022a3a,#044E61) !important; }
+.fno-btn {
+  padding: 5px 13px; border-radius: 7px; border: 1px solid #f59e0b;
+  background: rgba(245,158,11,0.1); color: #f59e0b; cursor: pointer;
+  font-size: 11.5px; font-weight: 700; transition: all 0.15s; white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+.fno-btn:hover { background: rgba(245,158,11,0.22); }
+.fno-btn.fno-active { background: rgba(245,158,11,0.25); box-shadow: 0 0 0 2px rgba(245,158,11,0.4); }
+[data-theme="dark"] .fno-btn { border-color: #fbbf24; color: #fbbf24; background: rgba(251,191,36,0.08); }
+[data-theme="dark"] .fno-btn.fno-active { background: rgba(251,191,36,0.2); }
 .idx-name { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 3px; }
 .idx-ltp  { font-size: 15px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
 .idx-chg  { font-size: 10px; font-weight: 600; margin-top: 1px; }
@@ -474,6 +486,7 @@ td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: now
     <button class="filter-btn"        id="btnBuy"   onclick="setSigFilter('buy')">▲ Buy (<span id="cntBuy">0</span>)</button>
     <button class="filter-btn"        id="btnSell"  onclick="setSigFilter('sell')">▼ Sell (<span id="cntSell">0</span>)</button>
     <button class="filter-btn"        id="btnWatch" onclick="setSigFilter('watch')">⭐ Watchlist (<span id="cntWatch">0</span>)</button>
+    <button class="fno-btn" id="btnFno" onclick="toggleFno()">⚡ F&amp;O Only</button>
   </div>
 
   <!-- Row 2: Entry Type -->
@@ -589,6 +602,24 @@ td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: now
 // CONFIG
 // ══════════════════════════════════════════════════
 const R2_URL     = 'https://pub-66800ada06c14469a0ff98b0eaf41f8e.r2.dev/screener_data.json';
+
+// ── Index Constituents ──
+const INDEX_MEMBERS = {
+  NIFTY50: ["ADANIENT","ADANIPORTS","APOLLOHOSP","ASIANPAINT","AXISBANK","BAJAJ-AUTO","BAJFINANCE","BAJAJFINSV","BPCL","BHARTIARTL","BRITANNIA","CIPLA","COALINDIA","DIVISLAB","DRREDDY","EICHERMOT","GRASIM","HCLTECH","HDFCBANK","HDFCLIFE","HEROMOTOCO","HINDALCO","HINDUNILVR","ICICIBANK","INDUSINDBK","INFY","ITC","JSWSTEEL","KOTAKBANK","LT","LTIM","M&M","MARUTI","NESTLEIND","NTPC","ONGC","POWERGRID","RELIANCE","SBILIFE","SHRIRAMFIN","SBIN","SUNPHARMA","TATACONSUM","TATAMOTORS","TATASTEEL","TCS","TECHM","TITAN","ULTRACEMCO","WIPRO"],
+  BANKNIFTY: ["AUBANK","AXISBANK","BANDHANBNK","FEDERALBNK","HDFCBANK","ICICIBANK","IDFCFIRSTB","INDUSINDBK","KOTAKBANK","PNB","SBIN","YESBANK"],
+  FINNIFTY: ["AUBANK","AXISBANK","BAJFINANCE","BAJAJFINSV","BANDHANBNK","CHOLAFIN","FEDERALBNK","HDFCBANK","HDFCLIFE","ICICIBANK","IDFCFIRSTB","INDUSINDBK","KOTAKBANK","MUTHOOTFIN","PFC","PNB","RECLTD","SBIN","SBILIFE","SHRIRAMFIN"],
+  MIDCPNIFTY: ["ABCAPITAL","AUBANK","BANDHANBNK","BHARTIARTL","CANBK","COFORGE","CONCOR","CROMPTON","CUMMINSIND","DMART","FEDERALBNK","GMRAIRPORT","GODREJPROP","IDFCFIRSTB","INDHOTEL","INDUSTOWER","KPITTECH","L&TFH","LUPIN","MFSL","NMDC","OBEROIRLTY","OFSS","PAGEIND","PERSISTENT","PETRONET","PIIND","PRESTIGE","SUNDARMFIN","TORNTPHARM","TRENT","VOLTAS","ZYDUSLIFE"],
+  NIFTYIT: ["TCS","INFY","HCLTECH","WIPRO","TECHM","LTIM","MPHASIS","COFORGE","PERSISTENT","LTTS","OFSS","KPITTECH"],
+  NIFTYFMCG: ["HINDUNILVR","ITC","NESTLEIND","BRITANNIA","DABUR","MARICO","GODREJCP","COLPAL","EMAMILTD","TATACONSUM","UBL","MCDOWELL-N","PGHH","VBL"],
+  NIFTYAUTO: ["MARUTI","TATAMOTORS","M&M","BAJAJ-AUTO","EICHERMOT","HEROMOTOCO","TVSMOTOR","ASHOKLEY","MOTHERSON","BALKRISIND","BOSCHLTD","MRF","BHARATFORG","APOLLOTYRE","ESCORTS"],
+  NIFTYOILGAS: ["RELIANCE","ONGC","IOC","BPCL","GAIL","OIL","PETRONET","IGL","MGL","GUJARATGAS","CASTROLIND","DEEPAKNTR"],
+  NIFTYPHARMA: ["SUNPHARMA","DRREDDY","CIPLA","DIVISLAB","APOLLOHOSP","LUPIN","AUROPHARMA","BIOCON","ALKEM","TORNTPHARM","IPCALAB","ABBOTINDIA","GLAXO","PFIZER"],
+  NIFTYREALTY: ["DLF","GODREJPROP","OBEROIRLTY","PRESTIGE","PHOENIXLTD","BRIGADE","SOBHA","MAHLIFE","SUNTECK","IBREALEST","LODHA","SIGNATURE"]
+};
+
+// ── F&O Stocks (NSE) ──
+const FNO_STOCKS = ["AARTIIND","ABB","ABBOTINDIA","ABCAPITAL","ABFRL","ACC","ADANIENT","ADANIPORTS","ALKEM","AMBUJACEM","APOLLOHOSP","APOLLOTYRE","ASHOKLEY","ASIANPAINT","ASTRAL","ATUL","AUBANK","AUROPHARMA","AXISBANK","BAJAJ-AUTO","BAJAJFINSV","BAJFINANCE","BALKRISIND","BANDHANBNK","BANKBARODA","BATAINDIA","BEL","BERGER","BHARATFORG","BHARTIARTL","BHEL","BIOCON","BOSCHLTD","BPCL","BRITANNIA","BSOFT","CANBK","CANFINHOME","CASTROLIND","CHOLAFIN","CIPLA","COALINDIA","COFORGE","COLPAL","CONCOR","COROMANDEL","CROMPTON","CUB","CUMMINSIND","DABUR","DALBHARAT","DEEPAKNTR","DELTACORP","DHANI","DIVISLAB","DLF","DRREDDY","EICHERMOT","EMAMILTD","ESCORTS","EXIDEIND","FACT","FEDERALBNK","GAIL","GLENMARK","GMRAIRPORT","GNFC","GODREJCP","GODREJPROP","GRANULES","GRASIM","GUJGASLTD","HAL","HCLTECH","HDFCAMC","HDFCBANK","HDFCLIFE","HEROMOTOCO","HINDALCO","HINDCOPPER","HINDPETRO","HINDUNILVR","HONAUT","IBREALEST","ICICIBANK","ICICIGI","ICICIPRULI","IDEA","IDFCFIRSTB","IEX","IGL","INDHOTEL","INDIACEM","INDIAMART","INDUSINDBK","INDUSTOWER","INFY","IOC","IPCALAB","IRCTC","ITC","JINDALSTEL","JSWSTEEL","JUBLFOOD","KOTAKBANK","KPITTECH","L&TFH","LALPATHLAB","LAURUSLABS","LICHSGFIN","LT","LTIM","LTTS","LUPIN","M&M","M&MFIN","MANAPPURAM","MARICO","MARUTI","MCDOWELL-N","MCX","MFSL","MGL","MOTHERSON","MPHASIS","MRF","MUTHOOTFIN","NATIONALUM","NAUKRI","NAVINFLUOR","NESTLEIND","NMDC","NTPC","OBEROIRLTY","OFSS","OIL","ONGC","PAGEIND","PEL","PERSISTENT","PETRONET","PFC","PHOENIXLTD","PIDILITIND","PIIND","PNB","POLYCAB","POWERGRID","PRESTIGE","PVRINOX","RAMCOCEM","RECLTD","RELIANCE","SAIL","SBIN","SBICARD","SBILIFE","SHRIRAMFIN","SIEMENS","SRF","SUNPHARMA","SUNTV","TATACHEM","TATACOMM","TATACONSUM","TATAMOTORS","TATAPOWER","TATASTEEL","TCS","TECHM","TITAN","TORNTPHARM","TRENT","TVSMOTOR","UBL","ULTRACEMCO","UPL","VEDL","VOLTAS","WHIRLPOOL","WIPRO","YESBANK","ZYDUSLIFE","INDIGO","DMART","GICRE","NIACL","CHOLAHLDNG","HFCL","RBLBANK","IDFCFIRSTB","AUBANK","VBL","EMAMILTD","BALKRISIND"];
+
 const COLS = [
   { key:'symbol',     label:'Symbol',      hidden:false, numeric:false },
   { key:'signal',     label:'Swing Signal',hidden:false, numeric:false },
@@ -624,6 +655,8 @@ let currentNote = '';
 let colState    = COLS.map(c => !c.hidden);
 let sortCol     = -1;
 let sortAsc     = true;
+let indexFilter = 'all';
+let fnoOnly     = false;
 
 // ══════════════════════════════════════════════════
 // THEME
@@ -691,7 +724,9 @@ function renderIndices(indices) {
     const chg = typeof d.change_pct === 'number' ? (up?'+':'') + d.change_pct.toFixed(2)+'%' : '—';
     const card = document.createElement('div');
     card.className = 'idx-card';
+    card.id = 'idxCard_' + key;
     card.innerHTML = `<div class="idx-name">${IDX_LABELS[key]||key}</div><div class="idx-ltp">${ltp}</div><div class="idx-chg ${up?'up':'dn'}">${chg}</div>`;
+    card.onclick = () => setIndexFilter(key);
     strip.appendChild(card);
   });
 }
@@ -761,15 +796,17 @@ function renderTable() {
     const okMacd  = macdFilter==='all' || macd===macdFilter;
     const okSec   = secFilter==='all' || sector===secFilter;
     const okQ     = !q || sym.toLowerCase().includes(q) || sector.toLowerCase().includes(q);
+    const okIndex = indexFilter==='all' || (INDEX_MEMBERS[indexFilter] && INDEX_MEMBERS[indexFilter].includes(sym));
+    const okFno   = !fnoOnly || FNO_STOCKS.includes(sym);
 
-    if (okEntry && okMacd && okSec && okQ) {
+    if (okEntry && okMacd && okSec && okQ && okIndex && okFno) {
       cntAll++;
       if (sig==='buy')  cntBuy++;
       if (sig==='sell') cntSell++;
       if (watchlist.has(sym)) cntWatch++;
     }
 
-    const show = okSig && okEntry && okMacd && okSec && okQ;
+    const show = okSig && okEntry && okMacd && okSec && okQ && okIndex && okFno;
     if (!show) return;
     visible++;
 
@@ -897,6 +934,34 @@ function setSecFilter(f) {
   document.querySelectorAll('.sec-btn').forEach(b => {
     b.classList.toggle('active', b.textContent === (f==='all' ? 'All Sectors' : f));
   });
+  renderTable();
+}
+
+// ══════════════════════════════════════════════════
+// INDEX FILTER
+// ══════════════════════════════════════════════════
+function setIndexFilter(key) {
+  if (indexFilter === key) {
+    // Toggle off — click same index again
+    indexFilter = 'all';
+  } else {
+    indexFilter = key;
+  }
+  // Update active state on cards
+  document.querySelectorAll('.idx-card').forEach(c => c.classList.remove('idx-active'));
+  if (indexFilter !== 'all') {
+    const el = document.getElementById('idxCard_' + indexFilter);
+    if (el) el.classList.add('idx-active');
+  }
+  renderTable();
+}
+
+// ══════════════════════════════════════════════════
+// F&O FILTER
+// ══════════════════════════════════════════════════
+function toggleFno() {
+  fnoOnly = !fnoOnly;
+  document.getElementById('btnFno').classList.toggle('fno-active', fnoOnly);
   renderTable();
 }
 
