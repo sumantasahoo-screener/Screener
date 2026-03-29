@@ -288,9 +288,8 @@ body {
 .table-outer { padding: 6px 16px 0; }
 .table-scroll {
   overflow-x: auto;
-  overflow-y: auto;
+  overflow-y: visible;
   -webkit-overflow-scrolling: touch;
-  height: var(--table-h, 60vh);
 }
 .showing-count { font-size: 12px; color: var(--text-muted); padding: 6px 0 8px; font-weight: 500; }
 
@@ -808,8 +807,7 @@ async function loadData(date) {
 
     renderTable();
     document.getElementById('loadingScreen').style.display = 'none';
-    setTimeout(setTableHeight, 100);
-    setTimeout(setTableHeight, 500);
+    requestAnimationFrame(() => requestAnimationFrame(setTableHeight));
   } catch(e) {
     if (!isLatest) {
       document.getElementById('tableBody').innerHTML =
@@ -1283,19 +1281,9 @@ function deleteNote() {
 // Isse th { top:0 } perfectly sticky rehta hai
 // ══════════════════════════════════════════════════
 function setTableHeight() {
-  const scroll = document.querySelector('.table-scroll');
-  if (!scroll) return;
-  const rect = scroll.getBoundingClientRect();
-  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  const available = vh - rect.top - 8;
-  if (available > 100) {
-    document.documentElement.style.setProperty('--table-h', available + 'px');
-  }
+  // Page level scroll handle karta hai — fixed height nahi chahiye
 }
 window.addEventListener('resize', () => requestAnimationFrame(setTableHeight));
-if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', () => requestAnimationFrame(setTableHeight));
-}
 
 // ══════════════════════════════════════════════════
 // INIT
