@@ -22,6 +22,7 @@
             --green:    #3fb950;
             --inp:      rgba(0,0,0,0.3);
             --shadow:   rgba(0,0,0,0.5);
+            --morning:  #a78bfa;
         }
         [data-theme="light"] {
             --bg:       #f0f2f5;
@@ -38,14 +39,12 @@
             --green:    #1a7f37;
             --inp:      rgba(0,0,0,0.05);
             --shadow:   rgba(0,0,0,0.1);
+            --morning:  #7c3aed;
         }
 
         * { margin:0; padding:0; box-sizing:border-box; }
 
-        /* ── No-scroll desktop layout ── */
-        html, body {
-            height: 100%;
-        }
+        html, body { height: 100%; }
         body {
             background: var(--bg);
             color: var(--text);
@@ -55,12 +54,10 @@
             overflow: hidden;
             transition: background 0.3s, color 0.3s;
         }
-        /* Mobile: allow scroll */
         @media (max-width: 768px) {
             body { overflow: auto; height: auto; }
         }
 
-        /* ── HEADER — 3-column grid for true centering ── */
         .header {
             display: grid;
             grid-template-columns: 1fr auto 1fr;
@@ -96,7 +93,6 @@
         .logo-icon { color: var(--gold); }
         .logo-text span { color: var(--primary); }
 
-        /* Center stats pill */
         .header-stats {
             display: flex;
             align-items: center;
@@ -120,7 +116,6 @@
         .val-gold { color: var(--gold); }
         .hdivider { width:1px; height:24px; background:var(--border); }
 
-        /* Right controls */
         .header-right {
             display: flex;
             align-items: center;
@@ -128,11 +123,7 @@
             justify-self: end;
             flex-wrap: nowrap;
         }
-        @media (max-width: 768px) {
-            .header-right { justify-self: end; }
-        }
 
-        /* Market badge */
         .market-badge {
             display:flex; align-items:center; gap:0.4rem;
             padding:0.35rem 0.8rem;
@@ -145,7 +136,6 @@
         .bdot.pulse { animation:pulse 2s infinite; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-        /* Trigger button */
         .btn-trigger {
             display:flex; align-items:center; gap:0.3rem;
             padding:0.35rem 0.9rem;
@@ -162,7 +152,6 @@
         .btn-trigger:hover { background:rgba(88,166,255,0.2); }
         .btn-trigger.loading { opacity:0.6; cursor:not-allowed; }
 
-        /* Theme toggle */
         .theme-toggle {
             padding:0.35rem 0.8rem;
             border-radius:8px;
@@ -182,7 +171,6 @@
         }
         @media (max-width: 480px) { .clock { display: none; } }
 
-        /* ── MAIN fills remaining height ── */
         .main {
             flex: 1;
             min-height: 0;
@@ -195,7 +183,6 @@
             .main { overflow: visible; padding: 0.8rem 1rem; }
         }
 
-        /* Info bar */
         .info-bar {
             display:flex; justify-content:space-between; align-items:center;
             flex-shrink: 0;
@@ -207,7 +194,6 @@
         .msg-ok  { color:var(--green); }
         .msg-err { color:var(--danger); }
 
-        /* ── Grid fills remaining height ── */
         .grid {
             flex: 1;
             min-height: 0;
@@ -219,7 +205,6 @@
             .grid { grid-template-columns: 1fr; }
         }
 
-        /* Left column: two charts stacked */
         .left-col {
             display: flex;
             flex-direction: column;
@@ -227,7 +212,6 @@
             min-height: 0;
         }
 
-        /* Right panel */
         .right-panel {
             display: flex;
             flex-direction: column;
@@ -239,7 +223,6 @@
             .right-panel { overflow-y: visible; }
         }
 
-        /* ── Cards ── */
         .card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -252,19 +235,16 @@
             min-height: 0;
         }
 
-        /* Charts fill card space */
         .chart-card { flex: 1; }
 
         .card-title { font-size:0.9rem; font-weight:700; margin-bottom:0.1rem; flex-shrink:0; }
         .card-sub   { font-size:0.7rem; color:var(--dim); margin-bottom:0.6rem; flex-shrink:0; }
 
-        /* Charts stretch to fill card */
         #levels-chart, #compare-chart {
             flex: 1;
             min-height: 0;
         }
 
-        /* Date tabs */
         .date-row {
             display:flex; align-items:center; gap:0.4rem;
             margin-bottom:0.5rem; flex-wrap:wrap; flex-shrink:0;
@@ -286,7 +266,6 @@
         }
         [data-theme="light"] .date-btn.active { background:rgba(26,115,232,0.08); }
 
-        /* VIX logic grid */
         .vix-grid {
             display:grid; grid-template-columns:1fr 1fr;
             gap:0.5rem;
@@ -311,7 +290,32 @@
         .s1    { border-left-color:#6abf69;       } .s1 .lv-val    { color:#6abf69; }
         .s2    { border-left-color:var(--accent); } .s2 .lv-val    { color:var(--green); }
 
-        /* Refresh pill */
+        /* Morning scan level row */
+        .morning {
+            border-left-color: var(--morning);
+            background: rgba(167,139,250,0.05);
+        }
+        .morning .lv-val   { color: var(--morning); }
+        .morning .lv-label { color: var(--morning); opacity: 0.8; }
+
+        /* Morning status badge */
+        .morning-status {
+            font-size: 0.6rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            margin-left: 0.4rem;
+        }
+        .ms-below {
+            background: rgba(63,185,80,0.15);
+            color: var(--green);
+        }
+        .ms-above {
+            background: rgba(248,81,73,0.15);
+            color: var(--danger);
+        }
+
         .refresh-pill {
             display:flex; justify-content:space-between; align-items:center;
             padding:0.6rem 1rem;
@@ -323,7 +327,6 @@
         }
         .refresh-pill strong { color:var(--text); font-family:'JetBrains Mono',monospace; }
 
-        /* Glow bg (dark only) */
         [data-theme="dark"] .glow { display:block; }
         [data-theme="light"] .glow { display:none; }
         .glow {
@@ -336,7 +339,6 @@
 </head>
 <body>
 
-<!-- ── HEADER ── -->
 <header class="header">
     <div class="logo">
         <span class="logo-icon">▲</span>
@@ -366,7 +368,6 @@
     </div>
 </header>
 
-<!-- ── MAIN ── -->
 <main class="main">
 
     <div class="info-bar">
@@ -380,17 +381,15 @@
         <!-- Left column -->
         <div class="left-col">
 
-            <!-- Chart 1: Levels Bar -->
             <div class="card chart-card">
                 <div class="card-title">Nifty Intraday Levels</div>
                 <div class="card-sub">VIX / √365 strategy — R2 / R1 / Pivot / S1 / S2</div>
                 <div id="levels-chart"></div>
             </div>
 
-            <!-- Chart 2: Compare -->
             <div class="card chart-card">
                 <div class="card-title">Nifty vs VIX — Intraday Comparison</div>
-                <div class="card-sub">Dual-axis | 5 min updates during market hours</div>
+                <div class="card-sub">Dual-axis | Left = Nifty price | Right = VIX value | 5 min updates</div>
                 <div class="date-row">
                     <span class="date-lbl">Date:</span>
                     <div id="date-tabs" style="display:flex;gap:0.4rem;flex-wrap:wrap;">
@@ -423,6 +422,18 @@
             <div class="card" style="flex:1;min-height:0;">
                 <div class="card-title">Key Trading Levels</div>
                 <div class="card-sub">Live Nifty × VIX formula</div>
+
+                <!-- Morning 1st Scan Level -->
+                <div class="level-row morning" id="morning-row">
+                    <div>
+                        <div class="lv-label">🌅 Morning Scan (1st)
+                            <span class="morning-status" id="morning-status"></span>
+                        </div>
+                        <div style="font-size:0.6rem;color:var(--dim);font-family:'Outfit',sans-serif;margin-top:1px;" id="morning-time">—</div>
+                    </div>
+                    <div class="lv-val" id="lvl-morning">—</div>
+                </div>
+
                 <div class="level-row r2">
                     <div class="lv-label">R2 — Top Range</div>
                     <div class="lv-val" id="lvl-r2">—</div>
@@ -460,12 +471,14 @@
 <script>
     const API = 'https://nifty-worker.sumantasahoo.workers.dev';
     const REFRESH_MS = 5 * 60 * 1000;
+    const MORNING_KEY = 'vixedge_morning_scan'; // localStorage key
 
     let levelsChart = null;
     let compareChart = null;
     let nextRefresh = Date.now() + REFRESH_MS;
     let selectedDate = 'today';
     let marketData = { nifty: 0, vix: 0, levels: {} };
+    let morningScan = null; // { nifty, vix, time, date }
 
     // ── Init ──
     document.addEventListener('DOMContentLoaded', async () => {
@@ -474,6 +487,7 @@
         updateClock();
         initLevelsChart();
         initCompareChart();
+        loadMorningScanFromStorage();
         await loadDates();
         await fetchData();
         setInterval(updateClock, 1000);
@@ -529,7 +543,7 @@
         document.getElementById('badge-text').textContent = open ? 'Market Open' : 'Market Closed';
     }
 
-    // ── Refresh label (smart: shows countdown only when market open) ──
+    // ── Refresh label ──
     function updateRefreshLabel() {
         const lbl = document.getElementById('refresh-label');
         const cd2 = document.getElementById('countdown2');
@@ -548,7 +562,64 @@
         cd2.textContent = txt;
     }
 
-    // ── Date tabs (from /dates — only real saved dates) ──
+    // ── Morning Scan Storage ──
+    function loadMorningScanFromStorage() {
+        try {
+            const saved = localStorage.getItem(MORNING_KEY);
+            if (!saved) return;
+            const parsed = JSON.parse(saved);
+            // Only use if it's from today (IST date)
+            const todayStr = getISTDateStr();
+            if (parsed.date === todayStr) {
+                morningScan = parsed;
+                renderMorningScan();
+            } else {
+                // New day — clear old morning scan
+                localStorage.removeItem(MORNING_KEY);
+                morningScan = null;
+            }
+        } catch(e) {}
+    }
+
+    function saveMorningScan(nifty, vix, time) {
+        const todayStr = getISTDateStr();
+        morningScan = { nifty, vix, time, date: todayStr };
+        localStorage.setItem(MORNING_KEY, JSON.stringify(morningScan));
+        renderMorningScan();
+    }
+
+    function renderMorningScan() {
+        if (!morningScan) {
+            document.getElementById('lvl-morning').textContent = '—';
+            document.getElementById('morning-time').textContent = 'Waiting for 1st scan...';
+            document.getElementById('morning-status').textContent = '';
+            document.getElementById('morning-status').className = 'morning-status';
+            return;
+        }
+
+        const morningNifty = morningScan.nifty;
+        document.getElementById('lvl-morning').textContent =
+            morningNifty.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+        document.getElementById('morning-time').textContent =
+            `Captured at ${morningScan.time} | VIX: ${morningScan.vix.toFixed(2)}`;
+
+        // Compare current Nifty vs morning level
+        if (marketData.nifty > 0) {
+            const statusEl = document.getElementById('morning-status');
+            if (marketData.nifty < morningNifty) {
+                statusEl.textContent = '▼ Below';
+                statusEl.className = 'morning-status ms-below';
+            } else if (marketData.nifty > morningNifty) {
+                statusEl.textContent = '▲ Above';
+                statusEl.className = 'morning-status ms-above';
+            } else {
+                statusEl.textContent = '= At';
+                statusEl.className = 'morning-status';
+            }
+        }
+    }
+
+    // ── Date tabs ──
     async function loadDates() {
         const container = document.getElementById('date-tabs');
         try {
@@ -563,7 +634,6 @@
                 container.appendChild(makeDateBtn(date, fmtDate(date), false));
             });
 
-            // Today always shown, dimmed if no data yet
             const todayExists = Array.isArray(dates) && dates.includes(todayStr);
             const tb = makeDateBtn('today', 'Today', true);
             if (!todayExists) tb.style.opacity = '0.55';
@@ -589,7 +659,6 @@
     }
 
     function fmtDate(str) {
-        // str = YYYY-MM-DD
         const parts = str.split('-');
         if (parts.length !== 3) return str;
         const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -611,6 +680,7 @@
 
             const arr = Array.isArray(data) ? data : [data];
             const latest = arr[arr.length - 1];
+            const first  = arr[0]; // 1st scan of the day
 
             if (selectedDate === 'today') {
                 marketData.nifty = latest.n;
@@ -624,6 +694,14 @@
                     ? new Date(latest.ts).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', second:'2-digit' })
                     : latest.t;
                 document.getElementById('last-updated').textContent = t;
+
+                // Save morning scan if not already saved today
+                if (first && !morningScan) {
+                    saveMorningScan(first.n, first.v, first.t);
+                } else if (morningScan) {
+                    // Just update the above/below status with current price
+                    renderMorningScan();
+                }
             }
 
             updateCompareChart(arr);
@@ -691,14 +769,9 @@
             Math.round(L.r2), Math.round(L.r1), Math.round(L.pivot),
             Math.round(L.s1), Math.round(L.s2)
         ]}]);
-    }
 
-    // ── Chart heights (dynamic, fills card) ──
-    function getChartHeight(id) {
-        const el = document.getElementById(id);
-        const card = el.closest('.card');
-        // fallback heights for initial render before layout settles
-        return Math.max(120, (card ? card.clientHeight : 300) - 80);
+        // Update morning scan status whenever levels update
+        if (morningScan) renderMorningScan();
     }
 
     // ── Chart 1: Levels Bar ──
@@ -730,7 +803,7 @@
         levelsChart.render();
     }
 
-    // ── Chart 2: Compare ──
+    // ── Chart 2: Compare — FIXED dual axis with real values ──
     function initCompareChart() {
         const dark = isDark();
         compareChart = new ApexCharts(document.querySelector('#compare-chart'), {
@@ -755,24 +828,54 @@
             },
             yaxis: [
                 {
-                    title: { text: 'Nifty', style: { color: '#58a6ff', fontSize: '10px' } },
+                    // LEFT axis — Nifty actual price
+                    seriesName: 'Nifty 50',
+                    title: {
+                        text: 'N Nifty',
+                        style: { color: '#58a6ff', fontSize: '10px', fontFamily: 'Outfit' }
+                    },
                     labels: {
                         style: { colors: '#58a6ff', fontFamily: 'JetBrains Mono', fontSize: '10px' },
                         formatter: v => v ? v.toLocaleString('en-IN', { maximumFractionDigits: 0 }) : ''
-                    }
+                    },
+                    // Auto scale to Nifty range
+                    forceNiceScale: true,
+                    decimalsInFloat: 0
                 },
                 {
+                    // RIGHT axis — VIX actual value
+                    seriesName: 'India VIX',
                     opposite: true,
-                    title: { text: 'VIX', style: { color: '#f0b90b', fontSize: '10px' } },
+                    title: {
+                        text: 'VIX',
+                        style: { color: '#f0b90b', fontSize: '10px', fontFamily: 'Outfit' }
+                    },
                     labels: {
                         style: { colors: '#f0b90b', fontFamily: 'JetBrains Mono', fontSize: '10px' },
                         formatter: v => v ? v.toFixed(2) : ''
-                    }
+                    },
+                    // Auto scale to VIX range
+                    forceNiceScale: true,
+                    decimalsInFloat: 2
                 }
             ],
-            legend: { labels: { colors: dark ? '#c9d1d9' : '#1a1d23' }, position: 'top', fontSize: '11px' },
-            grid: { borderColor: dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)', strokeDashArray: 4 },
-            tooltip: { theme: dark ? 'dark' : 'light', shared: true, intersect: false },
+            legend: {
+                labels: { colors: dark ? '#c9d1d9' : '#1a1d23' },
+                position: 'top', fontSize: '11px'
+            },
+            grid: {
+                borderColor: dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)',
+                strokeDashArray: 4
+            },
+            tooltip: {
+                theme: dark ? 'dark' : 'light',
+                shared: true,
+                intersect: false,
+                y: [
+                    { formatter: v => v ? v.toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—' },
+                    { formatter: v => v ? v.toFixed(2) : '—' }
+                ]
+            },
             noData: {
                 text: 'No data — Press ⚡ Trigger to fetch',
                 style: { color: dark ? '#8b949e' : '#5c6370', fontSize: '13px' }
@@ -783,10 +886,60 @@
 
     function updateCompareChart(arr) {
         if (!compareChart || !arr.length) return;
-        compareChart.updateOptions({ xaxis: { categories: arr.map(d => d.t) } });
+
+        const niftyData = arr.map(d => parseFloat(d.n));
+        const vixData   = arr.map(d => parseFloat(d.v));
+        const labels    = arr.map(d => d.t);
+
+        // Calculate min/max for proper axis scaling
+        const niftyMin = Math.min(...niftyData);
+        const niftyMax = Math.max(...niftyData);
+        const vixMin   = Math.min(...vixData);
+        const vixMax   = Math.max(...vixData);
+
+        // Add small padding (0.5% of range) so lines don't hug edges
+        const niftyPad = (niftyMax - niftyMin) * 0.1 || 10;
+        const vixPad   = (vixMax - vixMin) * 0.1 || 0.5;
+
+        compareChart.updateOptions({
+            xaxis: { categories: labels },
+            yaxis: [
+                {
+                    seriesName: 'Nifty 50',
+                    min: Math.floor(niftyMin - niftyPad),
+                    max: Math.ceil(niftyMax + niftyPad),
+                    title: {
+                        text: 'N Nifty',
+                        style: { color: '#58a6ff', fontSize: '10px' }
+                    },
+                    labels: {
+                        style: { colors: '#58a6ff', fontFamily: 'JetBrains Mono', fontSize: '10px' },
+                        formatter: v => v ? v.toLocaleString('en-IN', { maximumFractionDigits: 0 }) : ''
+                    },
+                    forceNiceScale: true
+                },
+                {
+                    seriesName: 'India VIX',
+                    opposite: true,
+                    min: parseFloat((vixMin - vixPad).toFixed(2)),
+                    max: parseFloat((vixMax + vixPad).toFixed(2)),
+                    title: {
+                        text: 'VIX',
+                        style: { color: '#f0b90b', fontSize: '10px' }
+                    },
+                    labels: {
+                        style: { colors: '#f0b90b', fontFamily: 'JetBrains Mono', fontSize: '10px' },
+                        formatter: v => v ? v.toFixed(2) : ''
+                    },
+                    forceNiceScale: true,
+                    decimalsInFloat: 2
+                }
+            ]
+        });
+
         compareChart.updateSeries([
-            { name: 'Nifty 50',  data: arr.map(d => d.n) },
-            { name: 'India VIX', data: arr.map(d => d.v) }
+            { name: 'Nifty 50',  data: niftyData },
+            { name: 'India VIX', data: vixData }
         ]);
     }
 
