@@ -499,7 +499,7 @@
     let nextRefresh = Date.now() + REFRESH_MS;
     let selectedDate = 'today';
     let marketData = { nifty: 0, vix: 0, levels: {} };
-    let morningScan = null; // { nifty, vix, time, date, levels: {r2,r1,pivot,s1,s2} }
+    let morningScan = null;
 
     document.addEventListener('DOMContentLoaded', async () => {
         initTheme();
@@ -507,7 +507,6 @@
         updateClock();
         initLevelsChart();
         initCompareChart();
-        loadMorningScanFromStorage();
         await loadDates();
         await fetchData();
         setInterval(updateClock, 1000);
@@ -581,24 +580,6 @@
         cd2.textContent = txt;
     }
 
-    // ── Morning Scan Storage ──
-    function loadMorningScanFromStorage() {
-        try {
-            const saved = localStorage.getItem(MORNING_KEY);
-            if (!saved) return;
-            const parsed = JSON.parse(saved);
-            const todayStr = getISTDateStr();
-            if (parsed.date === todayStr) {
-                morningScan = parsed;
-                renderMorningScan();
-                renderMorningSnapshot();
-            } else {
-                localStorage.removeItem(MORNING_KEY);
-                morningScan = null;
-            }
-        } catch(e) {}
-    }
-
     function computeLevels(nifty, vix) {
         const dailyPct   = vix / Math.sqrt(365);
         const dailyRange = (nifty * dailyPct) / 100;
@@ -609,15 +590,6 @@
             s1:    nifty - dailyRange / 2,
             s2:    nifty - dailyRange
         };
-    }
-
-    function saveMorningScan(nifty, vix, time) {
-        const todayStr = getISTDateStr();
-        const levels = computeLevels(nifty, vix);
-        morningScan = { nifty, vix, time, date: todayStr, levels };
-        localStorage.setItem(MORNING_KEY, JSON.stringify(morningScan));
-        renderMorningScan();
-        renderMorningSnapshot();
     }
 
     function renderMorningScan() {
@@ -744,11 +716,15 @@
                     : latest.t;
                 document.getElementById('last-updated').textContent = t;
 
-                if (first && !morningScan) {
-                    saveMorningScan(first.n, first.v, first.t);
-                } else if (morningScan) {
-                    renderMorningScan();
-                    renderMorningSnapshot(); // refresh diffs with new current price
+                // Always derive morning scan from first entry in R2 data — no localStorage needed
+                if (first) {
+                    morningScan = {
+                        nifty: first.n,
+                        vix:   first.v,
+                        time:  first.t,
+                        levels: computeLevels(first.n, first.v)
+                    };
+                    renderMorningSnapshot();
                 }
             }
 
