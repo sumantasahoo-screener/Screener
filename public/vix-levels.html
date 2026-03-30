@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIX Edge | Nifty Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        [data-theme="dark"] {
+            --bg:       #0d1117;
+            --bg2:      #010409;
+            --card:     rgba(22,27,34,0.9);
+            --border:   rgba(255,255,255,0.08);
+            --glass:    rgba(255,255,255,0.04);
+            --text:     #c9d1d9;
+            --dim:      #8b949e;
+            --primary:  #58a6ff;
+            --gold:     #f0b90b;
+            --accent:   #238636;
+            --danger:   #f85149;
+            --green:    #3fb950;
+            --inp:      rgba(0,0,0,0.3);
+            --shadow:   rgba(0,0,0,0.5);
+        }
+        [data-theme="light"] {
+            --bg:       #f0f2f5;
+            --bg2:      #ffffff;
+            --card:     rgba(255,255,255,0.97);
+            --border:   rgba(0,0,0,0.09);
+            --glass:    rgba(0,0,0,0.04);
+            --text:     #1a1d23;
+            --dim:      #5c6370;
+            --primary:  #1a73e8;
+            --gold:     #b06000;
+            --accent:   #1a7f37;
+            --danger:   #d93025;
+            --green:    #1a7f37;
+            --inp:      rgba(0,0,0,0.05);
+            --shadow:   rgba(0,0,0,0.1);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        /* ── No-scroll desktop layout ── */
+        html, body {
+            height: 100%;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+        /* Mobile: allow scroll */
+        @media (max-width: 768px) {
+            body { overflow: auto; height: auto; }
+        }
+
+        /* ── HEADER — 3-column grid for true centering ── */
+        .header {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            padding: 0 2rem;
+            height: 56px;
+            flex-shrink: 0;
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 12px var(--shadow);
+            z-index: 100;
+            gap: 1rem;
+        }
+        @media (max-width: 768px) {
+            .header {
+                grid-template-columns: auto 1fr;
+                grid-template-rows: auto auto;
+                height: auto;
+                padding: 0.8rem 1rem;
+                gap: 0.6rem;
+            }
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            justify-self: start;
+        }
+        .logo-icon { color: var(--gold); }
+        .logo-text span { color: var(--primary); }
+
+        /* Center stats pill */
+        .header-stats {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            background: var(--glass);
+            padding: 0.5rem 1.4rem;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            justify-self: center;
+        }
+        @media (max-width: 768px) {
+            .header-stats {
+                grid-column: 1 / -1;
+                justify-self: stretch;
+                justify-content: center;
+            }
+        }
+        .hstat { display:flex; flex-direction:column; align-items:center; }
+        .hstat .lbl { font-size:0.6rem; color:var(--dim); text-transform:uppercase; letter-spacing:1px; }
+        .hstat .val { font-size:1rem; font-weight:700; font-family:'JetBrains Mono',monospace; }
+        .val-gold { color: var(--gold); }
+        .hdivider { width:1px; height:24px; background:var(--border); }
+
+        /* Right controls */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            justify-self: end;
+            flex-wrap: nowrap;
+        }
+        @media (max-width: 768px) {
+            .header-right { justify-self: end; }
+        }
+
+        /* Market badge */
+        .market-badge {
+            display:flex; align-items:center; gap:0.4rem;
+            padding:0.35rem 0.8rem;
+            border-radius:50px; font-size:0.75rem; font-weight:600; border:1px solid;
+            white-space: nowrap;
+        }
+        .market-badge.open   { background:rgba(35,134,54,0.12); border-color:var(--accent); color:var(--green); }
+        .market-badge.closed { background:rgba(248,81,73,0.1);  border-color:var(--danger);  color:var(--danger); }
+        .bdot { width:6px; height:6px; border-radius:50%; background:currentColor; }
+        .bdot.pulse { animation:pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+        /* Trigger button */
+        .btn-trigger {
+            display:flex; align-items:center; gap:0.3rem;
+            padding:0.35rem 0.9rem;
+            border-radius:8px;
+            border:1px solid var(--primary);
+            background:rgba(88,166,255,0.1);
+            color:var(--primary);
+            font-family:'Outfit',sans-serif;
+            font-size:0.78rem; font-weight:600;
+            cursor:pointer; transition:all 0.2s;
+            white-space: nowrap;
+        }
+        [data-theme="light"] .btn-trigger { background:rgba(26,115,232,0.08); }
+        .btn-trigger:hover { background:rgba(88,166,255,0.2); }
+        .btn-trigger.loading { opacity:0.6; cursor:not-allowed; }
+
+        /* Theme toggle */
+        .theme-toggle {
+            padding:0.35rem 0.8rem;
+            border-radius:8px;
+            border:1px solid var(--border);
+            background:var(--glass);
+            color:var(--text);
+            font-family:'Outfit',sans-serif;
+            font-size:0.78rem; cursor:pointer; transition:all 0.2s;
+            white-space: nowrap;
+        }
+        .theme-toggle:hover { border-color:var(--primary); }
+
+        .clock {
+            font-family:'JetBrains Mono',monospace;
+            font-size:0.78rem; color:var(--dim);
+            white-space: nowrap;
+        }
+        @media (max-width: 480px) { .clock { display: none; } }
+
+        /* ── MAIN fills remaining height ── */
+        .main {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 0.8rem 1.5rem;
+            overflow: hidden;
+        }
+        @media (max-width: 768px) {
+            .main { overflow: visible; padding: 0.8rem 1rem; }
+        }
+
+        /* Info bar */
+        .info-bar {
+            display:flex; justify-content:space-between; align-items:center;
+            flex-shrink: 0;
+            margin-bottom: 0.6rem;
+            font-size:0.75rem; color:var(--dim);
+            flex-wrap: wrap; gap: 0.3rem;
+        }
+        #trigger-msg { font-weight:600; }
+        .msg-ok  { color:var(--green); }
+        .msg-err { color:var(--danger); }
+
+        /* ── Grid fills remaining height ── */
+        .grid {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 1rem;
+        }
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        /* Left column: two charts stacked */
+        .left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-height: 0;
+        }
+
+        /* Right panel */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            min-height: 0;
+            overflow-y: auto;
+        }
+        @media (max-width: 900px) {
+            .right-panel { overflow-y: visible; }
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1rem 1.2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 12px var(--shadow);
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        /* Charts fill card space */
+        .chart-card { flex: 1; }
+
+        .card-title { font-size:0.9rem; font-weight:700; margin-bottom:0.1rem; flex-shrink:0; }
+        .card-sub   { font-size:0.7rem; color:var(--dim); margin-bottom:0.6rem; flex-shrink:0; }
+
+        /* Charts stretch to fill card */
+        #levels-chart, #compare-chart {
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* Date tabs */
+        .date-row {
+            display:flex; align-items:center; gap:0.4rem;
+            margin-bottom:0.5rem; flex-wrap:wrap; flex-shrink:0;
+        }
+        .date-lbl { font-size:0.7rem; color:var(--dim); }
+        .date-btn {
+            padding:0.25rem 0.65rem;
+            border-radius:6px;
+            border:1px solid var(--border);
+            background:var(--glass);
+            color:var(--dim);
+            font-family:'Outfit',sans-serif;
+            font-size:0.72rem; cursor:pointer; transition:all 0.2s;
+        }
+        .date-btn:hover  { border-color:var(--primary); color:var(--primary); }
+        .date-btn.active {
+            border-color:var(--primary); color:var(--primary);
+            background:rgba(88,166,255,0.1); font-weight:700;
+        }
+        [data-theme="light"] .date-btn.active { background:rgba(26,115,232,0.08); }
+
+        /* VIX logic grid */
+        .vix-grid {
+            display:grid; grid-template-columns:1fr 1fr;
+            gap:0.5rem;
+        }
+        .vix-item { background:var(--inp); border-radius:8px; padding:0.6rem; }
+        .vi-lbl { font-size:0.62rem; color:var(--dim); }
+        .vi-val { font-size:0.95rem; font-weight:700; color:var(--primary); }
+
+        /* Key levels */
+        .level-row {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:0.55rem 0.5rem;
+            border-bottom:1px solid var(--border);
+            border-left:3px solid transparent;
+            font-family:'JetBrains Mono',monospace;
+        }
+        .lv-label { font-size:0.68rem; color:var(--dim); font-family:'Outfit',sans-serif; }
+        .lv-val   { font-size:0.88rem; font-weight:700; }
+        .r2    { border-left-color:var(--danger); } .r2 .lv-val    { color:var(--danger); }
+        .r1    { border-left-color:#ffa39e;       } .r1 .lv-val    { color:#e8837e; }
+        .pivot { border-left-color:var(--gold);   } .pivot .lv-val { color:var(--gold); }
+        .s1    { border-left-color:#6abf69;       } .s1 .lv-val    { color:#6abf69; }
+        .s2    { border-left-color:var(--accent); } .s2 .lv-val    { color:var(--green); }
+
+        /* Refresh pill */
+        .refresh-pill {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:0.6rem 1rem;
+            background:var(--card);
+            border:1px solid var(--border);
+            border-radius:12px;
+            font-size:0.75rem; color:var(--dim);
+            flex-shrink: 0;
+        }
+        .refresh-pill strong { color:var(--text); font-family:'JetBrains Mono',monospace; }
+
+        /* Glow bg (dark only) */
+        [data-theme="dark"] .glow { display:block; }
+        [data-theme="light"] .glow { display:none; }
+        .glow {
+            position:fixed; width:500px; height:500px;
+            filter:blur(130px); z-index:-1; opacity:0.08; pointer-events:none;
+        }
+        .glow-1 { top:-150px; right:-150px; background:radial-gradient(circle,var(--primary),transparent 70%); }
+        .glow-2 { bottom:-150px; left:-150px; background:radial-gradient(circle,var(--accent),transparent 70%); }
+    </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="header">
+    <div class="logo">
+        <span class="logo-icon">▲</span>
+        <span class="logo-text">VIX<span>EDGE</span></span>
+    </div>
+
+    <div class="header-stats">
+        <div class="hstat">
+            <span class="lbl">Nifty 50</span>
+            <span class="val" id="nifty-price">—</span>
+        </div>
+        <div class="hdivider"></div>
+        <div class="hstat">
+            <span class="lbl">India VIX</span>
+            <span class="val val-gold" id="vix-price">—</span>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <div class="market-badge closed" id="market-badge">
+            <div class="bdot" id="badge-dot"></div>
+            <span id="badge-text">Market Closed</span>
+        </div>
+        <button class="btn-trigger" id="trigger-btn" onclick="manualTrigger()">⚡ Trigger</button>
+        <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️ Light</button>
+        <span class="clock" id="clock">00:00:00</span>
+    </div>
+</header>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+    <div class="info-bar">
+        <span>🕐 Last Updated: <strong id="last-updated">—</strong></span>
+        <span id="trigger-msg"></span>
+        <span id="refresh-label">—</span>
+    </div>
+
+    <div class="grid">
+
+        <!-- Left column -->
+        <div class="left-col">
+
+            <!-- Chart 1: Levels Bar -->
+            <div class="card chart-card">
+                <div class="card-title">Nifty Intraday Levels</div>
+                <div class="card-sub">VIX / √365 strategy — R2 / R1 / Pivot / S1 / S2</div>
+                <div id="levels-chart"></div>
+            </div>
+
+            <!-- Chart 2: Compare -->
+            <div class="card chart-card">
+                <div class="card-title">Nifty vs VIX — Intraday Comparison</div>
+                <div class="card-sub">Dual-axis | 5 min updates during market hours</div>
+                <div class="date-row">
+                    <span class="date-lbl">Date:</span>
+                    <div id="date-tabs" style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+                        <span style="color:var(--dim);font-size:0.72rem;">Loading...</span>
+                    </div>
+                </div>
+                <div id="compare-chart"></div>
+            </div>
+
+        </div>
+
+        <!-- Right panel -->
+        <div class="right-panel">
+
+            <div class="card">
+                <div class="card-title">VIX Logic</div>
+                <div class="card-sub">Daily range calculation</div>
+                <div class="vix-grid">
+                    <div class="vix-item">
+                        <div class="vi-lbl">Annual Volatility</div>
+                        <div class="vi-val" id="annual-vol">—</div>
+                    </div>
+                    <div class="vix-item">
+                        <div class="vi-lbl">Daily Expected Move</div>
+                        <div class="vi-val" id="daily-move">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="flex:1;min-height:0;">
+                <div class="card-title">Key Trading Levels</div>
+                <div class="card-sub">Live Nifty × VIX formula</div>
+                <div class="level-row r2">
+                    <div class="lv-label">R2 — Top Range</div>
+                    <div class="lv-val" id="lvl-r2">—</div>
+                </div>
+                <div class="level-row r1">
+                    <div class="lv-label">R1 — Upper Band</div>
+                    <div class="lv-val" id="lvl-r1">—</div>
+                </div>
+                <div class="level-row pivot">
+                    <div class="lv-label">Pivot — Live Price</div>
+                    <div class="lv-val" id="lvl-pivot">—</div>
+                </div>
+                <div class="level-row s1">
+                    <div class="lv-label">S1 — Lower Band</div>
+                    <div class="lv-val" id="lvl-s1">—</div>
+                </div>
+                <div class="level-row s2">
+                    <div class="lv-label">S2 — Bottom Range</div>
+                    <div class="lv-val" id="lvl-s2">—</div>
+                </div>
+            </div>
+
+            <div class="refresh-pill">
+                <span>Auto-refresh</span>
+                <strong id="countdown2">—</strong>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+
+<script>
+    const API = 'https://nifty-worker.sumantasahoo.workers.dev';
+    const REFRESH_MS = 5 * 60 * 1000;
+
+    let levelsChart = null;
+    let compareChart = null;
+    let nextRefresh = Date.now() + REFRESH_MS;
+    let selectedDate = 'today';
+    let marketData = { nifty: 0, vix: 0, levels: {} };
+
+    // ── Init ──
+    document.addEventListener('DOMContentLoaded', async () => {
+        initTheme();
+        updateMarketStatus();
+        updateClock();
+        initLevelsChart();
+        initCompareChart();
+        await loadDates();
+        await fetchData();
+        setInterval(updateClock, 1000);
+        setInterval(updateRefreshLabel, 1000);
+        setInterval(updateMarketStatus, 60000);
+        setInterval(async () => {
+            if (selectedDate === 'today' && isMarketOpen()) {
+                await fetchData();
+                nextRefresh = Date.now() + REFRESH_MS;
+            }
+        }, REFRESH_MS);
+    });
+
+    // ── Theme ──
+    function initTheme() {
+        const saved = localStorage.getItem('vixedge-theme') || 'dark';
+        applyTheme(saved, false);
+    }
+    function toggleTheme() {
+        const cur = document.documentElement.getAttribute('data-theme');
+        applyTheme(cur === 'dark' ? 'light' : 'dark', true);
+    }
+    function applyTheme(theme, rerender) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('vixedge-theme', theme);
+        document.getElementById('theme-btn').textContent = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+        if (rerender && levelsChart) levelsChart.updateOptions(chartTheme());
+        if (rerender && compareChart) compareChart.updateOptions(chartTheme());
+    }
+    function isDark() { return document.documentElement.getAttribute('data-theme') === 'dark'; }
+    function chartTheme() {
+        const dark = isDark();
+        return {
+            chart: { background: 'transparent' },
+            grid: { borderColor: dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)' },
+            tooltip: { theme: dark ? 'dark' : 'light' }
+        };
+    }
+
+    // ── Market Status ──
+    function isMarketOpen() {
+        const ist = new Date(Date.now() + 5.5 * 3600000);
+        const d = ist.getUTCDay(), h = ist.getUTCHours(), m = ist.getUTCMinutes();
+        if (d === 0 || d === 6) return false;
+        const mins = h * 60 + m;
+        return mins >= 555 && mins <= 930;
+    }
+    function updateMarketStatus() {
+        const open = isMarketOpen();
+        const badge = document.getElementById('market-badge');
+        badge.className = 'market-badge ' + (open ? 'open' : 'closed');
+        document.getElementById('badge-dot').className = 'bdot ' + (open ? 'pulse' : '');
+        document.getElementById('badge-text').textContent = open ? 'Market Open' : 'Market Closed';
+    }
+
+    // ── Refresh label (smart: shows countdown only when market open) ──
+    function updateRefreshLabel() {
+        const lbl = document.getElementById('refresh-label');
+        const cd2 = document.getElementById('countdown2');
+
+        if (selectedDate !== 'today' || !isMarketOpen()) {
+            const txt = isMarketOpen() ? '--:--' : 'Market Closed';
+            lbl.textContent = isMarketOpen() ? `Next Refresh: ${txt}` : '🔴 Market Closed — no auto-refresh';
+            cd2.textContent = isMarketOpen() ? txt : 'Closed';
+            return;
+        }
+        const rem = Math.max(0, nextRefresh - Date.now());
+        const m = String(Math.floor(rem / 60000)).padStart(2,'0');
+        const s = String(Math.floor((rem % 60000) / 1000)).padStart(2,'0');
+        const txt = `${m}:${s}`;
+        lbl.textContent = `Next Refresh: ${txt}`;
+        cd2.textContent = txt;
+    }
+
+    // ── Date tabs (from /dates — only real saved dates) ──
+    async function loadDates() {
+        const container = document.getElementById('date-tabs');
+        try {
+            const res = await fetch(API + '/dates');
+            const dates = await res.json();
+            container.innerHTML = '';
+
+            const todayStr = getISTDateStr();
+            const pastDates = Array.isArray(dates) ? dates.filter(d => d !== todayStr) : [];
+
+            pastDates.forEach(date => {
+                container.appendChild(makeDateBtn(date, fmtDate(date), false));
+            });
+
+            // Today always shown, dimmed if no data yet
+            const todayExists = Array.isArray(dates) && dates.includes(todayStr);
+            const tb = makeDateBtn('today', 'Today', true);
+            if (!todayExists) tb.style.opacity = '0.55';
+            container.appendChild(tb);
+
+        } catch {
+            container.innerHTML = '<span style="color:var(--danger);font-size:0.72rem;">Error loading dates</span>';
+        }
+    }
+
+    function makeDateBtn(key, label, active) {
+        const btn = document.createElement('button');
+        btn.className = 'date-btn' + (active ? ' active' : '');
+        btn.textContent = label;
+        btn.dataset.date = key;
+        btn.onclick = () => {
+            selectedDate = key;
+            document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            fetchData();
+        };
+        return btn;
+    }
+
+    function fmtDate(str) {
+        // str = YYYY-MM-DD
+        const parts = str.split('-');
+        if (parts.length !== 3) return str;
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return `${parseInt(parts[2])} ${months[parseInt(parts[1]) - 1]}`;
+    }
+
+    function getISTDateStr() {
+        const ist = new Date(Date.now() + 5.5 * 3600000);
+        return ist.toISOString().slice(0, 10);
+    }
+
+    // ── Fetch Data ──
+    async function fetchData() {
+        try {
+            const url = selectedDate === 'today' ? API + '/' : API + '/history?date=' + selectedDate;
+            const res = await fetch(url);
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+
+            const arr = Array.isArray(data) ? data : [data];
+            const latest = arr[arr.length - 1];
+
+            if (selectedDate === 'today') {
+                marketData.nifty = latest.n;
+                marketData.vix   = latest.v;
+                calculateLevels();
+                updateLevelsUI();
+                document.getElementById('nifty-price').textContent =
+                    latest.n.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+                document.getElementById('vix-price').textContent = latest.v.toFixed(2);
+                const t = latest.ts
+                    ? new Date(latest.ts).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', second:'2-digit' })
+                    : latest.t;
+                document.getElementById('last-updated').textContent = t;
+            }
+
+            updateCompareChart(arr);
+            nextRefresh = Date.now() + REFRESH_MS;
+            showMsg('', '');
+
+        } catch (err) {
+            console.error(err);
+            showMsg('⚠️ ' + err.message, 'err');
+            showEmptyCompare('No data — ' + err.message);
+        }
+    }
+
+    // ── Manual Trigger ──
+    async function manualTrigger() {
+        const btn = document.getElementById('trigger-btn');
+        btn.classList.add('loading');
+        btn.textContent = '⏳ Fetching...';
+        showMsg('', '');
+        try {
+            const res  = await fetch(API + '/trigger');
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            showMsg(`✅ Saved: Nifty ${data.saved.n} | VIX ${data.saved.v}`, 'ok');
+            selectedDate = 'today';
+            await loadDates();
+            await fetchData();
+        } catch (err) {
+            showMsg('❌ ' + err.message, 'err');
+        } finally {
+            btn.classList.remove('loading');
+            btn.textContent = '⚡ Trigger';
+        }
+    }
+
+    function showMsg(text, type) {
+        const el = document.getElementById('trigger-msg');
+        el.textContent = text;
+        el.className = type === 'ok' ? 'msg-ok' : type === 'err' ? 'msg-err' : '';
+    }
+
+    // ── VIX Calculation ──
+    function calculateLevels() {
+        const { nifty, vix } = marketData;
+        const dailyPct   = vix / Math.sqrt(365);
+        const dailyRange = (nifty * dailyPct) / 100;
+        marketData.levels = {
+            annualVol: vix.toFixed(2) + '%',
+            dailyVol:  dailyPct.toFixed(2) + '%',
+            r2: nifty + dailyRange,   r1: nifty + dailyRange / 2,
+            pivot: nifty,
+            s1: nifty - dailyRange / 2, s2: nifty - dailyRange
+        };
+    }
+
+    function updateLevelsUI() {
+        const L = marketData.levels;
+        document.getElementById('annual-vol').textContent = L.annualVol;
+        document.getElementById('daily-move').textContent = L.dailyVol;
+        ['r2','r1','pivot','s1','s2'].forEach(k => {
+            document.getElementById('lvl-'+k).textContent =
+                L[k === 'pivot' ? 'pivot' : k].toLocaleString('en-IN', { maximumFractionDigits: 0 });
+        });
+        levelsChart.updateSeries([{ data: [
+            Math.round(L.r2), Math.round(L.r1), Math.round(L.pivot),
+            Math.round(L.s1), Math.round(L.s2)
+        ]}]);
+    }
+
+    // ── Chart heights (dynamic, fills card) ──
+    function getChartHeight(id) {
+        const el = document.getElementById(id);
+        const card = el.closest('.card');
+        // fallback heights for initial render before layout settles
+        return Math.max(120, (card ? card.clientHeight : 300) - 80);
+    }
+
+    // ── Chart 1: Levels Bar ──
+    function initLevelsChart() {
+        const dark = isDark();
+        levelsChart = new ApexCharts(document.querySelector('#levels-chart'), {
+            series: [{ name: 'Level', data: [0,0,0,0,0] }],
+            chart: {
+                type: 'bar', height: '100%',
+                toolbar: { show: false }, background: 'transparent',
+                animations: { enabled: true, easing: 'easeinout', speed: 600 }
+            },
+            plotOptions: { bar: { borderRadius: 6, distributed: true, horizontal: true, barHeight: '60%' } },
+            colors: ['#f85149','#ffa39e','#f0b90b','#6abf69','#238636'],
+            dataLabels: {
+                enabled: true,
+                formatter: v => v ? v.toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '',
+                style: { colors: ['#fff'], fontSize: '12px', fontFamily: 'JetBrains Mono' }
+            },
+            xaxis: {
+                categories: ['R2 (Top)','R1 (Upper)','Pivot','S1 (Lower)','S2 (Bottom)'],
+                labels: { style: { colors: dark ? '#8b949e' : '#5c6370', fontSize: '11px' } }
+            },
+            yaxis: { labels: { style: { colors: dark ? '#8b949e' : '#5c6370', fontSize: '11px' } } },
+            grid: { borderColor: dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)' },
+            tooltip: { theme: dark ? 'dark' : 'light' },
+            legend: { show: false }
+        });
+        levelsChart.render();
+    }
+
+    // ── Chart 2: Compare ──
+    function initCompareChart() {
+        const dark = isDark();
+        compareChart = new ApexCharts(document.querySelector('#compare-chart'), {
+            series: [
+                { name: 'Nifty 50',  type: 'line', data: [] },
+                { name: 'India VIX', type: 'line', data: [] }
+            ],
+            chart: {
+                height: '100%', type: 'line',
+                toolbar: { show: false }, background: 'transparent',
+                animations: { enabled: true, easing: 'easeinout', speed: 600 }
+            },
+            stroke: { width: [2.5, 2], curve: 'smooth' },
+            colors: ['#58a6ff','#f0b90b'],
+            markers: { size: 0 },
+            xaxis: {
+                categories: [],
+                labels: {
+                    style: { colors: dark ? '#8b949e' : '#5c6370', fontSize: '10px', fontFamily: 'JetBrains Mono' },
+                    rotate: -30
+                }
+            },
+            yaxis: [
+                {
+                    title: { text: 'Nifty', style: { color: '#58a6ff', fontSize: '10px' } },
+                    labels: {
+                        style: { colors: '#58a6ff', fontFamily: 'JetBrains Mono', fontSize: '10px' },
+                        formatter: v => v ? v.toLocaleString('en-IN', { maximumFractionDigits: 0 }) : ''
+                    }
+                },
+                {
+                    opposite: true,
+                    title: { text: 'VIX', style: { color: '#f0b90b', fontSize: '10px' } },
+                    labels: {
+                        style: { colors: '#f0b90b', fontFamily: 'JetBrains Mono', fontSize: '10px' },
+                        formatter: v => v ? v.toFixed(2) : ''
+                    }
+                }
+            ],
+            legend: { labels: { colors: dark ? '#c9d1d9' : '#1a1d23' }, position: 'top', fontSize: '11px' },
+            grid: { borderColor: dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)', strokeDashArray: 4 },
+            tooltip: { theme: dark ? 'dark' : 'light', shared: true, intersect: false },
+            noData: {
+                text: 'No data — Press ⚡ Trigger to fetch',
+                style: { color: dark ? '#8b949e' : '#5c6370', fontSize: '13px' }
+            }
+        });
+        compareChart.render();
+    }
+
+    function updateCompareChart(arr) {
+        if (!compareChart || !arr.length) return;
+        compareChart.updateOptions({ xaxis: { categories: arr.map(d => d.t) } });
+        compareChart.updateSeries([
+            { name: 'Nifty 50',  data: arr.map(d => d.n) },
+            { name: 'India VIX', data: arr.map(d => d.v) }
+        ]);
+    }
+
+    function showEmptyCompare(msg) {
+        if (!compareChart) return;
+        compareChart.updateOptions({ noData: { text: msg } });
+        compareChart.updateSeries([
+            { name: 'Nifty 50',  data: [] },
+            { name: 'India VIX', data: [] }
+        ]);
+    }
+
+    // ── Clock ──
+    function updateClock() {
+        document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-IN');
+    }
+</script>
+</body>
+</html>
