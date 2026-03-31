@@ -22,6 +22,7 @@
             --green:    #3fb950;
             --inp:      rgba(0,0,0,0.3);
             --shadow:   rgba(0,0,0,0.5);
+            --morning:  #a78bfa;
         }
         [data-theme="light"] {
             --bg:       #f0f2f5;
@@ -38,14 +39,11 @@
             --green:    #1a7f37;
             --inp:      rgba(0,0,0,0.05);
             --shadow:   rgba(0,0,0,0.1);
+            --morning:  #7c3aed;
         }
 
         * { margin:0; padding:0; box-sizing:border-box; }
-
-        /* ── No-scroll desktop layout ── */
-        html, body {
-            height: 100%;
-        }
+        html, body { height: 100%; }
         body {
             background: var(--bg);
             color: var(--text);
@@ -55,12 +53,10 @@
             overflow: hidden;
             transition: background 0.3s, color 0.3s;
         }
-        /* Mobile: allow scroll */
         @media (max-width: 768px) {
             body { overflow: auto; height: auto; }
         }
 
-        /* ── HEADER — 3-column grid for true centering ── */
         .header {
             display: grid;
             grid-template-columns: 1fr auto 1fr;
@@ -85,34 +81,21 @@
         }
 
         .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 1.25rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px;
             justify-self: start;
         }
         .logo-icon { color: var(--gold); }
         .logo-text span { color: var(--primary); }
 
-        /* Center stats pill */
         .header-stats {
-            display: flex;
-            align-items: center;
-            gap: 1.2rem;
-            background: var(--glass);
-            padding: 0.5rem 1.4rem;
-            border-radius: 50px;
-            border: 1px solid var(--border);
+            display: flex; align-items: center; gap: 1.2rem;
+            background: var(--glass); padding: 0.5rem 1.4rem;
+            border-radius: 50px; border: 1px solid var(--border);
             justify-self: center;
         }
         @media (max-width: 768px) {
-            .header-stats {
-                grid-column: 1 / -1;
-                justify-self: stretch;
-                justify-content: center;
-            }
+            .header-stats { grid-column: 1 / -1; justify-self: stretch; justify-content: center; }
         }
         .hstat { display:flex; flex-direction:column; align-items:center; }
         .hstat .lbl { font-size:0.6rem; color:var(--dim); text-transform:uppercase; letter-spacing:1px; }
@@ -120,24 +103,15 @@
         .val-gold { color: var(--gold); }
         .hdivider { width:1px; height:24px; background:var(--border); }
 
-        /* Right controls */
         .header-right {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            justify-self: end;
-            flex-wrap: nowrap;
-        }
-        @media (max-width: 768px) {
-            .header-right { justify-self: end; }
+            display: flex; align-items: center; gap: 0.6rem;
+            justify-self: end; flex-wrap: nowrap;
         }
 
-        /* Market badge */
         .market-badge {
             display:flex; align-items:center; gap:0.4rem;
-            padding:0.35rem 0.8rem;
-            border-radius:50px; font-size:0.75rem; font-weight:600; border:1px solid;
-            white-space: nowrap;
+            padding:0.35rem 0.8rem; border-radius:50px;
+            font-size:0.75rem; font-weight:600; border:1px solid; white-space: nowrap;
         }
         .market-badge.open   { background:rgba(35,134,54,0.12); border-color:var(--accent); color:var(--green); }
         .market-badge.closed { background:rgba(248,81,73,0.1);  border-color:var(--danger);  color:var(--danger); }
@@ -145,139 +119,89 @@
         .bdot.pulse { animation:pulse 2s infinite; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-        /* Trigger button */
         .btn-trigger {
             display:flex; align-items:center; gap:0.3rem;
-            padding:0.35rem 0.9rem;
-            border-radius:8px;
-            border:1px solid var(--primary);
-            background:rgba(88,166,255,0.1);
-            color:var(--primary);
-            font-family:'Outfit',sans-serif;
-            font-size:0.78rem; font-weight:600;
-            cursor:pointer; transition:all 0.2s;
-            white-space: nowrap;
+            padding:0.35rem 0.9rem; border-radius:8px;
+            border:1px solid var(--primary); background:rgba(88,166,255,0.1);
+            color:var(--primary); font-family:'Outfit',sans-serif;
+            font-size:0.78rem; font-weight:600; cursor:pointer; transition:all 0.2s; white-space: nowrap;
         }
         [data-theme="light"] .btn-trigger { background:rgba(26,115,232,0.08); }
         .btn-trigger:hover { background:rgba(88,166,255,0.2); }
         .btn-trigger.loading { opacity:0.6; cursor:not-allowed; }
 
-        /* Theme toggle */
         .theme-toggle {
-            padding:0.35rem 0.8rem;
-            border-radius:8px;
-            border:1px solid var(--border);
-            background:var(--glass);
-            color:var(--text);
-            font-family:'Outfit',sans-serif;
-            font-size:0.78rem; cursor:pointer; transition:all 0.2s;
-            white-space: nowrap;
+            padding:0.35rem 0.8rem; border-radius:8px;
+            border:1px solid var(--border); background:var(--glass); color:var(--text);
+            font-family:'Outfit',sans-serif; font-size:0.78rem; cursor:pointer; transition:all 0.2s; white-space: nowrap;
         }
         .theme-toggle:hover { border-color:var(--primary); }
 
-        .clock {
-            font-family:'JetBrains Mono',monospace;
-            font-size:0.78rem; color:var(--dim);
-            white-space: nowrap;
-        }
+        .clock { font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:var(--dim); white-space: nowrap; }
         @media (max-width: 480px) { .clock { display: none; } }
 
-        /* ── MAIN fills remaining height ── */
         .main {
-            flex: 1;
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-            padding: 0.8rem 1.5rem;
-            overflow: hidden;
+            flex: 1; min-height: 0; display: flex; flex-direction: column;
+            padding: 0.8rem 1.5rem; overflow: hidden;
         }
         @media (max-width: 768px) {
             .main { overflow: visible; padding: 0.8rem 1rem; }
         }
 
-        /* Info bar */
         .info-bar {
             display:flex; justify-content:space-between; align-items:center;
-            flex-shrink: 0;
-            margin-bottom: 0.6rem;
-            font-size:0.75rem; color:var(--dim);
-            flex-wrap: wrap; gap: 0.3rem;
+            flex-shrink: 0; margin-bottom: 0.6rem;
+            font-size:0.75rem; color:var(--dim); flex-wrap: wrap; gap: 0.3rem;
         }
         #trigger-msg { font-weight:600; }
         .msg-ok  { color:var(--green); }
         .msg-err { color:var(--danger); }
 
-        /* ── Grid fills remaining height ── */
         .grid {
-            flex: 1;
-            min-height: 0;
-            display: grid;
-            grid-template-columns: 1fr 280px;
-            gap: 1rem;
+            flex: 1; min-height: 0; display: grid;
+            grid-template-columns: 1fr 280px; gap: 1rem;
         }
         @media (max-width: 900px) {
             .grid { grid-template-columns: 1fr; }
         }
 
-        /* Left column: two charts stacked */
-        .left-col {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            min-height: 0;
-        }
+        .left-col { display: flex; flex-direction: column; gap: 1rem; min-height: 0; }
 
-        /* Right panel */
         .right-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-            min-height: 0;
-            overflow-y: auto;
+            display: flex; flex-direction: column; gap: 0.6rem;
+            min-height: 0; overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
         }
+        .right-panel::-webkit-scrollbar { width: 4px; }
+        .right-panel::-webkit-scrollbar-track { background: transparent; }
+        .right-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
         @media (max-width: 900px) {
             .right-panel { overflow-y: visible; }
         }
 
-        /* ── Cards ── */
         .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1rem 1.2rem;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 12px var(--shadow);
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 1rem 1.2rem;
+            backdrop-filter: blur(10px); box-shadow: 0 2px 12px var(--shadow);
+            display: flex; flex-direction: column; min-height: 0;
         }
 
-        /* Charts fill card space */
         .chart-card { flex: 1; }
-
         .card-title { font-size:0.9rem; font-weight:700; margin-bottom:0.1rem; flex-shrink:0; }
         .card-sub   { font-size:0.7rem; color:var(--dim); margin-bottom:0.6rem; flex-shrink:0; }
 
-        /* Charts stretch to fill card */
-        #levels-chart, #compare-chart {
-            flex: 1;
-            min-height: 0;
-        }
+        #levels-chart, #compare-chart { flex: 1; min-height: 0; }
 
-        /* Date tabs */
         .date-row {
             display:flex; align-items:center; gap:0.4rem;
             margin-bottom:0.5rem; flex-wrap:wrap; flex-shrink:0;
         }
         .date-lbl { font-size:0.7rem; color:var(--dim); }
         .date-btn {
-            padding:0.25rem 0.65rem;
-            border-radius:6px;
-            border:1px solid var(--border);
-            background:var(--glass);
-            color:var(--dim);
-            font-family:'Outfit',sans-serif;
-            font-size:0.72rem; cursor:pointer; transition:all 0.2s;
+            padding:0.25rem 0.65rem; border-radius:6px;
+            border:1px solid var(--border); background:var(--glass); color:var(--dim);
+            font-family:'Outfit',sans-serif; font-size:0.72rem; cursor:pointer; transition:all 0.2s;
         }
         .date-btn:hover  { border-color:var(--primary); color:var(--primary); }
         .date-btn.active {
@@ -286,11 +210,7 @@
         }
         [data-theme="light"] .date-btn.active { background:rgba(26,115,232,0.08); }
 
-        /* VIX logic grid */
-        .vix-grid {
-            display:grid; grid-template-columns:1fr 1fr;
-            gap:0.5rem;
-        }
+        .vix-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; }
         .vix-item { background:var(--inp); border-radius:8px; padding:0.6rem; }
         .vi-lbl { font-size:0.62rem; color:var(--dim); }
         .vi-val { font-size:0.95rem; font-weight:700; color:var(--primary); }
@@ -298,10 +218,8 @@
         /* Key levels */
         .level-row {
             display:flex; justify-content:space-between; align-items:center;
-            padding:0.55rem 0.5rem;
-            border-bottom:1px solid var(--border);
-            border-left:3px solid transparent;
-            font-family:'JetBrains Mono',monospace;
+            padding:0.55rem 0.5rem; border-bottom:1px solid var(--border);
+            border-left:3px solid transparent; font-family:'JetBrains Mono',monospace;
         }
         .lv-label { font-size:0.68rem; color:var(--dim); font-family:'Outfit',sans-serif; }
         .lv-val   { font-size:0.88rem; font-weight:700; }
@@ -311,19 +229,121 @@
         .s1    { border-left-color:#6abf69;       } .s1 .lv-val    { color:#6abf69; }
         .s2    { border-left-color:var(--accent); } .s2 .lv-val    { color:var(--green); }
 
-        /* Refresh pill */
+        .morning {
+            border-left-color: var(--morning);
+            background: rgba(167,139,250,0.05);
+        }
+        .morning .lv-val   { color: var(--morning); }
+        .morning .lv-label { color: var(--morning); opacity: 0.8; }
+
+        .morning-status {
+            font-size: 0.6rem; font-family: 'Outfit', sans-serif;
+            font-weight: 700; padding: 0.15rem 0.4rem;
+            border-radius: 4px; margin-left: 0.4rem;
+        }
+        .ms-below { background: rgba(63,185,80,0.15); color: var(--green); }
+        .ms-above { background: rgba(248,81,73,0.15); color: var(--danger); }
+
+        /* ── Morning Snapshot Card ── */
+        .snapshot-card {
+            background: linear-gradient(135deg, rgba(167,139,250,0.08) 0%, rgba(22,27,34,0.9) 100%);
+            border: 1px solid rgba(167,139,250,0.25);
+            border-radius: 16px;
+            padding: 0.9rem 1.1rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 12px var(--shadow), 0 0 20px rgba(167,139,250,0.05);
+            flex-shrink: 0;
+        }
+        [data-theme="light"] .snapshot-card {
+            background: linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(255,255,255,0.97) 100%);
+            border-color: rgba(124,58,237,0.2);
+        }
+        .snapshot-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 0.7rem;
+        }
+        .snapshot-title {
+            font-size: 0.85rem; font-weight: 700; color: var(--morning);
+            display: flex; align-items: center; gap: 0.4rem;
+        }
+        .snapshot-meta {
+            font-size: 0.6rem; color: var(--dim);
+            font-family: 'JetBrains Mono', monospace;
+            text-align: right;
+        }
+        .snapshot-meta strong { color: var(--morning); }
+
+        .snap-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.4rem;
+        }
+        .snap-item {
+            background: rgba(167,139,250,0.06);
+            border: 1px solid rgba(167,139,250,0.12);
+            border-radius: 8px;
+            padding: 0.45rem 0.6rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        [data-theme="light"] .snap-item {
+            background: rgba(124,58,237,0.04);
+            border-color: rgba(124,58,237,0.1);
+        }
+        .snap-item.full-width { grid-column: 1 / -1; }
+
+        /* left color bar per level */
+        .snap-item::before {
+            content: '';
+            position: absolute; left: 0; top: 0; bottom: 0;
+            width: 3px;
+        }
+        .snap-item.snap-r2::before  { background: var(--danger); }
+        .snap-item.snap-r1::before  { background: #ffa39e; }
+        .snap-item.snap-pv::before  { background: var(--gold); }
+        .snap-item.snap-s1::before  { background: #6abf69; }
+        .snap-item.snap-s2::before  { background: var(--green); }
+
+        .snap-lbl {
+            font-size: 0.58rem; color: var(--dim);
+            font-family: 'Outfit', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .snap-val {
+            font-size: 0.85rem; font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .snap-diff {
+            font-size: 0.6rem; font-family: 'JetBrains Mono', monospace;
+            margin-top: 0.05rem;
+        }
+        .snap-diff.pos { color: var(--green); }
+        .snap-diff.neg { color: var(--danger); }
+        .snap-diff.neu { color: var(--dim); }
+
+        .snap-item.snap-r2 .snap-val { color: var(--danger); }
+        .snap-item.snap-r1 .snap-val { color: #e8837e; }
+        .snap-item.snap-pv .snap-val { color: var(--gold); }
+        .snap-item.snap-s1 .snap-val { color: #6abf69; }
+        .snap-item.snap-s2 .snap-val { color: var(--green); }
+
+        .snap-empty {
+            text-align: center; color: var(--dim);
+            font-size: 0.72rem; padding: 0.8rem 0;
+            border: 1px dashed rgba(167,139,250,0.2);
+            border-radius: 8px;
+        }
+
         .refresh-pill {
             display:flex; justify-content:space-between; align-items:center;
-            padding:0.6rem 1rem;
-            background:var(--card);
-            border:1px solid var(--border);
-            border-radius:12px;
-            font-size:0.75rem; color:var(--dim);
-            flex-shrink: 0;
+            padding:0.6rem 1rem; background:var(--card);
+            border:1px solid var(--border); border-radius:12px;
+            font-size:0.75rem; color:var(--dim); flex-shrink: 0;
         }
         .refresh-pill strong { color:var(--text); font-family:'JetBrains Mono',monospace; }
 
-        /* Glow bg (dark only) */
         [data-theme="dark"] .glow { display:block; }
         [data-theme="light"] .glow { display:none; }
         .glow {
@@ -336,7 +356,6 @@
 </head>
 <body>
 
-<!-- ── HEADER ── -->
 <header class="header">
     <div class="logo">
         <span class="logo-icon">▲</span>
@@ -366,7 +385,6 @@
     </div>
 </header>
 
-<!-- ── MAIN ── -->
 <main class="main">
 
     <div class="info-bar">
@@ -380,17 +398,15 @@
         <!-- Left column -->
         <div class="left-col">
 
-            <!-- Chart 1: Levels Bar -->
             <div class="card chart-card">
                 <div class="card-title">Nifty Intraday Levels</div>
                 <div class="card-sub">VIX / √365 strategy — R2 / R1 / Pivot / S1 / S2</div>
                 <div id="levels-chart"></div>
             </div>
 
-            <!-- Chart 2: Compare -->
             <div class="card chart-card">
                 <div class="card-title">Nifty vs VIX — Intraday Comparison</div>
-                <div class="card-sub">Dual-axis | 5 min updates during market hours</div>
+                <div class="card-sub">Dual-axis | Left = Nifty price | Right = VIX value | 5 min updates</div>
                 <div class="date-row">
                     <span class="date-lbl">Date:</span>
                     <div id="date-tabs" style="display:flex;gap:0.4rem;flex-wrap:wrap;">
@@ -420,9 +436,10 @@
                 </div>
             </div>
 
-            <div class="card" style="flex:1;min-height:0;">
+            <div class="card" style="flex:0 0 auto;">
                 <div class="card-title">Key Trading Levels</div>
                 <div class="card-sub">Live Nifty × VIX formula</div>
+
                 <div class="level-row r2">
                     <div class="lv-label">R2 — Top Range</div>
                     <div class="lv-val" id="lvl-r2">—</div>
@@ -445,6 +462,21 @@
                 </div>
             </div>
 
+
+
+            <!-- ── Morning Snapshot Card ── -->
+            <div class="snapshot-card">
+                <div class="snapshot-header">
+                    <div class="snapshot-title">
+                        🌅 Morning Snapshot
+                    </div>
+                    <div class="snapshot-meta" id="snap-meta">—</div>
+                </div>
+                <div id="snap-body">
+                    <div class="snap-empty">Waiting for 1st scan of the day…</div>
+                </div>
+            </div>
+
             <div class="refresh-pill">
                 <span>Auto-refresh</span>
                 <strong id="countdown2">—</strong>
@@ -460,14 +492,15 @@
 <script>
     const API = 'https://nifty-worker.sumantasahoo.workers.dev';
     const REFRESH_MS = 5 * 60 * 1000;
+    const MORNING_KEY = 'vixedge_morning_scan';
 
     let levelsChart = null;
     let compareChart = null;
     let nextRefresh = Date.now() + REFRESH_MS;
     let selectedDate = 'today';
     let marketData = { nifty: 0, vix: 0, levels: {} };
+    let morningScan = null;
 
-    // ── Init ──
     document.addEventListener('DOMContentLoaded', async () => {
         initTheme();
         updateMarketStatus();
@@ -529,11 +562,10 @@
         document.getElementById('badge-text').textContent = open ? 'Market Open' : 'Market Closed';
     }
 
-    // ── Refresh label (smart: shows countdown only when market open) ──
+    // ── Refresh label ──
     function updateRefreshLabel() {
         const lbl = document.getElementById('refresh-label');
         const cd2 = document.getElementById('countdown2');
-
         if (selectedDate !== 'today' || !isMarketOpen()) {
             const txt = isMarketOpen() ? '--:--' : 'Market Closed';
             lbl.textContent = isMarketOpen() ? `Next Refresh: ${txt}` : '🔴 Market Closed — no auto-refresh';
@@ -548,27 +580,86 @@
         cd2.textContent = txt;
     }
 
-    // ── Date tabs (from /dates — only real saved dates) ──
+    function computeLevels(nifty, vix) {
+        const dailyPct   = vix / Math.sqrt(365);
+        const dailyRange = (nifty * dailyPct) / 100;
+        return {
+            r2:    nifty + dailyRange,
+            r1:    nifty + dailyRange / 2,
+            pivot: nifty,
+            s1:    nifty - dailyRange / 2,
+            s2:    nifty - dailyRange
+        };
+    }
+
+    function renderMorningScan() {
+        // Morning scan row removed from Key Trading Levels — only snapshot card used
+        renderMorningSnapshot();
+    }
+
+    // ── Morning Snapshot Card render ──
+    function renderMorningSnapshot() {
+        const metaEl = document.getElementById('snap-meta');
+        const bodyEl = document.getElementById('snap-body');
+
+        if (!morningScan || !morningScan.levels) {
+            metaEl.innerHTML = '—';
+            bodyEl.innerHTML = '<div class="snap-empty">Waiting for 1st scan of the day…</div>';
+            return;
+        }
+
+        const L = morningScan.levels;
+        const currentNifty = marketData.nifty;
+
+        metaEl.innerHTML = `<strong>${morningScan.time}</strong> · VIX ${morningScan.vix.toFixed(2)}`;
+
+        const levels = [
+            { key: 'r2',    label: 'R2 — Top Range',    val: L.r2,    cls: 'snap-r2' },
+            { key: 'r1',    label: 'R1 — Upper Band',   val: L.r1,    cls: 'snap-r1' },
+            { key: 'pivot', label: 'Pivot (Open)',       val: L.pivot, cls: 'snap-pv' },
+            { key: 's1',    label: 'S1 — Lower Band',   val: L.s1,    cls: 'snap-s1' },
+            { key: 's2',    label: 'S2 — Bottom Range', val: L.s2,    cls: 'snap-s2' },
+        ];
+
+        bodyEl.innerHTML = levels.map(lv => {
+            const formatted = Math.round(lv.val).toLocaleString('en-IN');
+
+            // Show diff vs current price (if available)
+            let diffHtml = '';
+            if (currentNifty > 0 && lv.key !== 'pivot') {
+                const diff = Math.round(lv.val - currentNifty);
+                const sign = diff > 0 ? '+' : '';
+                const cls  = diff > 0 ? 'pos' : diff < 0 ? 'neg' : 'neu';
+                diffHtml = `<span class="snap-diff ${cls}">${sign}${diff.toLocaleString('en-IN')} pts</span>`;
+            } else if (lv.key === 'pivot') {
+                diffHtml = `<span class="snap-diff neu">09:15 open</span>`;
+            }
+
+            return `
+                <div class="snap-item ${lv.cls}">
+                    <span class="snap-lbl">${lv.label}</span>
+                    <span class="snap-val">${formatted}</span>
+                    ${diffHtml}
+                </div>`;
+        }).join('');
+    }
+
+    // ── Date tabs ──
     async function loadDates() {
         const container = document.getElementById('date-tabs');
         try {
             const res = await fetch(API + '/dates');
             const dates = await res.json();
             container.innerHTML = '';
-
             const todayStr = getISTDateStr();
             const pastDates = Array.isArray(dates) ? dates.filter(d => d !== todayStr) : [];
-
             pastDates.forEach(date => {
                 container.appendChild(makeDateBtn(date, fmtDate(date), false));
             });
-
-            // Today always shown, dimmed if no data yet
             const todayExists = Array.isArray(dates) && dates.includes(todayStr);
             const tb = makeDateBtn('today', 'Today', true);
             if (!todayExists) tb.style.opacity = '0.55';
             container.appendChild(tb);
-
         } catch {
             container.innerHTML = '<span style="color:var(--danger);font-size:0.72rem;">Error loading dates</span>';
         }
@@ -589,7 +680,6 @@
     }
 
     function fmtDate(str) {
-        // str = YYYY-MM-DD
         const parts = str.split('-');
         if (parts.length !== 3) return str;
         const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -611,6 +701,7 @@
 
             const arr = Array.isArray(data) ? data : [data];
             const latest = arr[arr.length - 1];
+            const first  = arr[0];
 
             if (selectedDate === 'today') {
                 marketData.nifty = latest.n;
@@ -624,6 +715,17 @@
                     ? new Date(latest.ts).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', second:'2-digit' })
                     : latest.t;
                 document.getElementById('last-updated').textContent = t;
+
+                // Always derive morning scan from first entry in R2 data — no localStorage needed
+                if (first) {
+                    morningScan = {
+                        nifty: first.n,
+                        vix:   first.v,
+                        time:  first.t,
+                        levels: computeLevels(first.n, first.v)
+                    };
+                    renderMorningSnapshot();
+                }
             }
 
             updateCompareChart(arr);
@@ -691,24 +793,17 @@
             Math.round(L.r2), Math.round(L.r1), Math.round(L.pivot),
             Math.round(L.s1), Math.round(L.s2)
         ]}]);
+        if (morningScan) renderMorningScan();
     }
 
-    // ── Chart heights (dynamic, fills card) ──
-    function getChartHeight(id) {
-        const el = document.getElementById(id);
-        const card = el.closest('.card');
-        // fallback heights for initial render before layout settles
-        return Math.max(120, (card ? card.clientHeight : 300) - 80);
-    }
-
-    // ── Chart 1: Levels Bar ──
+    // ── Chart 1 ──
     function initLevelsChart() {
         const dark = isDark();
         levelsChart = new ApexCharts(document.querySelector('#levels-chart'), {
             series: [{ name: 'Level', data: [0,0,0,0,0] }],
             chart: {
-                type: 'bar', height: '100%',
-                toolbar: { show: false }, background: 'transparent',
+                type: 'bar', height: '100%', toolbar: { show: false },
+                background: 'transparent',
                 animations: { enabled: true, easing: 'easeinout', speed: 600 }
             },
             plotOptions: { bar: { borderRadius: 6, distributed: true, horizontal: true, barHeight: '60%' } },
@@ -730,7 +825,7 @@
         levelsChart.render();
     }
 
-    // ── Chart 2: Compare ──
+    // ── Chart 2 ──
     function initCompareChart() {
         const dark = isDark();
         compareChart = new ApexCharts(document.querySelector('#compare-chart'), {
@@ -739,8 +834,8 @@
                 { name: 'India VIX', type: 'line', data: [] }
             ],
             chart: {
-                height: '100%', type: 'line',
-                toolbar: { show: false }, background: 'transparent',
+                height: '100%', type: 'line', toolbar: { show: false },
+                background: 'transparent',
                 animations: { enabled: true, easing: 'easeinout', speed: 600 }
             },
             stroke: { width: [2.5, 2], curve: 'smooth' },
@@ -755,24 +850,39 @@
             },
             yaxis: [
                 {
-                    title: { text: 'Nifty', style: { color: '#58a6ff', fontSize: '10px' } },
+                    seriesName: 'Nifty 50',
+                    title: { text: 'N Nifty', style: { color: '#58a6ff', fontSize: '10px', fontFamily: 'Outfit' } },
                     labels: {
                         style: { colors: '#58a6ff', fontFamily: 'JetBrains Mono', fontSize: '10px' },
                         formatter: v => v ? v.toLocaleString('en-IN', { maximumFractionDigits: 0 }) : ''
-                    }
+                    },
+                    forceNiceScale: true, decimalsInFloat: 0
                 },
                 {
-                    opposite: true,
-                    title: { text: 'VIX', style: { color: '#f0b90b', fontSize: '10px' } },
+                    seriesName: 'India VIX', opposite: true,
+                    title: { text: 'VIX', style: { color: '#f0b90b', fontSize: '10px', fontFamily: 'Outfit' } },
                     labels: {
                         style: { colors: '#f0b90b', fontFamily: 'JetBrains Mono', fontSize: '10px' },
                         formatter: v => v ? v.toFixed(2) : ''
-                    }
+                    },
+                    forceNiceScale: true, decimalsInFloat: 2
                 }
             ],
-            legend: { labels: { colors: dark ? '#c9d1d9' : '#1a1d23' }, position: 'top', fontSize: '11px' },
-            grid: { borderColor: dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)', strokeDashArray: 4 },
-            tooltip: { theme: dark ? 'dark' : 'light', shared: true, intersect: false },
+            legend: {
+                labels: { colors: dark ? '#c9d1d9' : '#1a1d23' },
+                position: 'top', fontSize: '11px'
+            },
+            grid: {
+                borderColor: dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)',
+                strokeDashArray: 4
+            },
+            tooltip: {
+                theme: dark ? 'dark' : 'light', shared: true, intersect: false,
+                y: [
+                    { formatter: v => v ? v.toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—' },
+                    { formatter: v => v ? v.toFixed(2) : '—' }
+                ]
+            },
             noData: {
                 text: 'No data — Press ⚡ Trigger to fetch',
                 style: { color: dark ? '#8b949e' : '#5c6370', fontSize: '13px' }
@@ -783,10 +893,41 @@
 
     function updateCompareChart(arr) {
         if (!compareChart || !arr.length) return;
-        compareChart.updateOptions({ xaxis: { categories: arr.map(d => d.t) } });
+        const niftyData = arr.map(d => parseFloat(d.n));
+        const vixData   = arr.map(d => parseFloat(d.v));
+        const labels    = arr.map(d => d.t);
+        const niftyMin = Math.min(...niftyData), niftyMax = Math.max(...niftyData);
+        const vixMin   = Math.min(...vixData),   vixMax   = Math.max(...vixData);
+        const niftyPad = (niftyMax - niftyMin) * 0.1 || 10;
+        const vixPad   = (vixMax - vixMin) * 0.1 || 0.5;
+        compareChart.updateOptions({
+            xaxis: { categories: labels },
+            yaxis: [
+                {
+                    seriesName: 'Nifty 50',
+                    min: Math.floor(niftyMin - niftyPad), max: Math.ceil(niftyMax + niftyPad),
+                    title: { text: 'N Nifty', style: { color: '#58a6ff', fontSize: '10px' } },
+                    labels: {
+                        style: { colors: '#58a6ff', fontFamily: 'JetBrains Mono', fontSize: '10px' },
+                        formatter: v => v ? v.toLocaleString('en-IN', { maximumFractionDigits: 0 }) : ''
+                    },
+                    forceNiceScale: true
+                },
+                {
+                    seriesName: 'India VIX', opposite: true,
+                    min: parseFloat((vixMin - vixPad).toFixed(2)), max: parseFloat((vixMax + vixPad).toFixed(2)),
+                    title: { text: 'VIX', style: { color: '#f0b90b', fontSize: '10px' } },
+                    labels: {
+                        style: { colors: '#f0b90b', fontFamily: 'JetBrains Mono', fontSize: '10px' },
+                        formatter: v => v ? v.toFixed(2) : ''
+                    },
+                    forceNiceScale: true, decimalsInFloat: 2
+                }
+            ]
+        });
         compareChart.updateSeries([
-            { name: 'Nifty 50',  data: arr.map(d => d.n) },
-            { name: 'India VIX', data: arr.map(d => d.v) }
+            { name: 'Nifty 50',  data: niftyData },
+            { name: 'India VIX', data: vixData }
         ]);
     }
 
@@ -799,7 +940,6 @@
         ]);
     }
 
-    // ── Clock ──
     function updateClock() {
         document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-IN');
     }
