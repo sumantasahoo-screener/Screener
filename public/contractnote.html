@@ -39,6 +39,14 @@
                 </div>
             </div>
 
+            <div class="bg-indigo-50 p-3 md:p-4 rounded-xl border border-indigo-200 text-xs md:text-sm shadow-sm">
+                <h2 class="font-bold text-indigo-800 mb-2 border-b border-indigo-200 pb-1 uppercase tracking-wider text-[11px] md:text-xs">Trade Summary</h2>
+                <div class="grid grid-cols-2 gap-y-2 gap-x-4">
+                    <div class="flex flex-col"><span class="text-indigo-500 text-[10px] uppercase font-semibold">Total Scrips Traded</span> <span id="scrip-count" class="font-bold text-indigo-900 text-lg md:text-xl">-</span></div>
+                    <div class="flex flex-col"><span class="text-indigo-500 text-[10px] uppercase font-semibold">Est. Turnover (Traded Value)</span> <span id="turnover-val" class="font-bold text-indigo-900 text-lg md:text-xl">-</span></div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-2 gap-3">
                 <div class="bg-green-50 p-3 md:p-4 rounded-xl border border-green-200 shadow-sm flex flex-col justify-center items-center text-center">
                     <p class="text-[10px] md:text-xs font-bold text-green-800 uppercase tracking-wider">Gross Obligation</p>
@@ -77,7 +85,7 @@
                 </div>
             </div>
             
-            <p class="text-[9px] md:text-[10px] text-gray-400 font-medium text-center mt-3">*Extracted automatically via local browser script. Please verify with your official document.</p>
+            <p class="text-[9px] md:text-[10px] text-gray-400 font-medium text-center mt-3">*Extracted automatically via local browser script. Verification required for Turnover logic.</p>
         </div>
     </div>
 
@@ -121,18 +129,16 @@
                     return match ? match[1].trim() : fallback;
                 };
 
-                // Account Details Extraction
-                const panRaw = extractMatch(/PAN:\s*([A-Z0-9*]+)/i, "N/A");
-                document.getElementById('acc-pan').textContent = panRaw;
-                
-                const uccRaw = extractMatch(/(?:UCC|Client code):\s*([A-Z0-9]+)/i, "N/A");
-                document.getElementById('acc-ucc').textContent = uccRaw;
-                
-                const dateRaw = extractMatch(/Trade Date:\s*([\d-]+)/i, "N/A");
-                document.getElementById('acc-date').textContent = dateRaw;
-                
-                const contractRaw = extractMatch(/Contract Note No:\s*(\d+)/i, "N/A");
-                document.getElementById('acc-contract').textContent = contractRaw;
+                // Account Details
+                document.getElementById('acc-pan').textContent = extractMatch(/PAN:\s*([A-Z0-9*]+)/i, "N/A");
+                document.getElementById('acc-ucc').textContent = extractMatch(/(?:UCC|Client code):\s*([A-Z0-9]+)/i, "N/A");
+                document.getElementById('acc-date').textContent = extractMatch(/Trade Date:\s*([\d-]+)/i, "N/A");
+                document.getElementById('acc-contract').textContent = extractMatch(/Contract Note No:\s*(\d+)/i, "N/A");
+
+                // Scrip Count (Counts unique ISINs)
+                const isins = fullText.match(/INE[A-Z0-9]{9}/g);
+                const uniqueScripsCount = isins ? new Set(isins).size : 0;
+                document.getElementById('scrip-count').textContent = uniqueScripsCount;
 
                 // Value Extractions
                 const gross = extractMatch(/Pay In\/Pay Out Obligation.*?([\d,]+\.\d{2}\s*(?:CR|DR))/i);
@@ -144,16 +150,25 @@
                 const bse = extractMatch(/BSE Transaction Charges\).*?([\d,]+\.\d{2}\s*(?:CR|DR)?)/i);
                 const exchCharge = nse !== "0.00" ? nse : bse;
                 
-                // GST extraction logic
                 let igst = extractMatch(/IGST RATE.*?([\d,]+\.\d{2}\s*(?:CR|DR)?)/i);
-                if (igst === "0.00") {
-                    igst = extractMatch(/(?:18%|IGST).*?([\d,]+\.\d{2}\s*DR)/i);
-                }
+                if (igst === "0.00") igst = extractMatch(/(?:18%|IGST).*?([\d,]+\.\d{2}\s*DR)/i);
 
                 const stamp = extractMatch(/Stamp Duty.*?([\d,]+\.\d{2}\s*(?:CR|DR)?)/i);
                 const sebi = extractMatch(/SEBI Fees\).*?([\d,]+\.\d{2}\s*(?:CR|DR)?)/i);
 
-                // Update UI
+                // Estimate Turnover (Reverse calculate from STT approx 0.1% for Delivery, or find explicit label)
+                let turnoverDisplay = "N/A*";
+                const explicitTurnover = extractMatch(/Turnover.*?([\d,]+\.\d{2})/i, null);
+                if (explicitTurnover) {
+                    turnoverDisplay = `₹ ${explicitTurnover}`;
+                } else if (stt !== "0.00") {
+                    const sttVal = parseFloat(stt.replace(/,/g, '').replace(/[^\d.]/g, ''));
+                    const estimatedTurnover = (sttVal * 1000).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    turnoverDisplay = `₹ ${estimatedTurnover} (Est.)`;
+                }
+                document.getElementById('turnover-val').textContent = turnoverDisplay;
+
+                // Update UI Charges
                 document.getElementById('gross-val').textContent = `₹ ${gross}`;
                 document.getElementById('net-val').textContent = `₹ ${net}`;
                 document.getElementById('brokerage-val').textContent = `₹ ${brokerage}`;
