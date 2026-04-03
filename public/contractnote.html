@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Note Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen font-sans text-gray-800 p-4">
+    <div class="bg-white p-5 md:p-6 rounded-2xl shadow-xl w-full max-w-xl border border-gray-200">
+        <h1 class="text-2xl md:text-3xl font-extrabold mb-5 text-center text-blue-700 tracking-tight">Contract Note Analyzer</h1>
+        
+        <div class="flex flex-col items-center justify-center mb-5 border-2 border-dashed border-blue-300 hover:border-blue-500 transition-colors duration-300 p-5 rounded-xl bg-blue-50/50">
+            <label for="pdf-upload" class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105 text-sm md:text-base">
+                Upload PDF
+            </label>
+            <input id="pdf-upload" type="file" accept="application/pdf" class="hidden" />
+            <p id="file-name" class="mt-3 text-xs md:text-sm font-medium text-gray-500 break-all text-center px-2">No file chosen</p>
+        </div>
+
+        <div id="loading" class="hidden flex flex-col items-center justify-center my-6">
+            <svg class="animate-spin h-8 w-8 text-blue-600 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-blue-600 text-sm font-semibold tracking-wide">Processing Document...</p>
+        </div>
+
+        <div id="results" class="hidden animate-fade-in space-y-4">
+            
+            <div class="bg-gray-50 p-3 md:p-4 rounded-xl border border-gray-200 text-xs md:text-sm shadow-sm">
+                <h2 class="font-bold text-gray-700 mb-2 border-b border-gray-200 pb-1 uppercase tracking-wider text-[11px] md:text-xs">Account Details</h2>
+                <div class="grid grid-cols-2 gap-y-2 gap-x-4">
+                    <div class="flex flex-col"><span class="text-gray-400 text-[10px] uppercase">UCC / Client ID</span> <span id="acc-ucc" class="font-semibold text-gray-800 truncate">-</span></div>
+                    <div class="flex flex-col"><span class="text-gray-400 text-[10px] uppercase">PAN</span> <span id="acc-pan" class="font-semibold text-gray-800 truncate">-</span></div>
+                    <div class="flex flex-col"><span class="text-gray-400 text-[10px] uppercase">Trade Date</span> <span id="acc-date" class="font-semibold text-gray-800 truncate">-</span></div>
+                    <div class="flex flex-col"><span class="text-gray-400 text-[10px] uppercase">Contract No</span> <span id="acc-contract" class="font-semibold text-gray-800 truncate">-</span></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-green-50 p-3 md:p-4 rounded-xl border border-green-200 shadow-sm flex flex-col justify-center items-center text-center">
+                    <p class="text-[10px] md:text-xs font-bold text-green-800 uppercase tracking-wider">Gross Obligation</p>
+                    <p id="gross-val" class="text-lg md:text-2xl font-black text-green-700 mt-1">₹ 0.00</p>
+                </div>
+                <div class="bg-blue-50 p-3 md:p-4 rounded-xl border border-blue-200 shadow-sm flex flex-col justify-center items-center text-center">
+                    <p class="text-[10px] md:text-xs font-bold text-blue-800 uppercase tracking-wider">Net Amount</p>
+                    <p id="net-val" class="text-lg md:text-2xl font-black text-blue-700 mt-1">₹ 0.00</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-3">
+                <div class="bg-red-50/70 p-2.5 rounded-lg border border-red-100 flex flex-col justify-between">
+                    <p class="text-[9px] md:text-[10px] font-bold text-red-800 uppercase tracking-wide">Brokerage</p>
+                    <p id="brokerage-val" class="text-sm md:text-base font-bold text-red-600 mt-0.5">₹ 0.00</p>
+                </div>
+                <div class="bg-red-50/70 p-2.5 rounded-lg border border-red-100 flex flex-col justify-between">
+                    <p class="text-[9px] md:text-[10px] font-bold text-red-800 uppercase tracking-wide">STT</p>
+                    <p id="stt-val" class="text-sm md:text-base font-bold text-red-600 mt-0.5">₹ 0.00</p>
+                </div>
+                <div class="bg-red-50/70 p-2.5 rounded-lg border border-red-100 flex flex-col justify-between">
+                    <p class="text-[9px] md:text-[10px] font-bold text-red-800 uppercase tracking-wide">Exchange Chg</p>
+                    <p id="exch-val" class="text-sm md:text-base font-bold text-red-600 mt-0.5">₹ 0.00</p>
+                </div>
+                <div class="bg-red-50/70 p-2.5 rounded-lg border border-red-100 flex flex-col justify-between">
+                    <p class="text-[9px] md:text-[10px] font-bold text-red-800 uppercase tracking-wide">GST</p>
+                    <p id="gst-val" class="text-sm md:text-base font-bold text-red-600 mt-0.5">₹ 0.00</p>
+                </div>
+                <div class="bg-red-50/70 p-2.5 rounded-lg border border-red-100 flex flex-col justify-between">
+                    <p class="text-[9px] md:text-[10px] font-bold text-red-800 uppercase tracking-wide">Stamp Duty</p>
+                    <p id="stamp-val" class="text-sm md:text-base font-bold text-red-600 mt-0.5">₹ 0.00</p>
+                </div>
+                <div class="bg-red-50/70 p-2.5 rounded-lg border border-red-100 flex flex-col justify-between">
+                    <p class="text-[9px] md:text-[10px] font-bold text-red-800 uppercase tracking-wide">SEBI Fees</p>
+                    <p id="sebi-val" class="text-sm md:text-base font-bold text-red-600 mt-0.5">₹ 0.00</p>
+                </div>
+            </div>
+            
+            <p class="text-[9px] md:text-[10px] text-gray-400 font-medium text-center mt-3">*Extracted automatically via local browser script. Please verify with your official document.</p>
+        </div>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        const fileUpload = document.getElementById('pdf-upload');
+        const fileNameDisplay = document.getElementById('file-name');
+        const resultsDiv = document.getElementById('results');
+        const loadingDiv = document.getElementById('loading');
+
+        fileUpload.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            fileNameDisplay.textContent = file.name;
+            
+            const password = prompt("Enter PDF password (Usually your PAN in ALL CAPS):");
+            if (password === null) {
+                fileNameDisplay.textContent = "Upload cancelled.";
+                return;
+            }
+
+            resultsDiv.classList.add('hidden');
+            loadingDiv.classList.remove('hidden');
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, password: password });
+                const pdf = await loadingTask.promise;
+                
+                let fullText = "";
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    fullText += textContent.items.map(item => item.str).join(" ") + " ";
+                }
+
+                const extractMatch = (regex, fallback = "0.00") => {
+                    const match = fullText.match(regex);
+                    return match ? match[1].trim() : fallback;
+                };
+
+                // Account Details Extraction
+                const panRaw = extractMatch(/PAN:\s*([A-Z0-9*]+)/i, "N/A");
+                document.getElementById('acc-pan').textContent = panRaw;
+                
+                const uccRaw = extractMatch(/(?:UCC|Client code):\s*([A-Z0-9]+)/i, "N/A");
+                document.getElementById('acc-ucc').textContent = uccRaw;
+                
+                const dateRaw = extractMatch(/Trade Date:\s*([\d-]+)/i, "N/A");
+                document.getElementById('acc-date').textContent = dateRaw;
+                
+                const contractRaw = extractMatch(/Contract Note No:\s*(\d+)/i, "N/A");
+                document.getElementById('acc-contract').textContent = contractRaw;
+
+                // Value Extractions
+                const gross = extractMatch(/Pay In\/Pay Out Obligation.*?([\d,]+\.\d{2}\s*(?:CR|DR))/i);
+                const net = extractMatch(/Net Amount Receivable.*?By Client.*?([\d,]+\.\d{2}\s*(?:CR|DR))/i);
+                const brokerage = extractMatch(/Taxable Value Of Supply \(Brokerage\).*?([\d,]+\.\d{2}\s*(?:CR|DR)?)/i);
+                const stt = extractMatch(/Securities Transactions Tax.*?([\d,]+\.\d{2}\s*(?:CR|DR)?)/i);
+                
+                const nse = extractMatch(/NSE Transaction Charges\).*?([\d,]+\.\d{2}\s*(?:CR|DR)?)/i);
+                const bse = extractMatch(/BSE Transaction Charges\).*?([\d,]+\.\d{2}\s*(?:CR|DR)?)/i);
+                const exchCharge = nse !== "0.00" ? nse : bse;
+                
+                // GST extraction logic
+                let igst = extractMatch(/IGST RATE.*?([\d,]+\.\d{2}\s*(?:CR|DR)?)/i);
+                if (igst === "0.00") {
+                    igst = extractMatch(/(?:18%|IGST).*?([\d,]+\.\d{2}\s*DR)/i);
+                }
+
+                const stamp = extractMatch(/Stamp Duty.*?([\d,]+\.\d{2}\s*(?:CR|DR)?)/i);
+                const sebi = extractMatch(/SEBI Fees\).*?([\d,]+\.\d{2}\s*(?:CR|DR)?)/i);
+
+                // Update UI
+                document.getElementById('gross-val').textContent = `₹ ${gross}`;
+                document.getElementById('net-val').textContent = `₹ ${net}`;
+                document.getElementById('brokerage-val').textContent = `₹ ${brokerage}`;
+                document.getElementById('stt-val').textContent = `₹ ${stt}`;
+                document.getElementById('exch-val').textContent = `₹ ${exchCharge}`;
+                document.getElementById('gst-val').textContent = `₹ ${igst}`;
+                document.getElementById('stamp-val').textContent = `₹ ${stamp}`;
+                document.getElementById('sebi-val').textContent = `₹ ${sebi}`;
+
+                loadingDiv.classList.add('hidden');
+                resultsDiv.classList.remove('hidden');
+
+            } catch (error) {
+                loadingDiv.classList.add('hidden');
+                if (error.name === 'PasswordException') {
+                    alert("Incorrect password. Please upload again and try a different password.");
+                    fileNameDisplay.textContent = "Incorrect password. Try again.";
+                } else {
+                    alert("Error parsing PDF. The file format might not be supported.");
+                    console.error(error);
+                }
+            }
+        });
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.35s ease-out forwards;
+        }
+    </style>
+</body>
+</html>
