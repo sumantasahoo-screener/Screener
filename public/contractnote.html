@@ -4,105 +4,217 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premium Contract Note Analyzer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
-        body { font-family: 'Poppins', sans-serif; }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(to bottom, #f1f5f9, #e2e8f0); 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 15px; 
+            color: #1e293b; 
         }
+        
+        .main-container { 
+            background: #ffffff; 
+            border-radius: 24px; 
+            padding: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 600px; 
+        }
+        
+        h1 { 
+            font-size: 26px; 
+            font-weight: 900; 
+            text-align: center; 
+            margin-bottom: 20px; 
+            color: #4338ca; 
+        }
+        
+        .upload-area { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            border: 2px dashed #a5b4fc; 
+            border-radius: 16px; 
+            padding: 20px; 
+            background: #eff6ff; 
+            margin-bottom: 20px; 
+        }
+        
+        .upload-btn { 
+            background: #4338ca; 
+            color: white; 
+            padding: 12px 24px; 
+            border-radius: 50px; 
+            font-weight: bold; 
+            font-size: 14px;
+            cursor: pointer; 
+            box-shadow: 0 4px 6px rgba(67,56,202,0.3); 
+            display: inline-block;
+        }
+        
+        .file-name { margin-top: 10px; font-size: 12px; color: #64748b; text-align: center; word-break: break-all; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        
+        .mini-card { 
+            background: #f8fafc; 
+            padding: 12px; 
+            border-radius: 12px; 
+            border: 1px solid #e2e8f0; 
+        }
+        
+        .label { font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase; display: block; }
+        .value { font-size: 13px; font-weight: 800; color: #0f172a; display: block; margin-top: 2px; }
+        
+        .summary-card { 
+            background: #e0e7ff; 
+            padding: 15px; 
+            border-radius: 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 15px; 
+        }
+        
+        .summary-label { font-size: 10px; font-weight: bold; color: #4f46e5; text-transform: uppercase; }
+        .summary-value { font-size: 22px; font-weight: 900; color: #312e81; }
+        
+        .main-totals { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        
+        .total-card { 
+            padding: 15px 10px; 
+            border-radius: 16px; 
+            text-align: center; 
+            color: white;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1); 
+        }
+        .gross-card { background: linear-gradient(135deg, #10b981, #059669); }
+        .net-card { background: linear-gradient(135deg, #3b82f6, #4338ca); }
+        
+        .total-label { font-size: 10px; font-weight: bold; text-transform: uppercase; opacity: 0.9; }
+        .total-value { font-size: 18px; font-weight: 900; margin-top: 5px; }
+        
+        .section-title { font-size: 12px; font-weight: 800; color: #64748b; text-align: center; margin-bottom: 12px; text-transform: uppercase; }
+        
+        .charges-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        .charge-card { padding: 12px; border-radius: 12px; border-left: 4px solid; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .charge-card.red { border-color: #ef4444; background: #fef2f2; }
+        .charge-card.orange { border-color: #f97316; background: #fff7ed; }
+        .charge-card.amber { border-color: #f59e0b; background: #fffbeb; }
+        .charge-card.pink { border-color: #ec4899; background: #fdf2f8; }
+        .charge-card.purple { border-color: #a855f7; background: #faf5ff; }
+        .charge-card.cyan { border-color: #06b6d4; background: #ecfeff; }
+        
+        .charge-val { font-size: 14px; font-weight: 800; margin-top: 4px; }
+        .red .charge-val { color: #b91c1c; }
+        .orange .charge-val { color: #c2410c; }
+        .amber .charge-val { color: #b45309; }
+        .pink .charge-val { color: #be185d; }
+        .purple .charge-val { color: #7e22ce; }
+        .cyan .charge-val { color: #0e7490; }
+        
+        .footer-note { font-size: 10px; color: #94a3b8; text-align: center; margin-top: 15px; font-weight: 500; }
+        .hidden { display: none !important; }
+        
+        .loader { 
+            border: 4px solid #e2e8f0; border-top: 4px solid #4338ca; 
+            border-radius: 50%; width: 40px; height: 40px; 
+            animation: spin 1s linear infinite; margin: 0 auto 10px; 
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        #loading { text-align: center; margin: 20px 0; }
+        .loading-text { color: #4338ca; font-size: 14px; font-weight: bold; }
     </style>
 </head>
-<body class="bg-gradient-to-b from-slate-100 to-slate-200 flex items-center justify-center min-h-screen p-4 md:p-8">
-    <div class="bg-white/80 glass-card p-6 md:p-8 rounded-[2.5rem] shadow-2xl w-full max-w-xl border border-white/50">
+<body>
+    <div class="main-container">
+        <h1>Trade Analyzer</h1>
         
-        <h1 class="text-3xl md:text-4xl font-black mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 tracking-tighter">
-            Trade Analyzer
-        </h1>
-        
-        <div class="flex flex-col items-center justify-center mb-6 border-2 border-dashed border-indigo-200 hover:border-purple-400 transition-colors duration-300 p-6 rounded-2xl bg-gradient-to-b from-blue-50/50 to-white shadow-inner group">
-            <label for="pdf-upload" class="cursor-pointer bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform group-hover:scale-105 text-sm md:text-base">
-                ✨ Upload Contract Note
-            </label>
+        <div class="upload-area">
+            <label for="pdf-upload" class="upload-btn">✨ Upload Contract Note</label>
             <input id="pdf-upload" type="file" accept="application/pdf" class="hidden" />
-            <p id="file-name" class="mt-4 text-xs md:text-sm font-medium text-slate-500 break-all text-center px-2">Drop Dhan PDF here</p>
+            <p id="file-name" class="file-name">Drop Dhan PDF here</p>
         </div>
 
-        <div id="loading" class="hidden flex flex-col items-center justify-center my-8">
-            <div class="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-3 shadow"></div>
-            <p class="text-blue-700 text-sm font-bold tracking-wide animate-pulse">Analyzing segments...</p>
+        <div id="loading" class="hidden">
+            <div class="loader"></div>
+            <p class="loading-text">Analyzing segments...</p>
         </div>
 
-        <div id="results" class="hidden animate-pop-in space-y-6">
-            
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-slate-100 p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col">
-                    <span class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Client ID</span> 
-                    <span id="acc-ucc" class="font-extrabold text-slate-900 text-sm md:text-base truncate">-</span>
+        <div id="results" class="hidden">
+            <div class="grid-2">
+                <div class="mini-card">
+                    <span class="label">Client ID</span>
+                    <span id="acc-ucc" class="value">-</span>
                 </div>
-                <div class="bg-slate-100 p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col">
-                    <span class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Trade Date</span> 
-                    <span id="acc-date" class="font-extrabold text-slate-900 text-sm md:text-base truncate">-</span>
-                </div>
-            </div>
-
-            <div class="bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 p-4 rounded-2xl shadow-lg border border-indigo-100">
-                <div class="flex justify-between items-center gap-4">
-                    <div class="flex flex-col">
-                        <span class="text-indigo-600 text-[11px] uppercase font-bold tracking-wider">Scrips/Contracts</span> 
-                        <span id="scrip-count" class="font-black text-indigo-900 text-3xl">-</span>
-                    </div>
-                    <div class="text-right flex flex-col">
-                        <span class="text-indigo-600 text-[11px] uppercase font-bold tracking-wider">Est. Turnover</span> 
-                        <span id="turnover-val" class="font-black text-indigo-900 text-2xl truncate">-</span>
-                    </div>
+                <div class="mini-card">
+                    <span class="label">Trade Date</span>
+                    <span id="acc-date" class="value">-</span>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-2xl shadow-xl shadow-teal-100 flex flex-col justify-center items-center text-center transform transition hover:-translate-y-1">
-                    <p class="text-[11px] font-bold text-teal-50 uppercase tracking-widest opacity-90">Gross obligation</p>
-                    <p id="gross-val" class="text-2xl md:text-3xl font-black text-white mt-1 drop-shadow">₹ 0.00</p>
+            <div class="summary-card">
+                <div>
+                    <div class="summary-label">Scrips/Contracts</div>
+                    <div id="scrip-count" class="summary-value">-</div>
                 </div>
-                <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-5 rounded-2xl shadow-xl shadow-indigo-100 flex flex-col justify-center items-center text-center transform transition hover:-translate-y-1">
-                    <p class="text-[11px] font-bold text-indigo-50 uppercase tracking-widest opacity-90">Net Amount</p>
-                    <p id="net-val" class="text-2xl md:text-3xl font-black text-white mt-1 drop-shadow">₹ 0.00</p>
+                <div style="text-align: right;">
+                    <div class="summary-label">Est. Turnover</div>
+                    <div id="turnover-val" class="summary-value">-</div>
                 </div>
             </div>
 
-            <h3 class="text-xs md:text-sm font-extrabold text-gray-400 uppercase tracking-widest text-center mt-6 mb-2">Taxes & Charges Breakdown (Totals)</h3>
+            <div class="main-totals">
+                <div class="total-card gross-card">
+                    <div class="total-label">Gross obligation</div>
+                    <div id="gross-val" class="total-value">₹ 0.00</div>
+                </div>
+                <div class="total-card net-card">
+                    <div class="total-label">Net Amount</div>
+                    <div id="net-val" class="total-value">₹ 0.00</div>
+                </div>
+            </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <div class="bg-red-50 p-3 rounded-xl border-l-4 border-red-500 shadow-lg shadow-red-50">
-                    <p class="text-[10px] md:text-[11px] font-bold text-red-400 uppercase tracking-wide">Brokerage</p>
-                    <p id="brokerage-val" class="text-base md:text-lg font-extrabold text-red-900 mt-0.5">₹ 0.00</p>
+            <div class="section-title">Taxes & Charges Breakdown (Totals)</div>
+
+            <div class="charges-grid">
+                <div class="charge-card red">
+                    <span class="label">Brokerage</span>
+                    <div id="brokerage-val" class="charge-val">₹ 0.00</div>
                 </div>
-                <div class="bg-orange-50 p-3 rounded-xl border-l-4 border-orange-500 shadow-lg shadow-orange-50">
-                    <p class="text-[10px] md:text-[11px] font-bold text-orange-400 uppercase tracking-wide">STT</p>
-                    <p id="stt-val" class="text-base md:text-lg font-extrabold text-orange-900 mt-0.5">₹ 0.00</p>
+                <div class="charge-card orange">
+                    <span class="label">STT</span>
+                    <div id="stt-val" class="charge-val">₹ 0.00</div>
                 </div>
-                <div class="bg-amber-50 p-3 rounded-xl border-l-4 border-amber-500 shadow-lg shadow-amber-50">
-                    <p class="text-[10px] md:text-[11px] font-bold text-amber-500 uppercase tracking-wide">Exchange Chg</p>
-                    <p id="exch-val" class="text-base md:text-lg font-extrabold text-amber-900 mt-0.5">₹ 0.00</p>
+                <div class="charge-card amber">
+                    <span class="label">Exchange Chg</span>
+                    <div id="exch-val" class="charge-val">₹ 0.00</div>
                 </div>
-                <div class="bg-pink-50 p-3 rounded-xl border-l-4 border-pink-500 shadow-lg shadow-pink-50">
-                    <p class="text-[10px] md:text-[11px] font-bold text-pink-400 uppercase tracking-wide">GST</p>
-                    <p id="gst-val" class="text-base md:text-lg font-extrabold text-pink-900 mt-0.5">₹ 0.00</p>
+                <div class="charge-card pink">
+                    <span class="label">GST</span>
+                    <div id="gst-val" class="charge-val">₹ 0.00</div>
                 </div>
-                <div class="bg-purple-50 p-3 rounded-xl border-l-4 border-purple-500 shadow-lg shadow-purple-50">
-                    <p class="text-[10px] md:text-[11px] font-bold text-purple-400 uppercase tracking-wide">Stamp Duty</p>
-                    <p id="stamp-val" class="text-base md:text-lg font-extrabold text-purple-900 mt-0.5">₹ 0.00</p>
+                <div class="charge-card purple">
+                    <span class="label">Stamp Duty</span>
+                    <div id="stamp-val" class="charge-val">₹ 0.00</div>
                 </div>
-                <div class="bg-cyan-50 p-3 rounded-xl border-l-4 border-cyan-500 shadow-lg shadow-cyan-50">
-                    <p class="text-[10px] md:text-[11px] font-bold text-cyan-500 uppercase tracking-wide">SEBI Fees</p>
-                    <p id="sebi-val" class="text-base md:text-lg font-extrabold text-cyan-900 mt-0.5">₹ 0.00</p>
+                <div class="charge-card cyan">
+                    <span class="label">SEBI Fees</span>
+                    <div id="sebi-val" class="charge-val">₹ 0.00</div>
                 </div>
             </div>
             
-            <p class="text-[10px] text-slate-400 font-medium text-center mt-5">*Values represent the final Total columns. Please verify with official document.</p>
+            <p class="footer-note">*Values represent the final Total columns. Verify with official document.</p>
         </div>
     </div>
 
@@ -140,7 +252,6 @@
                     const page = await pdf.getPage(i);
                     const textContent = await page.getTextContent();
                     
-                    // Smart line reconstruction: Sort PDF items by Y-coordinate first, then X-coordinate
                     let items = textContent.items.map(item => ({
                         str: item.str,
                         x: item.transform[4],
@@ -148,16 +259,16 @@
                     }));
 
                     items.sort((a, b) => {
-                        if (Math.abs(a.y - b.y) > 5) {
-                            return b.y - a.y; // Top to bottom
+                        if (Math.abs(a.y - b.y) > 12) {
+                            return b.y - a.y; 
                         }
-                        return a.x - b.x; // Left to right
+                        return a.x - b.x; 
                     });
 
                     let pageText = "";
                     let lastY = -1;
                     items.forEach(item => {
-                        if (lastY !== -1 && Math.abs(lastY - item.y) > 5) {
+                        if (lastY !== -1 && Math.abs(lastY - item.y) > 12) {
                             pageText += "\n";
                         }
                         pageText += item.str.trim() + " ";
@@ -172,75 +283,80 @@
                     return match ? match[1].trim() : fallback;
                 };
 
-                // Now that rows are properly formed, we grab the LAST currency value on the specific row
                 const extractTotalAmount = (keyword) => {
                     const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                    const regex = new RegExp(escapedKeyword + "([^\\n]*)", "i");
-                    const match = fullText.match(regex);
                     
-                    if (match) {
-                        const line = match[1];
-                        const amounts = line.match(/[\d,]+\.\d{2}\s*(?:CR|DR)?/gi);
+                    const lineRegex = new RegExp(escapedKeyword + "([^\\n]*)", "i");
+                    const lineMatch = fullText.match(lineRegex);
+                    if (lineMatch) {
+                        const amounts = lineMatch[1].match(/[\d,]+\.\d{2}\s*(?:CR|DR)?/gi);
                         if (amounts && amounts.length > 0) {
-                            return amounts[amounts.length - 1].trim(); 
+                            let val = amounts[amounts.length - 1].trim();
+                            if (val !== "0.00" && val !== "0.00 CR" && val !== "0.00 DR") {
+                                return val;
+                            }
+                        }
+                    }
+                    
+                    const blockRegex = new RegExp(escapedKeyword + "([\\s\\S]{1,180}?)(?:Taxable|IGST|CGST|SGST|Stamp|Securities|Net Amount|Ledger|Total Amount|$)", "i");
+                    const blockMatch = fullText.match(blockRegex);
+                    if (blockMatch) {
+                        const amounts = blockMatch[1].match(/[\d,]+\.\d{2}\s*(?:CR|DR)?/gi);
+                        if (amounts && amounts.length > 0) {
+                            return amounts[amounts.length - 1].trim();
                         }
                     }
                     return "0.00";
                 };
 
-                // Account Details
+                const getVal = (str) => parseFloat((str || "0").replace(/[^\d.]/g, '')) || 0;
+                const formatDisplay = (val) => val && val !== "0.00" ? `₹ ${val}` : "₹ 0.00";
+
                 document.getElementById('acc-ucc').textContent = extractBasic(/(?:UCC|Client code):\s*([A-Z0-9]+)/i);
                 document.getElementById('acc-date').textContent = extractBasic(/Trade Date:\s*([\d-]+)/i);
 
-                // Scrip & F&O Contract Count
                 const isins = fullText.match(/INE[A-Z0-9]{9}/g) || [];
                 const options = fullText.match(/OPT(?:IDX|STK)/g) || [];
                 const uniqueScripsCount = new Set(isins).size + new Set(options).size;
                 document.getElementById('scrip-count').textContent = uniqueScripsCount > 0 ? uniqueScripsCount : "-";
 
-                // Value Extractions
                 const gross = extractTotalAmount("Pay In/Pay Out Obligation");
                 const net = extractTotalAmount("Net Amount Receivable (CR) / Payable (DR) By Client");
                 const brokerage = extractTotalAmount("Taxable Value Of Supply (Brokerage)");
                 const stt = extractTotalAmount("Securities Transactions Tax");
-                let gst = extractTotalAmount("IGST RATE");
-                if (parseFloat(gst) === 0) {
-                     let cgst = parseFloat(extractTotalAmount("CGST").replace(/[^\d.]/g, '')) || 0;
-                     let sgst = parseFloat(extractTotalAmount("SGST").replace(/[^\d.]/g, '')) || 0;
-                     if (cgst + sgst > 0) gst = (cgst + sgst).toFixed(2) + " DR";
-                }
                 const stamp = extractTotalAmount("Stamp Duty");
                 const sebi = extractTotalAmount("SEBI Fees");
 
-                // Exchange Charges (NSE + BSE Totals)
-                const nseTotalStr = extractTotalAmount("NSE Transaction Charges");
-                const bseTotalStr = extractTotalAmount("BSE Transaction Charges");
-                const nseVal = parseFloat(nseTotalStr.replace(/[^\d.]/g, '')) || 0;
-                const bseVal = parseFloat(bseTotalStr.replace(/[^\d.]/g, '')) || 0;
-                const totalExchVal = (nseVal + bseVal).toFixed(2);
-                const exchCharge = totalExchVal !== "0.00" ? totalExchVal + " DR" : "0.00";
+                let igst = getVal(extractTotalAmount("IGST RATE"));
+                let cgst = getVal(extractTotalAmount("CGST RATE"));
+                let sgst = getVal(extractTotalAmount("SGST RATE"));
+                let totalGst = igst + cgst + sgst;
+                let gstDisplay = totalGst > 0 ? `${totalGst.toFixed(2)} DR` : "0.00";
 
-                // Estimate Turnover
+                let nseVal = getVal(extractTotalAmount("NSE Transaction Charges"));
+                let bseVal = getVal(extractTotalAmount("BSE Transaction Charges"));
+                let totalExchVal = nseVal + bseVal;
+                let exchCharge = totalExchVal > 0 ? `${totalExchVal.toFixed(2)} DR` : "0.00";
+
                 let turnoverDisplay = "N/A*";
                 const explicitTurnover = extractBasic(/Turnover.*?([\d,]+\.\d{2})/i, null);
                 if (explicitTurnover) {
                     turnoverDisplay = `₹ ${explicitTurnover}`;
                 } else if (stt !== "0.00") {
-                    const sttVal = parseFloat(stt.replace(/,/g, '').replace(/[^\d.]/g, ''));
+                    const sttVal = getVal(stt);
                     const estimatedTurnover = (sttVal * 1000).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                     turnoverDisplay = `₹ ${estimatedTurnover}`;
                 }
                 document.getElementById('turnover-val').textContent = turnoverDisplay;
 
-                // Update UI Charges
-                document.getElementById('gross-val').textContent = `₹ ${gross}`;
-                document.getElementById('net-val').textContent = `₹ ${net}`;
-                document.getElementById('brokerage-val').textContent = `₹ ${brokerage}`;
-                document.getElementById('stt-val').textContent = `₹ ${stt}`;
-                document.getElementById('exch-val').textContent = `₹ ${exchCharge}`;
-                document.getElementById('gst-val').textContent = `₹ ${gst}`;
-                document.getElementById('stamp-val').textContent = `₹ ${stamp}`;
-                document.getElementById('sebi-val').textContent = `₹ ${sebi}`;
+                document.getElementById('gross-val').textContent = formatDisplay(gross);
+                document.getElementById('net-val').textContent = formatDisplay(net);
+                document.getElementById('brokerage-val').textContent = formatDisplay(brokerage);
+                document.getElementById('stt-val').textContent = formatDisplay(stt);
+                document.getElementById('exch-val').textContent = formatDisplay(exchCharge);
+                document.getElementById('gst-val').textContent = formatDisplay(gstDisplay);
+                document.getElementById('stamp-val').textContent = formatDisplay(stamp);
+                document.getElementById('sebi-val').textContent = formatDisplay(sebi);
 
                 loadingDiv.classList.add('hidden');
                 resultsDiv.classList.remove('hidden');
