@@ -1,493 +1,444 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="teal">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>F&O Screener Hub | Premium</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>F&O Screener Hub | Professional Trading Platform</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2300d4d8'/><text x='50%25' y='58%25' dominant-baseline='middle' text-anchor='middle' font-size='17' font-weight='800' fill='%23001f23' font-family='monospace'>F</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+button{cursor:pointer;background:none;border:none;font:inherit;}
 
-html[data-theme="dark"]{
-  --bg:#0f1117;--bg1:#161b27;--bg2:#1e2535;--bg3:#222b3d;
-  --sidebar:#161b27;--border:rgba(42,52,80,.7);--border2:rgba(51,65,102,.8);--border3:rgba(59,130,246,.4);
-  --ink:#e8eaf0;--ink2:#a0aec0;--ink3:#5a6a8a;
-  --accent:#3b82f6;--accent2:#2563eb;--acc-glow:rgba(59,130,246,.15);--acc-dim:rgba(59,130,246,.08);--acc-mid:rgba(59,130,246,.15);
-  --live:#22c55e;--live-bg:rgba(34,197,94,.08);--live-bd:rgba(34,197,94,.25);
-  --shadow:rgba(0,0,0,.6);--scrl:rgba(59,130,246,.2);--red:#f43f5e;--amber:#f59e0b;
-}
-html[data-theme="light"]{
-  --bg:#f0f4f8;--bg1:#ffffff;--bg2:#e8f0f5;--bg3:#dce8ee;
-  --sidebar:#ffffff;--border:rgba(2,90,110,.08);--border2:rgba(2,90,110,.16);--border3:rgba(2,90,110,.28);
-  --ink:#0d2030;--ink2:rgba(13,32,48,.6);--ink3:rgba(13,32,48,.35);
-  --accent:#0099aa;--accent2:#007888;--acc-glow:rgba(0,153,170,.10);--acc-dim:rgba(0,153,170,.07);--acc-mid:rgba(0,153,170,.14);
-  --live:#059669;--live-bg:rgba(5,150,105,.08);--live-bd:rgba(5,150,105,.22);
-  --shadow:rgba(0,0,0,.08);--scrl:rgba(0,153,170,.2);--red:#dc2626;--amber:#d97706;
-}
-html[data-theme="teal"]{
-  --bg:#012f35;--bg1:#01232a;--bg2:#023940;--bg3:#02424a;
-  --sidebar:#011d23;--border:rgba(0,210,220,.10);--border2:rgba(0,210,220,.20);--border3:rgba(0,210,220,.32);
-  --ink:#c8eced;--ink2:rgba(200,236,237,.6);--ink3:rgba(200,236,237,.3);
-  --accent:#00d4d8;--accent2:#00b8bc;--acc-glow:rgba(0,212,216,.12);--acc-dim:rgba(0,212,216,.08);--acc-mid:rgba(0,212,216,.16);
+:root,[data-theme="dark"]{
+  --bg:#0b0e14;--bg1:#0f1319;--bg2:#141920;--bg3:#1a2030;
+  --sidebar:#0d1117;--border:rgba(0,212,216,.08);--border2:rgba(0,212,216,.16);--border3:rgba(0,212,216,.30);
+  --ink:#e2e8f0;--ink2:#8892a4;--ink3:#4a5568;
+  --accent:#00d4d8;--accent2:#00a8ac;--acc-glow:rgba(0,212,216,.14);
+  --acc-dim:rgba(0,212,216,.07);--acc-mid:rgba(0,212,216,.13);
   --live:#34d399;--live-bg:rgba(52,211,153,.08);--live-bd:rgba(52,211,153,.25);
-  --shadow:rgba(0,0,0,.5);--scrl:rgba(0,212,216,.18);--red:#f87171;--amber:#fbbf24;
+  --warn:#fbbf24;--warn-bg:rgba(251,191,36,.07);--warn-bd:rgba(251,191,36,.22);
+  --red:#f87171;--shadow:0 4px 24px rgba(0,0,0,.55);
+  --radius:8px;--radius-lg:12px;--top-h:48px;--side-w:240px;
+  --trans:.18s cubic-bezier(.16,1,.3,1);
+}
+[data-theme="light"]{
+  --bg:#f0f4f8;--bg1:#ffffff;--bg2:#e8f0f5;--bg3:#dde8ef;
+  --sidebar:#ffffff;--border:rgba(2,90,110,.08);--border2:rgba(2,90,110,.16);--border3:rgba(2,90,110,.30);
+  --ink:#0d2030;--ink2:rgba(13,32,48,.58);--ink3:rgba(13,32,48,.32);
+  --accent:#0099aa;--accent2:#007888;--acc-glow:rgba(0,153,170,.12);
+  --acc-dim:rgba(0,153,170,.07);--acc-mid:rgba(0,153,170,.13);
+  --live:#059669;--live-bg:rgba(5,150,105,.08);--live-bd:rgba(5,150,105,.22);
+  --warn:#d97706;--warn-bg:rgba(217,119,6,.07);--warn-bd:rgba(217,119,6,.22);
+  --red:#dc2626;--shadow:0 4px 16px rgba(0,0,0,.10);
 }
 
-body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow:hidden;transition:background .3s,color .3s;}
-::-webkit-scrollbar{width:3px;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow:hidden;transition:background var(--trans),color var(--trans);font-size:14px;line-height:1.5;}
+::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--scrl);border-radius:3px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:var(--accent2);}
 
 /* TOPBAR */
-.topbar{
-  position:fixed;top:0;left:0;right:0;height:44px;
-  background:var(--bg1);border-bottom:1px solid var(--border2);
-  display:flex;align-items:center;padding:0 16px;z-index:200;gap:12px;
-  box-shadow:0 1px 30px var(--shadow);
-  overflow:hidden;
-}
-.topbar::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.4;}
-.topbar.hidden{display:none;}
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--top-h);background:var(--bg1);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 16px;z-index:300;gap:12px;box-shadow:var(--shadow);}
+.topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,var(--accent) 50%,transparent 100%);opacity:.35;}
 
-.hamburger{background:none;border:none;cursor:pointer;color:var(--ink3);padding:7px;border-radius:8px;transition:all .15s;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
-.hamburger:hover{background:var(--acc-dim);color:var(--accent);}
-.hamburger svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+.logo-wrap{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;cursor:pointer;}
+.logo-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px var(--acc-glow);position:relative;overflow:hidden;flex-shrink:0;}
+.logo-icon::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.18) 0%,transparent 55%);}
+.logo-icon-txt{font-size:13px;font-weight:700;color:#001f23;font-family:'JetBrains Mono',monospace;position:relative;}
+.logo-name{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:.1px;white-space:nowrap;}
+.logo-name span{color:var(--accent);}
+.logo-pill{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);background:var(--acc-dim);border:1px solid var(--border2);padding:2px 7px;border-radius:20px;font-family:'JetBrains Mono',monospace;}
 
-.logo-area{display:flex;align-items:center;gap:10px;flex-shrink:0;min-width:0;}
-.logo-mark{width:34px;height:34px;border-radius:9px;flex-shrink:0;background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px var(--acc-glow);position:relative;overflow:hidden;}
-.logo-mark::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2) 0%,transparent 60%);}
-.logo-mark-text{font-size:12px;font-weight:700;color:#fff;letter-spacing:-.5px;position:relative;}
-.logo-text{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:.2px;white-space:nowrap;}
-.logo-text em{font-style:normal;color:var(--accent);}
-.logo-tag{font-size:9px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--accent);background:var(--acc-dim);border:1px solid var(--border2);padding:2px 7px;border-radius:4px;margin-left:4px;font-family:'JetBrains Mono',monospace;}
+.ham-btn{color:var(--ink3);padding:7px;border-radius:var(--radius);transition:all var(--trans);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ham-btn:hover{background:var(--acc-dim);color:var(--accent);}
+.ham-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 
+.topbar-clock{flex:1;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:var(--ink2);letter-spacing:1.2px;}
 .topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-
-.topbar-clock{flex:1;text-align:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--ink2);letter-spacing:1px;}
-
-.live-badge{display:flex;align-items:center;gap:5px;background:var(--live-bg);border:1px solid var(--live-bd);color:var(--live);padding:5px 11px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.6px;font-family:'JetBrains Mono',monospace;}
-.live-dot{width:5px;height:5px;border-radius:50%;background:var(--live);animation:pulse 1.8s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.7);}}
-
-.theme-switcher{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);padding:3px;border-radius:8px;}
-.theme-btn{width:22px;height:22px;border-radius:5px;border:1.5px solid transparent;cursor:pointer;transition:all .15s;flex-shrink:0;}
-.theme-btn:hover{transform:scale(1.1);}
-.theme-btn.active{border-color:var(--ink2);}
-
-.mob-apk-wrap{display:none;}
-.fs-btn{background:var(--bg2);border:1px solid var(--border2);color:var(--ink2);cursor:pointer;border-radius:8px;padding:6px 10px;transition:all .15s;display:flex;align-items:center;font-family:'JetBrains Mono',monospace;font-size:12px;}
-.fs-btn:hover{background:var(--acc-dim);color:var(--accent);border-color:var(--border3);}
-
-.apk-btn{display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.4px;cursor:pointer;text-decoration:none;transition:all .2s;white-space:nowrap;box-shadow:0 2px 10px var(--acc-glow);}
-.apk-btn:hover{opacity:.85;transform:translateY(-1px);box-shadow:0 4px 16px var(--acc-glow);}
+.live-badge{display:flex;align-items:center;gap:5px;background:var(--live-bg);border:1px solid var(--live-bd);color:var(--live);padding:5px 11px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.8px;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--live);animation:blink 1.8s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(.65);}}
+.theme-switcher{display:flex;gap:3px;background:var(--bg2);border:1px solid var(--border);padding:3px;border-radius:var(--radius);}
+.t-btn{width:22px;height:22px;border-radius:5px;border:1.5px solid transparent;cursor:pointer;transition:all var(--trans);flex-shrink:0;}
+.t-btn:hover{transform:scale(1.12);}
+.t-btn.active{box-shadow:0 0 8px var(--acc-glow);}
+.apk-btn{display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#001f23;border:none;border-radius:var(--radius);padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.5px;cursor:pointer;text-decoration:none;transition:all var(--trans);white-space:nowrap;box-shadow:0 2px 12px var(--acc-glow);}
+.apk-btn:hover{opacity:.88;transform:translateY(-1px);box-shadow:0 4px 18px var(--acc-glow);}
 
 /* SIDEBAR */
-.sidebar{position:fixed;left:0;top:44px;width:230px;height:calc(100vh - 44px);background:var(--sidebar);border-right:1px solid var(--border2);overflow-y:auto;z-index:100;transition:transform .3s ease;display:flex;flex-direction:column;}
-.sidebar.hidden-fs{display:none;}
-
-.sidebar-header{padding:14px 16px 10px;border-bottom:1px solid var(--border);}
-.sidebar-label{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);font-weight:600;font-family:'JetBrains Mono',monospace;}
-
+.sidebar{position:fixed;left:0;top:var(--top-h);width:var(--side-w);height:calc(100vh - var(--top-h));background:var(--sidebar);border-right:1px solid var(--border2);overflow-y:auto;z-index:200;transition:transform var(--trans);display:flex;flex-direction:column;}
+.sidebar.collapsed{transform:translateX(-100%);}
+.sidebar-top{padding:14px 14px 10px;border-bottom:1px solid var(--border);}
+.sidebar-top-lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);font-weight:600;font-family:'JetBrains Mono',monospace;}
 .nav-section{border-bottom:1px solid var(--border);}
-.section-header{width:100%;padding:11px 16px;background:none;border:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .15s;gap:8px;}
-.section-header:hover{background:var(--acc-dim);}
-.section-icon-title{display:flex;align-items:center;gap:8px;}
-.section-icon{width:26px;height:26px;border-radius:7px;background:var(--acc-dim);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
-.section-title{font-size:12px;font-weight:600;color:var(--ink);letter-spacing:.3px;}
-.section-count{font-size:9px;color:var(--ink3);font-family:'JetBrains Mono',monospace;margin-left:2px;}
-.section-arrow{color:var(--ink3);font-size:9px;transition:transform .25s;flex-shrink:0;}
-.section-arrow.open{transform:rotate(180deg);}
-
+.sec-hdr{width:100%;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background var(--trans);gap:8px;}
+.sec-hdr:hover{background:var(--acc-dim);}
+.sec-hdr-left{display:flex;align-items:center;gap:9px;}
+.sec-ico{width:26px;height:26px;border-radius:7px;background:var(--acc-dim);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;transition:all var(--trans);}
+.sec-hdr:hover .sec-ico{background:var(--acc-mid);border-color:var(--border3);}
+.sec-title{font-size:11.5px;font-weight:600;color:var(--ink);letter-spacing:.3px;}
+.sec-count{font-size:9px;color:var(--ink3);font-family:'JetBrains Mono',monospace;}
+.sec-arrow{color:var(--ink3);font-size:10px;transition:transform .25s;flex-shrink:0;}
+.sec-arrow.open{transform:rotate(180deg);}
 .submenu{max-height:0;overflow:hidden;transition:max-height .3s ease;}
-.submenu.open{max-height:600px;}
+.submenu.open{max-height:700px;}
 
-.nav-link{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 8px 50px;font-size:12px;color:var(--ink2);text-decoration:none;transition:all .15s;position:relative;border-left:2px solid transparent;gap:8px;}
-.nav-link::before{content:'';position:absolute;left:34px;width:6px;height:1px;background:var(--border2);}
-.nav-link:hover{background:var(--acc-dim);color:var(--ink);border-left-color:var(--border2);padding-left:52px;}
+/* NAV LINKS — href present for right-click, click handled by JS */
+.nav-link{display:flex;align-items:center;justify-content:space-between;padding:8px 14px 8px 49px;font-size:12px;color:var(--ink2);text-decoration:none;transition:all var(--trans);position:relative;border-left:2px solid transparent;gap:8px;}
+.nav-link::before{content:'';position:absolute;left:33px;width:6px;height:1px;background:var(--border2);}
+.nav-link:hover{background:var(--acc-dim);color:var(--ink);border-left-color:var(--border2);padding-left:51px;}
 .nav-link.active{background:var(--acc-mid);color:var(--accent);border-left-color:var(--accent);font-weight:500;}
 .nav-link.active::before{background:var(--accent);}
-.nav-link.external::after{content:'↗';font-size:10px;color:var(--ink3);margin-left:auto;}
-.nav-badge{font-size:9px;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-weight:500;flex-shrink:0;}
-.nav-badge.live{background:var(--live-bg);color:var(--live);border:1px solid var(--live-bd);}
-.nav-badge.offline{background:rgba(245,166,35,.08);color:var(--amber);border:1px solid rgba(245,166,35,.2);}
-.nav-badge.info{background:var(--acc-dim);color:var(--accent);border:1px solid var(--border2);}
+.nav-link.external::after{content:'↗';font-size:9px;color:var(--ink3);margin-left:auto;}
 
-.sidebar-footer{margin-top:auto;padding:14px 16px;border-top:1px solid var(--border);}
-.sidebar-footer-text{font-size:10px;color:var(--ink3);line-height:1.6;font-family:'JetBrains Mono',monospace;}
+.nbadge{font-size:9px;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-weight:600;flex-shrink:0;}
+.nbadge.live{background:var(--live-bg);color:var(--live);border:1px solid var(--live-bd);}
+.nbadge.off{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-bd);}
+.nbadge.info{background:var(--acc-dim);color:var(--accent);border:1px solid var(--border2);}
+.nbadge.new-b{background:rgba(167,243,208,.1);color:#6ee7b7;border:1px solid rgba(110,231,183,.25);}
+
+.sidebar-footer{margin-top:auto;padding:14px;border-top:1px solid var(--border);}
+.sf-edu{font-size:9px;color:var(--accent);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;font-weight:600;text-transform:uppercase;display:flex;align-items:center;gap:5px;margin-bottom:6px;}
+.sf-edu::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);}
+.sf-note{font-size:9.5px;color:var(--ink3);line-height:1.7;font-family:'JetBrains Mono',monospace;}
+.mob-apk{display:none;}
 
 /* MAIN */
-.main{margin-left:230px;width:calc(100% - 230px);margin-top:44px;height:calc(100vh - 44px);display:flex;flex-direction:column;transition:margin .3s,width .3s;}
+.main{margin-left:var(--side-w);width:calc(100% - var(--side-w));margin-top:var(--top-h);height:calc(100vh - var(--top-h));display:flex;flex-direction:column;transition:margin var(--trans),width var(--trans);}
+.main.expanded{margin-left:0;width:100%;}
 
-.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:var(--bg);position:relative;overflow:hidden;}
-.welcome-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 50%,var(--acc-glow) 0%,transparent 70%);pointer-events:none;}
-.welcome-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 20%,transparent 80%);pointer-events:none;opacity:.5;}
+/* WELCOME */
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;position:relative;overflow:hidden;background:var(--bg);}
+.w-bg-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 10%,transparent 75%);opacity:.6;}
+.w-glow{position:absolute;inset:0;background:radial-gradient(ellipse 55% 40% at 50% 50%,var(--acc-glow),transparent 68%);pointer-events:none;}
+.w-inner{position:relative;text-align:center;max-width:460px;padding:0 24px;}
+.w-logo{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 0 40px var(--acc-glow),0 8px 32px rgba(0,0,0,.4);position:relative;overflow:hidden;}
+.w-logo::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2),transparent 55%);}
+.w-logo-txt{font-size:20px;font-weight:800;color:#001f23;font-family:'JetBrains Mono',monospace;position:relative;}
+.w-title{font-size:26px;font-weight:700;color:var(--ink);letter-spacing:-.3px;margin-bottom:8px;line-height:1.2;}
+.w-title span{color:var(--accent);}
+.w-sub{font-size:14px;color:var(--ink2);line-height:1.6;margin-bottom:20px;max-width:40ch;margin-left:auto;margin-right:auto;}
+.w-hint{font-size:11px;color:var(--ink3);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;margin-bottom:28px;}
+.w-stats{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+.w-stat{background:var(--bg1);border:1px solid var(--border2);border-radius:var(--radius);padding:14px 20px;min-width:80px;text-align:center;transition:all var(--trans);}
+.w-stat:hover{border-color:var(--border3);box-shadow:0 0 16px var(--acc-glow);}
+.w-stat-val{font-size:22px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;line-height:1;}
+.w-stat-lbl{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);margin-top:5px;font-weight:500;}
 
-.welcome-inner{position:relative;text-align:center;max-width:420px;padding:0 20px;}
-.welcome-logo{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 0 40px var(--acc-glow),0 0 80px var(--acc-glow);}
-.welcome-logo-text{font-size:28px;font-weight:700;color:#fff;}
-.welcome-title{font-size:28px;font-weight:700;color:var(--ink);letter-spacing:-.5px;line-height:1.2;margin-bottom:10px;}
-.welcome-title em{font-style:normal;color:var(--accent);}
-.welcome-sub{font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:24px;}
-.welcome-hint{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--ink3);font-family:'JetBrains Mono',monospace;background:var(--bg2);border:1px solid var(--border2);padding:7px 16px;border-radius:20px;}
-.welcome-stats{display:flex;gap:16px;justify-content:center;margin-top:28px;}
-.w-stat{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px 20px;text-align:center;}
-.w-stat-val{font-size:20px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;}
-.w-stat-label{font-size:10px;color:var(--ink3);letter-spacing:.5px;margin-top:2px;}
+.content-frame{flex:1;border:none;background:var(--bg);display:none;}
 
-.content-frame{flex:1;width:100%;border:none;background:#fff;display:none;}
-.content-frame.active{display:block;}
+/* DISCLAIMER */
+#disc-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;}
+#disc-box{background:var(--bg1);border:1px solid var(--border2);border-radius:var(--radius-lg);max-width:440px;width:100%;padding:28px 28px 24px;box-shadow:0 24px 80px rgba(0,0,0,.7);position:relative;animation:fadeUp .35s cubic-bezier(.16,1,.3,1);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+#disc-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
+.disc-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 0 24px var(--acc-glow);}
+.disc-icon svg{width:26px;height:26px;fill:none;stroke:#001f23;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+.disc-title{font-size:17px;font-weight:700;color:var(--ink);text-align:center;margin-bottom:4px;}
+.disc-subtitle{font-size:10px;color:var(--accent);text-align:center;font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:18px;font-weight:600;}
+.disc-edu-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:#34d399;border-radius:20px;padding:5px 14px;font-size:10px;font-weight:600;font-family:'JetBrains Mono',monospace;letter-spacing:.8px;text-transform:uppercase;margin-bottom:16px;}
+.disc-edu-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:#34d399;animation:blink 1.8s ease-in-out infinite;}
+.disc-body{font-size:12px;color:var(--ink2);line-height:1.85;margin-bottom:18px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+.disc-body ul{padding-left:16px;}
+.disc-body li{margin-bottom:5px;}
+.disc-body li::marker{color:var(--accent);}
+.disc-agree{width:100%;padding:12px;border:none;border-radius:var(--radius);background:linear-gradient(135deg,var(--accent2),var(--accent));color:#001f23;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all var(--trans);box-shadow:0 4px 18px var(--acc-glow);}
+.disc-agree:hover{opacity:.88;transform:translateY(-1px);box-shadow:0 6px 24px var(--acc-glow);}
+.disc-decline{display:block;width:100%;margin-top:10px;font-size:11px;color:var(--ink3);cursor:pointer;background:none;border:none;font-family:'JetBrains Mono',monospace;transition:color var(--trans);padding:4px;text-align:center;}
+.disc-decline:hover{color:var(--red);}
 
-@media(min-width:769px){
-  .content-frame.active{margin-top:36px;}
-}
-
-.float-btn{display:none;position:fixed;bottom:20px;right:20px;z-index:300;background:var(--accent);color:var(--bg);border:none;cursor:pointer;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;box-shadow:0 4px 20px var(--acc-glow);transition:transform .15s;font-family:'JetBrains Mono',monospace;}
-.float-btn.visible{display:block;}
-.float-btn:hover{transform:scale(1.05);}
-
+/* MOBILE */
+#mob-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150;display:none;backdrop-filter:blur(2px);}
+#mob-overlay.visible{display:block;}
 @media(max-width:768px){
-  .sidebar{transform:translateX(-100%);z-index:500;width:100vw;background:var(--sidebar) !important;opacity:1 !important;}
+  :root{--top-h:50px;--side-w:260px;}
+  .sidebar{transform:translateX(-100%);}
   .sidebar.mobile-open{transform:translateX(0);}
-  .main{margin-left:0;width:100%;}
-  .market-strip{display:none;}
-  .logo-tag{display:none;}
-  .topbar-clock{display:none;}
-  .apk-btn{font-size:10px;padding:5px 9px;}
-  .welcome{display:none !important;}
-  .section-title{font-size:16px !important;}
-  .section-count{font-size:13px !important;}
-  .nav-link{font-size:15px !important;padding:12px 20px 12px 56px !important;}
-  .section-header{padding:14px 18px !important;}
-  .sidebar-label{font-size:11px !important;}
-  .sidebar-footer-text{font-size:13px !important;}
-  /* APK button in sidebar only on mobile */
-  .mob-apk-wrap{display:block !important;}
+  .main{margin-left:0!important;width:100%!important;}
+  .topbar-clock{font-size:11px;letter-spacing:.5px;}
+  .logo-name,.logo-pill,.apk-btn{display:none;}
+  .mob-apk{display:flex!important;}
 }
-#mob-overlay{display:none !important;}
-
-/* ── DISCLAIMER OVERLAY ── */
-#disclaimer-overlay{
-  position:fixed;inset:0;z-index:9999;
-  background:rgba(0,0,0,.88);backdrop-filter:blur(8px);
-  display:flex;align-items:center;justify-content:center;padding:20px;}
-#disclaimer-box{
-  background:#0f1117;border:1px solid rgba(59,130,246,.35);border-radius:16px;
-  max-width:480px;width:100%;padding:32px 28px;text-align:center;
-  box-shadow:0 0 60px rgba(59,130,246,.12),0 24px 60px rgba(0,0,0,.6);
-  font-family:'JetBrains Mono',monospace;}
-.d-icon{font-size:36px;margin-bottom:14px;}
-#disclaimer-box h2{font-size:15px;font-weight:700;color:#e8eaf0;letter-spacing:.5px;margin-bottom:10px;line-height:1.5;}
-#disclaimer-box p{font-size:11px;color:#a0aec0;line-height:1.8;margin-bottom:16px;}
-.d-legal{font-size:10px;color:#5a6a8a;line-height:1.8;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:10px 14px;margin-bottom:22px;text-align:left;}
-.d-legal strong{color:#8a9ab8;}
-#disclaimer-agree{
-  background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;
-  border:none;border-radius:10px;padding:12px 32px;font-size:13px;font-weight:700;
-  cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:.4px;
-  transition:all .2s;box-shadow:0 4px 16px rgba(59,130,246,.3);}
-#disclaimer-agree:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,130,246,.4);}
-#disclaimer-decline{display:block;margin-top:12px;font-size:10px;color:#5a6a8a;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:'JetBrains Mono',monospace;}
+@media(max-width:400px){
+  #disc-box{padding:22px 18px 18px;}
+  .w-title{font-size:22px;}
+}
 </style>
 </head>
 <body>
 
-<!-- ── DISCLAIMER ── -->
-<div id="disclaimer-overlay">
-  <div id="disclaimer-box">
-    <div class="d-icon">⚖️</div>
-    <h2>Personal Use Only<br>— Not for Commercial Use —</h2>
-    <p>This platform is built strictly for personal and educational purposes.<br>Commercial use of any kind is not permitted.</p>
-    <div class="d-legal">
-      <strong>⚠️ Legal Disclaimer:</strong><br>
-      • This tool is not a product of any SEBI-registered entity or financial advisor.<br>
-      • No data or signal on this platform constitutes investment advice.<br>
-      • The creator bears no responsibility for any financial loss or decision made using this tool.<br>
-      • Unauthorized redistribution, resale, or commercial use is strictly prohibited.<br>
-      • By clicking "I Agree", you confirm that you will use this for personal use only.
+<div id="mob-overlay" onclick="closeMobileSidebar()"></div>
+
+<!-- ═══ DISCLAIMER ═══ -->
+<div id="disc-overlay">
+  <div id="disc-box">
+    <div style="text-align:center">
+      <div class="disc-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="disc-edu-tag">Educational &amp; Research Use</div>
+      <div class="disc-title">F&amp;O Screener Hub</div>
+      <div class="disc-subtitle">Terms of Use &mdash; Please Read</div>
     </div>
-    <button id="disclaimer-agree" onclick="acceptDisclaimer()">✓ &nbsp;I Agree — Personal Use Only</button>
-    <button id="disclaimer-decline" onclick="declineDisclaimer()">I Do Not Agree — Exit</button>
+    <div class="disc-body">
+      <ul>
+        <li>This platform is built <strong>strictly for educational and research purposes</strong>.</li>
+        <li>All data and analysis are for <strong>learning purposes only</strong> &mdash; not investment advice.</li>
+        <li>Not affiliated with or registered under SEBI or any financial regulator.</li>
+        <li>The creator bears <strong>no liability</strong> for any financial decisions made using this platform.</li>
+        <li>Redistribution or commercial resale is <strong>not permitted</strong> without written consent.</li>
+      </ul>
+    </div>
+    <button class="disc-agree" onclick="acceptDisc()">&#10003; &nbsp;I Understand &mdash; Enter Platform</button>
+    <button class="disc-decline" onclick="declineDisc()">I Do Not Agree &mdash; Exit</button>
   </div>
 </div>
 
-<button class="float-btn" id="float-btn">⛶ EXIT</button>
-<div id="mob-overlay"></div>
-
-<nav class="topbar" id="topbar">
-  <button class="hamburger" id="hamburger">
+<!-- ═══ TOPBAR ═══ -->
+<header class="topbar">
+  <button class="ham-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
     <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
+  <div class="logo-wrap" onclick="goHome()">
+    <div class="logo-icon"><span class="logo-icon-txt">F</span></div>
+    <span class="logo-name">F<span>&amp;</span>O <span>Screener</span> Hub</span>
+    <span class="logo-pill">PRO</span>
+  </div>
+  <div class="topbar-clock" id="clock">Loading...</div>
+  <div class="topbar-right">
+    <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+    <div class="theme-switcher" title="Switch Theme">
+      <div class="t-btn active" id="btn-dark" style="background:#0b0e14;border-color:var(--accent);" onclick="setTheme('dark')" title="Dark"></div>
+      <div class="t-btn" id="btn-light" style="background:#f0f4f8;" onclick="setTheme('light')" title="Light"></div>
+    </div>
+    <a href="https://screener-epd.pages.dev/public/Screenerv1.apk" download class="apk-btn" title="Download Android App">
+      &#8595; APK
+    </a>
+  </div>
+</header>
 
-  <div class="logo-area">
-    <div class="logo-mark"><span class="logo-mark-text">F&amp;O</span></div>
-    <span class="logo-text"><em>Screener</em> Hub</span>
-    <span class="logo-tag">PREMIUM</span>
+<!-- ═══ SIDEBAR ═══ -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-top-lbl">Navigation</div>
   </div>
 
-  <div class="topbar-clock" id="topbar-clock">--:--:-- IST</div>
-
-  <a href="https://screener-epd.pages.dev/public/Screenerv1.apk" download class="apk-btn" title="Download Android App">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M8 12l4 4 4-4"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
-    APK
-  </a>
-
-  <div class="topbar-right">
-    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
-    <div class="theme-switcher">
-      <div class="theme-btn active" style="background:#0f1117;border:1px solid #2a3450" title="Dark" onclick="setTheme('dark',this)"></div>
-      <div class="theme-btn" style="background:#012f35" title="Teal" onclick="setTheme('teal',this)"></div>
-      <div class="theme-btn" style="background:#f0f4f8;border:1px solid #ccc" title="Light" onclick="setTheme('light',this)"></div>
+  <!-- Guide -->
+  <div class="nav-section">
+    <button class="sec-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico">&#128214;</div>
+        <div><span class="sec-title">Guide</span> <span class="sec-count">2</span></div>
+      </div>
+      <span class="sec-arrow open">&#9660;</span>
+    </button>
+    <div class="submenu open">
+      <a href="https://screener-epd.pages.dev/public/Manual" class="nav-link">Guide V1 <span class="nbadge new-b">NEW</span></a>
+      <a href="https://screener-epd.pages.dev/public/contractnote" class="nav-link">Contract Note <span class="nbadge info">TOOL</span></a>
     </div>
-    <button class="fs-btn" id="fs-btn">⛶</button>
+  </div>
+
+  <!-- Helper Tools -->
+  <div class="nav-section">
+    <button class="sec-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico">&#128295;</div>
+        <div><span class="sec-title">Helper Tools</span> <span class="sec-count">4</span></div>
+      </div>
+      <span class="sec-arrow open">&#9660;</span>
+    </button>
+    <div class="submenu open">
+      <a href="https://screener-epd.pages.dev/public/tradegpt.html" class="nav-link">AI ChatBot <span class="nbadge info">AI</span></a>
+      <a href="https://screener-epd.pages.dev/public/markettracker" class="nav-link">Market Tracker <span class="nbadge live">LIVE</span></a>
+      <a href="https://screener-epd.pages.dev/public/oi_All" class="nav-link">OI Tracker <span class="nbadge live">LIVE</span></a>
+      <a href="https://screener2-584.pages.dev/volumesignal" class="nav-link">Scalper <span class="nbadge info">SIGNAL</span></a>
+    </div>
+  </div>
+
+  <!-- Data Analysis -->
+  <div class="nav-section">
+    <button class="sec-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico">&#128202;</div>
+        <div><span class="sec-title">Data Analysis</span> <span class="sec-count">7</span></div>
+      </div>
+      <span class="sec-arrow open">&#9660;</span>
+    </button>
+    <div class="submenu open">
+      <a href="https://screener2-584.pages.dev/StockTrade" class="nav-link">Stock Trade <span class="nbadge live">LIVE</span></a>
+      <a href="https://screener2-584.pages.dev/OptionTrade" class="nav-link">Option Trade <span class="nbadge live">LIVE</span></a>
+      <a href="https://screener-epd.pages.dev/public/vix-levels" class="nav-link">VIX Level <span class="nbadge live">LIVE</span></a>
+      <a href="https://screener2-584.pages.dev/indextracker" class="nav-link">Index Tracker <span class="nbadge live">LIVE</span></a>
+      <a href="https://screener2-584.pages.dev/MulBhav" class="nav-link">MulBhav <span class="nbadge off">OFFLINE</span></a>
+      <a href="https://screener-epd.pages.dev/public/volatility_dashboard" class="nav-link">Volatility <span class="nbadge info">KB</span></a>
+      <a href="https://screener2-584.pages.dev/fii_dashboard" class="nav-link">FII Data <span class="nbadge info">KB</span></a>
+    </div>
+  </div>
+
+  <!-- Swing -->
+  <div class="nav-section">
+    <button class="sec-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico">&#128200;</div>
+        <div><span class="sec-title">Swing</span> <span class="sec-count">1</span></div>
+      </div>
+      <span class="sec-arrow open">&#9660;</span>
+    </button>
+    <div class="submenu open">
+      <a href="https://screener-epd.pages.dev/public/swing_screener" class="nav-link">Swing Signal <span class="nbadge new-b">SCAN</span></a>
+    </div>
+  </div>
+
+  <!-- External Links — target="_blank", no JS interference -->
+  <div class="nav-section">
+    <button class="sec-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico">&#128279;</div>
+        <div><span class="sec-title">External Links</span> <span class="sec-count">6</span></div>
+      </div>
+      <span class="sec-arrow">&#9660;</span>
+    </button>
+    <div class="submenu">
+      <a href="https://upstox.com/fno-discovery/open-interest-analysis/nifty-pcr/" class="nav-link external" target="_blank" rel="noopener">PCR Data</a>
+      <a href="https://groww.in/indices/global-indices" class="nav-link external" target="_blank" rel="noopener">Global Index</a>
+      <a href="https://web.quantsapp.com/signin" class="nav-link external" target="_blank" rel="noopener">Quantsapp</a>
+      <a href="https://login.dhan.co/?location=DH_WEB" class="nav-link external" target="_blank" rel="noopener">Dhan</a>
+      <a href="https://www.nseindia.com/option-chain" class="nav-link external" target="_blank" rel="noopener">Nifty Option Chain</a>
+      <a href="https://nifty-pe-ratio.com" class="nav-link external" target="_blank" rel="noopener">Nifty PE Ratio</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <div class="mob-apk" style="margin-bottom:12px;">
+      <a href="https://screener-epd.pages.dev/public/Screenerv1.apk" download class="apk-btn" style="width:100%;justify-content:center;font-size:12px;">
+        &#8595; Download F&amp;O APK v1
+      </a>
+    </div>
+    <div class="sf-edu">Educational Use Only</div>
+    <div class="sf-note">For research &amp; learning purposes.<br>Not financial or investment advice.</div>
   </div>
 </nav>
 
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <div class="sidebar-label">Navigation</div>
-  </div>
-
-
-
-  <div class="nav-section">
-    <button class="section-header" onclick="toggleSub(this,'guide-sub')">
-      <div class="section-icon-title">
-        <div class="section-icon">📖</div>
-        <div><span class="section-title">Guide</span><span class="section-count"> 1</span></div>
-      </div>
-      <span class="section-arrow">▼</span>
-    </button>
-    <div class="submenu" id="guide-sub">
-      <a href="https://screener-epd.pages.dev/public/Manual" class="nav-link">Guide V1 <span class="nav-badge info">NEW</span></a>
-	  <a href="https://screener-epd.pages.dev/public/contractnote" class="nav-link">Contract Note <span class="nav-badge info">NEW</span></a>
-    </div>
-  </div>
-
-  <div class="nav-section">
-    <button class="section-header" onclick="toggleSub(this,'scalper-sub')">
-      <div class="section-icon-title">
-        <div class="section-icon">⚡</div>
-        <div><span class="section-title">Helper Tool</span><span class="section-count"> 3</span></div>
-      </div>
-      <span class="section-arrow">▼</span>
-    </button>
-    <div class="submenu" id="scalper-sub">
-      <a href="https://screener-epd.pages.dev/public/tradegpt.html" class="nav-link">AI ChatBot <span class="nav-badge info">AI</span></a>
-      <a href="https://screener-epd.pages.dev/public/markettracker" class="nav-link">Market Tracker</a>
-      <a href="https://screener-epd.pages.dev/public/oi_All" class="nav-link">OI Tracker</a>
-	  <a href="https://screener2-584.pages.dev/volumesignal" class="nav-link">Scalper</a>
-	  
-	  
-    </div>
-  </div>
-  
-
-  
-  <div class="nav-section">
-    <button class="section-header" onclick="toggleSub(this,'data-sub')">
-      <div class="section-icon-title">
-        <div class="section-icon">📈</div>
-        <div><span class="section-title">Data Analysis</span><span class="section-count"> 5</span></div>
-      </div>
-      <span class="section-arrow">▼</span>
-    </button>
-    <div class="submenu" id="data-sub">
-      <a href="https://screener2-584.pages.dev/StockTrade" class="nav-link">Stock Trade <span class="nav-badge live">LIVE</span></a>
-      <a href="https://screener2-584.pages.dev/OptionTrade" class="nav-link">Option Trade <span class="nav-badge live">LIVE</span></a>
-	  <a href="https://screener-epd.pages.dev/public/vix-levels" class="nav-link">VIX Level <span class="nav-badge offline">LIVE</span></a>
-	  <a href="https://screener2-584.pages.dev/indextracker" class="nav-link">Index-Tracker <span class="nav-badge offline">LIVE</span></a>
-      <a href="https://screener2-584.pages.dev/MulBhav" class="nav-link">MulBhav <span class="nav-badge offline">OFF-LINE</span></a>
-      <a href="https://screener-epd.pages.dev/public/volatility_dashboard" class="nav-link">Volatility <span class="nav-badge info">KB</span></a>
-      <a href="https://screener2-584.pages.dev/fii_dashboard" class="nav-link">FII Data <span class="nav-badge info">KB</span></a>
-    </div>
-  </div>
-
-  <div class="nav-section">
-    <button class="section-header" onclick="toggleSub(this,'swing-sub')">
-      <div class="section-icon-title">
-        <div class="section-icon">🔄</div>
-        <div><span class="section-title">Swing</span><span class="section-count"> 2</span></div>
-      </div>
-      <span class="section-arrow">▼</span>
-    </button>
-    <div class="submenu" id="swing-sub">
-      <a href="https://screener-epd.pages.dev/public/swing_screener" class="nav-link">Swing Signal</a>
-      
-    </div>
-  </div>
-
-  <div class="nav-section">
-    <button class="section-header" onclick="toggleSub(this,'ext-sub')">
-      <div class="section-icon-title">
-        <div class="section-icon">🔗</div>
-        <div><span class="section-title">External Links</span><span class="section-count"> 6</span></div>
-      </div>
-      <span class="section-arrow">▼</span>
-    </button>
-    <div class="submenu" id="ext-sub">
-      <a href="https://upstox.com/fno-discovery/open-interest-analysis/nifty-pcr/" class="nav-link external" target="_blank">PCR Data</a>
-      <a href="https://groww.in/indices/global-indices" class="nav-link external" target="_blank">Global Index</a>
-      <a href="https://web.quantsapp.com/signin" class="nav-link external" target="_blank">Quantsapp</a>
-      <a href="https://login.dhan.co/?location=DH_WEB" class="nav-link external" target="_blank">Dhan</a>
-      <a href="https://www.nseindia.com/option-chain" class="nav-link external" target="_blank">Nifty Option Chain</a>
-      <a href="https://nifty-pe-ratio.com" class="nav-link external" target="_blank">Nifty PE Ratio</a>
-    </div>
-  </div>
-
-  <div class="sidebar-footer">
-    <div class="mob-apk-wrap">
-      <a href="https://screener-epd.pages.dev/Screenerv1.apk" target="_blank" class="apk-btn" 
-         style="width:100%;justify-content:center;font-size:13px;padding:10px 16px;border-radius:10px;display:flex;gap:8px;box-sizing:border-box;margin-bottom:12px;"
-         oncontextmenu="return false;"
-         ontouchstart="startCopy(this)" ontouchend="cancelCopy()"
-         title="Tap to open | Long press to copy link">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.42.07 2.38.74 3.2.8 1.21-.24 2.37-.93 3.67-.84 1.58.13 2.77.74 3.54 1.88-3.26 1.95-2.49 5.96.59 7.13-.57 1.39-1.3 2.76-3 3.91zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
-        F&amp;O APK v1
-      </a>
-    </div>
-    <div class="sidebar-footer-text">
-      F&amp;O APK v1<br>
-      <span id="clock-time">--:--:-- IST</span>
-    </div>
-  </div>
-</aside>
-
+<!-- ═══ MAIN CONTENT ═══ -->
 <main class="main" id="main">
-  <div style="flex:1;display:flex;flex-direction:column;" id="frame-area">
-    <div class="welcome" id="welcome">
-      <div class="welcome-bg"></div>
-      <div class="welcome-grid"></div>
-      <div class="welcome-inner">
-        <div class="welcome-logo"><span class="welcome-logo-text">F</span></div>
-        <div class="welcome-title">F&amp;O <em>Screener</em> Hub</div>
-        <div class="welcome-sub">Professional tools for Options &amp; Futures traders. Real-time data, AI analysis, and market insights — all in one place.</div>
-        <div class="welcome-hint">← Select a tool from the sidebar to begin</div>
-        <div class="welcome-stats">
-          <div class="w-stat"><div class="w-stat-val">10+</div><div class="w-stat-label">TOOLS</div></div>
-          <div class="w-stat"><div class="w-stat-val">LIVE</div><div class="w-stat-label">DATA</div></div>
-          <div class="w-stat"><div class="w-stat-val">AI</div><div class="w-stat-label">POWERED</div></div>
-        </div>
+  <div class="welcome" id="welcome">
+    <div class="w-bg-grid"></div>
+    <div class="w-glow"></div>
+    <div class="w-inner">
+      <div class="w-logo"><span class="w-logo-txt">F&O</span></div>
+      <div class="w-title">F<span>&amp;</span>O <span>Screener</span> Hub</div>
+      <div class="w-sub">Professional tools for Options &amp; Futures traders &mdash; real-time data, AI analysis, and market insights in one place.</div>
+      <div class="w-hint">&#8592; Select a tool from the sidebar to begin</div>
+      <div class="w-stats">
+        <div class="w-stat"><div class="w-stat-val">10+</div><div class="w-stat-lbl">Tools</div></div>
+        <div class="w-stat"><div class="w-stat-val" style="color:var(--live)">LIVE</div><div class="w-stat-lbl">Data</div></div>
+        <div class="w-stat"><div class="w-stat-val">AI</div><div class="w-stat-lbl">Powered</div></div>
+        <div class="w-stat"><div class="w-stat-val">APK</div><div class="w-stat-lbl">Android</div></div>
       </div>
     </div>
-    <iframe src="about:blank" id="main-frame" class="content-frame"></iframe>
   </div>
+  <iframe src="about:blank" id="main-frame" class="content-frame" title="Tool Content"></iframe>
 </main>
 
 <script>
-// ── DISCLAIMER ──
-function acceptDisclaimer(){
-  sessionStorage.setItem('fo_disclaimer','accepted');
-  document.getElementById('disclaimer-overlay').style.display='none';
+/* ─── DISCLAIMER ─── */
+(function(){
+  if(sessionStorage.getItem('fo_disc')==='ok'){
+    document.getElementById('disc-overlay').style.display='none';
+  }
+})();
+function acceptDisc(){
+  sessionStorage.setItem('fo_disc','ok');
+  var o=document.getElementById('disc-overlay');
+  o.style.transition='opacity .3s';
+  o.style.opacity='0';
+  setTimeout(function(){o.style.display='none';},320);
 }
-function declineDisclaimer(){
-  document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0f1117;font-family:JetBrains Mono,monospace;color:#5a6a8a;font-size:13px;">Access denied. Please close this tab.</div>';
-}
-// Show disclaimer every session (sessionStorage clears on browser close)
-if(sessionStorage.getItem('fo_disclaimer')==='accepted'){
-  document.getElementById('disclaimer-overlay').style.display='none';
-}
+function declineDisc(){ window.location.href='about:blank'; }
 
-const frame=document.getElementById('main-frame'),welcome=document.getElementById('welcome'),sidebar=document.getElementById('sidebar'),topbar=document.getElementById('topbar'),main=document.getElementById('main'),floatBtn=document.getElementById('float-btn'),fsBtn=document.getElementById('fs-btn');
-
-function setTheme(t,el){
-  document.documentElement.setAttribute('data-theme',t);
-  localStorage.setItem('fo_theme_v2',t);
-  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
-  if(el)el.classList.add('active');
-}
-// Default = dark always, unless user has explicitly chosen something this session
-const saved = localStorage.getItem('fo_theme_v2') || 'dark';
-document.documentElement.setAttribute('data-theme', saved);
-localStorage.setItem('fo_theme_v2', saved);
-const themeMap={'dark':0,'teal':1,'light':2};
-const btns=document.querySelectorAll('.theme-btn');
-if(btns[themeMap[saved]]) btns[themeMap[saved]].classList.add('active');
-
+/* ─── CLOCK ─── */
 function updateClock(){
-  const n=new Date(),ist=new Date(n.getTime()+(5.5*60*60*1000-n.getTimezoneOffset()*60*1000));
-  const hh=ist.getHours().toString().padStart(2,'0');
-  const mm=ist.getMinutes().toString().padStart(2,'0');
-  const ss=ist.getSeconds().toString().padStart(2,'0');
-  const timeStr=hh+':'+mm+':'+ss+' IST';
-  document.getElementById('clock-time').textContent=timeStr;
-  document.getElementById('topbar-clock').textContent=timeStr;
+  var n=new Date();
+  var t=n.toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+  var d=n.toLocaleDateString('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('clock').textContent=d+' | '+t+' IST';
 }
-setInterval(updateClock,1000);updateClock();
+setInterval(updateClock,1000);
+updateClock();
 
-let isFs=false;
-function toggleFs(){
-  isFs=!isFs;
-  topbar.classList.toggle('hidden',isFs);
-  sidebar.classList.toggle('hidden-fs',isFs);
-  if(isFs){main.style.marginLeft='0';main.style.width='100%';main.style.marginTop='0';main.style.height='100vh';floatBtn.classList.add('visible');}
-  else{main.style.marginLeft='230px';main.style.width='calc(100% - 230px)';main.style.marginTop='56px';main.style.height='calc(100vh - 56px)';floatBtn.classList.remove('visible');}
+/* ─── THEME ─── */
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('btn-dark').style.borderColor  = t==='dark'  ? 'var(--accent)' : 'transparent';
+  document.getElementById('btn-light').style.borderColor = t==='light' ? 'var(--accent)' : 'transparent';
+  document.getElementById('btn-dark').classList.toggle('active',  t==='dark');
+  document.getElementById('btn-light').classList.toggle('active', t==='light');
 }
-floatBtn.onclick=toggleFs;fsBtn.onclick=toggleFs;
 
-document.querySelectorAll('.nav-link:not(.external)').forEach(link=>{
-  link.addEventListener('click',function(e){
-    if(!e.ctrlKey&&!e.metaKey&&e.button===0){
-      e.preventDefault();frame.src=this.href;frame.classList.add('active');welcome.style.display='none';
-      document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));this.classList.add('active');
-      if(window.innerWidth<768){
-        sidebar.classList.remove('mobile-open');
-        mobOverlay.classList.remove('on');
-        frame.style.visibility='visible';
-      }
-    }
-  });
-});
-
-// ── Accordion (ek open = baaki band) ──────────────────
-function toggleSub(btn,id){
-  const allSubs=['scalper-sub','data-sub','swing-sub','guide-sub','ext-sub'];
-  const isOpen=document.getElementById(id).classList.contains('open');
-  allSubs.forEach(sid=>{
-    const s=document.getElementById(sid);
-    const b=s.previousElementSibling;
-    const a=b.querySelector('.section-arrow');
-    s.classList.remove('open');
-    if(a)a.classList.remove('open');
-  });
-  if(!isOpen){
-    document.getElementById(id).classList.add('open');
-    btn.querySelector('.section-arrow').classList.add('open');
+/* ─── SIDEBAR ─── */
+var sideOpen = true;
+function toggleSidebar(){
+  var sb=document.getElementById('sidebar');
+  var mn=document.getElementById('main');
+  if(window.innerWidth<=768){
+    var op=sb.classList.toggle('mobile-open');
+    document.getElementById('mob-overlay').classList.toggle('visible',op);
+  } else {
+    sideOpen=!sideOpen;
+    sb.classList.toggle('collapsed',!sideOpen);
+    mn.classList.toggle('expanded',!sideOpen);
   }
 }
-
-// Long press to copy APK link
-let _copyTimer=null;
-function startCopy(el){
-  _copyTimer=setTimeout(()=>{
-    const url=el.href;
-    if(navigator.clipboard){
-      navigator.clipboard.writeText(url).then(()=>{
-        const orig=el.innerHTML;
-        el.innerHTML='✅ Link Copied!';
-        setTimeout(()=>el.innerHTML=orig,2000);
-      });
-    }
-  },600);
-}
-function cancelCopy(){clearTimeout(_copyTimer);}
-
-const mobOverlay=document.getElementById('mob-overlay');
-document.getElementById('hamburger').onclick=()=>{
-  const isOpen=sidebar.classList.toggle('mobile-open');
-  if(window.innerWidth<768) frame.style.visibility=isOpen?'hidden':'visible';
-};
-mobOverlay.onclick=()=>{
-  sidebar.classList.remove('mobile-open');
-  frame.style.visibility='visible';
-};
-
-// Mobile pe page load hote hi sidebar auto-open
-if(window.innerWidth<768){
-  sidebar.classList.add('mobile-open');
-  frame.style.visibility='hidden';
+function closeMobileSidebar(){
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('mob-overlay').classList.remove('visible');
 }
 
+/* ─── SECTION TOGGLE ─── */
+function toggleSection(btn){
+  var sub=btn.nextElementSibling;
+  var arr=btn.querySelector('.sec-arrow');
+  sub.classList.toggle('open');
+  arr.classList.toggle('open');
+}
+
+/* ─── HOME ─── */
+function goHome(){
+  document.getElementById('welcome').style.display='flex';
+  document.getElementById('main-frame').style.display='none';
+  document.getElementById('main-frame').src='about:blank';
+  document.querySelectorAll('.nav-link').forEach(function(l){l.classList.remove('active');});
+}
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') goHome(); });
+
+/* ─── IFRAME LOADING ───
+   Left-click  → loads in iframe (e.preventDefault stops navigation)
+   Right-click → browser shows context menu with href → "Open in new tab" works
+   Middle-click→ opens new tab (href present)
+   External links (.external class + target=_blank) → skip, open new tab directly
+*/
+var frame   = document.getElementById('main-frame');
+var welcome = document.getElementById('welcome');
+
+document.querySelectorAll('.nav-link:not(.external)').forEach(function(link){
+  link.addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    var url = this.getAttribute('href');
+    frame.src = url;
+    frame.style.display = 'block';
+    welcome.style.display = 'none';
+    document.querySelectorAll('.nav-link').forEach(function(l){ l.classList.remove('active'); });
+    this.classList.add('active');
+    if(window.innerWidth<=768) closeMobileSidebar();
+  });
+});
 </script>
 </body>
 </html>
