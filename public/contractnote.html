@@ -95,10 +95,19 @@
             border-radius: 16px; 
             text-align: center; 
             color: white;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1); 
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
         }
         .gross-card { background: linear-gradient(135deg, #10b981, #059669); }
         .net-card { background: linear-gradient(135deg, #3b82f6, #4338ca); }
+        .card-expand { font-size: 9px; color: rgba(255,255,255,0.75); font-weight: 700; letter-spacing: 0.03em; margin-top: 6px; }
+        .card-split { display: none; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px; gap: 6px; }
+        .card-split.open { display: flex; }
+        .card-split-pill { flex: 1; background: rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 6px; text-align: center; }
+        .card-split-label { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.8); text-transform: uppercase; }
+        .card-split-val { font-size: 12px; font-weight: 900; margin-top: 3px; }
+        .card-split-val.cr { color: #86efac; }
+        .card-split-val.dr { color: #fca5a5; }
         .taxes-total-card {
             background: linear-gradient(135deg, #f97316, #dc2626);
             padding: 15px 10px;
@@ -262,13 +271,35 @@
             </div>
 
             <div class="main-totals">
-                <div class="total-card gross-card">
+                <div class="total-card gross-card" onclick="toggleCard('gross')">
                     <div class="total-label">Gross P&amp;L</div>
                     <div id="gross-val" class="total-value">₹ 0.00</div>
+                    <div id="gross-expand" class="card-expand">▼ TAP TO SPLIT</div>
+                    <div id="gross-split" class="card-split">
+                        <div class="card-split-pill">
+                            <div class="card-split-label">Equity</div>
+                            <div id="gross-eq" class="card-split-val">-</div>
+                        </div>
+                        <div class="card-split-pill">
+                            <div class="card-split-label">F&amp;O</div>
+                            <div id="gross-fo" class="card-split-val">-</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="total-card net-card">
+                <div class="total-card net-card" onclick="toggleCard('net')">
                     <div class="total-label">Net P&amp;L</div>
                     <div id="net-val" class="total-value">₹ 0.00</div>
+                    <div id="net-expand" class="card-expand">▼ TAP TO SPLIT</div>
+                    <div id="net-split" class="card-split">
+                        <div class="card-split-pill">
+                            <div class="card-split-label">Equity</div>
+                            <div id="net-eq" class="card-split-val">-</div>
+                        </div>
+                        <div class="card-split-pill">
+                            <div class="card-split-label">F&amp;O</div>
+                            <div id="net-fo" class="card-split-val">-</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -369,7 +400,13 @@
             toggle.textContent = isOpen ? '▼ TAP TO SPLIT' : '▲ COLLAPSE';
         }
 
-        function toggleSummary() {
+        function toggleCard(which) {
+            const split = document.getElementById(which + '-split');
+            const toggle = document.getElementById(which + '-expand');
+            const isOpen = split.classList.contains('open');
+            split.classList.toggle('open');
+            toggle.textContent = isOpen ? '▼ TAP TO SPLIT' : '▲ COLLAPSE';
+        }
             const split = document.getElementById('summary-split');
             const toggle = document.getElementById('summary-toggle');
             const isOpen = split.classList.contains('open');
@@ -537,6 +574,22 @@
                 document.getElementById('net-val').textContent   = fmt(netRow.total);
                 document.getElementById('taxes-total-val').textContent = `₹ ${taxesTotalNum.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} DR`;
 
+                // Helper to set card-split-val with CR=green / DR=red class
+                const setCardSplit = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    el.textContent = fmt(val);
+                    const up = (val || "").toUpperCase();
+                    el.className = 'card-split-val ' + (up.includes("CR") ? "cr" : up.includes("DR") ? "dr" : "");
+                };
+
+                // Gross P&L card split
+                setCardSplit('gross-eq', grossRow.eq);
+                setCardSplit('gross-fo', grossRow.fo);
+                // Net P&L card split
+                setCardSplit('net-eq', netRow.eq);
+                setCardSplit('net-fo', netRow.fo);
+
                 // Summary card segment split — Gross P&L and Net P&L per segment
                 setColored('eq-gross', grossRow.eq);
                 setColored('fo-gross', grossRow.fo);
@@ -557,6 +610,8 @@
                 if (!hasFo) {
                     document.getElementById('summary-toggle').style.display = 'none';
                     document.getElementById('taxes-toggle').style.display = 'none';
+                    document.getElementById('gross-expand').style.display = 'none';
+                    document.getElementById('net-expand').style.display = 'none';
                     document.querySelectorAll('.expand-toggle').forEach(el => el.style.display = 'none');
                     document.getElementById('fo-scrip-count').closest('.seg-pill').style.display = 'none';
                 }
