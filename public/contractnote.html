@@ -157,7 +157,7 @@
         .summary-split-pill-label { font-size: 9px; font-weight: 700; text-transform: uppercase; }
         .summary-split-pill-label.eq { color: #0369a1; }
         .summary-split-pill-label.fo { color: #7c3aed; }
-        .summary-split-pill-val { font-size: 13px; font-weight: 900; color: #0f172a; margin-top: 2px; }
+        .summary-split-pill-val { font-size: 13px; font-weight: 900; margin-top: 2px; }
         .summary-split-pill-sub { font-size: 9px; color: #94a3b8; font-weight: 600; }
 
         .taxes-total-card { background: linear-gradient(135deg, #f97316, #dc2626); padding: 15px 10px; border-radius: 16px; text-align: center; color: white; box-shadow: 0 8px 15px rgba(0,0,0,0.1); width: 100%; cursor: pointer; }
@@ -462,6 +462,14 @@
                     const num = getVal(val);
                     return `₹ ${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 };
+                // Set text + CR=green / DR=red color on an element
+                const setColored = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    el.textContent = fmt(val);
+                    const up = (val || "").toUpperCase();
+                    el.style.color = up.includes("CR") ? "#059669" : up.includes("DR") ? "#dc2626" : "";
+                };
 
                 // ── Basic info ──
                 document.getElementById('acc-ucc').textContent = extractBasic(/(?:UCC|Client code):\s*([A-Z0-9]+)/i);
@@ -530,16 +538,20 @@
                 document.getElementById('taxes-total-val').textContent = `₹ ${taxesTotalNum.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} DR`;
 
                 // Summary card segment split — Gross P&L and Net P&L per segment
-                document.getElementById('eq-gross').textContent = fmt(grossRow.eq);
-                document.getElementById('fo-gross').textContent = fmt(grossRow.fo);
-                document.getElementById('eq-net').textContent   = fmt(netRow.eq);
-                document.getElementById('fo-net').textContent   = fmt(netRow.fo);
+                setColored('eq-gross', grossRow.eq);
+                setColored('fo-gross', grossRow.fo);
+                setColored('eq-net', netRow.eq);
+                setColored('fo-net', netRow.fo);
 
-                // Taxes total segment split — all charges summed per segment
+                // Taxes total segment split — all charges summed per segment (always DR)
                 const taxesEqVal = getVal(brokRow.eq) + getVal(sttRow.eq) + exchEqVal + gstEqVal + getVal(stampRow.eq) + getVal(sebiRow.eq);
                 const taxesFoVal = getVal(brokRow.fo) + getVal(sttRow.fo) + exchFoVal + gstFoVal + getVal(stampRow.fo) + getVal(sebiRow.fo);
-                document.getElementById('taxes-eq').textContent = `₹ ${taxesEqVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                document.getElementById('taxes-fo').textContent = `₹ ${taxesFoVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                const taxesEqEl = document.getElementById('taxes-eq');
+                const taxesFoEl = document.getElementById('taxes-fo');
+                taxesEqEl.textContent = `₹ ${taxesEqVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} DR`;
+                taxesEqEl.style.color = "#fca5a5";
+                taxesFoEl.textContent = `₹ ${taxesFoVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} DR`;
+                taxesFoEl.style.color = "#fca5a5";
 
                 // Hide F&O elements if equity-only note
                 if (!hasFo) {
