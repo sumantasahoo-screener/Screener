@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StockTrade Guide | Screener Hub</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2300d4d8'/><text x='50%25' y='58%25' dominant-baseline='middle' text-anchor='middle' font-size='17' font-weight='800' fill='%23001f23' font-family='monospace'>S</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+button{cursor:pointer;background:none;border:none;font:inherit;}
+
+:root,[data-theme="dark"]{
+  --bg:#0b0e14;--bg2:#0f1319;--bg3:#141920;
+  --card:#0f1319;--card2:#141920;
+  --border:rgba(0,212,216,.08);--border2:rgba(0,212,216,.16);--border3:rgba(0,212,216,.28);
+  --ink:#e2e8f0;--ink2:#8892a4;--ink3:#4a5568;
+  --bull:#34d399;--bull-lt:rgba(52,211,153,.10);--bull-md:rgba(52,211,153,.25);
+  --bear:#f87171;--bear-lt:rgba(248,113,113,.10);--bear-md:rgba(248,113,113,.25);
+  --gold:#fbbf24;--gold-lt:rgba(251,191,36,.10);--gold-md:rgba(251,191,36,.25);
+  --blue:#00d4d8;--blue-lt:rgba(0,212,216,.10);--blue-md:rgba(0,212,216,.25);
+  --purp:#a78bfa;--purp-lt:rgba(167,139,250,.10);--purp-md:rgba(167,139,250,.25);
+  --accent:#00d4d8;--accent2:#00a8ac;--acc-glow:rgba(0,212,216,.14);
+  --acc-dim:rgba(0,212,216,.07);--acc-mid:rgba(0,212,216,.13);
+  --shadow:0 4px 24px rgba(0,0,0,.55);
+  --radius:8px;--radius-lg:12px;--top-h:48px;
+  --trans:.18s cubic-bezier(.16,1,.3,1);
+}
+[data-theme="light"]{
+  --bg:#f0f4f8;--bg2:#ffffff;--bg3:#e8f0f5;
+  --card:#ffffff;--card2:#f0f4f8;
+  --border:rgba(2,90,110,.08);--border2:rgba(2,90,110,.16);--border3:rgba(2,90,110,.28);
+  --ink:#0d2030;--ink2:rgba(13,32,48,.58);--ink3:rgba(13,32,48,.32);
+  --bull:#059669;--bull-lt:rgba(5,150,105,.10);--bull-md:rgba(5,150,105,.25);
+  --bear:#dc2626;--bear-lt:rgba(220,38,38,.10);--bear-md:rgba(220,38,38,.25);
+  --gold:#d97706;--gold-lt:rgba(217,119,6,.10);--gold-md:rgba(217,119,6,.25);
+  --blue:#0099aa;--blue-lt:rgba(0,153,170,.10);--blue-md:rgba(0,153,170,.25);
+  --purp:#7c3aed;--purp-lt:rgba(124,58,237,.10);--purp-md:rgba(124,58,237,.25);
+  --accent:#0099aa;--accent2:#007888;--acc-glow:rgba(0,153,170,.12);
+  --acc-dim:rgba(0,153,170,.07);--acc-mid:rgba(0,153,170,.13);
+  --shadow:0 4px 16px rgba(0,0,0,.10);
+}
+
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:var(--accent2);}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;background:var(--bg2);border-bottom:1px solid var(--border2);height:var(--top-h);box-shadow:var(--shadow);}
+.topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,var(--accent) 50%,transparent 100%);opacity:.35;}
+.topbar-inner{max-width:1400px;margin:0 auto;padding:0 20px;height:var(--top-h);display:flex;align-items:center;gap:12px;}
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--ink3);font-size:12px;font-family:'JetBrains Mono',monospace;padding:6px 10px;border-radius:var(--radius);border:1px solid var(--border2);transition:all var(--trans);text-decoration:none;flex-shrink:0;}
+.back-btn:hover{color:var(--accent);border-color:var(--border3);background:var(--acc-dim);}
+.back-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+.logo-wrap{display:flex;align-items:center;gap:9px;flex:1;}
+.logo-icon{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 10px var(--acc-glow);}
+.logo-icon-txt{font-size:11px;font-weight:700;color:#001f23;font-family:'JetBrains Mono',monospace;}
+.logo-text{font-size:14px;font-weight:600;color:var(--ink);}
+.logo-text span{color:var(--accent);}
+.logo-pill{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);background:var(--acc-dim);border:1px solid var(--border2);padding:2px 7px;border-radius:20px;font-family:'JetBrains Mono',monospace;}
+.theme-switcher{display:flex;gap:3px;background:var(--bg3);border:1px solid var(--border);padding:3px;border-radius:var(--radius);}
+.t-btn{width:20px;height:20px;border-radius:5px;border:1.5px solid transparent;cursor:pointer;transition:all var(--trans);}
+.t-btn:hover{transform:scale(1.1);}
+.t-btn.active{border-color:var(--accent);box-shadow:0 0 6px var(--acc-glow);}
+
+/* TABS */
+.tabs-bar{background:var(--bg2);border-bottom:1px solid var(--border2);position:sticky;top:var(--top-h);z-index:90;}
+.tabs-inner{max-width:1400px;margin:0 auto;padding:0 20px;display:flex;overflow-x:auto;scrollbar-width:none;gap:2px;}
+.tabs-inner::-webkit-scrollbar{display:none;}
+.mtab{padding:12px 16px;font-size:12.5px;font-weight:500;cursor:pointer;color:var(--ink3);border-bottom:2px solid transparent;white-space:nowrap;transition:all var(--trans);display:flex;align-items:center;gap:7px;font-family:'Inter',sans-serif;}
+.mtab:hover{color:var(--ink2);}
+.mtab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600;}
+.mtab-ico{font-size:13px;}
+
+/* PAGES */
+.page{display:none;max-width:1400px;margin:0 auto;padding:20px;}
+.page.active{display:block;}
+
+/* SECTIONS */
+.sec-title{font-size:.68rem;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink3);padding:20px 0 10px;display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border2);}
+
+/* ACCORDION */
+.acc{display:flex;flex-direction:column;gap:8px;}
+.acc-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:border-color var(--trans),box-shadow var(--trans);}
+.acc-item.open{border-color:var(--border2);box-shadow:0 4px 16px rgba(0,0,0,.2);}
+.acc-item.color-bull{border-left:2px solid var(--bull);}
+.acc-item.color-bear{border-left:2px solid var(--bear);}
+.acc-item.color-gold{border-left:2px solid var(--gold);}
+.acc-item.color-blue{border-left:2px solid var(--blue);}
+.acc-item.color-purp{border-left:2px solid var(--purp);}
+.acc-item.color-teal{border-left:2px solid var(--accent);}
+.acc-item.color-orange{border-left:2px solid #f97316;}
+.acc-hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer;transition:background var(--trans);gap:10px;}
+.acc-hdr:hover{background:var(--acc-dim);}
+.acc-hdr-l{display:flex;align-items:center;gap:10px;min-width:0;}
+.acc-badge{font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:.5px;text-transform:uppercase;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+.badge-debit{background:var(--bear-lt);color:var(--bear);border:1px solid var(--bear-md);}
+.badge-credit{background:var(--bull-lt);color:var(--bull);border:1px solid var(--bull-md);}
+.badge-neutral{background:var(--blue-lt);color:var(--blue);border:1px solid var(--blue-md);}
+.badge-gold{background:var(--gold-lt);color:var(--gold);border:1px solid var(--gold-md);}
+.badge-purp{background:var(--purp-lt);color:var(--purp);border:1px solid var(--purp-md);}
+.badge-warn{background:var(--bear-lt);color:var(--bear);border:1px solid var(--bear-md);}
+.acc-info{min-width:0;}
+.acc-title{font-size:.9rem;font-weight:600;color:var(--ink);}
+.acc-sub{font-size:.75rem;color:var(--ink3);margin-top:1px;}
+.acc-arrow{font-size:.7rem;color:var(--ink3);transition:transform .25s;flex-shrink:0;}
+.acc-item.open .acc-arrow{transform:rotate(180deg);}
+.acc-type-label{font-size:.65rem;color:var(--ink3);white-space:nowrap;flex-shrink:0;margin-left:auto;margin-right:10px;padding:2px 8px;border-radius:4px;background:var(--bg3);border:1px solid var(--border);font-family:'JetBrains Mono',monospace;}
+.acc-type-label.live{color:var(--bull);background:var(--bull-lt);border-color:var(--bull-md);}
+.acc-type-label.warn{color:var(--bear);background:var(--bear-lt);border-color:var(--bear-md);}
+.acc-type-label.gold{color:var(--gold);background:var(--gold-lt);border-color:var(--gold-md);}
+.acc-body{display:none;padding:0 16px 16px;}
+.acc-item.open .acc-body{display:block;}
+
+/* INFO GRID */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.info-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;}
+.info-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:11px 13px;}
+.info-label{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:5px;font-family:'JetBrains Mono',monospace;}
+.info-val{font-size:.85rem;color:var(--ink);line-height:1.5;}
+
+/* SIGNAL CARDS */
+.signal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:12px;}
+.signal-card{border-radius:var(--radius-lg);padding:14px 16px;border:1px solid;}
+.signal-card.bull{background:var(--bull-lt);border-color:var(--bull-md);}
+.signal-card.bear{background:var(--bear-lt);border-color:var(--bear-md);}
+.signal-card.gold{background:var(--gold-lt);border-color:var(--gold-md);}
+.signal-card.blue{background:var(--blue-lt);border-color:var(--blue-md);}
+.signal-card.purp{background:var(--purp-lt);border-color:var(--purp-md);}
+.signal-name{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;font-family:'JetBrains Mono',monospace;}
+.signal-card.bull .signal-name{color:var(--bull);}
+.signal-card.bear .signal-name{color:var(--bear);}
+.signal-card.gold .signal-name{color:var(--gold);}
+.signal-card.blue .signal-name{color:var(--blue);}
+.signal-card.purp .signal-name{color:var(--purp);}
+.signal-desc{font-size:.8rem;color:var(--ink2);line-height:1.55;}
+.signal-action{font-size:.75rem;font-weight:600;margin-top:8px;padding:5px 10px;border-radius:6px;display:inline-block;}
+.signal-card.bull .signal-action{background:var(--bull-md);color:var(--bull);}
+.signal-card.bear .signal-action{background:var(--bear-md);color:var(--bear);}
+.signal-card.gold .signal-action{background:var(--gold-md);color:var(--gold);}
+.signal-card.blue .signal-action{background:var(--blue-md);color:var(--blue);}
+.signal-card.purp .signal-action{background:var(--purp-md);color:var(--purp);}
+
+/* USE BOX */
+.use-box{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:12px 14px;margin-top:12px;}
+.use-box.bull{border-top:2px solid var(--bull);}
+.use-box.bear{border-top:2px solid var(--bear);}
+.use-box.gold{border-top:2px solid var(--gold);}
+.use-box.blue{border-top:2px solid var(--blue);}
+.use-box.purp{border-top:2px solid var(--purp);}
+.use-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:6px;font-family:'JetBrains Mono',monospace;}
+.use-text{font-size:.83rem;color:var(--ink2);line-height:1.75;}
+.use-text strong{color:var(--ink);}
+
+/* EX BOX */
+.ex-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-top:10px;}
+.ex-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:8px;font-family:'JetBrains Mono',monospace;}
+.ex-row{display:flex;align-items:flex-start;gap:8px;padding:4px 0;font-size:.82rem;color:var(--ink2);}
+.ex-row span{line-height:1.5;}
+.ex-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+.ex-dot.bull{background:var(--bull);}
+.ex-dot.bear{background:var(--bear);}
+.ex-dot.gold{background:var(--gold);}
+.ex-dot.blue{background:var(--accent);}
+.ex-dot.neutral{background:var(--ink3);}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;margin-top:12px;border-radius:var(--radius);border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:.8rem;}
+th{background:var(--bg3);color:var(--ink3);padding:8px 12px;text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:1px;font-weight:600;border-bottom:1px solid var(--border2);font-family:'JetBrains Mono',monospace;}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--ink);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--acc-dim);}
+.td-bull{color:var(--bull);font-weight:600;}
+.td-bear{color:var(--bear);font-weight:600;}
+.td-gold{color:var(--gold);}
+.td-blue{color:var(--accent);}
+.td-purp{color:var(--purp);}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.step{display:flex;gap:12px;align-items:flex-start;background:var(--bg3);border-radius:var(--radius);padding:12px 14px;}
+.step-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;background:var(--blue-lt);color:var(--accent);border:1px solid var(--blue-md);font-family:'JetBrains Mono',monospace;}
+.step-title{font-size:.85rem;font-weight:600;color:var(--ink);}
+.step-desc{font-size:.78rem;color:var(--ink2);margin-top:3px;line-height:1.6;}
+
+/* HIGHLIGHT BOX */
+.hl-box{background:var(--gold-lt);border:1px solid var(--gold-md);border-radius:var(--radius);padding:12px 14px;margin-top:12px;font-size:.83rem;color:var(--ink2);line-height:1.7;}
+.hl-box strong{color:var(--gold);}
+.hl-box-blue{background:var(--blue-lt);border:1px solid var(--blue-md);border-radius:var(--radius);padding:12px 14px;margin-top:12px;font-size:.83rem;color:var(--ink2);line-height:1.7;}
+.hl-box-blue strong{color:var(--accent);}
+.hl-box-bear{background:var(--bear-lt);border:1px solid var(--bear-md);border-radius:var(--radius);padding:12px 14px;margin-top:12px;font-size:.83rem;color:var(--ink2);line-height:1.7;}
+.hl-box-bear strong{color:var(--bear);}
+
+/* TAGS */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.tag{font-size:.7rem;font-weight:500;padding:3px 10px;border-radius:20px;font-family:'JetBrains Mono',monospace;}
+.tag-bull{background:var(--bull-lt);color:var(--bull);}
+.tag-bear{background:var(--bear-lt);color:var(--bear);}
+.tag-gold{background:var(--gold-lt);color:var(--gold);}
+.tag-blue{background:var(--blue-lt);color:var(--blue);}
+.tag-neutral{background:var(--bg3);color:var(--ink2);border:1px solid var(--border);}
+
+/* FLOW DIAGRAM */
+.flow{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.flow-box{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:8px 14px;font-size:.78rem;color:var(--ink);font-weight:500;text-align:center;}
+.flow-arrow{color:var(--ink3);font-size:1rem;}
+.flow-box.active-step{background:var(--blue-lt);border-color:var(--blue-md);color:var(--accent);}
+
+@media(max-width:600px){
+  .info-grid,.info-grid-3{grid-template-columns:1fr;}
+  .page{padding:12px;}
+  .topbar-inner{padding:0 12px;}
+  .tabs-inner{padding:0 12px;}
+  .acc-type-label{display:none;}
+  .logo-pill{display:none;}
+  .signal-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="https://screener-epd.pages.dev/" class="back-btn">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Hub
+    </a>
+    <div class="logo-wrap">
+      <div class="logo-icon"><span class="logo-icon-txt">ST</span></div>
+      <span class="logo-text">Stock<span>Trade</span> Guide</span>
+      <span class="logo-pill">Manual</span>
+    </div>
+    <div class="theme-switcher">
+      <div class="t-btn active" id="tbtn-dark" style="background:#0b0e14;" onclick="setTheme('dark')" title="Dark"></div>
+      <div class="t-btn" id="tbtn-light" style="background:#f0f4f8;" onclick="setTheme('light')" title="Light"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <div class="tabs-inner">
+    <div class="mtab active" onclick="showPage('overview',this)"><span class="mtab-ico">📊</span>Overview</div>
+    <div class="mtab" onclick="showPage('baseline',this)"><span class="mtab-ico">📌</span>Baseline</div>
+    <div class="mtab" onclick="showPage('signals',this)"><span class="mtab-ico">🎯</span>Signals</div>
+    <div class="mtab" onclick="showPage('filters',this)"><span class="mtab-ico">🔧</span>Filters & Columns</div>
+    <div class="mtab" onclick="showPage('strategy',this)"><span class="mtab-ico">🧠</span>Trading Strategy</div>
+  </div>
+</div>
+
+<!-- PAGE 1: OVERVIEW -->
+<div class="page active" id="page-overview">
+  <div class="acc" id="acc-overview">
+
+    <div class="acc-item color-blue">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-overview')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">What</span><div class="acc-info"><div class="acc-title">StockTrade kya hai?</div><div class="acc-sub">NSE F&O ka real-time momentum scanner</div></div></div>
+        <span class="acc-type-label">Overview</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-row"><div class="ex-dot blue"></div><span>StockTrade ek <strong>Baseline Comparison Tool</strong> hai — yeh ek time point ka snapshot (baseline) save karta hai aur baad mein live NSE data se compare karta hai.</span></div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Jab bhi price ya OI mein significant change aata hai — tool automatically <strong>signal cards</strong> dikhata hai jo batate hain kya ho raha hai.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Yeh tool intraday trading ke liye best hai — market hours mein har 10 minute par automatically baseline save hoti hai.</span></div>
+        </div>
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Data Source</div><div class="info-val">Live NSE F&O data — real-time during market hours (9:15 AM to 3:30 PM IST)</div></div>
+          <div class="info-box"><div class="info-label">Auto Save</div><div class="info-val">Baselines har 10 minute mein automatically save hoti hain — manually bhi set kar sakte ho</div></div>
+          <div class="info-box"><div class="info-label">Signals</div><div class="info-val">Long Build, Short Build, Short Unwind, Long Unwind, OI Wall, A/D Ratio</div></div>
+          <div class="info-box"><div class="info-label">Best Use</div><div class="info-val">Intraday momentum catch karna — pehle 30 min aur last 1 hour mein sabse effective</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-teal">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-overview')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Logic</span><div class="acc-info"><div class="acc-title">Tool Kaise Kaam Karta Hai?</div><div class="acc-sub">Baseline vs Live comparison ka concept</div></div></div>
+        <span class="acc-type-label">Core Concept</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="flow">
+          <div class="flow-box active-step">📌 Baseline<br><small>9:15 AM snapshot</small></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box">⏱ 30 min baad<br><small>Market moves</small></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box active-step">🆚 Compare<br><small>Click Compare</small></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box active-step">🎯 Signals<br><small>Cards light up</small></div>
+        </div>
+        <div class="ex-box" style="margin-top:12px">
+          <div class="ex-label">Simple Example</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>9:15 AM — Baseline set. Reliance at Rs 2800, OI = 50,000.</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>9:45 AM — Compare click kiya. Reliance ab Rs 2840 (+1.4%), OI = 58,000 (+16%).</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>Result: <strong>Long Build signal</strong> — Price up + OI up = Fresh buying! Bullish trade opportunity.</span></div>
+        </div>
+        <div class="hl-box-blue"><strong>Key Insight:</strong> Sirf price movement mat dekho — <strong>OI change + Price change combo</strong> hi real signal deta hai. Akela price movement misleading ho sakta hai.</div>
+      </div>
+    </div>
+
+    <div class="acc-item color-gold">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-overview')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-gold">Header</span><div class="acc-info"><div class="acc-title">Header Bar Kaise Padhein?</div><div class="acc-sub">BASELINE · COMPARED · SYMBOLS — teen status boxes</div></div></div>
+        <span class="acc-type-label gold">UI Guide</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="info-grid-3">
+          <div class="info-box"><div class="info-label">BASELINE</div><div class="info-val">Kitni baselines saved hain. "not set" = abhi koi baseline nahi. Dropdown se select karo.</div></div>
+          <div class="info-box"><div class="info-label">COMPARED</div><div class="info-val">Compare kab kiya. "—" = compare nahi kiya abhi. Compare ke baad timestamp dikhta hai.</div></div>
+          <div class="info-box"><div class="info-label">SYMBOLS</div><div class="info-val">Kitne F&O symbols compare mein aa gaye. "—" = data load nahi hua abhi.</div></div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Button</th><th>Kya Karta Hai</th><th>Kab Use Karein</th></tr>
+            <tr><td class="td-blue">🆚 Compare</td><td>Live NSE data fetch karta hai aur baseline se compare karta hai</td><td>Har 15-30 min mein click karo fresh signals ke liye</td></tr>
+            <tr><td class="td-gold">📌 Set Base</td><td>Current live data ko baseline ke roop mein save karta hai</td><td>Market open pe ya kisi important level pe manually set karo</td></tr>
+            <tr><td>🌙 Theme</td><td>Dark/Light mode toggle</td><td>Anytime</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PAGE 2: BASELINE -->
+<div class="page" id="page-baseline">
+  <div class="acc" id="acc-baseline">
+
+    <div class="acc-item color-blue">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-baseline')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Concept</span><div class="acc-info"><div class="acc-title">Baseline Kya Hai?</div><div class="acc-sub">Ek time ka complete NSE snapshot — reference point</div></div></div>
+        <span class="acc-type-label">Concept</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Baseline = ek specific time par saare F&O stocks ka <strong>price + OI snapshot</strong>. Yeh reference point ban jaata hai.</span></div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Jab aap Compare karte ho — current live data is snapshot se compare hota hai. Difference = signal.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Multiple baselines save ho sakti hain — 8:53 AM, 9:15 AM, 10:00 AM — aap koi bhi select karke compare kar sakte ho.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-teal">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-baseline')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Auto Save</span><div class="acc-info"><div class="acc-title">Auto-Save System</div><div class="acc-sub">Har 10 minute mein automatic baseline save hoti hai</div></div></div>
+        <span class="acc-type-label live">Auto</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Market open hote hi start hota hai</div><div class="step-desc">9:15 AM se automatically har 10 minute par NSE data fetch karke baseline save hoti rehti hai — aapko kuch nahi karna.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Dropdown mein timestamps dikhte hain</div><div class="step-desc">Header mein BASELINE dropdown mein 9:15, 9:25, 9:35 jaise timestamps aate hain. Latest baseline par "📌 (latest)" label hota hai.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Koi bhi baseline select karo</div><div class="step-desc">Alag alag time ke signals dekhne ke liye — "9:15 AM" baseline select karo aur compare karo. Phir "10:00 AM" select karo aur compare karo. Dono ke signals alag honge.</div></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Market close ke baad baselines disappear hoti hain</div><div class="step-desc">Baselines memory mein hain — page refresh ya browser close karne par reset ho jaati hain. Daily fresh start milta hai.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-gold">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-baseline')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-gold">Manual Set</span><div class="acc-info"><div class="acc-title">Manual Baseline Kab Set Karein?</div><div class="acc-sub">Set Base button ka smart use — key moments par baseline banana</div></div></div>
+        <span class="acc-type-label gold">Pro Tip</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>Situation</th><th>Baseline Set Karo</th><th>Why</th></tr>
+            <tr><td class="td-blue">Market Open (9:15-9:20)</td><td class="td-bull">✅ Zaroor set karo</td><td>Poore din ka reference point — sabse important baseline</td></tr>
+            <tr><td>Nifty breakout ke baad</td><td class="td-bull">✅ Set karo</td><td>Breakout ke baad ki momentum measure karo</td></tr>
+            <tr><td>Big news/event ke baad</td><td class="td-bull">✅ Set karo</td><td>Event reaction measure karne ke liye fresh baseline</td></tr>
+            <tr><td class="td-gold">Lunch time (12:30 PM)</td><td class="td-gold">Optional</td><td>Afternoon session ke liye fresh reference</td></tr>
+            <tr><td class="td-bear">Last 15 min (3:15 PM)</td><td class="td-bear">❌ Mat karo</td><td>Bahut kam time — signals meaningful nahi honge</td></tr>
+          </table>
+        </div>
+        <div class="hl-box"><strong>Best Practice:</strong> Har roz market open pe ek baar manually "Set Base" click karo at 9:16-9:20 AM. Yeh aapka <strong>master baseline</strong> ban jaata hai — poore din isi se compare karte raho.</div>
+      </div>
+    </div>
+
+    <div class="acc-item color-bull">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-baseline')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-credit">Compare</span><div class="acc-info"><div class="acc-title">Compare With — Live vs Past Baseline</div><div class="acc-sub">COMPARE WITH dropdown ka use</div></div></div>
+        <span class="acc-type-label live">Feature</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Live (Latest) — Default</div><div class="info-val bull">Current NSE live data se compare. Sabse useful — real-time signals milte hain.</div></div>
+          <div class="info-box"><div class="info-label">Past Baseline Select</div><div class="info-val">Do historical baselines ka comparison — jaise 9:15 AM vs 11:00 AM snapshot. Momentum shift dekhne ke liye.</div></div>
+        </div>
+        <div class="use-box blue"><div class="use-label">Power User Tip</div><div class="use-text"><strong>9:15 AM baseline</strong> select karo BASELINE mein. <strong>Live (Latest)</strong> COMPARE WITH mein rakho. Yeh combination poore din ka best signal deta hai — market open se abhi tak ki total movement dikhti hai.</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PAGE 3: SIGNALS -->
+<div class="page" id="page-signals">
+  <div class="acc" id="acc-signals">
+
+    <div class="sec-title">4 Main OI Signals</div>
+
+    <div class="acc-item color-bull">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-signals')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-credit">Bullish</span><div class="acc-info"><div class="acc-title">Long Build</div><div class="acc-sub">Price ↑ + OI ↑ — Fresh buying entering</div></div></div>
+        <span class="acc-type-label live">Bullish</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Condition</div><div class="info-val bull">Price Change = Positive<br>OI Change = Positive (up)</div></div>
+          <div class="info-box"><div class="info-label">Strength</div><div class="info-val">Price +1% + OI +5% = Strong<br>Price +0.5% + OI +2% = Weak</div></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">What Happens in Market</div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>New long positions open ho rahi hain. Bulls fresh capital laga rahe hain — confidence high hai.</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>Futures mein heavy buying ho rahi hai. Institutions accumulate kar rahe hain.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Strongest signal tab hota hai jab multiple stocks ek saath Long Build dikhaayein — sector-wide momentum.</span></div>
+        </div>
+        <div class="use-box bull"><div class="use-label">Trading Action</div><div class="use-text">Long Build stocks mein <strong>Bull Call Spread ya Bull Put Spread</strong> below support. Direct call buy tab karo jab price strong support ke upar ho aur OI jump 10%+ ho. <strong>Stop Loss:</strong> Baseline ka low price.</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-bear">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-signals')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-debit">Bearish</span><div class="acc-info"><div class="acc-title">Short Build</div><div class="acc-sub">Price ↓ + OI ↑ — Fresh selling entering</div></div></div>
+        <span class="acc-type-label warn">Bearish</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Condition</div><div class="info-val bear">Price Change = Negative<br>OI Change = Positive (up)</div></div>
+          <div class="info-box"><div class="info-label">Strength</div><div class="info-val">Price -1% + OI +5% = Strong<br>Price -0.3% + OI +2% = Weak</div></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">What Happens in Market</div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>New short positions open ho rahi hain. Bears actively futures sell kar rahe hain.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Institutions distribution kar rahe hain — retail ko dete hue exit kar rahe hain.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Agar Nifty bhi Short Build mein hai + individual stock bhi = double confirmation = strong bearish trade.</span></div>
+        </div>
+        <div class="use-box bear"><div class="use-label">Trading Action</div><div class="use-text">Short Build stocks mein <strong>Bear Put Spread ya Bear Call Spread</strong> above resistance. Direct put buy tab karo jab OI jump 15%+ ho aur price key support tod de. <strong>Stop Loss:</strong> Baseline ka high price.</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-gold">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-signals')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-gold">Reversal</span><div class="acc-info"><div class="acc-title">Short Unwind</div><div class="acc-sub">Price ↑ + OI ↓ — Shorts covering their positions</div></div></div>
+        <span class="acc-type-label gold">Caution</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Condition</div><div class="info-val gold">Price Change = Positive<br>OI Change = Negative (down)</div></div>
+          <div class="info-box"><div class="info-label">Nature</div><div class="info-val">Weak bullish — sirf shorts cover ho rahe hain, fresh buying nahi. Rally sustainable nahi.</div></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">What Happens in Market</div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Jinhonn shorting ki thi woh loss mein hain — forced buyback ho rahi hai. Price upar ja raha hai lekin genuine bulls nahi aa rahe.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Yeh rally bhi ekdum ulti ho sakti hai — "Short Squeeze Rally" kehte hain ise.</span></div>
+        </div>
+        <div class="use-box gold"><div class="use-label">Trading Action</div><div class="use-text">Short Unwind mein <strong>aggressive long mat lo.</strong> Agar already long ho toh <strong>partial profit book karo.</strong> Short Unwind ke baad Long Build aaye tab full entry karo — confirm karo ki genuine buyers aa rahe hain.</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-bear">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-signals')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-debit">Exit</span><div class="acc-info"><div class="acc-title">Long Unwind</div><div class="acc-sub">Price ↓ + OI ↓ — Longs exiting their positions</div></div></div>
+        <span class="acc-type-label warn">Bearish</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Condition</div><div class="info-val bear">Price Change = Negative<br>OI Change = Negative (down)</div></div>
+          <div class="info-box"><div class="info-label">Nature</div><div class="info-val">Longs exit kar rahe hain — distribution. Price girta hai + OI bhi girta hai = selling pressure.</div></div>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">What Happens in Market</div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Jo log long position mein the woh exit kar rahe hain — price support tod sakti hai aage jaake.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Long Unwind = do NOT buy the dip. Yeh weakness ka sign hai, strength ka nahi.</span></div>
+        </div>
+        <div class="use-box bear"><div class="use-label">Trading Action</div><div class="use-text"><strong>Dip buying avoid karo</strong> Long Unwind stocks mein. Agar already long ho toh <strong>exit karo.</strong> Long Unwind ke baad Short Build aaye = strong bearish confirmation = put spread le sakte ho.</div></div>
+      </div>
+    </div>
+
+    <div class="sec-title">Special Signals</div>
+
+    <div class="acc-item color-purp">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-signals')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-purp">Wall</span><div class="acc-info"><div class="acc-title">OI Wall Signal 🧱</div><div class="acc-sub">Highest OI concentration — key support or resistance</div></div></div>
+        <span class="acc-type-label">Special</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-row"><div class="ex-dot blue"></div><span>OI Wall icon (🧱) dikhta hai jab kisi stock ka OI ek specific level par bahut zyada concentrated ho — yeh level strong support ya resistance ban jaata hai.</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>Price ke neeche OI Wall = Strong Support — put writers is level ko defend karenge.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Price ke upar OI Wall = Strong Resistance — call writers price ko neeche rakhenge.</span></div>
+        </div>
+        <div class="use-box purp"><div class="use-label">How to Trade</div><div class="use-text">OI Wall ke neeche <strong>Bull Put Spread sell karo</strong> — wall aapki protection hai. OI Wall ke upar <strong>Bear Call Spread sell karo</strong> — wall aapki ceiling hai. Combine OI Wall with Long Build/Short Build for highest confidence.</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-blue">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-signals')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">A/D</span><div class="acc-info"><div class="acc-title">A/D Ratio 📶 — Advance/Decline</div><div class="acc-sub">Kitne stocks up hain vs kitne down hain</div></div></div>
+        <span class="acc-type-label">Market Breadth</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>A/D Reading</th><th>Market Breadth</th><th>Signal</th><th>Action</th></tr>
+            <tr><td class="td-bull">80%+ Advancing</td><td class="td-bull">Very Broad Rally</td><td>Strong bullish — almost all stocks up</td><td class="td-bull">Full size bullish trades</td></tr>
+            <tr><td class="td-bull">60-80% Advancing</td><td class="td-bull">Healthy Rally</td><td>Good breadth — most stocks participating</td><td class="td-bull">Normal size bullish trades</td></tr>
+            <tr><td>40-60%</td><td>Neutral</td><td>Mixed market — selective stocks only</td><td class="td-gold">Stock-specific trades only</td></tr>
+            <tr><td class="td-bear">20-40% Advancing</td><td class="td-bear">Weak Market</td><td>Most stocks down — avoid longs</td><td class="td-bear">Bearish or no trade</td></tr>
+            <tr><td class="td-bear">Below 20%</td><td class="td-bear">Broad Selloff</td><td>Market-wide panic — index puts profitable</td><td class="td-bear">Nifty/BankNifty puts</td></tr>
+          </table>
+        </div>
+        <div class="hl-box"><strong>Pro Tip:</strong> A/D Ratio dekho pehle. Agar 70%+ advancing hai toh koi bhi Long Build stock ek achha trade hai. Agar 30% se kam advancing hai toh sirf best Short Build stocks lo — market ke against mat jao.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PAGE 4: FILTERS & COLUMNS -->
+<div class="page" id="page-filters">
+  <div class="acc" id="acc-filters">
+
+    <div class="acc-item color-blue">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-filters')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Filter</span><div class="acc-info"><div class="acc-title">Price Δ MIN Slider</div><div class="acc-sub">Minimum price change filter — noise hatao</div></div></div>
+        <span class="acc-type-label">Filter</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-row"><div class="ex-dot blue"></div><span><strong>Price Δ MIN slider</strong> = minimum price change threshold. Default = 0.20%. Iska matlab: sirf woh stocks dikhao jinki price 0.20% se zyada move hui ho.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Slider badhao (e.g. 0.5%) = sirf strong movers dikhte hain — less noise, cleaner signals.</span></div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Slider ghataao (e.g. 0.05%) = zyada stocks dikhenge — early signals catch hote hain but more noise.</span></div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Slider Setting</th><th>Best For</th><th>Signal Count</th></tr>
+            <tr><td class="td-gold">0.05% - 0.10%</td><td>Early signal detection, momentum catch</td><td class="td-bear">Bahut zyada — filter karna padega</td></tr>
+            <tr><td class="td-blue">0.20% (Default)</td><td>Normal intraday trading</td><td class="td-blue">Balanced</td></tr>
+            <tr><td class="td-bull">0.50% - 1.00%</td><td>Only strong breakout stocks</td><td class="td-bull">Clean, few but strong signals</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-gold">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-filters')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-gold">Columns</span><div class="acc-info"><div class="acc-title">Signal Table Columns Explained</div><div class="acc-sub">Har column ka matlab samjho</div></div></div>
+        <span class="acc-type-label gold">Guide</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>Column</th><th>Full Name</th><th>What it Shows</th><th>Key Values</th></tr>
+            <tr><td class="td-blue">Symbol</td><td>Stock Name</td><td>NSE F&O stock symbol</td><td>—</td></tr>
+            <tr><td class="td-bull">Price</td><td>Current Price</td><td>Live futures price</td><td>Compare with baseline</td></tr>
+            <tr><td class="td-bull">Chg%</td><td>Price Change %</td><td>% change from baseline to now</td><td class="td-bull">+ve = bullish, <span class="td-bear">-ve = bearish</span></td></tr>
+            <tr><td class="td-gold">OI(K)</td><td>Open Interest in 000s</td><td>Current total open interest</td><td>Higher = more active</td></tr>
+            <tr><td class="td-gold">OI Chg%</td><td>OI Change %</td><td>How much OI changed from baseline</td><td class="td-bull">+ve = new positions, <span class="td-bear">-ve = closing</span></td></tr>
+            <tr><td class="td-blue">Signal</td><td>Signal Type</td><td>Long Build / Short Build / Unwind</td><td>Most important column</td></tr>
+            <tr><td class="td-purp">🧱 Wall</td><td>OI Wall Icon</td><td>Strong OI concentration nearby</td><td>Key level alert</td></tr>
+            <tr><td class="td-blue">P / D Badge</td><td>Premium / Discount</td><td>Futures vs Spot relationship</td><td class="td-bull">P = bullish, <span class="td-bear">D = bearish</span></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-teal">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-filters')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">P/D Badge</span><div class="acc-info"><div class="acc-title">Premium (P) aur Discount (D) Badge</div><div class="acc-sub">Futures price vs Spot price — market sentiment indicator</div></div></div>
+        <span class="acc-type-label">Guide</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">P Badge — Premium 🟢</div><div class="info-val bull">Futures > Spot price. Bullish sign — market expects stock to go up. Large premium = strong bullish conviction.</div></div>
+          <div class="info-box"><div class="info-label">D Badge — Discount 🔴</div><div class="info-val bear">Futures < Spot price. Bearish sign — market expects stock to fall. Large discount = strong bearish conviction.</div></div>
+        </div>
+        <div class="hl-box"><strong>Combination Rule:</strong> Long Build + P Badge = Double Bullish Confirmation ✅. Short Build + D Badge = Double Bearish Confirmation ✅. Inhi combinations mein high confidence trades milte hain.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PAGE 5: TRADING STRATEGY -->
+<div class="page" id="page-strategy">
+  <div class="acc" id="acc-strategy">
+
+    <div class="acc-item color-teal">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-strategy')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Routine</span><div class="acc-info"><div class="acc-title">Daily Trading Routine with StockTrade</div><div class="acc-sub">Subah se shaam tak kaise use karein</div></div></div>
+        <span class="acc-type-label live">Must Read</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">9:10 AM — Tab kholo, tool ready karo</div><div class="step-desc">Browser mein StockTrade kholo. Live data aane ka wait karo. Koi action nahi abhi.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">9:20 AM — First Manual Baseline Set Karo</div><div class="step-desc">"Set Base" click karo. Yeh aapka master baseline hai — opening ke 5 min ke baad first real data aata hai. Ise reference point banao.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">9:30-9:45 AM — Pehla Compare</div><div class="step-desc">9:20 baseline select karo dropdown mein. "Compare" click karo. Dekho kaun si stocks strong Long Build ya Short Build dikha rahi hain. A/D ratio check karo.</div></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">10:00-11:00 AM — Best Trading Window</div><div class="step-desc">Har 15-20 min par Compare click karo. Top 3 Long Build + Top 3 Short Build stocks shortlist karo. PCR + Max Pain se confirm karo Bhav tool mein. Tab hi trade lo.</div></div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">2:00-3:00 PM — Expiry Week Mein Extra Active</div><div class="step-desc">Expiry week mein OI Wall signals bahut strong hote hain. Afternoon mein fresh baselines compare karo — closing momentum pakad sakte ho.</div></div></div>
+          <div class="step"><div class="step-num">6</div><div class="step-content"><div class="step-title">3:15 PM — Positions Square Off</div><div class="step-desc">Intraday positions close karo. StockTrade ke signals morning ke liye hain — last 15 min ka data reliable nahi hota.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-bull">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-strategy')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-credit">Bullish</span><div class="acc-info"><div class="acc-title">Strong Bullish Trade Setup</div><div class="acc-sub">Maximum confidence ke saath bullish trade kab lo</div></div></div>
+        <span class="acc-type-label live">Setup</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>#</th><th>Check</th><th>Ideal Reading</th></tr>
+            <tr><td class="td-blue">1</td><td>StockTrade Signal</td><td class="td-bull">Long Build (Price +1% + OI +5%)</td></tr>
+            <tr><td class="td-blue">2</td><td>P/D Badge</td><td class="td-bull">P Badge (Premium)</td></tr>
+            <tr><td class="td-blue">3</td><td>A/D Ratio</td><td class="td-bull">60%+ stocks advancing</td></tr>
+            <tr><td class="td-blue">4</td><td>Bhav Tool — PCR</td><td class="td-bull">PCR above 1.2</td></tr>
+            <tr><td class="td-blue">5</td><td>Bhav Tool — Max Pain</td><td class="td-bull">Max Pain above spot</td></tr>
+          </table>
+        </div>
+        <div class="hl-box"><strong>5/5 conditions met?</strong> Full size Bull Call Spread ya direct call buy karo. <strong>4/5?</strong> Normal size. <strong>3/5?</strong> Half size ya skip karo.</div>
+      </div>
+    </div>
+
+    <div class="acc-item color-bear">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-strategy')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-debit">Bearish</span><div class="acc-info"><div class="acc-title">Strong Bearish Trade Setup</div><div class="acc-sub">Maximum confidence ke saath bearish trade kab lo</div></div></div>
+        <span class="acc-type-label warn">Setup</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>#</th><th>Check</th><th>Ideal Reading</th></tr>
+            <tr><td class="td-blue">1</td><td>StockTrade Signal</td><td class="td-bear">Short Build (Price -1% + OI +5%)</td></tr>
+            <tr><td class="td-blue">2</td><td>P/D Badge</td><td class="td-bear">D Badge (Discount)</td></tr>
+            <tr><td class="td-blue">3</td><td>A/D Ratio</td><td class="td-bear">Below 40% advancing</td></tr>
+            <tr><td class="td-blue">4</td><td>Bhav Tool — PCR</td><td class="td-bear">PCR below 0.8</td></tr>
+            <tr><td class="td-blue">5</td><td>Bhav Tool — Max Pain</td><td class="td-bear">Max Pain below spot</td></tr>
+          </table>
+        </div>
+        <div class="hl-box-bear"><strong>5/5 conditions met?</strong> Full size Bear Put Spread ya Bear Call Spread lo. <strong>4/5?</strong> Normal size. <strong>3/5?</strong> Half size ya skip karo.</div>
+      </div>
+    </div>
+
+    <div class="acc-item color-gold">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-strategy')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-gold">Mistakes</span><div class="acc-info"><div class="acc-title">Common Mistakes — Inhe Avoid Karo</div><div class="acc-sub">Beginners ki galtiyan jo aapko nahi karni</div></div></div>
+        <span class="acc-type-label gold">Warning</span>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-label">❌ Kya Mat Karo</div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span><strong>Sirf price change dekh ke trade mat lo</strong> — OI change equally important hai. Price up + OI down = Short Unwind = weak signal.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span><strong>Opening 5 min mein trade mat lo</strong> — 9:15-9:20 AM mein bahut volatility hoti hai, signals false ho sakte hain. 9:20 ke baad baseline set karo.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span><strong>Single tool pe rely mat karo</strong> — StockTrade ke signal ko Bhav tool se confirm karo (PCR + Max Pain). Ek tool = incomplete picture.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span><strong>A/D ratio ignore mat karo</strong> — 30% se kam advancing mein Long Build stock mein bhi entry risky hai. Market current ke against mat jao.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span><strong>Har compare pe trade mat karo</strong> — Sirf strong signals lo. Price +0.2% + OI +1% = very weak signal. Skip karo.</span></div>
+        </div>
+        <div class="hl-box"><strong>Golden Rule:</strong> StockTrade aapko <strong>kaunsi stocks watch karni hain</strong> batata hai — trade directly yahan se nahi lo. Pehle stock identify karo, phir Option Chain ya Bhav tool se confirm karo, tab entry lo.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
+  var pg=document.getElementById('page-'+id);
+  if(pg) pg.classList.add('active');
+  el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function openAcc(hdr,groupId){
+  var item=hdr.closest('.acc-item');
+  var isOpen=item.classList.contains('open');
+  var group=document.getElementById(groupId);
+  if(group) group.querySelectorAll('.acc-item').forEach(i=>i.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
+}
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('tbtn-dark').classList.toggle('active',t==='dark');
+  document.getElementById('tbtn-light').classList.toggle('active',t==='light');
+}
+document.addEventListener('DOMContentLoaded',function(){
+  var firstItem=document.querySelector('.page.active .acc-item');
+  if(firstItem) firstItem.classList.add('open');
+});
+</script>
+</body>
+</html>

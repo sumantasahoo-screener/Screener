@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OptionTrade Guide | Screener Hub</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2300d4d8'/><text x='50%25' y='58%25' dominant-baseline='middle' text-anchor='middle' font-size='14' font-weight='800' fill='%23001f23' font-family='monospace'>OT</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+button{cursor:pointer;background:none;border:none;font:inherit;}
+:root,[data-theme="dark"]{
+  --bg:#0b0e14;--bg2:#0f1319;--bg3:#141920;--card:#0f1319;
+  --border:rgba(0,212,216,.08);--border2:rgba(0,212,216,.16);--border3:rgba(0,212,216,.28);
+  --ink:#e2e8f0;--ink2:#8892a4;--ink3:#4a5568;
+  --bull:#34d399;--bull-lt:rgba(52,211,153,.10);--bull-md:rgba(52,211,153,.25);
+  --bear:#f87171;--bear-lt:rgba(248,113,113,.10);--bear-md:rgba(248,113,113,.25);
+  --gold:#fbbf24;--gold-lt:rgba(251,191,36,.10);--gold-md:rgba(251,191,36,.25);
+  --blue:#00d4d8;--blue-lt:rgba(0,212,216,.10);--blue-md:rgba(0,212,216,.25);
+  --purp:#a78bfa;--purp-lt:rgba(167,139,250,.10);--purp-md:rgba(167,139,250,.25);
+  --accent:#00d4d8;--accent2:#00a8ac;--acc-glow:rgba(0,212,216,.14);
+  --acc-dim:rgba(0,212,216,.07);--shadow:0 4px 24px rgba(0,0,0,.55);
+  --radius:8px;--radius-lg:12px;--top-h:48px;--trans:.18s cubic-bezier(.16,1,.3,1);
+}
+[data-theme="light"]{
+  --bg:#f0f4f8;--bg2:#ffffff;--bg3:#e8f0f5;--card:#ffffff;
+  --border:rgba(2,90,110,.08);--border2:rgba(2,90,110,.16);--border3:rgba(2,90,110,.28);
+  --ink:#0d2030;--ink2:rgba(13,32,48,.58);--ink3:rgba(13,32,48,.32);
+  --bull:#059669;--bull-lt:rgba(5,150,105,.10);--bull-md:rgba(5,150,105,.25);
+  --bear:#dc2626;--bear-lt:rgba(220,38,38,.10);--bear-md:rgba(220,38,38,.25);
+  --gold:#d97706;--gold-lt:rgba(217,119,6,.10);--gold-md:rgba(217,119,6,.25);
+  --blue:#0099aa;--blue-lt:rgba(0,153,170,.10);--blue-md:rgba(0,153,170,.25);
+  --purp:#7c3aed;--purp-lt:rgba(124,58,237,.10);--purp-md:rgba(124,58,237,.25);
+  --accent:#0099aa;--accent2:#007888;--acc-glow:rgba(0,153,170,.12);
+  --acc-dim:rgba(0,153,170,.07);--shadow:0 4px 16px rgba(0,0,0,.10);
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:var(--accent2);}
+.topbar{position:sticky;top:0;z-index:100;background:var(--bg2);border-bottom:1px solid var(--border2);height:var(--top-h);box-shadow:var(--shadow);}
+.topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.35;}
+.topbar-inner{max-width:1400px;margin:0 auto;padding:0 20px;height:var(--top-h);display:flex;align-items:center;gap:12px;}
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--ink3);font-size:12px;font-family:'JetBrains Mono',monospace;padding:6px 10px;border-radius:var(--radius);border:1px solid var(--border2);transition:all var(--trans);text-decoration:none;flex-shrink:0;}
+.back-btn:hover{color:var(--accent);border-color:var(--border3);background:var(--acc-dim);}
+.back-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+.logo-wrap{display:flex;align-items:center;gap:9px;flex:1;}
+.logo-icon{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 10px var(--acc-glow);}
+.logo-icon-txt{font-size:10px;font-weight:700;color:#001f23;font-family:'JetBrains Mono',monospace;}
+.logo-text{font-size:14px;font-weight:600;color:var(--ink);}
+.logo-text span{color:var(--accent);}
+.logo-pill{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);background:var(--acc-dim);border:1px solid var(--border2);padding:2px 7px;border-radius:20px;font-family:'JetBrains Mono',monospace;}
+.theme-switcher{display:flex;gap:3px;background:var(--bg3);border:1px solid var(--border);padding:3px;border-radius:var(--radius);}
+.t-btn{width:20px;height:20px;border-radius:5px;border:1.5px solid transparent;cursor:pointer;transition:all var(--trans);}
+.t-btn:hover{transform:scale(1.1);}
+.t-btn.active{border-color:var(--accent);box-shadow:0 0 6px var(--acc-glow);}
+.tabs-bar{background:var(--bg2);border-bottom:1px solid var(--border2);position:sticky;top:var(--top-h);z-index:90;}
+.tabs-inner{max-width:1400px;margin:0 auto;padding:0 20px;display:flex;overflow-x:auto;scrollbar-width:none;gap:2px;}
+.tabs-inner::-webkit-scrollbar{display:none;}
+.mtab{padding:12px 16px;font-size:12.5px;font-weight:500;cursor:pointer;color:var(--ink3);border-bottom:2px solid transparent;white-space:nowrap;transition:all var(--trans);display:flex;align-items:center;gap:7px;}
+.mtab:hover{color:var(--ink2);}
+.mtab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600;}
+.page{display:none;max-width:1400px;margin:0 auto;padding:20px;}
+.page.active{display:block;}
+.sec-title{font-size:.68rem;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink3);padding:20px 0 10px;display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border2);}
+.acc{display:flex;flex-direction:column;gap:8px;}
+.acc-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:border-color var(--trans),box-shadow var(--trans);}
+.acc-item.open{border-color:var(--border2);box-shadow:0 4px 16px rgba(0,0,0,.2);}
+.acc-item.color-bull{border-left:2px solid var(--bull);}
+.acc-item.color-bear{border-left:2px solid var(--bear);}
+.acc-item.color-gold{border-left:2px solid var(--gold);}
+.acc-item.color-blue{border-left:2px solid var(--blue);}
+.acc-item.color-purp{border-left:2px solid var(--purp);}
+.acc-item.color-teal{border-left:2px solid var(--accent);}
+.acc-item.color-orange{border-left:2px solid #f97316;}
+.acc-hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer;transition:background var(--trans);gap:10px;}
+.acc-hdr:hover{background:var(--acc-dim);}
+.acc-hdr-l{display:flex;align-items:center;gap:10px;min-width:0;}
+.acc-badge{font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:.5px;text-transform:uppercase;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+.badge-debit{background:var(--bear-lt);color:var(--bear);border:1px solid var(--bear-md);}
+.badge-credit{background:var(--bull-lt);color:var(--bull);border:1px solid var(--bull-md);}
+.badge-neutral{background:var(--blue-lt);color:var(--blue);border:1px solid var(--blue-md);}
+.badge-gold{background:var(--gold-lt);color:var(--gold);border:1px solid var(--gold-md);}
+.badge-purp{background:var(--purp-lt);color:var(--purp);border:1px solid var(--purp-md);}
+.acc-info{min-width:0;}
+.acc-title{font-size:.9rem;font-weight:600;color:var(--ink);}
+.acc-sub{font-size:.75rem;color:var(--ink3);margin-top:1px;}
+.acc-arrow{font-size:.7rem;color:var(--ink3);transition:transform .25s;flex-shrink:0;}
+.acc-item.open .acc-arrow{transform:rotate(180deg);}
+.acc-type-label{font-size:.65rem;color:var(--ink3);white-space:nowrap;flex-shrink:0;margin-left:auto;margin-right:10px;padding:2px 8px;border-radius:4px;background:var(--bg3);border:1px solid var(--border);font-family:'JetBrains Mono',monospace;}
+.acc-type-label.live{color:var(--bull);background:var(--bull-lt);border-color:var(--bull-md);}
+.acc-type-label.warn{color:var(--bear);background:var(--bear-lt);border-color:var(--bear-md);}
+.acc-type-label.gold{color:var(--gold);background:var(--gold-lt);border-color:var(--gold-md);}
+.acc-body{display:none;padding:0 16px 16px;}
+.acc-item.open .acc-body{display:block;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.info-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;}
+.info-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:11px 13px;}
+.info-label{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:5px;font-family:'JetBrains Mono',monospace;}
+.info-val{font-size:.85rem;color:var(--ink);line-height:1.5;}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.tag{font-size:.7rem;font-weight:500;padding:3px 10px;border-radius:20px;font-family:'JetBrains Mono',monospace;}
+.tag-bull{background:var(--bull-lt);color:var(--bull);}
+.tag-bear{background:var(--bear-lt);color:var(--bear);}
+.tag-gold{background:var(--gold-lt);color:var(--gold);}
+.tag-blue{background:var(--blue-lt);color:var(--blue);}
+.tag-neutral{background:var(--bg3);color:var(--ink2);border:1px solid var(--border);}
+.use-box{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:12px 14px;margin-top:12px;}
+.use-box.bull{border-top:2px solid var(--bull);}
+.use-box.bear{border-top:2px solid var(--bear);}
+.use-box.gold{border-top:2px solid var(--gold);}
+.use-box.blue{border-top:2px solid var(--blue);}
+.use-box.purp{border-top:2px solid var(--purp);}
+.use-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:6px;font-family:'JetBrains Mono',monospace;}
+.use-text{font-size:.83rem;color:var(--ink2);line-height:1.75;}
+.use-text strong{color:var(--ink);}
+.ex-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-top:10px;}
+.ex-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:8px;font-family:'JetBrains Mono',monospace;}
+.ex-row{display:flex;align-items:flex-start;gap:8px;padding:4px 0;font-size:.82rem;color:var(--ink2);}
+.ex-row span{line-height:1.5;}
+.ex-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+.ex-dot.bull{background:var(--bull);}
+.ex-dot.bear{background:var(--bear);}
+.ex-dot.gold{background:var(--gold);}
+.ex-dot.blue{background:var(--accent);}
+.ex-dot.neutral{background:var(--ink3);}
+.tbl-wrap{overflow-x:auto;margin-top:12px;border-radius:var(--radius);border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:.8rem;}
+th{background:var(--bg3);color:var(--ink3);padding:8px 12px;text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:1px;font-weight:600;border-bottom:1px solid var(--border2);font-family:'JetBrains Mono',monospace;}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--ink);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--acc-dim);}
+.td-bull{color:var(--bull);font-weight:600;}
+.td-bear{color:var(--bear);font-weight:600;}
+.td-gold{color:var(--gold);}
+.td-blue{color:var(--accent);}
+.td-purp{color:var(--purp);}
+.steps{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.step{display:flex;gap:12px;align-items:flex-start;background:var(--bg3);border-radius:var(--radius);padding:12px 14px;}
+.step-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;background:var(--blue-lt);color:var(--accent);border:1px solid var(--blue-md);font-family:'JetBrains Mono',monospace;}
+.step-title{font-size:.85rem;font-weight:600;color:var(--ink);}
+.step-desc{font-size:.78rem;color:var(--ink2);margin-top:3px;line-height:1.6;}
+.hl-box{background:var(--gold-lt);border:1px solid var(--gold-md);border-radius:var(--radius);padding:12px 14px;margin-top:12px;font-size:.83rem;color:var(--ink2);line-height:1.7;}
+.hl-box strong{color:var(--gold);}
+.hl-box-blue{background:var(--blue-lt);border:1px solid var(--blue-md);border-radius:var(--radius);padding:12px 14px;margin-top:12px;font-size:.83rem;color:var(--ink2);line-height:1.7;}
+.hl-box-blue strong{color:var(--accent);}
+.hl-box-bear{background:var(--bear-lt);border:1px solid var(--bear-md);border-radius:var(--radius);padding:12px 14px;margin-top:12px;font-size:.83rem;color:var(--ink2);line-height:1.7;}
+.hl-box-bear strong{color:var(--bear);}
+.hl-box-bull{background:var(--bull-lt);border:1px solid var(--bull-md);border-radius:var(--radius);padding:12px 14px;margin-top:12px;font-size:.83rem;color:var(--ink2);line-height:1.7;}
+.hl-box-bull strong{color:var(--bull);}
+/* Score meter */
+.score-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.score-box{flex:1;min-width:120px;border-radius:var(--radius);padding:10px 12px;text-align:center;}
+.score-box .s-num{font-size:1.5rem;font-weight:700;font-family:'JetBrains Mono',monospace;line-height:1;}
+.score-box .s-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.8px;margin-top:4px;opacity:.8;}
+.score-box.s-full{background:var(--bull-lt);border:1px solid var(--bull-md);color:var(--bull);}
+.score-box.s-good{background:var(--blue-lt);border:1px solid var(--blue-md);color:var(--accent);}
+.score-box.s-half{background:var(--gold-lt);border:1px solid var(--gold-md);color:var(--gold);}
+.score-box.s-skip{background:var(--bear-lt);border:1px solid var(--bear-md);color:var(--bear);}
+/* Day view timeline */
+.timeline{display:flex;flex-direction:column;gap:6px;margin-top:12px;}
+.tl-row{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--bg3);border-radius:var(--radius);border-left:2px solid var(--border2);}
+.tl-row.bull{border-left-color:var(--bull);}
+.tl-row.bear{border-left-color:var(--bear);}
+.tl-row.gold{border-left-color:var(--gold);}
+.tl-row.blue{border-left-color:var(--accent);}
+.tl-time{font-size:.7rem;font-weight:600;color:var(--accent);min-width:60px;font-family:'JetBrains Mono',monospace;padding-top:2px;}
+.tl-content{flex:1;}
+.tl-title{font-size:.82rem;font-weight:600;color:var(--ink);}
+.tl-desc{font-size:.77rem;color:var(--ink2);margin-top:2px;line-height:1.5;}
+@media(max-width:600px){
+  .info-grid,.info-grid-3{grid-template-columns:1fr;}
+  .page{padding:12px;}
+  .topbar-inner,.tabs-inner{padding:0 12px;}
+  .acc-type-label,.logo-pill{display:none;}
+  .score-row{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="https://screener-epd.pages.dev/" class="back-btn">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Hub
+    </a>
+    <div class="logo-wrap">
+      <div class="logo-icon"><span class="logo-icon-txt">OT</span></div>
+      <span class="logo-text">Option<span>Trade</span> Guide</span>
+      <span class="logo-pill">Manual</span>
+    </div>
+    <div class="theme-switcher">
+      <div class="t-btn active" id="tbtn-dark" style="background:#0b0e14;" onclick="setTheme('dark')" title="Dark"></div>
+      <div class="t-btn" id="tbtn-light" style="background:#f0f4f8;" onclick="setTheme('light')" title="Light"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <div class="tabs-inner">
+    <div class="mtab active" onclick="showPage('overview',this)"><span>📊</span>Overview</div>
+    <div class="mtab" onclick="showPage('livedata',this)"><span>⚡</span>Live Data</div>
+    <div class="mtab" onclick="showPage('dayview',this)"><span>📅</span>Day View</div>
+    <div class="mtab" onclick="showPage('signals',this)"><span>🎯</span>Signals & Scoring</div>
+    <div class="mtab" onclick="showPage('strategy',this)"><span>🧠</span>Trading Strategy</div>
+  </div>
+</div>
+
+<!-- PAGE 1: OVERVIEW -->
+<div class="page active" id="page-overview">
+  <div class="acc" id="acc-overview">
+
+    <div class="acc-item color-blue">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-overview')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">What</span><div class="acc-info"><div class="acc-title">OptionTrade kya hai?</div><div class="acc-sub">Option OI ke zariye bullish/bearish stocks ek nazar mein</div></div></div>
+        <span class="acc-type-label">Overview</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-row"><div class="ex-dot blue"></div><span>OptionTrade ek <strong>Option OI Scanner</strong> hai — yeh NSE ke saare F&O stocks ki <strong>Call OI vs Put OI</strong> compare karta hai aur bullish/bearish signal deta hai.</span></div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>StockTrade (futures OI) se alag — OptionTrade <strong>option chain ka data</strong> use karta hai. Dono saath mein use karo tab sabse powerful signal milta hai.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Tool mein <strong>2 modes</strong> hain — Live Data (abhi ka snapshot) aur Day View (poore din ke snapshots ka trend).</span></div>
+        </div>
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">Data Source</div><div class="info-val">NSE Option Chain — real-time Call OI aur Put OI har strike pe</div></div>
+          <div class="info-box"><div class="info-label">Core Logic</div><div class="info-val">PCR (Put-Call Ratio) + CE Wall + PE Wall + OI buildup = combined signal</div></div>
+          <div class="info-box"><div class="info-label">Live Mode</div><div class="info-val">Abhi ka snapshot — ek click mein saare stocks ka option sentiment</div></div>
+          <div class="info-box"><div class="info-label">Day View Mode</div><div class="info-val">Subah se abhi tak ki snapshots — trend dekho, momentum pakdo</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-teal">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-overview')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Diff</span><div class="acc-info"><div class="acc-title">OptionTrade vs StockTrade — Fark Kya Hai?</div><div class="acc-sub">Dono alag data sources, saath mein use karo</div></div></div>
+        <span class="acc-type-label">Concept</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>Feature</th><th>StockTrade</th><th>OptionTrade</th></tr>
+            <tr><td>Data Source</td><td>Futures OI (F&O futures)</td><td class="td-blue">Option Chain OI (CE + PE)</td></tr>
+            <tr><td>Main Signal</td><td>Long Build / Short Build</td><td class="td-blue">PCR Score / CE-PE Wall balance</td></tr>
+            <tr><td>Mode</td><td>Baseline compare</td><td class="td-blue">Live snapshot + Day View trend</td></tr>
+            <tr><td>Best Use</td><td>Intraday momentum</td><td class="td-blue">Option strategy selection</td></tr>
+            <tr><td>Confirms</td><td>Futures market direction</td><td class="td-blue">Options market sentiment</td></tr>
+          </table>
+        </div>
+        <div class="hl-box-blue"><strong>Power Combo:</strong> StockTrade Long Build + OptionTrade Bullish PCR = Double confirmation = Highest confidence bullish trade. Dono ek saath agree karein tab hi full size trade lo.</div>
+      </div>
+    </div>
+
+    <div class="acc-item color-gold">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-overview')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-gold">UI</span><div class="acc-info"><div class="acc-title">Tool ka Interface — Kya Kahan Hai?</div><div class="acc-sub">Buttons, status bar, toggle — sab explain</div></div></div>
+        <span class="acc-type-label gold">UI Guide</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>Element</th><th>Kahan Hai</th><th>Kya Karta Hai</th></tr>
+            <tr><td class="td-blue">⬇ Live</td><td>Top bar button</td><td>Abhi ka NSE option data fetch karta hai — ek click mein saare stocks ka snapshot</td></tr>
+            <tr><td class="td-gold">📅 Day View</td><td>Top bar button</td><td>Poore din ke saved snapshots timeline dikhata hai — trend dekho</td></tr>
+            <tr><td>📂 CSV</td><td>Top bar button</td><td>Current data CSV mein export karo — apne records ke liye</td></tr>
+            <tr><td>📷 Snapshot</td><td>Top bar button</td><td>Current state manually save karo Day View ke liye</td></tr>
+            <tr><td class="td-gold">Select Time</td><td>Dropdown (Day View mein)</td><td>Kisi bhi saved time ka snapshot load karo comparison ke liye</td></tr>
+            <tr><td>Fetch Old</td><td>Day View mein</td><td>Specific time ki old snapshot fetch karo</td></tr>
+            <tr><td class="td-bull">READY ☀️📶</td><td>Status bar</td><td>Tool active hai, market hours mein live data aa raha hai</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PAGE 2: LIVE DATA -->
+<div class="page" id="page-livedata">
+  <div class="acc" id="acc-live">
+
+    <div class="acc-item color-teal">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-live')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Steps</span><div class="acc-info"><div class="acc-title">Live Data Mode — Step by Step</div><div class="acc-sub">⬇ Live button se ek click mein poora market scan</div></div></div>
+        <span class="acc-type-label live">Live</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Tool kholo — Status check karo</div><div class="step-desc">Top mein "READY ☀️📶" dikhna chahiye. Agar nahi dikh raha toh market band hai ya internet issue hai.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">"⬇ Live" button click karo</div><div class="step-desc">Tool NSE se saare F&O stocks ka option chain data fetch karta hai. Loading hogi 5-15 seconds — wait karo, page mat reload karo.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Signal cards dekho</div><div class="step-desc">Data load hone ke baad Bullish aur Bearish stocks cards mein dikh jaate hain. Har card mein: Symbol, PCR Score, CE Wall, PE Wall, Signal strength.</div></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Sort aur filter karo</div><div class="step-desc">PCR ke hisaab se sort karo strongest signals ke liye. Bullish tab = sirf bullish stocks. Bearish tab = sirf bearish stocks.</div></div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Snapshot save karo (Optional)</div><div class="step-desc">"📷 Snapshot" click karo agar yeh data Day View mein save karna ho aage ke comparison ke liye.</div></div></div>
+        </div>
+        <div class="hl-box"><strong>Best Timing:</strong> Live data har 15-30 min mein refresh karo. Market open pe (9:20 AM) ek baar, 10:00 AM, 11:30 AM, aur 2:00 PM — yeh 4 snapshots poore din ki picture dete hain.</div>
+      </div>
+    </div>
+
+    <div class="acc-item color-bull">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-live')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-credit">Reading</span><div class="acc-info"><div class="acc-title">Live Data Cards Kaise Padhein?</div><div class="acc-sub">Har card ka har element explained</div></div></div>
+        <span class="acc-type-label live">Guide</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>Card Element</th><th>What it Shows</th><th>Ideal Reading</th></tr>
+            <tr><td class="td-blue">Symbol</td><td>Stock name (e.g. RELIANCE, NIFTY)</td><td>—</td></tr>
+            <tr><td class="td-gold">PCR Score</td><td>Put-Call Ratio — total put OI divided by total call OI</td><td class="td-bull">Above 1.2 = Bullish | <span class="td-bear">Below 0.8 = Bearish</span></td></tr>
+            <tr><td class="td-bull">CE Wall</td><td>Strike with highest Call OI = resistance level</td><td>Far above spot = more room to rally</td></tr>
+            <tr><td class="td-bear">PE Wall</td><td>Strike with highest Put OI = support level</td><td>Close below spot = strong support</td></tr>
+            <tr><td class="td-blue">CE Dist%</td><td>Distance from spot to CE Wall in %</td><td class="td-bull">Negative = CE Wall broken = bullish breakout!</td></tr>
+            <tr><td class="td-blue">PE Dist%</td><td>Distance from spot to PE Wall in %</td><td class="td-bear">Negative = PE Wall broken = bearish breakdown!</td></tr>
+            <tr><td class="td-purp">Signal</td><td>Overall bullish/bearish/neutral label</td><td>Bullish ya Bearish = clear signal</td></tr>
+          </table>
+        </div>
+        <div class="ex-box">
+          <div class="ex-label">Real Example — Reading a Card</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>RELIANCE — Spot: 2840. CE Wall: 2900 (CE Dist: +2.1%). PE Wall: 2800 (PE Dist: -1.4%).</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>PCR: 1.45 (Bullish). PE Wall 2800 is already below spot — broken = strong support zone.</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>Signal: <strong>Bullish</strong>. CE Wall 2900 is target. Bull Put Spread below 2800 PE Wall is the trade.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-blue">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-live')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">PCR</span><div class="acc-info"><div class="acc-title">PCR Score — Complete Reference Table</div><div class="acc-sub">Kaunsa PCR value kya signal deta hai</div></div></div>
+        <span class="acc-type-label">Reference</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>PCR Value</th><th>Signal</th><th>Interpretation</th><th>Strategy</th></tr>
+            <tr><td class="td-bull">Above 1.8</td><td class="td-bull">🔥 Very Bullish</td><td>Extreme put buying = market likely to reverse UP. Contrarian signal.</td><td>Bull Call Spread, Bull Put Spread</td></tr>
+            <tr><td class="td-bull">1.3 — 1.8</td><td class="td-bull">✅ Strong Bullish</td><td>Strong put support. Sellers defending below strongly.</td><td>Bull Put Spread below PE Wall</td></tr>
+            <tr><td class="td-bull">1.0 — 1.3</td><td class="td-bull">↗ Mildly Bullish</td><td>Slight put bias — bullish lean but not strong</td><td>Small Bull Put Spread or wait</td></tr>
+            <tr><td>0.8 — 1.0</td><td>↔ Neutral</td><td>Balanced — no clear bias</td><td>Iron Condor, wait for clarity</td></tr>
+            <tr><td class="td-bear">0.5 — 0.8</td><td class="td-bear">↘ Bearish</td><td>Call OI dominant — resistance above strong</td><td>Bear Call Spread above CE Wall</td></tr>
+            <tr><td class="td-bear">Below 0.5</td><td class="td-bear">🔻 Very Bearish</td><td>Extreme call buying = market likely to fall. Sellers positioned heavily above.</td><td>Bear Call Spread, Bear Put Spread</td></tr>
+          </table>
+        </div>
+        <div class="hl-box"><strong>Important:</strong> PCR above 1.8 ya below 0.5 = <strong>extreme values</strong> — yeh often contrarian signals hote hain. Jab sab log ek taraf ho jaate hain to market ulti taraf jaati hai. Aise mein size chhota rakho aur stop loss zaroor lagao.</div>
+      </div>
+    </div>
+
+    <div class="acc-item color-purp">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-live')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-purp">Wall</span><div class="acc-info"><div class="acc-title">CE Wall aur PE Wall — Detailed Guide</div><div class="acc-sub">Support, resistance, trap aur breakout signals</div></div></div>
+        <span class="acc-type-label">Guide</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">CE Wall — Resistance</div><div class="info-val bear">Highest Call OI strike. Call writers yahan defend karte hain. Price ke upar hai toh resistance. Spot se zyada door = more room to rally.</div></div>
+          <div class="info-box"><div class="info-label">PE Wall — Support</div><div class="info-val bull">Highest Put OI strike. Put writers yahan defend karte hain. Price ke neeche hai toh support. Spot ke bahut paas = strong floor.</div></div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>CE Dist%</th><th>Meaning</th><th>Signal</th><th>Action</th></tr>
+            <tr><td class="td-bull">Negative (e.g. -1%)</td><td>Spot already above CE Wall</td><td class="td-bull">Bullish breakout! CE Wall broken.</td><td class="td-bull">Buy calls or Bull Call Spread</td></tr>
+            <tr><td class="td-blue">0% to +1%</td><td>Spot approaching CE Wall</td><td class="td-gold">Watch for breakout or rejection</td><td>Wait for confirmation</td></tr>
+            <tr><td>+2% to +5%</td><td>CE Wall safely above</td><td>Normal — room to rally</td><td>Bull Put Spread below support</td></tr>
+            <tr><td class="td-bear">PE Negative</td><td>Spot below PE Wall</td><td class="td-bear">Bearish breakdown! Support broken.</td><td class="td-bear">Buy puts or Bear Call Spread</td></tr>
+          </table>
+        </div>
+        <div class="hl-box-blue"><strong>Wall Shift Alert:</strong> Agar CE Wall ya PE Wall strike change ho jaaye (e.g. CE Wall 22000 se 22200 ho gayi) toh yeh bahut important signal hai — option writers positions shift kar rahe hain. Naya level naya resistance/support ban jaata hai.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PAGE 3: DAY VIEW -->
+<div class="page" id="page-dayview">
+  <div class="acc" id="acc-dayview">
+
+    <div class="acc-item color-blue">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-dayview')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">What</span><div class="acc-info"><div class="acc-title">Day View kya hai?</div><div class="acc-sub">Poore din ke snapshots ka timeline — trend dekho</div></div></div>
+        <span class="acc-type-label">Concept</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Day View = poore din mein baar baar liye gaye snapshots ka collection. Yeh "trend" dikhata hai — sirf ek point ka nahi, din bhar ki direction ka.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Ek snapshot = ek moment. Day View = multiple moments = trend line. PCR 9:20 AM pe 1.1 tha, 11:00 AM pe 1.4 tha, 1:00 PM pe 0.9 hai — yeh trend batata hai ki sentiment bearish ho raha hai.</span></div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Sahi trade tab milta hai jab trend direction clear ho — Day View isi ke liye hai.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-teal">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-dayview')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">How</span><div class="acc-info"><div class="acc-title">Day View Kaise Use Karein?</div><div class="acc-sub">Snapshots save karna aur compare karna</div></div></div>
+        <span class="acc-type-label live">Guide</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Subah snapshot lo (9:20-9:30 AM)</div><div class="step-desc">⬇ Live click karo, data aaye, phir 📷 Snapshot click karo. Yeh 9:20 AM ka reference snapshot save ho jaata hai Day View mein.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Har 1-2 ghante mein snapshot lo</div><div class="step-desc">10:30 AM, 12:00 PM, 2:00 PM — teen zyada snapshots kaafi hain din bhar ka trend dekhne ke liye.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">📅 Day View button click karo</div><div class="step-desc">Saare saved snapshots timeline mein dikh jaate hain. "Select Time" dropdown se koi bhi time select karo uska data dekhne ke liye.</div></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">PCR trend dekho</div><div class="step-desc">Agar PCR consistently badhta raha = bullish momentum building. PCR girta raha = bearish pressure badh raha hai. Yeh trend hi real signal hai.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-gold">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-dayview')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-gold">Patterns</span><div class="acc-info"><div class="acc-title">Day View Patterns — Kya Dekha Toh Kya Karo</div><div class="acc-sub">PCR trend patterns aur unka trading matlab</div></div></div>
+        <span class="acc-type-label gold">Guide</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="timeline">
+          <div class="tl-row bull">
+            <div class="tl-time">Pattern 1</div>
+            <div class="tl-content">
+              <div class="tl-title">Steadily Rising PCR — 🟢 Strong Bullish</div>
+              <div class="tl-desc">9:20 AM: 0.9 → 11:00 AM: 1.1 → 1:00 PM: 1.4 → 2:30 PM: 1.7. Market consistently bullish ho raha hai. Put writers protect kar rahe hain. <strong>Action: Full size bull trade lo.</strong></div>
+            </div>
+          </div>
+          <div class="tl-row bear">
+            <div class="tl-time">Pattern 2</div>
+            <div class="tl-content">
+              <div class="tl-title">Steadily Falling PCR — 🔴 Strong Bearish</div>
+              <div class="tl-desc">9:20 AM: 1.4 → 11:00 AM: 1.1 → 1:00 PM: 0.8 → 2:30 PM: 0.6. Sentiment deteriorate ho raha hai. Call writers dominant ho rahe hain. <strong>Action: Bear trade lo, longs avoid karo.</strong></div>
+            </div>
+          </div>
+          <div class="tl-row gold">
+            <div class="tl-time">Pattern 3</div>
+            <div class="tl-content">
+              <div class="tl-title">PCR Oscillating — ↔ Sideways/Confused</div>
+              <div class="tl-desc">9:20 AM: 1.1 → 11:00 AM: 0.9 → 1:00 PM: 1.2 → 2:30 PM: 0.8. No clear trend — market confused hai. <strong>Action: Iron Condor ya no trade. Wait for clarity.</strong></div>
+            </div>
+          </div>
+          <div class="tl-row blue">
+            <div class="tl-time">Pattern 4</div>
+            <div class="tl-content">
+              <div class="tl-title">Sudden PCR Spike — ⚠️ Reversal Alert</div>
+              <div class="tl-desc">Morning 0.8 (bearish) → Afternoon suddenly 1.6+. Short covering ya panic put buying ho raha hai. Market reversal possible. <strong>Action: Close bear trades, watch for upside reversal.</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-teal">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-dayview')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Fetch Old</span><div class="acc-info"><div class="acc-title">"Fetch Old" Button kya karta hai?</div><div class="acc-sub">Historical NSE snapshots load karna</div></div></div>
+        <span class="acc-type-label">Feature</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-row"><div class="ex-dot blue"></div><span>"Fetch Old" = specific past time ka NSE data fetch karta hai — agar aapne us time snapshot nahi liya tha toh bhi data mill sakta hai.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Useful tab jab aap late market mein kholey aur subah ka data dekhna ho reference ke liye.</span></div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>"Select time" dropdown se time choose karo → "Fetch Old" click karo → woh time ka data load ho jaata hai Day View mein.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PAGE 4: SIGNALS & SCORING -->
+<div class="page" id="page-signals">
+  <div class="acc" id="acc-signals">
+
+    <div class="acc-item color-blue">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-signals')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Score</span><div class="acc-info"><div class="acc-title">OptionTrade Signal Scoring System</div><div class="acc-sub">PCR + Wall + Trend = Combined Score</div></div></div>
+        <span class="acc-type-label">Scoring</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-row"><div class="ex-dot blue"></div><span>OptionTrade har stock ko ek <strong>combined score</strong> deta hai — PCR value, CE/PE Wall distance, aur OI concentration — sab ka weighted average.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Score jitna zyada (bullish side) = option market utna zyada bullish positioned. Score jitna kam (bearish side) = utna bearish.</span></div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Component</th><th>Weight</th><th>Bullish Reading</th><th>Bearish Reading</th></tr>
+            <tr><td class="td-blue">PCR (OI)</td><td>40%</td><td class="td-bull">Above 1.2</td><td class="td-bear">Below 0.8</td></tr>
+            <tr><td class="td-gold">CE Wall Distance</td><td>30%</td><td class="td-bull">Far away (2%+) or broken</td><td class="td-bear">Very close or just broken</td></tr>
+            <tr><td class="td-purp">PE Wall Distance</td><td>30%</td><td class="td-bull">Below spot (support strong)</td><td class="td-bear">Above spot (support broken)</td></tr>
+          </table>
+        </div>
+        <div class="score-row">
+          <div class="score-box s-full"><div class="s-num">80+</div><div class="s-lbl">Full Size Trade</div></div>
+          <div class="score-box s-good"><div class="s-num">60-79</div><div class="s-lbl">Normal Trade</div></div>
+          <div class="score-box s-half"><div class="s-num">40-59</div><div class="s-lbl">Half Size / Wait</div></div>
+          <div class="score-box s-skip"><div class="s-num">Below 40</div><div class="s-lbl">Skip Trade</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-bull">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-signals')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-credit">Bullish</span><div class="acc-info"><div class="acc-title">Strong Bullish Signals — Kya Dekha Toh Buy?</div><div class="acc-sub">Yeh combination dikhey toh bullish trade lo</div></div></div>
+        <span class="acc-type-label live">Setup</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-label">✅ Ideal Bullish Setup</div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>PCR above 1.3 — strong put support below</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>PE Wall is below spot price aur intact hai — solid floor</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>CE Wall far above spot (2%+) — room to rally</span></div>
+          <div class="ex-row"><div class="ex-dot bull"></div><span>Day View mein PCR rising trend — bullish momentum building</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>StockTrade mein bhi Long Build dikh raha ho — double confirmation</span></div>
+        </div>
+        <div class="use-box bull"><div class="use-label">Trade Karo</div><div class="use-text"><strong>Bull Put Spread:</strong> PE Wall se 1-2% neeche sell karo. <strong>Bull Call Spread:</strong> ATM call buy + CE Wall ke paas call sell. <strong>Direct Call Buy:</strong> Sirf tab jab score 80+ ho aur trend clear ho.</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-bear">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-signals')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-debit">Bearish</span><div class="acc-info"><div class="acc-title">Strong Bearish Signals — Kya Dekha Toh Sell?</div><div class="acc-sub">Yeh combination dikhey toh bearish trade lo</div></div></div>
+        <span class="acc-type-label warn">Setup</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-label">✅ Ideal Bearish Setup</div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>PCR below 0.8 — call writers dominant, resistance strong above</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>CE Wall is just above spot (ya broken neeche aaya) — ceiling tight</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>PE Wall broken neeche — support nahi raha</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span>Day View mein PCR consistently gir raha hai</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>StockTrade mein Short Build aur D Badge dikh raha ho — double confirmation</span></div>
+        </div>
+        <div class="use-box bear"><div class="use-label">Trade Karo</div><div class="use-text"><strong>Bear Call Spread:</strong> CE Wall ke upar sell karo. <strong>Bear Put Spread:</strong> ATM put buy + PE Wall ke neeche put sell. <strong>Direct Put Buy:</strong> Sirf tab jab score bearish 80+ ho aur trend clear ho.</div></div>
+      </div>
+    </div>
+
+    <div class="acc-item color-gold">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-signals')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-gold">Neutral</span><div class="acc-info"><div class="acc-title">Neutral Signals — Kab Range Mein Trade Karein?</div><div class="acc-sub">PCR 0.8-1.2 + balanced walls = sideways setup</div></div></div>
+        <span class="acc-type-label gold">Setup</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-label">Neutral Setup</div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>PCR between 0.8 to 1.2 — no clear directional bias</span></div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>CE Wall aur PE Wall dono almost equal distance from spot</span></div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>Day View mein PCR oscillating — no clear trend</span></div>
+        </div>
+        <div class="use-box gold"><div class="use-label">Trade Karo</div><div class="use-text"><strong>Iron Condor:</strong> CE Wall ke upar Bear Call Spread + PE Wall ke neeche Bull Put Spread. Dono sides se premium collect karo. <strong>Iron Butterfly:</strong> Agar PCR exactly 1.0 ke paas ho toh ATM straddle sell karo with wings. Neutral mein directional trade = low probability.</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PAGE 5: TRADING STRATEGY -->
+<div class="page" id="page-strategy">
+  <div class="acc" id="acc-strategy">
+
+    <div class="acc-item color-teal">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-strategy')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Routine</span><div class="acc-info"><div class="acc-title">Daily Routine with OptionTrade</div><div class="acc-sub">Market open se close tak kaise use karein</div></div></div>
+        <span class="acc-type-label live">Must Read</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="timeline">
+          <div class="tl-row blue">
+            <div class="tl-time">9:15 AM</div>
+            <div class="tl-content">
+              <div class="tl-title">Tool kholo — wait karo</div>
+              <div class="tl-desc">Abhi kuch mat karo. Pehle 5 min mein bahut volatility hoti hai — signals false hote hain.</div>
+            </div>
+          </div>
+          <div class="tl-row bull">
+            <div class="tl-time">9:20 AM</div>
+            <div class="tl-content">
+              <div class="tl-title">⬇ Live click karo + 📷 Snapshot</div>
+              <div class="tl-desc">Pehla snapshot lo. PCR note karo. CE Wall aur PE Wall note karo. Yeh aapka opening reference ban jaata hai.</div>
+            </div>
+          </div>
+          <div class="tl-row gold">
+            <div class="tl-time">9:30-10:00 AM</div>
+            <div class="tl-content">
+              <div class="tl-title">Signals analyze karo</div>
+              <div class="tl-desc">Top 5 Bullish stocks aur Top 5 Bearish stocks list karo. StockTrade se match karo. Bhav tool mein Max Pain check karo. Shortlist banao.</div>
+            </div>
+          </div>
+          <div class="tl-row bull">
+            <div class="tl-time">10:00-11:30 AM</div>
+            <div class="tl-content">
+              <div class="tl-title">Best Trading Window — Trade lo</div>
+              <div class="tl-desc">Confirmed signals mein trades execute karo. Har 30 min mein ⬇ Live refresh karo. Agar signals shift ho rahe hain toh positions adjust karo.</div>
+            </div>
+          </div>
+          <div class="tl-row gold">
+            <div class="tl-time">12:30 PM</div>
+            <div class="tl-content">
+              <div class="tl-title">📷 Snapshot + Mid-day review</div>
+              <div class="tl-desc">Afternoon session ka reference snapshot lo. PCR trend check karo — morning se badha ya ghata? Positions accordingly adjust karo.</div>
+            </div>
+          </div>
+          <div class="tl-row blue">
+            <div class="tl-time">2:00-3:00 PM</div>
+            <div class="tl-content">
+              <div class="tl-title">Expiry week mein aggressive</div>
+              <div class="tl-desc">Last hour mein OI shifts dramatic hote hain. PCR aur Wall shifts par nazar rakho. Credit spread positions defend karo ya close karo.</div>
+            </div>
+          </div>
+          <div class="tl-row bear">
+            <div class="tl-time">3:15 PM</div>
+            <div class="tl-content">
+              <div class="tl-title">Square off — last 📷 Snapshot</div>
+              <div class="tl-desc">Intraday trades close karo. Final snapshot lo kal ke reference ke liye. Day View mein trend note karo.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-blue">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-strategy')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-neutral">Combo</span><div class="acc-info"><div class="acc-title">OptionTrade + StockTrade + Bhav — Triple Confirmation</div><div class="acc-sub">Teen tools saath mein = highest win rate</div></div></div>
+        <span class="acc-type-label live">Pro Setup</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table>
+            <tr><th>Tool</th><th>Check</th><th>Bullish ✅</th><th>Bearish ✅</th></tr>
+            <tr><td class="td-blue">OptionTrade</td><td>PCR Score</td><td class="td-bull">PCR above 1.2</td><td class="td-bear">PCR below 0.8</td></tr>
+            <tr><td class="td-blue">OptionTrade</td><td>CE Wall</td><td class="td-bull">Far above spot</td><td class="td-bear">Close/broken above</td></tr>
+            <tr><td class="td-gold">StockTrade</td><td>OI Signal</td><td class="td-bull">Long Build</td><td class="td-bear">Short Build</td></tr>
+            <tr><td class="td-gold">StockTrade</td><td>Futures</td><td class="td-bull">P Badge (Premium)</td><td class="td-bear">D Badge (Discount)</td></tr>
+            <tr><td class="td-purp">Bhav Tool</td><td>Max Pain</td><td class="td-bull">Above spot</td><td class="td-bear">Below spot</td></tr>
+            <tr><td class="td-purp">Bhav Tool</td><td>Overall PCR</td><td class="td-bull">Bullish market</td><td class="td-bear">Bearish market</td></tr>
+          </table>
+        </div>
+        <div class="score-row">
+          <div class="score-box s-full"><div class="s-num">6/6</div><div class="s-lbl">Full Size</div></div>
+          <div class="score-box s-good"><div class="s-num">5/6</div><div class="s-lbl">Normal Size</div></div>
+          <div class="score-box s-half"><div class="s-num">4/6</div><div class="s-lbl">Half Size</div></div>
+          <div class="score-box s-skip"><div class="s-num">3 or less</div><div class="s-lbl">Skip</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item color-gold">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-strategy')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-gold">Mistakes</span><div class="acc-info"><div class="acc-title">Common Mistakes — Avoid Karo</div><div class="acc-sub">OptionTrade use karte waqt yeh galtiyan mat karo</div></div></div>
+        <span class="acc-type-label gold">Warning</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-label">❌ Kya Mat Karo</div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span><strong>Sirf PCR dekh ke trade mat lo</strong> — PCR ek indicator hai, complete signal nahi. CE Wall, PE Wall, aur StockTrade se confirm karo.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span><strong>Extreme PCR values mein aggressive mat jao</strong> — PCR 1.8+ ya 0.4 se kam = reversal zone. Size chhota rakho.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span><strong>Single snapshot pe depend mat karo</strong> — Day View trend zyada reliable hai. Ek reading alag ho sakti hai, trend nahi.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span><strong>Wall shifts ignore mat karo</strong> — Agar CE Wall ya PE Wall shift hua toh immediately apni position reassess karo.</span></div>
+          <div class="ex-row"><div class="ex-dot bear"></div><span><strong>Index aur stock ek saath mat trade karo</strong> — Nifty ka PCR alag hota hai, RELIANCE ka alag. Dono alag-alag analyze karo.</span></div>
+        </div>
+        <div class="hl-box"><strong>Golden Rule:</strong> OptionTrade batata hai <strong>option market kahan positioned hai</strong> — yeh predict nahi karta price kahan jaayegi. Option positioning strong support/resistance create karta hai, toot bhi sakta hai. Hamesha stop loss rakho.</div>
+      </div>
+    </div>
+
+    <div class="acc-item color-purp">
+      <div class="acc-hdr" onclick="openAcc(this,'acc-strategy')">
+        <div class="acc-hdr-l"><span class="acc-badge badge-purp">Advanced</span><div class="acc-info"><div class="acc-title">Advanced — CSV Export ka Use</div><div class="acc-sub">Data ko apne analysis ke liye export karo</div></div></div>
+        <span class="acc-type-label">Pro Feature</span><span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body">
+        <div class="ex-box">
+          <div class="ex-row"><div class="ex-dot blue"></div><span>📂 CSV button click karo — current snapshot ka saara data spreadsheet mein aata hai.</span></div>
+          <div class="ex-row"><div class="ex-dot blue"></div><span>CSV mein: Symbol, PCR OI, PCR Volume, CE Wall, PE Wall, CE Dist%, PE Dist%, Signal — sab columns hain.</span></div>
+          <div class="ex-row"><div class="ex-dot gold"></div><span>Excel mein open karo → Sort by PCR → Top 10 bullish + Top 10 bearish stocks list banao. Yeh daily watchlist ban jaati hai.</span></div>
+          <div class="ex-row"><div class="ex-dot purp"></div><span>Weekly data save karte raho → patterns dekhoge ki kaunsi stocks consistently bullish signal deti hain → yeh aapki go-to stocks ban jaayengi.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
+  var pg=document.getElementById('page-'+id);
+  if(pg) pg.classList.add('active');
+  el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function openAcc(hdr,groupId){
+  var item=hdr.closest('.acc-item');
+  var isOpen=item.classList.contains('open');
+  var group=document.getElementById(groupId);
+  if(group) group.querySelectorAll('.acc-item').forEach(i=>i.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
+}
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('tbtn-dark').classList.toggle('active',t==='dark');
+  document.getElementById('tbtn-light').classList.toggle('active',t==='light');
+}
+document.addEventListener('DOMContentLoaded',function(){
+  var firstItem=document.querySelector('.page.active .acc-item');
+  if(firstItem) firstItem.classList.add('open');
+});
+</script>
+</body>
+</html>
