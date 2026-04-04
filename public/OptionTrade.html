@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OptionTrade · NSE F&O</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='white'/><text x='16' y='22' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' font-size='16' fill='red'>OT</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 
@@ -367,28 +368,48 @@ td.gold-c{color:var(--gold);}
 .dv-strong-badge{display:inline-flex;align-items:center;gap:3px;font-size:.62rem;font-weight:800;padding:3px 8px;border-radius:5px;flex-shrink:0;background:#4a3800;color:#ffd666 !important;border:1.5px solid #cc9900;}
 .dv-caution-badge{display:inline-flex;align-items:center;gap:3px;font-size:.62rem;font-weight:800;padding:3px 8px;border-radius:5px;flex-shrink:0;background:#4a2200;color:#ffaa66 !important;border:1.5px solid #cc5500;}
 
-/* Leaderboard */
-.dv-lb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:5px;}
-.dv-lb-rank{font-size:.7rem;font-weight:700;color:var(--ink3);width:18px;text-align:center;flex-shrink:0;}
-.dv-lb-sym{font-size:.82rem;font-weight:700;flex:1;}
-.dv-lb-bar-wrap{flex:2;display:flex;align-items:center;gap:8px;}
-.dv-lb-bar-bg{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
-.dv-lb-bar-fill{height:100%;background:var(--gold);border-radius:3px;transition:width .4s ease;}
-.dv-lb-count{font-size:.75rem;font-weight:700;color:var(--gold);min-width:24px;text-align:right;}
+/* View Switcher */
+.dv-sw-wrap{display:flex;background:var(--bg2);border-radius:8px;padding:3px;margin:12px 0 8px;border:1px solid var(--border2);}
+.dv-sw-btn{flex:1;text-align:center;font-size:.72rem;font-weight:700;padding:7px 0;border-radius:6px;cursor:pointer;color:var(--ink3);transition:all .15s;}
+.dv-sw-btn:hover{color:var(--ink);}
+.dv-sw-btn.active{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.3);border:1px solid var(--border);}
+.dv-view-area{display:none;}
+.dv-view-area.active{display:block;animation:fadeIn .25s ease;}
+
+/* Sub-View Switcher */
+.dv-subsw-btn{flex:1;text-align:center;font-size:.72rem;font-weight:700;padding:7px 0;border-radius:6px;cursor:pointer;color:var(--ink3);transition:all .15s;}
+.dv-subsw-btn.active{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.3);border:1px solid var(--border);}
+.dv-subview-area{display:none;}
+.dv-subview-area.active{display:block;animation:fadeIn .25s ease;}
+
+/* All Symbols View */
+.dv-sym-wrap{padding-bottom:10px;}
+.dv-sym-item{background:var(--card);border:1px solid var(--border);border-radius:9px;margin-bottom:7px;overflow:hidden;transition:border-color .15s;}
+.dv-sym-item:hover{border-color:#a855f7;}
+.dv-sym-item.expanded{border-color:#a855f7;}
+.dv-sym-head{padding:11px 16px;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;transition:background .15s;}
+.dv-sym-head:hover{background:var(--bg2);}
+.dv-sym-item.expanded .dv-sym-head{background:var(--bg2);}
+.dvs-left{display:flex;align-items:center;gap:10px;}
+.dvs-sym{font-size:.85rem;font-weight:800;color:var(--ink);letter-spacing:.3px;}
+.dvs-type{font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--border);color:var(--ink);text-transform:uppercase;}
+.dvs-right{display:flex;align-items:center;gap:14px;}
+.dvs-time{font-size:.7rem;font-weight:700;color:#a855f7;}
+.dvs-cnt{font-size:.72rem;font-weight:800;color:var(--gold);background:var(--gold-dim);padding:3px 10px;border-radius:12px;border:1px solid var(--gold-mid);text-align:center;min-width:34px;letter-spacing:.5px;}
+.dv-sym-hist{display:none;border-top:1px solid var(--border);background:var(--bg1);}
+.dv-sym-hist.open{display:block;}
+.dv-sym-hist table{width:100%;border-collapse:collapse;min-width:480px;}
+.dv-sym-hist th{font-size:.58rem;font-weight:700;color:var(--ink3);padding:8px 14px;text-align:left;border-bottom:1px solid var(--border);background:var(--thead);text-transform:uppercase;letter-spacing:.5px;}
+.dv-sym-hist th.r{text-align:right;}
+.dv-sym-hist td{font-size:.72rem;padding:8px 14px;border-bottom:1px solid var(--border2);color:var(--ink);}
+.dv-sym-hist tr:last-child td{border-bottom:none;}
+.dv-sym-hist tr:nth-child(even){background:rgba(0,0,0,.02);}
+[data-theme="white"] .dv-sym-hist tr:nth-child(even){background:rgba(255,255,255,.03);}
 
 /* Type pill for flat table */
 .type-fut{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(168,85,247,.12);color:#a855f7;}
 .type-ce {display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(59,130,246,.12);color:#3b82f6;}
 .type-pe {display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(245,166,35,.12);color:var(--gold);}
-
-/* ═══════════════════════════════════════════════════
-   NEW: Accordion item group — 3-level mutual exclusive
-   ═══════════════════════════════════════════════════ */
-.dv-acc-item-grp { display:block; }
-.dv-acc-item     { display:block; }
-
-/* Accordion section header hover */
-.dv-acc-hdr:hover { filter: brightness(1.08); }
 
 /* Invert expanded card — Blue/AMOLED theme: light bg */
 [data-theme="blue"] .dv-tl-item.expanded .dv-detail{background:#f5f5f5 !important;}
@@ -446,12 +467,26 @@ td.gold-c{color:var(--gold);}
   .cards-row{grid-template-columns:1fr 1fr;gap:8px;}
   #dv-reprocess-btn{display:none !important;}
   .snap-row{padding:0 12px;}
-  #snapshot-select{max-width:180px;}
+  #snapshot-select{max-width:160px;font-size:.65rem;}
+  .dv-header{padding:12px 14px;}
+  .dv-body{padding:10px 10px 40px;}
+  .dv-tl-head{padding:10px 12px;}
+  .dv-tl-row1{flex-direction:column;align-items:flex-start;gap:6px;}
+  .dv-tl-row1 > div{margin-left:0 !important;width:100%;justify-content:space-between;}
+  .dv-flat-table-wrap table {min-width: 480px !important;}
 }
 @media(max-width:480px){
   .sc-count{font-size:24px;}
   .sc-desc{font-size:10px;}
-  table{min-width:380px;}
+  table{min-width:340px;}
+  .btn{padding:0 10px;}
+}
+.tooltip-wrap{position:relative;}
+.tooltip-wrap:hover::after{
+  content:attr(data-tip); position:absolute; bottom:130%; left:50%; transform:translateX(-50%);
+  background:var(--ink); color:var(--bg); padding:4px 8px; border-radius:5px;
+  font-size:11px; white-space:nowrap; z-index:1000; box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  pointer-events:none; font-weight:700;
 }
 </style>
 </head>
@@ -532,7 +567,7 @@ td.gold-c{color:var(--gold);}
 
 <script>
 'use strict';
-const WORKER = 'https://spurts.sumantasahoo.workers.dev/';
+const WORKER = 'https://spurt-b.21aoips3531a1zi.workers.dev/';
 const WORKER_OLD = 'https://spurt-b.21aoips3531a1zi.workers.dev/';
 const INDEX_SYMS = new Set(['NIFTY','BANKNIFTY','FINNIFTY','MIDCPNIFTY','SENSEX','BANKEX','NIFTYNXT50']);
 
@@ -693,7 +728,11 @@ function fmtPct(v){
   const n=+v;
   return `<span class="${n>0?'bull-c':n<0?'bear-c':'dim'}">${n>0?'+':''}${n.toFixed(2)}%</span>`;
 }
-function pill(txt,dir){ return `<span class="pill ${dir}">${txt}</span>`; }
+function pill(txt,dir){
+  const icon = dir==='bull'?'🟢':'🔴';
+  const tip = dir==='bull'?'BULLISH (Tezi expected)':'BEARISH (Mandi expected)';
+  return `<span class="pill ${dir} tooltip-wrap" data-tip="${tip}">${txt} ${icon}</span>`;
+}
 function tbadge(t){ const c=t==='CE'?'ce':t==='PE'?'pe':'fut'; return `<span class="tbadge ${c}">${t}</span>`; }
 function strDots(s,max=3){
   let h='<span class="str-dots">';
@@ -998,6 +1037,13 @@ async function reprocessDV(){
   }
 }
 
+/* ── staleConfig ── */
+function staleConfig(gapMins){
+  if(gapMins <  20) return { icon:'●', label:'Fresh',   cls:'stale-fresh', opacity:1.0  };
+  if(gapMins <  40) return { icon:'◐', label:'Watch',   cls:'stale-watch', opacity:0.85 };
+  return               { icon:'⛔', label:'Very Old', cls:'stale-vold',  opacity:0.55 };
+}
+
 /* ── Chip overflow ── */
 function setupChipOverflow(container){
   const wraps=(container||document).querySelectorAll('.chip-overflow-wrap');
@@ -1046,20 +1092,7 @@ function renderDayView(results){
 
   sub.textContent=`${results.length} scan${results.length>1?'s':''} today`;
 
-  const symCount={}, symStrength={}, symType={}, symDir={}, symFirstTime={};
-  for(const r of results){
-    for(const s of (r.strong||[])){
-      const [sym,,signalType,,strength,cnt] = s.split(':');
-      symCount[sym]=(symCount[sym]||0)+1;
-      symStrength[sym]=strength;
-      symType[sym]=signalType;
-      if(!symFirstTime[sym]) symFirstTime[sym]=r.timeStr12;
-    }
-  }
-  const lbData=Object.entries(symCount).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  const maxCount=lbData[0]?.[1]||1;
-
-  let html='<div class="dv-sec-label">📅 Scan Timeline — newest first</div>';
+  let htmlTimeline='<div class="dv-sec-label">📅 Scan Timeline — newest first</div>';
   const sorted=[...results].reverse();
 
   sorted.forEach((r,idx)=>{
@@ -1086,7 +1119,7 @@ function renderDayView(results){
       <span class="chip-more-btn" id="dvchip_${uid}_more" style="display:none;" onclick="chipShowAll('dvchip_${uid}',event)"></span>
     </div>`;
 
-    html+=`<div class="dv-tl-item ${dom}" id="${uid}">
+    htmlTimeline+=`<div class="dv-tl-item ${dom}" id="${uid}">
       <div class="dv-tl-head" onclick="dvToggle('${uid}')">
         <div class="dv-tl-row1">
           <span class="dv-tl-time">🕐 ${r.timeStr12}</span>
@@ -1105,62 +1138,161 @@ function renderDayView(results){
     </div>`;
   });
 
-  if(lbData.length){
-    html+='<div id="dv-leaderboard"><div class="dv-sec-label" style="margin-top:20px;">🏆 Symbol Leaderboard — Strong signal count</div>';
-    lbData.forEach(([sym,cnt],i)=>{
-      const firstTime=symFirstTime[sym]||'';
-      const strength=symStrength[sym]||'STRONG';
-      const signalType=symType[sym]||'';
-      html+=`<div class="dv-lb-item">
-        <span class="dv-lb-rank">${i+1}</span>
-        <div style="flex:1;min-width:0;display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
-          <span class="dv-lb-sym">${sym}</span>
-          <span style="font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap;background:var(--bg2);color:var(--ink2);border:1px solid var(--border);">${signalType}</span>
-          ${strength==='CAUTION'?`<span class="dv-caution-badge">⚠️ CAUTION</span>`:`<span class="dv-strong-badge">🔥 STRONG</span>`}
-          ${firstTime?`<span style="font-size:.6rem;color:var(--ink3);white-space:nowrap;">🕐 ${firstTime}</span>`:''}
+  const symMap = {};
+  const sortedAsc = [...results].sort((a,b)=> (a.savedAt||0) - (b.savedAt||0));
+  sortedAsc.forEach((r) => {
+    const timeStr = r.timeStr12 || '';
+    const scanMs  = r.savedAt || 0;
+    const strongSet = new Set((r.strong||[]).map(s=>s.split(':')[0]));
+    (r.comparisons||[]).forEach(comp => {
+      (comp.signals||[]).forEach(s => {
+        const parts=s.split('|');
+        const sym=parts[0], type=parts[1], signalType=parts[2];
+        const ltpChngPct=parseFloat(parts[3])||0;
+        const oiChngPct=parseFloat(parts[4])||0;
+        const ltpPrice=parseFloat(parts[5])||0;
+        const isBull=(parts[9]||'BULL')==='BULL';
+        const strVal = strongSet.has(sym) ? 'STRONG' : '';
+        const isIdx = INDEX_SYMS.has(sym);
+        const isFut = type === 'FUT';
+        const rowKey = sym + '|' + type;
+        if(!symMap[rowKey]){
+          symMap[rowKey] = { sym, type, isIdx, isFut, cnt: 0, lastMs: 0, lastTime: '', history: [] };
+        }
+        const histArr = symMap[rowKey].history;
+        const lastHist = histArr[histArr.length-1];
+        if(lastHist && lastHist.time === timeStr) return;
+        symMap[rowKey].cnt++;
+        symMap[rowKey].lastMs = scanMs;
+        symMap[rowKey].lastTime = timeStr;
+        histArr.push({ time: timeStr, signalType, isBull, ltpPct: ltpChngPct, oiPct: oiChngPct, ltp: ltpPrice, str: strVal });
+      });
+    });
+  });
+
+  const idxArr = [], futArr = [], optArr = [];
+  Object.values(symMap).forEach(obj => {
+    if(obj.isIdx) idxArr.push(obj);
+    else if(obj.isFut) futArr.push(obj);
+    else optArr.push(obj);
+  });
+  const byTime = (a,b) => b.lastMs - a.lastMs;
+  idxArr.sort(byTime); futArr.sort(byTime); optArr.sort(byTime);
+
+  function renderSymGroup(arr, title, icon) {
+    if(!arr.length) return '';
+    let h = '';
+    arr.forEach((obj, i) => {
+      const uid = 'sym_' + title.replace(/\s+/g,'') + '_' + i;
+      h += `<div class="dv-sym-item" id="${uid}">
+        <div class="dv-sym-head" onclick="dvToggleSym('${uid}')">
+          <div class="dvs-left">
+            <span class="dvs-sym">${obj.sym}</span>
+            <span class="dvs-type">${obj.type}</span>
+          </div>
+          <div class="dvs-right">
+            <span class="dvs-time">🕐 ${obj.lastTime}</span>
+            <span class="dvs-cnt">${obj.cnt}x</span>
+          </div>
         </div>
-        <div class="dv-lb-bar-wrap">
-          <div class="dv-lb-bar-bg"><div class="dv-lb-bar-fill" style="width:${Math.round(cnt/maxCount*100)}%"></div></div>
-          <span class="dv-lb-count">${cnt}×</span>
+        <div class="dv-sym-hist" id="${uid}_hist">
+          <div class="tscroll"><table>
+            <thead><tr><th>Time</th><th>Signal</th><th class="r">Price%</th><th class="r">OI%</th><th class="r">LTP</th></tr></thead>
+            <tbody>
+              ${[...obj.history].reverse().map(hLine => `
+                <tr>
+                  <td style="font-weight:700;white-space:nowrap;color:var(--ink2)">${hLine.time}</td>
+                  <td><span class="pill ${hLine.isBull?'bull':'bear'}">${hLine.signalType} ${hLine.isBull?'🟢':'🔴'}</span>${hLine.str?` <span class="dv-strong-badge" style="transform:scale(0.8);transform-origin:left;margin-left:4px;">🔥</span>`:''}</td>
+                  <td class="r ${hLine.ltpPct>=0?'bull-c':'bear-c'}">${hLine.ltpPct>0?'+':''}${hLine.ltpPct.toFixed(1)}%</td>
+                  <td class="r ${hLine.oiPct>=0?'bull-c':'bear-c'}">${hLine.oiPct>0?'+':''}${hLine.oiPct.toFixed(1)}%</td>
+                  <td class="r" style="font-family:'JetBrains Mono',monospace;color:var(--ink);font-weight:700;">₹${hLine.ltp.toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table></div>
         </div>
       </div>`;
     });
-    html+='</div>';
+    return h;
   }
 
-  body.innerHTML=html;
+  let htmlAllSymbols = `
+    <div class="dv-sw-wrap">
+      <div class="dv-subsw-btn ${_dvSubMode==='idx'?'active':''}" id="dv-btn-idx" onclick="switchDvSub('idx')">📈 Index Option</div>
+      <div class="dv-subsw-btn ${_dvSubMode==='opt'?'active':''}" id="dv-btn-opt" onclick="switchDvSub('opt')">📊 Stock Option</div>
+      <div class="dv-subsw-btn ${_dvSubMode==='fut'?'active':''}" id="dv-btn-fut" onclick="switchDvSub('fut')">📉 Stock Future</div>
+    </div>
+    <div class="dv-subview-area ${_dvSubMode==='idx'?'active':''}" id="dv-view-idx">
+      ${renderSymGroup(idxArr, 'IndexOptions', '')||'<div style="text-align:center;color:var(--ink3);padding:20px;font-size:.8rem;">No Index Options</div>'}
+    </div>
+    <div class="dv-subview-area ${_dvSubMode==='opt'?'active':''}" id="dv-view-opt">
+      ${renderSymGroup(optArr, 'StockOptions', '')||'<div style="text-align:center;color:var(--ink3);padding:20px;font-size:.8rem;">No Stock Options</div>'}
+    </div>
+    <div class="dv-subview-area ${_dvSubMode==='fut'?'active':''}" id="dv-view-fut">
+      ${renderSymGroup(futArr, 'StockFutures', '')||'<div style="text-align:center;color:var(--ink3);padding:20px;font-size:.8rem;">No Stock Futures</div>'}
+    </div>
+  `;
+
+  body.innerHTML = `
+    <div class="dv-sw-wrap">
+      <div class="dv-sw-btn" id="dv-btn-tl" onclick="switchDvView('tl')">⏱️ Timeline</div>
+      <div class="dv-sw-btn ${_dvMode==='sym'?'active':''}" id="dv-btn-sym" onclick="switchDvView('sym')">📊 All Symbols</div>
+    </div>
+    <div class="dv-view-area ${_dvMode==='tl'?'active':''}" id="dv-view-tl">
+      ${htmlTimeline}
+    </div>
+    <div class="dv-view-area ${_dvMode==='sym'?'active':''}" id="dv-view-sym">
+      ${htmlAllSymbols}
+    </div>
+  `;
   requestAnimationFrame(()=>setupChipOverflow(body));
 }
 
-/* ══════════════════════════════════════════════════════════════
-   dvGroupAccToggle — 3-level mutual exclusive accordion
-   Logic: Jab ek item click ho, uske siblings band ho jaate hain
-          (same parent group ke andar).
-   ══════════════════════════════════════════════════════════════ */
-function dvGroupAccToggle(hdr) {
-  const item  = hdr.parentElement;                               // .dv-acc-item
-  const body  = item && item.querySelector(':scope > .dv-acc-body');
-  const group = item && item.parentElement;                      // .dv-acc-item-grp
-  const isOpen = body && body.style.display !== 'none';
-
-  // ── Saare sibling acc-items band karo (same group ke andar) ──
-  if (group) {
-    group.querySelectorAll(':scope > .dv-acc-item').forEach(sib => {
-      if (sib === item) return;
-      const b = sib.querySelector(':scope > .dv-acc-body');
-      if (b) b.style.display = 'none';
-      const ic = sib.querySelector(':scope > .dv-acc-hdr .dv-toggle-icon');
-      if (ic) ic.textContent = '▶';
-    });
+let _dvMode = 'sym';
+let _dvSubMode = 'idx';
+function switchDvView(mode){
+  _dvMode = mode;
+  document.getElementById('dv-btn-tl').classList.remove('active');
+  document.getElementById('dv-btn-sym').classList.remove('active');
+  document.getElementById('dv-view-tl').classList.remove('active');
+  document.getElementById('dv-view-sym').classList.remove('active');
+  if(mode==='tl'){
+    document.getElementById('dv-btn-tl').classList.add('active');
+    document.getElementById('dv-view-tl').classList.add('active');
+  }else{
+    document.getElementById('dv-btn-sym').classList.add('active');
+    document.getElementById('dv-view-sym').classList.add('active');
   }
-
-  // ── Current item toggle ──
-  if (body) body.style.display = isOpen ? 'none' : '';
-  const ic = hdr.querySelector('.dv-toggle-icon');
-  if (ic) ic.textContent = isOpen ? '▶' : '▼';
 }
 
-/* ── buildDvDetail — complete rewrite with 3-level accordion ── */
+function switchDvSub(mode){
+  _dvSubMode = mode;
+  ['idx','opt','fut'].forEach(m => {
+    const btn = document.getElementById('dv-btn-'+m);
+    const view = document.getElementById('dv-view-'+m);
+    if(btn) btn.classList.remove('active');
+    if(view) view.classList.remove('active');
+  });
+  const tBtn = document.getElementById('dv-btn-'+mode);
+  const tView = document.getElementById('dv-view-'+mode);
+  if(tBtn) tBtn.classList.add('active');
+  if(tView) tView.classList.add('active');
+}
+
+function dvToggleSym(uid){
+  const item = document.getElementById(uid);
+  const hist = document.getElementById(uid+'_hist');
+  const isOpen = hist.classList.contains('open');
+  document.querySelectorAll('.dv-sym-hist.open').forEach(el=>el.classList.remove('open'));
+  document.querySelectorAll('.dv-sym-item.expanded').forEach(el=>el.classList.remove('expanded'));
+  if(!isOpen){
+    hist.classList.add('open');
+    item.classList.add('expanded');
+    setTimeout(()=>item.scrollIntoView({behavior:'smooth',block:'nearest'}), 50);
+  }
+}
+
+/* ── buildDvDetail ── */
 function buildDvDetail(r){
   const comparisons=r.comparisons||[];
   if(!comparisons.length)
@@ -1265,271 +1397,196 @@ function buildDvDetail(r){
     else stockOpt.push(p);
   }
 
-  /* ── Helper: seen time chips ── */
   function makeSeenChips(p){
     const isBull=p.dir==='BULL';
     return [...p.seenAt].sort().map(t=>`<span style="font-size:.58rem;font-weight:700;padding:2px 5px;border-radius:4px;background:${isBull?'rgba(46,220,138,.15)':'rgba(255,77,106,.15)'};color:${isBull?'var(--bull)':'var(--bear)'};border:1px solid ${isBull?'var(--bull-bd)':'var(--bear-bd)'};white-space:nowrap;">&#10003; ${t}</span>`).join('');
   }
-
-  /* ── Helper: strong/caution badge ── */
   function makeStrengthBadge(sym){
     const sInfo=strongMap[sym];
     if(!sInfo) return '';
-    return sInfo.strength==='CAUTION'
-      ? `<span class="dv-caution-badge">&#9888;&#65039; CAUTION</span>`
-      : `<span class="dv-strong-badge">&#128293; STRONG</span>`;
+    return sInfo.strength==='CAUTION'?`<span class="dv-caution-badge">&#9888;&#65039; CAUTION</span>`:`<span class="dv-strong-badge">&#128293; STRONG</span>`;
   }
-
-  /* ── Helper: seen count badge ── */
   function seenBadge(p){
     const n=p.seenAt.size;
     const c=n>=3?'#ffd666':n>=2?'#00d0d8':'var(--ink3)';
     const bg=n>=3?'#4a3800':n>=2?'rgba(0,208,216,.12)':'var(--bg2)';
     return `<span style="font-size:.62rem;font-weight:800;padding:2px 7px;border-radius:4px;background:${bg};color:${c};border:1px solid ${c};white-space:nowrap;margin-right:4px;">${n}x</span>`;
   }
-
-  /* ══════════════════════════════════════════════════════
-     makeOptRows — Level 3 accordion item (CE or PE)
-     Returns a .dv-acc-item div with header + body (table)
-     ══════════════════════════════════════════════════════ */
-  function makeOptRows(optRows, optType, sym){
+  function makeOptRows(optRows,optType,sym){
     if(!optRows.length) return '';
     optRows.sort((a,b)=>b.seenAt.size-a.seenAt.size||Math.abs(b.ltpChngPct)-Math.abs(a.ltpChngPct));
     const typeCls=optType==='CE'?'type-ce':'type-pe';
     const expiry=optRows[0]?.expiry||'';
-
-    let tableRows='';
+    let h=`<div class="dv-acc-item">
+    <div class="dv-acc-hdr" style="padding:5px 12px;border-bottom:1px solid ${C.tdBorder};background:${C.ceHdr};cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none;" onclick="dvSecToggle(this)">
+      <span class="${typeCls}">${optType}</span>
+      <span style="font-size:.6rem;color:${C.ceHdrText};">${optRows.length} signals</span>
+      ${expiry?`<span style="font-size:.6rem;color:${C.cardOptExpiry};font-family:'JetBrains Mono',monospace;">${expiry}</span>`:''}
+      <span class="dv-toggle-icon" style="font-size:.6rem;color:${C.ceHdrText};margin-left:auto;">▶</span>
+    </div>
+    <div class="dv-acc-body" style="display:none;background:${C.tableBg};">
+    <div class="dv-flat-table-wrap" style="margin:0;">
+    <table style="table-layout:fixed;width:100%;min-width:620px;background:${C.tableBg};">
+      <colgroup><col style="width:80px;"><col style="width:100px;"><col style="width:155px;"><col style="width:80px;"><col style="width:80px;"><col style="width:80px;"><col></colgroup>
+      <thead><tr style="background:${C.thBg};">
+        <th style="color:${C.thText};">Strike</th><th style="color:${C.thText};">Expiry</th><th style="color:${C.thText};">Signal</th>
+        <th style="text-align:right;color:${C.thText};">LTP%</th><th style="text-align:right;color:${C.thText};">OI%</th>
+        <th style="text-align:right;color:${C.thText};">LTP</th><th style="color:${C.thText};">Seen In</th>
+      </tr></thead><tbody>`;
     for(const p of optRows){
       const isBull=p.dir==='BULL';
       const pCls=p.ltpChngPct>=0?'bull-c':'bear-c';
       const oiCls=p.oiChngPct>=0?'bull-c':'bear-c';
-      tableRows+=`<tr style="background:${C.tableBg};">
+      h+=`<tr style="background:${C.tableBg};">
         <td style="font-weight:700;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--gold);border-color:${C.tdBorder};">${p.strike||'&mdash;'}</td>
         <td style="font-size:.65rem;color:${C.tableText};font-family:'JetBrains Mono',monospace;border-color:${C.tdBorder};">${p.expiry||'&mdash;'}</td>
-        <td style="border-color:${C.tdBorder};"><span class="pill ${isBull?'bull':'bear'}" style="font-size:.6rem;">${p.signalType}</span></td>
+        <td style="border-color:${C.tdBorder};"><span class="pill ${isBull?'bull':'bear'} tooltip-wrap" style="font-size:.6rem;" data-tip="${isBull?'BULLISH (Tezi expected)':'BEARISH (Mandi expected)'}">${p.signalType} ${isBull?'🟢':'🔴'}</span></td>
         <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:.72rem;border-color:${C.tdBorder};"><span class="${pCls}">${p.ltpChngPct>=0?'+':''}${p.ltpChngPct.toFixed(2)}%</span></td>
         <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:.72rem;border-color:${C.tdBorder};"><span class="${oiCls}">${p.oiChngPct>=0?'+':''}${p.oiChngPct.toFixed(2)}%</span></td>
         <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:${C.tableText};border-color:${C.tdBorder};">&#8377;${p.ltp.toFixed(2)}</td>
         <td style="white-space:nowrap;border-color:${C.tdBorder};">${seenBadge(p)}<span style="display:inline-flex;gap:3px;flex-wrap:wrap;">${makeSeenChips(p)}</span>${makeStrengthBadge(p.sym)}</td>
       </tr>`;
     }
-
-    const tableHtml=`<div class="dv-flat-table-wrap" style="margin:0;">
-      <table style="table-layout:fixed;width:100%;min-width:620px;background:${C.tableBg};">
-        <colgroup><col style="width:80px;"><col style="width:100px;"><col style="width:155px;"><col style="width:80px;"><col style="width:80px;"><col style="width:80px;"><col></colgroup>
-        <thead><tr style="background:${C.thBg};">
-          <th style="color:${C.thText};">Strike</th>
-          <th style="color:${C.thText};">Expiry</th>
-          <th style="color:${C.thText};">Signal</th>
-          <th style="text-align:right;color:${C.thText};">LTP%</th>
-          <th style="text-align:right;color:${C.thText};">OI%</th>
-          <th style="text-align:right;color:${C.thText};">LTP</th>
-          <th style="color:${C.thText};">Seen In</th>
-        </tr></thead>
-        <tbody>${tableRows}</tbody>
-      </table>
-    </div>`;
-
-    /* ── .dv-acc-item wrapper for CE/PE ── */
-    return `<div class="dv-acc-item">
-      <div class="dv-acc-hdr"
-        style="padding:5px 12px;border-bottom:1px solid ${C.tdBorder};background:${C.ceHdr};
-               cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none;"
-        onclick="dvGroupAccToggle(this)">
-        <span class="${typeCls}">${optType}</span>
-        <span style="font-size:.6rem;color:${C.ceHdrText};">${optRows.length} signals</span>
-        ${expiry ? `<span style="font-size:.6rem;color:${C.cardOptExpiry};font-family:'JetBrains Mono',monospace;">${expiry}</span>` : ''}
-        <span class="dv-toggle-icon" style="font-size:.6rem;color:${C.ceHdrText};margin-left:auto;">▶</span>
-      </div>
-      <div class="dv-acc-body" style="display:none;background:${C.tableBg};">
-        ${tableHtml}
-      </div>
-    </div>`;
+    return h+'</tbody></table></div></div></div>';
   }
 
-  /* ══════════════════════════════════════════════════════
-     buildIndexSection — Level 1 accordion items (NIFTY, BANKNIFTY…)
-     Each index symbol is a .dv-acc-item;
-     inside, CE/PE are a .dv-acc-item-grp (Level 2 group)
-     ══════════════════════════════════════════════════════ */
   function buildIndexSection(rows){
     if(!rows.length) return '';
     const bySym={};
-    for(const p of rows){
-      if(!bySym[p.sym]) bySym[p.sym]={CE:[],PE:[]};
-      if(p.type==='CE') bySym[p.sym].CE.push(p);
-      else if(p.type==='PE') bySym[p.sym].PE.push(p);
-    }
-
-    let items='';
+    for(const p of rows){ if(!bySym[p.sym]) bySym[p.sym]={CE:[],PE:[]}; if(p.type==='CE') bySym[p.sym].CE.push(p); else if(p.type==='PE') bySym[p.sym].PE.push(p); }
+    let h=`<div class="dv-sec-label" style="margin:10px 0 6px;">&#128202; Index Options</div>`;
     for(const [sym,{CE,PE}] of Object.entries(bySym)){
-      const totalSigs=CE.length+PE.length;
-      items+=`<div class="dv-acc-item" style="background:${C.cardIdx};border:1px solid ${C.cardIdxBorder};border-left:4px solid ${C.cardIdxLeft};border-radius:8px;margin-bottom:8px;overflow:hidden;">
-        <div class="dv-acc-hdr"
-          style="padding:8px 12px;font-weight:700;font-size:.85rem;
-                 border-bottom:1px solid ${C.cardIdxBorder};
-                 color:${C.cardIdxHdrText};background:${C.cardIdxHdr};
-                 cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none;letter-spacing:.5px;"
-          onclick="dvGroupAccToggle(this)">
-          &#128208; ${sym}
-          <span style="font-size:.6rem;font-weight:500;color:${C.cardIdxHdrText};">${totalSigs} signals</span>
-          <span class="dv-toggle-icon" style="font-size:.65rem;color:${C.cardIdxHdrText};margin-left:auto;">▶</span>
+      h+=`<div class="dv-acc-item" style="background:${C.cardIdx};border:1px solid ${C.cardIdxBorder};border-left:4px solid ${C.cardIdxLeft};border-radius:8px;margin-bottom:8px;overflow:hidden;">
+        <div class="dv-acc-hdr" style="padding:8px 12px;font-weight:700;font-size:.85rem;border-bottom:1px solid ${C.cardIdxBorder};color:${C.cardIdxHdrText};background:${C.cardIdxHdr};letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;user-select:none;" onclick="dvSecToggle(this)">
+          <span>&#128208; ${sym}</span>
+          <span class="dv-toggle-icon" style="margin-left:auto;font-size:.7rem;">▶</span>
         </div>
-        <div class="dv-acc-body" style="display:none;">
-          <div class="dv-acc-item-grp">
-            ${makeOptRows(CE,'CE',sym)}
-            ${makeOptRows(PE,'PE',sym)}
-          </div>
+        <div class="dv-acc-body dv-acc-group" style="display:none;">
+          ${makeOptRows(CE,'CE',sym)}${makeOptRows(PE,'PE',sym)}
         </div>
       </div>`;
     }
-    return items;
+    return h;
   }
 
-  /* ══════════════════════════════════════════════════════
-     buildFutSection — Level 1 accordion item (Stock Futures)
-     ══════════════════════════════════════════════════════ */
   function buildFutSection(rows){
     if(!rows.length) return '';
     rows.sort((a,b)=>b.seenAt.size-a.seenAt.size||Math.abs(b.ltpChngPct)-Math.abs(a.ltpChngPct));
-
-    let tableRows='';
+    let h=`<div class="dv-sec-label" style="margin:10px 0 6px;color:${C.ceHdrText};">&#128200; Stock Futures</div>
+    <div class="dv-acc-item" style="background:${C.cardFut};border:1px solid ${C.cardFutBorder};border-left:4px solid ${C.cardFutLeft};border-radius:8px;margin-bottom:8px;overflow:hidden;">
+      <div class="dv-acc-hdr" style="padding:7px 12px;font-weight:700;font-size:.78rem;border-bottom:1px solid ${C.cardFutBorder};color:${C.cardFutHdrText};background:${C.cardFutHdr};cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none;" onclick="dvSecToggle(this)">
+        <span>&#9654; Futures</span>
+        <span style="font-size:.6rem;color:${C.ceHdrText};">${rows.length} symbols</span>
+        <span class="dv-toggle-icon" style="font-size:.6rem;color:${C.ceHdrText};margin-left:auto;">▶</span>
+      </div>
+      <div class="dv-acc-body" style="display:none;background:${C.tableBg};">
+      <div class="dv-flat-table-wrap"><table style="table-layout:fixed;width:100%;min-width:600px;background:${C.tableBg};">
+      <colgroup><col style="width:110px;"><col style="width:110px;"><col style="width:150px;"><col style="width:80px;"><col style="width:80px;"><col style="width:80px;"><col></colgroup>
+      <thead><tr style="background:${C.thBg};">
+        <th style="color:${C.thText};">Symbol</th><th style="color:${C.thText};">Expiry</th><th style="color:${C.thText};">Signal</th>
+        <th style="text-align:right;color:${C.thText};">LTP%</th><th style="text-align:right;color:${C.thText};">OI%</th>
+        <th style="text-align:right;color:${C.thText};">LTP</th><th style="color:${C.thText};">Seen In</th>
+      </tr></thead><tbody>`;
     for(const p of rows){
       const isStrong=!!strongMap[p.sym];
       const isBull=p.dir==='BULL';
       const pCls=p.ltpChngPct>=0?'bull-c':'bear-c';
       const oiCls=p.oiChngPct>=0?'bull-c':'bear-c';
-      tableRows+=`<tr style="background:${C.tableBg};">
-        <td style="font-weight:700;font-size:.75rem;white-space:nowrap;color:${C.tableText};border-color:${C.tdBorder};">${p.sym}${isStrong?'<span class="strong-fire"> &#128293;</span>':''}</td>
-        <td style="font-size:.65rem;color:var(--gold);font-family:'JetBrains Mono',monospace;border-color:${C.tdBorder};">${p.expiry||'&mdash;'}</td>
-        <td style="border-color:${C.tdBorder};"><span class="pill ${isBull?'bull':'bear'}" style="font-size:.6rem;">${p.signalType}</span></td>
-        <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:.72rem;border-color:${C.tdBorder};"><span class="${pCls}">${p.ltpChngPct>=0?'+':''}${p.ltpChngPct.toFixed(2)}%</span></td>
-        <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:.72rem;border-color:${C.tdBorder};"><span class="${oiCls}">${p.oiChngPct>=0?'+':''}${p.oiChngPct.toFixed(2)}%</span></td>
-        <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:${C.tableText};border-color:${C.tdBorder};">&#8377;${p.ltp.toFixed(2)}</td>
-        <td style="white-space:nowrap;border-color:${C.tdBorder};">${seenBadge(p)}<span style="display:inline-flex;gap:3px;flex-wrap:wrap;">${makeSeenChips(p)}</span>${makeStrengthBadge(p.sym)}</td>
-      </tr>`;
+      h+=`<tr style="background:${C.tableBg};"><td style="font-weight:700;font-size:.75rem;white-space:nowrap;color:${C.tableText};border-color:${C.tdBorder};">${p.sym}${isStrong?'<span class="strong-fire"> &#128293;</span>':''}</td><td style="font-size:.65rem;color:var(--gold);font-family:'JetBrains Mono',monospace;border-color:${C.tdBorder};">${p.expiry||'&mdash;'}</td><td style="border-color:${C.tdBorder};"><span class="pill ${isBull?'bull':'bear'}" style="font-size:.6rem;">${p.signalType}</span></td><td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:.72rem;border-color:${C.tdBorder};"><span class="${pCls}">${p.ltpChngPct>=0?'+':''}${p.ltpChngPct.toFixed(2)}%</span></td><td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:.72rem;border-color:${C.tdBorder};"><span class="${oiCls}">${p.oiChngPct>=0?'+':''}${p.oiChngPct.toFixed(2)}%</span></td><td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:${C.tableText};border-color:${C.tdBorder};">&#8377;${p.ltp.toFixed(2)}</td><td style="white-space:nowrap;border-color:${C.tdBorder};">${seenBadge(p)}<span style="display:inline-flex;gap:3px;flex-wrap:wrap;">${makeSeenChips(p)}</span>${makeStrengthBadge(p.sym)}</td></tr>`;
     }
-
-    const tableHtml=`<div class="dv-flat-table-wrap">
-      <table style="table-layout:fixed;width:100%;min-width:600px;background:${C.tableBg};">
-        <colgroup><col style="width:110px;"><col style="width:110px;"><col style="width:150px;"><col style="width:80px;"><col style="width:80px;"><col style="width:80px;"><col></colgroup>
-        <thead><tr style="background:${C.thBg};">
-          <th style="color:${C.thText};">Symbol</th>
-          <th style="color:${C.thText};">Expiry</th>
-          <th style="color:${C.thText};">Signal</th>
-          <th style="text-align:right;color:${C.thText};">LTP%</th>
-          <th style="text-align:right;color:${C.thText};">OI%</th>
-          <th style="text-align:right;color:${C.thText};">LTP</th>
-          <th style="color:${C.thText};">Seen In</th>
-        </tr></thead>
-        <tbody>${tableRows}</tbody>
-      </table>
-    </div>`;
-
-    return `<div class="dv-acc-item" style="background:${C.cardFut};border:1px solid ${C.cardFutBorder};border-left:4px solid ${C.cardFutLeft};border-radius:8px;margin-bottom:8px;overflow:hidden;">
-      <div class="dv-acc-hdr"
-        style="padding:7px 12px;font-weight:700;font-size:.78rem;
-               border-bottom:1px solid ${C.cardFutBorder};
-               color:${C.cardFutHdrText};background:${C.cardFutHdr};
-               cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none;"
-        onclick="dvGroupAccToggle(this)">
-        <span>&#9654; Stock Futures</span>
-        <span style="font-size:.6rem;color:${C.ceHdrText};">${rows.length} symbols</span>
-        <span class="dv-toggle-icon" style="font-size:.65rem;color:${C.cardFutHdrText};margin-left:auto;">▶</span>
-      </div>
-      <div class="dv-acc-body" style="display:none;background:${C.tableBg};">
-        ${tableHtml}
-      </div>
-    </div>`;
+    return h+'</tbody></table></div></div></div>';
   }
 
-  /* ══════════════════════════════════════════════════════
-     buildStockOptSection — Level 1 accordion item (Stock Options outer)
-     Inside: each symbol = Level 2 accordion item
-     Inside each symbol: CE/PE = Level 3 accordion items
-     ══════════════════════════════════════════════════════ */
   function buildStockOptSection(rows){
     if(!rows.length) return '';
     const bySym={};
-    for(const p of rows){
-      if(!bySym[p.sym]) bySym[p.sym]={CE:[],PE:[]};
-      if(p.type==='CE') bySym[p.sym].CE.push(p);
-      else if(p.type==='PE') bySym[p.sym].PE.push(p);
-    }
+    for(const p of rows){ if(!bySym[p.sym]) bySym[p.sym]={CE:[],PE:[]}; if(p.type==='CE') bySym[p.sym].CE.push(p); else if(p.type==='PE') bySym[p.sym].PE.push(p); }
     const symCount=Object.keys(bySym).length;
-
-    /* Level 2: each symbol is a .dv-acc-item inside a .dv-acc-item-grp */
-    let symbolItems='';
+    let inner='';
     for(const [sym,{CE,PE}] of Object.entries(bySym)){
       const isStrong=!!strongMap[sym];
       const expiry=CE[0]?.expiry||PE[0]?.expiry||'';
-
-      symbolItems+=`<div class="dv-acc-item"
-        style="background:${C.cardOpt};border:1px solid ${C.cardOptBorder};
-               border-left:4px solid ${C.cardOptLeft};border-radius:8px;
-               margin-bottom:8px;overflow:hidden;">
-        <div class="dv-acc-hdr"
-          style="padding:7px 12px;font-weight:700;font-size:.78rem;
-                 border-bottom:1px solid ${C.cardOptBorder};
-                 color:${C.cardOptHdrText};background:${C.cardOptHdr};
-                 cursor:pointer;display:flex;align-items:center;gap:6px;
-                 user-select:none;flex-wrap:wrap;"
-          onclick="dvGroupAccToggle(this)">
-          ${sym}${isStrong?'<span class="strong-fire"> &#128293;</span>':''}
-          ${makeStrengthBadge(sym)}
-          ${expiry?`<span style="font-size:.62rem;color:${C.cardOptExpiry};font-weight:500;font-family:'JetBrains Mono',monospace;">${expiry}</span>`:''}
-          <span class="dv-toggle-icon" style="font-size:.65rem;color:${C.cardOptHdrText};margin-left:auto;">▶</span>
+      inner+=`<div class="dv-acc-item" style="background:${C.cardOpt};border:1px solid ${C.cardOptBorder};border-left:4px solid ${C.cardOptLeft};border-radius:8px;margin-bottom:8px;overflow:hidden;">
+        <div class="dv-acc-hdr" style="padding:7px 12px;font-weight:700;font-size:.78rem;border-bottom:1px solid ${C.cardOptBorder};color:${C.cardOptHdrText};background:${C.cardOptHdr};cursor:pointer;display:flex;align-items:center;user-select:none;" onclick="dvSecToggle(this)">
+          <span>${sym}${isStrong?'<span class="strong-fire"> &#128293;</span>':''}${makeStrengthBadge(sym)}</span>
+          ${expiry?`<span style="font-size:.62rem;color:${C.cardOptExpiry};font-weight:500;margin-left:8px;font-family:'JetBrains Mono',monospace;">${expiry}</span>`:''}
+          <span class="dv-toggle-icon" style="margin-left:auto;font-size:.7rem;color:${C.ceHdrText};">▶</span>
         </div>
-        <div class="dv-acc-body" style="display:none;">
-          <div class="dv-acc-item-grp">
-            ${makeOptRows(CE,'CE',sym)}
-            ${makeOptRows(PE,'PE',sym)}
-          </div>
+        <div class="dv-acc-body dv-acc-group" style="display:none;">
+          ${makeOptRows(CE,'CE',sym)}${makeOptRows(PE,'PE',sym)}
         </div>
       </div>`;
     }
-
-    /* Level 1: Stock Options outer item */
-    return `<div class="dv-acc-item"
-      style="background:${C.cardOpt};border:1px solid ${C.cardOptBorder};
-             border-left:4px solid ${C.cardOptLeft};border-radius:8px;
-             margin-bottom:8px;overflow:hidden;">
-      <div class="dv-acc-hdr"
-        style="padding:7px 12px;font-weight:700;font-size:.78rem;
-               border-bottom:1px solid ${C.cardOptBorder};
-               color:${C.cardOptHdrText};background:${C.cardOptHdr};
-               cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none;"
-        onclick="dvGroupAccToggle(this)">
+    return `<div class="dv-sec-label" style="margin:10px 0 6px;">&#128203; Stock Options</div>
+    <div class="dv-acc-item" style="background:${C.cardOpt};border:1px solid ${C.cardOptBorder};border-left:4px solid ${C.cardOptLeft};border-radius:8px;margin-bottom:8px;overflow:hidden;">
+      <div class="dv-acc-hdr" style="padding:7px 12px;font-weight:700;font-size:.78rem;border-bottom:1px solid ${C.cardOptBorder};color:${C.cardOptHdrText};background:${C.cardOptHdr};cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none;" onclick="dvSecToggle(this)">
         <span>&#9654; Stock Options</span>
         <span style="font-size:.6rem;color:${C.ceHdrText};">${symCount} symbols</span>
-        <span class="dv-toggle-icon" style="font-size:.65rem;color:${C.cardOptHdrText};margin-left:auto;">▶</span>
+        <span class="dv-toggle-icon" style="font-size:.6rem;color:${C.ceHdrText};margin-left:auto;">▶</span>
       </div>
-      <div class="dv-acc-body" style="display:none;padding:8px;background:${C.tableBg};">
-        <div class="dv-acc-item-grp">
-          ${symbolItems}
-        </div>
+      <div class="dv-acc-body dv-acc-group" style="display:none;background:${C.tableBg};padding:8px;">
+        ${inner}
       </div>
     </div>`;
   }
 
-  /* ── Final HTML: sticky header + top-level .dv-acc-item-grp ── */
   return `<div style="padding:0;background:${C.wrap};color:${C.wrapText};">
     <div style="position:sticky;top:0;z-index:10;background:${C.stickyBg};border-bottom:2px solid #a855f7;padding:7px 14px;display:flex;align-items:center;gap:10px;">
       <span style="font-size:.75rem;font-weight:700;color:#a855f7;">🕐 ${r.timeStr12||''}</span>
       <span style="font-size:.65rem;color:${C.stickyText};">${r.savedAt?new Date(r.savedAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):''}</span>
       <span style="font-size:.62rem;color:${C.stickyText};margin-left:4px;">· ${r.bullCount||0} Bull · ${r.bearCount||0} Bear</span>
     </div>
-    <div style="padding:10px 12px;background:${C.wrap};">
-      <div class="dv-acc-item-grp">
-        ${buildIndexSection(idxOpt)}
-        ${buildFutSection(stockFut)}
-        ${buildStockOptSection(stockOpt)}
-      </div>
-    </div>
+    <div style="padding:10px 12px;background:${C.wrap};" class="dv-acc-group">${buildIndexSection(idxOpt)}${buildFutSection(stockFut)}${buildStockOptSection(stockOpt)}</div>
   </div>`;
 }
 
-/* ── dvToggle — scan timeline expand/collapse ── */
+/* ── dvSecToggle — accordion: ek expand to dusra collapse ── */
+function dvSecToggle(hdr){
+  const item = hdr.parentElement;
+  const group = item.parentElement;
+  
+  if(!group || !item.classList.contains('dv-acc-item')) {
+    // Fallback if structure doesn't match perfectly
+    const bodyFallback = hdr.nextElementSibling;
+    if(bodyFallback) {
+      const isOp = bodyFallback.style.display !== 'none';
+      if(isOp) bodyFallback.style.display = 'none';
+      else bodyFallback.style.display = '';
+      const ic = hdr.querySelector('.dv-toggle-icon');
+      if(ic) ic.textContent = isOp ? '▶' : '▼';
+    }
+    return;
+  }
+  
+  const body = hdr.nextElementSibling;
+  const isOpen = body && body.style.display !== 'none';
+
+  // Close all siblings
+  const siblings = group.children;
+  for(let i=0; i<siblings.length; i++){
+    const siblingItem = siblings[i];
+    if(siblingItem.classList.contains('dv-acc-item')){
+      const h = siblingItem.querySelector(':scope > .dv-acc-hdr, .dv-acc-hdr'); // Direct child prefer
+      const b = h ? h.nextElementSibling : null;
+      if(b && b.classList.contains('dv-acc-body')){
+        b.style.display = 'none';
+      }
+      if(h){
+        const ic = h.querySelector('.dv-toggle-icon');
+        if(ic) ic.textContent = '▶';
+      }
+    }
+  }
+
+  // Khola nahi tha, to kholo
+  if(!isOpen && body){
+    body.style.display = '';
+    const ic = hdr.querySelector('.dv-toggle-icon');
+    if(ic) ic.textContent = '▼';
+  }
+}
+
+/* ── dvToggle ── */
 function dvToggle(uid){
   const item=document.getElementById(uid);
   const det=document.getElementById(uid+'_det');
