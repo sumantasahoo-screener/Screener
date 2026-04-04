@@ -103,9 +103,9 @@
         .card-expand { font-size: 9px; color: rgba(255,255,255,0.75); font-weight: 700; letter-spacing: 0.03em; margin-top: 6px; }
         .card-split { display: none; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px; gap: 6px; }
         .card-split.open { display: flex; }
-        .card-split-pill { flex: 1; background: rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 6px; text-align: center; }
+        .card-split-pill { flex: 1; background: rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 6px; text-align: center; min-width: 0; }
         .card-split-label { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.8); text-transform: uppercase; }
-        .card-split-val { font-size: 12px; font-weight: 900; margin-top: 3px; }
+        .card-split-val { font-size: 11px; font-weight: 900; margin-top: 3px; word-break: break-word; line-height: 1.3; }
         .card-split-val.cr { color: #86efac; }
         .card-split-val.dr { color: #fca5a5; }
         .taxes-total-card {
@@ -207,10 +207,15 @@
         </div>
 
         <div id="results" class="hidden">
+            <div class="mini-card" style="margin-bottom: 15px;">
+                <span class="label">Client</span>
+                <span id="acc-name" class="value" style="font-size:15px; color:#4338ca;">-</span>
+                <span id="acc-ucc" style="font-size:11px; font-weight:600; color:#94a3b8; display:block; margin-top:2px;">-</span>
+            </div>
             <div class="grid-2">
                 <div class="mini-card">
                     <span class="label">Client ID</span>
-                    <span id="acc-ucc" class="value">-</span>
+                    <span id="acc-ucc2" class="value">-</span>
                 </div>
                 <div class="mini-card">
                     <span class="label">Trade Date</span>
@@ -407,6 +412,8 @@
             split.classList.toggle('open');
             toggle.textContent = isOpen ? '▼ TAP TO SPLIT' : '▲ COLLAPSE';
         }
+
+        function toggleSummary() {
             const split = document.getElementById('summary-split');
             const toggle = document.getElementById('summary-toggle');
             const isOpen = split.classList.contains('open');
@@ -509,8 +516,18 @@
                 };
 
                 // ── Basic info ──
-                document.getElementById('acc-ucc').textContent = extractBasic(/(?:UCC|Client code):\s*([A-Z0-9]+)/i);
-                document.getElementById('acc-date').textContent = extractBasic(/Trade Date:\s*([\d-]+)/i);
+                const ucc = extractBasic(/(?:UCC|Client code):\s*([A-Z0-9]+)/i);
+                const date = extractBasic(/Trade Date:\s*([\d-]+)/i);
+
+                // Client name — appears as a standalone line in uppercase before the address block
+                // Dhan format: name appears right after "CONTRACT NOTE" heading or as first bold line
+                const nameMatch = fullText.match(/(?:Dear Sir|PAN:.*?UCC:.*?\n|Contract Note No[^]*?)\n\s*([A-Z][A-Z\s]{5,50})\s*\n/);
+                const clientName = nameMatch ? nameMatch[1].trim() : extractBasic(/^([A-Z][A-Z\s]{5,40})(?:\n|Address)/m, "-");
+
+                document.getElementById('acc-name').textContent = clientName !== "N/A" ? clientName : ucc;
+                document.getElementById('acc-ucc').textContent  = `UCC: ${ucc}`;
+                document.getElementById('acc-ucc2').textContent = ucc;
+                document.getElementById('acc-date').textContent = date;
 
                 // ── Scrip / trade counts ──
                 // Equity: unique ISINs
