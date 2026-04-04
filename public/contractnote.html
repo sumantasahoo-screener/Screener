@@ -87,8 +87,9 @@
         .summary-label { font-size: 10px; font-weight: bold; color: #4f46e5; text-transform: uppercase; }
         .summary-value { font-size: 22px; font-weight: 900; color: #312e81; }
         
-        .main-totals { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        
+        .main-totals { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .taxes-total-row { margin-bottom: 20px; }
+
         .total-card { 
             padding: 15px 10px; 
             border-radius: 16px; 
@@ -98,6 +99,15 @@
         }
         .gross-card { background: linear-gradient(135deg, #10b981, #059669); }
         .net-card { background: linear-gradient(135deg, #3b82f6, #4338ca); }
+        .taxes-total-card {
+            background: linear-gradient(135deg, #f97316, #dc2626);
+            padding: 15px 10px;
+            border-radius: 16px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            width: 100%;
+        }
         
         .total-label { font-size: 10px; font-weight: bold; text-transform: uppercase; opacity: 0.9; }
         .total-value { font-size: 18px; font-weight: 900; margin-top: 5px; }
@@ -121,7 +131,43 @@
         .pink .charge-val { color: #be185d; }
         .purple .charge-val { color: #7e22ce; }
         .cyan .charge-val { color: #0e7490; }
-        
+
+        .charge-card { cursor: pointer; }
+        .expand-toggle { font-size: 9px; color: #94a3b8; margin-top: 6px; display: block; font-weight: 600; letter-spacing: 0.03em; }
+        .segment-split { display: none; margin-top: 8px; border-top: 1px dashed #e2e8f0; padding-top: 8px; }
+        .segment-split.open { display: block; }
+        .seg-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .seg-label { font-size: 10px; font-weight: 700; color: #64748b; }
+        .seg-val { font-size: 11px; font-weight: 800; }
+        .seg-eq { color: #0369a1; }
+        .seg-fo { color: #7c3aed; }
+
+        .summary-card { background: #e0e7ff; padding: 15px; border-radius: 16px; margin-bottom: 15px; cursor: pointer; }
+        .summary-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .summary-seg-row { display: flex; gap: 8px; }
+        .seg-pill { flex: 1; background: white; border-radius: 10px; padding: 8px 10px; text-align: center; }
+        .seg-pill-label { font-size: 9px; font-weight: 700; color: #6366f1; text-transform: uppercase; }
+        .seg-pill-val { font-size: 16px; font-weight: 900; color: #312e81; margin-top: 2px; }
+        .seg-pill-sub { font-size: 9px; color: #94a3b8; font-weight: 600; }
+        .summary-expand { font-size: 9px; color: #6366f1; font-weight: 700; letter-spacing: 0.03em; text-align: center; margin-top: 10px; }
+        .summary-split { display: none; margin-top: 10px; border-top: 1px dashed #c7d2fe; padding-top: 10px; }
+        .summary-split.open { display: block; }
+        .summary-split-row { display: flex; gap: 8px; }
+        .summary-split-pill { flex: 1; background: white; border-radius: 10px; padding: 8px 10px; }
+        .summary-split-pill-label { font-size: 9px; font-weight: 700; text-transform: uppercase; }
+        .summary-split-pill-label.eq { color: #0369a1; }
+        .summary-split-pill-label.fo { color: #7c3aed; }
+        .summary-split-pill-val { font-size: 13px; font-weight: 900; color: #0f172a; margin-top: 2px; }
+        .summary-split-pill-sub { font-size: 9px; color: #94a3b8; font-weight: 600; }
+
+        .taxes-total-card { background: linear-gradient(135deg, #f97316, #dc2626); padding: 15px 10px; border-radius: 16px; text-align: center; color: white; box-shadow: 0 8px 15px rgba(0,0,0,0.1); width: 100%; cursor: pointer; }
+        .taxes-expand { font-size: 9px; color: rgba(255,255,255,0.8); font-weight: 700; letter-spacing: 0.03em; margin-top: 6px; }
+        .taxes-split { display: none; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px; }
+        .taxes-split.open { display: flex; gap: 8px; }
+        .taxes-split-pill { flex: 1; background: rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 10px; text-align: center; }
+        .taxes-split-label { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.85); text-transform: uppercase; }
+        .taxes-split-val { font-size: 14px; font-weight: 900; color: white; margin-top: 3px; }
+
         .footer-note { font-size: 10px; color: #94a3b8; text-align: center; margin-top: 15px; font-weight: 500; }
         .hidden { display: none !important; }
         
@@ -163,54 +209,143 @@
                 </div>
             </div>
 
-            <div class="summary-card">
-                <div>
-                    <div class="summary-label">Scrips/Contracts</div>
-                    <div id="scrip-count" class="summary-value">-</div>
+            <div class="summary-card" onclick="toggleSummary()">
+                <div class="summary-top">
+                    <div>
+                        <div class="summary-label">Total Trades</div>
+                        <div id="trade-count" class="summary-value">-</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div class="summary-label">Segments</div>
+                        <div id="seg-label" class="summary-value" style="font-size:14px; margin-top:4px;">-</div>
+                    </div>
                 </div>
-                <div style="text-align: right;">
-                    <div class="summary-label">Est. Turnover</div>
-                    <div id="turnover-val" class="summary-value">-</div>
+                <div class="summary-seg-row">
+                    <div class="seg-pill">
+                        <div class="seg-pill-label">Equity Scrips</div>
+                        <div id="eq-scrip-count" class="seg-pill-val">-</div>
+                        <div id="eq-trade-count" class="seg-pill-sub">- trades</div>
+                    </div>
+                    <div class="seg-pill">
+                        <div class="seg-pill-label">F&amp;O Contracts</div>
+                        <div id="fo-scrip-count" class="seg-pill-val">-</div>
+                        <div id="fo-trade-count" class="seg-pill-sub">- trades</div>
+                    </div>
+                </div>
+                <div id="summary-toggle" class="summary-expand">▼ TAP FOR SEGMENT DETAIL</div>
+                <div id="summary-split" class="summary-split">
+                    <div class="summary-split-row">
+                        <div class="summary-split-pill">
+                            <div class="summary-split-pill-label eq">Equity</div>
+                            <div id="eq-gross" class="summary-split-pill-val">-</div>
+                            <div class="summary-split-pill-sub">Gross P&amp;L</div>
+                        </div>
+                        <div class="summary-split-pill">
+                            <div class="summary-split-pill-label fo">F&amp;O</div>
+                            <div id="fo-gross" class="summary-split-pill-val">-</div>
+                            <div class="summary-split-pill-sub">Gross P&amp;L</div>
+                        </div>
+                    </div>
+                    <div class="summary-split-row" style="margin-top:6px;">
+                        <div class="summary-split-pill">
+                            <div class="summary-split-pill-label eq">Equity</div>
+                            <div id="eq-net" class="summary-split-pill-val">-</div>
+                            <div class="summary-split-pill-sub">Net P&amp;L</div>
+                        </div>
+                        <div class="summary-split-pill">
+                            <div class="summary-split-pill-label fo">F&amp;O</div>
+                            <div id="fo-net" class="summary-split-pill-val">-</div>
+                            <div class="summary-split-pill-sub">Net P&amp;L</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="main-totals">
                 <div class="total-card gross-card">
-                    <div class="total-label">Gross obligation</div>
+                    <div class="total-label">Gross P&amp;L</div>
                     <div id="gross-val" class="total-value">₹ 0.00</div>
                 </div>
                 <div class="total-card net-card">
-                    <div class="total-label">Net Amount</div>
+                    <div class="total-label">Net P&amp;L</div>
                     <div id="net-val" class="total-value">₹ 0.00</div>
+                </div>
+            </div>
+
+            <div class="taxes-total-row">
+                <div class="taxes-total-card" onclick="toggleTaxes()">
+                    <div class="total-label">Total Taxes &amp; Charges</div>
+                    <div id="taxes-total-val" class="total-value">₹ 0.00</div>
+                    <div id="taxes-toggle" class="taxes-expand">▼ TAP FOR SEGMENT SPLIT</div>
+                    <div id="taxes-split" class="taxes-split">
+                        <div class="taxes-split-pill">
+                            <div class="taxes-split-label">Equity Charges</div>
+                            <div id="taxes-eq" class="taxes-split-val">₹ 0.00</div>
+                        </div>
+                        <div class="taxes-split-pill">
+                            <div class="taxes-split-label">F&amp;O Charges</div>
+                            <div id="taxes-fo" class="taxes-split-val">₹ 0.00</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="section-title">Taxes & Charges Breakdown (Totals)</div>
 
             <div class="charges-grid">
-                <div class="charge-card red">
+                <div class="charge-card red" onclick="toggleSplit(this)">
                     <span class="label">Brokerage</span>
                     <div id="brokerage-val" class="charge-val">₹ 0.00</div>
+                    <span class="expand-toggle">▼ TAP TO SPLIT</span>
+                    <div class="segment-split">
+                        <div class="seg-row"><span class="seg-label">Equity</span><span class="seg-val seg-eq" id="brok-eq">₹ 0.00</span></div>
+                        <div class="seg-row"><span class="seg-label">F&amp;O</span><span class="seg-val seg-fo" id="brok-fo">₹ 0.00</span></div>
+                    </div>
                 </div>
-                <div class="charge-card orange">
+                <div class="charge-card orange" onclick="toggleSplit(this)">
                     <span class="label">STT</span>
                     <div id="stt-val" class="charge-val">₹ 0.00</div>
+                    <span class="expand-toggle">▼ TAP TO SPLIT</span>
+                    <div class="segment-split">
+                        <div class="seg-row"><span class="seg-label">Equity</span><span class="seg-val seg-eq" id="stt-eq">₹ 0.00</span></div>
+                        <div class="seg-row"><span class="seg-label">F&amp;O</span><span class="seg-val seg-fo" id="stt-fo">₹ 0.00</span></div>
+                    </div>
                 </div>
-                <div class="charge-card amber">
+                <div class="charge-card amber" onclick="toggleSplit(this)">
                     <span class="label">Exchange Chg</span>
                     <div id="exch-val" class="charge-val">₹ 0.00</div>
+                    <span class="expand-toggle">▼ TAP TO SPLIT</span>
+                    <div class="segment-split">
+                        <div class="seg-row"><span class="seg-label">Equity</span><span class="seg-val seg-eq" id="exch-eq">₹ 0.00</span></div>
+                        <div class="seg-row"><span class="seg-label">F&amp;O</span><span class="seg-val seg-fo" id="exch-fo">₹ 0.00</span></div>
+                    </div>
                 </div>
-                <div class="charge-card pink">
-                    <span class="label">GST</span>
+                <div class="charge-card pink" onclick="toggleSplit(this)">
+                    <span class="label">GST / IGST</span>
                     <div id="gst-val" class="charge-val">₹ 0.00</div>
+                    <span class="expand-toggle">▼ TAP TO SPLIT</span>
+                    <div class="segment-split">
+                        <div class="seg-row"><span class="seg-label">Equity</span><span class="seg-val seg-eq" id="gst-eq">₹ 0.00</span></div>
+                        <div class="seg-row"><span class="seg-label">F&amp;O</span><span class="seg-val seg-fo" id="gst-fo">₹ 0.00</span></div>
+                    </div>
                 </div>
-                <div class="charge-card purple">
+                <div class="charge-card purple" onclick="toggleSplit(this)">
                     <span class="label">Stamp Duty</span>
                     <div id="stamp-val" class="charge-val">₹ 0.00</div>
+                    <span class="expand-toggle">▼ TAP TO SPLIT</span>
+                    <div class="segment-split">
+                        <div class="seg-row"><span class="seg-label">Equity</span><span class="seg-val seg-eq" id="stamp-eq">₹ 0.00</span></div>
+                        <div class="seg-row"><span class="seg-label">F&amp;O</span><span class="seg-val seg-fo" id="stamp-fo">₹ 0.00</span></div>
+                    </div>
                 </div>
-                <div class="charge-card cyan">
+                <div class="charge-card cyan" onclick="toggleSplit(this)">
                     <span class="label">SEBI Fees</span>
                     <div id="sebi-val" class="charge-val">₹ 0.00</div>
+                    <span class="expand-toggle">▼ TAP TO SPLIT</span>
+                    <div class="segment-split">
+                        <div class="seg-row"><span class="seg-label">Equity</span><span class="seg-val seg-eq" id="sebi-eq">₹ 0.00</span></div>
+                        <div class="seg-row"><span class="seg-label">F&amp;O</span><span class="seg-val seg-fo" id="sebi-fo">₹ 0.00</span></div>
+                    </div>
                 </div>
             </div>
             
@@ -226,6 +361,30 @@
         const resultsDiv = document.getElementById('results');
         const loadingDiv = document.getElementById('loading');
 
+        function toggleSplit(card) {
+            const split = card.querySelector('.segment-split');
+            const toggle = card.querySelector('.expand-toggle');
+            const isOpen = split.classList.contains('open');
+            split.classList.toggle('open');
+            toggle.textContent = isOpen ? '▼ TAP TO SPLIT' : '▲ COLLAPSE';
+        }
+
+        function toggleSummary() {
+            const split = document.getElementById('summary-split');
+            const toggle = document.getElementById('summary-toggle');
+            const isOpen = split.classList.contains('open');
+            split.classList.toggle('open');
+            toggle.textContent = isOpen ? '▼ TAP FOR SEGMENT DETAIL' : '▲ COLLAPSE';
+        }
+
+        function toggleTaxes() {
+            const split = document.getElementById('taxes-split');
+            const toggle = document.getElementById('taxes-toggle');
+            const isOpen = split.classList.contains('open');
+            split.classList.toggle('open');
+            toggle.textContent = isOpen ? '▼ TAP FOR SEGMENT SPLIT' : '▲ COLLAPSE';
+        }
+
         fileUpload.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -233,48 +392,27 @@
             fileNameDisplay.textContent = file.name;
             
             const password = prompt("Enter PDF password (Usually your PAN in ALL CAPS):");
-            if (password === null) {
-                fileNameDisplay.textContent = "Upload cancelled.";
-                return;
-            }
+            if (password === null) { fileNameDisplay.textContent = "Upload cancelled."; return; }
 
             resultsDiv.classList.add('hidden');
             loadingDiv.classList.remove('hidden');
 
             try {
                 const arrayBuffer = await file.arrayBuffer();
-                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, password: password });
-                const pdf = await loadingTask.promise;
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer, password: password }).promise;
                 
                 let fullText = "";
-                
                 for (let i = 1; i <= pdf.numPages; i++) {
                     const page = await pdf.getPage(i);
                     const textContent = await page.getTextContent();
-                    
-                    let items = textContent.items.map(item => ({
-                        str: item.str,
-                        x: item.transform[4],
-                        y: item.transform[5]
-                    }));
-
-                    items.sort((a, b) => {
-                        if (Math.abs(a.y - b.y) > 12) {
-                            return b.y - a.y; 
-                        }
-                        return a.x - b.x; 
-                    });
-
-                    let pageText = "";
-                    let lastY = -1;
+                    let items = textContent.items.map(item => ({ str: item.str, x: item.transform[4], y: item.transform[5] }));
+                    items.sort((a, b) => Math.abs(a.y - b.y) > 12 ? b.y - a.y : a.x - b.x);
+                    let pageText = "", lastY = -1;
                     items.forEach(item => {
-                        if (lastY !== -1 && Math.abs(lastY - item.y) > 12) {
-                            pageText += "\n";
-                        }
+                        if (lastY !== -1 && Math.abs(lastY - item.y) > 12) pageText += "\n";
                         pageText += item.str.trim() + " ";
                         lastY = item.y;
                     });
-                    
                     fullText += pageText + "\n";
                 }
 
@@ -283,80 +421,158 @@
                     return match ? match[1].trim() : fallback;
                 };
 
-                const extractTotalAmount = (keyword) => {
-                    const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                    
-                    const lineRegex = new RegExp(escapedKeyword + "([^\\n]*)", "i");
-                    const lineMatch = fullText.match(lineRegex);
-                    if (lineMatch) {
-                        const amounts = lineMatch[1].match(/[\d,]+\.\d{2}\s*(?:CR|DR)?/gi);
-                        if (amounts && amounts.length > 0) {
-                            let val = amounts[amounts.length - 1].trim();
-                            if (val !== "0.00" && val !== "0.00 CR" && val !== "0.00 DR") {
-                                return val;
-                            }
-                        }
-                    }
-                    
-                    const blockRegex = new RegExp(escapedKeyword + "([\\s\\S]{1,180}?)(?:Taxable|IGST|CGST|SGST|Stamp|Securities|Net Amount|Ledger|Total Amount|$)", "i");
-                    const blockMatch = fullText.match(blockRegex);
-                    if (blockMatch) {
-                        const amounts = blockMatch[1].match(/[\d,]+\.\d{2}\s*(?:CR|DR)?/gi);
-                        if (amounts && amounts.length > 0) {
-                            return amounts[amounts.length - 1].trim();
-                        }
+                // Extract a value from a row — returns last amount on matching line
+                const extractLine = (keyword) => {
+                    const esc = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const m = fullText.match(new RegExp(esc + "([^\\n]*)", "i"));
+                    if (m) {
+                        const amounts = m[1].match(/[\d,]+\.\d{2}\s*(?:CR|DR)?/gi);
+                        if (amounts && amounts.length > 0) return amounts[amounts.length - 1].trim();
                     }
                     return "0.00";
                 };
 
-                const getVal = (str) => parseFloat((str || "0").replace(/[^\d.]/g, '')) || 0;
-                const formatDisplay = (val) => val && val !== "0.00" ? `₹ ${val}` : "₹ 0.00";
+                // Extract NCLCM (Equity) and NCLFO (F&O) columns from obligation table
+                // Each row has: Description | NCLCM value | NCLFO value | Total value
+                const extractSegmentRow = (keyword) => {
+                    const esc = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const m = fullText.match(new RegExp(esc + "([^\\n]*)", "i"));
+                    if (m) {
+                        const amounts = m[1].match(/[\d,]+\.\d{2}\s*(?:CR|DR)?/gi);
+                        if (amounts && amounts.length >= 3) {
+                            return { eq: amounts[0].trim(), fo: amounts[1].trim(), total: amounts[2].trim() };
+                        } else if (amounts && amounts.length === 2) {
+                            return { eq: amounts[0].trim(), fo: "0.00", total: amounts[1].trim() };
+                        } else if (amounts && amounts.length === 1) {
+                            return { eq: amounts[0].trim(), fo: "0.00", total: amounts[0].trim() };
+                        }
+                    }
+                    return { eq: "0.00", fo: "0.00", total: "0.00" };
+                };
 
+                const getVal = (str) => parseFloat((str || "0").replace(/[^\d.]/g, '')) || 0;
+                const fmt = (val) => {
+                    if (!val || val === "0.00") return "₹ 0.00";
+                    const num = getVal(val);
+                    const suffix = val.toUpperCase().includes("DR") ? " DR" : val.toUpperCase().includes("CR") ? " CR" : "";
+                    return `₹ ${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${suffix}`;
+                };
+                const fmtSeg = (val) => {
+                    if (!val || val === "0.00") return "₹ 0.00";
+                    const num = getVal(val);
+                    return `₹ ${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                };
+
+                // ── Basic info ──
                 document.getElementById('acc-ucc').textContent = extractBasic(/(?:UCC|Client code):\s*([A-Z0-9]+)/i);
                 document.getElementById('acc-date').textContent = extractBasic(/Trade Date:\s*([\d-]+)/i);
 
+                // ── Scrip / trade counts ──
+                // Equity: unique ISINs
                 const isins = fullText.match(/INE[A-Z0-9]{9}/g) || [];
-                const options = fullText.match(/OPT(?:IDX|STK)/g) || [];
-                const uniqueScripsCount = new Set(isins).size + new Set(options).size;
-                document.getElementById('scrip-count').textContent = uniqueScripsCount > 0 ? uniqueScripsCount : "-";
+                const uniqueEqScrips = new Set(isins).size;
 
-                const gross = extractTotalAmount("Pay In/Pay Out Obligation");
-                const net = extractTotalAmount("Net Amount Receivable (CR) / Payable (DR) By Client");
-                const brokerage = extractTotalAmount("Taxable Value Of Supply (Brokerage)");
-                const stt = extractTotalAmount("Securities Transactions Tax");
-                const stamp = extractTotalAmount("Stamp Duty");
-                const sebi = extractTotalAmount("SEBI Fees");
+                // F&O: unique contract descriptions (OPTIDX/OPTSTK + strike + type combos)
+                const foContracts = fullText.match(/OPT(?:IDX|STK)\s+\S+\s+\S+\s+\S+\s+(?:CE|PE)/g) || [];
+                const uniqueFoContracts = new Set(foContracts.map(s => s.replace(/\s+/g, ' ').trim())).size;
 
-                let igst = getVal(extractTotalAmount("IGST RATE"));
-                let cgst = getVal(extractTotalAmount("CGST RATE"));
-                let sgst = getVal(extractTotalAmount("SGST RATE"));
-                let totalGst = igst + cgst + sgst;
-                let gstDisplay = totalGst > 0 ? `${totalGst.toFixed(2)} DR` : "0.00";
+                // Trade counts from Trade Annexure — count Buy/Sell rows
+                // Equity trades: lines with B or S after a timestamp in NCL-NSE/BSE-Equity section
+                const eqTradeSection = fullText.match(/NCL-NSE-Equity[\s\S]*?(?=NSEFO|BSEFO|Obligation Details|$)/i);
+                const eqTrades = eqTradeSection ? (eqTradeSection[0].match(/\b[BS]\b\s+\d+\s+[\d,]+\.\d{2}/g) || []).length : 0;
 
-                let nseVal = getVal(extractTotalAmount("NSE Transaction Charges"));
-                let bseVal = getVal(extractTotalAmount("BSE Transaction Charges"));
-                let totalExchVal = nseVal + bseVal;
-                let exchCharge = totalExchVal > 0 ? `${totalExchVal.toFixed(2)} DR` : "0.00";
+                // F&O trades: lines in NSEFO/BSEFO section
+                const foTradeSection = fullText.match(/(?:NSEFO|BSEFO)[\s\S]*?(?=Obligation Details|$)/i);
+                const foTrades = foTradeSection ? (foTradeSection[0].match(/\b[BS]\b\s+\d+\s+[\d,]+\.\d{2}/g) || []).length : 0;
 
-                let turnoverDisplay = "N/A*";
-                const explicitTurnover = extractBasic(/Turnover.*?([\d,]+\.\d{2})/i, null);
-                if (explicitTurnover) {
-                    turnoverDisplay = `₹ ${explicitTurnover}`;
-                } else if (stt !== "0.00") {
-                    const sttVal = getVal(stt);
-                    const estimatedTurnover = (sttVal * 1000).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                    turnoverDisplay = `₹ ${estimatedTurnover}`;
+                const totalTrades = eqTrades + foTrades;
+                const hasEq = uniqueEqScrips > 0;
+                const hasFo = uniqueFoContracts > 0;
+
+                document.getElementById('trade-count').textContent = totalTrades > 0 ? totalTrades : "-";
+                document.getElementById('seg-label').textContent = [hasEq ? "Equity" : null, hasFo ? "F&O" : null].filter(Boolean).join(" + ") || "-";
+                document.getElementById('eq-scrip-count').textContent = uniqueEqScrips || "0";
+                document.getElementById('eq-trade-count').textContent = `${eqTrades} trades`;
+                document.getElementById('fo-scrip-count').textContent = uniqueFoContracts || "0";
+                document.getElementById('fo-trade-count').textContent = `${foTrades} trades`;
+
+                // ── Obligation rows — segment split ──
+                const grossRow   = extractSegmentRow("Pay In/Pay Out Obligation");
+                const brokRow    = extractSegmentRow("Taxable Value Of Supply (Brokerage)");
+                const bseRow     = extractSegmentRow("Taxable Value Of Supply (BSE Transaction Charges)");
+                const nseRow     = extractSegmentRow("Taxable Value Of Supply (NSE Transaction Charges)");
+                const sebiRow    = extractSegmentRow("Taxable Value Of Supply (SEBI Fees)");
+                const igstRow    = extractSegmentRow("IGST");
+                const cgstRow    = extractSegmentRow("CGST");
+                const sgstRow    = extractSegmentRow("SGST");
+                const stampRow   = extractSegmentRow("Stamp Duty");
+                const sttRow     = extractSegmentRow("Securities Transactions Tax");
+                const netRow     = extractSegmentRow("Net Amount Receivable (CR) / Payable (DR) By Client");
+
+                // Exchange charges: NSE + BSE per segment
+                const exchEqVal = getVal(nseRow.eq) + getVal(bseRow.eq);
+                const exchFoVal = getVal(nseRow.fo) + getVal(bseRow.fo);
+                const exchTotalVal = exchEqVal + exchFoVal;
+
+                // GST totals per segment
+                const gstEqVal = getVal(igstRow.eq) + getVal(cgstRow.eq) + getVal(sgstRow.eq);
+                const gstFoVal = getVal(igstRow.fo) + getVal(cgstRow.fo) + getVal(sgstRow.fo);
+                const gstTotalVal = gstEqVal + gstFoVal;
+
+                // Taxes total = Gross - Net (handles DR/CR sign)
+                const grossNum = getVal(grossRow.total) * (grossRow.total.toUpperCase().includes("DR") ? -1 : 1);
+                const netNum   = getVal(netRow.total)   * (netRow.total.toUpperCase().includes("DR")   ? -1 : 1);
+                const taxesTotalNum = Math.abs(grossNum - netNum);
+
+                // ── Render totals ──
+                document.getElementById('gross-val').textContent = fmt(grossRow.total);
+                document.getElementById('net-val').textContent   = fmt(netRow.total);
+                document.getElementById('taxes-total-val').textContent = `₹ ${taxesTotalNum.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} DR`;
+
+                // Summary card segment split — Gross P&L and Net P&L per segment
+                document.getElementById('eq-gross').textContent = fmt(grossRow.eq);
+                document.getElementById('fo-gross').textContent = fmt(grossRow.fo);
+                document.getElementById('eq-net').textContent   = fmt(netRow.eq);
+                document.getElementById('fo-net').textContent   = fmt(netRow.fo);
+
+                // Taxes total segment split — all charges summed per segment
+                const taxesEqVal = getVal(brokRow.eq) + getVal(sttRow.eq) + exchEqVal + gstEqVal + getVal(stampRow.eq) + getVal(sebiRow.eq);
+                const taxesFoVal = getVal(brokRow.fo) + getVal(sttRow.fo) + exchFoVal + gstFoVal + getVal(stampRow.fo) + getVal(sebiRow.fo);
+                document.getElementById('taxes-eq').textContent = `₹ ${taxesEqVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                document.getElementById('taxes-fo').textContent = `₹ ${taxesFoVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+                // Hide F&O elements if equity-only note
+                if (!hasFo) {
+                    document.getElementById('summary-toggle').style.display = 'none';
+                    document.getElementById('taxes-toggle').style.display = 'none';
+                    document.querySelectorAll('.expand-toggle').forEach(el => el.style.display = 'none');
+                    document.getElementById('fo-scrip-count').closest('.seg-pill').style.display = 'none';
                 }
-                document.getElementById('turnover-val').textContent = turnoverDisplay;
+                document.getElementById('brokerage-val').textContent = fmt(brokRow.total);
+                document.getElementById('brok-eq').textContent = fmtSeg(brokRow.eq);
+                document.getElementById('brok-fo').textContent = fmtSeg(brokRow.fo);
 
-                document.getElementById('gross-val').textContent = formatDisplay(gross);
-                document.getElementById('net-val').textContent = formatDisplay(net);
-                document.getElementById('brokerage-val').textContent = formatDisplay(brokerage);
-                document.getElementById('stt-val').textContent = formatDisplay(stt);
-                document.getElementById('exch-val').textContent = formatDisplay(exchCharge);
-                document.getElementById('gst-val').textContent = formatDisplay(gstDisplay);
-                document.getElementById('stamp-val').textContent = formatDisplay(stamp);
-                document.getElementById('sebi-val').textContent = formatDisplay(sebi);
+                document.getElementById('stt-val').textContent = fmt(sttRow.total);
+                document.getElementById('stt-eq').textContent  = fmtSeg(sttRow.eq);
+                document.getElementById('stt-fo').textContent  = fmtSeg(sttRow.fo);
+
+                const exchTotalStr = exchTotalVal > 0 ? `${exchTotalVal.toFixed(2)} DR` : "0.00";
+                document.getElementById('exch-val').textContent = fmt(exchTotalStr);
+                document.getElementById('exch-eq').textContent  = `₹ ${exchEqVal.toFixed(2)}`;
+                document.getElementById('exch-fo').textContent  = `₹ ${exchFoVal.toFixed(2)}`;
+
+                const gstTotalStr = gstTotalVal > 0 ? `${gstTotalVal.toFixed(2)} DR` : "0.00";
+                document.getElementById('gst-val').textContent  = fmt(gstTotalStr);
+                document.getElementById('gst-eq').textContent   = `₹ ${gstEqVal.toFixed(2)}`;
+                document.getElementById('gst-fo').textContent   = `₹ ${gstFoVal.toFixed(2)}`;
+
+                document.getElementById('stamp-val').textContent = fmt(stampRow.total);
+                document.getElementById('stamp-eq').textContent  = fmtSeg(stampRow.eq);
+                document.getElementById('stamp-fo').textContent  = fmtSeg(stampRow.fo);
+
+                document.getElementById('sebi-val').textContent = fmt(sebiRow.total);
+                document.getElementById('sebi-eq').textContent  = fmtSeg(sebiRow.eq);
+                document.getElementById('sebi-fo').textContent  = fmtSeg(sebiRow.fo);
 
                 loadingDiv.classList.add('hidden');
                 resultsDiv.classList.remove('hidden');
