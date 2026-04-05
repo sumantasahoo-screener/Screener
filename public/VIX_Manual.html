@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIX Level Manual | F&O Screener Hub</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="light"]{--bg:#f7f6f2;--surface:#f9f8f5;--surface2:#fff;--border:#d4d1ca;--text:#28251d;--muted:#7a7974;--primary:#01696f;--primary-hl:#cedcd8;--success:#437a22;--success-hl:#d4dfcc;--warning:#964219;--warning-hl:#ddcfc6;--error:#a12c7b;--error-hl:#e0ced7;--shadow:0 4px 16px rgba(0,0,0,.08)}
+[data-theme="dark"]{--bg:#171614;--surface:#1c1b19;--surface2:#201f1d;--border:#393836;--text:#cdccca;--muted:#797876;--primary:#4f98a3;--primary-hl:#313b3b;--success:#6daa45;--success-hl:#3a4435;--warning:#bb653b;--warning-hl:#564942;--error:#d163a7;--error-hl:#4c3d46;--shadow:0 4px 16px rgba(0,0,0,.35)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{font-family:"Satoshi",sans-serif;background:var(--bg);color:var(--text);font-size:1rem;line-height:1.6}
+.header{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow)}
+.back-btn{padding:.4rem .9rem;border-radius:6px;border:1px solid var(--border);font-size:.85rem;color:var(--muted);cursor:pointer;background:none;transition:all .2s}
+.back-btn:hover{background:var(--primary-hl);color:var(--primary);border-color:var(--primary)}
+.logo{font-size:1.05rem;font-weight:700;color:var(--primary);margin-left:.75rem}
+.logo-sub{font-size:.75rem;color:var(--muted);margin-left:.25rem}
+.theme-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:.4rem .75rem;cursor:pointer;font-size:.8rem;color:var(--muted);transition:all .2s}
+.theme-btn:hover{background:var(--primary-hl);color:var(--primary)}
+.hero{background:linear-gradient(135deg,var(--primary-hl) 0%,var(--surface) 60%);padding:2.5rem 1.5rem 2rem;border-bottom:1px solid var(--border)}
+.hero-inner{max-width:1100px;margin:0 auto}
+.hero-badge{display:inline-flex;align-items:center;background:var(--primary);color:#fff;font-size:.72rem;font-weight:600;padding:.25rem .75rem;border-radius:999px;margin-bottom:.9rem;letter-spacing:.05em;text-transform:uppercase}
+.hero h1{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:700;color:var(--text);margin-bottom:.5rem;line-height:1.2}
+.hero p{color:var(--muted);font-size:.95rem;max-width:680px}
+.tab-nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;overflow-x:auto;scrollbar-width:none}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab-nav-inner{max-width:1100px;margin:0 auto;display:flex;width:100%}
+.tab-btn{padding:.75rem 1.1rem;font-size:.85rem;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary)}
+.tab-btn:hover:not(.active){color:var(--text);background:var(--primary-hl)}
+.content{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
+.section{display:none}.section.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.4rem;margin-bottom:1.2rem;box-shadow:var(--shadow)}
+.card-title{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:.6rem}
+.card p{color:var(--muted);font-size:.9rem;margin-bottom:.5rem}
+.card p:last-child{margin-bottom:0}
+.formula-box{background:var(--bg);border:1px solid var(--primary);border-radius:8px;padding:1.2rem;margin:1rem 0;font-family:"Courier New",monospace;font-size:.88rem;color:var(--primary);line-height:2;white-space:pre-wrap}
+.fc{color:var(--muted);font-style:italic}
+.table-wrap{overflow-x:auto;margin:1rem 0;border-radius:8px;border:1px solid var(--border);width:100%}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:var(--surface2);color:var(--muted);font-weight:600;padding:.7rem 1.2rem;text-align:left;border-bottom:1px solid var(--border);font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+td{padding:.7rem 1.2rem;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--primary-hl)}
+.badge{display:inline-block;padding:.15rem .6rem;border-radius:999px;font-size:.72rem;font-weight:600}
+.bull{background:var(--success-hl);color:var(--success)}.bear{background:var(--error-hl);color:var(--error)}.neu{background:var(--primary-hl);color:var(--primary)}.warn{background:var(--warning-hl);color:var(--warning)}
+.steps{list-style:none;counter-reset:s}
+.steps li{counter-increment:s;display:flex;gap:.9rem;margin-bottom:1rem;padding:.9rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:8px}
+.steps li::before{content:counter(s);min-width:28px;height:28px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.sb strong{display:block;font-size:.9rem;color:var(--text);margin-bottom:.2rem}
+.sb span{font-size:.83rem;color:var(--muted)}
+.alert{display:flex;gap:.75rem;padding:1rem 1.2rem;border-radius:8px;margin:.9rem 0;font-size:.88rem}
+.a-info{background:var(--primary-hl);border-left:3px solid var(--primary)}.a-warn{background:var(--warning-hl);border-left:3px solid var(--warning)}.a-ok{background:var(--success-hl);border-left:3px solid var(--success)}
+.alert strong{display:block;margin-bottom:.2rem;color:var(--text)}.alert p{color:var(--muted);margin:0;font-size:.87rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin:1rem 0}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}}
+.sh{font-size:1.05rem;font-weight:700;color:var(--text);margin:1.5rem 0 .8rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+.ex{background:var(--surface2);border:1px dashed var(--border);border-radius:8px;padding:1.2rem;margin:1rem 0}
+.ex-title{font-size:.78rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div style="display:flex;align-items:center">
+    <button class="back-btn" onclick="history.back()">&#8592; Back</button>
+    <span class="logo">F&amp;O Hub</span><span class="logo-sub">| VIX Level Manual</span>
+  </div>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">&#9728; Light</button>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">&#128216; Manual v1.0</div>
+    <h1>VIX Level Tool &mdash; Complete Manual</h1>
+    <p>India VIX se Nifty ki expected range kaise nikaalein &mdash; formula, interpretation, strike selection aur daily trading strategy sab ek jagah.</p>
+  </div>
+</div>
+
+<nav class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tab-btn active" onclick="show('overview',this)">&#128202; Overview</button>
+    <button class="tab-btn" onclick="show('formula',this)">&#129518; Formula</button>
+    <button class="tab-btn" onclick="show('levels',this)">&#128200; VIX Levels</button>
+    <button class="tab-btn" onclick="show('strategy',this)">&#127919; Strategy</button>
+    <button class="tab-btn" onclick="show('examples',this)">&#128161; Examples</button>
+  </div>
+</nav>
+
+<main class="content">
+
+<!-- OVERVIEW -->
+<div class="section active" id="tab-overview">
+  <div class="card">
+    <div class="card-title">&#127777; India VIX Kya Hai?</div>
+    <p>India VIX (Volatility Index) NSE ka <strong>fear gauge</strong> hai &mdash; yeh Nifty options ke implied volatility se calculate hota hai. Jab market nervous hoti hai VIX badhta hai; jab calm hoti hai VIX girta hai.</p>
+    <p>VIX ek <strong>annualized percentage figure</strong> hai &mdash; matlab agle 1 saal mein Nifty kitna upar/neeche ja sakta hai (68% probability ke saath).</p>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">&#128204; Tool Kya Karta Hai</div>
+      <p>&#8226; Live VIX value fetch karta hai<br>&#8226; Current Nifty spot price leta hai<br>&#8226; Daily / Weekly / Monthly / Expiry range calculate karta hai<br>&#8226; 1SD aur 2SD levels dikhata hai<br>&#8226; Bullish / Bearish zone identify karta hai</p>
+    </div>
+    <div class="card">
+      <div class="card-title">&#127919; Kab Use Karein</div>
+      <p>&#8226; <strong>Opening pe:</strong> Aaj ka expected range set karo<br>&#8226; <strong>Option writing se pehle:</strong> Safe strike choose karo<br>&#8226; <strong>Expiry week mein:</strong> Max pain ke saath combine karo<br>&#8226; <strong>High VIX pe:</strong> Position size reduce karo</p>
+    </div>
+  </div>
+  <div class="alert a-info">
+    <span style="font-size:1.1rem;flex-shrink:0">&#8505;</span>
+    <div><strong>VIX vs Nifty Inverse Relationship</strong>
+    <p>Jab Nifty girta hai, VIX typically badhta hai. Market mein fear badhne par put options ki demand barhti hai jisse IV spike hoti hai.</p></div>
+  </div>
+  <div class="sh">SD Probability Reference</div>
+  <div class="table-wrap"><table>
+    <tr><th>Range Level</th><th>Probability</th><th>Use Case</th></tr>
+    <tr><td>&#177;1 SD</td><td><strong>68%</strong></td><td>Daily range reference, intraday trading</td></tr>
+    <tr><td>&#177;2 SD</td><td><strong>95%</strong></td><td>Option writing &mdash; safe strike selection</td></tr>
+    <tr><td>&#177;3 SD</td><td><strong>99.7%</strong></td><td>Extreme event hedge only</td></tr>
+  </table></div>
+</div>
+
+<!-- FORMULA -->
+<div class="section" id="tab-formula">
+  <div class="card">
+    <div class="card-title">&#129518; Core Formula &mdash; VIX se Range Nikaalein</div>
+    <p>VIX ek annualized number hai. Isse kisi bhi time period ke liye convert karne ka step-by-step formula:</p>
+  </div>
+  <div class="formula-box"><span class="fc">-- Step 1: Annual VIX ko Daily Volatility mein convert karo --</span>
+Daily_Vol = VIX% / (100 x sqrt(365))
+
+<span class="fc">-- Step 2: N-Day Volatility --</span>
+N_Day_Vol = Daily_Vol x sqrt(DaysToExpiry)
+
+<span class="fc">-- Step 3: 1SD Range --</span>
+Upper_1SD = Spot x e^(+N_Day_Vol)
+Lower_1SD = Spot x e^(-N_Day_Vol)
+
+<span class="fc">-- Step 4: 2SD Range --</span>
+Upper_2SD = Spot x e^(+2 x N_Day_Vol)
+Lower_2SD = Spot x e^(-2 x N_Day_Vol)</div>
+  <div class="sh">Step-by-Step Explanation</div>
+  <ul class="steps">
+    <li><div class="sb"><strong>VIX ko Daily Volatility mein convert karo</strong><span>VIX annual number hai. 365 ke square root (=19.105) se divide karo. Example: VIX=15 &rarr; Daily Vol = 0.785%</span></div></li>
+    <li><div class="sb"><strong>Days to Expiry multiply karo</strong><span>Agar expiry 7 din dur hai: N-Day Vol = 0.785% &times; &radic;7 = 2.077%</span></div></li>
+    <li><div class="sb"><strong>Log-Normal formula se range nikalo</strong><span>e^x use hota hai kyunki prices % mein move karti hain. e^0.02 &asymp; 1.0202 = 2.02% upar.</span></div></li>
+    <li><div class="sb"><strong>1SD aur 2SD dono mark karo</strong><span>1SD = 68% probability (intraday). 2SD = 95% (option writing &mdash; safe strike 2SD ke bahar hona chahiye).</span></div></li>
+  </ul>
+  <div class="ex">
+    <div class="ex-title">&#128204; Live Example &mdash; Nifty=22500, VIX=15, Days=7</div>
+    <div class="table-wrap"><table>
+      <tr><th>Step</th><th>Calculation</th><th>Result</th></tr>
+      <tr><td>Daily Vol</td><td>15 / (100 &times; 19.105)</td><td>0.785%</td></tr>
+      <tr><td>7-Day Vol</td><td>0.785% &times; &radic;7</td><td>2.077%</td></tr>
+      <tr><td>Upper 1SD</td><td>22500 &times; e^0.02077</td><td><strong>22,967</strong></td></tr>
+      <tr><td>Lower 1SD</td><td>22500 &times; e^-0.02077</td><td><strong>22,042</strong></td></tr>
+      <tr><td>Upper 2SD</td><td>22500 &times; e^0.04154</td><td><strong>23,444</strong></td></tr>
+      <tr><td>Lower 2SD</td><td>22500 &times; e^-0.04154</td><td><strong>21,596</strong></td></tr>
+    </table></div>
+    <p style="color:var(--muted);font-size:.85rem;margin-top:.7rem">&#8594; Safe Iron Condor: 23,500 CE sell + 21,500 PE sell (2SD ke bahar)</p>
+  </div>
+  <div class="alert a-info">
+    <span style="font-size:1.1rem;flex-shrink:0">&#128161;</span>
+    <div><strong>NSE 365 Use Karta Hai, 252 Nahi</strong>
+    <p>India mein NSE calendar days (365) use karta hai. Isliye formula mein sqrt(365) use karo.</p></div>
+  </div>
+</div>
+
+<!-- VIX LEVELS -->
+<div class="section" id="tab-levels">
+  <div class="card">
+    <div class="card-title">&#128202; India VIX Level Interpretation Table</div>
+    <p>India VIX ki different ranges alag-alag market conditions dikhati hain. Daily reference ke liye yeh table use karo:</p>
+  </div>
+  <div class="table-wrap"><table>
+    <tr><th>VIX Range</th><th>Market State</th><th>Sentiment</th><th>Best Strategy</th></tr>
+    <tr><td><strong>&lt;10</strong></td><td>Ultra Calm</td><td><span class="badge bull">Very Bullish</span></td><td>Buy options (premium bahut sasta)</td></tr>
+    <tr><td><strong>10&ndash;13</strong></td><td>Low Volatility</td><td><span class="badge bull">Bullish</span></td><td>Covered calls, Bull put spreads</td></tr>
+    <tr><td><strong>13&ndash;16</strong></td><td>Normal / Calm</td><td><span class="badge neu">Neutral</span></td><td>Iron Condor, OTM selling full size</td></tr>
+    <tr><td><strong>16&ndash;20</strong></td><td>Elevated Fear</td><td><span class="badge warn">Cautious</span></td><td>Position size 50% reduce karo</td></tr>
+    <tr><td><strong>20&ndash;25</strong></td><td>High Fear</td><td><span class="badge bear">Bearish</span></td><td>Avoid option writing, buy protective puts</td></tr>
+    <tr><td><strong>25&ndash;30</strong></td><td>Very High Fear</td><td><span class="badge bear">Very Bearish</span></td><td>Defensive only &mdash; stop all selling</td></tr>
+    <tr><td><strong>&gt;30</strong></td><td>Crisis / Panic</td><td><span class="badge bear">Extreme</span></td><td>No naked selling under any condition</td></tr>
+  </table></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">&#128200; Rising VIX &mdash; Bearish</div>
+      <p><span class="badge bear">Bearish</span></p>
+      <p style="margin-top:.6rem">&#8226; Uncertainty badh rahi hai<br>&#8226; Option premium expensive<br>&#8226; Selling strategies avoid karo<br>&#8226; Support levels carefully dekho</p>
+    </div>
+    <div class="card">
+      <div class="card-title">&#128201; Falling VIX &mdash; Bullish</div>
+      <p><span class="badge bull">Bullish</span></p>
+      <p style="margin-top:.6rem">&#8226; Market calm ho rahi hai<br>&#8226; Option premium sasta<br>&#8226; Iron Condor / Short Straddle ka time<br>&#8226; Trend following setups kaam karte hain</p>
+    </div>
+  </div>
+  <div class="alert a-warn">
+    <span style="font-size:1.1rem;flex-shrink:0">&#9888;</span>
+    <div><strong>VIX Spike Warning</strong>
+    <p>Agar VIX ek din mein 20%+ spike kare, koi bhi naked short option position mat lo. Gap risk extreme hota hai.</p></div>
+  </div>
+</div>
+
+<!-- STRATEGY -->
+<div class="section" id="tab-strategy">
+  <div class="sh">Daily VIX Trading Routine</div>
+  <ul class="steps">
+    <li><div class="sb"><strong>9:00 AM &mdash; Pre-Market Check</strong><span>VIX ka previous close note karo. VIX &gt;20 ho toh position size 50% reduce karo before open.</span></div></li>
+    <li><div class="sb"><strong>9:15 AM &mdash; Market Open</strong><span>Live VIX fetch karo. Aaj ka 1SD range note karo &mdash; yahi aaj ka expected trading range hai.</span></div></li>
+    <li><div class="sb"><strong>9:20 AM &mdash; Strike Selection</strong><span>Option writing ke liye 2SD ke bahar ka strike choose karo. VIX &lt;13 ho toh 1SD bhi safe ho sakta hai.</span></div></li>
+    <li><div class="sb"><strong>During Day &mdash; Range Watch</strong><span>1SD breach = position review. 2SD breach = hedge ya exit immediately. No exception.</span></div></li>
+    <li><div class="sb"><strong>2:30 PM &mdash; EOD</strong><span>VIX closing level note karo. Kal ke liye strategy plan karo (rising / falling / stable).</span></div></li>
+  </ul>
+  <div class="sh">Position Sizing Rules</div>
+  <div class="table-wrap"><table>
+    <tr><th>VIX Condition</th><th>Position Size</th><th>Reason</th></tr>
+    <tr><td>VIX &lt;13</td><td><span class="badge bull">Full Size (100%)</span></td><td>Low risk, tight range</td></tr>
+    <tr><td>VIX 13&ndash;16</td><td><span class="badge neu">Normal (75%)</span></td><td>Standard condition</td></tr>
+    <tr><td>VIX 16&ndash;20</td><td><span class="badge warn">Half (50%)</span></td><td>Elevated risk</td></tr>
+    <tr><td>VIX 20&ndash;25</td><td><span class="badge warn">Quarter (25%)</span></td><td>High fear &mdash; gap risk high</td></tr>
+    <tr><td>VIX &gt;25</td><td><span class="badge bear">No Short Positions</span></td><td>Crisis mode</td></tr>
+  </table></div>
+  <div class="alert a-ok">
+    <span style="font-size:1.1rem;flex-shrink:0">&#10003;</span>
+    <div><strong>Triple Confirmation System</strong>
+    <p><strong>VIX Level</strong> + <strong>OptionTrade PCR</strong> + <strong>StockTrade Long/Short Build</strong> &mdash; teeno agree karein tab hi full size trade lo.</p></div>
+  </div>
+</div>
+
+<!-- EXAMPLES -->
+<div class="section" id="tab-examples">
+  <div class="sh">Scenario 1 &mdash; Low VIX, Calm Day</div>
+  <div class="ex">
+    <div class="ex-title">Nifty=22500 | VIX=12.5 | Days=5</div>
+    <div class="formula-box">Daily_Vol = 0.654%  |  5-Day_Vol = 1.463%
+Upper_1SD = 22,831  |  Lower_1SD = 22,171
+Upper_2SD = 23,163  |  Lower_2SD = 21,852</div>
+    <p style="color:var(--success);font-size:.88rem;margin-top:.7rem"><strong>Strategy:</strong> 23,200 CE sell + 21,800 PE sell = safe Iron Condor. Full size okay.</p>
+  </div>
+  <div class="sh">Scenario 2 &mdash; High VIX, Volatile Day</div>
+  <div class="ex">
+    <div class="ex-title">Nifty=22500 | VIX=22.0 | Days=5</div>
+    <div class="formula-box">Daily_Vol = 1.152%  |  5-Day_Vol = 2.576%
+Upper_1SD = 23,094  |  Lower_1SD = 21,922
+Upper_2SD = 23,705  |  Lower_2SD = 21,356</div>
+    <p style="color:var(--error);font-size:.88rem;margin-top:.7rem"><strong>Strategy:</strong> Option selling avoid karo. Agar karna hai toh 24,000 CE / 21,000 PE only.</p>
+  </div>
+  <div class="sh">Scenario 3 &mdash; Expiry Day</div>
+  <div class="ex">
+    <div class="ex-title">Nifty=22500 | VIX=14.0 | Days=1</div>
+    <div class="formula-box">Daily_Vol = 0.733%  |  1-Day_Vol = 0.733%
+Upper_1SD = 22,665  |  Lower_1SD = 22,336
+Upper_2SD = 22,831  |  Lower_2SD = 22,173</div>
+    <p style="color:var(--primary);font-size:.88rem;margin-top:.7rem"><strong>Strategy:</strong> Range tight. 22,700 CE + 22,300 PE = safe. Hourly adjust karo.</p>
+  </div>
+  <div class="alert a-info">
+    <span style="font-size:1.1rem;flex-shrink:0">&#128161;</span>
+    <div><strong>Pro Tip &mdash; VIX Mean Reversion</strong>
+    <p>VIX mean-reverting hota hai. 25+ spike ke baad jab VIX gire, yeh strong bullish signal hota hai.</p></div>
+  </div>
+</div>
+
+</main>
+<script>
+function show(id,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+function toggleTheme(){
+  const h=document.documentElement,d=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',d?'light':'dark');
+  document.getElementById('themeBtn').textContent=d?'Dark':'Light';
+}
+</script>
+</body>
+</html>
