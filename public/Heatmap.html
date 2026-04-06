@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Unified Market Tracker</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230a84ff'/><text x='16' y='22' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' font-size='14' fill='white'>MT</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@500;600&display=swap" rel="stylesheet"/>
+<style>
+/* -- Theme Tokens -- */
+:root {
+  --bg: #0b0e14; --surface: #141820; --surface2: #1a1f2e; --border: #252b3b;
+  --text: #e8ecf4; --text2: #8892a4; --text3: #4a5568;
+  --accent: #4c9aff; --up: #36b37e; --up-bg: #0a2e1e;
+  --down: #ff5630; --down-bg: #2e0a08; --hero-bg: #0b0e14;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4); --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+  --radius: 12px;
+}
+[data-theme="light"] {
+  --bg: #f4f5f7; --surface: #ffffff; --surface2: #f0f1f4; --border: #e3e5ea;
+  --text: #0f1923; --text2: #4a5568; --text3: #9aa5b4;
+  --accent: #0052cc; --up: #0a7c42; --up-bg: #e3f5ec;
+  --down: #c0392b; --down-bg: #fdecea; --hero-bg: #0f1923;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;transition:background 0.25s, color 0.25s;overflow-y:scroll;}
+a{text-decoration:none;}
+
+/* -- Header -- */
+header{background:var(--surface);border-bottom:1px solid var(--border);height:60px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm)}
+.hinner{max-width:1400px;margin:0 auto;padding:0 20px;height:100%;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.logo-text{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
+.logo-text span{color:var(--accent);font-weight:600}
+.hright{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+
+.market-pill{display:inline-flex;align-items:center;gap:6px;padding:0 12px;height:32px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid}
+.market-open{background:var(--up-bg);color:var(--up);border-color:var(--up)}
+.market-closed{background:var(--down-bg);color:var(--down);border-color:var(--down)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.pulse{animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Online/Offline badge */
+.data-pill{display:inline-flex;align-items:center;gap:6px;padding:0 12px;height:32px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid;transition:all 0.3s;}
+.data-online{background:var(--up-bg);color:var(--up);border-color:var(--up)}
+.data-offline{background:#1a1200;color:#f59e0b;border-color:#f59e0b}
+.data-unknown{background:var(--surface2);color:var(--text3);border-color:var(--border)}
+
+.refresh-select{height:34px;padding:0 10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;outline:none}
+.icon-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:0.2s}
+.icon-btn:hover{background:var(--border)}
+
+/* Trigger Button */
+.trigger-btn{height:34px;padding:0 14px;border-radius:8px;border:1px solid var(--accent);background:rgba(76,154,255,0.1);color:var(--accent);cursor:pointer;font-size:13px;font-weight:600;transition:0.2s;display:flex;align-items:center;gap:6px;}
+.trigger-btn:hover{background:rgba(76,154,255,0.2);}
+.trigger-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.trigger-btn .spin{display:inline-block;}
+.trigger-btn.loading .spin{animation:spin 1s linear infinite;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* -- Main Layout -- */
+main{max-width:1400px;margin:0 auto;padding:24px 20px 48px}
+.tabs-wrap{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.tabs{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:10px;}
+.tab{padding:8px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text2);transition:0.2s;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow-sm)}
+.page{display:none} .page.active{display:block}
+
+/* Last update info */
+.update-info{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+.update-time{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace}
+
+/* -- Hero -- */
+.hero{background:var(--hero-bg);border-radius:16px;padding:28px 32px;margin-bottom:30px;box-shadow:var(--shadow-md);position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.05)}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(76,154,255,0.1) 0%,transparent 65%);pointer-events:none}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:24px;position:relative}
+.hero-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:4px;font-weight:600}
+.hero-name{font-size:16px;font-weight:700;color:rgba(255,255,255,.9);margin-bottom:14px}
+.hero-price{font-size:48px;font-weight:500;color:#fff;letter-spacing:-2px;line-height:1;font-family:'DM Mono',monospace}
+.hero-change{font-size:16px;font-weight:600;margin-top:12px}
+.h-up{color:#57d9a3} .h-dn{color:#ff8f73}
+.hero-right{text-align:right;}
+.hero-stat{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-bottom:6px}
+.hero-stat-label{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:1px;font-weight:600}
+.hero-stat-val{font-size:14px;color:rgba(255,255,255,.9);font-weight:500;font-family:'DM Mono',monospace}
+.hero-bottom{margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:24px;flex-wrap:wrap;position:relative}
+.vix-badge{display:inline-flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 18px;}
+.vix-label{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:600}
+.vix-val{font-size:22px;font-weight:600;font-family:'DM Mono',monospace;color:#fbbf24}
+.hero-bars-wrap{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;max-width:600px}
+.hbr-row{display:flex;flex-direction:column;gap:6px}
+.hbr-head{display:flex;justify-content:space-between;align-items:center}
+.hbr-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.5);font-weight:700}
+.hbr-nums{display:flex;gap:10px;font-family:'DM Mono',monospace;font-size:12px;font-weight:600}
+.hero-bar{height:6px;background:rgba(255,255,255,.1);border-radius:3px;display:flex;overflow:hidden}
+.hbar-a{background:#16a34a;transition:width 0.5s} .hbar-d{background:#dc2626;transition:width 0.5s}
+
+/* -- Sector Cards -- */
+.section-title{font-size:13px;font-weight:700;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:transform .15s,box-shadow .15s;cursor:pointer;}
+.card:hover{transform:translateY(-3px) scale(1.02);box-shadow:var(--shadow-md);background:var(--surface2);}
+.card-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.card-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.card-name{font-size:13px;font-weight:600;color:var(--text2);line-height:1.2}
+.card-price{font-size:22px;font-weight:600;color:var(--text);letter-spacing:-0.5px;font-family:'DM Mono',monospace}
+.card-change{font-size:12px;font-weight:600;margin-top:4px}
+.cb-wrap{display:flex;gap:8px;font-size:11px;font-weight:600;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.up{color:var(--up)} .dn{color:var(--down)} .neu{color:var(--text3)}
+
+/* -- Heatmap -- */
+.heatmap-actions{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.hm-search{padding:0 14px;border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:8px;height:36px;font-size:13px;outline:none;font-family:inherit;width:240px;font-weight:500;}
+.hm-search:focus{border-color:var(--accent)}
+.hm-btn{padding:0 16px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);border-radius:8px;height:36px;font-size:13px;font-weight:600;cursor:pointer;transition:0.2s}
+.hm-btn:hover{color:var(--text);background:var(--border)}
+.hm-btn.active{background:var(--surface);border-color:var(--accent);color:var(--accent);box-shadow:var(--shadow-sm)}
+.heatmap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;}
+@media(max-width:800px){.heatmap-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));}}
+.hm-cell{position:relative;background:var(--surface2);border-radius:8px;padding:12px 10px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;min-height:80px;border:1px solid transparent;transition:transform 0.15s;}
+.hm-cell:hover{transform:scale(1.04);z-index:10;box-shadow:var(--shadow-md)}
+.hm-cell.adv{border-left:4px solid var(--up);background:rgba(22,163,74,0.07);}
+.hm-cell.dec{border-left:4px solid var(--down);background:rgba(220,38,38,0.07);}
+.hm-cell.nt{border-left:4px solid var(--text3);background:var(--surface2);}
+.hc-sym{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;max-width:70%;}
+.hc-ltp{font-size:13px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace}
+.hc-pct{font-size:12px;font-weight:600;font-family:'DM Mono',monospace;position:absolute;top:10px;right:10px;}
+.hc-chg{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px}
+.ndot{display:inline-block;width:5px;height:5px;background:var(--accent);border-radius:50%;margin-right:4px;vertical-align:middle;}
+
+/* Mini Chart Modal */
+#miniModal{display:none;position:fixed;z-index:9000;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;width:340px;box-shadow:var(--shadow-md);pointer-events:none;}
+#miniModal.show{display:block;animation:pop 0.15s ease}
+@keyframes pop{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+.mini-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.mini-sym{font-size:15px;font-weight:700;color:var(--accent)}
+.mini-stats{text-align:right}
+.mini-ltp{font-size:14px;font-weight:700;font-family:'DM Mono',monospace}
+.mini-pct{font-size:13px;font-weight:600;font-family:'DM Mono',monospace}
+#miniCanvas{width:100%;height:160px;background:#0b0e14;border-radius:6px;border:1px solid var(--border)}
+
+/* -- Graphs -- */
+.graph-container{background:var(--surface);padding:20px;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow-md);margin-bottom:24px;height:500px;display:flex;flex-direction:column}
+.g-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.g-title{font-size:14px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+.g-legend{display:flex;gap:16px;font-size:12px;font-weight:600;color:var(--text)}
+.gl-item{display:flex;align-items:center;gap:6px}
+.gl-dot{width:10px;height:10px;border-radius:50%}
+#graphCanvas{flex:1;width:100%;height:100%}
+
+/* -- Top Movers -- */
+.movers-wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:800px){.movers-wrap{grid-template-columns:1fr}}
+.movers-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px}
+.mv-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.mv-row{display:flex;justify-content:space-between;align-items:center;padding:12px 10px;border-radius:8px;transition:0.2s;cursor:default}
+.mv-row:hover{background:var(--surface2)}
+.mv-sym{font-size:14px;font-weight:600;color:var(--text)}
+.mv-price{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px}
+.mv-vol{font-size:16px;font-weight:700;font-family:'DM Mono',monospace}
+
+/* -- Breadth -- */
+.breadth-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:30px}
+.bs-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow-sm)}
+.bs-label{font-size:12px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.bs-val{font-size:38px;font-weight:600;font-family:'DM Mono',monospace;line-height:1}
+.bs-sub{font-size:13px;color:var(--text2);margin-top:10px;font-weight:600}
+.bs-up{color:var(--up)} .bs-dn{color:var(--down)} .bs-neu{color:var(--text)}
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow-sm)}
+.chart-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.chart-label{font-size:12px;font-weight:700;color:var(--text2);width:110px;flex-shrink:0;text-align:right;letter-spacing:0.5px;}
+.chart-bar-wrap{flex:1;height:22px;background:var(--surface2);border-radius:4px;display:flex;overflow:hidden;position:relative;}
+.bar-adv{background:var(--up);opacity:0.9;transition:width 0.6s cubic-bezier(.4,0,.2,1);min-width:0;}
+.bar-dec{background:var(--down);opacity:0.85;transition:width 0.6s cubic-bezier(.4,0,.2,1);min-width:0;flex:1;}
+.chart-nums{font-size:12px;font-family:'DM Mono',monospace;width:80px;flex-shrink:0;display:flex;gap:8px;font-weight:700;}
+.cn-a{color:var(--up)} .cn-d{color:var(--down)}
+
+/* Modal */
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:2000;backdrop-filter:blur(8px);padding:40px 20px;overflow-y:auto;}
+.modal.show{display:block;animation:fadeIn 0.3s ease;}
+.modal-content{background:var(--surface);border:1px solid var(--border);border-radius:20px;max-width:900px;margin:0 auto;padding:30px;position:relative;box-shadow:0 20px 40px rgba(0,0,0,0.5);}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;padding-bottom:15px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:24px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:12px;}
+.modal-close{background:var(--surface2);border:none;color:var(--text);width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:all 0.2s;}
+.modal-close:hover{background:#ff5630;color:white;transform:rotate(90deg);}
+.sector-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;}
+.s-cell{background:var(--surface2);border-radius:12px;padding:12px;border:1px solid transparent;transition:all 0.2s;}
+.s-cell:hover{transform:translateY(-2px);}
+.s-sym{font-weight:700;font-size:13px;color:var(--text);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;}
+.s-price{font-family:'DM Mono',monospace;font-size:15px;font-weight:600;margin-bottom:4px;}
+.s-pct{font-size:12px;font-weight:700;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+
+/* Floating VIX */
+#vixFloat{position:fixed;bottom:30px;right:30px;width:320px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-md);z-index:8000;display:flex;flex-direction:column;overflow:hidden;cursor:move;transition:opacity 0.2s;}
+.vix-hdr{padding:12px 16px;background:var(--surface2);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.vix-ht{font-size:13px;font-weight:700;letter-spacing:1px;color:var(--text)}
+.vix-val{font-size:16px;font-family:'DM Mono',monospace;font-weight:700;color:#fbbf24}
+#vixCanvas{width:100%;height:140px;background:var(--hero-bg);}
+
+/* Trigger toast */
+#triggerToast{position:fixed;bottom:100px;right:30px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;z-index:9999;display:none;box-shadow:var(--shadow-md);}
+#triggerToast.show{display:block;animation:pop 0.2s ease;}
+
+.footer{text-align:center;font-size:12px;font-weight:500;color:var(--text3);margin-top:40px;font-family:'DM Mono',monospace}
+.loader{display:flex;justify-content:center;align-items:center;height:200px;font-size:16px;font-weight:600;color:var(--text3);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hinner">
+    <div class="logo">
+      <div class="logo-mark"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+      <div class="logo-text">MARKET <span>TRACKER</span></div>
+    </div>
+    <div class="hright">
+      <!-- Market Open/Closed -->
+      <span class="market-pill market-closed" id="mbadge"><span class="dot" id="mdot"></span><span id="mtxt">Checking...</span></span>
+      <!-- Data Online/Offline -->
+      <span class="data-pill data-unknown" id="dataBadge"><span class="dot" id="dataDot"></span><span id="dataTxt">Checking...</span></span>
+      <!-- Auto refresh select -->
+      <select class="refresh-select" id="interval-sel">
+        <option value="0">Manual Polling</option>
+        <option value="60" selected>1 min Auto</option>
+      </select>
+      <!-- Manual Trigger -->
+      <button class="trigger-btn" id="triggerBtn" onclick="triggerWorker()">
+        <span class="spin">⚡</span> Trigger
+      </button>
+      <button class="icon-btn" onclick="toggleTheme()">&#9728;&#65039;</button>
+      <button class="icon-btn" onclick="fetchData()">&#8635;</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('overview',this)">&#128202; Overview</button>
+      <button class="tab" onclick="switchTab('breadth',this)">&#128200; Breadth</button>
+      <button class="tab" onclick="switchTab('heatmap',this)">&#128993; Heatmap</button>
+      <button class="tab" onclick="switchTab('graphs',this)">&#128201; Charts</button>
+      <button class="tab" onclick="switchTab('movers',this)">&#127942; Movers</button>
+    </div>
+    <div class="update-info">
+      <div class="update-time" id="last-update">Last Update: &mdash;</div>
+    </div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="page active" id="page-overview">
+    <div class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="hero-label">Index</div>
+          <div class="hero-name">NIFTY 50</div>
+          <div class="hero-price" id="h-price">&mdash;</div>
+          <div class="hero-change neu" id="h-change">&mdash;</div>
+        </div>
+        <div class="hero-right">
+          <div class="hero-stat"><span class="hero-stat-label">OPEN</span><span class="hero-stat-val" id="h-open">&mdash;</span></div>
+          <div class="hero-stat"><span class="hero-stat-label">HIGH</span><span class="hero-stat-val" id="h-high">&mdash;</span></div>
+          <div class="hero-stat"><span class="hero-stat-label">LOW</span><span class="hero-stat-val" id="h-low">&mdash;</span></div>
+          <div class="hero-stat"><span class="hero-stat-label">PREV</span><span class="hero-stat-val" id="h-prev">&mdash;</span></div>
+        </div>
+      </div>
+      <div class="hero-bottom">
+        <div class="vix-badge">
+          <div>
+            <div class="vix-label">India VIX</div>
+            <div class="vix-val" id="h-vix">&mdash;</div>
+          </div>
+          <div class="hero-change neu" id="h-vix-chg" style="margin:0;font-size:14px">&mdash;</div>
+        </div>
+        <div class="hero-bars-wrap">
+          <div class="hbr-row">
+            <div class="hbr-head">
+              <span class="hbr-label">F&O Market Breadth</span>
+              <div class="hbr-nums"><span class="up" id="h-fno-a">0 Adv</span> | <span class="dn" id="h-fno-d">0 Dec</span></div>
+            </div>
+            <div class="hero-bar">
+              <div class="hbar-a" id="hbar-fno-a" style="width:50%"></div>
+              <div class="hbar-d" id="hbar-fno-d" style="width:50%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section-title">Sector Indices</div>
+    <div class="grid" id="sectors-grid"><div class="loader">Loading Sectors...</div></div>
+  </div>
+
+  <!-- BREADTH -->
+  <div class="page" id="page-breadth">
+    <div class="breadth-summary">
+      <div class="bs-card"><div class="bs-label">Total Advances</div><div class="bs-val bs-up" id="b-adv">&mdash;</div><div class="bs-sub" id="b-adv-pct">&mdash;</div></div>
+      <div class="bs-card"><div class="bs-label">Total Declines</div><div class="bs-val bs-dn" id="b-dec">&mdash;</div><div class="bs-sub" id="b-dec-pct">&mdash;</div></div>
+      <div class="bs-card"><div class="bs-label">A/D Ratio</div><div class="bs-val bs-neu" id="b-ratio">&mdash;</div><div class="bs-sub">advances &divide; declines</div></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="section-title">Sector-wise Advance / Decline</div>
+      <div id="breadth-chart"></div>
+    </div>
+  </div>
+
+  <!-- HEATMAP -->
+  <div class="page" id="page-heatmap">
+    <div class="heatmap-actions">
+      <input type="text" class="hm-search" id="hm-search" placeholder="Search F&O Symbol..." onkeyup="filterHeatmap()">
+      <button class="hm-btn active" id="f-all" onclick="setHmFilter('all')">All F&amp;O (<span id="fno-count">&mdash;</span>)</button>
+      <button class="hm-btn" id="f-n50" onclick="setHmFilter('n50')">Nifty 50 (<span id="n50-count">&mdash;</span>)</button>
+    </div>
+    <div class="heatmap-grid" id="heatmap-grid"><div class="loader">Loading F&O Heatmap...</div></div>
+  </div>
+
+  <!-- SECTOR MODAL -->
+  <div id="sectorModal" class="modal" onclick="if(event.target===this) closeSectorDetails()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="m-title">Sector Name</div>
+        <button class="modal-close" onclick="closeSectorDetails()">&times;</button>
+      </div>
+      <div class="sector-grid" id="sector-stocks-grid"></div>
+    </div>
+  </div>
+
+  <!-- GRAPHS -->
+  <div class="page" id="page-graphs">
+    <div class="graph-container">
+      <div class="g-hdr">
+        <div class="g-title">Intraday F&O Advance vs Decline</div>
+        <div class="g-legend">
+          <div class="gl-item"><div class="gl-dot" style="background:var(--up)"></div> Advance</div>
+          <div class="gl-item"><div class="gl-dot" style="background:var(--down)"></div> Decline</div>
+          <div class="gl-item"><div class="gl-dot" style="background:#fbbf24"></div> Neutral</div>
+        </div>
+      </div>
+      <canvas id="graphCanvas"></canvas>
+    </div>
+  </div>
+
+  <!-- MOVERS -->
+  <div class="page" id="page-movers">
+    <div class="movers-wrap">
+      <div class="movers-box">
+        <div class="mv-title up">&#9650; Top 10 F&O Gainers</div>
+        <div id="mv-gainers"></div>
+      </div>
+      <div class="movers-box">
+        <div class="mv-title dn">&#9660; Top 10 F&O Losers</div>
+        <div id="mv-losers"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Data synced directly from NSE via private R2 Storage.</div>
+</main>
+
+<!-- Mini Chart Modal -->
+<div id="miniModal">
+  <div class="mini-header">
+    <div class="mini-sym" id="m-sym">&mdash;</div>
+    <div class="mini-stats">
+      <div class="mini-ltp" id="m-ltp">&mdash;</div>
+      <div class="mini-pct" id="m-pct">&mdash;</div>
+    </div>
+  </div>
+  <canvas id="miniCanvas"></canvas>
+</div>
+
+<!-- Floating VIX -->
+<div id="vixFloat">
+  <div class="vix-hdr">
+    <div class="vix-ht">INDIA VIX</div>
+    <div class="vix-val" id="vix-float-val">&mdash;</div>
+  </div>
+  <canvas id="vixCanvas"></canvas>
+</div>
+
+<!-- Trigger Toast -->
+<div id="triggerToast"></div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────────────────────
+const R2_BASE      = 'https://pub-872ee524d3b44e039d5b82f78c97bbcb.r2.dev';
+const WORKER_URL   = 'https://vix-worker.sumantasahoo.workers.dev';
+const STALE_MINS   = 5; // Data 5 min se purana ho toh "Offline"
+
+// ── Sector & Constituent Data ────────────────────────────────────────────────
+const SECTORS = [
+  {sym:'NIFTY BANK',icon:'&#127974;'},{sym:'NIFTY IT',icon:'&#128187;'},{sym:'NIFTY PHARMA',icon:'&#128138;'},
+  {sym:'NIFTY AUTO',icon:'&#128663;'},{sym:'NIFTY FMCG',icon:'&#128717;'},{sym:'NIFTY METAL',icon:'&#127959;'},
+  {sym:'NIFTY REALTY',icon:'&#127968;'},{sym:'NIFTY ENERGY',icon:'&#9889;'},{sym:'NIFTY MEDIA',icon:'&#127916;'},
+  {sym:'NIFTY PSU BANK',icon:'&#127963;'},{sym:'NIFTY FIN SERVICE',icon:'&#128176;'},{sym:'NIFTY MID SELECT',icon:'&#128200;'}
+];
+
+const CONSTITUENTS = {
+  "NIFTY BANK":["HDFCBANK","ICICIBANK","SBIN","AXISBANK","KOTAKBANK","INDUSINDBK","BANKBARODA","AUBANK","FEDERALBNK","IDFCFIRSTB","PNB","BANDHANBNK"],
+  "NIFTY IT":["TCS","INFY","HCLTECH","TECHM","LTM","WIPRO","COFORGE","PERSISTENT","MPHASIS","KPITTECH","OFSS"],
+  "NIFTY PHARMA":["SUNPHARMA","DRREDDY","CIPLA","DIVISLAB","APOLLOHOSP","ZYDUSLIFE","MANKIND","AUROPHARMA","LUPIN","ALKEM","LAURUSLABS","BIOCON","GLENMARK","IPCALAB","TORNTPHARM","GRANULES"],
+  "NIFTY AUTO":["M&M","MARUTI","TATAMOTORS","BAJAJ-AUTO","EICHERMOT","TVSMOTOR","ASHOKLEY","HEROMOTOCO","BHARATFORG","BALKRISIND","ESCORTS","MRF","MOTHERSON","TIINDIA"],
+  "NIFTY FMCG":["ITC","HINDUNILVR","NESTLEIND","BRITANNIA","TATACONSUM","VBL","GODREJCP","DABUR","COLPAL","MARICO","BALRAMCHIN","UNITDSPR","PGHH","RADICO"],
+  "NIFTY METAL":["TATASTEEL","HINDALCO","JSWSTEEL","JINDALSTEL","VEDL","SAIL","NMDC","HINDZINC","NATIONALUM","RATNAMANI","WELCORP","APLAPOLLO"],
+  "NIFTY REALTY":["DLF","GODREJPROP","LODHA","OBEROIRLTY","PRESTIGE","PHOENIXLTD","SOBHA","BRIGADE","ASTRAL"],
+  "NIFTY ENERGY":["RELIANCE","ONGC","NTPC","POWERGRID","BPCL","IOC","GAIL","ADANIGREEN","ADANIENSOL","TATAPOWER"],
+  "NIFTY MEDIA":["ZEEL","SUNTV","PVRINOX","NAZARA","TV18BRDCST"],
+  "NIFTY PSU BANK":["SBIN","PNB","BANKBARODA","CANBK","UNIONBANK","INDIANB","BANKINDIA"],
+  "NIFTY FIN SERVICE":["HDFCBANK","ICICIBANK","KOTAKBANK","AXISBANK","SBIN","BAJFINANCE","BAJAJFINSV","CHOLAFIN","SHRIRAMFIN","RECLTD","PFC","MUTHOOTFIN","M&MFIN","LICHSGFIN","ABCAPITAL","HDFCLIFE","SBILIFE"],
+  "NIFTY MID SELECT":["RVNL","IRFC","CONCOR","PERSISTENT","COCHINSHIP","NYKAA","POLICYBZR","PAYTM","DIXON","MAZDOCK","IREDA","SUZLON","YESBANK","IDFCFIRSTB","BEL","BHEL","HAL","JIOFIN"]
+};
+
+// ── State ────────────────────────────────────────────────────────────────────
+let globalLatest = null;
+let globalQuotes = null;
+let globalGraph  = null;
+let globalVix    = null;
+let symbolCache  = null;
+let hmFilter     = 'all';
+
+const fmt = n => (n==null||isNaN(n))?'&mdash;':Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+// ── IST date helper ──────────────────────────────────────────────────────────
+function getISTDateStr(offsetDays = 0) {
+  const d = new Date(Date.now() + 5.5*60*60*1000 + offsetDays*86400000);
+  return d.toISOString().slice(0,10);
+}
+
+// ── Fetch with fallback dates ─────────────────────────────────────────────────
+// Tries today, then yesterday, then day before — returns first 200 response
+async function fetchWithFallback(filename) {
+  for (let i = 0; i >= -6; i--) {
+    const dateStr = getISTDateStr(i);
+    const url = `${R2_BASE}/${dateStr}/${filename}?t=${Date.now()}`;
+    try {
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        return data;
+      }
+    } catch(e) {}
+  }
+  return null;
+}
+
+// ── Theme ────────────────────────────────────────────────────────────────────
+function toggleTheme(){
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  if(globalGraph) drawGraph();
+}
+
+// ── Tabs ─────────────────────────────────────────────────────────────────────
+function switchTab(tabId, el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('page-'+tabId).classList.add('active');
+  if(tabId === 'graphs') setTimeout(drawGraph, 50);
+}
+
+// ── Online / Offline check ────────────────────────────────────────────────────
+function updateDataStatus(updatedAt) {
+  const badge  = document.getElementById('dataBadge');
+  const dot    = document.getElementById('dataDot');
+  const txt    = document.getElementById('dataTxt');
+
+  if (!updatedAt) {
+    badge.className = 'data-pill data-unknown';
+    dot.className   = 'dot';
+    txt.textContent = 'Unknown';
+    return;
+  }
+
+  const diffMs   = Date.now() - new Date(updatedAt).getTime();
+  const diffMins = diffMs / 60000;
+
+  if (diffMins <= STALE_MINS) {
+    badge.className = 'data-pill data-online';
+    dot.className   = 'dot pulse';
+    txt.textContent = 'Online';
+  } else {
+    badge.className = 'data-pill data-offline';
+    dot.className   = 'dot';
+    txt.textContent = 'Offline';
+  }
+}
+
+// ── Last Update timestamp from R2 ────────────────────────────────────────────
+function updateTimestamp(updatedAt) {
+  const el = document.getElementById('last-update');
+  if (!updatedAt) { el.textContent = 'Last Update: —'; return; }
+  // Format: DD Mon YYYY, HH:MM:SS AM/PM IST
+  const d = new Date(updatedAt);
+  const ist = new Date(d.getTime() + 5.5*60*60*1000);
+  const timeStr = ist.toISOString().replace('T',' ').slice(0,19) + ' IST';
+  el.textContent = 'Last Update: ' + timeStr;
+}
+
+// ── Market Status ─────────────────────────────────────────────────────────────
+function checkMarketStatus(){
+  const d = new Date();
+  const istNow = new Date(d.getTime() + 5.5*60*60*1000);
+  const day  = istNow.getUTCDay();
+  const mins = istNow.getUTCHours()*60 + istNow.getUTCMinutes();
+  const open = day>=1 && day<=5 && mins>=555 && mins<=930;
+  document.getElementById('mbadge').className = 'market-pill '+(open?'market-open':'market-closed');
+  document.getElementById('mtxt').textContent  = open ? 'Market Open' : 'Market Closed';
+  document.getElementById('mdot').className    = 'dot '+(open?'pulse':'');
+}
+
+// ── Manual Trigger ────────────────────────────────────────────────────────────
+async function triggerWorker() {
+  const btn = document.getElementById('triggerBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.innerHTML = '<span class="spin">⟳</span> Triggering...';
+
+  try {
+    const res  = await fetch(`${WORKER_URL}/trigger`);
+    const data = await res.json();
+    if (data.success) {
+      showToast(`✅ Triggered! adv:${data.saved.adv} dec:${data.saved.dec} vix:${data.saved.vix}`, '#36b37e');
+      // Fetch fresh data after trigger
+      setTimeout(fetchData, 800);
+    } else {
+      showToast('❌ Trigger failed', '#ff5630');
+    }
+  } catch(e) {
+    showToast('❌ Worker unreachable', '#ff5630');
+  }
+
+  btn.disabled = false;
+  btn.classList.remove('loading');
+  btn.innerHTML = '<span class="spin">⚡</span> Trigger';
+}
+
+function showToast(msg, color='var(--text)') {
+  const t = document.getElementById('triggerToast');
+  t.textContent = msg;
+  t.style.color = color;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3500);
+}
+
+// ── Fetch All Data ────────────────────────────────────────────────────────────
+async function fetchData(){
+  const t = '?t=' + Date.now();
+  try {
+    const [latest, quotesRaw] = await Promise.all([
+      fetch(`${R2_BASE}/latest.json${t}`).then(r=>r.json()).catch(()=>null),
+      fetch(`${R2_BASE}/quotes.json${t}`).then(r=>r.json()).catch(()=>null),
+    ]);
+
+    // graph & vix with date fallback
+    const [graph, vixRaw] = await Promise.all([
+      fetchWithFallback('graph.json'),
+      fetchWithFallback('vix.json'),
+    ]);
+
+    if(latest) globalLatest = latest;
+    if(quotesRaw && quotesRaw.data){
+      globalQuotes = {};
+      quotesRaw.data.forEach(q => globalQuotes[q.symbol.toUpperCase()] = q);
+    }
+    if(graph)  globalGraph = graph;
+    if(vixRaw && Array.isArray(vixRaw)) globalVix = vixRaw;
+
+    // Use updated_at from latest.json as source of truth for timestamp
+    const updatedAt = latest?.updated_at || null;
+    updateTimestamp(updatedAt);
+    updateDataStatus(updatedAt);
+    checkMarketStatus();
+
+    renderOverview();
+    renderBreadth();
+    renderHeatmap();
+    if(document.getElementById('page-graphs').classList.contains('active')) drawGraph();
+    drawVixGraph();
+    renderMovers();
+
+  } catch(e) { console.error('fetchData error:', e); }
+}
+
+// ── Render Overview ───────────────────────────────────────────────────────────
+function renderOverview(){
+  if(!globalLatest || !globalQuotes) return;
+
+  const n50 = globalQuotes['NIFTY 50'];
+  if(n50){
+    const up = n50.change >= 0;
+    document.getElementById('h-price').textContent = fmt(n50.price);
+    const hc = document.getElementById('h-change');
+    hc.innerHTML = (up?'&#9650; ':'&#9660; ')+Math.abs(n50.change).toFixed(2)+' ('+Math.abs(n50.pct).toFixed(2)+'%)';
+    hc.className = 'hero-change '+(up?'up':'dn');
+    document.getElementById('h-open').textContent = fmt(n50.open);
+    document.getElementById('h-high').textContent = fmt(n50.high);
+    document.getElementById('h-low').textContent  = fmt(n50.low);
+    document.getElementById('h-prev').textContent = fmt(n50.prev);
+  }
+
+  const vix = globalQuotes['INDIA VIX'];
+  if(vix){
+    const up = vix.change >= 0;
+    document.getElementById('h-vix').textContent = fmt(vix.price);
+    const vc = document.getElementById('h-vix-chg');
+    vc.innerHTML = (up?'&#9650; ':'&#9660; ')+Math.abs(vix.pct).toFixed(2)+'%';
+    vc.className = 'hero-change '+(up?'up':'dn');
+  }
+
+  const a = globalLatest.adv||0, d = globalLatest.dec||0;
+  const tot = a+d||1;
+  document.getElementById('h-fno-a').innerHTML = `&#9650; ${a} Adv`;
+  document.getElementById('h-fno-d').innerHTML = `&#9660; ${d} Dec`;
+  document.getElementById('hbar-fno-a').style.width = (a/tot*100)+'%';
+  document.getElementById('hbar-fno-d').style.width = (d/tot*100)+'%';
+
+  const grid = document.getElementById('sectors-grid');
+  grid.innerHTML = '';
+  SECTORS.forEach(sec => {
+    const q = globalQuotes[sec.sym];
+    if(!q) return;
+    const up = q.change >= 0;
+    grid.innerHTML += `
+      <div class="card" onclick="showSectorDetails('${sec.sym}')">
+        <div class="card-top"><div class="card-icon" style="background:var(--surface2)">${sec.icon}</div><div class="card-name">${sec.sym}</div></div>
+        <div class="card-price">${fmt(q.price)}</div>
+        <div class="card-change ${up?'up':'dn'}">${up?'&#9650;':'&#9660;'} ${fmt(Math.abs(q.change))} (${Math.abs(q.pct).toFixed(2)}%)</div>
+        <div class="cb-wrap"><span class="up">&#9650; ${q.advances||0}</span> <span class="dn">&#9660; ${q.declines||0}</span></div>
+      </div>`;
+  });
+}
+
+function showSectorDetails(sectorName){
+  const syms = CONSTITUENTS[sectorName]||[];
+  if(!globalLatest||!globalLatest.stocks) return;
+  const icon  = (SECTORS.find(s=>s.sym===sectorName)||{}).icon||'';
+  document.getElementById('m-title').innerHTML = `${icon} ${sectorName}`;
+  const grid  = document.getElementById('sector-stocks-grid');
+  grid.innerHTML = '';
+  const stocks = globalLatest.stocks.filter(s=>syms.includes(s.Symbol.trim().toUpperCase()));
+  stocks.sort((a,b)=>b['Change %']-a['Change %']);
+  stocks.forEach(s=>{
+    const up = s['Change %']>=0;
+    grid.innerHTML += `<div class="s-cell"><div class="s-sym">${s.Symbol}</div><div class="s-price">${s.LTP.toFixed(2)}</div><div class="s-pct ${up?'up':'dn'}">${up?'+':''}${s['Change %'].toFixed(2)}%</div></div>`;
+  });
+  document.getElementById('sectorModal').classList.add('show');
+}
+
+function closeSectorDetails(){
+  document.getElementById('sectorModal').classList.remove('show');
+}
+
+// ── Render Breadth ────────────────────────────────────────────────────────────
+function renderBreadth(){
+  if(!globalLatest||!globalQuotes) return;
+  const fa=globalLatest.adv||0, fd=globalLatest.dec||0, ftot=fa+fd||1;
+  document.getElementById('b-adv').textContent = fa;
+  document.getElementById('b-dec').textContent = fd;
+  document.getElementById('b-adv-pct').textContent = (fa/ftot*100).toFixed(1)+'% of F&O stocks';
+  document.getElementById('b-dec-pct').textContent = (fd/ftot*100).toFixed(1)+'% of F&O stocks';
+  document.getElementById('b-ratio').innerHTML = fd>0?(fa/fd).toFixed(2):'&mdash;';
+
+  const chart = document.getElementById('breadth-chart');
+  chart.innerHTML = '';
+  const rows = [];
+  SECTORS.forEach(sec=>{
+    const q = globalQuotes[sec.sym];
+    if(!q) return;
+    const sa=parseInt(q.advances)||0, sd=parseInt(q.declines)||0, stot=sa+sd||1;
+    rows.push({sec,sa,sd,stot,pct:(sd/stot*100)});
+  });
+  rows.sort((a,b)=>b.pct-a.pct);
+  rows.forEach(({sec,sa,sd,stot})=>{
+    const ap=Math.round(sa/stot*100), dp=100-ap;
+    const name=sec.sym.replace('NIFTY ','');
+    chart.innerHTML+=`
+      <div class="chart-row">
+        <div class="chart-label">${sec.icon} ${name}</div>
+        <div class="chart-bar-wrap" title="&#9650;${sa} Adv  &#9660;${sd} Dec">
+          <div class="bar-adv" style="width:${ap}%"></div>
+          <div class="bar-dec" style="width:${dp}%"></div>
+        </div>
+        <div class="chart-nums"><span class="cn-a">&#9650;${sa}</span><span class="cn-d">&#9660;${sd}</span></div>
+      </div>`;
+  });
+}
+
+// ── Render Heatmap ────────────────────────────────────────────────────────────
+function setHmFilter(f){
+  hmFilter=f;
+  document.getElementById('f-all').className='hm-btn '+(f==='all'?'active':'');
+  document.getElementById('f-n50').className='hm-btn '+(f==='n50'?'active':'');
+  filterHeatmap();
+}
+
+function filterHeatmap(){
+  if(!globalLatest||!globalLatest.stocks) return;
+  const t=document.getElementById('hm-search').value.toLowerCase();
+  const n50Set=new Set((globalLatest.nifty50||[]).map(s=>s.trim().toUpperCase()));
+  document.getElementById('fno-count').textContent=globalLatest.stocks.length;
+  document.getElementById('n50-count').textContent=n50Set.size;
+  const grid=document.getElementById('heatmap-grid');
+  let html='';
+  const sorted=[...globalLatest.stocks].sort((a,b)=>b['Change %']-a['Change %']);
+  sorted.forEach(s=>{
+    const symUp=s.Symbol.trim().toUpperCase();
+    if(hmFilter==='n50'&&!n50Set.has(symUp)) return;
+    if(t&&!s.Symbol.toLowerCase().includes(t)) return;
+    const st=s.Status, cls=st==='ADV'?'adv':st==='DEC'?'dec':'nt';
+    const up=s['Change %']>=0;
+    const dot=n50Set.has(symUp)?'<span class="ndot"></span>':'';
+    html+=`
+      <div class="hm-cell ${cls}" onclick="showMiniChart('${s.Symbol}',${s.LTP},${s['Change %']},this)" onmouseleave="hideMiniChart()">
+        <div class="hc-sym">${dot}${s.Symbol}</div>
+        <div class="hc-ltp">${s.LTP.toFixed(2)}</div>
+        <div class="hc-pct ${up?'up':'dn'}">${s['Change %'].toFixed(2)}%</div>
+        <div class="hc-chg">${(up?'+':'')+s['Change Price'].toFixed(2)}</div>
+      </div>`;
+  });
+  grid.innerHTML=html;
+}
+
+function renderHeatmap(){
+  filterHeatmap();
+}
+
+// ── Draw Graph ────────────────────────────────────────────────────────────────
+function drawGraph(){
+  const canvas=document.getElementById('graphCanvas');
+  if(!canvas||!globalGraph||globalGraph.length<2) return;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.parentElement.clientWidth-40;
+  const H=canvas.parentElement.clientHeight-80;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+
+  const n=globalGraph.length;
+  const pad={l:30,r:10,t:10,b:20};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+  const xp=i=>pad.l+(i/(n-1))*cw;
+  function ypA(d){const t=(d.adv||0)+(d.dec||0)+(d.neutral||0)||1;return pad.t+(d.adv/t)*ch;}
+  function ypD(d){const t=(d.adv||0)+(d.dec||0)+(d.neutral||0)||1;return Math.max(ypA(d)+2,pad.t+ch-(d.dec/t)*ch);}
+
+  ctx.strokeStyle='rgba(128,128,128,0.15)'; ctx.lineWidth=1;
+  for(let i=1;i<10;i++){const x=pad.l+i*(cw/10);ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+ch);ctx.stroke();}
+
+  ctx.fillStyle='rgba(34,197,94,0.15)'; ctx.strokeStyle='#22c55e'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(xp(0),pad.t);
+  globalGraph.forEach((d,i)=>ctx.lineTo(xp(i),ypA(d)));
+  ctx.lineTo(xp(n-1),pad.t); ctx.fill();
+  ctx.beginPath(); globalGraph.forEach((d,i)=>{if(i===0)ctx.moveTo(xp(i),ypA(d));else ctx.lineTo(xp(i),ypA(d));}); ctx.stroke();
+
+  ctx.fillStyle='rgba(239,68,68,0.15)'; ctx.strokeStyle='#ef4444'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(xp(0),pad.t+ch);
+  globalGraph.forEach((d,i)=>ctx.lineTo(xp(i),ypD(d)));
+  ctx.lineTo(xp(n-1),pad.t+ch); ctx.fill();
+  ctx.beginPath(); globalGraph.forEach((d,i)=>{if(i===0)ctx.moveTo(xp(i),ypD(d));else ctx.lineTo(xp(i),ypD(d));}); ctx.stroke();
+
+  ctx.fillStyle='gray'; ctx.textAlign='center'; ctx.font='10px "DM Mono"';
+  const step=Math.max(1,Math.floor(n/8));
+  globalGraph.forEach((d,i)=>{if(i%step===0||i===n-1)ctx.fillText(d.time,xp(i),pad.t+ch+15);});
+}
+
+// ── Draw VIX Graph ────────────────────────────────────────────────────────────
+function drawVixGraph(){
+  const canvas=document.getElementById('vixCanvas');
+  const dpr=window.devicePixelRatio||1;
+  const W=320, H=140;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+
+  if(!globalVix||globalVix.length<2){
+    ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.font='12px DM Sans'; ctx.textAlign='center';
+    ctx.fillText('No VIX data yet',W/2,H/2);
+    return;
+  }
+
+  const vixPts=globalVix.filter(p=>p.vix>0);
+  if(vixPts.length<2) return;
+
+  const values=vixPts.map(p=>p.vix);
+  const min=Math.min(...values)*0.998, max=Math.max(...values)*1.002, rng=max-min||0.1;
+  const pad={t:10,b:20,l:4,r:4};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+
+  const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+  grad.addColorStop(0,'rgba(251,191,36,0.25)');
+  grad.addColorStop(1,'rgba(251,191,36,0.0)');
+
+  ctx.beginPath();
+  vixPts.forEach((p,i)=>{
+    const x=pad.l+(i/(vixPts.length-1))*cw;
+    const y=pad.t+ch-((p.vix-min)/rng)*ch;
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  });
+  ctx.lineTo(pad.l+cw,pad.t+ch); ctx.lineTo(pad.l,pad.t+ch); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  ctx.beginPath(); ctx.strokeStyle='#fbbf24'; ctx.lineWidth=2; ctx.lineJoin='round';
+  vixPts.forEach((p,i)=>{
+    const x=pad.l+(i/(vixPts.length-1))*cw;
+    const y=pad.t+ch-((p.vix-min)/rng)*ch;
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='10px DM Mono';
+  ctx.textAlign='left'; ctx.fillText(vixPts[0].time,pad.l+2,H-4);
+  ctx.textAlign='right'; ctx.fillText(vixPts[vixPts.length-1].time,pad.l+cw-2,H-4);
+
+  document.getElementById('vix-float-val').textContent=values[values.length-1].toFixed(2);
+}
+
+// ── Render Movers ─────────────────────────────────────────────────────────────
+function renderMovers(){
+  if(!globalLatest||!globalLatest.stocks) return;
+  const sorted=[...globalLatest.stocks].sort((a,b)=>b['Change %']-a['Change %']);
+  const gainers=sorted.slice(0,10);
+  const losers=[...sorted].reverse().slice(0,10);
+  const makeHtml=(arr,up)=>arr.map(s=>`
+    <div class="mv-row">
+      <div><div class="mv-sym">${s.Symbol}</div><div class="mv-price">${s.LTP.toFixed(2)} LTP</div></div>
+      <div class="mv-vol ${up?'up':'dn'}">${up?'+':''}${s['Change %'].toFixed(2)}%</div>
+    </div>`).join('');
+  document.getElementById('mv-gainers').innerHTML=makeHtml(gainers,true);
+  document.getElementById('mv-losers').innerHTML=makeHtml(losers,false);
+}
+
+// ── Mini Chart ────────────────────────────────────────────────────────────────
+window.showMiniChart = async function(sym,ltp,pct,el){
+  const modal=document.getElementById('miniModal');
+  const rect=el.getBoundingClientRect();
+  document.getElementById('m-sym').textContent=sym;
+  document.getElementById('m-ltp').textContent=ltp.toFixed(2);
+  const pc=document.getElementById('m-pct');
+  pc.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%';
+  pc.className='mini-pct '+(pct>=0?'up':'dn');
+  modal.style.left=(rect.right+10)+'px';
+  modal.style.top=rect.top+'px';
+  if(rect.right+360>window.innerWidth) modal.style.left=(rect.left-360)+'px';
+  modal.classList.add('show');
+
+  if(!symbolCache){
+    try{
+      const res=await fetchWithFallback('symbols_all.json');
+      if(res) symbolCache=res;
+    }catch(e){}
+  }
+
+  const canvas=document.getElementById('miniCanvas');
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(!symbolCache||!symbolCache[sym]) return;
+  const pts=symbolCache[sym];
+  if(pts.length<2) return;
+  const w=canvas.clientWidth, h=canvas.clientHeight;
+  canvas.width=w; canvas.height=h;
+  const min=Math.min(...pts.map(p=>p.ltp)), max=Math.max(...pts.map(p=>p.ltp)), rng=max-min||1;
+  ctx.beginPath(); ctx.strokeStyle=pct>=0?'#36b37e':'#ff5630'; ctx.lineWidth=2;
+  pts.forEach((p,i)=>{
+    const x=(i/(pts.length-1))*w, y=h-((p.ltp-min)/rng)*h;
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+};
+
+window.hideMiniChart=function(){
+  document.getElementById('miniModal').classList.remove('show');
+};
+
+// ── Draggable VIX Float ───────────────────────────────────────────────────────
+const dragEl=document.getElementById('vixFloat');
+let isDrag=false,ox=0,oy=0,sx=0,sy=0;
+dragEl.querySelector('.vix-hdr').addEventListener('mousedown',e=>{
+  isDrag=true; ox=e.clientX; oy=e.clientY;
+  const rect=dragEl.getBoundingClientRect(); sx=rect.left; sy=rect.top;
+  dragEl.style.transition='none';
+});
+window.addEventListener('mousemove',e=>{
+  if(!isDrag) return;
+  dragEl.style.left=(sx+e.clientX-ox)+'px';
+  dragEl.style.top=(sy+e.clientY-oy)+'px';
+  dragEl.style.right='auto'; dragEl.style.bottom='auto';
+});
+window.addEventListener('mouseup',()=>{isDrag=false;dragEl.style.transition='opacity 0.2s';});
+
+// ── Auto Refresh ──────────────────────────────────────────────────────────────
+setInterval(()=>{
+  if(document.getElementById('interval-sel').value!=='0') fetchData();
+},60000);
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+fetchData();
+</script>
+</body>
+</html>
