@@ -2840,13 +2840,33 @@ async function loadBaselines(){
     const sel=document.getElementById('base-select');
     const prevVal = sel.value;
     while(sel.options.length>1) sel.remove(1);
+    // optgroup bhi remove karo
+    while(sel.children.length>1) sel.removeChild(sel.lastChild);
+
     if(!_allBaselines.length){sel.options[0].text='— no baselines yet —';return;}
     sel.options[0].text='— select baseline —';
-    _allBaselines.forEach((b,i)=>{
-      const opt=document.createElement('option');
-      opt.value=b.key; opt.text=b.timeStr+(b.label==='manual'?' 📌':'')+( i===0?' (latest)':'');
-      sel.appendChild(opt);
-    });
+
+    if(!j.hasSections){
+      // Normal trading day — flat list (existing logic)
+      _allBaselines.forEach((b,i)=>{
+        const opt=document.createElement('option');
+        opt.value=b.key; opt.text=b.timeStr+(b.label==='manual'?' 📌':'')+( i===0?' (latest)':'');
+        sel.appendChild(opt);
+      });
+    } else {
+      // Weekend / Holiday — optgroup sections
+      (j.sections||[]).forEach(section=>{
+        const grp=document.createElement('optgroup');
+        grp.label = section.label;
+        (section.items||[]).forEach((b,i)=>{
+          const opt=document.createElement('option');
+          opt.value=b.key; opt.text=b.timeStr+(b.label==='manual'?' 📌':'')+( i===0?' (latest)':'');
+          grp.appendChild(opt);
+        });
+        sel.appendChild(grp);
+      });
+    }
+
     if(prevVal && [...sel.options].some(o=>o.value===prevVal)){
       sel.value = prevVal;
     } else if(_allBaselines.length){

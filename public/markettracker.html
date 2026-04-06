@@ -478,7 +478,7 @@ function switchTab(tabId){
 // -- Fetching Data --
 async function fetchData(){
   const t = '?t=' + Date.now();
-  const td = new Date().toISOString().slice(0,10);
+  const td = new Date(Date.now() + 5.5*60*60*1000).toISOString().slice(0,10); // IST date
   try {
     const [latest, quotesRaw, graph, vixRaw] = await Promise.all([
       fetch(`${R2_BASE}/latest.json${t}`).then(r=>r.json()).catch(()=>null),
@@ -866,7 +866,7 @@ window.showMiniChart = async function(sym, ltp, pct, el) {
 
   // Fetch points from symbols_all
   if(!symbolCache) {
-    const td = new Date().toISOString().slice(0,10);
+    const td = new Date(Date.now() + 5.5*60*60*1000).toISOString().slice(0,10); // IST date
     try { symbolCache = await fetch(`${R2_BASE}/${td}/symbols_all.json`).then(r=>r.json()); } catch(e){}
   }
   
