@@ -1,1 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MulBhav Continuation Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg2: #161b27;
+      --card: #1a2032;
+      --border: #2a3450;
+      --ink: #e8eaf0;
+      --ink2: #a0aec0;
+      --muted: #5a6a8a;
+      --bull: #22c55e;
+      --bear: #f43f5e;
+      --blue: #3b82f6;
+      --gold: #f59e0b;
+      --purp: #a855f7;
+      --fs: 'Instrument Serif', serif;
+      --fm: 'IBM Plex Mono', monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--fm); font-size: 13px; line-height: 1.4; }
+
+    header {
+      padding: 15px 30px;
+      background: rgba(15, 17, 23, .95);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+
+    .logo { font-family: var(--fs); font-size: 1.5rem; }
+    .logo em { font-style: italic; color: var(--bull); }
+
+    main { padding: 20px 30px; }
+
+    .status-bar {
+      margin-bottom: 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 12px 20px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #load-progress { font-size: 0.75rem; color: var(--blue); }
+
+    .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .ph {
+      padding: 14px 20px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .ph h3 { font-family: var(--fs); font-size: 1.25rem; }
+
+    .search-row { padding: 10px 20px; background: var(--bg); border-bottom: 1px solid var(--border); }
+    .si {
+      width: 100%; background: var(--bg2); border: 1px solid var(--border);
+      color: var(--ink); padding: 8px 12px; border-radius: 6px; outline: none;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px 20px; background: var(--bg2); font-size: 0.7rem; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 20px; border-bottom: 1px solid rgba(42, 52, 80, 0.4); }
+
+    .sym { font-weight: 600; color: var(--ink); }
+    .score { font-weight: 700; color: var(--gold); }
+    
+    .heatmap { display: flex; gap: 4px; }
+    .box { width: 14px; height: 14px; border-radius: 2px; background: var(--bg2); border: 1px solid rgba(255,255,255,0.05); }
+    .box.long { background: var(--bull); box-shadow: 0 0 6px var(--bull); }
+    .box.short { background: var(--bear); box-shadow: 0 0 6px var(--bear); }
+    .box.unwind { background: var(--purp); }
+    .box.covering { background: #14b8a6; }
+
+    .num { text-align: right; }
+    .bull { color: var(--bull); }
+    .bear { color: var(--bear); }
+    .muted { color: var(--muted); }
+    .btn-cloud { background: var(--blue); color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+    .btn-cloud:hover { background: #2563eb; transform: translateY(-1px); }
+    .btn-cloud:active { transform: translateY(0); }
+    .btn-cloud.loading { opacity: 0.7; pointer-events: none; }
+
+    @media (max-width: 768px) {
+      .header { flex-direction: column; align-items: flex-start; gap: 10px; padding: 15px; }
+      .controls { width: 100%; flex-wrap: wrap; }
+      #search { width: 100% !important; }
+      .container { padding: 10px; }
+      .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      table { min-width: 800px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+    }
+
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .sum-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; }
+    .sum-card h4 { font-size: 0.8rem; text-transform: uppercase; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .sum-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+    .wall-label { font-size: 0.6rem; color: var(--muted); margin-left: 5px; }
+    .wall-val { font-weight: 600; font-size: 0.75rem; }
+
+    .trend-icon { font-size: 1.2rem; margin-right: 10px; }
+    .consensus-chip {
+      padding: 2px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: 700;
+      text-transform: uppercase;
+    }
+    .consensus-chip.high-bull { background: var(--bull); color: #000; }
+    .consensus-chip.high-bear { background: var(--bear); color: #fff; }
+  </style>
+</head>
+<body>
+
+  <div class="loader-screen" id="loader">
+    <div class="spinner"></div>
+    <div id="loader-status">Fetching last 10 days of market data...</div>
+    <div style="font-size: 0.7rem; color: var(--muted); margin-top: 10px;">Please wait, processing NSE F&O trends</div>
+  </div>
+
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">M</div>
+      <div class="logo-text">
+        <div class="title">MulBhav Continuation Intelligence</div>
+        <div class="subtitle">10-Day Historical Trend & Signal Strength</div>
+      </div>
+    </div>
+    <div class="controls">
+      <input type="text" id="search" placeholder="Search stock (HDFC, SBIN)..." oninput="renderTable()" style="width: 200px;">
+      <button class="btn-cloud" onclick="publishToCloud()" id="btn-publish">☁️ Publish to Cloud</button>
+      <button class="btn-cloud" onclick="init(true)" style="background: var(--bg3); border: 1px solid var(--border);" id="btn-refresh">♻️ Fetch NSE Raw</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="status-bar">
+      <div>Status: <span id="status-text">Initializing...</span></div>
+      <div id="hdate">-- / -- / ----</div>
+    </div>
+
+    <div class="container">
+      <!-- Summary Section -->
+      <div class="summary-grid">
+        <div class="sum-card">
+          <div class="sum-title">Top Bullish (High Score)</div>
+          <div id="sc-bull"></div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-title">Top Bearish (Low Score)</div>
+          <div id="sc-bear"></div>
+        </div>
+      </div>
+
+      <!-- Main Table -->
+      <div class="card">
+        <div class="card-header">
+          Stock Continuation Heatmap
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Stock Symbol</th>
+                <th id="head-trend" style="width: 200px;">10-Day Trend (Heatmap)</th>
+                <th class="num">Score</th>
+                <th class="num">Cur. Price</th>
+                <th class="num">OI Chg%</th>
+                <th class="num">Avg PCR</th>
+                <th class="num">Walls</th>
+              </tr>
+            </thead>
+            <tbody id="stocks-body">
+              <tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--muted);">Please wait, loading data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const WORKER_URL = 'https://bhav-data-worker.21aoips3531a1zi.workers.dev/';
+    const SIGNAL_SERVER = 'https://mulbhav-signal-server.21aoips3531a1zi.workers.dev/';
+    
+    // Global Data Store
+    const D = {
+      dates: [],  // Last 10 trading dates
+      raw: {},    // raw date -> data
+      stocks: {}, // sym -> processed signals
+      filter: ''
+    };
+
+    const SIG_LABELS = {
+      long: 'Long Build',
+      short: 'Short Build',
+      covering: 'Short Covering',
+      unwind: 'Long Unwinding'
+    };
+
+    async function init(forceRaw = false) {
+      if (window.isInitializing && !forceRaw) return;
+      window.isInitializing = true;
+      
+      const status = document.getElementById('status-text');
+      const loader = document.getElementById('loader');
+      if (loader) loader.classList.remove('gone');
+
+      try {
+        if (!forceRaw) {
+          status.innerText = "Checking Cloud Sync...";
+          const cloudSuccess = await loadFromCloud();
+          if (cloudSuccess) {
+            status.innerText = "Loaded via High-Speed Cloud Sync.";
+            if (loader) loader.classList.add('gone');
+            renderTable();
+            window.isInitializing = false;
+            return;
+          }
+        }
+
+        status.innerText = "Fetching date list...";
+        const resp = await fetch(WORKER_URL + '?mode=list');
+        const listData = await resp.json();
+        if (!listData.success) throw new Error("Could not fetch date list");
+        
+        D.dates = listData.dates.slice(0, 10).reverse();
+        D.raw = {};
+
+        for (let i = 0; i < D.dates.length; i++) {
+          const date = D.dates[i];
+          status.innerText = `Fetching ${date} (${i+1}/${D.dates.length})...`;
+          await fetchAndProcess(date);
+        }
+
+        status.innerText = "Calculating trends...";
+        calculateContinuation();
+        
+        if (loader) loader.classList.add('gone');
+        status.innerText = "Ready. (Calculated from Raw Data)";
+        if (document.getElementById('hdate')) document.getElementById('hdate').innerText = D.dates[D.dates.length-1];
+        renderTable();
+
+      } catch (err) {
+        status.innerText = "Error: " + err.message;
+        console.error("Init Error:", err);
+      } finally {
+        window.isInitializing = false;
+      }
+    }
+
+    async function loadFromCloud() {
+      try {
+        const resp = await fetch(SIGNAL_SERVER);
+        if (!resp.ok) return false;
+        const data = await resp.json();
+        if (data.stocks && data.dates) {
+          D.stocks = data.stocks;
+          D.dates = data.dates;
+          if (document.getElementById('hdate')) document.getElementById('hdate').innerText = D.dates[D.dates.length-1];
+          return true;
+        }
+      } catch (e) { return false; }
+      return false;
+    }
+
+    async function publishToCloud() {
+      const btn = document.getElementById('btn-publish');
+      if (Object.keys(D.stocks).length === 0) {
+        alert("Pehle data calculate kijiye (Refetch Raw dabayin)");
+        return;
+      }
+      
+      const oldText = btn.innerText;
+      btn.innerText = "Saving...";
+      btn.classList.add('loading');
+      try {
+        const resp = await fetch(SIGNAL_SERVER, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stocks: D.stocks, dates: D.dates })
+        });
+        if (resp.ok) {
+          alert("Success! Signals R2 Cloud mein save ho gaye hain.");
+        } else throw new Error("Server error (Check CORS/Binding)");
+      } catch (e) {
+        alert("Error saving: " + e.message);
+      } finally {
+        btn.innerText = oldText;
+        btn.classList.remove('loading');
+      }
+    }
+
+    window.onload = () => init();
+
+    async function fetchAndProcess(date) {
+      const url = WORKER_URL + '?date=' + date;
+      console.log(`Fetching: ${url}`);
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${date}`);
+      
+      const blob = await resp.blob();
+      const zip = await JSZip.loadAsync(blob);
+      let csvs = [];
+      for (const [name, file] of Object.entries(zip.files)) {
+        const bn = name.toLowerCase().split('/').pop();
+        if ((bn.startsWith('fo') || bn.startsWith('op')) && bn.endsWith('.csv')) {
+          csvs.push(await file.async('text'));
+        }
+      }
+
+      if (csvs.length === 0) return;
+      
+      const dataIndex = {}; // sym -> { FUT: [], OPT: [] }
+
+      for (const csv of csvs) {
+        const lines = csv.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        if (lines.length < 2) continue;
+        
+        const header = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+        const hMap = {
+          contract: header.find(h => h.includes('CONTRACT')),
+          close: header.find(h => h.includes('CLOSE')),
+          oi: header.find(h => h.includes('OI') || h.includes('OPEN_INT')),
+          chg: header.find(h => h.includes('CHG') || h.includes('CHANGE')),
+          type: header.find(h => h.includes('TYPE') || h.includes('OPTION_TYP')),
+          strike: header.find(h => h.includes('STRIKE'))
+        };
+
+        for (let i = 1; i < lines.length; i++) {
+          const vals = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+          const r = {}; header.forEach((h, j) => r[h] = vals[j]);
+          
+          const contract = (r[hMap.contract] || '').toUpperCase();
+          if (!contract) continue;
+
+          const m = contract.match(/(\d{2}-[A-Z]{3}-\d{4})/);
+          if (!m) continue;
+          const exp = m[1];
+          const isFut = contract.includes('FUT');
+          const isOpt = contract.includes('OPT');
+          
+          let sym = contract.replace('FUTSTK', '').replace('FUTIDX', '').replace('OPTSTK', '').replace('OPTIDX', '').replace(exp, '');
+          
+          let type = r[hMap.type] || "";
+          if (isOpt && !type) {
+            if (contract.includes(exp + 'CE')) type = 'CE';
+            else if (contract.includes(exp + 'PE')) type = 'PE';
+          }
+
+          if (isOpt) {
+            sym = sym.replace('CE', '').replace('PE', '').replace(/\d+\.?\d*$/, '');
+          }
+          sym = sym.trim();
+          if (!sym) continue;
+
+          if (!dataIndex[sym]) dataIndex[sym] = { FUT: [], OPT: [] };
+          
+          const cleanRow = {
+            ...r,
+            SYMBOL: sym,
+            EXPIRY_DT: exp,
+            OPTION_TYP: type,
+            STRIKE_PR: parseFloat(r[hMap.strike] || 0),
+            CLOSE: parseFloat(r[hMap.close] || 0),
+            OPEN_INT: parseInt(r[hMap.oi] || 0),
+            CHG_IN_OI: parseInt(r[hMap.chg] || 0)
+          };
+
+          if (isFut) dataIndex[sym].FUT.push(cleanRow);
+          else if (isOpt) dataIndex[sym].OPT.push(cleanRow);
+        }
+      }
+
+      D.raw[date] = dataIndex;
+      let optCount = 0;
+      Object.values(dataIndex).forEach(s => optCount += s.OPT.length);
+      console.log(`Processed ${date}: indexed ${Object.keys(dataIndex).length} symbols. OPT total: ${optCount}`);
+    }
+
+    function calculateContinuation() {
+      console.log("Starting calculation...");
+      const allSyms = new Set();
+      Object.keys(D.raw).forEach(date => {
+        Object.keys(D.raw[date]).forEach(s => allSyms.add(s));
+      });
+
+      D.stocks = {};
+      allSyms.forEach(sym => {
+        let history = [];
+        D.dates.forEach(date => {
+          const dayMap = D.raw[date] || {};
+          const symData = dayMap[sym];
+          if (!symData || !symData.FUT || symData.FUT.length === 0) return;
+          
+          const todayExps = [...new Set(symData.FUT.map(f => f.EXPIRY_DT))].sort((a,b) => parseDate(a) - parseDate(b));
+          const nearExp = todayExps[0];
+          const near = symData.FUT.find(f => f.EXPIRY_DT === nearExp);
+          
+          const opts = (symData.OPT || []).filter(o => o.EXPIRY_DT === nearExp);
+          let cOI = 0, pOI = 0;
+          opts.forEach(o => {
+            const contract = (o.CONTRACT_D || "").toUpperCase();
+            // Safer CE/PE detection
+            if (o.OPTION_TYP === 'CE' || contract.includes(nearExp + 'CE')) cOI += o.OPEN_INT;
+            else if (o.OPTION_TYP === 'PE' || contract.includes(nearExp + 'PE')) pOI += o.OPEN_INT;
+          });
+          const pcr = cOI > 0 ? pOI / cOI : 0;
+          if (sym === 'RELIANCE') console.log(`RELIANCE PCR for ${date}:`, { cOI, pOI, pcr, optCount: opts.length });
+
+          // Walls (Last day only)
+          let ceWall = 0, peWall = 0, maxCeOI = 0, maxPeOI = 0;
+          if (date === D.dates[D.dates.length - 1]) {
+            opts.forEach(o => {
+              if ((o.OPTION_TYP === 'CE' || o.CONTRACT_D.includes('CE')) && o.OPEN_INT > maxCeOI) { 
+                maxCeOI = o.OPEN_INT; ceWall = parseFloat(o.STRIKE_PR || o.CONTRACT_D.match(/(\d+\.?\d*)$/)?.[1] || 0); 
+              }
+              else if ((o.OPTION_TYP === 'PE' || o.CONTRACT_D.includes('PE')) && o.OPEN_INT > maxPeOI) { 
+                maxPeOI = o.OPEN_INT; peWall = parseFloat(o.STRIKE_PR || o.CONTRACT_D.match(/(\d+\.?\d*)$/)?.[1] || 0); 
+              }
+            });
+          }
+
+          history.push({
+            date, exp: nearExp, pcr, ceWall, peWall,
+            price: near.CLOSE,
+            oi: near.OPEN_INT,
+            change: near.CHG_IN_OI
+          });
+        });
+
+        if (history.length < 2) return;
+
+        // Signal Logic
+        for (let i = 0; i < history.length; i++) {
+          if (i === 0) { history[i].signal = 'neutral'; continue; }
+          const cur = history[i], pre = history[i-1];
+          const pD = cur.price - pre.price, oD = cur.oi - pre.oi;
+          if (pD > 0 && oD > 0) cur.signal = 'long';
+          else if (pD < 0 && oD > 0) cur.signal = 'short';
+          else if (pD > 0 && oD < 0) cur.signal = 'covering';
+          else if (pD < 0 && oD < 0) cur.signal = 'unwind';
+          else cur.signal = 'neutral';
+        }
+
+        const last3 = history.slice(-3);
+        const lCount = last3.filter(h => h.signal === 'long').length;
+        const sCount = last3.filter(h => h.signal === 'short').length;
+        const pcrStart = history[Math.max(0, history.length - 5)].pcr;
+        const pcrEnd = history[history.length - 1].pcr;
+        const pcrSlope = pcrEnd - pcrStart;
+
+        let score = (lCount * 2) - (sCount * 2);
+        if (pcrSlope > 0.1) score += 2;
+        if (pcrSlope < -0.1) score -= 2;
+
+        D.stocks[sym] = {
+          history,
+          score: Math.min(10, Math.max(-10, score)).toFixed(1),
+          price: history[history.length-1].price,
+          pcr: pcrEnd, pcrSlope: pcrSlope,
+          ceWall: history[history.length-1].ceWall,
+          peWall: history[history.length-1].peWall,
+          oiPct: history[history.length-1].oi > 0 ? ((history[history.length-1].change / history[history.length-1].oi) * 100).toFixed(2) : "0.00"
+        };
+      });
+      renderSummary();
+    }
+
+    function renderSummary() {
+      const all = Object.entries(D.stocks).sort((a,b) => b[1].score - a[1].score);
+      const topBull = all.slice(0, 5);
+      const topBear = all.slice(-5).reverse();
+
+      const mkRow = (s, d) => `
+        <div class="sum-row">
+          <span class="sym">${s}</span>
+          <span class="num score ${d.score > 0 ? 'bull' : 'bear'}">${d.score}</span>
+        </div>`;
+
+      document.getElementById('sc-bull').innerHTML = topBull.map(([s,d]) => mkRow(s,d)).join('');
+      document.getElementById('sc-bear').innerHTML = topBear.map(([s,d]) => mkRow(s,d)).join('');
+    }
+
+    function renderTable() {
+      const q = document.getElementById('search').value.toUpperCase();
+      const body = document.getElementById('stocks-body');
+      const headTrend = document.getElementById('head-trend');
+      body.innerHTML = '';
+
+      // Render date headers
+      let dateHtml = '<div>10-DAY TREND</div><div class="heatmap" style="margin-top:5px; gap:4px;">';
+      D.dates.forEach(d => {
+        const shortDate = d.split('-')[0] + '/' + d.split('-')[1].slice(0,1);
+        dateHtml += `<div style="width:14px; font-size:8px; text-align:center; color:var(--muted);">${shortDate}</div>`;
+      });
+      dateHtml += '</div>';
+      headTrend.innerHTML = dateHtml;
+
+      const items = Object.entries(D.stocks)
+        .filter(([sym]) => sym.includes(q))
+        .sort((a,b) => b[1].score - a[1].score);
+
+      items.forEach(([sym, data]) => {
+        const tr = document.createElement('tr');
+        let heatmap = '<div class="heatmap">';
+        data.history.forEach(h => {
+          heatmap += `<div class="box ${h.signal}" title="${h.date}: ${h.signal} | PCR: ${h.pcr.toFixed(2)}"></div>`;
+        });
+        heatmap += '</div>';
+
+        const sColor = data.score > 2 ? 'bull' : (data.score < -2 ? 'bear' : 'muted');
+        const pcrTrend = data.pcrSlope > 0 ? '📈' : (data.pcrSlope < 0 ? '📉' : '━');
+
+        tr.innerHTML = `
+          <td class="sym">${sym}</td>
+          <td>${heatmap}</td>
+          <td class="num score ${sColor}">${data.score}</td>
+          <td class="num">
+            <div>₹${data.price.toFixed(2)}</div>
+            <div style="font-size: 0.6rem; color: var(--muted);">W: <span class="bull">P${data.peWall}</span> - <span class="bear">C${data.ceWall}</span></div>
+          </td>
+          <td class="num ${data.oiPct > 0 ? 'bull' : 'bear'}">${data.oiPct}%</td>
+          <td class="num"><span class="pcr-pill ${data.pcr > 1.2 ? 'bull' : (data.pcr < 0.8 ? 'bear' : '')}">${data.pcr.toFixed(2)} ${pcrTrend}</span></td>
+          <td class="num muted" style="font-size: 10px;">${data.history.slice(-2).map(h => h.signal).join(' → ')}</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function parseDate(s) {
+      const mon = { 'JAN': 0, 'FEB': 1, 'MAR': 2, 'APR': 3, 'MAY': 4, 'JUN': 5, 'JUL': 6, 'AUG': 7, 'SEP': 8, 'OCT': 9, 'NOV': 10, 'DEC': 11 };
+      const p = s.split('-');
+      return new Date(p[2], mon[p[1]], p[0]);
+    }
+  </script>
+</body>
+</html>
 
