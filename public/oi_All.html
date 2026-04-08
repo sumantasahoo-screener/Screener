@@ -156,6 +156,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 13px; }
 body {
+  --app-header-h: 0px;
   font-family: 'Inter', sans-serif;
   background: var(--bg);
   color: var(--text);
@@ -194,7 +195,7 @@ select, button, input { outline: none; font-family: inherit; }
    TOPBAR  (matches screenshots exactly)
 ═══════════════════════════════════════ */
 #topbar {
-  position: sticky; top: 0; z-index: 100;
+  position: sticky; top: var(--app-header-h); z-index: 100;
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center;
@@ -334,7 +335,7 @@ select, button, input { outline: none; font-family: inherit; }
   font-size: 11px; overflow-x: auto;
   white-space: nowrap;
   overflow: visible;
-  position: sticky; top: 49px; z-index: 90;
+  position: sticky; top: calc(49px + var(--app-header-h)); z-index: 90;
 }
 #infobar::-webkit-scrollbar { height: 0; }
 .ii { display: flex; align-items: center; gap: 5px; padding: 0 10px; border-right: 1px solid var(--border); height: 100%; }
@@ -504,7 +505,7 @@ select, button, input { outline: none; font-family: inherit; }
   grid-template-columns: 50px 1fr 72px 1fr 56px;
   background: var(--bg2);
   border-bottom: 1px solid var(--border2);
-  position: sticky; top: 91px; z-index: 50;
+  position: sticky; top: calc(91px + var(--app-header-h)); z-index: 50;
   height: 36px;
 }
 #chain-hdr > div {
@@ -577,13 +578,17 @@ select, button, input { outline: none; font-family: inherit; }
 .ib-chg.zer { color: var(--text3); }
 
 @media (max-width: 768px) {
+  body {
+    --app-header-h: 65px;
+    padding-top: var(--app-header-h);
+  }
   #info-box-oi, #info-box-chg { display: none !important; }
   #infobar, #topbar { overflow-x: auto !important; overflow-y: hidden !important; }
   #infobar > *, #topbar > * { flex-shrink: 0 !important; }
   #chain-body { margin-top: 10px !important; }
   #sym-dropdown {
     position: fixed !important;
-    top: 92px !important;
+    top: calc(92px + var(--app-header-h)) !important;
     left: 10px !important;
     width: calc(100vw - 20px) !important;
     max-height: 50vh !important;
