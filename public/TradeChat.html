@@ -24,6 +24,23 @@
             --gold: #f5c842;
             --gold-glow: rgba(245,200,66,0.15);
             --purple: #a855f7;
+            --shadow: rgba(0,0,0,0.5);
+        }
+        
+        body.light-mode {
+            --bg: #f3f5f8;
+            --surface: #ffffff;
+            --surface2: #f9fafb;
+            --border: rgba(0,0,0,0.08);
+            --border-bright: rgba(0,0,0,0.12);
+            --text1: #1a1f2e;
+            --text2: #4a5568;
+            --text3: #718096;
+            --blue-glow: rgba(59,126,255,0.1);
+            --green-glow: rgba(0,214,143,0.08);
+            --red-glow: rgba(255,77,106,0.08);
+            --gold-glow: rgba(245,200,66,0.08);
+            --shadow: rgba(0,0,0,0.1);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
@@ -34,6 +51,10 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            background: var(--bg);
+            transition: background 0.3s, color 0.3s;
+        }
+        body:not(.light-mode) {
             background: radial-gradient(ellipse at top left, #0d1f3c 0%, #060d1a 60%);
         }
 
@@ -86,7 +107,7 @@
         /* ===== MAIN LAYOUT ===== */
         .layout {
             display:flex;flex:1;overflow:hidden;
-            max-width:1400px;width:100%;margin:0 auto;
+            width:100%;
         }
 
         /* ===== FEED WRAPPER ===== */
@@ -96,13 +117,21 @@
 
         /* ===== FILTER BAR ===== */
         .filter-bar {
-            display:flex;align-items:center;gap:6px;
-            padding:10px 16px;
-            background:rgba(13,24,41,0.8);
+            display:flex;align-items:center;gap:10px;
+            padding:10px 18px;
+            background:rgba(13,24,41,0.5);
             border-bottom:1px solid var(--border);
             flex-shrink:0;
             flex-wrap:wrap;
+            justify-content:space-between;
         }
+        .filter-btns { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+        .view-date-wrapper { display:flex; align-items:center; gap:8px; font-size:0.75rem; font-weight:700; color:var(--text3); }
+        .view-date-input {
+            background:rgba(255,255,255,0.05); border:1px solid var(--border-bright);
+            color:#fff; padding:5px 10px; border-radius:6px; font-size:0.8rem; outline:none;
+        }
+        body.light-mode .view-date-input { background:rgba(0,0,0,0.05); color:var(--text1); }
         .fbtn {
             display:flex;align-items:center;gap:5px;
             padding:5px 12px;
@@ -147,24 +176,33 @@
             background:var(--surface);
             border:1px solid var(--border);
             border-radius:10px;
-            padding:10px 12px;
-            transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;
+            padding:7px 12px;
+            transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s,background 0.2s;
             animation:fadeUp 0.3s ease forwards;
             position:relative;overflow:hidden;
         }
         .card::before {
             content:'';position:absolute;top:0;left:0;
             width:3px;height:100%;border-radius:10px 0 0 10px;
+            z-index: 5;
+        }
+        .card.bullish {
+            border-color: rgba(0,214,143,0.15);
+            background: linear-gradient(135deg, var(--surface) 80%, rgba(0,214,143,0.03) 100%);
+        }
+        .card.bearish {
+            border-color: rgba(255,77,106,0.15);
+            background: linear-gradient(135deg, var(--surface) 80%, rgba(255,77,106,0.03) 100%);
         }
         .card.bullish::before{background:var(--green)}
         .card.bearish::before{background:var(--red)}
         .card:hover{transform:translateY(-1px);border-color:var(--border-bright)}
-        .card.bullish:hover{box-shadow:0 4px 16px var(--green-glow)}
-        .card.bearish:hover{box-shadow:0 4px 16px var(--red-glow)}
+        .card.bullish:hover{box-shadow:0 4px 16px var(--green-glow); border-color: rgba(0,214,143,0.4);}
+        .card.bearish:hover{box-shadow:0 4px 16px var(--red-glow); border-color: rgba(255,77,106,0.4);}
 
         @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-        .card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;gap:6px}
+        .card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;gap:6px}
         .card-user{display:flex;align-items:center;gap:6px;font-size:0.8rem;font-weight:600;color:var(--text2)}
         .avatar{
             width:24px;height:24px;
@@ -174,20 +212,25 @@
         }
         .card-right{display:flex;align-items:center;gap:6px}
         .card-time{font-size:0.7rem;color:var(--text3);font-family:'JetBrains Mono',monospace}
-        .del-btn{
-            background:rgba(255,77,106,0.1);border:1px solid rgba(255,77,106,0.2);
-            color:rgba(255,77,106,0.6);border-radius:5px;padding:3px 7px;
-            font-size:0.68rem;cursor:pointer;transition:all 0.15s;
+        .del-btn, .edit-btn{
+            background:rgba(255,255,255,0.06);border:none;color:var(--text3);
+            width:26px;height:26px;border-radius:6px;cursor:pointer;
+            display:flex;align-items:center;justify-content:center;
+            transition:all 0.2s;font-size:0.85rem;
         }
-        .del-btn:hover{background:rgba(255,77,106,0.25);color:var(--red);border-color:rgba(255,77,106,0.5)}
+        .del-btn:hover{background:rgba(255,77,106,0.15);color:var(--red)}
+        .edit-btn:hover{background:var(--blue-glow);color:var(--blue)}
 
-        .card-main{display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap}
+        .card-main{display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap}
         .symbol{
             font-family:'JetBrains Mono',monospace;font-size:0.9rem;font-weight:700;
-            color:#fff;background:rgba(255,255,255,0.07);
+            color:#fff;background:rgba(255,255,255,0.05);
             padding:3px 9px;border-radius:5px;
-            border:1px solid rgba(255,255,255,0.1);letter-spacing:0.5px;
+            border:1px solid var(--border-bright);letter-spacing:0.5px;
+            transition: all 0.2s;
         }
+        .bullish .symbol { border-color: rgba(0,214,143,0.4); background: rgba(0,214,143,0.08); color: var(--green); }
+        .bearish .symbol { border-color: rgba(255,77,106,0.4); background: rgba(255,77,106,0.08); color: var(--red); }
         .pill{font-size:0.68rem;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:0.4px}
         .pill-bull{color:var(--green);background:var(--green-glow);border:1px solid rgba(0,214,143,0.3)}
         .pill-bear{color:var(--red);background:var(--red-glow);border:1px solid rgba(255,77,106,0.3)}
@@ -199,29 +242,15 @@
             padding:3px 7px;border-radius:5px;border:1px solid var(--border);
         }
 
-        /* Compact stats — only rendered when value exists */
-        .card-stats{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px}
-        .stat-box{
-            background:rgba(255,255,255,0.03);
-            border:1px solid var(--border);
-            border-radius:6px;padding:5px 8px;min-width:90px;
-        }
-        .stat-label{font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:1px}
-        .stat-val{font-family:'JetBrains Mono',monospace;font-size:0.78rem;font-weight:600;color:#fff}
-        .stat-val.sl{color:var(--red)}
-        .stat-val.tgt{color:var(--green)}
-        .stat-val.sup{color:#60a5fa}
-        .stat-val.res{color:var(--gold)}
-        .stat-val.entry{color:var(--purple)}
-
-        .card-source{
-            font-size:0.76rem;color:var(--text2);
-            background:rgba(255,255,255,0.03);
-            padding:5px 9px;border-radius:5px;margin-bottom:6px;
-            border-left:2px solid var(--blue);
-        }
-        .card-source strong{color:var(--text3);font-weight:500}
-        .card-notes{font-size:0.8rem;color:var(--text2);line-height:1.5;margin-bottom:7px;padding:0 2px}
+        /* Compact inline stat chips */
+        .stats-line{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px;align-items:center;}
+        .stat-chip{font-family:'JetBrains Mono',monospace;font-size:0.71rem;font-weight:600;padding:2px 7px;border-radius:5px;border:1px solid var(--border);background:rgba(255,255,255,0.04);white-space:nowrap;}
+        .stat-chip.sl{color:var(--red);border-color:rgba(255,77,106,0.22);}
+        .stat-chip.tgt{color:var(--green);border-color:rgba(0,214,143,0.22);}
+        .stat-chip.entry{color:var(--purple);border-color:rgba(168,85,247,0.22);}
+        .src-tag{font-size:0.7rem;color:var(--text3);padding:2px 7px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:4px;white-space:nowrap;}
+        .footer-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+        .card-notes{font-size:0.76rem;color:var(--text2);line-height:1.4;margin-bottom:5px;padding:0 2px;opacity:0.85;}
 
         /* Card Image Thumbnail */
         .card-img{
@@ -248,6 +277,92 @@
         .status-achieved{color:var(--green);background:var(--green-glow);border:1px solid rgba(0,214,143,0.3)}
         .status-failed  {color:var(--red);background:var(--red-glow);border:1px solid rgba(255,77,106,0.3)}
         .status-closed  {color:var(--text2);background:rgba(55,65,81,0.4);border:1px solid #374151}
+
+        /* ===== DIAGONAL STATUS STAMP (SOLID RUBBER STAMP STYLE) ===== */
+        .status-stamp {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 2.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            opacity: 0.5;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+            white-space: nowrap;
+            width: fit-content;
+            padding: 5px 15px;
+            border: 5px solid currentColor;
+            border-radius: 8px;
+            text-align: center;
+        }
+        body.light-mode .status-stamp { 
+            opacity: 0.35; 
+        }
+        .card.status-Open .status-stamp { color: #f5c842; border-color: #f5c842; }
+        .card.status-Achieved .status-stamp { color: #00d68f; border-color: #00d68f; opacity: 0.6; }
+        .card.status-Failed .status-stamp { color: #ff4d6a; border-color: #ff4d6a; opacity: 0.6; }
+        .card.status-Closed .status-stamp { color: #7a8fad; border-color: #7a8fad; }
+
+        /* Light Mode Specific Stamp Colors (Darker/Saturated) */
+        body.light-mode .card.status-Open .status-stamp { color: #b48900; border-color: #b48900; }
+        body.light-mode .card.status-Achieved .status-stamp { color: #008f5e; border-color: #008f5e; }
+        body.light-mode .card.status-Failed .status-stamp { color: #cc0022; border-color: #cc0022; }
+        body.light-mode .card.status-Closed .status-stamp { color: #4a5568; border-color: #4a5568; }
+
+        body.light-mode .card.status-Closed .status-stamp { color: #4a5568; border-color: #4a5568; }
+
+        /* ===== STATUS AUDIT LOG ===== */
+        .status-audit-log {
+            margin-top: 4px; padding: 4px 6px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.62rem; color: var(--text3);
+            display: flex; flex-direction: column; gap: 2px;
+        }
+        body.light-mode .status-audit-log { background: rgba(0,0,0,0.02); }
+        .audit-entry { display: flex; align-items: center; gap: 6px; }
+        .audit-st { font-weight: 700; color: var(--text2); }
+        .audit-user { color: var(--blue); font-weight: 600; }
+        .audit-time { font-family: 'JetBrains Mono', monospace; opacity: 0.6; }
+
+        /* ===== REMARKS SECTION ===== */
+        .remarks-section {
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px dashed var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .remark-list { display: flex; flex-wrap: wrap; gap: 4px; }
+        .remark-pill {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            color: var(--text2);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .remark-user { font-weight: 700; color: var(--blue); font-size: 0.65rem; }
+        .add-remark-trigger {
+            background: transparent;
+            border: 1px dashed var(--text3);
+            color: var(--text3);
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .add-remark-trigger:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-glow); }
 
         .status-btns{display:flex;gap:4px;flex-wrap:wrap}
         .sbtn{
@@ -286,6 +401,9 @@
             box-shadow:-10px 0 50px rgba(0,0,0,0.6);
         }
         .input-panel.panel-open{transform:translateX(0);}
+        .panel-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:10px; }
+        .panel-header h2 { font-size:0.8rem;color:var(--text3);letter-spacing:1px; }
+        .panel-close { background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.2rem; }
         .panel-backdrop{
             position:fixed;inset:0;
             background:rgba(0,0,0,0.55);
@@ -295,6 +413,17 @@
             transition:opacity 0.3s;
         }
         .panel-backdrop.open{opacity:1;pointer-events:all;}
+        .theme-toggle{
+            background:rgba(255,255,255,0.06);
+            border:1px solid var(--border-bright);
+            color:var(--text2);
+            padding:7px 12px;border-radius:8px;
+            cursor:pointer;transition:all 0.2s;font-size:0.9rem;
+            display:flex;align-items:center;justify-content:center;
+        }
+        .theme-toggle:hover{background:rgba(255,255,255,0.12);color:#fff}
+        body.light-mode .theme-toggle{background:rgba(0,0,0,0.05);color:var(--text2)}
+        
         .post-signal-btn{
             display:flex;align-items:center;gap:7px;
             padding:7px 14px;
@@ -338,6 +467,14 @@
             box-shadow:0 0 0 3px rgba(59,126,255,0.1);
         }
         textarea{resize:none;min-height:52px;line-height:1.5}
+        
+        .date-error {
+            font-size: 0.68rem;
+            color: var(--red);
+            font-weight: 600;
+            display: none;
+            margin-top: -3px;
+        }
 
         .signal-row{display:flex;gap:7px}
         .sig-label{
@@ -453,6 +590,7 @@
         </div>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Theme">🌓</button>
         <button class="post-signal-btn" id="headerPostBtn" onclick="toggleSignalPanel()">📤 Post Signal</button>
         <div class="live-badge"><div class="live-dot"></div>LIVE</div>
     </div>
@@ -467,11 +605,17 @@
 
         <!-- FILTER BAR -->
         <div class="filter-bar">
-            <button class="fbtn active" data-filter="All">📋 All <span class="cnt" id="cnt-all">0</span></button>
-            <button class="fbtn" data-filter="Open">🟡 Open <span class="cnt" id="cnt-open">0</span></button>
-            <button class="fbtn" data-filter="Achieved">✅ Achieved <span class="cnt" id="cnt-achieved">0</span></button>
-            <button class="fbtn" data-filter="Failed">❌ Failed <span class="cnt" id="cnt-failed">0</span></button>
-            <button class="fbtn" data-filter="Closed">🔒 Closed <span class="cnt" id="cnt-closed">0</span></button>
+            <div class="filter-btns">
+                <button class="fbtn active" data-filter="Open">🟡 Open <span class="cnt" id="cnt-open">0</span></button>
+                <button class="fbtn" data-filter="Achieved">✅ Achieved <span class="cnt" id="cnt-achieved">0</span></button>
+                <button class="fbtn" data-filter="Failed">❌ Failed <span class="cnt" id="cnt-failed">0</span></button>
+                <button class="fbtn" data-filter="Closed">🔒 Closed <span class="cnt" id="cnt-closed">0</span></button>
+                <button class="fbtn" data-filter="All">📋 All <span class="cnt" id="cnt-all">0</span></button>
+            </div>
+            <div class="view-date-wrapper">
+                <span>View Date:</span>
+                <input type="date" id="viewDateFilter" class="view-date-input" onchange="updateViewDate()">
+            </div>
         </div>
 
         <!-- FEED -->
@@ -482,10 +626,10 @@
 
     <!-- INPUT PANEL -->
     <div class="input-panel">
-        <div class="panel-title">
-            <span>📤 Post a Signal</span>
-            <button class="panel-close-btn" onclick="toggleSignalPanel()">✕ Close</button>
-        </div>
+    <div class="panel-header">
+        <h2 id="panelTitle">POST A SIGNAL</h2>
+        <button class="panel-close" onclick="toggleSignalPanel()">✕</button>
+    </div>
         <form id="signal-form">
 
             <!-- Name & Symbol -->
@@ -521,7 +665,8 @@
                 </div>
                 <div class="form-group">
                     <label class="field-label">Trade For Date</label>
-                    <input type="date" id="tradeDate">
+                    <input type="date" id="tradeDate" onchange="validateTradeDate()">
+                    <div id="dateError" class="date-error">⚠️ NSE Market Holiday</div>
                 </div>
             </div>
 
@@ -643,7 +788,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, getDocs, doc, onSnapshot, query, orderBy, where, Timestamp, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, getDocs, doc, onSnapshot, query, orderBy, where, Timestamp, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-storage.js";
 
     const DELETE_PASSWORD = "trade@123";
@@ -667,8 +812,47 @@
     const signalForm = document.getElementById('signal-form');
 
     let allDocs = [];
-    let activeFilter = 'All';
+    let activeFilter = 'Open';
+    let activeViewDate = new Date().toISOString().split('T')[0];
     let pendingDeleteId = null;
+    let editDocId = null; // Tracking doc being edited
+
+    // Theme Toggle
+    window.toggleTheme = () => {
+        document.body.classList.toggle('light-mode');
+        const isLight = document.body.classList.contains('light-mode');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    };
+    if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
+
+    // NSE Holidays 2026
+    const NSE_HOLIDAYS_2026 = [
+        "2026-01-26", "2026-03-03", "2026-03-26", "2026-03-31", "2026-04-03",
+        "2026-04-14", "2026-05-01", "2026-05-28", "2026-06-26", "2026-09-14",
+        "2026-10-02", "2026-10-20", "2026-11-10", "2026-11-24", "2026-12-25"
+    ];
+
+    window.validateTradeDate = () => {
+        const dateInput = document.getElementById('tradeDate');
+        const errDiv = document.getElementById('dateError');
+        const submitBtn = document.getElementById('submitBtn');
+        const val = dateInput.value;
+        if (!val) { errDiv.style.display = 'none'; submitBtn.disabled = false; return; }
+
+        const date = new Date(val);
+        const day = date.getDay(); // 0=Sun, 6=Sat
+        const isWeekend = (day === 0 || day === 6);
+        const isNSEHoliday = NSE_HOLIDAYS_2026.includes(val);
+
+        if (isWeekend || isNSEHoliday) {
+            errDiv.textContent = isWeekend ? "⚠️ Market Closed (Weekend)" : "⚠️ NSE Market Holiday";
+            errDiv.style.display = 'block';
+            submitBtn.disabled = true;
+        } else {
+            errDiv.style.display = 'none';
+            submitBtn.disabled = false;
+        }
+    };
 
     // Helpers
     const fmt = (ts) => {
@@ -693,30 +877,34 @@
         const st = data.status || 'Open';
         const isBull = data.signalType === 'Bullish';
         const cardCls = isBull ? 'bullish' : 'bearish';
-        const sigPill = isBull ? `<span class="pill pill-bull">🟢 Bullish</span>` : `<span class="pill pill-bear">🔴 Bearish</span>`;
+        const statusCls = `status-${st}`;
+        
+        const sigPill = isBull
+            ? `<span class="pill pill-bull">🟢 Bull</span>`
+            : `<span class="pill pill-bear">🔴 Bear</span>`;
         const typePill = data.tradeType ? `<span class="pill pill-type">${data.tradeType}</span>` : '';
         const cePePill = (data.tradeType === 'Option' && data.cePe)
             ? `<span class="pill ${data.cePe === 'CE' ? 'pill-bull' : 'pill-bear'}">${data.cePe}</span>` : '';
         const dateChip = data.tradeDate ? `<span class="date-chip">📅 ${data.tradeDate}</span>` : '';
 
-        // Only show stat boxes that have values
-        let statsHtml = '';
+        // Compact inline stat chips
+        let chips = '';
         const ef = rupee(data.entryFrom), et = rupee(data.entryTo);
         if (ef || et) {
-            const range = ef && et ? `${ef} – ${et}` : (ef || et);
-            statsHtml += `<div class="stat-box"><div class="stat-label">Entry</div><div class="stat-val entry">${range}</div></div>`;
+            const range = ef && et ? `${ef}–${et}` : (ef || et);
+            chips += `<span class="stat-chip entry">⬆ ${range}</span>`;
         }
         if (data.tradeType === 'Option') {
             if (data.strikePrice && data.strikePrice != 0)
-                statsHtml += `<div class="stat-box"><div class="stat-label">Strike</div><div class="stat-val entry">₹${parseFloat(data.strikePrice).toLocaleString('en-IN')}</div></div>`;
+                chips += `<span class="stat-chip entry">Strike ₹${parseFloat(data.strikePrice).toLocaleString('en-IN')}</span>`;
             if (data.optionPrice && data.optionPrice != 0)
-                statsHtml += `<div class="stat-box"><div class="stat-label">Opt. Price</div><div class="stat-val" style="color:var(--purple)">₹${parseFloat(data.optionPrice).toLocaleString('en-IN')}</div></div>`;
+                chips += `<span class="stat-chip" style="color:var(--purple);border-color:rgba(168,85,247,0.22)">Opt ₹${parseFloat(data.optionPrice).toLocaleString('en-IN')}</span>`;
         }
-        statsHtml += buildStatBox('Stop Loss', rupee(data.stopLoss), 'sl');
-        statsHtml += buildStatBox('Target', rupee(data.target), 'tgt');
+        if (data.stopLoss && data.stopLoss != 0) chips += `<span class="stat-chip sl">SL ${rupee(data.stopLoss)}</span>`;
+        if (data.target && data.target != 0) chips += `<span class="stat-chip tgt">Tgt ${rupee(data.target)}</span>`;
 
-        const statsSection = statsHtml ? `<div class="card-stats">${statsHtml}</div>` : '';
-        const srcHtml = data.source ? `<div class="card-source"><strong>Source:</strong> ${data.source}</div>` : '';
+        const statsHtml = chips ? `<div class="stats-line">${chips}</div>` : '';
+        const srcHtml = data.source ? `<span class="src-tag">📌 ${data.source}</span>` : '';
         const msgHtml = data.message ? `<div class="card-notes">${data.message}</div>` : '';
         const imgHtml = data.imageUrl ? `
             <div class="card-img" onclick="openFullImg('${data.imageUrl}')">
@@ -724,33 +912,82 @@
                 <div class="card-img-label">📊 View Chart</div>
             </div>` : '';
 
+        // Remarks logic
+        let remarksHtml = '';
+        if (data.remarks && data.remarks.length > 0) {
+            const list = data.remarks.map(r => `
+                <div class="remark-pill">
+                    <span class="remark-user">${r.user}:</span>
+                    <span>${r.text}</span>
+                </div>
+            `).join('');
+            remarksHtml = `<div class="remark-list">${list}</div>`;
+        }
+
         const btnHtml = ['Open','Achieved','Failed','Closed'].map(s => {
             const cls = s === st ? `sbtn ${sbtnClass[s]}` : 'sbtn';
             return `<button class="${cls}" onclick="updateStatus('${docId}','${s}')">${statusEmoji[s]} ${s}</button>`;
         }).join('');
 
+        // Audit Log logic
+        let auditHtml = '';
+        if (data.statusHistory && data.statusHistory.length > 0) {
+            const entries = data.statusHistory.slice(-5).map(h => {
+                const hTime = h.time ? (typeof h.time === 'number' ? new Date(h.time) : h.time.toDate()) : new Date();
+                const hTimeStr = hTime.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+                return `<div class="audit-entry">
+                    <span class="audit-time">${hTimeStr}</span>
+                    <span class="audit-st">${h.status.toUpperCase()}</span>
+                    <span class="audit-user">by ${h.user}</span>
+                </div>`;
+            }).join('');
+            auditHtml = `<div class="status-audit-log">${entries}</div>`;
+        }
+
+        const statusUpdater = data.statusUpdatedBy ? `<div style="font-size:0.55rem; font-weight:700; opacity:0.8; margin-top:-2px">BY ${data.statusUpdatedBy.toUpperCase()}</div>` : '';
+        const sentimentMark = `<div style="font-size:0.75rem; font-weight:950; opacity:0.9; margin-bottom:-4px">${data.signalType.toUpperCase()}</div>`;
+
         return `
-            <div class="card ${cardCls}" id="card-${docId}">
+            <div class="card ${cardCls} ${statusCls}" id="card-${docId}">
+                <div class="status-stamp">
+                    ${sentimentMark}
+                    <div style="font-size: 2.2rem; line-height: 1">${st}</div>
+                    ${statusUpdater}
+                </div>
                 <div class="card-top">
                     <div class="card-user"><div class="avatar">${initials(data.userName)}</div>${data.userName}</div>
                     <div class="card-right">
                         <span class="card-time">${fmt(data.createdAt)}</span>
+                        ${(data.userName && localStorage.getItem('tradechat_name') && data.userName.toLowerCase() === localStorage.getItem('tradechat_name').toLowerCase()) 
+                            ? `<button class="edit-btn" onclick='openEditPanel("${docId}", ${JSON.stringify(data).replace(/'/g, "&apos;")})' title="Edit Signal">✏️</button>` 
+                            : ''}
                         <button class="del-btn" onclick="openDeleteModal('${docId}')">🗑️</button>
                     </div>
                 </div>
                 <div class="card-main">${data.stockSymbol ? `<span class="symbol">${data.stockSymbol}</span>` : ''}${sigPill}${typePill}${cePePill}${dateChip}</div>
-                ${statsSection}
-                ${srcHtml}${msgHtml}${imgHtml}
+                ${statsHtml}${msgHtml}${imgHtml}
                 <div class="card-footer">
-                    <span class="status-badge ${statusClass[st]}">${statusLabel[st]}</span>
+                    <div class="footer-meta">
+                        <span class="status-badge ${statusClass[st]}">${statusLabel[st]}</span>
+                        ${srcHtml}
+                    </div>
                     <div class="status-btns">${btnHtml}</div>
+                </div>
+                ${auditHtml}
+                <div class="remarks-section">
+                    ${remarksHtml}
+                    <div style="display:flex; justify-content:flex-end">
+                        <button class="add-remark-trigger" onclick="addRemark('${docId}')">+ Add Remark</button>
+                    </div>
                 </div>
             </div>`;
     }
 
     function updateCounts(docs) {
-        const counts = {All:docs.length, Open:0, Achieved:0, Failed:0, Closed:0};
-        docs.forEach(d => {
+        // Stats are specific to the selected view date
+        const dateSpecificDocs = docs.filter(d => (d.data().tradeDate === activeViewDate));
+        const counts = {All:dateSpecificDocs.length, Open:0, Achieved:0, Failed:0, Closed:0};
+        dateSpecificDocs.forEach(d => {
             const st = (d.data().status || 'Open');
             if (counts[st] !== undefined) counts[st]++;
         });
@@ -762,20 +999,48 @@
     }
 
     function renderFeed() {
+        // Step 1: Filter by selected View Date
+        const dayDocs = allDocs.filter(d => (d.data().tradeDate === activeViewDate));
+        
+        // Step 2: Filter by Status
         const filtered = activeFilter === 'All'
-            ? allDocs
-            : allDocs.filter(d => (d.data().status || 'Open') === activeFilter);
+            ? dayDocs
+            : dayDocs.filter(d => (d.data().status || 'Open') === activeFilter);
 
         if (filtered.length === 0) {
-            feedPanel.innerHTML = `<div class="empty-state"><div class="icon">${activeFilter === 'All' ? '📡' : '🔍'}</div><div>${activeFilter === 'All' ? 'No signals yet. Post the first one!' : `No "${activeFilter}" signals found.`}</div></div>`;
+            feedPanel.innerHTML = `<div class="empty-state"><div class="icon">${activeFilter === 'All' ? '📅' : '🔍'}</div><div>${activeFilter === 'All' ? `No signals posted for ${activeViewDate}.` : `No "${activeFilter}" signals for this date.`}</div></div>`;
             return;
         }
         feedPanel.innerHTML = filtered.map(d => buildCard(d.id, d.data())).join('');
     }
 
+    window.updateViewDate = () => {
+        activeViewDate = document.getElementById('viewDateFilter').value;
+        if (!activeViewDate) {
+            activeViewDate = new Date().toISOString().split('T')[0];
+            document.getElementById('viewDateFilter').value = activeViewDate;
+        }
+        updateCounts(allDocs);
+        renderFeed();
+    };
+
     // Real-time listener
-    onSnapshot(q, (snapshot) => {
+    onSnapshot(q, async (snapshot) => {
         allDocs = snapshot.docs;
+
+        // Auto-cleanup logic (Run once on snapshot if docs exist)
+        if (allDocs.length > 0) {
+            const tenDaysAgo = Timestamp.fromDate(new Date(Date.now() - 10 * 24 * 60 * 60 * 1000));
+            const oldOnes = allDocs.filter(d => {
+                const created = d.data().createdAt;
+                return created && created.toMillis() < tenDaysAgo.toMillis();
+            });
+            if (oldOnes.length > 0) {
+                console.log(`Cleaning up ${oldOnes.length} old documents...`);
+                oldOnes.forEach(async (d) => await deleteDoc(doc(db, 'signals', d.id)));
+            }
+        }
+
         updateCounts(allDocs);
         renderFeed();
     }, (err) => {
@@ -798,9 +1063,49 @@
 
     // Update Status
     window.updateStatus = async (docId, newStatus) => {
+        let uName = document.getElementById('userName').value || localStorage.getItem('lastUser');
+        
+        if (!uName || uName.trim() === '') {
+            uName = prompt("Please enter your nickname to update status:");
+            if (!uName || uName.trim() === '') {
+                alert("Nickname is required to update status!");
+                return;
+            }
+        }
+
         try {
-            await updateDoc(doc(db, 'signals', docId), { status: newStatus });
+            await updateDoc(doc(db, 'signals', docId), { 
+                status: newStatus,
+                statusUpdatedBy: uName,
+                statusUpdatedAt: serverTimestamp(),
+                statusHistory: arrayUnion({
+                    status: newStatus,
+                    user: uName,
+                    time: Date.now()
+                })
+            });
+            localStorage.setItem('lastUser', uName);
         } catch (err) { alert('Update failed: ' + err.message); }
+    };
+
+    // Add Remark
+    window.addRemark = async (docId) => {
+        const uName = document.getElementById('userName').value || localStorage.getItem('lastUser') || 'Anonymous';
+        const remarkText = prompt(`${uName}, enter your remark:`);
+        if (!remarkText || remarkText.trim() === '') return;
+
+        try {
+            await updateDoc(doc(db, 'signals', docId), {
+                remarks: arrayUnion({
+                    user: uName,
+                    text: remarkText.trim(),
+                    time: Date.now()
+                })
+            });
+            if (uName !== 'Anonymous') localStorage.setItem('lastUser', uName);
+        } catch (err) {
+            alert('Could not add remark: ' + err.message);
+        }
     };
 
     // Delete modal
@@ -840,14 +1145,71 @@
     window.toggleSignalPanel = () => {
         const panel = document.querySelector('.input-panel');
         const backdrop = document.getElementById('panelBackdrop');
-        const isOpen = panel.classList.contains('panel-open');
+        const isOpen = panel.classList.toggle('panel-open');
+        backdrop.classList.toggle('open', isOpen);
+        
         if (isOpen) {
-            panel.classList.remove('panel-open');
-            backdrop.classList.remove('open');
+            // If not editing, reset form
+            if (!editDocId) {
+                signalForm.reset();
+                document.getElementById('panelTitle').textContent = 'POST A SIGNAL';
+                document.getElementById('submitBtn').innerHTML = '🚀 Post Signal';
+                const tradeDateInput = document.getElementById('tradeDate');
+                tradeDateInput.value = "";
+                const today = new Date().toISOString().split('T')[0];
+                tradeDateInput.setAttribute('min', today);
+                document.getElementById('dateError').style.display = 'none';
+                document.getElementById('imgPreview').style.display = 'none';
+                document.getElementById('optionFields').style.display = 'none';
+            }
         } else {
-            panel.classList.add('panel-open');
-            backdrop.classList.add('open');
+            editDocId = null; // Clear edit state on close
         }
+    };
+
+    // Open Edit Panel
+    window.openEditPanel = (docId, data) => {
+        editDocId = docId;
+        document.getElementById('panelTitle').textContent = 'EDIT SIGNAL';
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.innerHTML = '💾 Save Changes';
+        
+        // Pre-fill
+        document.getElementById('userName').value = data.userName || '';
+        document.getElementById('stockSymbol').value = data.stockSymbol || '';
+        if (data.signalType) {
+            const rb = document.querySelector(`input[name="signalType"][value="${data.signalType}"]`);
+            if (rb) rb.checked = true;
+        }
+        document.getElementById('tradeType').value = data.tradeType || 'Stock';
+        document.getElementById('tradeDate').value = data.tradeDate || '';
+        document.getElementById('entryFrom').value = data.entryFrom || '';
+        document.getElementById('entryTo').value = data.entryTo || '';
+        document.getElementById('stopLoss').value = data.stopLoss || '';
+        document.getElementById('target').value = data.target || '';
+        document.getElementById('message').value = data.message || '';
+        
+        if (data.tradeType === 'Option') {
+            document.getElementById('optionFields').style.display = 'flex';
+            document.getElementById('strikePrice').value = data.strikePrice || '';
+            document.getElementById('optionPrice').value = data.optionPrice || '';
+            if (data.cePe) {
+                const rb = document.querySelector(`input[name="optionCEPE"][value="${data.cePe}"]`);
+                if (rb) rb.checked = true;
+            }
+        }
+
+        if (data.imageUrl) {
+            const preview = document.getElementById('imgPreview');
+            preview.src = data.imageUrl;
+            preview.style.display = 'block';
+        }
+
+        // Open the panel
+        const panel = document.querySelector('.input-panel');
+        const backdrop = document.getElementById('panelBackdrop');
+        panel.classList.add('panel-open');
+        backdrop.classList.add('open');
     };
 
     // Toggle Option Fields
@@ -882,14 +1244,20 @@
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
         btn.disabled = true;
-        btn.textContent = '⏳ Posting...';
+        btn.textContent = editDocId ? '⏳ Saving...' : '⏳ Posting...';
 
         const userName = document.getElementById('userName').value.trim();
         localStorage.setItem('tradechat_name', userName);
 
         try {
-            // Upload image if selected
+            // Upload image if selected (new image replaces old one in reference)
             let imageUrl = '';
+            // If already has image and no new one selected, keep old one
+            if (editDocId) {
+                const preview = document.getElementById('imgPreview');
+                if (preview.style.display === 'block') imageUrl = preview.src;
+            }
+
             const fileInput = document.getElementById('imageFile');
             if (fileInput.files.length > 0) {
                 btn.textContent = '📤 Uploading image...';
@@ -899,19 +1267,21 @@
                 imageUrl = await getDownloadURL(imgRef);
             }
 
-            // 10-day auto-cleanup
+            // 10-day auto-cleanup (moved to snapshot listener for reliability)
+            /*
             const tenDaysAgo = Timestamp.fromDate(new Date(Date.now() - 10 * 24 * 60 * 60 * 1000));
             const oldQ = query(colRef, where('createdAt', '<', tenDaysAgo));
             const oldDocs = await getDocs(oldQ);
             const delPromises = oldDocs.docs.map(d => deleteDoc(doc(db, 'signals', d.id)));
             await Promise.all(delPromises);
+            */
 
             const tradeType = document.getElementById('tradeType').value;
             const sourceVal = document.getElementById('sourceSelect').value;
             const sourceOtherVal = document.getElementById('sourceOther').value.trim();
             const finalSource = sourceVal === 'Other' ? (sourceOtherVal || 'Other') : sourceVal;
 
-            await addDoc(colRef, {
+            const signalData = {
                 userName,
                 stockSymbol: document.getElementById('stockSymbol').value.trim().toUpperCase(),
                 signalType: document.querySelector('input[name="signalType"]:checked')?.value || 'Bullish',
@@ -929,11 +1299,21 @@
                 source: finalSource,
                 message: document.getElementById('message').value.trim(),
                 imageUrl,
-                status: 'Open',
-                createdAt: serverTimestamp()
-            });
+                status: editDocId ? undefined : 'Open', // Don't reset status on edit
+                createdAt: editDocId ? undefined : serverTimestamp() // Don't reset time on edit
+            };
 
-            // Reset form
+            // Remove undefined fields for update
+            if (editDocId) {
+                Object.keys(signalData).forEach(key => signalData[key] === undefined && delete signalData[key]);
+                await updateDoc(doc(db, 'signals', editDocId), signalData);
+            } else {
+                await addDoc(colRef, signalData);
+            }
+
+            // Close and Reset
+            editDocId = null;
+            toggleSignalPanel();
             ['stockSymbol','entryFrom','entryTo','stopLoss','target','message','strikePrice','optionPrice','sourceOther'].forEach(id => {
                 const el = document.getElementById(id); if (el) el.value = '';
             });
@@ -966,11 +1346,11 @@
         document.getElementById('uploadBox').style.borderColor = 'rgba(59,126,255,0.5)';
     };
 
-    // Load saved name & set today's date
+    // Load saved name
     window.addEventListener('DOMContentLoaded', () => {
         const saved = localStorage.getItem('tradechat_name');
         if (saved) document.getElementById('userName').value = saved;
-        document.getElementById('tradeDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('viewDateFilter').value = activeViewDate;
     });
 </script>
 </body>
