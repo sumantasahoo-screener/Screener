@@ -665,7 +665,7 @@
                 </div>
                 <div class="form-group">
                     <label class="field-label">Trade For Date</label>
-                    <input type="date" id="tradeDate" onchange="validateTradeDate()">
+                    <input type="date" id="tradeDate" onchange="validateTradeDate()" required>
                     <div id="dateError" class="date-error">⚠️ NSE Market Holiday</div>
                 </div>
             </div>
@@ -697,7 +697,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="field-label">Entry Price</label>
-                    <input type="number" id="entryFrom" placeholder="0.00" step="0.01">
+                    <input type="number" id="entryFrom" placeholder="0.00" step="0.01" required>
                 </div>
                 <div class="form-group">
                     <label class="field-label">Entry Upto</label>
@@ -721,11 +721,11 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="field-label">Stop Loss</label>
-                    <input type="number" id="stopLoss" placeholder="0.00" step="0.01">
+                    <input type="number" id="stopLoss" placeholder="0.00" step="0.01" required>
                 </div>
                 <div class="form-group">
                     <label class="field-label">Target</label>
-                    <input type="number" id="target" placeholder="0.00" step="0.01">
+                    <input type="number" id="target" placeholder="0.00" step="0.01" required>
                 </div>
             </div>
 
@@ -1152,6 +1152,11 @@
             // If not editing, reset form
             if (!editDocId) {
                 signalForm.reset();
+                
+                // Re-apply saved name after reset
+                const savedName = localStorage.getItem('tradechat_name');
+                if (savedName) document.getElementById('userName').value = savedName;
+
                 document.getElementById('panelTitle').textContent = 'POST A SIGNAL';
                 document.getElementById('submitBtn').innerHTML = '🚀 Post Signal';
                 const tradeDateInput = document.getElementById('tradeDate');
@@ -1242,6 +1247,33 @@
     // Form Submit
     signalForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // 1. Mandatory Field Check
+        const uName = document.getElementById('userName').value.trim();
+        const symbol = document.getElementById('stockSymbol').value.trim();
+        const tDate = document.getElementById('tradeDate').value;
+        const ent = parseFloat(document.getElementById('entryFrom').value) || 0;
+        const sl = parseFloat(document.getElementById('stopLoss').value) || 0;
+        const tgt = parseFloat(document.getElementById('target').value) || 0;
+
+        if (!uName || !symbol || !tDate || ent <= 0 || sl <= 0 || tgt <= 0) {
+            alert("❌ Sabhi Fields (Name, Symbol, Date, Price, SL, Tgt) bharna zaroori hai aur zero (0) nahi ho sakte!");
+            return;
+        }
+
+        // 2. Validation: SL/Target consistency check
+        const sType = document.querySelector('input[name="signalType"]:checked')?.value || 'Bullish';
+
+        if (ent > 0) {
+            if (sType === 'Bullish') {
+                if (sl > 0 && sl >= ent) { alert(`❌ Bullish Error: SL (${sl}) Entry (${ent}) se niche hona chahiye!`); return; }
+                if (tgt > 0 && tgt <= ent) { alert(`❌ Bullish Error: Target (${tgt}) Entry (${ent}) se upar hona chahiye!`); return; }
+            } else {
+                if (sl > 0 && sl <= ent) { alert(`❌ Bearish Error: SL (${sl}) Entry (${ent}) se upar hona chahiye!`); return; }
+                if (tgt > 0 && tgt >= ent) { alert(`❌ Bearish Error: Target (${tgt}) Entry (${ent}) se niche hona chahiye!`); return; }
+            }
+        }
+
         const btn = document.getElementById('submitBtn');
         btn.disabled = true;
         btn.textContent = editDocId ? '⏳ Saving...' : '⏳ Posting...';
