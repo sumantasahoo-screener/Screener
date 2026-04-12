@@ -2,369 +2,946 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>14 Intraday Trade Setups — March 11, 2026</title>
+<script>
+(function(){
+  const c = document.createElement('canvas');
+  c.width = c.height = 64;
+  const x = c.getContext('2d');
+  const r = 12;
+
+  // Rounded rect clip
+  x.beginPath();
+  x.moveTo(r,0);
+  x.lineTo(64-r,0); x.arcTo(64,0,64,r,r);
+  x.lineTo(64,64-r); x.arcTo(64,64,64-r,64,r);
+  x.lineTo(r,64); x.arcTo(0,64,0,64-r,r);
+  x.lineTo(0,r); x.arcTo(0,0,r,0,r);
+  x.closePath();
+  x.clip();
+
+  // Dark background
+  x.fillStyle = '#0d0d0d';
+  x.fillRect(0,0,64,64);
+
+  // Subtle gradient glow
+  const g = x.createLinearGradient(0,0,64,64);
+  g.addColorStop(0,'rgba(255,60,60,0.15)');
+  g.addColorStop(1,'rgba(255,140,0,0.10)');
+  x.fillStyle = g;
+  x.fillRect(0,0,64,64);
+
+  // "AI" text — red to orange gradient
+  const tg = x.createLinearGradient(4,0,60,0);
+  tg.addColorStop(0,'#ff3c3c');
+  tg.addColorStop(1,'#ff8c00');
+  x.font = 'bold 28px Arial';
+  x.textAlign = 'center';
+  x.textBaseline = 'middle';
+  x.fillStyle = tg;
+  x.fillText('AI', 30, 36);
+
+  // Small spark dot top-right
+  x.beginPath();
+  x.arc(50, 14, 5, 0, Math.PI*2);
+  x.fillStyle = '#ff8c00';
+  x.fill();
+  x.beginPath();
+  x.arc(50, 14, 3, 0, Math.PI*2);
+  x.fillStyle = '#ffffff';
+  x.fill();
+
+  const l = document.createElement('link');
+  l.rel='icon'; l.type='image/png';
+  l.href = c.toDataURL('image/png');
+  document.head.appendChild(l);
+})();
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TradeGPT</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-[data-theme="dark"]{--bg:#0f1117;--bg2:#181c27;--bg3:#1e2333;--border:#252d42;--text:#e8edf5;--text2:#8a96b0;--text3:#444e66;--green:#22c55e;--red:#ef4444;--gold:#f59e0b;--blue:#3b82f6;--card:#181c27;--topbar:#13161f;}
-[data-theme="light"]{--bg:#f3f4f8;--bg2:#ffffff;--bg3:#f0f2f7;--border:#dde1ed;--text:#1a1e2e;--text2:#5a6480;--text3:#9aa3bc;--green:#16a34a;--red:#dc2626;--gold:#d97706;--blue:#2563eb;--card:#ffffff;--topbar:#ffffff;}
-[data-theme="green"]{--bg:#050e09;--bg2:#091510;--bg3:#0d1e14;--border:#163020;--text:#d4f5e0;--text2:#6a9a7a;--text3:#2a4a35;--green:#00e676;--red:#ff5252;--gold:#ffca28;--blue:#40c4ff;--card:#091510;--topbar:#07110c;}
-[data-theme="midnight"]{--bg:#07060f;--bg2:#0e0c1c;--bg3:#151228;--border:#1e1a35;--text:#ddd8ff;--text2:#7a74a8;--text3:#3a3560;--green:#4ade80;--red:#f87171;--gold:#fbbf24;--blue:#818cf8;--card:#0e0c1c;--topbar:#0a0916;}
+[data-theme="dark"]{
+  --bg:#0a0a0f;--bg2:#10121a;--bg3:#181c28;--bg4:#1e2335;
+  --border:#1e2535;--border2:#252d45;
+  --accent:#00d46a;--adim:rgba(0,212,106,0.1);
+  --text:#e8edf5;--text2:#8a96b0;--text3:#444e66;
+  --green:#00e676;--red:#ff3355;--gold:#fbbf24;--blue:#60a5fa;--purple:#a78bfa;
+  --up:rgba(0,230,118,0.07);--dn:rgba(255,51,85,0.07);
+  --card:#10121a;--cb:#1e2535;
+}
+[data-theme="light"]{
+  --bg:#f1f4f9;--bg2:#fff;--bg3:#f5f7fb;--bg4:#eaecf3;
+  --border:#dde3ef;--border2:#c8d0e4;
+  --accent:#059669;--adim:rgba(5,150,105,0.1);
+  --text:#0f1520;--text2:#506080;--text3:#94a3b8;
+  --green:#16a34a;--red:#dc2626;--gold:#d97706;--blue:#2563eb;--purple:#7c3aed;
+  --up:rgba(22,163,74,0.07);--dn:rgba(220,38,38,0.07);
+  --card:#fff;--cb:#dde3ef;
+}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;}
-.topbar{background:var(--topbar);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.topbar-left{display:flex;align-items:center;gap:12px;}
-.logo{font-size:16px;font-weight:700;color:var(--text);}
-.logo span{color:var(--green);}
-.live-badge{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;color:var(--green);background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);}
-.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
-.theme-switcher{display:flex;align-items:center;gap:6px;}
-.theme-switcher label{font-size:11px;color:var(--text2);margin-right:4px;}
-.tbtn{padding:4px 10px;font-size:11px;font-weight:600;border-radius:5px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;transition:all .15s;}
-.tbtn:hover,.tbtn.active{background:var(--green);color:#000;border-color:var(--green);}
-.wrap{max-width:1400px;margin:0 auto;padding:24px 20px;}
-.header{margin-bottom:20px;}
-.header h1{font-size:24px;font-weight:700;color:var(--text);margin-bottom:4px;}
-.header h1 span{color:var(--green);}
-.header-sub{font-size:13px;color:var(--text2);}
-.mbar{display:grid;grid-template-columns:repeat(8,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:16px;}
-.mi{background:var(--bg2);padding:10px 12px;text-align:center;}
-.mi-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
-.mi-val{font-size:14px;font-weight:700;color:var(--text);}
-.mi-chg{font-size:11px;margin-top:1px;}
-.up{color:var(--green);}.dn{color:var(--red);}.neu{color:var(--text2);}
-.sentiment{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:12.5px;color:var(--text2);line-height:1.7;}
-.sentiment strong{color:var(--gold);}
-.sec-head{display:flex;align-items:center;gap:8px;padding:10px 0 8px;border-bottom:2px solid var(--border);margin-bottom:14px;margin-top:24px;}
-.sec-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
-.sec-icon.g{background:rgba(34,197,94,0.12);}
-.sec-icon.r{background:rgba(239,68,68,0.12);}
-.sec-icon.b{background:rgba(59,130,246,0.12);}
-.sec-icon.y{background:rgba(245,158,11,0.12);}
-.sec-title{font-size:15px;font-weight:700;color:var(--text);}
-.sec-count{margin-left:auto;font-size:11px;font-weight:600;padding:2px 10px;border-radius:12px;border:1px solid var(--border);color:var(--text2);}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
-.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;transition:box-shadow .15s;}
-.card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.15);}
-.card.c-call{border-top:3px solid var(--green);}
-.card.c-put{border-top:3px solid var(--red);}
-.card.c-buy{border-top:3px solid var(--blue);}
-.card.c-sell{border-top:3px solid var(--red);}
-.card.c-idx{border-top:3px solid var(--gold);}
-.ch{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
-.csym{font-size:17px;font-weight:700;color:var(--text);}
-.csym-sub{font-size:11px;color:var(--text2);margin-top:1px;}
-.cbadges{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
-.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:.3px;}
-.b-call{background:rgba(34,197,94,0.12);color:var(--green);border:1px solid rgba(34,197,94,0.25);}
-.b-put{background:rgba(239,68,68,0.12);color:var(--red);border:1px solid rgba(239,68,68,0.25);}
-.b-buy{background:rgba(59,130,246,0.12);color:var(--blue);border:1px solid rgba(59,130,246,0.25);}
-.b-sell{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2);}
-.b-high{background:rgba(34,197,94,0.08);color:var(--green);border:1px solid rgba(34,197,94,0.18);}
-.b-med{background:rgba(245,158,11,0.08);color:var(--gold);border:1px solid rgba(245,158,11,0.18);}
-.strike{font-size:11px;color:var(--blue);background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.15);border-radius:5px;padding:4px 9px;margin-bottom:8px;}
-.levels{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0;}
-.lv{background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:5px 8px;}
-.lv-k{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:1px;}
-.lv-v{font-size:13px;font-weight:700;color:var(--text);}
-.lv.entry .lv-v{color:var(--blue);}
-.lv.sl .lv-v{color:var(--red);}
-.lv.t1 .lv-v,.lv.t2 .lv-v{color:var(--green);}
-.cmeta{display:flex;align-items:center;justify-content:space-between;margin:8px 0;flex-wrap:wrap;gap:4px;}
-.rr{font-size:11px;font-weight:700;background:var(--bg3);border:1px solid var(--border);padding:3px 9px;border-radius:4px;color:var(--text);}
-.rr span{color:var(--gold);}
-.ctime{font-size:11px;color:var(--text2);}
-.ctime b{color:var(--green);}
-.creason{font-size:12px;color:var(--text2);line-height:1.6;padding-top:8px;border-top:1px solid var(--border);margin-top:4px;}
-.creason b{color:var(--text);}
-.watch{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:8px;padding:16px 18px;margin-top:24px;}
-.watch-title{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:10px;}
-.watch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.witem{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--text2);line-height:1.6;}
-.witem b{color:var(--text);display:block;margin-bottom:2px;}
-.footer{text-align:center;margin-top:28px;padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;}
-.footer p{font-size:12px;color:var(--text3);line-height:1.7;}
-.footer strong{color:var(--gold);}
-.ts{text-align:center;font-size:11px;color:var(--text3);margin-top:12px;padding-bottom:20px;}
-@media(max-width:1100px){.grid3{grid-template-columns:repeat(2,1fr);}.mbar{grid-template-columns:repeat(4,1fr);}}
-@media(max-width:760px){.grid3,.grid2,.watch-grid{grid-template-columns:1fr;}.mbar{grid-template-columns:repeat(2,1fr);}.topbar{flex-direction:column;gap:8px;align-items:flex-start;}.theme-switcher{flex-wrap:wrap;}}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;display:flex;flex-direction:column;}
+
+.topbar{height:48px;padding:0 16px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.logo{display:flex;align-items:center;gap:8px;}
+.logo-mark{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.logo-name{font-size:15px;font-weight:700;}.logo-name span{color:var(--accent);}
+.topbar-right{display:flex;align-items:center;gap:6px;}
+.live-badge{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;color:var(--green);background:var(--up);border:1px solid rgba(0,230,118,0.25);}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.6s ease infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.icon-btn{width:30px;height:30px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;color:var(--text);}
+.icon-btn:hover{background:var(--bg4);}
+
+.ticker{height:34px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
+.ticker::-webkit-scrollbar{display:none;}
+.ti{display:flex;align-items:center;gap:6px;padding:0 12px;height:34px;white-space:nowrap;cursor:pointer;border-right:1px solid var(--border);flex-shrink:0;}
+.ti:hover{background:var(--bg3);}
+.ti-name{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;}
+.ti-price{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--text);}
+.ti-chg{font-size:12px;font-weight:600;font-family:'JetBrains Mono',monospace;}
+.up{color:var(--green);}.dn{color:var(--red);}.neu{color:var(--text3);}
+
+.body-split{flex:1;display:flex;overflow:hidden;}
+.left-pane{width:75%;display:flex;flex-direction:column;overflow:hidden;border-right:2px solid var(--border);}
+
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{padding:0 14px;height:38px;font-size:12.5px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .18s;display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600;}
+
+.welmsg-area{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.welmsg-area::-webkit-scrollbar{width:4px;}
+.welmsg-area::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;padding:24px;}
+.welcome-icon{font-size:36px;}
+.welcome h3{font-size:18px;font-weight:700;}
+.welcome p{font-size:12.5px;color:var(--text2);max-width:360px;line-height:1.65;}
+
+.msg{display:flex;gap:7px;animation:pop .2s ease;padding:0 16px;margin-bottom:10px;}
+@keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse;align-self:flex-end;max-width:75%;}
+.msg.ai{max-width:92%;}
+.av{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;background:var(--bg3);border:1px solid var(--border);}
+.bub{padding:9px 12px;border-radius:8px;font-size:13px;line-height:1.75;color:var(--text);}
+.msg.ai .bub{background:var(--card);border:1px solid var(--cb);border-left:3px solid var(--accent);}
+.msg.user .bub{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);}
+.bub strong{color:var(--gold);}
+.bub .bull{color:var(--green);font-weight:600;}
+.bub .bear{color:var(--red);font-weight:600;}
+.bub .lv{font-family:'JetBrains Mono',monospace;background:var(--bg3);padding:1px 5px;border-radius:3px;font-size:12px;}
+.bub .sec{display:block;font-size:10.5px;font-weight:700;letter-spacing:.6px;color:var(--accent);text-transform:uppercase;margin:9px 0 3px;}
+.bub .disc{margin-top:9px;padding:6px 10px;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);border-radius:6px;font-size:11px;color:var(--gold);line-height:1.5;}
+.typing-row{display:flex;gap:7px;padding:0 16px;margin-bottom:10px;}
+.typing-bub{padding:9px 12px;background:var(--card);border:1px solid var(--cb);border-left:3px solid var(--accent);border-radius:8px;display:flex;align-items:center;gap:8px;}
+.dots span{width:5px;height:5px;background:var(--accent);border-radius:50%;display:inline-block;animation:bounce 1.2s infinite;}
+.dots span:nth-child(2){animation-delay:.2s;}.dots span:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+.typing-txt{font-size:11.5px;color:var(--text3);}
+
+.inp-wrap{padding:9px 16px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0;}
+.inp-row{display:flex;gap:7px;align-items:flex-end;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 10px;transition:border-color .2s;}
+.inp-row:focus-within{border-color:var(--accent);}
+#inp{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;resize:none;max-height:80px;line-height:1.5;}
+#inp::placeholder{color:var(--text3);}
+.sym-pick-btn{padding:0 10px;height:30px;background:var(--bg4);border:1px solid var(--border2);border-radius:6px;cursor:pointer;font-size:11.5px;font-weight:600;color:var(--text2);white-space:nowrap;display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.sym-pick-btn:hover{border-color:var(--accent);color:var(--accent);}
+.send{width:30px;height:30px;background:var(--accent);border:none;border-radius:6px;cursor:pointer;font-size:15px;color:#000;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.send:hover{opacity:.85;transform:scale(1.04);}
+.send:disabled{opacity:.3;cursor:not-allowed;transform:none;}
+.inp-hint{text-align:center;font-size:9.5px;color:var(--text3);margin-top:5px;}
+
+.lw{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:200px;}
+.spin{width:22px;height:22px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lt{font-size:13px;color:var(--text2);}.ls{font-size:11px;color:var(--text3);}
+.err-box{margin:12px 16px;padding:10px 13px;background:rgba(255,51,85,.07);border:1px solid rgba(255,51,85,.25);border-radius:8px;color:var(--red);font-size:12.5px;}
+
+.ph{display:flex;align-items:center;justify-content:space-between;padding:11px 16px 7px;flex-shrink:0;}
+.pt{font-size:13px;font-weight:700;}.ps{font-size:11px;color:var(--text3);margin-top:1px;}
+.rbtn{padding:4px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;}
+.rbtn:hover{border-color:var(--accent);color:var(--accent);}
+
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 16px;}
+.sc-col{display:flex;flex-direction:column;gap:7px;}
+.sc-hd{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:3px 0;}
+.sc-hd.b{color:var(--green);}.sc-hd.s{color:var(--red);}.sc-hd.g{color:var(--gold);}
+.sc-hd.bull{color:var(--green);}.sc-hd.bear{color:var(--red);}
+
+.scard{background:var(--card);border:1px solid var(--cb);border-radius:8px;padding:8px 12px;cursor:pointer;transition:border-color .15s;}
+.scard:hover{border-color:var(--accent);}
+.scard.buy{border-left:3px solid var(--green);}
+.scard.sell{border-left:3px solid var(--red);}
+.scard.spike{border-left:3px solid var(--gold);}
+.scard.watch-acc{border-left:3px solid var(--blue);}
+.scard.watch-dist{border-left:3px solid var(--purple);}
+.scard.bull-swing{border-left:3px solid var(--green);border-top:1px solid rgba(0,230,118,0.2);}
+.scard.bear-swing{border-left:3px solid var(--red);border-top:1px solid rgba(255,51,85,0.2);}
+
+.sc-scantime{font-size:11px;font-weight:600;color:var(--text2);background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 7px;margin-bottom:5px;display:inline-block;letter-spacing:.2px;}
+.sc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.sc-sym{font-size:15px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.sc-r{text-align:right;}
+.sc-price{font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text2);}
+.sc-chg{font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.vr{color:var(--gold);font-size:12px;font-weight:700;}
+.sc-lv{display:flex;gap:5px;flex-wrap:wrap;font-size:12px;font-family:'JetBrains Mono',monospace;margin:4px 0;}
+.sc-lv span{background:var(--bg3);padding:2px 7px;border-radius:4px;}
+.lve{color:var(--blue);}.lvsl{color:var(--red);}.lvt{color:var(--green);}
+.sc-rsn{font-size:12px;color:var(--text2);line-height:1.5;padding-top:4px;border-top:1px solid var(--border);margin-top:4px;}
+.sc-sln{font-size:12px;color:var(--text3);margin-left:5px;}
+.sc-tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:9px;margin-bottom:2px;}
+.sc-tag.bull-tag{background:var(--up);color:var(--green);}
+.sc-tag.bear-tag{background:var(--dn);color:var(--red);}
+.sc-tag.blue-tag{background:rgba(96,165,250,.15);color:var(--blue);}
+.sc-tag.purple-tag{background:rgba(167,139,250,.15);color:var(--purple);}
+.swing-meta{font-size:12px;color:var(--blue);margin:2px 0 4px;font-family:'JetBrains Mono',monospace;}
+
+.idx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;padding:12px 16px;}
+.icard{background:var(--card);border:1px solid var(--cb);border-radius:9px;padding:14px;cursor:pointer;transition:border-color .15s;}
+.icard:hover{border-color:var(--accent);}
+.icard.bull{border-top:3px solid var(--green);}
+.icard.bear{border-top:3px solid var(--red);}
+.icard.neu-c{border-top:3px solid var(--border2);}
+.ic-scantime{font-size:10px;font-weight:600;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 7px;margin-bottom:7px;display:inline-block;}
+.ic-name{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.ic-price{font-size:23px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.ic-chg{font-size:13px;font-weight:600;font-family:'JetBrains Mono',monospace;margin-top:3px;}
+.ic-bias{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:10px;margin:5px 0;}
+.ic-bias.bull{background:var(--up);color:var(--green);}
+.ic-bias.bear{background:var(--dn);color:var(--red);}
+.ic-bias.neu{background:var(--bg3);color:var(--text3);}
+.ic-lv{display:flex;gap:5px;flex-wrap:wrap;font-size:11px;margin:6px 0;}
+.ic-lv .lv{background:var(--bg3);padding:3px 7px;border-radius:3px;font-family:'JetBrains Mono',monospace;color:var(--text2);}
+.ic-rsn{font-size:12px;color:var(--text3);line-height:1.6;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);}
+
+/* News */
+.newswrap{padding:0 16px 16px;}
+.nf-row{display:flex;gap:5px;padding:8px 0;flex-wrap:wrap;}
+.nf-btn{padding:4px 12px;font-size:12px;font-weight:500;background:var(--bg3);border:1px solid var(--border);border-radius:14px;color:var(--text2);cursor:pointer;}
+.nf-btn.active,.nf-btn:hover{border-color:var(--accent);color:var(--accent);}
+.nitem{padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.nitem:last-child{border-bottom:none;}
+.nitem:hover .ni-title{color:var(--accent);}
+.ni-tag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:9px;margin-bottom:4px;background:var(--adim);color:var(--accent);}
+.ni-title{font-size:13.5px;font-weight:500;line-height:1.6;color:var(--text);transition:color .15s;}
+.ni-meta{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:11.5px;color:var(--text3);}
+.ni-dot{width:2px;height:2px;border-radius:50%;background:var(--text3);}
+
+/* Right pane */
+.right-pane{width:25%;display:flex;flex-direction:column;background:var(--bg2);}
+.lc-head{height:38px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;}
+.lc-title{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;}
+.lc-badge{font-size:10px;font-weight:700;color:var(--green);background:var(--up);padding:1px 7px;border-radius:10px;}
+.lc-msgs{flex:1;overflow-y:auto;padding:10px 11px;display:flex;flex-direction:column;gap:6px;}
+.lc-msgs::-webkit-scrollbar{width:3px;}
+.lc-msgs::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.lc-empty{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--text3);font-size:12px;line-height:1.7;}
+.lc-msg{display:flex;gap:7px;animation:pop .2s ease;}
+.lc-msg.mine{flex-direction:row-reverse;}
+.lc-av-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;}
+.lc-av{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;}
+.lc-av-name{font-size:8.5px;font-weight:600;color:var(--text2);text-align:center;max-width:34px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lc-body{max-width:calc(100% - 42px);display:flex;flex-direction:column;}
+.lc-bub{padding:7px 10px;border-radius:8px;font-size:12.5px;line-height:1.5;word-break:break-word;}
+.lc-msg:not(.mine) .lc-bub{background:var(--bg3);border:1px solid var(--cb);}
+.lc-msg.mine .lc-bub{background:rgba(0,212,106,.12);border:1px solid rgba(0,212,106,.3);}
+.lc-time{font-size:9px;color:var(--text3);margin-top:2px;}
+.lc-msg.mine .lc-time{text-align:right;}
+.lc-inp{padding:8px 10px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0;}
+.lc-nf{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 9px;color:var(--text);font-family:'Inter',sans-serif;font-size:11.5px;outline:none;margin-bottom:6px;transition:border-color .2s;}
+.lc-nf:focus{border-color:var(--accent);}
+.lc-nf::placeholder{color:var(--text3);}
+.lc-row{display:flex;gap:6px;align-items:flex-end;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 9px;transition:border-color .2s;}
+.lc-row:focus-within{border-color:var(--accent);}
+.lc-send{width:28px;height:28px;background:var(--accent);border:none;border-radius:6px;cursor:pointer;font-size:13px;color:#000;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;order:-1;}
+.lc-send:hover{opacity:.85;}
+.lc-send:disabled{opacity:.3;cursor:not-allowed;}
+#lcInp{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;resize:none;max-height:64px;line-height:1.5;}
+#lcInp::placeholder{color:var(--text3);}
+.lc-disc{text-align:center;font-size:9.5px;color:var(--text3);margin-top:5px;}
+.lc-img-preview{position:relative;display:inline-block;margin-bottom:6px;}
+.lc-img-preview img{max-width:100%;max-height:90px;border-radius:6px;border:1px solid var(--border2);display:block;}
+.lc-img-preview .rm-img{position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;font-size:10px;line-height:16px;text-align:center;cursor:pointer;font-weight:700;border:none;}
+.lc-bub img{max-width:100%;max-height:200px;border-radius:6px;border:1px solid var(--border2);display:block;margin-top:4px;cursor:pointer;}
+.lc-paste-hint{font-size:9px;color:var(--text3);text-align:center;margin-top:3px;}
+#imgFullOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;}
+#imgFullOverlay img{max-width:95vw;max-height:90vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.6);}
+.lc-lock-btn{width:24px;height:24px;background:none;border:1px solid var(--border);border-radius:5px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:all .2s;}
+.lc-lock-btn:hover{border-color:var(--accent);color:var(--accent);}
+.lc-lock-btn.unlocked{border-color:var(--red);color:var(--red);background:rgba(255,51,85,.1);}
+.lc-del-btn{display:none;width:18px;height:18px;background:rgba(255,51,85,.15);border:1px solid rgba(255,51,85,.4);border-radius:4px;cursor:pointer;font-size:10px;color:var(--red);align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .15s;}
+.lc-del-btn:hover{background:var(--red);color:#fff;}
+.admin-on .lc-del-btn{display:flex;}
+.pw-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:8888;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.pw-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px;width:260px;display:flex;flex-direction:column;gap:12px;box-shadow:0 16px 48px rgba(0,0,0,0.5);}
+.pw-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;}
+.pw-inp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+.pw-inp:focus{border-color:var(--accent);}
+.pw-err{font-size:11px;color:var(--red);display:none;text-align:center;}
+.pw-btns{display:flex;gap:8px;}
+.pw-ok{flex:1;padding:8px;background:var(--accent);border:none;border-radius:7px;color:#000;font-weight:700;font-size:12.5px;cursor:pointer;}
+.pw-ok:hover{opacity:.85;}
+.pw-cancel{flex:1;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-size:12.5px;cursor:pointer;}
+.pw-cancel:hover{background:var(--bg4);}
+
+/* Symbol Picker */
+.sp-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.sp-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;width:min(680px,95vw);max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.5);}
+.sp-head{padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.sp-title{font-size:15px;font-weight:700;}
+.sp-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.sp-close{width:30px;height:30px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;cursor:pointer;font-size:16px;color:var(--text2);display:flex;align-items:center;justify-content:center;}
+.sp-close:hover{background:var(--bg4);color:var(--red);}
+.sp-search-wrap{padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sp-search{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;}
+.sp-search:focus{border-color:var(--accent);}
+.sp-search::placeholder{color:var(--text3);}
+.sp-cats{display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
+.sp-cats::-webkit-scrollbar{display:none;}
+.sp-cat{padding:4px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;white-space:nowrap;}
+.sp-cat.active,.sp-cat:hover{border-color:var(--accent);color:var(--accent);background:var(--adim);}
+.sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px;padding:12px 14px;overflow-y:auto;flex:1;}
+.sp-chip{padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;cursor:pointer;text-align:center;transition:all 0.15s;}
+.sp-chip:hover{border-color:var(--accent);background:var(--adim);transform:scale(1.03);}
+.sp-chip .sc-sym{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.sp-chip .sc-sec{font-size:9.5px;color:var(--text3);margin-top:2px;}
+.sp-no{padding:30px;text-align:center;color:var(--text3);font-size:13px;}
+.sp-footer{padding:8px 14px;border-top:1px solid var(--border);font-size:10.5px;color:var(--text3);text-align:center;flex-shrink:0;}
+
+@media(max-width:768px){
+  html,body{height:100%;overflow:auto;}
+  .body-split{flex-direction:column;flex:none;}
+  .left-pane{width:100%;border-right:none;border-bottom:1px solid var(--border);min-height:65vh;}
+  .right-pane{width:100%;height:320px;border-top:1px solid var(--border);flex-shrink:0;}
+  .tab{font-size:10.5px;padding:0 9px;}
+  .rg{grid-template-columns:1fr;}
+  .idx-grid{grid-template-columns:1fr 1fr;}
+  .ic-price{font-size:18px;}
+  .bub{font-size:12.5px;}
+  .sym-pick-btn span.sym-label{display:none;}
+  .sp-modal{max-height:90vh;border-radius:10px 10px 0 0;align-self:flex-end;width:100%;}
+  .sp-overlay{align-items:flex-end;}
+}
+@media(max-width:480px){
+  .idx-grid{grid-template-columns:1fr;}
+  .tab{padding:0 7px;font-size:10px;}
+  .rg{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="topbar-left">
-    <div class="logo">Trade<span>GPT</span></div>
-    <div class="live-badge"><div class="live-dot"></div> Live Analysis</div>
-    <span style="font-size:12px;color:var(--text2);">March 11, 2026 &nbsp;|&nbsp; NSE/BSE India</span>
-  </div>
-  <div class="theme-switcher">
-    <label>Theme:</label>
-    <button class="tbtn active" onclick="setTheme('dark',this)">Dark</button>
-    <button class="tbtn" onclick="setTheme('light',this)">Light</button>
-    <button class="tbtn" onclick="setTheme('green',this)">Matrix</button>
-    <button class="tbtn" onclick="setTheme('midnight',this)">Midnight</button>
+  <div class="logo"><div class="logo-mark">📈</div><div class="logo-name">Trade<span>GPT</span></div></div>
+  <div class="topbar-right">
+    <div class="live-badge"><div class="live-dot"></div><span id="liveStatus">Loading</span></div>
+    <button class="icon-btn" onclick="refreshAll()">🔄</button>
+    <button class="icon-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
   </div>
 </div>
 
-<div class="wrap">
+<div class="ticker" id="ticker"><div class="ti"><span class="ti-name neu">Loading indices...</span></div></div>
 
-  <div class="header">
-    <h1>14 Intraday <span>Trade Setups</span></h1>
-    <div class="header-sub">Data-backed analysis using US markets, Gift Nifty, India VIX, news and previous session data. For educational use only.</div>
-  </div>
-
-  <div class="mbar">
-    <div class="mi"><div class="mi-label">Dow Jones</div><div class="mi-val">47,706</div><div class="mi-chg dn">▼ 0.07%</div></div>
-    <div class="mi"><div class="mi-label">S&amp;P 500</div><div class="mi-val">6,781</div><div class="mi-chg dn">▼ 0.21%</div></div>
-    <div class="mi"><div class="mi-label">Nasdaq</div><div class="mi-val">22,697</div><div class="mi-chg up">▲ 0.01%</div></div>
-    <div class="mi"><div class="mi-label">Nifty 50</div><div class="mi-val">24,261</div><div class="mi-chg up">▲ 0.97%</div></div>
-    <div class="mi"><div class="mi-label">Bank Nifty</div><div class="mi-val">58,755</div><div class="mi-chg up">▲ 1.66%</div></div>
-    <div class="mi"><div class="mi-label">India VIX</div><div class="mi-val" style="color:var(--gold)">~20.4</div><div class="mi-chg dn">▼ 19% easing</div></div>
-    <div class="mi"><div class="mi-label">Gift Nifty</div><div class="mi-val">~24,180</div><div class="mi-chg dn">Mildly –ve</div></div>
-    <div class="mi"><div class="mi-label">Crude Oil</div><div class="mi-val">$83–87</div><div class="mi-chg dn">▼ 11% Sharp</div></div>
-  </div>
-
-  <div class="sentiment">
-    <strong>Market Sentiment: CAUTIOUSLY BULLISH</strong> — Nifty recovering post 2-day slump; VIX easing; crude falling; Gift Nifty slightly negative = mildly gap-down open expected, recovery likely after 9:30 AM. US markets mixed. FED meeting outcome due today — watch for rate decision impact.
-  </div>
-
-  <!-- SECTION 1: CALL BUY -->
-  <div class="sec-head">
-    <div class="sec-icon g">📈</div>
-    <div class="sec-title">Options — CALL BUY (High Confidence)</div>
-    <div class="sec-count">3 Stocks</div>
-  </div>
-  <div class="grid3">
-    <div class="card c-call">
-      <div class="ch"><div><div class="csym">ICICIBANK</div><div class="csym-sub">Options · Call Buy</div></div><div class="cbadges"><div class="badge b-call">CALL BUY</div><div class="badge b-high">HIGH</div></div></div>
-      <div class="strike">Strike: 1,280 CE &nbsp;|&nbsp; Expiry: 13 Mar 2026</div>
-      <div class="levels">
-        <div class="lv entry"><div class="lv-k">Entry</div><div class="lv-v">1,278–1,285</div></div>
-        <div class="lv sl"><div class="lv-k">Stop Loss</div><div class="lv-v">1,258</div></div>
-        <div class="lv t1"><div class="lv-k">Target 1</div><div class="lv-v">1,308</div></div>
-        <div class="lv t2"><div class="lv-k">Target 2</div><div class="lv-v">1,330</div></div>
-      </div>
-      <div class="cmeta"><div class="rr">RR: <span>1:2.3</span></div><div class="ctime">Entry: <b>9:20–9:40 AM</b></div></div>
-      <div class="creason"><b>Why:</b> Top gainer Mar 10 (+3.5%); banking sector leading recovery; FII buying private banks resumed post crude drop. Breakout likely above 1,285 on positive open.</div>
+<div class="body-split">
+  <div class="left-pane">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'chat')">💬 AI Chat</div>
+      <div class="tab" onclick="switchTab(this,'intrabuy')">📈 Buy Top 5</div>
+      <div class="tab" onclick="switchTab(this,'intrasell')">📉 Sell Top 5</div>
+      <div class="tab" onclick="switchTab(this,'watch')">👁 Keep Watching</div>
+      <div class="tab" onclick="switchTab(this,'index')">📊 Index Setup</div>
+      <div class="tab" onclick="switchTab(this,'swing')">📅 Swing Top 5</div>
+      <div class="tab" onclick="switchTab(this,'news')">📰 News</div>
     </div>
-    <div class="card c-call">
-      <div class="ch"><div><div class="csym">MARUTI</div><div class="csym-sub">Options · Call Buy</div></div><div class="cbadges"><div class="badge b-call">CALL BUY</div><div class="badge b-high">HIGH</div></div></div>
-      <div class="strike">Strike: 12,400 CE &nbsp;|&nbsp; Expiry: 13 Mar 2026</div>
-      <div class="levels">
-        <div class="lv entry"><div class="lv-k">Entry</div><div class="lv-v">12,350–12,420</div></div>
-        <div class="lv sl"><div class="lv-k">Stop Loss</div><div class="lv-v">12,180</div></div>
-        <div class="lv t1"><div class="lv-k">Target 1</div><div class="lv-v">12,620</div></div>
-        <div class="lv t2"><div class="lv-k">Target 2</div><div class="lv-v">12,850</div></div>
+
+    <div class="welmsg-area" id="welmsg">
+      <div class="welcome" id="chatWelcome">
+        <div class="welcome-icon">📡</div>
+        <h3>TradeGPT — Intraday Terminal</h3>
+        <p>Live NSE data + AI analysis. Koi bhi NSE stock ya index pucho — entry, SL, target ke saath.</p>
       </div>
-      <div class="cmeta"><div class="rr">RR: <span>1:2.5</span></div><div class="ctime">Entry: <b>9:25–9:50 AM</b></div></div>
-      <div class="creason"><b>Why:</b> Nifty Auto rose 3.1% Mar 10 — top sectoral gainer. Maruti led auto rally; crude oil falling benefits margins directly. 2-day consolidation above support 12,150.</div>
     </div>
-    <div class="card c-call">
-      <div class="ch"><div><div class="csym">M&amp;M</div><div class="csym-sub">Options · Call Buy</div></div><div class="cbadges"><div class="badge b-call">CALL BUY</div><div class="badge b-med">MEDIUM</div></div></div>
-      <div class="strike">Strike: 2,900 CE &nbsp;|&nbsp; Expiry: 13 Mar 2026</div>
-      <div class="levels">
-        <div class="lv entry"><div class="lv-k">Entry</div><div class="lv-v">2,870–2,910</div></div>
-        <div class="lv sl"><div class="lv-k">Stop Loss</div><div class="lv-v">2,820</div></div>
-        <div class="lv t1"><div class="lv-k">Target 1</div><div class="lv-v">2,980</div></div>
-        <div class="lv t2"><div class="lv-k">Target 2</div><div class="lv-v">3,050</div></div>
+
+    <div class="inp-wrap">
+      <div class="inp-row">
+        <textarea id="inp" rows="1" placeholder="Koi bhi NSE stock ya index pucho..." onkeydown="hk(event)" oninput="ri(this)"></textarea>
+        <button class="sym-pick-btn" onclick="openSymPicker()">📋 <span class="sym-label">Symbol</span></button>
+        <button class="send" id="sendBtn" onclick="sendChat()">↑</button>
       </div>
-      <div class="cmeta"><div class="rr">RR: <span>1:2.0</span></div><div class="ctime">Entry: <b>9:30–9:55 AM</b></div></div>
-      <div class="creason"><b>Why:</b> M&amp;M up 3.68% Mar 10 — 2nd top Sensex gainer. Auto sector momentum strong; EV push + rural demand intact. Breaking above 10-day EMA with volume expansion.</div>
+      <div class="inp-hint">⚠️ Educational only — apni research ke baad hi trade karo</div>
     </div>
   </div>
 
-  <!-- SECTION 2: PUT BUY -->
-  <div class="sec-head">
-    <div class="sec-icon r">📉</div>
-    <div class="sec-title">Options — PUT BUY (High Confidence)</div>
-    <div class="sec-count">3 Stocks</div>
-  </div>
-  <div class="grid3">
-    <div class="card c-put">
-      <div class="ch"><div><div class="csym">TCS</div><div class="csym-sub">Options · Put Buy</div></div><div class="cbadges"><div class="badge b-put">PUT BUY</div><div class="badge b-high">HIGH</div></div></div>
-      <div class="strike">Strike: 3,700 PE &nbsp;|&nbsp; Expiry: 13 Mar 2026</div>
-      <div class="levels">
-        <div class="lv entry"><div class="lv-k">Entry</div><div class="lv-v">3,740–3,720</div></div>
-        <div class="lv sl"><div class="lv-k">Stop Loss</div><div class="lv-v">3,790</div></div>
-        <div class="lv t1"><div class="lv-k">Target 1</div><div class="lv-v">3,640</div></div>
-        <div class="lv t2"><div class="lv-k">Target 2</div><div class="lv-v">3,570</div></div>
+  <div class="right-pane">
+    <div class="lc-head">
+      <div class="lc-title"><div class="live-dot"></div>Community Chat</div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span class="lc-badge" id="lcBadge">Live</span>
+        <button class="lc-lock-btn" id="lcLockBtn" onclick="toggleAdminLock()" title="Admin Login">🔒</button>
       </div>
-      <div class="cmeta"><div class="rr">RR: <span>1:2.1</span></div><div class="ctime">Entry: <b>9:20–9:45 AM</b></div></div>
-      <div class="creason"><b>Why:</b> TCS hit 52-week LOW Mar 9; IT sector worst performer Mar 10 (–0.6%); US tech uncertainty + Amazon AI issues weighing on sentiment. Nifty IT underperforming.</div>
     </div>
-    <div class="card c-put">
-      <div class="ch"><div><div class="csym">INFY</div><div class="csym-sub">Options · Put Buy</div></div><div class="cbadges"><div class="badge b-put">PUT BUY</div><div class="badge b-high">HIGH</div></div></div>
-      <div class="strike">Strike: 1,580 PE &nbsp;|&nbsp; Expiry: 13 Mar 2026</div>
-      <div class="levels">
-        <div class="lv entry"><div class="lv-k">Entry</div><div class="lv-v">1,600–1,585</div></div>
-        <div class="lv sl"><div class="lv-k">Stop Loss</div><div class="lv-v">1,640</div></div>
-        <div class="lv t1"><div class="lv-k">Target 1</div><div class="lv-v">1,540</div></div>
-        <div class="lv t2"><div class="lv-k">Target 2</div><div class="lv-v">1,500</div></div>
-      </div>
-      <div class="cmeta"><div class="rr">RR: <span>1:2.2</span></div><div class="ctime">Entry: <b>9:20–9:45 AM</b></div></div>
-      <div class="creason"><b>Why:</b> Infosys top Sensex loser Mar 10 (–1.41%). IT stocks weak globally; FII selling in tech. Below 50-day EMA with MACD bearish crossover. Nifty IT index in downtrend.</div>
+    <div class="lc-msgs" id="lcMsgs">
+      <div class="lc-empty">Koi message nahi.<br>Pehle bhejo! 👋</div>
     </div>
-    <div class="card c-put">
-      <div class="ch"><div><div class="csym">RELIANCE</div><div class="csym-sub">Options · Put Buy</div></div><div class="cbadges"><div class="badge b-put">PUT BUY</div><div class="badge b-med">MEDIUM</div></div></div>
-      <div class="strike">Strike: 1,240 PE &nbsp;|&nbsp; Expiry: 13 Mar 2026</div>
-      <div class="levels">
-        <div class="lv entry"><div class="lv-k">Entry</div><div class="lv-v">1,260–1,245</div></div>
-        <div class="lv sl"><div class="lv-k">Stop Loss</div><div class="lv-v">1,290</div></div>
-        <div class="lv t1"><div class="lv-k">Target 1</div><div class="lv-v">1,210</div></div>
-        <div class="lv t2"><div class="lv-k">Target 2</div><div class="lv-v">1,180</div></div>
+    <div class="lc-inp">
+      <input class="lc-nf" id="lcName" placeholder="Aapka naam..." maxlength="20">
+      <div id="lcImgPreview" style="display:none;" class="lc-img-preview">
+        <img id="lcImgThumb" src="" alt="preview">
+        <button class="rm-img" onclick="removeImg()" title="Remove">✕</button>
       </div>
-      <div class="cmeta"><div class="rr">RR: <span>1:1.8</span></div><div class="ctime">Entry: <b>9:30–10:00 AM</b></div></div>
-      <div class="creason"><b>Why:</b> Reliance down –1.1% Mar 10 despite broad market recovery. Crude fall hurts upstream revenue; Oil &amp; Gas sector negative. Watch 1,245 breakdown level.</div>
+      <div class="lc-row">
+        <button class="lc-send" id="lcSend" onclick="sendLC()">↑</button>
+        <textarea id="lcInp" rows="1" placeholder="Market view share karo..." maxlength="300" onkeydown="lck(event)" oninput="ri(this)"></textarea>
+      </div>
+      <div class="lc-paste-hint">📸 Ctrl+V se screenshot paste kar sakte ho</div>
+      <div class="lc-disc">⚠️ Public chat · Educational only</div>
     </div>
   </div>
-
-  <!-- SECTION 3: INDEX OPTIONS -->
-  <div class="sec-head">
-    <div class="sec-icon y">📊</div>
-    <div class="sec-title">Index Options — Nifty &amp; Bank Nifty</div>
-    <div class="sec-count">2 Setups</div>
-  </div>
-  <div class="grid2">
-    <div class="card c-idx">
-      <div class="ch"><div><div class="csym">NIFTY 50</div><div class="csym-sub">Index · PUT BUY</div></div><div class="cbadges"><div class="badge b-put">PUT BUY</div><div class="badge b-med">MEDIUM</div></div></div>
-      <div class="strike">Strike: 24,000 PE &nbsp;|&nbsp; Expiry: 13 Mar 2026</div>
-      <div class="levels">
-        <div class="lv entry"><div class="lv-k">Entry (Spot)</div><div class="lv-v">24,200–24,100</div></div>
-        <div class="lv sl"><div class="lv-k">Stop Loss</div><div class="lv-v">24,350</div></div>
-        <div class="lv t1"><div class="lv-k">Target 1</div><div class="lv-v">23,850</div></div>
-        <div class="lv t2"><div class="lv-k">Target 2</div><div class="lv-v">23,600</div></div>
-      </div>
-      <div class="cmeta"><div class="rr">RR: <span>1:2.0</span></div><div class="ctime">Entry: <b>9:25–9:45 AM</b></div></div>
-      <div class="creason"><b>Why:</b> Gift Nifty slightly negative; gap-down open expected. FED meeting today = uncertainty. Nifty below 24,300 resistance. VIX still elevated at ~20. Buy PUT on first bounce rejection.</div>
-    </div>
-    <div class="card c-idx">
-      <div class="ch"><div><div class="csym">BANKNIFTY</div><div class="csym-sub">Index · CALL BUY</div></div><div class="cbadges"><div class="badge b-call">CALL BUY</div><div class="badge b-high">HIGH</div></div></div>
-      <div class="strike">Strike: 59,000 CE &nbsp;|&nbsp; Expiry: 12 Mar 2026</div>
-      <div class="levels">
-        <div class="lv entry"><div class="lv-k">Entry (Spot)</div><div class="lv-v">58,600–58,900</div></div>
-        <div class="lv sl"><div class="lv-k">Stop Loss</div><div class="lv-v">58,200</div></div>
-        <div class="lv t1"><div class="lv-k">Target 1</div><div class="lv-v">59,500</div></div>
-        <div class="lv t2"><div class="lv-k">Target 2</div><div class="lv-v">60,000</div></div>
-      </div>
-      <div class="cmeta"><div class="rr">RR: <span>1:2.3</span></div><div class="ctime">Entry: <b>9:30–10:00 AM</b></div></div>
-      <div class="creason"><b>Why:</b> Bank Nifty rose 1.66% Mar 10 — strong banking recovery led by ICICI, HDFC, Axis. DII buying heavy in financials. Key support 58,200 holding. Above that, call buying is justified.</div>
-    </div>
-  </div>
-
-  <!-- SECTION 4: EQUITY BUY -->
-  <div class="sec-head">
-    <div class="sec-icon b">💹</div>
-    <div class="sec-title">Equity / Futures — BUY</div>
-    <div class="sec-count">3 Stocks</div>
-  </div>
-  <div class="grid3">
-    <div class="card c-buy">
-      <div class="ch"><div><div class="csym">TATAMOTORS</div><div class="csym-sub">Equity / Futures · Buy</div></div><div class="cbadges"><div class="badge b-buy">BUY</div><div class="badge b-high">HIGH</div></div></div>
-      <div class="levels">
-        <div class="lv entry"><div class="lv-k">Entry</div><div class="lv-v">720–732</div></div>
-        <div class="lv sl"><div class="lv-k">Stop Loss</div><div class="lv-v">705</div></div>
-        <div class="lv t1"><div class="lv-k">Target 1</div><div class="lv-v">758</div></div>
-        <div class="lv t2"><div class="lv-k">Target 2</div><div class="lv-v">785</div></div>
-      </div>
-      <div class="cmeta"><div class="rr">RR: <span>1:2.5</span></div><div class="ctime">Entry: <b>9:20–9:50 AM</b></div></div>
-      <div class="creason"><b>Why:</b> Top Sensex gainer Mar 10 (+3.73%); lower crude = better margins for JLR + India ops. Volume surge above 20-day average. Auto sector strongest today.</div>
-    </div>
-    <div class="card c-buy">
-      <div class="ch"><div><div class="csym">AXISBANK</div><div class="csym-sub">Equity / Futures · Buy</div></div><div class="cbadges"><div class="badge b-buy">BUY</div><div class="badge b-high">HIGH</div></div></div>
-      <div class="levels">
-        <div class="lv entry"><div class="lv-k">Entry</div><div class="lv-v">1,105–1,115</div></div>
-        <div class="lv sl"><div class="lv-k">Stop Loss</div><div class="lv-v">1,088</div></div>
-        <div class="lv t1"><div class="lv-k">Target 1</div><div class="lv-v">1,148</div></div>
-        <div class="lv t2"><div class="lv-k">Target 2</div><div class="lv-v">1,175</div></div>
-      </div>
-      <div class="cmeta"><div class="rr">RR: <span>1:2.1</span></div><div class="ctime">Entry: <b>9:25–9:55 AM</b></div></div>
-      <div class="creason"><b>Why:</b> Axis Bank notable gainer Mar 10; banking sector DII-backed recovery ongoing; PCR near 1.44 (bullish for banks). RSI recovering from oversold. HDFC Bank RBI news positive for sector.</div>
-    </div>
-    <div class="card c-buy">
-      <div class="ch"><div><div class="csym">ULTRACEMCO</div><div class="csym-sub">Equity / Futures · Buy</div></div><div class="cbadges"><div class="badge b-buy">BUY</div><div class="badge b-med">MEDIUM</div></div></div>
-      <div class="levels">
-        <div class="lv entry"><div class="lv-k">Entry</div><div class="lv-v">11,200–11,300</div></div>
-        <div class="lv sl"><div class="lv-k">Stop Loss</div><div class="lv-v">10,980</div></div>
-        <div class="lv t1"><div class="lv-k">Target 1</div><div class="lv-v">11,580</div></div>
-        <div class="lv t2"><div class="lv-k">Target 2</div><div class="lv-v">11,850</div></div>
-      </div>
-      <div class="cmeta"><div class="rr">RR: <span>1:1.9</span></div><div class="ctime">Entry: <b>9:40–10:15 AM</b></div></div>
-      <div class="creason"><b>Why:</b> UltraTech gained Mar 10 in strong infra/realty sector; government capex momentum intact; easing crude = lower input costs. Consumer Durables buying active. Support at 11,000.</div>
-    </div>
-  </div>
-
-  <!-- SECTION 5: EQUITY SELL -->
-  <div class="sec-head">
-    <div class="sec-icon r">🔻</div>
-    <div class="sec-title">Equity / Futures — SELL (Short)</div>
-    <div class="sec-count">3 Stocks</div>
-  </div>
-  <div class="grid3">
-    <div class="card c-sell">
-      <div class="ch"><div><div class="csym">INFY</div><div class="csym-sub">Equity / Futures · Short Sell</div></div><div class="cbadges"><div class="badge b-sell">SELL</div><div class="badge b-high">HIGH</div></div></div>
-      <div class="levels">
-        <div class="lv entry"><div class="lv-k">Entry</div><div class="lv-v">1,600–1,620</div></div>
-        <div class="lv sl"><div class="lv-k">Stop Loss</div><div class="lv-v">1,655</div></div>
-        <div class="lv t1"><div class="lv-k">Target 1</div><div class="lv-v">1,550</div></div>
-        <div class="lv t2"><div class="lv-k">Target 2</div><div class="lv-v">1,510</div></div>
-      </div>
-      <div class="cmeta"><div class="rr">RR: <span>1:2.0</span></div><div class="ctime">Entry: <b>9:20–9:40 AM</b></div></div>
-      <div class="creason"><b>Why:</b> Worst Sensex performer Mar 10 (–1.41%); Amazon AI issues signal enterprise tech slowdown; FII selling IT sector heavily. Short on bounce rejection near 1,620.</div>
-    </div>
-    <div class="card c-sell">
-      <div class="ch"><div><div class="csym">ONGC</div><div class="csym-sub">Equity / Futures · Short Sell</div></div><div class="cbadges"><div class="badge b-sell">SELL</div><div class="badge b-high">HIGH</div></div></div>
-      <div class="levels">
-        <div class="lv entry"><div class="lv-k">Entry</div><div class="lv-v">245–252</div></div>
-        <div class="lv sl"><div class="lv-k">Stop Loss</div><div class="lv-v">262</div></div>
-        <div class="lv t1"><div class="lv-k">Target 1</div><div class="lv-v">228</div></div>
-        <div class="lv t2"><div class="lv-k">Target 2</div><div class="lv-v">215</div></div>
-      </div>
-      <div class="cmeta"><div class="rr">RR: <span>1:2.3</span></div><div class="ctime">Entry: <b>9:25–9:50 AM</b></div></div>
-      <div class="creason"><b>Why:</b> Crude oil plunged 11% — ONGC revenue directly impacted. Nifty Oil &amp; Gas sector underperforming. Energy stocks dragging globally. Sell on any bounce; 240 first target.</div>
-    </div>
-    <div class="card c-sell">
-      <div class="ch"><div><div class="csym">ETERNAL</div><div class="csym-sub">Equity / Futures · Short Sell</div></div><div class="cbadges"><div class="badge b-sell">SELL</div><div class="badge b-med">MEDIUM</div></div></div>
-      <div class="levels">
-        <div class="lv entry"><div class="lv-k">Entry</div><div class="lv-v">218–225</div></div>
-        <div class="lv sl"><div class="lv-k">Stop Loss</div><div class="lv-v">236</div></div>
-        <div class="lv t1"><div class="lv-k">Target 1</div><div class="lv-v">204</div></div>
-        <div class="lv t2"><div class="lv-k">Target 2</div><div class="lv-v">192</div></div>
-      </div>
-      <div class="cmeta"><div class="rr">RR: <span>1:1.8</span></div><div class="ctime">Entry: <b>9:45–10:15 AM</b></div></div>
-      <div class="creason"><b>Why:</b> Eternal (Zomato) lost –1.5% Mar 10 despite broad recovery. Consumer internet stocks weak; FII selling new-age tech names ongoing. Below 10/20 EMA, negative RSI divergence.</div>
-    </div>
-  </div>
-
-  <!-- WATCH FACTORS -->
-  <div class="watch">
-    <div class="watch-title">Key Watch Factors for Today — March 11, 2026</div>
-    <div class="watch-grid">
-      <div class="witem"><b>US Fed Rate Decision</b>Meeting outcome today. Hawkish tone = markets down. Watch 2:00 PM ET announcement carefully.</div>
-      <div class="witem"><b>Crude Oil ($83–87)</b>If crude drops below $80, energy sector deepens losses; broader market may rally on lower cost expectations.</div>
-      <div class="witem"><b>Iran War Headlines</b>Any escalation = sharp gap-down. De-escalation = broad rally above 24,300 Nifty. Monitor during market hours.</div>
-      <div class="witem"><b>India VIX ~20</b>Elevated volatility = use wider stop-losses. Consider reducing position size by 30% vs a normal trading day.</div>
-      <div class="witem"><b>FII/DII Activity</b>FII selling, DII buying. If FII turns net buyer for 2nd consecutive day = strong bullish rally signal.</div>
-      <div class="witem"><b>Entry Timing Rule</b>Gift Nifty negative = mildly gap-down open. Avoid first 5 minutes. Wait for 9:20 AM candle close before entry.</div>
-    </div>
-  </div>
-
-  <div class="footer">
-    <p><strong>For Educational Purposes Only. Not SEBI Registered Advice.</strong><br>
-    All setups based on pre-market data analysis as of March 10–11, 2026. Markets are volatile. Always use stop-losses. Never risk more than 1–2% of capital per trade. Past performance does not guarantee future results.</p>
-  </div>
-
-  <div class="ts">Generated: March 11, 2026 &nbsp;|&nbsp; TradeGPT Intelligence &nbsp;|&nbsp; Sources: US Markets, NSE, Gift Nifty, India VIX, News Analysis</div>
-
 </div>
+
+<div class="sp-overlay" id="spOverlay" style="display:none;" onclick="spBgClick(event)">
+  <div class="sp-modal">
+    <div class="sp-head">
+      <div><div class="sp-title">📋 NSE Stock चुनो</div><div class="sp-sub">100 liquid stocks · Click → AI analysis</div></div>
+      <button class="sp-close" onclick="closeSymPicker()">✕</button>
+    </div>
+    <div class="sp-search-wrap"><input class="sp-search" id="spSearch" placeholder="🔍 Symbol type karo..." oninput="spFilter()" autocomplete="off"></div>
+    <div class="sp-cats">
+      <button class="sp-cat active" onclick="spCat(this,'all')">All</button>
+      <button class="sp-cat" onclick="spCat(this,'banks')">🏦 Banks</button>
+      <button class="sp-cat" onclick="spCat(this,'it')">💻 IT</button>
+      <button class="sp-cat" onclick="spCat(this,'auto')">🚗 Auto</button>
+      <button class="sp-cat" onclick="spCat(this,'pharma')">💊 Pharma</button>
+      <button class="sp-cat" onclick="spCat(this,'metal')">⚙️ Metal</button>
+      <button class="sp-cat" onclick="spCat(this,'energy')">⚡ Energy</button>
+      <button class="sp-cat" onclick="spCat(this,'fmcg')">🛒 FMCG</button>
+      <button class="sp-cat" onclick="spCat(this,'infra')">🏗️ Infra</button>
+      <button class="sp-cat" onclick="spCat(this,'finance')">💰 Finance</button>
+    </div>
+    <div class="sp-grid" id="spGrid"></div>
+    <div class="sp-footer">Click karo → AI instantly analysis karega</div>
+  </div>
+</div>
+
+<div id="pwOverlay" class="pw-overlay" style="display:none;">
+  <div class="pw-modal">
+    <div class="pw-title">🔑 Admin Password</div>
+    <input class="pw-inp" id="pwInp" type="password" placeholder="Password daalo..." onkeydown="if(event.key==='Enter')pwSubmit()">
+    <div class="pw-err" id="pwErr">❌ Wrong password!</div>
+    <div class="pw-btns">
+      <button class="pw-cancel" onclick="pwClose()">Cancel</button>
+      <button class="pw-ok" onclick="pwSubmit()">Unlock 🔓</button>
+    </div>
+  </div>
+</div>
+
+<div id="imgFullOverlay" style="display:none;" onclick="this.style.display='none'"><img id="imgFullSrc" src="" alt="full"></div>
 
 <script>
-function setTheme(theme, btn) {
-  document.documentElement.setAttribute('data-theme', theme);
-  document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+const W="https://tradegpt-worker.sumantasahoo.workers.dev";
+let theme="dark",busy=false,chatHist=[],scanCache=null,newsCache=null,nf="all";
+let lcPastedImg=null;
+let breakoutCache=null,swingCache=null;
+let lcLastTs=0,lcIds=new Set(),currentTab="chat";
+const AVC=["#00d46a","#ff6b35","#60a5fa","#fbbf24","#a78bfa","#f472b6","#34d399","#fb923c"];
+const avc=n=>{let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return AVC[Math.abs(h)%AVC.length];};
+const ini=n=>(n||"?")[0].toUpperCase();
+const esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const ago=ts=>{if(!ts)return"";const s=Math.floor((Date.now()-ts)/1000);return s<60?s+"s ago":s<3600?Math.floor(s/60)+"m ago":Math.floor(s/3600)+"h ago";};
+const scanTime=ts=>{if(!ts)return"";const d=new Date(ts);const t=d.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true});return`🕐 Scan time: <strong>${t}</strong> (${ago(ts)})`;};
+const ft=ts=>new Date(ts).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});
+const noD=()=>'<div style="padding:20px;color:var(--text3);font-size:12px;text-align:center">📭 Data nahi mila — market closed ho sakta hai ya 🔄 Refresh karo</div>';
+
+window.addEventListener('load',()=>{const n=localStorage.getItem("tgN");if(n)document.getElementById("lcName").value=n;});
+
+function toggleTheme(){theme=theme==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",theme);document.getElementById("themeBtn").textContent=theme==="dark"?"🌙":"☀️";}
+function ri(el){el.style.height="auto";el.style.height=Math.min(el.scrollHeight,80)+"px";}
+function hk(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChat();}}
+function lck(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendLC();}}
+
+function switchTab(el,tab){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active"); currentTab=tab;
+  if(tab==="chat")showChatView();
+  else if(tab==="intrabuy")loadIntraBuy();
+  else if(tab==="intrasell")loadIntraSell();
+  else if(tab==="watch")loadWatch();
+  else if(tab==="index")loadIndex();
+  else if(tab==="swing")loadSwing();
+  else if(tab==="news")loadNews();
 }
+
+let chatMessages=[];
+function showChatView(){
+  const w=document.getElementById("welmsg");
+  if(!chatMessages.length){w.innerHTML=`<div class="welcome" id="chatWelcome"><div class="welcome-icon">📡</div><h3>TradeGPT — Intraday Terminal</h3><p>Live NSE data + AI analysis. Koi bhi NSE stock ya index pucho — entry, SL, target ke saath.</p></div>`;}
+  else{w.innerHTML=chatMessages.join('');w.scrollTop=w.scrollHeight;}
+}
+function sl(m,s){document.getElementById("welmsg").innerHTML=`<div class="lw"><div class="spin"></div><div><div class="lt">${m}</div>${s?`<div class="ls">${s}</div>`:""}</div></div>`;}
+function se(m){document.getElementById("welmsg").innerHTML=`<div class="err-box">⚠️ ${m}</div>`;}
+
+// TICKER
+async function loadTicker(){
+  try{
+    const r=await fetch(`${W}/market-summary`);if(!r.ok)throw new Error();
+    const d=await r.json();const idx=d.indices?.data||{};
+    const html=Object.values(idx).map(d=>{if(d.error)return"";const c=d.changePct>0?"up":d.changePct<0?"dn":"neu",a=d.changePct>0?"▲":d.changePct<0?"▼":"—";return`<div class="ti" onclick="qa('${d.name} ka setup batao.')"><span class="ti-name">${d.name}</span><span class="ti-price">${d.price?.toLocaleString("en-IN")}</span><span class="ti-chg ${c}">${a}${Math.abs(d.changePct)}%</span></div>`;}).join("");
+    document.getElementById("ticker").innerHTML=html||'<div class="ti"><span class="ti-name neu">Unavailable</span></div>';
+    document.getElementById("liveStatus").textContent="LIVE";
+  }catch(e){document.getElementById("liveStatus").textContent="ERR";}
+}
+
+let scanLastFetch=0;
+async function fScan(f){
+  const now=Date.now();
+  // Issue 6: 5 minute throttle — force=true se bypass hoga
+  if(scanCache&&!f&&(now-scanLastFetch)<5*60*1000)return scanCache;
+  const r=await fetch(`${W}/scan`);if(!r.ok)throw new Error("HTTP "+r.status);
+  const d=await r.json();if(d.error)throw new Error(d.error);
+  scanCache=d;scanLastFetch=now;return d;
+}
+
+// Card renderers
+function sc(s,t,ts){
+  const isSell = t==="sell";
+  const cls = t==="spike" ? "spike" : isSell ? "sell" : "buy";
+  const badge = isSell
+    ? `<span class="sc-tag bear-tag">📉 SHORT SELL</span>`
+    : `<span class="sc-tag bull-tag">📈 BUY LONG</span>`;
+  const entryLbl = isSell ? `<span class="lvsl">SHORT:₹${s.entry}</span>` : `<span class="lve">BUY:₹${s.entry}</span>`;
+  const slNote = isSell
+    ? `<span class="sc-sln">(SL ऊपर · Target नीचे)</span>`
+    : `<span class="sc-sln">(SL नीचे · Target ऊपर)</span>`;
+  const timeStr = ts ? `<div class="sc-scantime">🕐 Scan: ${new Date(ts).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true})}</div>` : "";
+  return`<div class="scard ${cls}" onclick="qa('${s.sym} ka detailed intraday setup batao.')">
+    ${timeStr}
+    <div class="sc-top"><span class="sc-sym">${s.sym}</span><div class="sc-r"><div class="sc-price">₹${s.price}</div><div class="sc-chg ${s.change>=0?"up":"dn"}">${s.change>0?"+":""}${s.change}%${s.volRatio>1.5?` <span class="vr">${s.volRatio}x vol</span>`:""}</div></div></div>
+    <div>${badge}${slNote}</div>
+    <div class="sc-lv">${entryLbl}<span class="lvsl">SL:₹${s.sl}</span><span class="lvt">T1:₹${s.t1}</span><span class="lvt">T2:₹${s.t2}</span></div>
+    <div class="sc-rsn">${s.reason}</div>
+  </div>`;
+}
+
+function swingCard(s,ts){
+  const isBull=s.side==='bull';
+  const cls=isBull?'bull-swing':'bear-swing';
+  const tag=isBull?'🐂 BULL SWING':'🐻 BEAR SWING';
+  const tagCls=isBull?'bull-tag':'bear-tag';
+  const prompt=isBull?`${s.sym} ka bullish swing trade batao — 3-7 din ke liye`:
+                      `${s.sym} ka bearish swing trade batao — 3-7 din ke liye`;
+  const timeStr = ts ? `<div class="sc-scantime">🕐 Scan: ${new Date(ts).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true})}</div>` : "";
+  return`<div class="scard ${cls}" onclick="qa('${prompt}')">
+    ${timeStr}
+    <div class="sc-top"><span class="sc-sym">${s.sym}</span><div class="sc-r"><div class="sc-price">₹${s.price}</div><div class="sc-chg ${s.change>=0?"up":"dn"}">${s.change>0?"+":""}${s.change}%</div></div></div>
+    <div><span class="sc-tag ${tagCls}">${tag}</span></div>
+    <div class="swing-meta">RSI: ${s.rsi} · EMA20: ₹${s.ema20} · ${s.holding}</div>
+    <div class="sc-lv"><span class="lve">E:₹${s.entry}</span><span class="lvsl">SL:₹${s.sl}</span><span class="lvt">T1:₹${s.t1}</span><span class="lvt">T2:₹${s.t2}</span></div>
+    <div class="sc-rsn">${s.reason}</div>
+  </div>`;
+}
+
+function bounceCard(s,ts){
+  const timeStr=ts?`<div class="sc-scantime">🕐 Scan: ${new Date(ts).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true})}</div>`:"";
+  return`<div class="scard" style="border-left:3px solid var(--gold)" onclick="qa('${s.sym} bahut gira hai, kya bounce possible hai? reversal setup batao.')">
+    ${timeStr}
+    <div class="sc-top"><span class="sc-sym">${s.sym}</span><div class="sc-r"><div class="sc-price">₹${s.price}</div><div class="sc-chg dn">${s.change}% <span style="font-size:11px;color:var(--gold)">⚡ Oversold</span></div></div></div>
+    <div><span class="sc-tag" style="background:rgba(255,180,0,.15);color:var(--gold)">⚡ BOUNCE WATCH</span><span class="sc-sln">Short mat karo — Reversal possible</span></div>
+    <div class="sc-lv"><span class="lve" style="color:var(--gold)">Watch:₹${s.entry}</span><span class="lvsl">SL:₹${s.sl}</span><span class="lvt">T1:₹${s.t1}</span></div>
+    <div class="sc-rsn">${s.reason}</div>
+  </div>`;
+}
+function breakoutCard(s,ts){
+  const tag=s.breakoutType==='52W High'?'🔝 Near 52W High':'📈 52W Low Bounce';
+  const timeStr = ts ? `<div class="sc-scantime">🕐 Scan: ${new Date(ts).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true})}</div>` : "";
+  return`<div class="scard buy" onclick="qa('${s.sym} ka breakout analysis batao.')">${timeStr}<div class="sc-top"><span class="sc-sym">${s.sym}</span><div class="sc-r"><div class="sc-price">₹${s.price}</div><div class="sc-chg up">+${s.change}%</div></div></div><div><span class="sc-tag bull-tag">${tag}</span></div><div class="sc-lv"><span class="lve">E:₹${s.entry}</span><span class="lvsl">SL:₹${s.sl}</span><span class="lvt">T1:₹${s.t1}</span><span class="lvt">T2:₹${s.t2}</span></div><div class="sc-rsn">${s.reason}</div></div>`;
+}
+
+// ── INTRADAY BUY — Top 5 strictly positive change ──
+async function loadIntraBuy(f){
+  // Sirf network fetch rok (fScan already caches) — DOM hamesha re-render karo
+  sl("Buy setups scan ho raha hai...","Top 5 bullish · Positive change only");
+  try{
+    const d=await fScan(f);
+    const b=(d.topBuy||[]).filter(s=>s.change>0).slice(0,5);
+    const remaining=Math.max(0,Math.ceil((5*60*1000-(Date.now()-scanLastFetch))/60000));
+    const cacheNote=remaining>0?` · <span style="color:var(--gold)">⏳ Next refresh ~${remaining} min</span>`:"";
+    if(!b.length){document.getElementById("welmsg").innerHTML='<div style="padding:30px;text-align:center;color:var(--text3);font-size:13px">📉 Koi bullish setup nahi — Market down ya closed.<br><br>🔄 Refresh karo.</div>';return;}
+    const col1=b.slice(0,3),col2=b.slice(3);
+    document.getElementById("welmsg").innerHTML=`<div class="ph"><div><div class="pt">📈 Buy Top 5</div><div class="ps">Best bullish setups · Long only</div></div><button class="rbtn" onclick="loadIntraBuy(true)">🔄 Refresh</button></div><div class="rg"><div class="sc-col">${col1.map(x=>sc(x,"buy",d.ts)).join("")}</div><div class="sc-col">${col2.map(x=>sc(x,"buy",d.ts)).join("")}</div></div><div style="padding:0 16px 12px;font-size:11px;color:var(--text3)">✅ ${d.total||0} stocks scanned · ${scanTime(d.ts)}${cacheNote}</div>`;
+  }catch(e){se(e.message);}
+}
+
+async function loadIntraSell(f){
+  sl("Sell setups scan ho raha hai...","Fresh breakdowns -0.3% to -3.5% + Bounce Watch");
+  try{
+    const d=await fScan(f);
+    const s=(d.topSell||[]).slice(0,5);
+    const bounce=(d.bounceWatch||[]).slice(0,5);
+    const remaining=Math.max(0,Math.ceil((5*60*1000-(Date.now()-scanLastFetch))/60000));
+    const cacheNote=remaining>0?` · <span style="color:var(--gold)">⏳ ~${remaining} min</span>`:"";
+    const sellHtml=s.length
+      ?`<div class="rg"><div class="sc-col">${s.slice(0,3).map(x=>sc(x,"sell",d.ts)).join("")}</div><div class="sc-col">${s.slice(3).map(x=>sc(x,"sell",d.ts)).join("")}</div></div>`
+      :`<div style="padding:14px 16px;font-size:12px;color:var(--text3)">Koi fresh breakdown nahi — sab ya to up hain ya already bahut gir chuke hain.</div>`;
+    const bounceHtml=bounce.length
+      ?`<div style="padding:6px 16px 4px;border-top:1px solid var(--border);margin-top:4px"><div class="sc-hd" style="color:var(--gold);font-size:12px;padding:4px 0">⚡ BOUNCE WATCH — ${bounce.length} stocks (Already fallen >3.5%)</div><div style="font-size:11px;color:var(--text3);margin-bottom:8px">⚠️ Short karna risky — Oversold bounce possible. Reversal candle confirm karo pehle.</div></div><div class="rg"><div class="sc-col">${bounce.slice(0,3).map(x=>bounceCard(x,d.ts)).join("")}</div><div class="sc-col">${bounce.slice(3).map(x=>bounceCard(x,d.ts)).join("")}</div></div>`
+      :"";
+    document.getElementById("welmsg").innerHTML=`<div class="ph"><div><div class="pt">📉 Sell Top 5</div><div class="ps">Fresh breakdowns -0.3% to -3.5% · Short only</div></div><button class="rbtn" onclick="loadIntraSell(true)">🔄 Refresh</button></div>
+    <div style="padding:4px 16px 6px"><div class="sc-hd s" style="font-size:12px">📉 FRESH SELL — ${s.length} stocks</div></div>
+    ${sellHtml}${bounceHtml}
+    <div style="padding:0 16px 12px;font-size:11px;color:var(--text3)">✅ ${d.total||0} stocks scanned · ${scanTime(d.ts)}${cacheNote}</div>`;
+  }catch(e){se(e.message);}
+}
+
+// ── KEEP WATCHING — Accumulation & Distribution ──
+// Logic: High vol (≥1.2x) + price barely moved (±2%) = sideways + volume = smart money
+function watchCard(s,type,ts){
+  const isAcc=type==="acc";
+  const cls=isAcc?"watch-acc":"watch-dist";
+  const badge=isAcc
+    ? `<span class="sc-tag blue-tag">🔵 ACCUMULATION</span>`
+    : `<span class="sc-tag purple-tag">🟣 DISTRIBUTION</span>`;
+  const note=isAcc
+    ? `<span class="sc-sln">High vol · Flat price · Silently khareed rahe hain</span>`
+    : `<span class="sc-sln">High vol · Flat price · Silently bech rahe hain</span>`;
+  const timeStr=ts?`<div class="sc-scantime">🕐 Scan: ${new Date(ts).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true})}</div>`:"";
+  return`<div class="scard ${cls}" onclick="qa('${s.sym} mein accumulation ya distribution ho raha hai? volume aur price action explain karo.')">
+    ${timeStr}
+    <div class="sc-top"><span class="sc-sym">${s.sym}</span><div class="sc-r"><div class="sc-price">₹${s.price}</div><div class="sc-chg ${s.change>=0?"up":"dn"}">${s.change>0?"+":""}${s.change}% <span class="vr">${s.volRatio}x vol</span></div></div></div>
+    <div>${badge}${note}</div>
+    <div class="sc-rsn">📊 Vol ${s.volRatio}x avg · Range ₹${s.low}–₹${s.high} · Breakout/Breakdown ke liye watch karo</div>
+  </div>`;
+}
+async function loadWatch(f){
+  sl("Smart money scan ho raha hai...","Vol ≥2x + Price barely moved = Real signal");
+  try{
+    const d=await fScan(f);
+    const acc=d.watchAcc||[];
+    const dist=d.watchDist||[];
+    const remaining=Math.max(0,Math.ceil((5*60*1000-(Date.now()-scanLastFetch))/60000));
+    const cacheNote=remaining>0?` · <span style="color:var(--gold)">⏳ ~${remaining} min</span>`:"";
+    if(!acc.length&&!dist.length){
+      document.getElementById("welmsg").innerHTML=`<div style="padding:30px;text-align:center;color:var(--text3);font-size:13px">👁 Abhi koi smart money activity nahi dikh raha.<br><span style="font-size:11px">Signal condition: Vol ≥2x avg + Price change ≤±0.8%<br>Matlab price barely hili lekin volume bahut zyada tha.<br>Market hours (9:15–3:30) mein zyada signal milte hain.</span><br><br>🔄 Refresh karo</div>`;
+      return;
+    }
+    document.getElementById("welmsg").innerHTML=`<div class="ph"><div><div class="pt">👁 Keep Watching</div><div class="ps">Vol ≥2x + Change ≤±0.8% = Koi bada player quietly active</div></div><button class="rbtn" onclick="loadWatch(true)">🔄 Refresh</button></div>
+    <div class="rg">
+      <div class="sc-col"><div class="sc-hd" style="color:var(--blue);font-size:12px">🔵 ACCUMULATION — ${acc.length} stocks</div>${acc.length?acc.map(s=>watchCard(s,"acc",d.ts)).join(""):'<div style="padding:12px;color:var(--text3);font-size:12px">Koi nahi mila</div>'}</div>
+      <div class="sc-col"><div class="sc-hd" style="color:var(--purple);font-size:12px">🟣 DISTRIBUTION — ${dist.length} stocks</div>${dist.length?dist.map(s=>watchCard(s,"dist",d.ts)).join(""):'<div style="padding:12px;color:var(--text3);font-size:12px">Koi nahi mila</div>'}</div>
+    </div>
+    <div style="padding:0 16px 12px;font-size:11px;color:var(--text3)">📌 ${d.total||0} stocks scanned · Vol ≥2x + |Change| ≤0.8% = Smart money signal · ${scanTime(d.ts)}${cacheNote}</div>`;
+  }catch(e){se(e.message);}
+}
+
+// ── LEGACY ──
+async function loadSpike(f){loadIntraBuy(f);}
+async function loadIntraday(f){loadIntraBuy(f);}
+
+// ── INDEX SETUP ──
+async function loadIndex(f){
+  if(!f&&currentTab==="index"&&document.getElementById("welmsg").innerHTML.includes("icard"))return;
+  sl("Index data fetch ho raha hai...");
+  try{
+    const r=await fetch(`${W}/index-setup`);if(!r.ok)throw new Error("HTTP "+r.status);const d=await r.json();
+    if(!d.setups?.length)throw new Error("Index data nahi mila — market hours mein try karo");
+    document.getElementById("welmsg").innerHTML=`<div class="ph"><div><div class="pt">📊 Index Setup</div><div class="ps">Support · Resistance · Bias</div></div><button class="rbtn" onclick="loadIndex(true)">🔄 Refresh</button></div><div class="idx-grid">${d.setups.map(s=>`<div class="icard ${s.bias==="Bullish"?"bull":s.bias==="Bearish"?"bear":"neu-c"}" onclick="qa('${s.name} ka aaj ka detailed intraday setup batao.')"><div class="ic-scantime">🕐 Scan: ${new Date(d.ts).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true})}</div><div class="ic-name">${s.name}</div><div class="ic-price">${s.price?.toLocaleString("en-IN")}</div><div class="ic-chg ${s.changePct>0?"up":s.changePct<0?"dn":"neu"}">${s.changePct>0?"▲":s.changePct<0?"▼":"—"} ${s.changePct}%&nbsp;(${s.change>0?"+":""}${s.change})</div><span class="ic-bias ${s.bias==="Bullish"?"bull":s.bias==="Bearish"?"bear":"neu"}">${s.bias}</span><div class="ic-lv"><span class="lv">S1:₹${s.s1}</span><span class="lv">S2:₹${s.s2}</span><span class="lv">R1:₹${s.r1}</span><span class="lv">R2:₹${s.r2}</span><span class="lv">Open:₹${s.open}</span><span class="lv">Prev:₹${s.prev}</span></div><div class="ic-rsn">${s.reason}</div></div>`).join("")}</div><div style="padding:0 16px 12px;font-size:11px;color:var(--text3)">${scanTime(d.ts)}</div>`;
+  }catch(e){se(e.message);}
+}
+
+// ── BREAKOUT ──
+async function loadBreakout(f){
+  if(!f&&breakoutCache){renderBreakout(breakoutCache);return;}
+  sl("52-week breakouts dhundh rahe hain...","Full 100 stock pool scan");
+  try{
+    const r=await fetch(`${W}/breakout`);if(!r.ok)throw new Error("HTTP "+r.status);
+    const d=await r.json();if(d.error)throw new Error(d.error);
+    breakoutCache=d;renderBreakout(d);
+  }catch(e){se(e.message);}
+}
+function renderBreakout(d){
+  const h=d.near52High||[],l=d.near52Low||[];
+  if(!h.length&&!l.length){document.getElementById("welmsg").innerHTML=noD();return;}
+  document.getElementById("welmsg").innerHTML=`<div class="ph"><div><div class="pt">🚀 Breakout Stocks</div><div class="ps">52W High breakout + 52W Low bounce</div></div><button class="rbtn" onclick="loadBreakout(true)">🔄 Refresh</button></div><div class="rg"><div class="sc-col"><div class="sc-hd b">🔝 Near 52W High</div>${h.map(s=>breakoutCard(s,d.ts)).join("")||noD()}</div><div class="sc-col"><div class="sc-hd g">📈 52W Low Bounce</div>${l.map(s=>breakoutCard(s,d.ts)).join("")||noD()}</div></div><div style="padding:0 16px 12px;font-size:10.5px;color:var(--text3)">${d.total||0} stocks scanned · ${scanTime(d.ts)}</div>`;
+}
+
+// ── SWING — Bull 5 + Bear 5, clearly labeled ──
+async function loadSwing(f){
+  if(!f&&swingCache){renderSwing(swingCache);return;}
+  sl("Swing setups calculate ho rahe hain...","RSI + EMA20 + 52W — 15-20 seconds");
+  try{
+    const r=await fetch(`${W}/swing`);if(!r.ok)throw new Error("HTTP "+r.status);
+    const d=await r.json();if(d.error)throw new Error(d.error);
+    swingCache=d;renderSwing(d);
+  }catch(e){se(e.message);}
+}
+function renderSwing(d){
+  const bull=d.bull||[],bear=d.bear||[];
+  const bullHtml=bull.length?bull.map(s=>swingCard(s,d.ts)).join(""):noD();
+  const bearHtml=bear.length?bear.map(s=>swingCard(s,d.ts)).join(""):noD();
+  document.getElementById("welmsg").innerHTML=`
+    <div class="ph"><div><div class="pt">📅 Swing Top 5</div><div class="ps">Mid/small caps · 3-7 din hold · Intraday se alag stock pool</div></div><button class="rbtn" onclick="loadSwing(true)">🔄 Refresh</button></div>
+    <div class="rg">
+      <div class="sc-col">
+        <div class="sc-hd bull">🐂 BULL SWING — RSI Oversold + Below EMA20</div>
+        ${bullHtml}
+      </div>
+      <div class="sc-col">
+        <div class="sc-hd bear">🐻 BEAR SWING — RSI Overbought + Above EMA20</div>
+        ${bearHtml}
+      </div>
+    </div>
+    <div style="padding:0 16px 12px;font-size:10.5px;color:var(--text3)">⚠️ Swing trades mein overnight risk hota hai · ${d.total||0} stocks analyzed · ${scanTime(d.ts)}</div>`;
+}
+
+// ── NEWS ──
+async function loadNews(f){
+  if(!f&&newsCache){renderNews();return;}
+  sl("NSE stock news fetch ho raha hai...");
+  try{const r=await fetch(`${W}/news`);if(!r.ok)throw new Error("HTTP "+r.status);const d=await r.json();newsCache=d;renderNews();}catch(e){se(e.message);}
+}
+function renderNews(){
+  if(!newsCache)return;
+  const all=newsCache.news||[];
+  const stks=[...new Set(all.map(n=>n.sym).filter(Boolean))];
+  const fi=nf==="all"?all:all.filter(n=>n.sym===nf);
+  document.getElementById("welmsg").innerHTML=`<div class="ph"><div><div class="pt">📰 NSE Stock News</div><div class="ps">India market news</div></div><button class="rbtn" onclick="loadNews(true)">🔄 Refresh</button></div><div class="newswrap"><div class="nf-row"><button class="nf-btn ${nf==="all"?"active":""}" onclick="snf('all')">All (${all.length})</button>${stks.slice(0,8).map(s=>`<button class="nf-btn ${nf===s?"active":""}" onclick="snf('${s}')">${s}</button>`).join("")}</div>${fi.length?fi.map(n=>`<div class="nitem" onclick="window.open('${n.link}','_blank')"><span class="ni-tag">${n.sym||"MKT"}</span><div class="ni-title">${n.title}</div><div class="ni-meta"><span>${n.publisher}</span><div class="ni-dot"></div><span>${n.time?ago(n.time*1000):""}</span></div></div>`).join(""):'<div style="padding:16px;color:var(--text3);text-align:center">Koi news nahi mili</div>'}<div style="padding:4px 0 10px;font-size:10.5px;color:var(--text3)">${ago(newsCache.ts)}</div></div>`;
+}
+function snf(f){nf=f;renderNews();}
+
+// ── AI CHAT ──
+function fmt(t){
+  t=t.replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>");
+  t=t.replace(/#{1,3}\s*(.*)/g,'<span class="sec">$1</span>');
+  t=t.replace(/\b(bullish|Bullish|breakout|Buy|BUY)\b/g,'<span class="bull">$&</span>');
+  t=t.replace(/\b(bearish|Bearish|breakdown|Sell|SELL)\b/g,'<span class="bear">$&</span>');
+  t=t.replace(/₹[\d,]+(\.\d+)?/g,m=>`<span class="lv">${m}</span>`);
+  t=t.replace(/(⚠️[^\n]+)/g,'<div class="disc">$1</div>');
+  return t.replace(/\n/g,"<br>");
+}
+function addChatMsg(role,html){
+  const wrap=`<div class="msg ${role}"><div class="av">${role==="ai"?"🤖":"👤"}</div><div class="bub">${html}</div></div>`;
+  chatMessages.push(wrap);
+  if(currentTab==="chat"){const w=document.getElementById("welmsg");const d=document.createElement("div");d.innerHTML=wrap;w.appendChild(d.firstChild);w.scrollTop=w.scrollHeight;}
+}
+function showTyping(){
+  if(currentTab==="chat"){const w=document.getElementById("welmsg");const d=document.createElement("div");d.id="typdot";d.className="typing-row";d.innerHTML=`<div class="av">🤖</div><div class="typing-bub"><div class="dots"><span></span><span></span><span></span></div><span class="typing-txt">Live scan + AI analysis...</span></div>`;w.appendChild(d);w.scrollTop=w.scrollHeight;}
+}
+function hideTyping(){const t=document.getElementById("typdot");if(t)t.remove();}
+
+async function sendChat(){
+  const inp=document.getElementById("inp"),btn=document.getElementById("sendBtn"),text=inp.value.trim();
+  if(!text||busy)return;
+  busy=true;btn.disabled=true;inp.value="";inp.style.height="auto";
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.querySelector(".tab").classList.add("active");
+  currentTab="chat";
+  const cw=document.getElementById("chatWelcome");if(cw)cw.remove();
+  addChatMsg("user",esc(text));showTyping();
+  try{
+    const r=await fetch(`${W}/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text,history:chatHist})});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const d=await r.json();if(d.error)throw new Error(d.error);
+    hideTyping();addChatMsg("ai",fmt(d.reply));
+    chatHist.push({role:"user",content:text},{role:"assistant",content:d.reply});
+    if(chatHist.length>20)chatHist=chatHist.slice(-20);
+  }catch(e){hideTyping();addChatMsg("ai",`<span style="color:var(--red)">⚠️ ${esc(e.message)}</span>`);}
+  busy=false;btn.disabled=false;document.getElementById("inp").focus();
+}
+function qa(t){document.getElementById("inp").value=t;sendChat();}
+
+function refreshAll(){
+  scanCache=null;newsCache=null;breakoutCache=null;swingCache=null;scanLastFetch=0;loadTicker();
+  if(currentTab==="intrabuy")loadIntraBuy(true);
+  else if(currentTab==="intrasell")loadIntraSell(true);
+  else if(currentTab==="watch")loadWatch(true);
+  else if(currentTab==="index")loadIndex(true);
+  else if(currentTab==="swing")loadSwing(true);
+  else if(currentTab==="news")loadNews(true);
+}
+
+// ── COMMUNITY CHAT ──
+async function sendLC(){
+  const nE=document.getElementById("lcName"),iE=document.getElementById("lcInp"),btn=document.getElementById("lcSend");
+  const name=nE.value.trim(),text=iE.value.trim();
+  if(!name){nE.style.borderColor="var(--red)";const p=nE.placeholder;nE.placeholder="⚠️ Naam daalo!";nE.focus();setTimeout(()=>{nE.style.borderColor="";nE.placeholder=p;},2500);return;}
+  if(!text&&!lcPastedImg)return;
+  btn.disabled=true;
+  localStorage.setItem("tgN",name.slice(0,20));
+  const payload={name:name.slice(0,20),text:text||(lcPastedImg?"[img]":"")};
+  if(lcPastedImg)payload.img=lcPastedImg;
+  try{const r=await fetch(`${W}/livechat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});const d=await r.json();if(d.ok){iE.value="";iE.style.height="auto";removeImg();await pollLC();}}catch(e){}
+  btn.disabled=false;
+}
+async function pollLC(){
+  try{
+    const r=await fetch(`${W}/livechat?since=${lcLastTs}`);if(!r.ok)return;
+    const d=await r.json();const msgs=d.messages||[];if(!msgs.length)return;
+    const c=document.getElementById("lcMsgs");
+    const em=c.querySelector(".lc-empty");if(em)em.remove();
+    const myN=(document.getElementById("lcName").value||localStorage.getItem("tgN")||"").trim();
+    const ab=c.scrollHeight-c.scrollTop-c.clientHeight<80;
+    msgs.forEach(m=>{
+      if(lcIds.has(m.id))return;
+      lcIds.add(m.id);lcLastTs=Math.max(lcLastTs,m.ts);
+      const mine=myN&&m.name===myN,col=avc(m.name);
+      const dv=document.createElement("div");dv.className=`lc-msg${mine?" mine":""}`;
+      const imgHtml=m.img?`<img src="${m.img}" alt="screenshot" onclick="openImgFull(this.src)" style="cursor:zoom-in">`:""
+      const txtHtml=(m.text&&m.text!=="[img]")?`<div>${esc(m.text)}</div>`:"";
+      dv.innerHTML=`<div class="lc-av-wrap"><div class="lc-av" style="background:${col}">${ini(m.name)}</div><div class="lc-av-name">${esc(m.name)}</div></div><div class="lc-body"><div class="lc-bub">${txtHtml}${imgHtml}</div><div class="lc-time">${ft(m.ts)}</div></div><button class="lc-del-btn" onclick="deleteMsg(${m.id},this)" title="Delete">🗑</button>`;
+      c.appendChild(dv);
+    });
+    document.getElementById("lcBadge").textContent=lcIds.size+" msg"+(lcIds.size===1?"":"s");
+    if(ab)c.scrollTop=c.scrollHeight;
+  }catch(e){}
+}
+
+// ── SYMBOL PICKER ──
+const SP_STOCKS=[
+  {s:"RELIANCE",sec:"energy"},{s:"TCS",sec:"it"},{s:"HDFCBANK",sec:"banks"},{s:"ICICIBANK",sec:"banks"},
+  {s:"INFY",sec:"it"},{s:"AXISBANK",sec:"banks"},{s:"SBIN",sec:"banks"},{s:"BHARTIARTL",sec:"infra"},
+  {s:"KOTAKBANK",sec:"banks"},{s:"LT",sec:"infra"},{s:"HINDUNILVR",sec:"fmcg"},{s:"ITC",sec:"fmcg"},
+  {s:"BAJFINANCE",sec:"finance"},{s:"TATAMOTORS",sec:"auto"},{s:"TATASTEEL",sec:"metal"},
+  {s:"HCLTECH",sec:"it"},{s:"WIPRO",sec:"it"},{s:"NTPC",sec:"energy"},{s:"POWERGRID",sec:"energy"},
+  {s:"COALINDIA",sec:"energy"},{s:"ONGC",sec:"energy"},{s:"BPCL",sec:"energy"},{s:"JSWSTEEL",sec:"metal"},
+  {s:"HINDALCO",sec:"metal"},{s:"VEDL",sec:"metal"},{s:"DLF",sec:"infra"},{s:"SUNPHARMA",sec:"pharma"},
+  {s:"DRREDDY",sec:"pharma"},{s:"CIPLA",sec:"pharma"},{s:"DIVISLAB",sec:"pharma"},{s:"LUPIN",sec:"pharma"},
+  {s:"TECHM",sec:"it"},{s:"LTIM",sec:"it"},{s:"BAJAJ-AUTO",sec:"auto"},{s:"HEROMOTOCO",sec:"auto"},
+  {s:"TVSMOTOR",sec:"auto"},{s:"BAJAJFINSV",sec:"finance"},{s:"HDFCAMC",sec:"finance"},
+  {s:"SBILIFE",sec:"finance"},{s:"ICICIPRULI",sec:"finance"},{s:"ICICIGI",sec:"finance"},
+  {s:"HDFCLIFE",sec:"finance"},{s:"SHRIRAMFIN",sec:"finance"},{s:"MUTHOOTFIN",sec:"finance"},
+  {s:"CHOLAFIN",sec:"finance"},{s:"FEDERALBNK",sec:"banks"},{s:"BANDHANBNK",sec:"banks"},
+  {s:"PNB",sec:"banks"},{s:"BANKBARODA",sec:"banks"},{s:"CANBK",sec:"banks"},{s:"INDUSINDBK",sec:"banks"},
+  {s:"M&M",sec:"auto"},{s:"MARUTI",sec:"auto"},{s:"TITAN",sec:"fmcg"},{s:"TATACONSUM",sec:"fmcg"},
+  {s:"TATAPOWER",sec:"energy"},{s:"ADANIENT",sec:"infra"},{s:"ADANIPORTS",sec:"infra"},
+  {s:"GRASIM",sec:"infra"},{s:"ULTRACEMCO",sec:"infra"},{s:"POLYCAB",sec:"infra"},
+  {s:"HAVELLS",sec:"infra"},{s:"SIEMENS",sec:"infra"},{s:"ABB",sec:"infra"},{s:"BEL",sec:"infra"},
+  {s:"HAL",sec:"infra"},{s:"BHEL",sec:"infra"},{s:"IRCTC",sec:"infra"},{s:"ZOMATO",sec:"it"},
+  {s:"PERSISTENT",sec:"it"},{s:"COFORGE",sec:"it"},{s:"MPHASIS",sec:"it"},{s:"NAUKRI",sec:"it"},
+  {s:"AUROPHARMA",sec:"pharma"},{s:"ALKEM",sec:"pharma"},{s:"APOLLOHOSP",sec:"pharma"},
+  {s:"BIOCON",sec:"pharma"},{s:"TORNTPHARM",sec:"pharma"},{s:"GODREJPROP",sec:"infra"},
+  {s:"GODREJCP",sec:"fmcg"},{s:"PIDILITIND",sec:"fmcg"},{s:"BRITANNIA",sec:"fmcg"},
+  {s:"NESTLEIND",sec:"fmcg"},{s:"DABUR",sec:"fmcg"},{s:"MARICO",sec:"fmcg"},
+  {s:"GAIL",sec:"energy"},{s:"IOC",sec:"energy"},{s:"SAIL",sec:"metal"},{s:"NMDC",sec:"metal"},
+  {s:"NATIONALUM",sec:"metal"},{s:"RECLTD",sec:"finance"},{s:"PFC",sec:"finance"},
+  {s:"DIXON",sec:"it"},{s:"EICHERMOT",sec:"auto"},{s:"PAGEIND",sec:"fmcg"},{s:"TRENT",sec:"fmcg"},
+  {s:"FORTIS",sec:"pharma"},{s:"CONCOR",sec:"infra"},
+];
+const SEC_LABELS={banks:"🏦 Banks",it:"💻 IT",auto:"🚗 Auto",pharma:"💊 Pharma",metal:"⚙️ Metal",energy:"⚡ Energy",fmcg:"🛒 FMCG",infra:"🏗️ Infra",finance:"💰 Finance"};
+let spActiveCat="all";
+function openSymPicker(){document.getElementById("spOverlay").style.display="flex";document.getElementById("spSearch").value="";spActiveCat="all";document.querySelectorAll(".sp-cat").forEach(b=>b.classList.remove("active"));document.querySelector(".sp-cat").classList.add("active");spRender(SP_STOCKS);setTimeout(()=>document.getElementById("spSearch").focus(),80);}
+function closeSymPicker(){document.getElementById("spOverlay").style.display="none";}
+function spBgClick(e){if(e.target===document.getElementById("spOverlay"))closeSymPicker();}
+function spCat(el,cat){spActiveCat=cat;document.querySelectorAll(".sp-cat").forEach(b=>b.classList.remove("active"));el.classList.add("active");document.getElementById("spSearch").value="";spRender(cat==="all"?SP_STOCKS:SP_STOCKS.filter(s=>s.sec===cat));}
+function spFilter(){const q=document.getElementById("spSearch").value.trim().toUpperCase();if(!q){spRender(spActiveCat==="all"?SP_STOCKS:SP_STOCKS.filter(s=>s.sec===spActiveCat));return;}spRender(SP_STOCKS.filter(s=>s.s.includes(q)));}
+function spRender(list){const g=document.getElementById("spGrid");if(!list.length){g.innerHTML='<div class="sp-no">Koi stock nahi mila 🤷</div>';return;}g.innerHTML=list.map(s=>`<div class="sp-chip" onclick="spPick('${s.s}')"><div class="sc-sym">${s.s}</div><div class="sc-sec">${SEC_LABELS[s.sec]||s.sec}</div></div>`).join("");}
+function spPick(sym){closeSymPicker();qa(`${sym} ka aaj ka live intraday setup batao — entry, SL, targets ke saath.`);}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSymPicker();});
+
+// ── ADMIN LOCK ──
+let adminMode=sessionStorage.getItem("tgAdmin")==="1";
+function applyAdminMode(){
+  const btn=document.getElementById("lcLockBtn");
+  const msgs=document.getElementById("lcMsgs");
+  if(adminMode){
+    btn.textContent="🔓";btn.classList.add("unlocked");
+    msgs.classList.add("admin-on");
+  }else{
+    btn.textContent="🔒";btn.classList.remove("unlocked");
+    msgs.classList.remove("admin-on");
+  }
+}
+function toggleAdminLock(){
+  if(adminMode){
+    // Already unlocked — lock karo
+    adminMode=false;
+    sessionStorage.removeItem("tgAdmin");
+    applyAdminMode();
+  } else {
+    // Password maango
+    document.getElementById("pwOverlay").style.display="flex";
+    document.getElementById("pwInp").value="";
+    document.getElementById("pwErr").style.display="none";
+    setTimeout(()=>document.getElementById("pwInp").focus(),80);
+  }
+}
+function pwClose(){document.getElementById("pwOverlay").style.display="none";}
+async function pwSubmit(){
+  const pw=document.getElementById("pwInp").value;
+  if(!pw)return;
+  // Worker se verify karwao — ek dummy delete call se password check
+  try{
+    const r=await fetch(`${W}/livechat/delete`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:"__check__",password:pw})});
+    const d=await r.json();
+    if(d.error==="Wrong password"){
+      document.getElementById("pwErr").style.display="block";
+      document.getElementById("pwInp").value="";
+      document.getElementById("pwInp").focus();
+      return;
+    }
+    // Password sahi — unlock
+    adminMode=true;
+    sessionStorage.setItem("tgAdmin","1");
+    sessionStorage.setItem("tgAdminPw",pw);
+    applyAdminMode();
+    pwClose();
+  }catch(e){
+    document.getElementById("pwErr").textContent="⚠️ Server error";
+    document.getElementById("pwErr").style.display="block";
+  }
+}
+async function deleteMsg(id,btn){
+  if(!adminMode)return;
+  if(!confirm("Yeh message permanently delete karein?"))return;
+  const pw=sessionStorage.getItem("tgAdminPw")||"";
+  btn.disabled=true;btn.textContent="⏳";
+  try{
+    const r=await fetch(`${W}/livechat/delete`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,password:pw})});
+    const d=await r.json();
+    if(d.ok){
+      const msgEl=btn.closest(".lc-msg");
+      if(msgEl){msgEl.style.opacity="0";msgEl.style.transition="opacity .3s";setTimeout(()=>msgEl.remove(),300);}
+      lcIds.delete(id);
+      document.getElementById("lcBadge").textContent=lcIds.size+" msg"+(lcIds.size===1?"":"s");
+    } else {
+      btn.disabled=false;btn.textContent="🗑";
+      alert("Delete failed: "+(d.error||"Unknown error"));
+    }
+  }catch(e){btn.disabled=false;btn.textContent="🗑";}
+}
+// Page load pe admin state restore karo
+window.addEventListener("DOMContentLoaded",()=>{ if(adminMode)applyAdminMode(); });
+
+// ── SCREENSHOT PASTE ──
+function removeImg(){lcPastedImg=null;const p=document.getElementById("lcImgPreview");if(p)p.style.display="none";}
+function openImgFull(src){document.getElementById("imgFullSrc").src=src;document.getElementById("imgFullOverlay").style.display="flex";}
+document.addEventListener("paste",function(e){
+  const items=e.clipboardData&&e.clipboardData.items;
+  if(!items)return;
+  for(let i=0;i<items.length;i++){
+    if(items[i].type.startsWith("image/")){
+      const file=items[i].getAsFile();
+      const reader=new FileReader();
+      reader.onload=function(ev){
+        lcPastedImg=ev.target.result;
+        const thumb=document.getElementById("lcImgThumb");
+        const prev=document.getElementById("lcImgPreview");
+        if(thumb&&prev){thumb.src=lcPastedImg;prev.style.display="inline-block";}
+        document.getElementById("lcInp").focus();
+      };
+      reader.readAsDataURL(file);
+      e.preventDefault();
+      break;
+    }
+  }
+});
+
+// INIT
+loadTicker();
+setInterval(loadTicker,3*60*1000);
+pollLC();
+setInterval(pollLC,4000);
 </script>
 </body>
 </html>
