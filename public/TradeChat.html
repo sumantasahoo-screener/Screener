@@ -249,6 +249,7 @@
         .stat-chip.tgt{color:var(--green);border-color:rgba(0,214,143,0.22);}
         .stat-chip.entry{color:var(--purple);border-color:rgba(168,85,247,0.22);}
         .src-tag{font-size:0.7rem;color:var(--text3);padding:2px 7px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:4px;white-space:nowrap;}
+        .ltp-badge{font-family:'JetBrains Mono',monospace;font-size:0.71rem;font-weight:700;padding:2px 7px;border-radius:5px;background:rgba(59,126,255,0.1);color:var(--blue);border:1px solid rgba(59,126,255,0.3);animation:pulse 2s infinite;}
         .footer-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
         .card-notes{font-size:0.76rem;color:var(--text2);line-height:1.4;margin-bottom:5px;padding:0 2px;opacity:0.85;}
 
@@ -567,14 +568,21 @@
         /* ===== RESPONSIVE ===== */
         @media(max-width:900px){
             .layout{flex-direction:column}
-            .input-panel{width:100%;max-width:100%;left:0;right:0;top:54px;height:calc(100vh - 54px);transform:translateY(110%);}
+            .input-panel{width:100%;max-width:100%;left:0;right:0;top:54px;height:calc(100vh - 54px);transform:translateY(110%); padding-bottom:80px;}
             .input-panel.panel-open{transform:translateY(0);}
             .feed-wrapper{border-right:none}
         }
         @media(max-width:600px){
-            .header{padding:8px 12px}
+            .header{padding:8px 12px; flex-wrap:wrap; gap:8px}
+            .header-brand { width:100%; justify-content:center; }
+            .live-badge, .header-sub { display:none }
             .form-row{flex-wrap:wrap}
-            .filter-bar{padding:8px 12px}
+            .filter-bar{padding:8px 12px; justify-content:center}
+            .fbtn { font-size: 0.65rem; padding: 4px 8px;}
+            .card-top { flex-direction: column; align-items: flex-start; gap: 4px; }
+            .card-right { width: 100%; justify-content: space-between; }
+            .info-row { gap: 4px; }
+            .stat-chip { font-size: 0.65rem; padding: 2px 5px; }
         }
     </style>
 </head>
@@ -639,8 +647,15 @@
                     <input type="text" id="userName" placeholder="Nickname" autocomplete="off">
                 </div>
                 <div class="form-group">
-                    <label class="field-label">Symbol</label>
-                    <input type="text" id="stockSymbol" placeholder="e.g. INFY, NIFTY" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label class="field-label">Symbol</label>
+                        <div id="ltpFormDisplay" style="font-size:0.75rem; font-weight:700; color:var(--blue); display:none">
+                            <span id="ltpLoader" style="display:none">⏳ Fetching...</span>
+                            <span id="ltpPrice"></span>
+                        </div>
+                    </div>
+                    <input type="text" id="stockSymbol" list="symbolList" placeholder="e.g. INFY, NIFTY" autocomplete="off" oninput="this.value=this.value.toUpperCase(); handleSymbolInput(this.value)">
+                    <datalist id="symbolList"></datalist>
                 </div>
             </div>
 
@@ -924,8 +939,12 @@
             remarksHtml = `<div class="remark-list">${list}</div>`;
         }
 
+        const isAutoClosed = data.statusUpdatedBy === 'Auto Hit';
         const btnHtml = ['Open','Achieved','Failed','Closed'].map(s => {
             const cls = s === st ? `sbtn ${sbtnClass[s]}` : 'sbtn';
+            if (isAutoClosed) {
+                return `<button class="${cls}" onclick="alert('🚫 Yeh trade automatically LTP check karke close ho chuka hai. Manual update allow nahi hai.')">${statusEmoji[s]} ${s}</button>`;
+            }
             return `<button class="${cls}" onclick="updateStatus('${docId}','${s}')">${statusEmoji[s]} ${s}</button>`;
         }).join('');
 
@@ -970,11 +989,13 @@
                     <div style="width:1px; height:14px; background:var(--border); margin:0 2px"></div>
                     ${chips}
                     ${dateChip}
+                    <span id="ltp-live-${docId}" class="ltp-badge" style="display:none">LTP: --</span>
                 </div>
                 ${msgHtml}${imgHtml}
                 <div class="card-footer">
                     <div class="footer-meta">
                         <span class="status-badge ${statusClass[st]}">${statusLabel[st]}</span>
+                        ${isAutoClosed ? `<span class="pill" style="background:rgba(168,85,247,0.15);color:var(--purple);border-color:rgba(168,85,247,0.4);display:flex;align-items:center;gap:3px;margin-left:4px">🤖 Auto Hit</span>` : ''}
                         ${srcHtml}
                     </div>
                     <div class="status-btns">${btnHtml}</div>
@@ -1271,6 +1292,12 @@
         
         // 2. Symbol Check
         if (!symbol) { alert("⚠️ Stock 'Symbol' bharna zaroori hai!"); return; }
+        
+        // Final Symbol Validation (Must be in Nifty 500)
+        if (!fno218.includes(symbol)) {
+            alert("❌ Error: '" + symbol + "' valid symbol nahi hai. Please suggestions se sahi symbol select karein!");
+            return;
+        }
 
         // 3. Signal Type Check (Bullish/Bearish)
         if (!sType) { alert("⚠️ Pehle 'Bullish' ya 'Bearish' signal select kijiye!"); return; }
@@ -1397,6 +1424,143 @@
         }
     });
 
+    // Real-Time LTP Fetching Engine (No Backend / Google Finance)
+    const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+    const ltpCache = {};
+
+    let cachedR2Data = null;
+    let lastR2Fetch = 0;
+
+    async function fetchNSEPrice(symbol) {
+        if (!symbol) return null;
+        const sym = symbol.toUpperCase();
+        
+        try {
+            // STEP 1: Try the existing R2 cache first (Extremely fast & stable)
+            // We fetch latest.json once every 60 seconds to save bandwidth
+            const now = Date.now();
+            if (!cachedR2Data || (now - lastR2Fetch) > 60000) {
+                const r2Url = `https://pub-872ee524d3b44e039d5b82f78c97bbcb.r2.dev/latest.json?t=${now}`;
+                const r2Resp = await fetch(r2Url);
+                if (r2Resp.ok) {
+                    cachedR2Data = await r2Resp.json();
+                    lastR2Fetch = now;
+                }
+            }
+
+            if (cachedR2Data && cachedR2Data.stocks) {
+                const stock = cachedR2Data.stocks.find(s => s.Symbol === sym);
+                if (stock) return parseFloat(stock.LTP);
+            }
+
+            // STEP 2: Fallback to the dedicated Worker for stocks NOT in R2 (Nifty 500)
+            const workerUrl = `https://nse-proxy.susanta41012.workers.dev?symbol=${encodeURIComponent(sym)}`;
+            const resp = await fetch(workerUrl);
+            if (resp.ok) {
+                const data = await resp.json();
+                return data && data.ltp ? parseFloat(data.ltp) : null;
+            }
+            return null;
+        } catch (e) { 
+            return null; 
+        }
+    }
+
+    window.handleSymbolInput = debounce(async (val) => {
+        const container = document.getElementById('ltpFormDisplay');
+        const loader = document.getElementById('ltpLoader');
+        const priceLabel = document.getElementById('ltpPrice');
+        
+        if (fno218.includes(val)) {
+            container.style.display = 'block';
+            loader.style.display = 'inline';
+            priceLabel.textContent = '';
+            
+            const price = await fetchNSEPrice(val);
+            loader.style.display = 'none';
+            if (price) {
+                document.getElementById('entryFrom').value = price;
+                priceLabel.textContent = `LTP: ₹${price.toLocaleString('en-IN')}`;
+                ltpCache[val] = price;
+            } else {
+                container.style.display = 'none';
+            }
+        } else {
+            container.style.display = 'none';
+        }
+    }, 800);
+
+    async function updateDashboardLTPs() {
+        const todayOpenDocs = allDocs.filter(d => {
+            const data = d.data();
+            return (data.status || 'Open') === 'Open' && data.tradeDate && data.tradeDate >= todayStr;
+        });
+
+        for (const docSnap of todayOpenDocs) {
+            const data = docSnap.data();
+            const symbol = data.stockSymbol;
+            const docId = docSnap.id;
+            
+            if (symbol) {
+                const price = await fetchNSEPrice(symbol);
+                if (price) {
+                    const card = document.getElementById(`card-${docId}`);
+                    if (card) {
+                        const ltpSpan = card.querySelector('.ltp-badge');
+                        if (ltpSpan) {
+                            ltpSpan.textContent = `LTP: ₹${price.toLocaleString('en-IN')}`;
+                            ltpSpan.style.display = 'inline-block';
+                        }
+                    }
+
+                    const signalType = data.signalType;
+                    const target = parseFloat(data.target) || 0;
+                    const sl = parseFloat(data.stopLoss) || 0;
+                    
+                    let newStatus = null;
+
+                    if (signalType === 'Bullish') {
+                        if (target > 0 && price >= target) newStatus = 'Achieved';
+                        else if (sl > 0 && price <= sl) newStatus = 'Failed';
+                    } else if (signalType === 'Bearish') {
+                        if (target > 0 && price <= target) newStatus = 'Achieved';
+                        else if (sl > 0 && price >= sl) newStatus = 'Failed';
+                    }
+
+                    if (newStatus) {
+                        try {
+                            await updateDoc(doc(db, 'signals', docId), {
+                                status: newStatus,
+                                statusUpdatedBy: 'Auto Hit',
+                                statusUpdatedAt: serverTimestamp(),
+                                statusHistory: arrayUnion({
+                                    status: newStatus,
+                                    user: 'System (Auto Hit)',
+                                    time: Date.now()
+                                })
+                            });
+                        } catch (err) {
+                            console.error("Auto-close failed: ", err);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Polling Interval: Run every 60s
+    setInterval(updateDashboardLTPs, 60000);
+    // Call once on startup
+    setTimeout(updateDashboardLTPs, 2000);
+
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
     // Preview uploaded image
     window.previewImage = (e) => {
         const file = e.target.files[0];
@@ -1407,11 +1571,42 @@
         document.getElementById('uploadBox').style.borderColor = 'rgba(59,126,255,0.5)';
     };
 
-    // Load saved name
+    // Nifty 500 Smart Suggestions Logic
+    const fno218 = ["NIFTY","BANKNIFTY","NIFTYNXT50","FINNIFTY","MIDCPNIFTY","360ONE","ABB","ADANIENT","ADANIGREEN","ADANIPORTS","ALKEM","AMBER","AMBUJACEM","ANGELONE","APLAPOLLO","APOLLOHOSP","ASTRAL","AUBANK","AUROPHARMA","ADANIENSOL","BAJAJ-AUTO","BAJAJHLDNG","BANDHANBNK","BANKBARODA","BHARATFORG","BIOCON","BOSCHLTD","ASIANPAINT","BPCL","CANBK","CHOLAFIN","CIPLA","COALINDIA","COLPAL","CROMPTON","DIVISLAB","DMART","DRREDDY","ABCAPITAL","EICHERMOT","EXIDEIND","FEDERALBNK","FORTIS","GAIL","GLENMARK","BEL","GODREJPROP","HAL","HAVELLS","BHARTIARTL","HCLTECH","HDFCAMC","BHEL","HEROMOTOCO","HINDALCO","BRITANNIA","HINDPETRO","CAMS","CGPOWER","HINDUNILVR","ICICIBANK","ICICIGI","ICICIPRULI","IEX","INDIGO","INDUSINDBK","INDUSTOWER","INFY","CONCOR","IOC","CUMMINSIND","IREDA","DABUR","DALBHARAT","DELHIVERY","IRFC","DIXON","DLF","AXISBANK","BAJFINANCE","JINDALSTEL","JIOFIN","ETERNAL","JSWSTEEL","KAYNES","BANKINDIA","KEI","BDL","GRASIM","KOTAKBANK","KPITTECH","LAURUSLABS","HINDZINC","HUDCO","IDFCFIRSTB","INDIANB","INOXWIND","BLUESTARCO","LICHSGFIN","LICI","LODHA","BSE","JUBLFOOD","LT","KFINTECH","LTF","CDSL","LTM","MANAPPURAM","LUPIN","MANKIND","MARICO","MARUTI","MCX","MOTHERSON","NATIONALUM","NAUKRI","NMDC","NYKAA","MAXHEALTH","ONGC","COFORGE","PETRONET","MAZDOCK","PFC","PIDILITIND","PIIND","PNBHOUSING","POLICYBZR","POLYCAB","PREMIERENE","RELIANCE","MFSL","SAMMAANCAP","SBIN","SHRIRAMFIN","SOLARINDS","SONACOMS","SRF","NBCC","SUNPHARMA","NHPC","SUPREMEIND","SWIGGY","NTPC","TATACONSUM","TATAELXSI","NUVAMA","OBEROIRLTY","HDFCBANK","TATATECH","OIL","TCS","HDFCLIFE","TIINDIA","TORNTPOWER","TVSMOTOR","UNITDSPR","UNOMINDA","UPL","VBL","VEDL","VOLTAS","WAAREEENER","ZYDUSLIFE","PAYTM","PGEL","ITC","JSWENERGY","POWERGRID","POWERINDIA","PRESTIGE","RECLTD","RVNL","SBICARD","SBILIFE","SIEMENS","MUTHOOTFIN","OFSS","PAGEIND","PHOENIXLTD","SUZLON","RBLBANK","GMRAIRPORT","TATAPOWER","SHREECEM","TATASTEEL","TRENT","ULTRACEMCO","UNIONBANK","TITAN","TMPV","WIPRO","YESBANK","ASHOKLEY","BAJAJFINSV","GODREJCP","PATANJALI","PERSISTENT","INDHOTEL","PNB","M&M","NESTLEIND","PPLPHARMA","KALYANKJIL","IDEA","TECHM","SAIL","MPHASIS","TORNTPHARM","ADANIPOWER","COCHINSHIP","FORCEMOT","GODFRYPHLP","HYUNDAI","MOTILALOFS","NAM-INDIA","VMM"];
+
+
+    async function initStockSuggestions() {
+        const listEl = document.getElementById('symbolList');
+        if (!listEl) return;
+
+        try {
+            // 1. Try fetching from Firebase masterData
+            const docRef = doc(db, "masterData", "stockList");
+            const snap = await getDocs(query(collection(db, "masterData"))); // Quick check if collection exists
+            
+            // For first time or empty, we sync from our local fno218 array
+            let symbols = fno218;
+            
+            // Populate Datalist
+            listEl.innerHTML = symbols.map(s => `<option value="${s}">`).join('');
+            
+            // Sync to Firebase if masterData is empty (One-time background setup)
+            if (snap.empty) {
+                await addDoc(collection(db, "masterData"), { symbols: fno218, type: "fno218" });
+                console.log("✈️ F&O 218 Synced to Firebase!");
+            }
+        } catch (e) {
+            console.warn("Stock suggestions fallback to local.", e);
+            listEl.innerHTML = fno218.map(s => `<option value="${s}">`).join('');
+        }
+    }
+
+    // Load saved name and suggestions
     window.addEventListener('DOMContentLoaded', () => {
         const saved = localStorage.getItem('tradechat_name');
         if (saved) document.getElementById('userName').value = saved;
         document.getElementById('viewDateFilter').value = activeViewDate;
+        initStockSuggestions();
     });
 </script>
 </body>
