@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORB Premium Scanner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-base: #f4f6f8;
+            --bg-gradient: radial-gradient(circle at 50% -20%, #e0e5ec, #f4f6f8);
+            --panel-bg: rgba(255, 255, 255, 0.6);
+            --panel-border: rgba(255, 255, 255, 0.8);
+            --panel-shadow: 0 8px 32px rgba(31, 38, 135, 0.05);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: rgba(0, 0, 0, 0.06);
+            --bullish-bg: rgba(16, 185, 129, 0.15);
+            --bullish-text: #059669;
+            --bearish-bg: rgba(239, 68, 68, 0.15);
+            --bearish-text: #dc2626;
+            --neutral-bg: rgba(148, 163, 184, 0.15);
+            --neutral-text: #64748b;
+            --row-hover: rgba(255, 255, 255, 0.8);
+            --header-bg: rgba(255, 255, 255, 0.5);
+            --accent: #3b82f6;
+        }
+
+        [data-theme='dark'] {
+            --bg-base: #0b0f19;
+            --bg-gradient: radial-gradient(circle at 50% -10%, #17253d, #0b0f19);
+            --panel-bg: rgba(17, 25, 40, 0.7);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --panel-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.05);
+            --bullish-bg: rgba(16, 185, 129, 0.12);
+            --bullish-text: #34d399;
+            --bearish-bg: rgba(239, 68, 68, 0.12);
+            --bearish-text: #f87171;
+            --neutral-bg: rgba(255, 255, 255, 0.04);
+            --neutral-text: #94a3b8;
+            --row-hover: rgba(255, 255, 255, 0.03);
+            --header-bg: rgba(17, 25, 40, 0.5);
+            --accent: #60a5fa;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-base);
+            background-image: var(--bg-gradient);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 8px;
+            font-weight: 500;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        button {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            letter-spacing: 0.3px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            background: var(--row-hover);
+        }
+
+        .table-container {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            overflow-x: auto;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: var(--panel-shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: var(--header-bg);
+            padding: 20px 24px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 15px;
+            font-weight: 500;
+            vertical-align: middle;
+        }
+
+        .main-row {
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .main-row:hover {
+            background: var(--row-hover);
+        }
+
+        .details-row {
+            display: none;
+            background: rgba(0,0,0,0.015);
+        }
+
+        [data-theme='dark'] .details-row {
+            background: rgba(0,0,0,0.2);
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .details-row.open {
+            display: table-row;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-3px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .details-content {
+            padding: 24px 30px;
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .symbol {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+        }
+        
+        .expand-icon {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-right: 12px;
+            display: inline-block;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .main-row:has(+ .details-row.open) .expand-icon {
+            transform: rotate(180deg);
+            color: var(--accent);
+        }
+
+        .status-dot {
+            height: 10px; width: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .dot-bullish { background: var(--bullish-text); color: var(--bullish-text); }
+        .dot-bearish { background: var(--bearish-text); color: var(--bearish-text); }
+        .dot-neutral { background: var(--neutral-text); color: transparent; box-shadow: none; }
+        .dot-forming { background: #eab308; color: #eab308; }
+
+        .time-trend {
+            display: inline-flex;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 600;
+            background: var(--neutral-bg);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .time-trend.bull { background: var(--bullish-bg); color: var(--bullish-text); border-color: rgba(16, 185, 129, 0.2); }
+        .time-trend.bear { background: var(--bearish-bg); color: var(--bearish-text); border-color: rgba(239, 68, 68, 0.2); }
+        .time-trend.form { background: rgba(234, 179, 8, 0.1); color: #eab308; border-color: rgba(234, 179, 8, 0.2); }
+
+        .triple-badge {
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .triple-bull { background: linear-gradient(135deg, #059669, #10b981); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .triple-bear { background: linear-gradient(135deg, #dc2626, #ef4444); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .detail-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-val {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Loading Spinner */
+        #status-message {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            th, td { padding: 16px 12px; font-size: 14px; }
+            .container { padding: 20px 10px; }
+            .time-trend span { display: none; }
+            .time-trend { padding: 6px 8px; }
+            .status-dot { margin-right: 0; }
+            .details-content { flex-direction: column; align-items: flex-start; gap: 20px; padding: 20px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="header-title">
+                <h1>ORB Premium Live</h1>
+                <div class="subtitle">
+                    <span id="last-updated">Connecting...</span>
+                    <span>•</span>
+                    <span id="countdown">Refresh: 60s</span>
+                </div>
+            </div>
+            <div class="controls">
+                <button id="filter-btn">🎯 Show All Breakouts</button>
+                <button id="theme-btn">☀️ Light Mode</button>
+            </div>
+        </header>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 25%">Symbol</th>
+                        <th>Live LTP</th>
+                        <th>6m Trend</th>
+                        <th>15m Trend</th>
+                        <th>30m Trend</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr>
+                        <td colspan="5" id="status-message">
+                            <div class="spinner"></div> Fetching Live Market Data...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // --- Dark/Light Mode ---
+        const themeBtn = document.getElementById('theme-btn');
+        const html = document.documentElement;
+
+        themeBtn.addEventListener('click', () => {
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                themeBtn.innerHTML = '🌙 Dark Mode';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                themeBtn.innerHTML = '☀️ Light Mode';
+            }
+        });
+
+        // --- Filter Toggle ---
+        let showOnlyBreakouts = false;
+        const filterBtn = document.getElementById('filter-btn');
+        filterBtn.addEventListener('click', () => {
+            showOnlyBreakouts = !showOnlyBreakouts;
+            filterBtn.innerHTML = showOnlyBreakouts ? "🔙 Show All Stocks" : "🎯 Show All Breakouts";
+            if (window.lastData) processJSON(window.lastData);
+        });
+
+        function toggleDetails(symbol) {
+            const row = document.getElementById('details-' + symbol);
+            if(row.classList.contains('open')) {
+                row.classList.remove('open');
+            } else {
+                row.classList.add('open');
+            }
+        }
+
+        // --- Data Logic with Midnight Fallback ---
+        function getISTDateStr(offsetDays = 0) {
+            const offset = 5.5 * 60 * 60 * 1000;
+            // subtract offsetDays in ms
+            const ist = new Date(Date.now() + offset - (offsetDays * 24 * 60 * 60 * 1000));
+            return ist.toISOString().slice(0, 10);
+        }
+
+        async function fetchORBData() {
+            let data = null;
+            let usedDate = '';
+            const cb = Date.now();
+
+            // Try today, if failed (e.g. 1 AM and market hasn't opened yet), try yesterday, up to 5 days back.
+            for (let i = 0; i < 5; i++) {
+                usedDate = getISTDateStr(i);
+                const url = `https://pub-872ee524d3b44e039d5b82f78c97bbcb.r2.dev/${usedDate}/symbols_all.json?v=${cb}`;
+                try {
+                    const res = await fetch(url);
+                    if (res.ok) {
+                        data = await res.json();
+                        break;
+                    }
+                } catch(e) {}
+            }
+
+            if (!data) {
+                if (document.getElementById('status-message')) {
+                    document.getElementById('status-message').innerHTML = "Market data not found (tried last 5 days).";
+                }
+                return;
+            }
+
+            window.lastData = data;
+            processJSON(data);
+            document.getElementById('last-updated').innerHTML = `Data: ${usedDate} &nbsp;•&nbsp; Updated: ${new Date().toLocaleTimeString()}`;
+        }
+
+        function getORBData(snaps, len) {
+            if (snaps.length < len) return { signal: 'FORMING', diff: 0, high: null, low: null };
+            
+            const subset = snaps.slice(0, len).map(s => s.ltp);
+            const high = Math.max(...subset);
+            const low = Math.min(...subset);
+            const curr = snaps[snaps.length - 1].ltp;
+            
+            let sig = 'NEUTRAL';
+            let diff = 0;
+            
+            if (curr > high) { sig = 'BULLISH'; diff = ((curr - high) / high) * 100; }
+            else if (curr < low) { sig = 'BEARISH'; diff = ((low - curr) / low) * 100; }
+            
+            return { signal: sig, diff: diff, high: high, low: low };
+        }
+
+        function processJSON(data) {
+            let results = [];
+
+            for (const [symbol, snapshots] of Object.entries(data)) {
+                if (!snapshots || snapshots.length === 0) continue;
+
+                const orb6 = getORBData(snapshots, 3);
+                const orb15 = getORBData(snapshots, 8);
+                const orb30 = getORBData(snapshots, 15);
+                const currentLtp = snapshots[snapshots.length - 1].ltp;
+
+                let score = 0;
+                [orb6, orb15, orb30].forEach(o => {
+                    if (o.signal === 'BULLISH') score++;
+                    else if (o.signal === 'BEARISH') score--;
+                });
+
+                let superSignal = null;
+                if (score === 3) superSignal = 'TRIPLE BULL';
+                if (score === -3) superSignal = 'TRIPLE BEAR';
+
+                let countUp = 0, countDown = 0;
+                if (orb15.signal !== 'FORMING') {
+                    let currSt = 'NEUTRAL';
+                    for (let i = 8; i < snapshots.length; i++) {
+                        let p = snapshots[i].ltp;
+                        if (p > orb15.high) {
+                            if (currSt !== 'BULLISH') { countUp++; currSt = 'BULLISH'; }
+                        } else if (p < orb15.low) {
+                            if (currSt !== 'BEARISH') { countDown++; currSt = 'BEARISH'; }
+                        } else {
+                            currSt = 'NEUTRAL';
+                        }
+                    }
+                }
+
+                if (showOnlyBreakouts) {
+                    if (countUp === 0 && countDown === 0 && score === 0) continue;
+                }
+
+                results.push({ symbol, currentLtp, orb6, orb15, orb30, score, superSignal, countUp, countDown });
+            }
+
+            results.sort((a, b) => {
+                const absA = Math.abs(a.score);
+                const absB = Math.abs(b.score);
+                if (absA !== absB) return absB - absA;
+                
+                if (absA === 0) {
+                    const aAtt = a.countUp + a.countDown;
+                    const bAtt = b.countUp + b.countDown;
+                    if (aAtt !== bAtt) return bAtt - aAtt;
+                }
+                
+                return Math.abs(b.orb15.diff) - Math.abs(a.orb15.diff);
+            });
+
+            renderTable(results);
+        }
+
+        function renderDot(signal) {
+            let cls = 'dot-neutral';
+            let txt = 'Wait';
+            let bgCls = '';
+            if (signal === 'BULLISH') { cls = 'dot-bullish'; txt = 'Bull'; bgCls = 'bull'; }
+            if (signal === 'BEARISH') { cls = 'dot-bearish'; txt = 'Bear'; bgCls = 'bear'; }
+            if (signal === 'FORMING') { cls = 'dot-forming'; txt = 'Wait'; bgCls = 'form'; }
+            return `<div class="time-trend ${bgCls}"><div class="status-dot ${cls}"></div> <span>${txt}</span></div>`;
+        }
+
+        function renderTable(results) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            let openRows = new Set();
+            document.querySelectorAll('.details-row.open').forEach(el => {
+                openRows.add(el.id.replace('details-', ''));
+            });
+
+            if (results.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" id="status-message">No Data Available.</td></tr>`;
+                return;
+            }
+
+            results.forEach(item => {
+                const mainRow = document.createElement('tr');
+                mainRow.className = 'main-row';
+                mainRow.onclick = () => toggleDetails(item.symbol);
+
+                mainRow.innerHTML = `
+                    <td class="symbol">
+                        <span class="expand-icon">▼</span>
+                        ${item.symbol}
+                    </td>
+                    <td style="font-weight: 700; color: var(--text-primary);">${item.currentLtp.toFixed(1)}</td>
+                    <td>${renderDot(item.orb6.signal)}</td>
+                    <td>${renderDot(item.orb15.signal)}</td>
+                    <td>${renderDot(item.orb30.signal)}</td>
+                `;
+                tbody.appendChild(mainRow);
+
+                const detailsRow = document.createElement('tr');
+                detailsRow.className = 'details-row ' + (openRows.has(item.symbol) ? 'open' : '');
+                detailsRow.id = `details-${item.symbol}`;
+
+                let badgeHtml = '';
+                if (item.superSignal === 'TRIPLE BULL') badgeHtml = `<span class="triple-badge triple-bull">🔥 Triple Bull</span>`;
+                if (item.superSignal === 'TRIPLE BEAR') badgeHtml = `<span class="triple-badge triple-bear">🩸 Triple Bear</span>`;
+
+                let rangeText = item.orb15.signal === 'FORMING' 
+                    ? 'Wait till 9:30 AM' 
+                    : `${item.orb15.low.toFixed(1)} - ${item.orb15.high.toFixed(1)}`;
+
+                detailsRow.innerHTML = `
+                    <td colspan="5" style="padding: 0;">
+                        <div class="details-content">
+                            ${badgeHtml ? `<div>${badgeHtml}</div>` : ''}
+                            <div class="detail-item">
+                                <span class="detail-label">15M Range Base</span>
+                                <span class="detail-val">${rangeText}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Breakout Crosses</span>
+                                <span class="detail-val"><span style="color:#059669">🔼 ${item.countUp}</span> <span style="font-weight:300; opacity:0.3;">|</span> <span style="color:#dc2626">🔽 ${item.countDown}</span></span>
+                            </div>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(detailsRow);
+            });
+        }
+
+        // --- Auto Refresh Logic ---
+        let timer = 60; // 1 minute
+        setInterval(() => {
+            timer--;
+            if (timer <= 0) {
+                fetchORBData();
+                timer = 60;
+            }
+            document.getElementById('countdown').textContent = `Refresh: ${timer}s`;
+        }, 1000);
+
+        // Initial fetch
+        fetchORBData();
+    </script>
+</body>
+</html>
