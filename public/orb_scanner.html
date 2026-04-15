@@ -25,6 +25,7 @@
             --row-hover: rgba(255, 255, 255, 0.8);
             --header-bg: rgba(255, 255, 255, 0.5);
             --accent: #3b82f6;
+            --filter-bar-bg: rgba(255,255,255,0.4);
         }
 
         [data-theme='dark'] {
@@ -45,7 +46,10 @@
             --row-hover: rgba(255, 255, 255, 0.03);
             --header-bg: rgba(17, 25, 40, 0.5);
             --accent: #60a5fa;
+            --filter-bar-bg: rgba(17, 25, 40, 0.5);
         }
+
+        * { box-sizing: border-box; }
 
         body {
             font-family: 'Outfit', sans-serif;
@@ -68,7 +72,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
             flex-wrap: wrap;
             gap: 20px;
         }
@@ -81,7 +85,6 @@
             background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .subtitle {
@@ -100,30 +103,176 @@
             gap: 12px;
         }
 
-        button {
-            background: var(--panel-bg);
+        /* ===================== FILTER BAR ===================== */
+        .filter-bar {
+            background: var(--filter-bar-bg);
             border: 1px solid var(--panel-border);
-            color: var(--text-primary);
-            padding: 10px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .filter-row {
             display: flex;
             align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            min-width: 90px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .tf-divider {
+            width: 1px;
+            height: 28px;
+            background: var(--border-color);
+            margin: 0 4px;
+        }
+
+        /* Timeframe filter buttons */
+        .tf-btn {
+            padding: 7px 14px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border-color);
+            background: var(--neutral-bg);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Outfit', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
             letter-spacing: 0.3px;
         }
 
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-            background: var(--row-hover);
+        .tf-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
+        .tf-btn.active-bull {
+            background: var(--bullish-bg);
+            color: var(--bullish-text);
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .tf-btn.active-bear {
+            background: var(--bearish-bg);
+            color: var(--bearish-text);
+            border-color: rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
+        }
+
+        /* Score filter buttons */
+        .score-btn {
+            padding: 7px 16px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border-color);
+            background: var(--neutral-bg);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 0.3px;
+        }
+
+        .score-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .score-btn.active {
+            box-shadow: 0 0 14px rgba(0,0,0,0.2);
+        }
+
+        .score-btn[data-score="3"].active {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: #fff;
+            border-color: #059669;
+        }
+
+        .score-btn[data-score="2"].active {
+            background: var(--bullish-bg);
+            color: var(--bullish-text);
+            border-color: rgba(16,185,129,0.4);
+        }
+
+        .score-btn[data-score="0"].active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .score-btn[data-score="-2"].active {
+            background: var(--bearish-bg);
+            color: var(--bearish-text);
+            border-color: rgba(239,68,68,0.4);
+        }
+
+        .score-btn[data-score="-3"].active {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: #fff;
+            border-color: #dc2626;
+        }
+
+        /* Reset button */
+        .reset-btn {
+            padding: 7px 14px;
+            border-radius: 20px;
+            border: 1.5px dashed var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .reset-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Active filter summary pill */
+        .filter-summary {
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 5px 12px;
+            background: var(--neutral-bg);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .filter-summary.visible {
+            display: inline-block;
+        }
+
+        /* ===================== TABLE ===================== */
         .table-container {
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
@@ -164,12 +313,10 @@
 
         .main-row {
             cursor: pointer;
-            transition: background 0.2s, transform 0.2s;
+            transition: background 0.2s;
         }
 
-        .main-row:hover {
-            background: var(--row-hover);
-        }
+        .main-row:hover { background: var(--row-hover); }
 
         .details-row {
             display: none;
@@ -206,7 +353,7 @@
             display: flex;
             align-items: center;
         }
-        
+
         .expand-icon {
             font-size: 10px;
             color: var(--text-secondary);
@@ -214,7 +361,7 @@
             display: inline-block;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         .main-row:has(+ .details-row.open) .expand-icon {
             transform: rotate(180deg);
             color: var(--accent);
@@ -261,15 +408,15 @@
             gap: 8px;
         }
 
-        .triple-bull { background: linear-gradient(135deg, #059669, #10b981); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-        .triple-bear { background: linear-gradient(135deg, #dc2626, #ef4444); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-        
+        .triple-bull { background: linear-gradient(135deg, #059669, #10b981); color: #fff; }
+        .triple-bear { background: linear-gradient(135deg, #dc2626, #ef4444); color: #fff; }
+
         .detail-item {
             display: flex;
             flex-direction: column;
             gap: 6px;
         }
-        
+
         .detail-label {
             font-size: 11px;
             color: var(--text-secondary);
@@ -284,7 +431,13 @@
             color: var(--text-primary);
         }
 
-        /* Loading Spinner */
+        /* Result count */
+        .result-count {
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 4px 0;
+        }
+
         #status-message {
             text-align: center;
             padding: 60px;
@@ -307,289 +460,431 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        button.theme-ctrl {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            letter-spacing: 0.3px;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        button.theme-ctrl:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
         @media (max-width: 768px) {
             th, td { padding: 16px 12px; font-size: 14px; }
             .container { padding: 20px 10px; }
             .time-trend span { display: none; }
             .time-trend { padding: 6px 8px; }
-            .status-dot { margin-right: 0; }
             .details-content { flex-direction: column; align-items: flex-start; gap: 20px; padding: 20px 15px; }
+            .filter-label { min-width: 70px; font-size: 10px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <div class="header-title">
-                <h1>ORB Premium Live</h1>
-                <div class="subtitle">
-                    <span id="last-updated">Connecting...</span>
-                    <span>•</span>
-                    <span id="countdown">Refresh: 60s</span>
-                </div>
+<div class="container">
+    <header>
+        <div class="header-title">
+            <h1>ORB Premium Live</h1>
+            <div class="subtitle">
+                <span id="last-updated">Connecting...</span>
+                <span>•</span>
+                <span id="countdown">Refresh: 60s</span>
             </div>
-            <div class="controls">
-                <button id="filter-btn">🎯 Show All Breakouts</button>
-                <button id="theme-btn">☀️ Light Mode</button>
-            </div>
-        </header>
-
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 25%">Symbol</th>
-                        <th>Live LTP</th>
-                        <th>6m Trend</th>
-                        <th>15m Trend</th>
-                        <th>30m Trend</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body">
-                    <tr>
-                        <td colspan="5" id="status-message">
-                            <div class="spinner"></div> Fetching Live Market Data...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
+        <div class="controls">
+            <button class="theme-ctrl" id="theme-btn">☀️ Light Mode</button>
+        </div>
+    </header>
+
+    <!-- ===== FILTER BAR ===== -->
+    <div class="filter-bar">
+
+        <!-- Row 1: Timeframe Filters -->
+        <div class="filter-row">
+            <span class="filter-label">⏱ Timeframe</span>
+            <div class="filter-group">
+                <button class="tf-btn" data-tf="6m" data-dir="bull">6M 🟢 Bull</button>
+                <button class="tf-btn" data-tf="6m" data-dir="bear">6M 🔴 Bear</button>
+            </div>
+            <div class="tf-divider"></div>
+            <div class="filter-group">
+                <button class="tf-btn" data-tf="15m" data-dir="bull">15M 🟢 Bull</button>
+                <button class="tf-btn" data-tf="15m" data-dir="bear">15M 🔴 Bear</button>
+            </div>
+            <div class="tf-divider"></div>
+            <div class="filter-group">
+                <button class="tf-btn" data-tf="30m" data-dir="bull">30M 🟢 Bull</button>
+                <button class="tf-btn" data-tf="30m" data-dir="bear">30M 🔴 Bear</button>
+            </div>
+        </div>
+
+        <!-- Row 2: Score Filters -->
+        <div class="filter-row">
+            <span class="filter-label">📊 Score</span>
+            <div class="filter-group">
+                <button class="score-btn active" data-score="0">All Stocks</button>
+                <button class="score-btn" data-score="3">🔥 Triple Bull</button>
+                <button class="score-btn" data-score="2">2/3 Bull</button>
+                <button class="score-btn" data-score="-2">2/3 Bear</button>
+                <button class="score-btn" data-score="-3">🩸 Triple Bear</button>
+            </div>
+            <button class="reset-btn" id="reset-btn">↺ Reset</button>
+            <span class="filter-summary" id="filter-summary"></span>
+        </div>
+
     </div>
 
-    <script>
-        // --- Dark/Light Mode ---
-        const themeBtn = document.getElementById('theme-btn');
+    <!-- Result Count -->
+    <div class="result-count" id="result-count"></div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 25%">Symbol</th>
+                    <th>Live LTP</th>
+                    <th>6M Trend</th>
+                    <th>15M Trend</th>
+                    <th>30M Trend</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <tr>
+                    <td colspan="5" id="status-message">
+                        <div class="spinner"></div> Fetching Live Market Data...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // ======== THEME ========
+    const themeBtn = document.getElementById('theme-btn');
+    themeBtn.addEventListener('click', () => {
         const html = document.documentElement;
+        if (html.getAttribute('data-theme') === 'dark') {
+            html.setAttribute('data-theme', 'light');
+            themeBtn.innerHTML = '🌙 Dark Mode';
+        } else {
+            html.setAttribute('data-theme', 'dark');
+            themeBtn.innerHTML = '☀️ Light Mode';
+        }
+    });
 
-        themeBtn.addEventListener('click', () => {
-            if (html.getAttribute('data-theme') === 'dark') {
-                html.setAttribute('data-theme', 'light');
-                themeBtn.innerHTML = '🌙 Dark Mode';
+    // ======== FILTER STATE ========
+    // tfFilters: { '6m': 'bull'|'bear'|null, '15m': ..., '30m': ... }
+    const tfFilters = { '6m': null, '15m': null, '30m': null };
+    let scoreFilter = 0; // 0=All, 3=TripleBull, 2=2/3Bull, -2=2/3Bear, -3=TripleBear
+
+    // Timeframe button clicks
+    document.querySelectorAll('.tf-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tf = btn.dataset.tf;
+            const dir = btn.dataset.dir;
+
+            // Toggle: if already active, deselect
+            if (tfFilters[tf] === dir) {
+                tfFilters[tf] = null;
+                btn.classList.remove('active-bull', 'active-bear');
             } else {
-                html.setAttribute('data-theme', 'dark');
-                themeBtn.innerHTML = '☀️ Light Mode';
-            }
-        });
-
-        // --- Filter Toggle ---
-        let showOnlyBreakouts = false;
-        const filterBtn = document.getElementById('filter-btn');
-        filterBtn.addEventListener('click', () => {
-            showOnlyBreakouts = !showOnlyBreakouts;
-            filterBtn.innerHTML = showOnlyBreakouts ? "🔙 Show All Stocks" : "🎯 Show All Breakouts";
-            if (window.lastData) processJSON(window.lastData);
-        });
-
-        function toggleDetails(symbol) {
-            const row = document.getElementById('details-' + symbol);
-            if(row.classList.contains('open')) {
-                row.classList.remove('open');
-            } else {
-                row.classList.add('open');
-            }
-        }
-
-        // --- Data Logic with Midnight Fallback ---
-        function getISTDateStr(offsetDays = 0) {
-            const offset = 5.5 * 60 * 60 * 1000;
-            // subtract offsetDays in ms
-            const ist = new Date(Date.now() + offset - (offsetDays * 24 * 60 * 60 * 1000));
-            return ist.toISOString().slice(0, 10);
-        }
-
-        async function fetchORBData() {
-            let data = null;
-            let usedDate = '';
-            const cb = Date.now();
-
-            // Try today, if failed (e.g. 1 AM and market hasn't opened yet), try yesterday, up to 5 days back.
-            for (let i = 0; i < 5; i++) {
-                usedDate = getISTDateStr(i);
-                const url = `https://pub-872ee524d3b44e039d5b82f78c97bbcb.r2.dev/${usedDate}/symbols_all.json?v=${cb}`;
-                try {
-                    const res = await fetch(url);
-                    if (res.ok) {
-                        data = await res.json();
-                        break;
-                    }
-                } catch(e) {}
-            }
-
-            if (!data) {
-                if (document.getElementById('status-message')) {
-                    document.getElementById('status-message').innerHTML = "Market data not found (tried last 5 days).";
-                }
-                return;
-            }
-
-            window.lastData = data;
-            processJSON(data);
-            document.getElementById('last-updated').innerHTML = `Data: ${usedDate} &nbsp;•&nbsp; Updated: ${new Date().toLocaleTimeString()}`;
-        }
-
-        function getORBData(snaps, len) {
-            if (snaps.length < len) return { signal: 'FORMING', diff: 0, high: null, low: null };
-            
-            const subset = snaps.slice(0, len).map(s => s.ltp);
-            const high = Math.max(...subset);
-            const low = Math.min(...subset);
-            const curr = snaps[snaps.length - 1].ltp;
-            
-            let sig = 'NEUTRAL';
-            let diff = 0;
-            
-            if (curr > high) { sig = 'BULLISH'; diff = ((curr - high) / high) * 100; }
-            else if (curr < low) { sig = 'BEARISH'; diff = ((low - curr) / low) * 100; }
-            
-            return { signal: sig, diff: diff, high: high, low: low };
-        }
-
-        function processJSON(data) {
-            let results = [];
-
-            for (const [symbol, snapshots] of Object.entries(data)) {
-                if (!snapshots || snapshots.length === 0) continue;
-
-                const orb6 = getORBData(snapshots, 3);
-                const orb15 = getORBData(snapshots, 8);
-                const orb30 = getORBData(snapshots, 15);
-                const currentLtp = snapshots[snapshots.length - 1].ltp;
-
-                let score = 0;
-                [orb6, orb15, orb30].forEach(o => {
-                    if (o.signal === 'BULLISH') score++;
-                    else if (o.signal === 'BEARISH') score--;
+                // Deactivate sibling
+                document.querySelectorAll(`.tf-btn[data-tf="${tf}"]`).forEach(b => {
+                    b.classList.remove('active-bull', 'active-bear');
                 });
-
-                let superSignal = null;
-                if (score === 3) superSignal = 'TRIPLE BULL';
-                if (score === -3) superSignal = 'TRIPLE BEAR';
-
-                let countUp = 0, countDown = 0;
-                if (orb15.signal !== 'FORMING') {
-                    let currSt = 'NEUTRAL';
-                    for (let i = 8; i < snapshots.length; i++) {
-                        let p = snapshots[i].ltp;
-                        if (p > orb15.high) {
-                            if (currSt !== 'BULLISH') { countUp++; currSt = 'BULLISH'; }
-                        } else if (p < orb15.low) {
-                            if (currSt !== 'BEARISH') { countDown++; currSt = 'BEARISH'; }
-                        } else {
-                            currSt = 'NEUTRAL';
-                        }
-                    }
-                }
-
-                if (showOnlyBreakouts) {
-                    if (countUp === 0 && countDown === 0 && score === 0) continue;
-                }
-
-                results.push({ symbol, currentLtp, orb6, orb15, orb30, score, superSignal, countUp, countDown });
+                tfFilters[tf] = dir;
+                btn.classList.add(dir === 'bull' ? 'active-bull' : 'active-bear');
             }
 
-            results.sort((a, b) => {
-                const absA = Math.abs(a.score);
-                const absB = Math.abs(b.score);
-                if (absA !== absB) return absB - absA;
-                
-                if (absA === 0) {
-                    const aAtt = a.countUp + a.countDown;
-                    const bAtt = b.countUp + b.countDown;
-                    if (aAtt !== bAtt) return bAtt - aAtt;
+            applyFilters();
+        });
+    });
+
+    // Score button clicks
+    document.querySelectorAll('.score-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.score-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            scoreFilter = parseInt(btn.dataset.score);
+            applyFilters();
+        });
+    });
+
+    // Reset
+    document.getElementById('reset-btn').addEventListener('click', () => {
+        tfFilters['6m'] = null;
+        tfFilters['15m'] = null;
+        tfFilters['30m'] = null;
+        scoreFilter = 0;
+
+        document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active-bull', 'active-bear'));
+        document.querySelectorAll('.score-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('.score-btn[data-score="0"]').classList.add('active');
+
+        document.getElementById('filter-summary').classList.remove('visible');
+        applyFilters();
+    });
+
+    function applyFilters() {
+        if (window.lastData) processJSON(window.lastData);
+        updateFilterSummary();
+    }
+
+    function updateFilterSummary() {
+        const parts = [];
+        ['6m','15m','30m'].forEach(tf => {
+            if (tfFilters[tf]) parts.push(`${tf.toUpperCase()} ${tfFilters[tf] === 'bull' ? '🟢' : '🔴'}`);
+        });
+        if (scoreFilter !== 0) {
+            const labels = { 3:'Triple Bull', 2:'2/3 Bull', '-2':'2/3 Bear', '-3':'Triple Bear' };
+            parts.push(labels[scoreFilter] || '');
+        }
+
+        const summary = document.getElementById('filter-summary');
+        if (parts.length > 0) {
+            summary.textContent = 'Active: ' + parts.join(' + ');
+            summary.classList.add('visible');
+        } else {
+            summary.classList.remove('visible');
+        }
+    }
+
+    // ======== DATA LOGIC ========
+    function getISTDateStr(offsetDays = 0) {
+        const offset = 5.5 * 60 * 60 * 1000;
+        const ist = new Date(Date.now() + offset - (offsetDays * 24 * 60 * 60 * 1000));
+        return ist.toISOString().slice(0, 10);
+    }
+
+    async function fetchORBData() {
+        let data = null;
+        let usedDate = '';
+        const cb = Date.now();
+
+        for (let i = 0; i < 5; i++) {
+            usedDate = getISTDateStr(i);
+            const url = `https://pub-872ee524d3b44e039d5b82f78c97bbcb.r2.dev/${usedDate}/symbols_all.json?v=${cb}`;
+            try {
+                const res = await fetch(url);
+                if (res.ok) { data = await res.json(); break; }
+            } catch(e) {}
+        }
+
+        if (!data) {
+            document.getElementById('status-message') &&
+                (document.getElementById('status-message').innerHTML = "Market data not found (tried last 5 days).");
+            return;
+        }
+
+        window.lastData = data;
+        processJSON(data);
+        document.getElementById('last-updated').innerHTML =
+            `Data: ${usedDate} &nbsp;•&nbsp; Updated: ${new Date().toLocaleTimeString()}`;
+    }
+
+    function getORBData(snaps, len) {
+        if (snaps.length < len) return { signal: 'FORMING', diff: 0, high: null, low: null };
+        const subset = snaps.slice(0, len).map(s => s.ltp);
+        const high = Math.max(...subset);
+        const low = Math.min(...subset);
+        const curr = snaps[snaps.length - 1].ltp;
+        let sig = 'NEUTRAL', diff = 0;
+        if (curr > high) { sig = 'BULLISH'; diff = ((curr - high) / high) * 100; }
+        else if (curr < low) { sig = 'BEARISH'; diff = ((low - curr) / low) * 100; }
+        return { signal: sig, diff, high, low };
+    }
+
+    function passesFilter(item) {
+        // --- Timeframe filter (AND logic) ---
+        const sigMap = {
+            '6m': item.orb6.signal,
+            '15m': item.orb15.signal,
+            '30m': item.orb30.signal
+        };
+
+        for (const [tf, dir] of Object.entries(tfFilters)) {
+            if (!dir) continue; // not set, skip
+            const expected = dir === 'bull' ? 'BULLISH' : 'BEARISH';
+            if (sigMap[tf] !== expected) return false;
+        }
+
+        // --- Score filter ---
+        if (scoreFilter === 3 && item.score !== 3) return false;
+        if (scoreFilter === -3 && item.score !== -3) return false;
+        if (scoreFilter === 2 && item.score < 2) return false;
+        if (scoreFilter === -2 && item.score > -2) return false;
+
+        return true;
+    }
+
+    function processJSON(data) {
+        let results = [];
+
+        for (const [symbol, snapshots] of Object.entries(data)) {
+            if (!snapshots || snapshots.length === 0) continue;
+
+            const orb6 = getORBData(snapshots, 3);
+            const orb15 = getORBData(snapshots, 8);
+            const orb30 = getORBData(snapshots, 15);
+            const currentLtp = snapshots[snapshots.length - 1].ltp;
+
+            let score = 0;
+            [orb6, orb15, orb30].forEach(o => {
+                if (o.signal === 'BULLISH') score++;
+                else if (o.signal === 'BEARISH') score--;
+            });
+
+            let superSignal = null;
+            if (score === 3) superSignal = 'TRIPLE BULL';
+            if (score === -3) superSignal = 'TRIPLE BEAR';
+
+            let countUp = 0, countDown = 0;
+            if (orb15.signal !== 'FORMING') {
+                let currSt = 'NEUTRAL';
+                for (let i = 8; i < snapshots.length; i++) {
+                    let p = snapshots[i].ltp;
+                    if (p > orb15.high) {
+                        if (currSt !== 'BULLISH') { countUp++; currSt = 'BULLISH'; }
+                    } else if (p < orb15.low) {
+                        if (currSt !== 'BEARISH') { countDown++; currSt = 'BEARISH'; }
+                    } else { currSt = 'NEUTRAL'; }
                 }
-                
-                return Math.abs(b.orb15.diff) - Math.abs(a.orb15.diff);
-            });
-
-            renderTable(results);
-        }
-
-        function renderDot(signal) {
-            let cls = 'dot-neutral';
-            let txt = 'Wait';
-            let bgCls = '';
-            if (signal === 'BULLISH') { cls = 'dot-bullish'; txt = 'Bull'; bgCls = 'bull'; }
-            if (signal === 'BEARISH') { cls = 'dot-bearish'; txt = 'Bear'; bgCls = 'bear'; }
-            if (signal === 'FORMING') { cls = 'dot-forming'; txt = 'Wait'; bgCls = 'form'; }
-            return `<div class="time-trend ${bgCls}"><div class="status-dot ${cls}"></div> <span>${txt}</span></div>`;
-        }
-
-        function renderTable(results) {
-            const tbody = document.getElementById('table-body');
-            tbody.innerHTML = '';
-
-            let openRows = new Set();
-            document.querySelectorAll('.details-row.open').forEach(el => {
-                openRows.add(el.id.replace('details-', ''));
-            });
-
-            if (results.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" id="status-message">No Data Available.</td></tr>`;
-                return;
             }
 
-            results.forEach(item => {
-                const mainRow = document.createElement('tr');
-                mainRow.className = 'main-row';
-                mainRow.onclick = () => toggleDetails(item.symbol);
+            const item = { symbol, currentLtp, orb6, orb15, orb30, score, superSignal, countUp, countDown };
 
-                mainRow.innerHTML = `
-                    <td class="symbol">
-                        <span class="expand-icon">▼</span>
-                        ${item.symbol}
-                    </td>
-                    <td style="font-weight: 700; color: var(--text-primary);">${item.currentLtp.toFixed(1)}</td>
-                    <td>${renderDot(item.orb6.signal)}</td>
-                    <td>${renderDot(item.orb15.signal)}</td>
-                    <td>${renderDot(item.orb30.signal)}</td>
-                `;
-                tbody.appendChild(mainRow);
+            if (passesFilter(item)) results.push(item);
+        }
 
-                const detailsRow = document.createElement('tr');
-                detailsRow.className = 'details-row ' + (openRows.has(item.symbol) ? 'open' : '');
-                detailsRow.id = `details-${item.symbol}`;
+        results.sort((a, b) => {
+            const absA = Math.abs(a.score), absB = Math.abs(b.score);
+            if (absA !== absB) return absB - absA;
+            if (absA === 0) {
+                const aAtt = a.countUp + a.countDown;
+                const bAtt = b.countUp + b.countDown;
+                if (aAtt !== bAtt) return bAtt - aAtt;
+            }
+            return Math.abs(b.orb15.diff) - Math.abs(a.orb15.diff);
+        });
 
-                let badgeHtml = '';
-                if (item.superSignal === 'TRIPLE BULL') badgeHtml = `<span class="triple-badge triple-bull">🔥 Triple Bull</span>`;
-                if (item.superSignal === 'TRIPLE BEAR') badgeHtml = `<span class="triple-badge triple-bear">🩸 Triple Bear</span>`;
+        document.getElementById('result-count').textContent =
+            results.length > 0 ? `Showing ${results.length} stock${results.length !== 1 ? 's' : ''}` : '';
 
-                let rangeText = item.orb15.signal === 'FORMING' 
-                    ? 'Wait till 9:30 AM' 
-                    : `${item.orb15.low.toFixed(1)} - ${item.orb15.high.toFixed(1)}`;
+        renderTable(results);
+    }
 
-                detailsRow.innerHTML = `
-                    <td colspan="5" style="padding: 0;">
-                        <div class="details-content">
-                            ${badgeHtml ? `<div>${badgeHtml}</div>` : ''}
-                            <div class="detail-item">
-                                <span class="detail-label">15M Range Base</span>
-                                <span class="detail-val">${rangeText}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Breakout Crosses</span>
-                                <span class="detail-val"><span style="color:#059669">🔼 ${item.countUp}</span> <span style="font-weight:300; opacity:0.3;">|</span> <span style="color:#dc2626">🔽 ${item.countDown}</span></span>
-                            </div>
+    function renderDot(signal) {
+        let cls = 'dot-neutral', txt = 'Wait', bgCls = '';
+        if (signal === 'BULLISH') { cls = 'dot-bullish'; txt = 'Bull'; bgCls = 'bull'; }
+        if (signal === 'BEARISH') { cls = 'dot-bearish'; txt = 'Bear'; bgCls = 'bear'; }
+        if (signal === 'FORMING') { cls = 'dot-forming'; txt = 'Wait'; bgCls = 'form'; }
+        return `<div class="time-trend ${bgCls}"><div class="status-dot ${cls}"></div><span>${txt}</span></div>`;
+    }
+
+    function toggleDetails(symbol) {
+        const row = document.getElementById('details-' + symbol);
+        if (row) row.classList.toggle('open');
+    }
+
+    function renderTable(results) {
+        const tbody = document.getElementById('table-body');
+
+        let openRows = new Set();
+        document.querySelectorAll('.details-row.open').forEach(el => {
+            openRows.add(el.id.replace('details-', ''));
+        });
+
+        tbody.innerHTML = '';
+
+        if (results.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" id="status-message" style="text-align:center; padding:60px; color:var(--text-secondary); font-size:15px;">
+                No stocks match the selected filters.
+            </td></tr>`;
+            return;
+        }
+
+        results.forEach(item => {
+            const mainRow = document.createElement('tr');
+            mainRow.className = 'main-row';
+            mainRow.onclick = () => toggleDetails(item.symbol);
+            mainRow.innerHTML = `
+                <td class="symbol">
+                    <span class="expand-icon">▼</span>
+                    ${item.symbol}
+                </td>
+                <td style="font-weight:700; color:var(--text-primary);">${item.currentLtp.toFixed(1)}</td>
+                <td>${renderDot(item.orb6.signal)}</td>
+                <td>${renderDot(item.orb15.signal)}</td>
+                <td>${renderDot(item.orb30.signal)}</td>
+            `;
+            tbody.appendChild(mainRow);
+
+            const detailsRow = document.createElement('tr');
+            detailsRow.className = 'details-row ' + (openRows.has(item.symbol) ? 'open' : '');
+            detailsRow.id = `details-${item.symbol}`;
+
+            let badgeHtml = '';
+            if (item.superSignal === 'TRIPLE BULL') badgeHtml = `<span class="triple-badge triple-bull">🔥 Triple Bull</span>`;
+            if (item.superSignal === 'TRIPLE BEAR') badgeHtml = `<span class="triple-badge triple-bear">🩸 Triple Bear</span>`;
+
+            const rangeText = item.orb15.signal === 'FORMING'
+                ? 'Wait till 9:30 AM'
+                : `${item.orb15.low.toFixed(1)} – ${item.orb15.high.toFixed(1)}`;
+
+            detailsRow.innerHTML = `
+                <td colspan="5" style="padding:0;">
+                    <div class="details-content">
+                        ${badgeHtml ? `<div>${badgeHtml}</div>` : ''}
+                        <div class="detail-item">
+                            <span class="detail-label">15M Range Base</span>
+                            <span class="detail-val">${rangeText}</span>
                         </div>
-                    </td>
-                `;
-                tbody.appendChild(detailsRow);
-            });
-        }
+                        <div class="detail-item">
+                            <span class="detail-label">Breakout Crosses</span>
+                            <span class="detail-val">
+                                <span style="color:#059669">🔼 ${item.countUp}</span>
+                                <span style="font-weight:300; opacity:0.3;"> | </span>
+                                <span style="color:#dc2626">🔽 ${item.countDown}</span>
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Score</span>
+                            <span class="detail-val" style="color:${item.score > 0 ? 'var(--bullish-text)' : item.score < 0 ? 'var(--bearish-text)' : 'var(--text-secondary)'}">
+                                ${item.score > 0 ? '+' : ''}${item.score} / 3
+                            </span>
+                        </div>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(detailsRow);
+        });
+    }
 
-        // --- Auto Refresh Logic ---
-        let timer = 60; // 1 minute
-        setInterval(() => {
-            timer--;
-            if (timer <= 0) {
-                fetchORBData();
-                timer = 60;
-            }
-            document.getElementById('countdown').textContent = `Refresh: ${timer}s`;
-        }, 1000);
+    // ======== AUTO REFRESH ========
+    let timer = 60;
+    setInterval(() => {
+        timer--;
+        if (timer <= 0) { fetchORBData(); timer = 60; }
+        document.getElementById('countdown').textContent = `Refresh: ${timer}s`;
+    }, 1000);
 
-        // Initial fetch
-        fetchORBData();
-    </script>
+    fetchORBData();
+</script>
 </body>
 </html>
