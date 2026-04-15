@@ -574,16 +574,89 @@
             .feed-wrapper{border-right:none}
         }
         @media(max-width:600px){
-            .header{padding:8px 12px; flex-wrap:wrap; gap:8px}
-            .header-brand { width:100%; justify-content:center; }
-            .live-badge, .header-sub { display:none }
-            .form-row{flex-wrap:wrap}
-            .filter-bar{padding:8px 12px; justify-content:center}
-            .fbtn { font-size: 0.65rem; padding: 4px 8px;}
-            .card-top { flex-direction: column; align-items: flex-start; gap: 4px; }
-            .card-right { width: 100%; justify-content: space-between; }
-            .info-row { gap: 4px; }
-            .stat-chip { font-size: 0.65rem; padding: 2px 5px; }
+            /* Header */
+            .header { padding: 8px 12px; gap: 6px; }
+            .header-brand { gap: 8px; }
+            .header h1 { font-size: 1rem; }
+            .header-sub { display: none; }
+            .live-badge { padding: 4px 8px; font-size: 0.65rem; }
+            .post-signal-btn { padding: 6px 10px; font-size: 0.72rem; gap: 4px; }
+            .theme-toggle { padding: 6px 9px; font-size: 0.82rem; }
+
+            /* Filter bar — horizontal scroll, no wrap */
+            .filter-bar {
+                padding: 7px 10px;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                gap: 6px;
+                justify-content: flex-start;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            .filter-bar::-webkit-scrollbar { display: none; }
+            .filter-btns { flex-wrap: nowrap; gap: 5px; }
+            .fbtn { font-size: 0.65rem; padding: 4px 9px; white-space: nowrap; }
+            .view-date-wrapper { flex-shrink: 0; font-size: 0.68rem; white-space: nowrap; }
+            .view-date-input { font-size: 0.72rem; padding: 4px 7px; }
+
+            /* Feed padding */
+            .feed-panel { padding: 10px 10px; gap: 10px; }
+
+            /* Card */
+            .card { padding: 8px 10px; }
+
+            /* Stamp — smaller on mobile */
+            .status-stamp {
+                font-size: 1.4rem !important;
+                letter-spacing: 2px;
+                padding: 3px 10px;
+                border-width: 3px;
+                opacity: 0.35;
+            }
+            .status-stamp > div:first-child { font-size: 0.55rem !important; }
+            .status-stamp > div:nth-child(2) { font-size: 1.4rem !important; line-height: 1; }
+
+            /* Card top row */
+            .card-top { flex-direction: row; align-items: center; gap: 6px; margin-bottom: 5px; }
+            .card-user { font-size: 0.75rem; }
+            .avatar { width: 22px; height: 22px; font-size: 0.55rem; }
+            .card-right { gap: 4px; }
+            .card-time { font-size: 0.65rem; }
+            .del-btn, .edit-btn { width: 24px; height: 24px; font-size: 0.75rem; }
+
+            /* Info row — chips wrap nicely */
+            .info-row {
+                gap: 4px;
+                flex-wrap: wrap;
+                row-gap: 5px;
+            }
+            .symbol { font-size: 0.82rem; padding: 2px 7px; }
+            .pill { font-size: 0.62rem; padding: 2px 7px; }
+            .date-chip { font-size: 0.62rem; padding: 2px 6px; }
+
+            /* Chips */
+            .stat-chip { font-size: 0.62rem; padding: 2px 5px; }
+            .ltp-badge { font-size: 0.62rem; padding: 2px 5px; }
+
+            /* Notes */
+            .card-notes { font-size: 0.72rem; }
+
+            /* Card footer */
+            .card-footer { flex-direction: column; align-items: flex-start; gap: 6px; }
+            .footer-meta { gap: 4px; flex-wrap: wrap; }
+            .status-badge { font-size: 0.62rem; padding: 2px 8px; }
+
+            /* Status buttons — wrap properly */
+            .status-btns { flex-wrap: wrap; gap: 4px; }
+            .sbtn { font-size: 0.6rem; padding: 3px 7px; }
+
+            /* Remarks */
+            .add-remark-trigger { font-size: 0.6rem; padding: 2px 7px; }
+            .remark-pill { font-size: 0.65rem; }
+
+            /* Form */
+            .form-row { flex-wrap: wrap; }
+            .signal-row { gap: 6px; }
         }
     </style>
 </head>
@@ -908,7 +981,7 @@
         const ef = rupee(data.entryFrom), et = rupee(data.entryTo);
         if (ef || et) {
             const range = ef && et ? `${ef}–${et}` : (ef || et);
-            chips += `<span class="stat-chip entry">⬆ ${range}</span>`;
+            chips += `<span class="stat-chip entry">Entry ${range}</span>`;
         }
         if (data.tradeType === 'Option') {
             if (data.strikePrice && data.strikePrice != 0)
