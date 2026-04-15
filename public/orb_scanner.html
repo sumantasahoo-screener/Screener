@@ -197,11 +197,13 @@
         .score-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         .score-btn.active { box-shadow: 0 0 14px rgba(0,0,0,0.2); }
 
+        .score-btn[data-score="4"].active { background: linear-gradient(135deg, #047857, #059669); color: #fff; border-color: #047857; box-shadow: 0 0 16px rgba(4,120,87,0.4); }
         .score-btn[data-score="3"].active { background: linear-gradient(135deg, #059669, #10b981); color: #fff; border-color: #059669; }
         .score-btn[data-score="2"].active { background: var(--bullish-bg); color: var(--bullish-text); border-color: rgba(16,185,129,0.4); }
         .score-btn[data-score="0"].active { background: var(--accent); color: #fff; border-color: var(--accent); }
         .score-btn[data-score="-2"].active { background: var(--bearish-bg); color: var(--bearish-text); border-color: rgba(239,68,68,0.4); }
         .score-btn[data-score="-3"].active { background: linear-gradient(135deg, #dc2626, #ef4444); color: #fff; border-color: #dc2626; }
+        .score-btn[data-score="-4"].active { background: linear-gradient(135deg, #7f1d1d, #dc2626); color: #fff; border-color: #7f1d1d; box-shadow: 0 0 16px rgba(127,29,29,0.4); }
 
         .reset-btn {
             padding: 7px 14px;
@@ -747,6 +749,11 @@
                 <button class="tf-btn" data-tf="30m" data-dir="bull">30M 🟢 Bull</button>
                 <button class="tf-btn" data-tf="30m" data-dir="bear">30M 🔴 Bear</button>
             </div>
+            <div class="tf-divider"></div>
+            <div class="filter-group">
+                <button class="tf-btn" data-tf="1h" data-dir="bull">1H 🟢 Bull</button>
+                <button class="tf-btn" data-tf="1h" data-dir="bear">1H 🔴 Bear</button>
+            </div>
         </div>
 
         <div class="filter-row">
@@ -762,10 +769,12 @@
             <span class="filter-label">📊 Score</span>
             <div class="filter-group">
                 <button class="score-btn active" data-score="0">All Stocks</button>
+                <button class="score-btn" data-score="4">⚡ Quad Bull</button>
                 <button class="score-btn" data-score="3">🔥 Triple Bull</button>
-                <button class="score-btn" data-score="2">2/3 Bull</button>
-                <button class="score-btn" data-score="-2">2/3 Bear</button>
+                <button class="score-btn" data-score="2">2/4 Bull</button>
+                <button class="score-btn" data-score="-2">2/4 Bear</button>
                 <button class="score-btn" data-score="-3">🩸 Triple Bear</button>
+                <button class="score-btn" data-score="-4">💀 Quad Bear</button>
             </div>
             <button class="reset-btn" id="reset-btn">↺ Reset</button>
             <span class="filter-summary" id="filter-summary"></span>
@@ -783,11 +792,12 @@
                     <th>6M Trend</th>
                     <th>15M Trend</th>
                     <th>30M Trend</th>
+                    <th>1H Trend</th>
                 </tr>
             </thead>
             <tbody id="table-body">
                 <tr>
-                    <td colspan="5" id="status-message">
+                    <td colspan="6" id="status-message">
                         <div class="spinner"></div> Fetching Live Market Data...
                     </td>
                 </tr>
@@ -818,6 +828,9 @@
             </button>
             <button class="modal-tab" data-tab="30m">
                 30M <span class="tab-count" id="count-30m">0</span>
+            </button>
+            <button class="modal-tab" data-tab="1h">
+                1H <span class="tab-count" id="count-1h">0</span>
             </button>
         </div>
 
@@ -872,7 +885,7 @@
     });
 
     // ======== FILTER STATE ========
-    const tfFilters = { '6m': null, '15m': null, '30m': null };
+    const tfFilters = { '6m': null, '15m': null, '30m': null, '1h': null };
     let scoreFilter = 0;
 
     document.querySelectorAll('.tf-btn').forEach(btn => {
@@ -903,7 +916,7 @@
     });
 
     document.getElementById('reset-btn').addEventListener('click', () => {
-        tfFilters['6m'] = null; tfFilters['15m'] = null; tfFilters['30m'] = null;
+        tfFilters['6m'] = null; tfFilters['15m'] = null; tfFilters['30m'] = null; tfFilters['1h'] = null;
         scoreFilter = 0;
         symbolQuery = '';
         symbolSearchInput.value = '';
@@ -922,11 +935,11 @@
 
     function updateFilterSummary() {
         const parts = [];
-        ['6m','15m','30m'].forEach(tf => {
+        ['6m','15m','30m','1h'].forEach(tf => {
             if (tfFilters[tf]) parts.push(`${tf.toUpperCase()} ${tfFilters[tf] === 'bull' ? '🟢' : '🔴'}`);
         });
         if (scoreFilter !== 0) {
-            const labels = { 3:'Triple Bull', 2:'2/3 Bull', '-2':'2/3 Bear', '-3':'Triple Bear' };
+            const labels = { 4:'Quad Bull', 3:'Triple Bull', 2:'2/4 Bull', '-2':'2/4 Bear', '-3':'Triple Bear', '-4':'Quad Bear' };
             parts.push(labels[scoreFilter] || '');
         }
         const summary = document.getElementById('filter-summary');
@@ -987,12 +1000,14 @@
         // Symbol search filter
         if (symbolQuery && !item.symbol.toUpperCase().includes(symbolQuery)) return false;
 
-        const sigMap = { '6m': item.orb6.signal, '15m': item.orb15.signal, '30m': item.orb30.signal };
+        const sigMap = { '6m': item.orb6.signal, '15m': item.orb15.signal, '30m': item.orb30.signal, '1h': item.orb1h.signal };
         for (const [tf, dir] of Object.entries(tfFilters)) {
             if (!dir) continue;
             const expected = dir === 'bull' ? 'BULLISH' : 'BEARISH';
             if (sigMap[tf] !== expected) return false;
         }
+        if (scoreFilter === 4 && item.score !== 4) return false;
+        if (scoreFilter === -4 && item.score !== -4) return false;
         if (scoreFilter === 3 && item.score !== 3) return false;
         if (scoreFilter === -3 && item.score !== -3) return false;
         if (scoreFilter === 2 && item.score < 2) return false;
@@ -1009,17 +1024,20 @@
             const orb6 = getORBData(snapshots, 3);
             const orb15 = getORBData(snapshots, 8);
             const orb30 = getORBData(snapshots, 15);
+            const orb1h = getORBData(snapshots, 30);
             const currentLtp = snapshots[snapshots.length - 1].ltp;
 
             let score = 0;
-            [orb6, orb15, orb30].forEach(o => {
+            [orb6, orb15, orb30, orb1h].forEach(o => {
                 if (o.signal === 'BULLISH') score++;
                 else if (o.signal === 'BEARISH') score--;
             });
 
             let superSignal = null;
+            if (score === 4) superSignal = 'QUAD BULL';
             if (score === 3) superSignal = 'TRIPLE BULL';
             if (score === -3) superSignal = 'TRIPLE BEAR';
+            if (score === -4) superSignal = 'QUAD BEAR';
 
             let countUp = 0, countDown = 0;
             if (orb15.signal !== 'FORMING') {
@@ -1034,7 +1052,7 @@
                 }
             }
 
-            const item = { symbol, currentLtp, orb6, orb15, orb30, score, superSignal, countUp, countDown };
+            const item = { symbol, currentLtp, orb6, orb15, orb30, orb1h, score, superSignal, countUp, countDown };
             if (passesFilter(item)) results.push(item);
         }
 
@@ -1063,6 +1081,15 @@
         return `<div class="time-trend ${bgCls}"><div class="status-dot ${cls}"></div><span>${txt}</span></div>`;
     }
 
+    // 1H ke liye: FORMING ko "Neutral" dikhao (Wait nahi)
+    function renderDot1H(signal) {
+        let cls = 'dot-neutral', txt = 'Neutral', bgCls = '';
+        if (signal === 'BULLISH') { cls = 'dot-bullish'; txt = 'Bull'; bgCls = 'bull'; }
+        if (signal === 'BEARISH') { cls = 'dot-bearish'; txt = 'Bear'; bgCls = 'bear'; }
+        // FORMING → Neutral (gray)
+        return `<div class="time-trend ${bgCls}"><div class="status-dot ${cls}"></div><span>${txt}</span></div>`;
+    }
+
     function toggleDetails(symbol) {
         const row = document.getElementById('details-' + symbol);
         if (row) row.classList.toggle('open');
@@ -1078,7 +1105,7 @@
         tbody.innerHTML = '';
 
         if (results.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" id="status-message" style="text-align:center; padding:60px; color:var(--text-secondary); font-size:15px;">
+            tbody.innerHTML = `<tr><td colspan="6" id="status-message" style="text-align:center; padding:60px; color:var(--text-secondary); font-size:15px;">
                 No stocks match the selected filters.
             </td></tr>`;
             return;
@@ -1097,6 +1124,7 @@
                 <td>${renderDot(item.orb6.signal)}</td>
                 <td>${renderDot(item.orb15.signal)}</td>
                 <td>${renderDot(item.orb30.signal)}</td>
+                <td>${renderDot1H(item.orb1h.signal)}</td>
             `;
             tbody.appendChild(mainRow);
 
@@ -1105,15 +1133,17 @@
             detailsRow.id = `details-${item.symbol}`;
 
             let badgeHtml = '';
-            if (item.superSignal === 'TRIPLE BULL') badgeHtml = `<span class="triple-badge triple-bull">🔥 Triple Bull</span>`;
-            if (item.superSignal === 'TRIPLE BEAR') badgeHtml = `<span class="triple-badge triple-bear">🩸 Triple Bear</span>`;
+            if (item.superSignal === 'QUAD BULL')   badgeHtml = `<span class="triple-badge triple-bull">⚡ Quad Bull</span>`;
+            if (item.superSignal === 'TRIPLE BULL')  badgeHtml = `<span class="triple-badge triple-bull">🔥 Triple Bull</span>`;
+            if (item.superSignal === 'TRIPLE BEAR')  badgeHtml = `<span class="triple-badge triple-bear">🩸 Triple Bear</span>`;
+            if (item.superSignal === 'QUAD BEAR')    badgeHtml = `<span class="triple-badge triple-bear">💀 Quad Bear</span>`;
 
             const rangeText = item.orb15.signal === 'FORMING'
                 ? 'Wait till 9:30 AM'
                 : `${item.orb15.low.toFixed(1)} – ${item.orb15.high.toFixed(1)}`;
 
             detailsRow.innerHTML = `
-                <td colspan="5" style="padding:0;">
+                <td colspan="6" style="padding:0;">
                     <div class="details-content">
                         ${badgeHtml ? `<div>${badgeHtml}</div>` : ''}
                         <div class="detail-item">
@@ -1131,7 +1161,7 @@
                         <div class="detail-item">
                             <span class="detail-label">Score</span>
                             <span class="detail-val" style="color:${item.score > 0 ? 'var(--bullish-text)' : item.score < 0 ? 'var(--bearish-text)' : 'var(--text-secondary)'}">
-                                ${item.score > 0 ? '+' : ''}${item.score} / 3
+                                ${item.score > 0 ? '+' : ''}${item.score} / 4
                             </span>
                         </div>
                     </div>
@@ -1170,12 +1200,13 @@
     // For each timeframe, find first snapshot index where breakout happened
     function computeBreakoutHistory(data) {
         // result: { '6m': [...], '15m': [...], '30m': [...] }
-        const history = { '6m': [], '15m': [], '30m': [] };
+        const history = { '6m': [], '15m': [], '30m': [], '1h': [] };
 
         const configs = [
             { key: '6m',  orbLen: 3  },
             { key: '15m', orbLen: 8  },
             { key: '30m', orbLen: 15 },
+            { key: '1h',  orbLen: 30 },
         ];
 
         for (const [symbol, snapshots] of Object.entries(data)) {
@@ -1308,6 +1339,7 @@
             document.getElementById('count-6m').textContent  = historyData['6m'].length;
             document.getElementById('count-15m').textContent = historyData['15m'].length;
             document.getElementById('count-30m').textContent = historyData['30m'].length;
+            document.getElementById('count-1h').textContent  = historyData['1h'].length;
 
             renderModalTab(historyData[activeTab]);
         } else {
