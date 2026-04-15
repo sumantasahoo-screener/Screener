@@ -596,6 +596,101 @@
             color: var(--text-secondary);
         }
 
+        /* ===== MODAL SEARCH BAR ===== */
+        .modal-search-bar {
+            padding: 14px 28px 0;
+            flex-shrink: 0;
+        }
+
+        .modal-search-bar .search-wrapper {
+            width: 100%;
+        }
+
+        .modal-search-bar #modal-symbol-search {
+            padding: 9px 14px 9px 36px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border-color);
+            background: var(--neutral-bg);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            width: 100%;
+            transition: all 0.2s ease;
+            outline: none;
+            letter-spacing: 0.4px;
+        }
+
+        .modal-search-bar #modal-symbol-search::placeholder {
+            color: var(--text-secondary);
+            font-weight: 500;
+            opacity: 0.6;
+        }
+
+        .modal-search-bar #modal-symbol-search:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.12);
+        }
+
+        /* ===== SYMBOL SEARCH ===== */
+        .search-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        #symbol-search {
+            padding: 7px 14px 7px 34px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border-color);
+            background: var(--neutral-bg);
+            color: var(--text-primary);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            width: 180px;
+            transition: all 0.2s ease;
+            outline: none;
+            letter-spacing: 0.5px;
+        }
+
+        #symbol-search::placeholder {
+            color: var(--text-secondary);
+            font-weight: 500;
+            opacity: 0.7;
+        }
+
+        #symbol-search:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+            width: 220px;
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            display: none;
+            line-height: 1;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .search-clear.visible { display: block; }
+        .search-clear:hover { color: var(--bearish-text); }
+
         @media (max-width: 768px) {
             th, td { padding: 16px 12px; font-size: 14px; }
             .container { padding: 20px 10px; }
@@ -606,6 +701,8 @@
             .modal { max-height: 90vh; }
             .modal-header, .modal-tabs, .modal-body { padding-left: 18px; padding-right: 18px; }
             .h-symbol { min-width: 90px; font-size: 13px; }
+            #symbol-search { width: 140px; }
+            #symbol-search:focus { width: 160px; }
         }
     </style>
 </head>
@@ -648,6 +745,15 @@
             <div class="filter-group">
                 <button class="tf-btn" data-tf="30m" data-dir="bull">30M 🟢 Bull</button>
                 <button class="tf-btn" data-tf="30m" data-dir="bear">30M 🔴 Bear</button>
+            </div>
+        </div>
+
+        <div class="filter-row">
+            <span class="filter-label">🔍 Search</span>
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="symbol-search" placeholder="Symbol dhundo... (e.g. RELIANCE)" autocomplete="off" spellcheck="false" />
+                <button class="search-clear" id="search-clear" title="Clear">✕</button>
             </div>
         </div>
 
@@ -714,6 +820,14 @@
             </button>
         </div>
 
+        <div class="modal-search-bar">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="modal-symbol-search" placeholder="Symbol dhundo... (e.g. RELIANCE)" autocomplete="off" spellcheck="false" />
+                <button class="search-clear" id="modal-search-clear" title="Clear">✕</button>
+            </div>
+        </div>
+
         <div class="modal-body">
             <div id="modal-content">
                 <div class="modal-loading"><div class="spinner"></div> Loading...</div>
@@ -734,6 +848,26 @@
             html.setAttribute('data-theme', 'dark');
             themeBtn.innerHTML = '☀️ Light Mode';
         }
+    });
+
+    // ======== SYMBOL SEARCH ========
+    let symbolQuery = '';
+
+    const symbolSearchInput = document.getElementById('symbol-search');
+    const searchClearBtn = document.getElementById('search-clear');
+
+    symbolSearchInput.addEventListener('input', () => {
+        symbolQuery = symbolSearchInput.value.trim().toUpperCase();
+        searchClearBtn.classList.toggle('visible', symbolQuery.length > 0);
+        applyFilters();
+    });
+
+    searchClearBtn.addEventListener('click', () => {
+        symbolSearchInput.value = '';
+        symbolQuery = '';
+        searchClearBtn.classList.remove('visible');
+        symbolSearchInput.focus();
+        applyFilters();
     });
 
     // ======== FILTER STATE ========
@@ -770,6 +904,9 @@
     document.getElementById('reset-btn').addEventListener('click', () => {
         tfFilters['6m'] = null; tfFilters['15m'] = null; tfFilters['30m'] = null;
         scoreFilter = 0;
+        symbolQuery = '';
+        symbolSearchInput.value = '';
+        searchClearBtn.classList.remove('visible');
         document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active-bull', 'active-bear'));
         document.querySelectorAll('.score-btn').forEach(b => b.classList.remove('active'));
         document.querySelector('.score-btn[data-score="0"]').classList.add('active');
@@ -846,6 +983,9 @@
     }
 
     function passesFilter(item) {
+        // Symbol search filter
+        if (symbolQuery && !item.symbol.toUpperCase().includes(symbolQuery)) return false;
+
         const sigMap = { '6m': item.orb6.signal, '15m': item.orb15.signal, '30m': item.orb30.signal };
         for (const [tf, dir] of Object.entries(tfFilters)) {
             if (!dir) continue;
@@ -1086,18 +1226,26 @@
     }
 
     // Render modal content for a tab
+    let modalSearchQuery = '';
+
     function renderModalTab(items) {
         const content = document.getElementById('modal-content');
-        if (!items || items.length === 0) {
+
+        // Apply modal search filter
+        const filtered = modalSearchQuery
+            ? items.filter(item => item.symbol.toUpperCase().includes(modalSearchQuery))
+            : items;
+
+        if (!filtered || filtered.length === 0) {
             content.innerHTML = `
                 <div class="modal-empty">
-                    <div class="big">📭</div>
-                    Is timeframe mein koi breakout nahi hua abhi tak
+                    <div class="big">${modalSearchQuery ? '🔍' : '📭'}</div>
+                    ${modalSearchQuery ? `"${modalSearchQuery}" ke liye koi breakout nahi mila` : 'Is timeframe mein koi breakout nahi hua abhi tak'}
                 </div>`;
             return;
         }
 
-        const html = items.map(item => `
+        const html = filtered.map(item => `
             <div class="history-item ${item.dir === 'BULL' ? 'bull-item' : 'bear-item'}">
                 <div class="h-symbol">${item.symbol}</div>
                 <div class="h-dir ${item.dir === 'BULL' ? 'bull' : 'bear'}">
@@ -1128,6 +1276,24 @@
         });
     });
 
+    // Modal symbol search
+    const modalSearchInput = document.getElementById('modal-symbol-search');
+    const modalSearchClear = document.getElementById('modal-search-clear');
+
+    modalSearchInput.addEventListener('input', () => {
+        modalSearchQuery = modalSearchInput.value.trim().toUpperCase();
+        modalSearchClear.classList.toggle('visible', modalSearchQuery.length > 0);
+        if (historyData) renderModalTab(historyData[activeTab]);
+    });
+
+    modalSearchClear.addEventListener('click', () => {
+        modalSearchInput.value = '';
+        modalSearchQuery = '';
+        modalSearchClear.classList.remove('visible');
+        modalSearchInput.focus();
+        if (historyData) renderModalTab(historyData[activeTab]);
+    });
+
     // Open modal
     document.getElementById('history-btn').addEventListener('click', () => {
         const overlay = document.getElementById('modal-overlay');
@@ -1149,21 +1315,25 @@
         }
     });
 
-    // Close modal
-    document.getElementById('modal-close').addEventListener('click', () => {
+    function closeModal() {
         document.getElementById('modal-overlay').classList.remove('open');
-    });
+        // Clear search on close
+        modalSearchInput.value = '';
+        modalSearchQuery = '';
+        modalSearchClear.classList.remove('visible');
+    }
+
+    // Close modal
+    document.getElementById('modal-close').addEventListener('click', closeModal);
 
     // Close on overlay click
     document.getElementById('modal-overlay').addEventListener('click', (e) => {
-        if (e.target === document.getElementById('modal-overlay')) {
-            document.getElementById('modal-overlay').classList.remove('open');
-        }
+        if (e.target === document.getElementById('modal-overlay')) closeModal();
     });
 
     // Close on Escape
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') document.getElementById('modal-overlay').classList.remove('open');
+        if (e.key === 'Escape') closeModal();
     });
 </script>
 </body>
