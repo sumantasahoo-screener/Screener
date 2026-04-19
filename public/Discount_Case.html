@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discount Case</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #222; }
+
+  header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+    color: #fff;
+    padding: 22px 32px 16px;
+  }
+  header h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: 0.5px; }
+  header p  { font-size: 0.82rem; color: #aac4e0; margin-top: 4px; }
+
+  /* TABS */
+  .tab-bar {
+    display: flex;
+    background: #16213e;
+    padding: 0 32px;
+    gap: 4px;
+  }
+  .tab-btn {
+    padding: 11px 22px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #aac4e0;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .tab-btn:hover { color: #fff; }
+  .tab-btn.active {
+    color: #fff;
+    border-bottom-color: #e94560;
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px 4px 0 0;
+  }
+
+  /* CONTENT */
+  .tab-panel { display: none; padding: 24px 32px 40px; }
+  .tab-panel.active { display: block; }
+
+  /* SUMMARY CARDS */
+  .summary-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px 22px;
+    flex: 1;
+    min-width: 160px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    border-left: 4px solid #e94560;
+  }
+  .card.blue  { border-left-color: #0f3460; }
+  .card.green { border-left-color: #2ecc71; }
+  .card.orange{ border-left-color: #f39c12; }
+  .card-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .card-value { font-size: 1.45rem; font-weight: 700; color: #1a1a2e; }
+
+  /* TABLE */
+  .table-wrap {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+  }
+  thead tr {
+    background: linear-gradient(90deg, #1a1a2e, #0f3460);
+    color: #fff;
+  }
+  thead th {
+    padding: 12px 12px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    letter-spacing: 0.3px;
+  }
+  tbody tr { transition: background 0.15s; }
+  tbody tr:nth-child(even) { background: #f7f9fc; }
+  tbody tr:hover { background: #eaf1fb; }
+  tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap;
+  }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .tag-screen  { background: #e3f0ff; color: #1a5fb4; }
+  .tag-back    { background: #fef3cd; color: #856404; }
+  .tag-oow     { background: #e8f5e9; color: #2e7d32; }
+  .num { text-align: right; }
+  .total-cell { font-weight: 700; color: #0f3460; }
+  .wo-id { font-size: 0.72rem; color: #555; font-family: monospace; }
+
+  /* footer row */
+  tfoot tr { background: #1a1a2e; color: #fff; font-weight: 700; }
+  tfoot td { padding: 11px 12px; }
+  tfoot .num { color: #7ecfff; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📋 Discount Case — After-Sales Work Orders</h1>
+  <p>OnePlus Service Center · IPS001008060</p>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('sheet1', this)">📅 NOV 25 – DEC 25</button>
+  <button class="tab-btn"        onclick="showTab('sheet2', this)">📅 JAN 26 – MAR 26</button>
+</div>
+
+<!-- ═══════════════ SHEET 1 ═══════════════ -->
+<div class="tab-panel active" id="sheet1">
+  <div class="summary-row">
+    <div class="card"><div class="card-label">Total Orders</div><div class="card-value">23</div></div>
+    <div class="card blue"><div class="card-label">Total Retail Value</div><div class="card-value">₹2,24,050</div></div>
+    <div class="card green"><div class="card-label">Total Discounted Parts</div><div class="card-value">₹1,44,555</div></div>
+    <div class="card orange"><div class="card-label">Total Collected</div><div class="card-value">₹1,58,793</div></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Work Order No.</th>
+          <th>Model</th>
+          <th>Material Code</th>
+          <th>Classification</th>
+          <th>Type</th>
+          <th class="num">Retail ₹</th>
+          <th class="num">Disc. Retail ₹</th>
+          <th class="num">Other Parts ₹</th>
+          <th class="num">Labour ₹</th>
+          <th class="num">Total ₹</th>
+          <th class="num">Collected ₹</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td class="wo-id">AS2511240002</td><td>OnePlus 9RT 5G</td><td>4908641</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">12,500</td><td class="num">6,250</td><td class="num">1,500</td><td class="num">472</td><td class="num total-cell">8,222</td><td class="num total-cell">8,222</td></tr>
+        <tr><td>2</td><td class="wo-id">AS2511240007</td><td>OnePlus Nord 2T 5G</td><td>4130222</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">7,800</td><td class="num">4,680</td><td class="num">—</td><td class="num">472</td><td class="num total-cell">5,152</td><td class="num total-cell">5,152</td></tr>
+        <tr><td>3</td><td class="wo-id">AS2511280004</td><td>OnePlus 11R 5G</td><td>621029000077</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">13,500</td><td class="num">9,450</td><td class="num">—</td><td class="num">472</td><td class="num total-cell">9,922</td><td class="num total-cell">9,922</td></tr>
+        <tr><td>4</td><td class="wo-id">AS2511280005</td><td>OnePlus 11R 5G</td><td>621029000077</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">13,500</td><td class="num">9,450</td><td class="num">—</td><td class="num">472</td><td class="num total-cell">9,922</td><td class="num total-cell">9,922</td></tr>
+        <tr><td>5</td><td class="wo-id">AS2512020002</td><td>OnePlus Nord 2T 5G</td><td>4130222</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">7,800</td><td class="num">3,900</td><td class="num">—</td><td class="num">472</td><td class="num total-cell">4,372</td><td class="num total-cell">4,372</td></tr>
+        <tr><td>6</td><td class="wo-id">AS2512040001</td><td>OnePlus Nord CE2 5G</td><td>4130044</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">6,400</td><td class="num">3,200</td><td class="num">1,500</td><td class="num">472</td><td class="num total-cell">5,172</td><td class="num total-cell">5,172</td></tr>
+        <tr><td>7</td><td class="wo-id">AS2512040003</td><td>OnePlus 10T 5G</td><td>4130332</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">6,600</td><td class="num">3,300</td><td class="num">4,100</td><td class="num">472</td><td class="num total-cell">7,872</td><td class="num total-cell">7,872</td></tr>
+        <tr><td>8</td><td class="wo-id">AS2512080007</td><td>OnePlus Nord CE 5G</td><td>4907282</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">6,400</td><td class="num">3,200</td><td class="num">—</td><td class="num">472</td><td class="num total-cell">3,672</td><td class="num total-cell">3,672</td></tr>
+        <tr><td>9</td><td class="wo-id">AS2512090003</td><td>OnePlus 9R 5G</td><td>4906747</td><td><span class="tag tag-back">Back Cover</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">2,900</td><td class="num">870</td><td class="num">—</td><td class="num">472</td><td class="num total-cell">1,342</td><td class="num total-cell">1,342</td></tr>
+        <tr><td>10</td><td class="wo-id">AS2512100001</td><td>OnePlus 11R 5G</td><td>4130441</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">13,500</td><td class="num">9,450</td><td class="num">—</td><td class="num">472</td><td class="num total-cell">9,922</td><td class="num total-cell">9,922</td></tr>
+        <tr><td>11</td><td class="wo-id">AS2512100002</td><td>OnePlus Nord 2T 5G</td><td>4130223</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">7,800</td><td class="num">3,900</td><td class="num">—</td><td class="num">472</td><td class="num total-cell">4,372</td><td class="num total-cell">4,372</td></tr>
+        <tr><td>12</td><td class="wo-id">AS2512120001</td><td>OnePlus 11R 5G</td><td>621029000076</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">13,500</td><td class="num">9,450</td><td class="num">—</td><td class="num">472</td><td class="num total-cell">9,922</td><td class="num total-cell">9,922</td></tr>
+        <tr><td>13</td><td class="wo-id">AS2512130004</td><td>OnePlus Nord CE2 5G</td><td>4130044</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">6,400</td><td class="num">3,200</td><td class="num">650</td><td class="num">472</td><td class="num total-cell">4,322</td><td class="num total-cell">4,322</td></tr>
+        <tr><td>14</td><td class="wo-id">AS2512160003</td><td>OnePlus Nord 2T 5G</td><td>4130222</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">7,800</td><td class="num">3,900</td><td class="num">—</td><td class="num">472</td><td class="num total-cell">4,372</td><td class="num total-cell">4,372</td></tr>
+        <tr><td>15</td><td class="wo-id">AS2512160005</td><td>OnePlus Nord CE2 5G</td><td>4130044</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">6,400</td><td class="num">3,200</td><td class="num">—</td><td class="num">472</td><td class="num total-cell">3,672</td><td class="num total-cell">3,672</td></tr>
+        <tr><td>16</td><td class="wo-id">AS2512170002</td><td>OnePlus Nord 2T 5G</td><td>4130222</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">7,800</td><td class="num">3,900</td><td class="num">—</td><td class="num">472</td><td class="num total-cell">4,372</td><td class="num total-cell">4,372</td></tr>
+        <tr><td>17</td><td class="wo-id">AS2512170004</td><td>OnePlus Nord 2T 5G</td><td>4130222</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">7,800</td><td class="num">3,900</td><td class="num">3,650</td><td class="num">472</td><td class="num total-cell">8,022</td><td class="num total-cell">8,022</td></tr>
+        <tr><td>18</td><td class="wo-id">AS2512170006</td><td>OnePlus 11R 5G</td><td>621029000077</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">13,500</td><td class="num">9,450</td><td class="num">—</td><td class="num">472</td><td class="num total-cell">9,922</td><td class="num total-cell">9,922</td></tr>
+        <tr><td>19</td><td class="wo-id">AS2512180001</td><td>OnePlus Nord CE2 5G</td><td>4130044</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">6,400</td><td class="num">3,200</td><td class="num">—</td><td class="num">472</td><td class="num total-cell">3,672</td><td class="num total-cell">3,672</td></tr>
+        <tr><td>20</td><td class="wo-id">AS2512180005</td><td>OnePlus 11R 5G</td><td>621029000077</td><td><span class="tag tag-screen">Screen</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">13,500</td><td class="num">9,450</td><td class="num">—</td><td class="num">472</td><td class="num total-cell">9,922</td><td class="num total-cell">9,922</td></tr>
+        <tr><td>21</td><td class="wo-id">AS2512190001</td><td>OnePlus 9R 5G</td><td>4906748</td><td><span class="tag tag-back">Back Cover</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">2,900</td><td class="num">870</td><td class="num">1,500</td><td class="num">472</td><td class="num total-cell">2,842</td><td class="num total-cell">2,842</td></tr>
+        <tr><td>22</td><td class="wo-id">AS2512220001</td><td>OnePlus 8T</td><td>4905190</td><td><span class="tag tag-back">Back Cover</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">3,100</td><td class="num">930</td><td class="num">1,500</td><td class="num">472</td><td class="num total-cell">2,902</td><td class="num total-cell">2,902</td></tr>
+        <tr><td>23</td><td class="wo-id">AS2512230001</td><td>OnePlus 9 Pro 5G</td><td>4906511</td><td><span class="tag tag-back">Back Cover</span></td><td><span class="tag tag-oow">OOW</span></td><td class="num">3,350</td><td class="num">1,005</td><td class="num">1,500</td><td class="num">472</td><td class="num total-cell">2,977</td><td class="num total-cell">2,977</td></tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="6"><strong>TOTAL (23 orders)</strong></td>
+          <td class="num">2,24,050</td>
+          <td class="num">1,44,555</td>
+          <td class="num">15,900</td>
+          <td class="num">10,856</td>
+          <td class="num">1,58,793</td>
+          <td class="num">1,58,793</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════ SHEET 2 ═══════════════ -->
+<div class="tab-panel" id="sheet2">
+  <div class="summary-row">
+    <div class="card"><div class="card-label">Total Orders</div><div class="card-value">20</div></div>
+    <div class="card blue"><div class="card-label">Total Retail Value</div><div class="card-value">₹1,86,850</div></div>
+    <div class="card green"><div class="card-label">Total Discounted Parts</div><div class="card-value">₹1,05,280</div></div>
+    <div class="card orange"><div class="card-label">Total Collected</div><div class="card-value">₹1,11,056</div></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Work Order No.</th>
+          <th>Model</th>
+          <th>Material Code</th>
+          <th>Description</th>
+          <th>Classification</th>
+          <th class="num">Qty</th>
+          <th class="num">Retail ₹</th>
+          <th class="num">Disc. Retail ₹</th>
+          <th class="num">Part 2 Disc. ₹</th>
+          <th class="num">Labour ₹</th>
+          <th class="num">Extra Parts ₹</th>
+          <th class="num">Collected ₹</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td class="wo-id">AS2601160001</td><td>OnePlus Nord 2 5G</td><td>4907924</td><td>Display assy Nord2 5G Blue Hase</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">7,950</td><td class="num">3,975</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">4,447</td></tr>
+        <tr><td>2</td><td class="wo-id">AS2601170008</td><td>OnePlus Nord CE2 5G</td><td>4130044</td><td>Display assy Nord CE2 Gray Mirror/Bahama Blue</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">6,400</td><td class="num">3,200</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">3,672</td></tr>
+        <tr><td>3</td><td class="wo-id">AS2601200007</td><td>OnePlus Nord CE2 5G</td><td>4130044</td><td>Display assy Nord CE2 Gray Mirror/Bahama Blue</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">6,400</td><td class="num">3,200</td><td class="num">—</td><td class="num">472</td><td class="num">650</td><td class="num total-cell">4,322</td></tr>
+        <tr><td>4</td><td class="wo-id">AS2601210002</td><td>OnePlus Nord 2 5G</td><td>4907923/4907922</td><td>Display assy Nord2 5G Gary Sierra</td><td><span class="tag tag-screen">Screen / Back Cover</span></td><td class="num">2</td><td class="num">7,950</td><td class="num">3,975</td><td class="num">795</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">5,242</td></tr>
+        <tr><td>5</td><td class="wo-id">AS2601230005</td><td>OnePlus Nord CE2 5G</td><td>4130044</td><td>Display assy Nord CE2 Gray Mirror/Bahama Blue</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">6,400</td><td class="num">3,200</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">3,672</td></tr>
+        <tr><td>6</td><td class="wo-id">AS2602110001</td><td>OnePlus Nord 2T 5G</td><td>4130223</td><td>Display assy Nord 2T 5G Gray Shadow</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">7,800</td><td class="num">3,900</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">4,372</td></tr>
+        <tr><td>7</td><td class="wo-id">AS2602130007</td><td>OnePlus 11R 5G</td><td>4130439</td><td>Display assy Ace2/11R Galactic Silver OLED TM</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">13,500</td><td class="num">9,450</td><td class="num">—</td><td class="num">472</td><td class="num">3,100</td><td class="num total-cell">13,022</td></tr>
+        <tr><td>8</td><td class="wo-id">AS2602130010</td><td>OnePlus 9 Pro 5G</td><td>4906510</td><td>Back cover 9 Pro Pine Green</td><td><span class="tag tag-back">Back Cover</span></td><td class="num">1</td><td class="num">3,350</td><td class="num">1,005</td><td class="num">—</td><td class="num">472</td><td class="num">1,500</td><td class="num total-cell">2,977</td></tr>
+        <tr><td>9</td><td class="wo-id">AS2602140005</td><td>OnePlus Nord 2 5G</td><td>4907924</td><td>Display assy Nord2 5G Blue Hase</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">7,950</td><td class="num">3,975</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">4,447</td></tr>
+        <tr><td>10</td><td class="wo-id">AS2602210003</td><td>OnePlus 11R 5G</td><td>4130439</td><td>Display assy Ace2/11R Galactic Silver OLED TM</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">13,500</td><td class="num">9,450</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">9,922</td></tr>
+        <tr><td>11</td><td class="wo-id">AS2602230002</td><td>OnePlus 9 Pro 5G</td><td>4906509</td><td>Back cover 9 Pro Stellar Black</td><td><span class="tag tag-back">Back Cover</span></td><td class="num">1</td><td class="num">3,350</td><td class="num">1,005</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">1,477</td></tr>
+        <tr><td>12</td><td class="wo-id">AS2602240001</td><td>OnePlus 11R 5G</td><td>4130440</td><td>Display assy Ace2/11R Sonic Black OLED TM</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">13,500</td><td class="num">9,450</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">9,922</td></tr>
+        <tr><td>13</td><td class="wo-id">AS2602280002</td><td>OnePlus Nord CE2 5G</td><td>4130044</td><td>Display assy Nord CE2 Gray Mirror/Bahama Blue</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">6,400</td><td class="num">3,200</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">3,672</td></tr>
+        <tr><td>14</td><td class="wo-id">AS2602280005</td><td>OnePlus Nord CE2 5G</td><td>4130044</td><td>Display assy Nord CE2 Gray Mirror/Bahama Blue</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">6,400</td><td class="num">3,200</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">3,672</td></tr>
+        <tr><td>15</td><td class="wo-id">AS2603060004</td><td>OnePlus Nord 2 5G</td><td>4907923</td><td>Display assy Nord2 5G Gary Sierra</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">7,950</td><td class="num">3,975</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">4,447</td></tr>
+        <tr><td>16</td><td class="wo-id">AS2603060005</td><td>OnePlus Nord 2T 5G</td><td>4130222</td><td>Display assy Nord 2T 5G Jade Fog</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">7,800</td><td class="num">3,900</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">4,372</td></tr>
+        <tr><td>17</td><td class="wo-id">AS2603060006</td><td>OnePlus Nord CE2 5G</td><td>4130044</td><td>Display assy Nord CE2 Gray Mirror/Bahama Blue</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">6,400</td><td class="num">3,200</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">3,672</td></tr>
+        <tr><td>18</td><td class="wo-id">AS2603120004</td><td>OnePlus 9R 5G</td><td>4906748</td><td>Back cover assy 9R Sea Foam Green</td><td><span class="tag tag-back">Back Cover</span></td><td class="num">1</td><td class="num">2,900</td><td class="num">870</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">1,342</td></tr>
+        <tr><td>19</td><td class="wo-id">AS2603140001</td><td>OnePlus 9RT 5G</td><td>4908642</td><td>Display assy 9RT 5G Nano Silver</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">12,500</td><td class="num">5,000</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">5,472</td></tr>
+        <tr><td>20</td><td class="wo-id">AS2603140002</td><td>OnePlus Nord 2 5G</td><td>4907925</td><td>Display assy Nord2 5G Green Woods</td><td><span class="tag tag-screen">Screen</span></td><td class="num">1</td><td class="num">7,950</td><td class="num">3,975</td><td class="num">—</td><td class="num">472</td><td class="num">—</td><td class="num total-cell">4,447</td></tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="7"><strong>TOTAL (20 orders)</strong></td>
+          <td class="num">1,86,850</td>
+          <td class="num">1,05,280</td>
+          <td class="num">795</td>
+          <td class="num">9,440</td>
+          <td class="num">5,250</td>
+          <td class="num">1,11,056</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<script>
+  function showTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+</script>
+</body>
+</html>
