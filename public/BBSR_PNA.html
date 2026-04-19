@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BBSR – PNA Report</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #222; min-height: 100vh; }
+
+  header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+    color: #fff;
+    padding: 22px 32px 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  header .icon { font-size: 2rem; }
+  header h1 { font-size: 1.35rem; font-weight: 700; }
+  header p  { font-size: 0.8rem; color: #aac4e0; margin-top: 3px; }
+
+  /* SUMMARY CARDS */
+  .summary-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 22px 32px 0;
+  }
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 22px;
+    flex: 1;
+    min-width: 140px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    border-left: 4px solid #e94560;
+  }
+  .card.blue   { border-left-color: #0f3460; }
+  .card.green  { border-left-color: #2ecc71; }
+  .card.orange { border-left-color: #f39c12; }
+  .card-label { font-size: 0.72rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+  .card-value { font-size: 1.5rem; font-weight: 700; color: #1a1a2e; }
+
+  /* TABLE */
+  .table-wrap {
+    margin: 22px 32px 40px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    overflow-x: auto;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+
+  thead tr {
+    background: linear-gradient(90deg, #1a1a2e, #0f3460);
+    color: #fff;
+  }
+  thead th {
+    padding: 13px 14px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+    font-size: 0.74rem;
+    letter-spacing: 0.4px;
+  }
+  tbody tr { transition: background 0.15s; }
+  tbody tr:nth-child(even) { background: #f7f9fc; }
+  tbody tr:hover { background: #eaf1fb; }
+  tbody td {
+    padding: 11px 14px;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+
+  /* job number small mono */
+  .jo { font-family: monospace; font-size: 0.74rem; color: #444; }
+
+  /* parts */
+  .parts { font-family: monospace; font-size: 0.76rem; color: #1a5fb4; font-weight: 600; }
+
+  /* day badge */
+  .day {
+    display: inline-block;
+    min-width: 32px;
+    text-align: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.78rem;
+  }
+  .day-low  { background: #e8f5e9; color: #2e7d32; }
+  .day-mid  { background: #fff3e0; color: #e65100; }
+  .day-high { background: #fce4ec; color: #c62828; }
+
+  /* status badge */
+  .status {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.74rem;
+    letter-spacing: 0.3px;
+  }
+  .status-complete { background: #e8f5e9; color: #2e7d32; }
+  .status-pending  { background: #fce4ec; color: #c62828; }
+
+  /* type badge */
+  .pna-badge {
+    background: #e3f0ff;
+    color: #1a5fb4;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 12px;
+    letter-spacing: 0.3px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="icon">🔧</div>
+  <div>
+    <h1>BBSR – PNA (In-Warranty) Report</h1>
+    <p>IPS001008060 · Parts Not Available · Pending Jobs Tracker</p>
+  </div>
+</header>
+
+<div class="summary-row">
+  <div class="card"><div class="card-label">Total Jobs</div><div class="card-value">9</div></div>
+  <div class="card green"><div class="card-label">Completed</div><div class="card-value">4</div></div>
+  <div class="card orange"><div class="card-label">Pending</div><div class="card-value">5</div></div>
+  <div class="card blue"><div class="card-label">Avg. Days Pending</div><div class="card-value">6.3</div></div>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Job No.</th>
+        <th>Device Model</th>
+        <th>Type</th>
+        <th>Days Pending</th>
+        <th>Required Parts</th>
+        <th>Relogin Job No.</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td class="jo">AS2604060001</td>
+        <td>OnePlus 11 5G</td>
+        <td><span class="pna-badge">PNA(IW)</span></td>
+        <td><span class="day day-low">2</span></td>
+        <td class="parts">621029000246 – DISPLAY</td>
+        <td class="jo">AS2604080006</td>
+        <td><span class="status status-complete">✔ Complete</span></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td class="jo">AS2604040002</td>
+        <td>OnePlus Wireless Z2</td>
+        <td><span class="pna-badge">PNA(IW)</span></td>
+        <td><span class="day day-low">4</span></td>
+        <td class="parts">FULL UNIT FOR REPLACEMENT</td>
+        <td class="jo">AS2604110005</td>
+        <td><span class="status status-pending">⏳ Pending</span></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td class="jo">AS2604020002</td>
+        <td>OnePlus 8T</td>
+        <td><span class="pna-badge">PNA(IW)</span></td>
+        <td><span class="day day-mid">6</span></td>
+        <td class="parts">4905198 – DISPLAY</td>
+        <td class="jo">AS2604100007</td>
+        <td><span class="status status-pending">⏳ Pending</span></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td class="jo">AS2604010003</td>
+        <td>OnePlus Pad Lite</td>
+        <td><span class="pna-badge">PNA(IW)</span></td>
+        <td><span class="day day-mid">6</span></td>
+        <td class="parts">FULL UNIT FOR REPLACEMENT</td>
+        <td class="jo">AS2604080005</td>
+        <td><span class="status status-pending">⏳ Pending</span></td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td class="jo">AS2604010001</td>
+        <td>OnePlus 9R</td>
+        <td><span class="pna-badge">PNA(IW)</span></td>
+        <td><span class="day day-mid">7</span></td>
+        <td class="parts">4906750 – DISPLAY</td>
+        <td class="jo">AS2604100002</td>
+        <td><span class="status status-pending">⏳ Pending</span></td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td class="jo">AS2603310006</td>
+        <td>OnePlus 11 5G</td>
+        <td><span class="pna-badge">PNA(IW)</span></td>
+        <td><span class="day day-mid">8</span></td>
+        <td class="parts">621029000246 – DISPLAY</td>
+        <td class="jo">AS2604090002</td>
+        <td><span class="status status-pending">⏳ Pending</span></td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td class="jo">AS2603310003</td>
+        <td>OnePlus 10 Pro</td>
+        <td><span class="pna-badge">PNA(IW)</span></td>
+        <td><span class="day day-mid">8</span></td>
+        <td class="parts">621029000252 – DISPLAY</td>
+        <td class="jo">AS2604090005</td>
+        <td><span class="status status-complete">✔ Complete</span></td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td class="jo">AS2603300002</td>
+        <td>OnePlus Nord 5</td>
+        <td><span class="pna-badge">PNA(IW)</span></td>
+        <td><span class="day day-mid">7</span></td>
+        <td class="parts">FULL UNIT REPLACEMENT</td>
+        <td class="jo">AS2603300002</td>
+        <td><span class="status status-complete">✔ Complete</span></td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td class="jo">AS2603300001</td>
+        <td>OnePlus 9 Pro</td>
+        <td><span class="pna-badge">PNA(IW)</span></td>
+        <td><span class="day day-high">9</span></td>
+        <td class="parts">621029000249 – DISPLAY</td>
+        <td class="jo">AS2604090003</td>
+        <td><span class="status status-complete">✔ Complete</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>
