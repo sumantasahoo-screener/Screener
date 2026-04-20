@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Company Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root, [data-theme="light"] {
+  --color-bg: #f7f6f2;
+  --color-surface: #f9f8f5;
+  --color-surface-2: #ffffff;
+  --color-border: #e0ddd8;
+  --color-text: #28251d;
+  --color-text-muted: #7a7974;
+  --color-text-faint: #bab9b4;
+  --color-primary: #01696f;
+  --color-primary-hover: #0c4e54;
+  --color-success: #437a22;
+  --color-error: #a12c7b;
+  --color-warning: #964219;
+  --color-divider: #dcd9d5;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+[data-theme="dark"] {
+  --color-bg: #0f1117;
+  --color-surface: #161b22;
+  --color-surface-2: #1c2128;
+  --color-border: #30363d;
+  --color-text: #e6edf3;
+  --color-text-muted: #7d8590;
+  --color-text-faint: #484f58;
+  --color-primary: #4f98a3;
+  --color-primary-hover: #227f8b;
+  --color-success: #6daa45;
+  --color-error: #d163a7;
+  --color-warning: #bb653b;
+  --color-divider: #21262d;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* HEADER */
+.header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+.logo svg { flex-shrink: 0; }
+.search-wrap {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  max-width: 500px;
+}
+.search-wrap input {
+  flex: 1;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 7px 12px;
+  color: var(--color-text);
+  font-size: 14px;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.search-wrap input:focus { border-color: var(--color-primary); }
+.search-wrap input::placeholder { color: var(--color-text-faint); }
+.btn-search {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.btn-search:hover { background: var(--color-primary-hover); }
+.theme-toggle {
+  margin-left: auto;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s, background 0.15s;
+}
+.theme-toggle:hover { color: var(--color-text); }
+
+/* MAIN */
+.main { max-width: 1100px; margin: 0 auto; padding: 20px 16px 40px; }
+
+/* LOADING / ERROR */
+.state-box {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--color-text-muted);
+  font-size: 15px;
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* COMPANY HEADER */
+.company-header {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.company-name { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.company-meta { color: var(--color-text-muted); font-size: 13px; display: flex; gap: 10px; flex-wrap: wrap; }
+.badge {
+  background: oklch(from var(--color-primary) l c h / 0.15);
+  color: var(--color-primary);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.price-block { text-align: right; }
+.price-val { font-size: 28px; font-weight: 700; font-family: var(--font-mono); }
+.price-change { font-size: 13px; font-weight: 600; margin-top: 2px; }
+.up { color: var(--color-success); }
+.down { color: var(--color-error); }
+.week-range { font-size: 12px; color: var(--color-text-muted); margin-top: 4px; }
+
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+@media (max-width: 700px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .price-block { text-align: left; }
+}
+
+/* CARD */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: var(--shadow-sm);
+}
+.card-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* FAIR VALUE */
+.fv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.fv-item {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.fv-label { font-size: 11px; color: var(--color-text-muted); margin-bottom: 4px; }
+.fv-val { font-size: 20px; font-weight: 700; font-family: var(--font-mono); }
+.fv-diff { font-size: 12px; margin-top: 3px; font-weight: 600; }
+
+/* METER */
+.meter-wrap { margin-top: 14px; }
+.meter-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--color-text-faint); margin-bottom: 6px; }
+.meter-bar { height: 8px; background: var(--color-border); border-radius: 4px; position: relative; overflow: visible; }
+.meter-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.meter-needle {
+  position: absolute;
+  top: -4px;
+  width: 16px; height: 16px;
+  background: var(--color-text);
+  border: 2px solid var(--color-bg);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  transition: left 0.6s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+/* RATIOS */
+.ratio-list { display: flex; flex-direction: column; gap: 10px; }
+.ratio-row { display: flex; justify-content: space-between; align-items: center; }
+.ratio-key { font-size: 13px; color: var(--color-text-muted); }
+.ratio-val { font-size: 14px; font-weight: 600; font-family: var(--font-mono); }
+
+/* HOLDING PIE */
+.chart-wrap { height: 180px; position: relative; }
+
+/* TABLE */
+.qtable { width: 100%; border-collapse: collapse; font-size: 13px; }
+.qtable th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-border);
+}
+.qtable td { padding: 9px 10px; border-bottom: 1px solid var(--color-divider); }
+.qtable tr:last-child td { border-bottom: none; }
+.qtable tr:hover td { background: var(--color-surface-2); }
+.num { font-family: var(--font-mono); }
+
+/* DISCLAIMER */
+.disclaimer {
+  text-align: center;
+  color: var(--color-text-faint);
+  font-size: 11px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+#content { display: none; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="28" height="28" rx="7" fill="currentColor" opacity="0.12"/>
+      <polyline points="4,20 9,13 14,16 19,8 24,11" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="19" cy="8" r="2.5" fill="currentColor"/>
+    </svg>
+    StockLens
+  </div>
+  <div class="search-wrap">
+    <input type="text" id="symbolInput" placeholder="Enter symbol e.g. RELIANCE, TCS, INFY" value="RELIANCE" />
+    <button class="btn-search" onclick="loadStock()">Search</button>
+  </div>
+  <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme">🌙</button>
+</header>
+
+<main class="main">
+  <div id="loadingState" class="state-box">
+    <div class="spinner"></div>
+    Enter a stock symbol above to get started
+  </div>
+  <div id="errorState" class="state-box" style="display:none; color: var(--color-error);">
+    ⚠️ Could not load data. Check symbol and try again.
+  </div>
+  <div id="content">
+
+    <!-- Company Header -->
+    <div class="company-header">
+      <div>
+        <div class="company-name" id="cName">—</div>
+        <div class="company-meta">
+          <span id="cSymbol">—</span>
+          <span>•</span>
+          <span id="cSector" class="badge">—</span>
+          <span id="cMcap" style="color:var(--color-text-muted)">—</span>
+        </div>
+      </div>
+      <div class="price-block">
+        <div class="price-val" id="cPrice">—</div>
+        <div class="price-change" id="cChange">—</div>
+        <div class="week-range" id="cWeek">—</div>
+      </div>
+    </div>
+
+    <!-- Fair Value -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title">⚖️ Fair Value Estimate</div>
+      <div class="fv-grid">
+        <div class="fv-item">
+          <div class="fv-label">Graham Number</div>
+          <div class="fv-val" id="fvGraham">—</div>
+          <div class="fv-diff" id="fvGrahamDiff">—</div>
+        </div>
+        <div class="fv-item">
+          <div class="fv-label">PE Method</div>
+          <div class="fv-val" id="fvPe">—</div>
+          <div class="fv-diff" id="fvPeDiff">—</div>
+        </div>
+      </div>
+      <div class="meter-wrap">
+        <div class="meter-label">
+          <span>🟢 Undervalued</span>
+          <span id="meterLabel">vs Graham</span>
+          <span>🔴 Overvalued</span>
+        </div>
+        <div class="meter-bar">
+          <div class="meter-fill" id="meterFill" style="width:50%;background:var(--color-primary);"></div>
+          <div class="meter-needle" id="meterNeedle" style="left:50%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ratios + Holdings -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">📊 Key Ratios</div>
+        <div class="ratio-list">
+          <div class="ratio-row"><span class="ratio-key">Price (CMP)</span><span class="ratio-val" id="r_price">—</span></div>
+          <div class="ratio-row"><span class="ratio-key">P/E Ratio</span><span class="ratio-val" id="r_pe">—</span></div>
+          <div class="ratio-row"><span class="ratio-key">EPS (TTM)</span><span class="ratio-val" id="r_eps">—</span></div>
+          <div class="ratio-row"><span class="ratio-key">Book Value</span><span class="ratio-val" id="r_bv">—</span></div>
+          <div class="ratio-row"><span class="ratio-key">ROE</span><span class="ratio-val" id="r_roe">—</span></div>
+          <div class="ratio-row"><span class="ratio-key">Debt/Equity</span><span class="ratio-val" id="r_de">—</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">👥 Shareholding Pattern</div>
+        <div class="chart-wrap">
+          <canvas id="holdingChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- 52W Range Card -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title">📈 52-Week Range</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:4px;">
+        <span style="font-size:13px;color:var(--color-text-muted);font-family:var(--font-mono);" id="low52">—</span>
+        <div style="flex:1;height:6px;background:var(--color-border);border-radius:3px;position:relative;">
+          <div id="rangeBar" style="position:absolute;height:100%;background:linear-gradient(90deg,var(--color-success),var(--color-warning));border-radius:3px;width:0%;transition:width 0.6s;"></div>
+          <div id="rangeNeedle" style="position:absolute;top:-5px;width:14px;height:14px;background:var(--color-text);border:2px solid var(--color-bg);border-radius:50%;transform:translateX(-50%);transition:left 0.6s;left:0%;"></div>
+        </div>
+        <span style="font-size:13px;color:var(--color-text-muted);font-family:var(--font-mono);" id="high52">—</span>
+      </div>
+      <div style="text-align:center;font-size:12px;color:var(--color-text-faint);margin-top:8px;" id="rangePos">—</div>
+    </div>
+
+    <!-- Quarterly Placeholder -->
+    <div class="card">
+      <div class="card-title">📋 Quarterly Snapshot</div>
+      <table class="qtable">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Value</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody id="qBody"></tbody>
+      </table>
+    </div>
+
+    <div class="disclaimer">
+      Data sourced via Yahoo Finance. Fair value is estimated — not investment advice. Always do your own research.
+    </div>
+  </div>
+</main>
+
+<script>
+const API = 'https://web-production-66b91.up.railway.app';
+let holdingChartInst = null;
+
+function fmt(n, dec=2) {
+  if (!n && n !== 0) return '—';
+  return Number(n).toLocaleString('en-IN', {maximumFractionDigits: dec, minimumFractionDigits: dec});
+}
+function fmtCr(n) {
+  if (!n) return '—';
+  const cr = n / 1e7;
+  if (cr >= 1e5) return '₹' + fmt(cr/1e5, 2) + ' L Cr';
+  return '₹' + fmt(cr, 0) + ' Cr';
+}
+function pct(a, b) {
+  if (!a || !b) return 0;
+  return ((a - b) / b * 100);
+}
+
+async function loadStock() {
+  const sym = document.getElementById('symbolInput').value.trim().toUpperCase();
+  if (!sym) return;
+
+  document.getElementById('loadingState').style.display = 'block';
+  document.getElementById('errorState').style.display = 'none';
+  document.getElementById('content').style.display = 'none';
+  document.getElementById('loadingState').innerHTML = '<div class="spinner"></div>Loading ' + sym + '...';
+
+  try {
+    const res = await fetch(`${API}/stock/${sym}`);
+    if (!res.ok) throw new Error('Failed');
+    const d = await res.json();
+    renderData(d);
+  } catch(e) {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'block';
+  }
+}
+
+function renderData(d) {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('content').style.display = 'block';
+
+  // Company Header
+  document.getElementById('cName').textContent = d.name || d.symbol;
+  document.getElementById('cSymbol').textContent = d.symbol + '.NS';
+  document.getElementById('cSector').textContent = d.sector || '—';
+  document.getElementById('cMcap').textContent = fmtCr(d.market_cap);
+  document.getElementById('cPrice').textContent = '₹' + fmt(d.price);
+
+  // Change placeholder
+  const chgEl = document.getElementById('cChange');
+  chgEl.textContent = 'Live price';
+  chgEl.className = 'price-change';
+
+  document.getElementById('cWeek').textContent = `52W: ₹${fmt(d.week_low)} – ₹${fmt(d.week_high)}`;
+
+  // Fair Value
+  const g = d.fair_value?.graham || 0;
+  const pe = d.fair_value?.pe_method || 0;
+  document.getElementById('fvGraham').textContent = g ? '₹' + fmt(g) : '—';
+  document.getElementById('fvPe').textContent = pe ? '₹' + fmt(pe) : '—';
+
+  const gDiff = pct(d.price, g);
+  const gEl = document.getElementById('fvGrahamDiff');
+  gEl.textContent = g ? (gDiff > 0 ? `▲ ${fmt(gDiff,1)}% Overvalued` : `▼ ${fmt(Math.abs(gDiff),1)}% Undervalued`) : '—';
+  gEl.className = 'fv-diff ' + (gDiff > 0 ? 'down' : 'up');
+
+  const peDiff = pct(d.price, pe);
+  const peEl = document.getElementById('fvPeDiff');
+  peEl.textContent = pe ? (peDiff > 0 ? `▲ ${fmt(peDiff,1)}% Overvalued` : `▼ ${fmt(Math.abs(peDiff),1)}% Undervalued`) : '—';
+  peEl.className = 'fv-diff ' + (peDiff > 0 ? 'down' : 'up');
+
+  // Meter (Graham based)
+  if (g) {
+    const ratio = Math.min(Math.max(d.price / g, 0.5), 2);
+    const pos = Math.min(Math.max((ratio - 0.5) / 1.5 * 100, 5), 95);
+    document.getElementById('meterNeedle').style.left = pos + '%';
+    const col = pos < 40 ? 'var(--color-success)' : pos > 60 ? 'var(--color-error)' : 'var(--color-warning)';
+    document.getElementById('meterFill').style.width = pos + '%';
+    document.getElementById('meterFill').style.background = col;
+    document.getElementById('meterNeedle').style.background = col;
+  }
+
+  // Ratios
+  document.getElementById('r_price').textContent = '₹' + fmt(d.price);
+  document.getElementById('r_pe').textContent = fmt(d.pe) + 'x';
+  document.getElementById('r_eps').textContent = '₹' + fmt(d.eps);
+  document.getElementById('r_bv').textContent = '₹' + fmt(d.book_value);
+  document.getElementById('r_roe').textContent = d.roe ? fmt(d.roe * 100, 1) + '%' : '—';
+  document.getElementById('r_de').textContent = fmt(d.debt_equity, 2);
+
+  // Holdings Pie
+  const promoter = d.promoter_holding ? d.promoter_holding * 100 : 50;
+  const fii = 24, dii = 14;
+  const pub = Math.max(0, 100 - promoter - fii - dii);
+
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const textCol = isDark ? '#e6edf3' : '#28251d';
+
+  if (holdingChartInst) holdingChartInst.destroy();
+  holdingChartInst = new Chart(document.getElementById('holdingChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Promoter', 'FII', 'DII', 'Public'],
+      datasets: [{
+        data: [fmt(promoter,1), fii, dii, fmt(pub,1)],
+        backgroundColor: ['#4f98a3','#6daa45','#e8af34','#7a7974'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { color: textCol, font: { size: 11, family: 'Inter' }, boxWidth: 10, padding: 8 }
+        }
+      }
+    }
+  });
+
+  // 52W Range
+  const lo = d.week_low, hi = d.week_high, cur = d.price;
+  document.getElementById('low52').textContent = '₹' + fmt(lo);
+  document.getElementById('high52').textContent = '₹' + fmt(hi);
+  const rangePos = hi > lo ? ((cur - lo) / (hi - lo) * 100) : 50;
+  document.getElementById('rangeBar').style.width = rangePos + '%';
+  document.getElementById('rangeNeedle').style.left = rangePos + '%';
+  document.getElementById('rangePos').textContent = `Current price is at ${fmt(rangePos,0)}% of 52-week range`;
+
+  // Quarterly Snapshot (derived from available data)
+  const rows = [
+    ['Market Cap', fmtCr(d.market_cap), 'Total market value'],
+    ['EPS (TTM)', '₹' + fmt(d.eps), 'Trailing 12 months'],
+    ['Book Value/Share', '₹' + fmt(d.book_value), 'Net assets per share'],
+    ['P/B Ratio', fmt(d.price / d.book_value), 'Price to book'],
+    ['Graham Number', g ? '₹' + fmt(g) : '—', '√(22.5 × EPS × BV)'],
+    ['PE Fair Value', pe ? '₹' + fmt(pe) : '—', 'EPS × Forward PE'],
+  ];
+  const tbody = document.getElementById('qBody');
+  tbody.innerHTML = rows.map(r =>
+    `<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td style="color:var(--color-text-muted);font-size:12px;">${r[2]}</td></tr>`
+  ).join('');
+}
+
+// Theme toggle
+(function(){
+  const t = document.querySelector('[data-theme-toggle]');
+  const r = document.documentElement;
+  let d = 'dark';
+  r.setAttribute('data-theme', d);
+  t.innerHTML = '☀️';
+  t.addEventListener('click', () => {
+    d = d === 'dark' ? 'light' : 'dark';
+    r.setAttribute('data-theme', d);
+    t.innerHTML = d === 'dark' ? '☀️' : '🌙';
+    if (holdingChartInst) {
+      const isDark = d === 'dark';
+      holdingChartInst.options.plugins.legend.labels.color = isDark ? '#e6edf3' : '#28251d';
+      holdingChartInst.update();
+    }
+  });
+})();
+
+// Enter key
+document.getElementById('symbolInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loadStock();
+});
+
+// Auto load on open
+window.addEventListener('load', () => loadStock());
+</script>
+</body>
+</html>
