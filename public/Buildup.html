@@ -399,7 +399,7 @@
         const resp = await fetch(WORKER_URL + '?mode=list');
         const listData = await resp.json();
         if (!listData.success) throw new Error("Could not fetch date list");
-        D.dates = listData.dates.slice(0, 10).reverse();
+        D.dates = listData.dates.slice(0, 11).reverse();
         D.raw = {};
         for (let i = 0; i < D.dates.length; i++) {
           const date = D.dates[i];
@@ -568,6 +568,7 @@
           else if (pD < 0 && oD < 0) cur.signal = 'unwind';
           else cur.signal = 'neutral';
         }
+        history = history.slice(1); // oldest day was only for reference, remove it
         const last3 = history.slice(-3);
         const lCount = last3.filter(h => h.signal === 'long').length;
         const sCount = last3.filter(h => h.signal === 'short').length;
@@ -608,7 +609,7 @@
       if (!container) return;
       container.innerHTML = '';
       const totalBoxes = 10;
-      const filledDays = D.dates.length;
+      const filledDays = Math.min(D.dates.length - 1, 10);
       const emptyDays = totalBoxes - filledDays;
       for (let i = 0; i < emptyDays; i++) {
         const d = document.createElement('div');
@@ -616,7 +617,7 @@
         d.innerText = '·';
         container.appendChild(d);
       }
-      D.dates.forEach(d => {
+      D.dates.slice(1).forEach(d => {
         const parts = d.split('-');
         const shortDate = parts[0] + '/' + (parts[1]||'').slice(0,1);
         const el = document.createElement('div');
