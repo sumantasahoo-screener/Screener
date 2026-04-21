@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Trend Analyzer Pro — Elite Signal Matrix</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2300d4ff'/><path d='M6 22l5-7 5 5 5-8 5 4' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<style>
+/* ════════════════════════════════════════
+   ELITE THEME
+════════════════════════════════════════ */
+:root {
+  --bg:          #010a10;
+  --bg2:         #040f18;
+  --bg-card:     #060e18;
+  --bg-header:   #020a12;
+  --bg-row-even: #040d16;
+  --bg-row-odd:  #030b14;
+  --bg-hover:    #071828;
+  --accent:      #00c8f8;
+  --accent2:     #00ffe0;
+  --border:      #0a2133;
+  --border2:     #0d2d44;
+  --text:        #cce4f0;
+  --text-muted:  #4a7a96;
+  --text-dim:    #1e4a62;
+  --green:       #00e896;
+  --green2:      #00ff9d;
+  --red:         #ff3355;
+  --red2:        #ff6080;
+  --gold:        #ffc300;
+  --purple:      #a855f7;
+  --glass:       rgba(4, 15, 24, 0.85);
+}
+[data-theme="light"] {
+  --bg:          #f0f5fa;
+  --bg2:         #e8eef5;
+  --bg-card:     #ffffff;
+  --bg-header:   #0a1a28;
+  --bg-row-even: #f8fafc;
+  --bg-row-odd:  #ffffff;
+  --bg-hover:    #e0f0fa;
+  --accent:      #0284c7;
+  --accent2:     #06b6d4;
+  --border:      #d1e0ed;
+  --border2:     #b8cfe0;
+  --text:        #0a1a28;
+  --text-muted:  #4a7a96;
+  --text-dim:    #8aadcc;
+  --green:       #16a34a;
+  --green2:      #22c55e;
+  --red:         #dc2626;
+  --red2:        #ef4444;
+  --gold:        #d97706;
+  --purple:      #7c3aed;
+  --glass:       rgba(255,255,255,0.85);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Courier New', 'Consolas', monospace;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 12px;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ════════════════════════════════════════
+   LOADING SCREEN
+════════════════════════════════════════ */
+#loadingScreen {
+  position: fixed; inset: 0; background: #010a10;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 9999; gap: 20px;
+}
+.scan-ring {
+  width: 60px; height: 60px; border-radius: 50%;
+  border: 2px solid transparent;
+  border-top: 2px solid var(--accent);
+  border-right: 2px solid var(--accent2);
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 20px rgba(0,200,248,0.3);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.load-logo {
+  font-size: 18px; font-weight: 900; letter-spacing: 6px;
+  color: var(--accent); text-transform: uppercase;
+  text-shadow: 0 0 20px rgba(0,200,248,0.6);
+}
+.load-msg {
+  font-size: 10px; color: var(--text-muted); letter-spacing: 2px;
+  font-family: 'Courier New', monospace;
+}
+.load-bar-wrap {
+  width: 220px; height: 3px; background: var(--border);
+  border-radius: 3px; overflow: hidden;
+}
+.load-bar {
+  height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 3px; transition: width 0.3s ease;
+  box-shadow: 0 0 8px var(--accent);
+}
+
+/* ════════════════════════════════════════
+   HEADER
+════════════════════════════════════════ */
+.header {
+  background: var(--bg-header);
+  padding: 10px 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 200;
+  backdrop-filter: blur(20px);
+}
+.header::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--accent) 40%, var(--accent2) 60%, transparent 100%);
+  opacity: 0.5;
+}
+.logo {
+  font-size: 14px; font-weight: 900; letter-spacing: 3px;
+  text-transform: uppercase; color: #fff; white-space: nowrap;
+}
+.logo span { color: var(--accent); }
+.logo sub { font-size: 9px; color: var(--text-muted); letter-spacing: 1px; margin-left: 4px; }
+
+.search-wrap { position: relative; flex: 1; max-width: 280px; }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 11px; pointer-events: none; }
+.search-input {
+  width: 100%; padding: 7px 10px 7px 28px;
+  background: rgba(0,0,0,0.3); border: 1px solid var(--border2);
+  border-radius: 6px; color: var(--text); font-size: 11px; font-family: inherit;
+  outline: none; transition: all 0.2s;
+}
+.search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(0,200,248,0.15); }
+
+.hdr-right { display: flex; align-items: center; gap: 8px; }
+.hdr-btn {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(0,200,248,0.08); border: 1px solid var(--border2);
+  border-radius: 6px; padding: 6px 12px; color: var(--text-muted);
+  font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+  text-decoration: none; letter-spacing: 0.5px; font-family: inherit;
+  white-space: nowrap;
+}
+.hdr-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,200,248,0.15); }
+
+/* ════════════════════════════════════════
+   STATS DASHBOARD BAR
+════════════════════════════════════════ */
+.stats-bar {
+  display: flex; gap: 0; background: var(--bg2);
+  border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none;
+}
+.stats-bar::-webkit-scrollbar { display: none; }
+.stat-block {
+  flex: 1; min-width: 110px; padding: 10px 16px;
+  border-right: 1px solid var(--border); cursor: default;
+  transition: background 0.15s;
+}
+.stat-block:hover { background: var(--bg-hover); }
+.stat-label { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+.stat-val { font-size: 20px; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1; }
+.stat-sub { font-size: 9px; color: var(--text-dim); margin-top: 3px; }
+.sv-accent { color: var(--accent); }
+.sv-green  { color: var(--green); }
+.sv-red    { color: var(--red); }
+.sv-gold   { color: var(--gold); }
+.sv-purple { color: var(--purple); }
+
+/* ════════════════════════════════════════
+   TOOLBAR
+════════════════════════════════════════ */
+.toolbar {
+  padding: 8px 16px; background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.tb-label { font-size: 9px; font-weight: 700; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+.filter-chip {
+  padding: 4px 10px; border-radius: 4px; border: 1px solid var(--border2);
+  background: transparent; color: var(--text-muted); font-size: 10px; font-weight: 700;
+  cursor: pointer; transition: all 0.15s; font-family: inherit; letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.filter-chip:hover { border-color: var(--text-muted); color: var(--text); }
+.filter-chip.fc-strong-bull { border-color: rgba(0,232,150,0.4); }
+.filter-chip.fc-strong-bull.active { background: rgba(0,232,150,0.15); border-color: var(--green); color: var(--green); }
+.filter-chip.fc-bull { border-color: rgba(0,255,157,0.3); }
+.filter-chip.fc-bull.active { background: rgba(0,255,157,0.1); border-color: var(--green2); color: var(--green2); }
+.filter-chip.fc-neutral { }
+.filter-chip.fc-neutral.active { background: rgba(0,200,248,0.1); border-color: var(--accent); color: var(--accent); }
+.filter-chip.fc-bear { border-color: rgba(255,51,85,0.3); }
+.filter-chip.fc-bear.active { background: rgba(255,51,85,0.1); border-color: var(--red); color: var(--red); }
+.filter-chip.fc-strong-bear { border-color: rgba(255,51,85,0.4); }
+.filter-chip.fc-strong-bear.active { background: rgba(255,51,85,0.15); border-color: var(--red2); color: var(--red2); }
+.filter-chip.fc-watch.active { background: rgba(255,195,0,0.1); border-color: var(--gold); color: var(--gold); }
+.filter-chip.fc-flip.active { background: rgba(168,85,247,0.1); border-color: var(--purple); color: var(--purple); }
+.filter-chip.fc-all { border-color: var(--border2); color: var(--text-muted); }
+.filter-chip.fc-all.active { background: rgba(0,200,248,0.12); border-color: var(--accent); color: var(--accent); font-weight: 900; }
+
+.tb-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
+.tb-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.tb-count { font-size: 10px; color: var(--text-muted); font-weight: 700; }
+.tb-count strong { color: var(--text); }
+
+/* Score threshold slider area */
+.score-wrap { display: flex; align-items: center; gap: 6px; }
+.score-wrap input[type="range"] {
+  width: 80px; accent-color: var(--accent); cursor: pointer;
+}
+.score-val { font-size: 10px; color: var(--accent); font-weight: 700; min-width: 25px; }
+
+/* ════════════════════════════════════════
+   MAIN TABLE CONTAINER
+════════════════════════════════════════ */
+.matrix-wrap {
+  overflow: auto;
+  height: calc(100vh - 170px);
+  background: var(--bg);
+}
+
+table {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  table-layout: auto;
+}
+
+/* Sticky header + first col */
+thead th {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--bg-header);
+  padding: 9px 8px;
+  font-size: 9px; font-weight: 800; letter-spacing: 1.2px;
+  text-transform: uppercase; color: var(--text-muted);
+  border-bottom: 2px solid var(--border2);
+  border-right: 1px solid var(--border);
+  white-space: nowrap; cursor: pointer; user-select: none;
+  transition: color 0.15s;
+}
+thead th:hover { color: var(--accent); }
+thead th.sorted { color: var(--accent); }
+thead th .sort-arr { font-size: 9px; opacity: 0.6; }
+
+th.col-sym, td.col-sym {
+  position: sticky; left: 0; z-index: 40;
+  min-width: 165px; max-width: 165px;
+  background: var(--bg-header);
+  border-right: 2px solid var(--border2) !important;
+  box-shadow: 4px 0 12px rgba(0,0,0,0.4);
+}
+th.col-sym { z-index: 60; }
+tbody td.col-sym { background: var(--bg-row-odd); z-index: 20; }
+tbody tr:nth-child(even) td.col-sym { background: var(--bg-row-even); }
+tbody tr:hover td.col-sym { background: var(--bg-hover); }
+
+tbody td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  vertical-align: middle;
+  height: 46px;
+}
+tbody tr:nth-child(even) td { background: var(--bg-row-even); }
+tbody tr:nth-child(odd) td  { background: var(--bg-row-odd); }
+tbody tr:hover td { background: var(--bg-hover); }
+
+/* ── Symbol Cell ── */
+.sym-cell { display: flex; align-items: center; gap: 6px; }
+.star-btn { font-size: 13px; cursor: pointer; opacity: 0.2; transition: all 0.2s; flex-shrink: 0; line-height: 1; }
+.star-btn:hover { opacity: 0.8; transform: scale(1.2); }
+.star-btn.starred { opacity: 1; color: var(--gold); text-shadow: 0 0 8px rgba(255,195,0,0.5); }
+.sym-info { flex: 1; min-width: 0; }
+.sym-name { font-weight: 900; font-size: 12px; color: var(--text); cursor: pointer; letter-spacing: 0.5px; line-height: 1.2; }
+.sym-name:hover { color: var(--accent); }
+.sym-sector { font-size: 8px; color: var(--text-muted); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 110px; letter-spacing: 0.5px; }
+.note-btn { font-size: 10px; opacity: 0.2; cursor: pointer; transition: all 0.15s; flex-shrink: 0; }
+.note-btn:hover { opacity: 1; }
+.note-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 5px var(--accent); cursor: pointer; flex-shrink: 0; }
+
+/* ── Trend Score Gauge ── */
+.score-cell { display: flex; align-items: center; gap: 6px; min-width: 90px; }
+.score-ring-wrap { flex-shrink: 0; }
+.score-ring { --s: 0; width: 32px; height: 32px; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; }
+.score-ring::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(
+    var(--ring-color, var(--accent)) calc(var(--s) * 1%),
+    var(--border) calc(var(--s) * 1%)
+  );
+}
+.score-ring::after {
+  content: '';
+  position: absolute; inset: 5px; border-radius: 50%;
+  background: var(--bg-card);
+}
+.score-num { position: relative; z-index: 1; font-size: 9px; font-weight: 900; }
+.score-info { flex: 1; }
+.score-big { font-size: 14px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.score-label { font-size: 8px; color: var(--text-muted); margin-top: 1px; letter-spacing: 0.5px; }
+
+/* ── Trend Type Badge ── */
+.trend-badge {
+  padding: 3px 8px; border-radius: 3px; font-size: 9px; font-weight: 900;
+  letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; display: inline-block;
+}
+.tb-strong-bull { background: rgba(0,232,150,0.15); color: var(--green); border: 1px solid rgba(0,232,150,0.3); }
+.tb-bull        { background: rgba(0,255,157,0.1);  color: var(--green2); border: 1px solid rgba(0,255,157,0.2); }
+.tb-neutral     { background: rgba(0,200,248,0.08); color: var(--text-muted); border: 1px solid var(--border2); }
+.tb-bear        { background: rgba(255,51,85,0.1);  color: var(--red); border: 1px solid rgba(255,51,85,0.2); }
+.tb-strong-bear { background: rgba(255,51,85,0.15); color: var(--red2); border: 1px solid rgba(255,51,85,0.3); }
+
+/* ── Consistency Bar ── */
+.cons-cell { min-width: 80px; }
+.cons-bar-track { height: 4px; background: var(--border); border-radius: 4px; margin-top: 4px; overflow: hidden; }
+.cons-bar-fill  { height: 100%; border-radius: 4px; transition: width 0.3s; }
+.cons-pct { font-size: 12px; font-weight: 900; font-variant-numeric: tabular-nums; }
+
+/* ── Flip Count ── */
+.flip-0  { color: var(--green);  font-weight: 900; }
+.flip-1  { color: var(--accent); font-weight: 700; }
+.flip-2  { color: var(--gold);   font-weight: 700; }
+.flip-hi { color: var(--red);    font-weight: 700; }
+
+/* ── Signal Sparkline ── */
+.sparkline { display: flex; gap: 2px; align-items: center; }
+.sp-cell {
+  width: 14px; height: 28px; border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 6px; font-weight: 900; position: relative;
+  flex-shrink: 0;
+}
+.sp-buy  { background: rgba(0,232,150,0.2); color: var(--green); border: 1px solid rgba(0,232,150,0.25); }
+.sp-sell { background: rgba(255,51,85,0.2);  color: var(--red);   border: 1px solid rgba(255,51,85,0.25); }
+.sp-none { background: rgba(255,255,255,0.03); color: var(--text-dim); border: 1px solid var(--border); }
+.sp-flip-buy  { outline: 2px solid var(--green) !important; box-shadow: 0 0 6px rgba(0,232,150,0.5); }
+.sp-flip-sell { outline: 2px solid var(--red)   !important; box-shadow: 0 0 6px rgba(255,51,85,0.5); }
+.sp-today { outline: 2px solid var(--accent) !important; }
+
+/* Per-day column (when showing matrix view) */
+.day-col { min-width: 56px; max-width: 70px; text-align: center; }
+.day-sig-box {
+  margin: 0 auto; border-radius: 3px; padding: 3px 2px;
+  font-size: 9px; font-weight: 900; text-align: center; height: 36px;
+  display: flex; flex-direction: column; justify-content: center;
+  border: 1px solid transparent;
+}
+.ds-buy  { background: rgba(0,232,150,0.12); color: var(--green); border-color: rgba(0,232,150,0.15); }
+.ds-sell { background: rgba(255,51,85,0.12);  color: var(--red);   border-color: rgba(255,51,85,0.15); }
+.ds-none { background: transparent; color: var(--text-dim); }
+.ds-micro { font-size: 7px; font-weight: 600; color: var(--text-muted); margin-top: 2px; }
+.ds-flip-buy  { outline: 2px solid var(--green); box-shadow: inset 0 0 8px rgba(0,232,150,0.25); background: rgba(0,232,150,0.2) !important; }
+.ds-flip-sell { outline: 2px solid var(--red);   box-shadow: inset 0 0 8px rgba(255,51,85,0.25);  background: rgba(255,51,85,0.2)  !important; }
+
+/* Numeric value cells */
+.td-num { text-align: right; }
+.td-center { text-align: center; }
+.val-up  { color: var(--green); font-weight: 700; }
+.val-dn  { color: var(--red);   font-weight: 700; }
+.val-neu { color: var(--text-muted); }
+.rsi-hot  { color: var(--red);   font-weight: 900; }
+.rsi-warm { color: var(--gold);  font-weight: 700; }
+.rsi-mid  { color: var(--text);  font-weight: 600; }
+.rsi-cool { color: var(--accent);font-weight: 700; }
+.adx-str  { color: var(--green); font-weight: 900; }
+.adx-mid  { color: var(--gold);  font-weight: 700; }
+.adx-weak { color: var(--text-muted); font-weight: 600; }
+
+/* ════════════════════════════════════════
+   VIEW TOGGLE
+════════════════════════════════════════ */
+.view-toggle { display: flex; gap: 2px; padding: 2px; background: var(--border); border-radius: 6px; }
+.vt-btn {
+  padding: 4px 10px; border-radius: 4px; border: none;
+  background: transparent; color: var(--text-muted); font-size: 10px; font-weight: 700;
+  cursor: pointer; transition: all 0.15s; font-family: inherit;
+}
+.vt-btn.active { background: var(--bg-card); color: var(--accent); }
+
+/* ════════════════════════════════════════
+   MODALS
+════════════════════════════════════════ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7); z-index: 500;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(6px);
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg-card); border: 1px solid var(--border2);
+  border-radius: 14px; width: 100%; max-width: 460px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,200,248,0.1);
+  overflow: hidden;
+}
+.modal-hdr {
+  padding: 16px 20px; background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-title { font-size: 15px; font-weight: 900; color: #fff; letter-spacing: 1px; }
+.modal-close { cursor: pointer; color: var(--text-muted); font-size: 18px; transition: color 0.15s; line-height: 1; }
+.modal-close:hover { color: var(--red); }
+.modal-body { padding: 20px; }
+
+/* Stock Detail Modal */
+.detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+.detail-box {
+  background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px; text-align: center;
+}
+.detail-label { font-size: 8px; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+.detail-val { font-size: 18px; font-weight: 900; font-variant-numeric: tabular-nums; }
+
+.history-chart { margin-bottom: 14px; }
+.hc-title { font-size: 9px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.hc-bars { display: flex; gap: 3px; align-items: flex-end; height: 50px; }
+.hc-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; height: 100%; justify-content: flex-end; }
+.hc-bar { width: 100%; border-radius: 2px 2px 0 0; min-height: 4px; transition: height 0.3s; }
+.hc-lbl { font-size: 6px; color: var(--text-dim); }
+
+.levels-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+.lv-box { padding: 8px; border-radius: 6px; text-align: center; }
+.lv-sl { background: rgba(255,51,85,0.1); border: 1px solid rgba(255,51,85,0.2); }
+.lv-t  { background: rgba(0,232,150,0.1); border: 1px solid rgba(0,232,150,0.2); }
+.lv-label { font-size: 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.lv-val { font-size: 13px; font-weight: 900; }
+.lv-sl .lv-val { color: var(--red); }
+.lv-t  .lv-val { color: var(--green); }
+
+.tv-link {
+  display: block; text-align: center; padding: 11px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #000; border-radius: 8px; font-weight: 900; font-size: 12px;
+  text-decoration: none; letter-spacing: 1px; transition: all 0.2s;
+}
+.tv-link:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,200,248,0.4); }
+
+/* Trend Detail in Modal */
+.trend-detail-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 11px;
+}
+.trend-detail-row:last-child { border-bottom: none; }
+.tdl { color: var(--text-muted); }
+.tdr { font-weight: 900; }
+
+/* Note Modal */
+.note-ta {
+  width: 100%; height: 100px; background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border2); border-radius: 8px;
+  padding: 10px; color: var(--text); font-family: inherit;
+  resize: none; outline: none; font-size: 12px; margin-bottom: 12px;
+}
+.note-ta:focus { border-color: var(--accent); }
+.btn-row { display: flex; gap: 8px; }
+.btn-del { flex: 1; padding: 9px; background: rgba(255,51,85,0.1); border: 1px solid rgba(255,51,85,0.3); border-radius: 8px; color: var(--red); font-weight: 900; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.btn-del:hover { background: rgba(255,51,85,0.2); }
+.btn-save { flex: 2; padding: 9px; background: var(--accent); border: none; border-radius: 8px; color: #000; font-weight: 900; cursor: pointer; font-family: inherit; transition: all 0.15s; letter-spacing: 1px; }
+.btn-save:hover { opacity: 0.85; }
+
+/* ════════════════════════════════════════
+   EMPTY STATE
+════════════════════════════════════════ */
+.empty-state {
+  text-align: center; padding: 60px 20px;
+  color: var(--text-muted); font-size: 13px;
+}
+.empty-state div { font-size: 32px; margin-bottom: 10px; }
+
+/* ════════════════════════════════════════
+   TOOLTIP
+════════════════════════════════════════ */
+.tooltip-wrap { position: relative; display: inline-block; }
+.tooltip-tip {
+  display: none; position: absolute; bottom: calc(100% + 5px);
+  left: 50%; transform: translateX(-50%);
+  background: #0d1f2d; border: 1px solid var(--border2);
+  border-radius: 6px; padding: 6px 10px; font-size: 10px;
+  color: var(--text); white-space: nowrap; z-index: 999;
+  pointer-events: none;
+}
+.tooltip-wrap:hover .tooltip-tip { display: block; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header { padding: 8px 12px; }
+  .logo sub { display: none; }
+  .search-wrap { max-width: 160px; }
+  .stat-block { min-width: 90px; padding: 8px 10px; }
+  .stat-val { font-size: 16px; }
+  .matrix-wrap { height: calc(100vh - 185px); }
+  th.col-sym, td.col-sym { min-width: 130px; max-width: 130px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOADING ══ -->
+<div id="loadingScreen">
+  <div class="scan-ring"></div>
+  <div class="load-logo">TREND<span style="color:var(--accent2)">FORGE</span></div>
+  <div id="loadMsg" class="load-msg">INITIALIZING CORE ENGINE...</div>
+  <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
+</div>
+
+<!-- ══ HEADER ══ -->
+<div class="header">
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div class="logo">TREND<span>FORGE</span> <sub>SIGNAL MATRIX</sub></div>
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="searchInput" class="search-input" placeholder="Search symbol / sector..." oninput="applyFiltersAndRender()">
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="view-toggle">
+      <button class="vt-btn active" id="vt-summary" onclick="setView('summary')">TREND VIEW</button>
+      <button class="vt-btn" id="vt-matrix"  onclick="setView('matrix')">MATRIX VIEW</button>
+    </div>
+    <button class="hdr-btn" onclick="toggleTheme()" id="themeBtn">☀ LIGHT</button>
+    <a href="swing_screener.html" class="hdr-btn">← SCREENER</a>
+  </div>
+</div>
+
+<!-- ══ STATS BAR ══ -->
+<div class="stats-bar" id="statsBar">
+  <div class="stat-block">
+    <div class="stat-label">Total Stocks</div>
+    <div class="stat-val sv-accent" id="st-total">—</div>
+    <div class="stat-sub" id="st-days">0 days data</div>
+  </div>
+  <div class="stat-block">
+    <div class="stat-label">Strong Bull Trend</div>
+    <div class="stat-val sv-green" id="st-sbull">—</div>
+    <div class="stat-sub">Score ≥ 80</div>
+  </div>
+  <div class="stat-block">
+    <div class="stat-label">Emerging Bull</div>
+    <div class="stat-val sv-green" id="st-bull">—</div>
+    <div class="stat-sub">Score 60–79</div>
+  </div>
+  <div class="stat-block">
+    <div class="stat-label">Strong Bear Trend</div>
+    <div class="stat-val sv-red" id="st-sbear">—</div>
+    <div class="stat-sub">Score ≥ 80</div>
+  </div>
+  <div class="stat-block">
+    <div class="stat-label">Emerging Bear</div>
+    <div class="stat-val sv-red" id="st-bear">—</div>
+    <div class="stat-sub">Score 60–79</div>
+  </div>
+  <div class="stat-block">
+    <div class="stat-label">Signal Flips Today</div>
+    <div class="stat-val sv-purple" id="st-flips">—</div>
+    <div class="stat-sub">vs yesterday</div>
+  </div>
+  <div class="stat-block">
+    <div class="stat-label">Avg Trend Score</div>
+    <div class="stat-val sv-gold" id="st-avg">—</div>
+    <div class="stat-sub">Market clarity</div>
+  </div>
+</div>
+
+<!-- ══ TOOLBAR ══ -->
+<div class="toolbar">
+  <span class="tb-label">TREND:</span>
+  <button class="filter-chip fc-all active" id="f-all" onclick="setTrendFilter('all')">↺ ALL</button>
+  <button class="filter-chip fc-strong-bull" id="f-strong-bull" onclick="setTrendFilter('strong-bull')">●● STRONG BULL</button>
+  <button class="filter-chip fc-bull"        id="f-bull"        onclick="setTrendFilter('bull')">● BULL</button>
+  <button class="filter-chip fc-neutral"     id="f-neutral"     onclick="setTrendFilter('neutral')">◌ NEUTRAL</button>
+  <button class="filter-chip fc-bear"        id="f-bear"        onclick="setTrendFilter('bear')">● BEAR</button>
+  <button class="filter-chip fc-strong-bear" id="f-strong-bear" onclick="setTrendFilter('strong-bear')">●● STRONG BEAR</button>
+
+  <div class="tb-sep"></div>
+
+  <button class="filter-chip fc-flip"  id="f-flips" onclick="setTrendFilter('flips')">⚡ NEW FLIPS</button>
+  <button class="filter-chip fc-watch" id="f-watch" onclick="setTrendFilter('watch')">★ WATCHLIST</button>
+
+  <div class="tb-sep"></div>
+  <span class="tb-label">MIN SCORE:</span>
+  <div class="score-wrap">
+    <input type="range" id="scoreSlider" min="0" max="90" step="5" value="0" oninput="onScoreSlider()">
+    <span class="score-val" id="scoreValLabel">0</span>
+  </div>
+
+  <div class="tb-right">
+    <span class="tb-count" id="tbCount">Showing <strong>0</strong> stocks</span>
+  </div>
+</div>
+
+<!-- ══ MAIN TABLE ══ -->
+<div class="matrix-wrap" id="matrixWrap">
+  <table id="mainTable">
+    <thead id="tableHead"></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<!-- ══ STOCK DETAIL MODAL ══ -->
+<div class="modal-overlay" id="stockOverlay" onclick="closeModal('stockOverlay')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hdr">
+      <div>
+        <div class="modal-title" id="m-title">SYMBOL</div>
+        <div style="font-size:9px;color:var(--text-muted);margin-top:2px;" id="m-sector">—</div>
+      </div>
+      <div class="modal-close" onclick="closeModal('stockOverlay')">✕</div>
+    </div>
+    <div class="modal-body">
+      <!-- Trend Analysis -->
+      <div style="margin-bottom:14px;">
+        <div class="hc-title">20-DAY SIGNAL HISTORY</div>
+        <div class="hc-bars" id="m-history-chart"></div>
+      </div>
+
+      <!-- Trend Stats -->
+      <div style="background:rgba(0,0,0,0.2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:14px;">
+        <div class="trend-detail-row"><span class="tdl">Trend Type</span><span class="tdr" id="m-trend-type">—</span></div>
+        <div class="trend-detail-row"><span class="tdl">Trend Score</span><span class="tdr" id="m-trend-score">—</span></div>
+        <div class="trend-detail-row"><span class="tdl">Signal Consistency</span><span class="tdr" id="m-consistency">—</span></div>
+        <div class="trend-detail-row"><span class="tdl">Flip Count (20d)</span><span class="tdr" id="m-flips">—</span></div>
+        <div class="trend-detail-row"><span class="tdl">Buy Days / Sell Days</span><span class="tdr" id="m-buysell">—</span></div>
+        <div class="trend-detail-row"><span class="tdl">Recent Momentum (5d)</span><span class="tdr" id="m-momentum">—</span></div>
+      </div>
+
+      <!-- Live Data -->
+      <div class="detail-grid">
+        <div class="detail-box"><div class="detail-label">LTP</div><div class="detail-val" id="m-ltp">—</div></div>
+        <div class="detail-box"><div class="detail-label">Change</div><div class="detail-val" id="m-chg">—</div></div>
+        <div class="detail-box"><div class="detail-label">RSI</div><div class="detail-val" id="m-rsi">—</div></div>
+        <div class="detail-box"><div class="detail-label">ADX</div><div class="detail-val" id="m-adx">—</div></div>
+      </div>
+
+      <div class="levels-row">
+        <div class="lv-box lv-sl"><div class="lv-label">Stop Loss</div><div class="lv-val" id="m-sl">—</div></div>
+        <div class="lv-box lv-t" ><div class="lv-label">Target 1</div><div class="lv-val" id="m-t1">—</div></div>
+        <div class="lv-box lv-t" ><div class="lv-label">Target 2</div><div class="lv-val" id="m-t2">—</div></div>
+      </div>
+
+      <a href="#" class="tv-link" id="m-tv" target="_blank">📊 OPEN IN TRADINGVIEW</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NOTE MODAL ══ -->
+<div class="modal-overlay" id="noteOverlay" onclick="closeModal('noteOverlay')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hdr">
+      <div class="modal-title">✏ NOTE — <span id="n-sym">SYM</span></div>
+      <div class="modal-close" onclick="closeModal('noteOverlay')">✕</div>
+    </div>
+    <div class="modal-body">
+      <textarea class="note-ta" id="noteTA" placeholder="Write your analysis, entry plan, price levels..."></textarea>
+      <div class="btn-row">
+        <button class="btn-del" onclick="deleteNote()">🗑 DELETE</button>
+        <button class="btn-save" onclick="saveNote()">SAVE NOTE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   CONFIG
+══════════════════════════════════════════ */
+const R2_BASE  = 'https://pub-66800ada06c14469a0ff98b0eaf41f8e.r2.dev';
+const MAX_DAYS = 20;
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let dates     = [];   // ordered oldest → newest, last = 'TODAY'
+let masterMap = {};   // { SYM: { meta, history: { dateLabel: {signal,ltp,rsi,change,adx,sl,t1,t2} } } }
+let symbolList= [];   // sorted array of all symbols
+let analysed  = [];   // computed TrendObj per symbol
+
+let trendFilter  = 'all';
+let scoreMinFilter = 0;
+let currentView  = 'summary'; // 'summary' | 'matrix'
+let sortCol      = 'score';
+let sortAsc      = false;
+let watchlist    = new Set(JSON.parse(localStorage.getItem('wl') || '[]'));
+let notes        = JSON.parse(localStorage.getItem('notes') || '{}');
+let activeNoteSym = '';
+
+/* ── Theme ── */
+let theme = localStorage.getItem('swing-theme') || 'dark';
+document.documentElement.setAttribute('data-theme', theme);
+document.getElementById('themeBtn').textContent = theme === 'dark' ? '☀ LIGHT' : '☾ DARK';
+
+function toggleTheme() {
+  theme = theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('swing-theme', theme);
+  document.getElementById('themeBtn').textContent = theme === 'dark' ? '☀ LIGHT' : '☾ DARK';
+}
+
+/* ══════════════════════════════════════════
+   LOADING PROGRESS
+══════════════════════════════════════════ */
+function setLoad(pct, msg) {
+  document.getElementById('loadBar').style.width = pct + '%';
+  document.getElementById('loadMsg').textContent = msg;
+}
+
+/* ══════════════════════════════════════════
+   FETCH & MAP DATA
+══════════════════════════════════════════ */
+async function init() {
+  try {
+    setLoad(5, 'ACCESSING CLOUDFLARE CLUSTER...');
+    const idxRes = await fetch(`${R2_BASE}/dates_index.json?t=${Date.now()}`);
+    const idxData = await idxRes.json();
+    let rawDates = (idxData.dates || []).slice(0, MAX_DAYS - 1); // leave 1 slot for live
+    rawDates = rawDates.reverse(); // oldest first
+
+    setLoad(15, `FOUND ${rawDates.length} HISTORICAL SNAPSHOTS`);
+
+    // Fetch all historical data in parallel
+    const histFetches = rawDates.map(async (d, i) => {
+      try {
+        const r = await fetch(`${R2_BASE}/screener_data_${d}.json?t=${Date.now()}`);
+        return r.ok ? { date: d, data: await r.json() } : null;
+      } catch(e) { return null; }
+    });
+
+    setLoad(30, 'FETCHING HISTORICAL SNAPSHOTS...');
+    const histResults = await Promise.all(histFetches);
+
+    setLoad(65, 'FETCHING LIVE SNAPSHOT...');
+    const liveRes = await fetch(`${R2_BASE}/screener_data.json?t=${Date.now()}`);
+    const liveData = await liveRes.json();
+
+    setLoad(80, 'BUILDING MASTER MAP...');
+
+    // Map historical data
+    histResults.forEach(result => {
+      if (!result) return;
+      mapData(result.date, result.data.stocks || []);
+      dates.push(result.date);
+    });
+
+    // Map live data
+    mapData('TODAY', liveData.stocks || []);
+    dates.push('TODAY');
+
+    setLoad(90, 'COMPUTING TREND SCORES...');
+    symbolList = Array.from(Object.keys(masterMap)).sort();
+    computeAllTrends();
+
+    setLoad(95, 'UPDATING MARKET STATS...');
+    updateStatsBar();
+
+    setLoad(99, 'RENDERING MATRIX...');
+    buildHeaders();
+    applyFiltersAndRender();
+
+    setTimeout(() => {
+      document.getElementById('loadingScreen').style.display = 'none';
+    }, 300);
+
+  } catch(e) {
+    setLoad(100, '❌ CONNECTION ERROR — Check R2 URL');
+    console.error(e);
+  }
+}
+
+function mapData(dateLabel, stocks) {
+  stocks.forEach(s => {
+    const sym = s.symbol;
+    if (!sym) return;
+    if (!masterMap[sym]) masterMap[sym] = { meta: s, history: {} };
+    masterMap[sym].history[dateLabel] = {
+      signal: s.signal || '',
+      ltp:    s.ltp,
+      rsi:    s.rsi,
+      change: s.change_pct,
+      adx:    s.adx,
+      sl:     s.sl,
+      t1:     s.target1,
+      t2:     s.target2
+    };
+    // Update meta with live data
+    if (dateLabel === 'TODAY') masterMap[sym].meta = s;
+  });
+}
+
+/* ══════════════════════════════════════════
+   TREND COMPUTATION ENGINE
+══════════════════════════════════════════ */
+function isBuy(sig)  { return (sig || '').toLowerCase().includes('buy'); }
+function isSell(sig) { return (sig || '').toLowerCase().includes('sell'); }
+
+function computeTrend(sym) {
+  const hist = masterMap[sym].history;
+  const meta = masterMap[sym].meta;
+
+  // Gather signal sequence (oldest → newest)
+  const signals = dates.map(d => hist[d]?.signal || '');
+  const validSignals = signals.filter(s => s);
+  const n = validSignals.length;
+  if (n === 0) return null;
+
+  let buyDays = 0, sellDays = 0, flipCount = 0;
+  let lastSig = '';
+
+  // track flips and counts
+  for (let i = 0; i < validSignals.length; i++) {
+    const s = validSignals[i];
+    const b = isBuy(s), sl = isSell(s);
+    if (b) buyDays++;
+    if (sl) sellDays++;
+    if (lastSig) {
+      const wasB = isBuy(lastSig), wasSl = isSell(lastSig);
+      if ((wasB && sl) || (wasSl && b)) flipCount++;
+    }
+    if (b || sl) lastSig = s;
+  }
+
+  const dominantBull = buyDays >= sellDays;
+  const dominantDays = Math.max(buyDays, sellDays);
+  const consistency  = n > 0 ? (dominantDays / n) : 0;   // 0 to 1
+
+  // Recent momentum — last 5 signals
+  const recent = validSignals.slice(-5);
+  let recentBuy = 0, recentSell = 0;
+  recent.forEach(s => { if (isBuy(s)) recentBuy++; else if (isSell(s)) recentSell++; });
+  const recentDom = dominantBull ? recentBuy : recentSell;
+  const recentMomentum = recent.length > 0 ? (recentDom / recent.length) : 0; // 0 to 1
+
+  // Flip score (0 = no flips ideal, penalise flips)
+  const maxPossibleFlips = n - 1;
+  const flipRate = maxPossibleFlips > 0 ? (flipCount / maxPossibleFlips) : 0;
+
+  // Composite trend score
+  const rawScore = (consistency * 65) + (recentMomentum * 25) + ((1 - flipRate) * 10);
+  const trendScore = Math.round(Math.min(100, Math.max(0, rawScore)));
+
+  // Current signal
+  const currentSig = signals[signals.length - 1] || '';
+  const prevSig    = signals.slice(0, -1).reverse().find(s => s) || '';
+  const isNewFlip  = !!(currentSig && prevSig && ((isBuy(currentSig) && isSell(prevSig)) || (isSell(currentSig) && isBuy(prevSig))));
+
+  // Trend type
+  let trendType;
+  if (trendScore >= 80 && dominantBull)      trendType = 'strong-bull';
+  else if (trendScore >= 60 && dominantBull) trendType = 'bull';
+  else if (trendScore >= 80 && !dominantBull) trendType = 'strong-bear';
+  else if (trendScore >= 60 && !dominantBull) trendType = 'bear';
+  else                                        trendType = 'neutral';
+
+  return {
+    sym, trendScore, trendType, dominantBull,
+    consistency: Math.round(consistency * 100),
+    flipCount, buyDays, sellDays, n,
+    recentBuy, recentSell, isNewFlip,
+    currentSig, prevSig,
+    ltp:    hist['TODAY']?.ltp    || meta.ltp,
+    rsi:    hist['TODAY']?.rsi    || meta.rsi,
+    change: hist['TODAY']?.change || meta.change_pct,
+    adx:    hist['TODAY']?.adx    || meta.adx,
+    sl:     hist['TODAY']?.sl     || meta.sl,
+    t1:     hist['TODAY']?.t1     || meta.target1,
+    t2:     hist['TODAY']?.t2     || meta.target2,
+    sector: meta.sector || '—',
+    history: hist
+  };
+}
+
+function computeAllTrends() {
+  analysed = symbolList.map(sym => computeTrend(sym)).filter(Boolean);
+}
+
+/* ══════════════════════════════════════════
+   STATS BAR
+══════════════════════════════════════════ */
+function updateStatsBar() {
+  const total  = analysed.length;
+  const sBull  = analysed.filter(a => a.trendType === 'strong-bull').length;
+  const bull   = analysed.filter(a => a.trendType === 'bull').length;
+  const sBear  = analysed.filter(a => a.trendType === 'strong-bear').length;
+  const bear   = analysed.filter(a => a.trendType === 'bear').length;
+  const flips  = analysed.filter(a => a.isNewFlip).length;
+  const avgScore = total > 0 ? Math.round(analysed.reduce((s,a) => s + a.trendScore, 0) / total) : 0;
+
+  document.getElementById('st-total').textContent = total;
+  document.getElementById('st-days').textContent  = `${dates.length} days data`;
+  document.getElementById('st-sbull').textContent = sBull;
+  document.getElementById('st-bull').textContent  = bull;
+  document.getElementById('st-sbear').textContent = sBear;
+  document.getElementById('st-bear').textContent  = bear;
+  document.getElementById('st-flips').textContent = flips;
+  document.getElementById('st-avg').textContent   = avgScore;
+}
+
+/* ══════════════════════════════════════════
+   HEADERS
+══════════════════════════════════════════ */
+function buildHeaders() {
+  const thead = document.getElementById('tableHead');
+  if (currentView === 'summary') {
+    thead.innerHTML = `
+      <tr>
+        <th class="col-sym" onclick="doSort('sym')">Symbol / Sector <span class="sort-arr"></span></th>
+        <th style="min-width:110px;" onclick="doSort('score')">Trend Score <span class="sort-arr"></span></th>
+        <th style="min-width:110px;" onclick="doSort('type')">Trend Type <span class="sort-arr"></span></th>
+        <th style="min-width:90px;" onclick="doSort('cons')">Consistency <span class="sort-arr"></span></th>
+        <th style="min-width:50px;" onclick="doSort('flips')">Flips <span class="sort-arr"></span></th>
+        <th style="min-width:200px;">Signal History (20 days →)</th>
+        <th style="min-width:65px;" onclick="doSort('rsi')" class="td-num">RSI <span class="sort-arr"></span></th>
+        <th style="min-width:65px;" onclick="doSort('adx')" class="td-num">ADX <span class="sort-arr"></span></th>
+        <th style="min-width:80px;" onclick="doSort('ltp')" class="td-num">LTP <span class="sort-arr"></span></th>
+        <th style="min-width:70px;" onclick="doSort('chg')" class="td-num">Chg % <span class="sort-arr"></span></th>
+      </tr>`;
+  } else {
+    // Matrix view — symbol col + one col per date
+    let html = '<tr><th class="col-sym">Symbol / Sector</th>';
+    dates.forEach(d => {
+      const lbl = d === 'TODAY' ? 'LIVE' : formatDate(d);
+      html += `<th class="day-col">${lbl}</th>`;
+    });
+    html += '</tr>';
+    thead.innerHTML = html;
+  }
+  highlightSortArrow();
+}
+
+function formatDate(d) {
+  if (!d || d === 'TODAY') return 'LIVE';
+  const parts = d.split('-');
+  if (parts.length < 3) return d;
+  const months = ['','JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  return `${parseInt(parts[2])} ${months[parseInt(parts[1])]}`;
+}
+
+/* ══════════════════════════════════════════
+   FILTERS & RENDER
+══════════════════════════════════════════ */
+function setTrendFilter(f) {
+  // Clicking same filter again → reset to all; clicking 'all' → always all
+  trendFilter = (f === 'all' || trendFilter === f) ? 'all' : f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  const activeId = trendFilter === 'all' ? 'f-all' : 'f-' + trendFilter;
+  document.getElementById(activeId)?.classList.add('active');
+  applyFiltersAndRender();
+}
+
+function onScoreSlider() {
+  scoreMinFilter = parseInt(document.getElementById('scoreSlider').value);
+  document.getElementById('scoreValLabel').textContent = scoreMinFilter;
+  applyFiltersAndRender();
+}
+
+function applyFiltersAndRender() {
+  const q = document.getElementById('searchInput').value.trim().toUpperCase();
+
+  let filtered = analysed.filter(a => {
+    if (q && !a.sym.includes(q) && !a.sector.toUpperCase().includes(q)) return false;
+    if (a.trendScore < scoreMinFilter) return false;
+    if (trendFilter === 'watch' && !watchlist.has(a.sym)) return false;
+    if (trendFilter === 'flips' && !a.isNewFlip) return false;
+    if (trendFilter !== 'all' && trendFilter !== 'watch' && trendFilter !== 'flips' && a.trendType !== trendFilter) return false;
+    return true;
+  });
+
+  // Sort
+  filtered.sort((a, b) => {
+    let av, bv;
+    switch (sortCol) {
+      case 'sym':   av = a.sym;         bv = b.sym;         break;
+      case 'score': av = a.trendScore;  bv = b.trendScore;  break;
+      case 'type':  av = a.trendType;   bv = b.trendType;   break;
+      case 'cons':  av = a.consistency; bv = b.consistency; break;
+      case 'flips': av = a.flipCount;   bv = b.flipCount;   break;
+      case 'rsi':   av = a.rsi || 0;    bv = b.rsi || 0;    break;
+      case 'adx':   av = a.adx || 0;    bv = b.adx || 0;    break;
+      case 'ltp':   av = a.ltp || 0;    bv = b.ltp || 0;    break;
+      case 'chg':   av = a.change || 0; bv = b.change || 0; break;
+      default: av = a.trendScore; bv = b.trendScore;
+    }
+    if (typeof av === 'string') return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+    return sortAsc ? av - bv : bv - av;
+  });
+
+  document.getElementById('tbCount').innerHTML = `Showing <strong>${filtered.length}</strong> of <strong>${analysed.length}</strong>`;
+
+  renderTable(filtered);
+}
+
+/* ══════════════════════════════════════════
+   TABLE RENDER
+══════════════════════════════════════════ */
+function renderTable(data) {
+  const tbody = document.getElementById('tableBody');
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="20"><div class="empty-state"><div>🔍</div>No stocks match this filter.</div></td></tr>`;
+    return;
+  }
+
+  if (currentView === 'summary') renderSummaryRows(data, tbody);
+  else renderMatrixRows(data, tbody);
+}
+
+function trendBadgeHtml(type) {
+  const map = {
+    'strong-bull': ['tb-strong-bull', '▲▲ STRONG BULL'],
+    'bull':        ['tb-bull',        '▲ BULL'],
+    'neutral':     ['tb-neutral',     '◌ NEUTRAL'],
+    'bear':        ['tb-bear',        '▼ BEAR'],
+    'strong-bear': ['tb-strong-bear', '▼▼ STRONG BEAR'],
+  };
+  const [cls, label] = map[type] || ['tb-neutral', '—'];
+  return `<span class="trend-badge ${cls}">${label}</span>`;
+}
+
+function scoreColor(score, bull) {
+  if (score >= 80) return bull ? 'var(--green)'  : 'var(--red)';
+  if (score >= 60) return bull ? 'var(--green2)' : 'var(--red2)';
+  return 'var(--text-muted)';
+}
+
+function renderSummaryRows(data, tbody) {
+  let html = '';
+  data.forEach(a => {
+    const sc = scoreColor(a.trendScore, a.dominantBull);
+    const ringColor = sc;
+
+    // Sparkline
+    const sparkCells = dates.map((d, idx) => {
+      const h = a.history[d];
+      if (!h || !h.signal) return `<div class="sp-cell sp-none">·</div>`;
+      const b = isBuy(h.signal);
+      const s = isSell(h.signal);
+      let cls = b ? 'sp-buy' : (s ? 'sp-sell' : 'sp-none');
+      let extra = '';
+      // Detect flip
+      if (idx > 0) {
+        const ph = a.history[dates[idx - 1]];
+        if (ph && ph.signal) {
+          if (b && isSell(ph.signal)) extra = ' sp-flip-buy';
+          if (s && isBuy(ph.signal))  extra = ' sp-flip-sell';
+        }
+      }
+      if (d === 'TODAY') extra += ' sp-today';
+      const txt = b ? 'B' : (s ? 'S' : '·');
+      return `<div class="sp-cell ${cls}${extra}" title="${d}: ${h.signal||'—'}">${txt}</div>`;
+    }).join('');
+
+    // Consistency bar color
+    const consColor = a.dominantBull ? 'var(--green)' : 'var(--red)';
+    const consLabel = a.dominantBull ? `${a.buyDays}B/${a.sellDays}S` : `${a.sellDays}S/${a.buyDays}B`;
+
+    // Flip count color
+    const flipCls = a.flipCount === 0 ? 'flip-0' : a.flipCount <= 1 ? 'flip-1' : a.flipCount <= 2 ? 'flip-2' : 'flip-hi';
+
+    // RSI
+    const rsiCls = !a.rsi ? '' : a.rsi > 70 ? 'rsi-hot' : a.rsi > 55 ? 'rsi-warm' : a.rsi < 35 ? 'rsi-cool' : 'rsi-mid';
+    const adxCls = !a.adx ? '' : a.adx >= 25 ? 'adx-str' : a.adx >= 18 ? 'adx-mid' : 'adx-weak';
+    const chgCls = !a.change ? 'val-neu' : a.change >= 0 ? 'val-up' : 'val-dn';
+    const chgStr = a.change != null ? (a.change >= 0 ? '+' : '') + a.change.toFixed(2) + '%' : '—';
+
+    const flipIndicator = a.isNewFlip ? `<span style="color:var(--purple);font-size:9px;margin-left:4px;" title="Signal flipped today!">⚡</span>` : '';
+
+    html += `
+    <tr>
+      <td class="col-sym">
+        <div class="sym-cell">
+          <span class="star-btn ${watchlist.has(a.sym) ? 'starred' : ''}" onclick="toggleWatch('${a.sym}', this)">★</span>
+          <div class="sym-info">
+            <div class="sym-name" onclick="openDetail('${a.sym}')">${a.sym}${flipIndicator}</div>
+            <div class="sym-sector">${a.sector}</div>
+          </div>
+          ${notes[a.sym] ? `<div class="note-dot" onclick="openNote('${a.sym}')" title="Has note"></div>` : `<span class="note-btn" onclick="openNote('${a.sym}')">✏</span>`}
+        </div>
+      </td>
+      <td>
+        <div class="score-cell">
+          <div class="score-ring-wrap">
+            <div class="score-ring" style="--s:${a.trendScore};--ring-color:${ringColor}">
+              <span class="score-num" style="color:${ringColor}">${a.trendScore}</span>
+            </div>
+          </div>
+          <div class="score-info">
+            <div class="score-big" style="color:${ringColor}">${a.trendScore}</div>
+            <div class="score-label">${a.n} DAYS</div>
+          </div>
+        </div>
+      </td>
+      <td>${trendBadgeHtml(a.trendType)}</td>
+      <td class="cons-cell">
+        <div class="cons-pct" style="color:${consColor}">${a.consistency}%</div>
+        <div class="cons-bar-track">
+          <div class="cons-bar-fill" style="width:${a.consistency}%;background:${consColor};opacity:0.8;"></div>
+        </div>
+        <div style="font-size:8px;color:var(--text-dim);margin-top:2px;">${consLabel}</div>
+      </td>
+      <td class="td-center"><span class="${flipCls}">${a.flipCount}</span></td>
+      <td><div class="sparkline">${sparkCells}</div></td>
+      <td class="td-num"><span class="${rsiCls}">${a.rsi != null ? a.rsi.toFixed(1) : '—'}</span></td>
+      <td class="td-num"><span class="${adxCls}">${a.adx != null ? a.adx.toFixed(1) : '—'}</span></td>
+      <td class="td-num">${a.ltp != null ? '₹' + a.ltp.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</td>
+      <td class="td-num"><span class="${chgCls}">${chgStr}</span></td>
+    </tr>`;
+  });
+  tbody.innerHTML = html;
+}
+
+function renderMatrixRows(data, tbody) {
+  let html = '';
+  data.forEach(a => {
+    const flipIndicator = a.isNewFlip ? ` <span style="color:var(--purple);font-size:9px;">⚡</span>` : '';
+    html += `
+    <tr>
+      <td class="col-sym">
+        <div class="sym-cell">
+          <span class="star-btn ${watchlist.has(a.sym) ? 'starred' : ''}" onclick="toggleWatch('${a.sym}', this)">★</span>
+          <div class="sym-info">
+            <div class="sym-name" onclick="openDetail('${a.sym}')">${a.sym}${flipIndicator}</div>
+            <div class="sym-sector">${a.sector}</div>
+          </div>
+        </div>
+      </td>`;
+
+    dates.forEach((d, idx) => {
+      const h = a.history[d];
+      if (!h || !h.signal) { html += `<td class="day-col"><div class="day-sig-box ds-none">—</div></td>`; return; }
+
+      const b = isBuy(h.signal), s = isSell(h.signal);
+      let cls = b ? 'ds-buy' : (s ? 'ds-sell' : 'ds-none');
+      let extra = '';
+      if (idx > 0) {
+        const ph = a.history[dates[idx - 1]];
+        if (ph && ph.signal) {
+          if (b && isSell(ph.signal)) extra = ' ds-flip-buy';
+          if (s && isBuy(ph.signal))  extra = ' ds-flip-sell';
+        }
+      }
+      const badge = b ? 'BUY' : (s ? 'SELL' : '—');
+      const micro = h.rsi ? `R${h.rsi.toFixed(0)}` : '';
+
+      html += `<td class="day-col">
+        <div class="day-sig-box ${cls}${extra}">
+          <div>${badge}</div>
+          <div class="ds-micro">${micro}</div>
+        </div>
+      </td>`;
+    });
+
+    html += '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+/* ══════════════════════════════════════════
+   SORT
+══════════════════════════════════════════ */
+function doSort(col) {
+  if (sortCol === col) sortAsc = !sortAsc;
+  else { sortCol = col; sortAsc = col === 'sym'; }
+  highlightSortArrow();
+  applyFiltersAndRender();
+}
+
+function highlightSortArrow() {
+  document.querySelectorAll('thead th').forEach(th => {
+    const arr = th.querySelector('.sort-arr');
+    if (!arr) return;
+    th.classList.remove('sorted');
+    arr.textContent = '';
+  });
+  // Find and highlight active
+  const ths = document.querySelectorAll('thead th');
+  const map = { sym:0, score:1, type:2, cons:3, flips:4, rsi:6, adx:7, ltp:8, chg:9 };
+  const idx = map[sortCol];
+  if (idx !== undefined && ths[idx]) {
+    ths[idx].classList.add('sorted');
+    const arr = ths[idx].querySelector('.sort-arr');
+    if (arr) arr.textContent = sortAsc ? ' ▲' : ' ▼';
+  }
+}
+
+/* ══════════════════════════════════════════
+   VIEW TOGGLE
+══════════════════════════════════════════ */
+function setView(v) {
+  currentView = v;
+  document.getElementById('vt-summary').classList.toggle('active', v === 'summary');
+  document.getElementById('vt-matrix').classList.toggle('active', v === 'matrix');
+  buildHeaders();
+  applyFiltersAndRender();
+}
+
+/* ══════════════════════════════════════════
+   STOCK DETAIL MODAL
+══════════════════════════════════════════ */
+function openDetail(sym) {
+  const a = analysed.find(x => x.sym === sym);
+  if (!a) return;
+
+  document.getElementById('m-title').textContent  = sym;
+  document.getElementById('m-sector').textContent = a.sector;
+
+  // History chart
+  const chartEl = document.getElementById('m-history-chart');
+  const maxDays = Math.min(dates.length, 20);
+  const recentDates = dates.slice(-maxDays);
+  chartEl.innerHTML = recentDates.map(d => {
+    const h = a.history[d];
+    const b = h && isBuy(h.signal);
+    const s = h && isSell(h.signal);
+    const color = b ? 'var(--green)' : (s ? 'var(--red)' : 'var(--border)');
+    const height = (b || s) ? '80%' : '20%';
+    const lbl = d === 'TODAY' ? 'NOW' : formatDate(d).replace(' ', '\n');
+    return `<div class="hc-bar-wrap">
+      <div class="hc-bar" style="height:${height};background:${color};width:100%;"></div>
+      <div class="hc-lbl">${lbl.split(' ')[1] || ''}</div>
+    </div>`;
+  }).join('');
+
+  // Trend details
+  const sc = scoreColor(a.trendScore, a.dominantBull);
+  document.getElementById('m-trend-type').innerHTML  = trendBadgeHtml(a.trendType);
+  document.getElementById('m-trend-score').innerHTML = `<span style="color:${sc};font-size:16px;">${a.trendScore} / 100</span>`;
+  document.getElementById('m-consistency').textContent= `${a.consistency}% (${a.dominantBull ? 'Buy' : 'Sell'} dominant)`;
+  document.getElementById('m-flips').innerHTML       = `<span class="${a.flipCount === 0 ? 'flip-0' : a.flipCount <= 2 ? 'flip-1' : 'flip-hi'}">${a.flipCount} signal reversals</span>`;
+  document.getElementById('m-buysell').innerHTML     = `<span style="color:var(--green)">${a.buyDays} buy days</span> / <span style="color:var(--red)">${a.sellDays} sell days</span>`;
+  const momStr = a.recentBuy > a.recentSell
+    ? `<span style="color:var(--green)">▲ Bullish (${a.recentBuy}/5 last signals Buy)</span>`
+    : a.recentSell > a.recentBuy
+    ? `<span style="color:var(--red)">▼ Bearish (${a.recentSell}/5 last signals Sell)</span>`
+    : `<span style="color:var(--text-muted)">Neutral</span>`;
+  document.getElementById('m-momentum').innerHTML = momStr;
+
+  // Live data
+  document.getElementById('m-ltp').textContent = a.ltp != null ? '₹' + a.ltp.toLocaleString('en-IN',{minimumFractionDigits:2}) : '—';
+  const chgEl = document.getElementById('m-chg');
+  chgEl.textContent = a.change != null ? (a.change >= 0 ? '+' : '') + a.change.toFixed(2) + '%' : '—';
+  chgEl.style.color = a.change != null ? (a.change >= 0 ? 'var(--green)' : 'var(--red)') : '';
+  const rsiEl = document.getElementById('m-rsi');
+  rsiEl.textContent = a.rsi != null ? a.rsi.toFixed(1) : '—';
+  rsiEl.style.color = a.rsi > 70 ? 'var(--red)' : a.rsi < 35 ? 'var(--accent)' : 'var(--text)';
+  document.getElementById('m-adx').textContent = a.adx != null ? a.adx.toFixed(1) : '—';
+  document.getElementById('m-sl').textContent  = a.sl  != null ? '₹' + Number(a.sl).toFixed(2) : '—';
+  document.getElementById('m-t1').textContent  = a.t1  != null ? '₹' + Number(a.t1).toFixed(2) : '—';
+  document.getElementById('m-t2').textContent  = a.t2  != null ? '₹' + Number(a.t2).toFixed(2) : '—';
+  document.getElementById('m-tv').href = `https://www.tradingview.com/chart/?symbol=NSE:${sym}`;
+
+  document.getElementById('stockOverlay').classList.add('show');
+}
+
+/* ══════════════════════════════════════════
+   NOTE MODAL
+══════════════════════════════════════════ */
+function openNote(sym) {
+  activeNoteSym = sym;
+  document.getElementById('n-sym').textContent = sym;
+  document.getElementById('noteTA').value = notes[sym] || '';
+  document.getElementById('noteOverlay').classList.add('show');
+}
+
+function saveNote() {
+  const v = document.getElementById('noteTA').value.trim();
+  if (v) notes[activeNoteSym] = v; else delete notes[activeNoteSym];
+  localStorage.setItem('notes', JSON.stringify(notes));
+  closeModal('noteOverlay');
+  applyFiltersAndRender();
+}
+
+function deleteNote() {
+  delete notes[activeNoteSym];
+  localStorage.setItem('notes', JSON.stringify(notes));
+  closeModal('noteOverlay');
+  applyFiltersAndRender();
+}
+
+/* ══════════════════════════════════════════
+   WATCHLIST
+══════════════════════════════════════════ */
+function toggleWatch(sym, el) {
+  if (watchlist.has(sym)) { watchlist.delete(sym); el.classList.remove('starred'); }
+  else { watchlist.add(sym); el.classList.add('starred'); }
+  localStorage.setItem('wl', JSON.stringify([...watchlist]));
+  if (trendFilter === 'watch') applyFiltersAndRender();
+}
+
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+/* ══════════════════════════════════════════
+   START
+══════════════════════════════════════════ */
+init();
+</script>
+</body>
+</html>
