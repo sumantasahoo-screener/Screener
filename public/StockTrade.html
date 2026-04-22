@@ -26,8 +26,8 @@ function exportADCSV(){if(!_adResults.length){alert('A/D data abhi available nah
 
 function exportDVCSV(){if(!_dvResults.length){alert('Day View data abhi available nahi hai.');return;}const today=new Date().toISOString().slice(0,10);const symCount={},symStrength={},symType={},symLastTime={},symLastMs={},symHistory={};for(const r of _dvResults){const ms=r.savedAt?new Date(r.savedAt).getTime():0;for(const s of(r.strong||[])){const parts=s.split(':');const sym=parts[0],type=parts[1],strength=parts[2]||'STRONG',vp=parts[4]||'0';if(type==='acc'||type==='dist')continue;symCount[sym]=(symCount[sym]||0)+1;symStrength[sym]=strength;symType[sym]=type;symLastTime[sym]=r.timeStr;symLastMs[sym]=ms;if(!symHistory[sym])symHistory[sym]=[];symHistory[sym].push({timeStr:r.timeStr,type:type,volPct:parseFloat(vp)||0});}}const SIG_MAP={long:'Long Buildup',cover:'Short Covering',short:'Short Buildup',unwind:'Long Unwinding'};const rows=[['Symbol','Total Signals','Latest Time','Primary Type','Strength','Chronological History']];Object.entries(symCount).sort((a,b)=>symLastMs[b[0]]-symLastMs[a[0]]).forEach(([sym,cnt])=>{const histStr=[...symHistory[sym]].reverse().map(h=>`[${h.timeStr} ${SIG_MAP[h.type]||h.type}${h.volPct?` (${h.volPct>0?'+':''}${h.volPct}% Vol)`:' '}]`).join(' -> ');rows.push([sym,cnt,symLastTime[sym],SIG_MAP[symType[sym]]||symType[sym],symStrength[sym],histStr]);});downloadCsv('DayView_Signals_'+today+'.csv',rows);}
 
-async function loadAD(){const body=document.getElementById('ad-body'),sub=document.getElementById('ad-subtitle');body.innerHTML='<div class="modal-loading"><div class="mload-spin"></div><span>Loading A/D data…</span></div>';try{const res=await fetch(WORKER+'?mode=adresult&_v='+Date.now(),{cache:'no-cache'});const j=await res.json();if(!j.ok)throw new Error(j.error);_adResults=j.results||[];if(!_adResults.length){body.innerHTML='<div class="modal-empty">📭 A/D Data Ready Nahi</div>';sub.textContent='0 scans today';return;}_adLastSavedAt=_adResults[_adResults.length-1].savedAt;renderAD(_adResults,body,sub);}catch(e){body.innerHTML=`<div class="modal-empty">⚠️ Failed: ${e.message}</div>`;}}
-async function loadADSmart(){try{const res=await fetch(WORKER+'?mode=adresult&_v='+Date.now(),{cache:'no-cache'});const j=await res.json();if(!j.ok||!j.results?.length)return;const latest=j.results[j.results.length-1].savedAt;if(latest===_adLastSavedAt)return;_adLastSavedAt=latest;_adResults=j.results;renderAD(_adResults,document.getElementById('ad-body'),document.getElementById('ad-subtitle'));}catch(e){}}
+async function loadAD(){const body=document.getElementById('ad-body'),sub=document.getElementById('ad-subtitle');body.innerHTML='<div class="modal-loading"><div class="mload-spin"></div><span>Loading A/D data…</span></div>';try{const res=await fetch(WORKER+'?mode=adresult');const j=await res.json();if(!j.ok)throw new Error(j.error);_adResults=j.results||[];if(!_adResults.length){body.innerHTML='<div class="modal-empty">📭 A/D Data Ready Nahi</div>';sub.textContent='0 scans today';return;}_adLastSavedAt=_adResults[_adResults.length-1].savedAt;renderAD(_adResults,body,sub);}catch(e){body.innerHTML=`<div class="modal-empty">⚠️ Failed: ${e.message}</div>`;}}
+async function loadADSmart(){try{const res=await fetch(WORKER+'?mode=adresult');const j=await res.json();if(!j.ok||!j.results?.length)return;const latest=j.results[j.results.length-1].savedAt;if(latest===_adLastSavedAt)return;_adLastSavedAt=latest;_adResults=j.results;renderAD(_adResults,document.getElementById('ad-body'),document.getElementById('ad-subtitle'));}catch(e){}}
 
 function renderAD(results,body,sub){
   let tAcc=0,tDist=0;
@@ -1161,8 +1161,8 @@ function setupChipOverflow(container){
 }
 function chipShowAll(uid,e){if(e)e.stopPropagation();const wrap=document.querySelector(`.chip-wrap[data-uid="${uid}"]`);const moreBtn=document.getElementById(uid+'_more');if(!wrap)return;wrap.classList.add('expanded');[...wrap.querySelectorAll('[data-chip]')].forEach(c=>{c.style.display='';});if(moreBtn)moreBtn.style.display='none';}
 
-async function reprocessAD(){const btn=document.getElementById('ad-reprocess-btn');btn.classList.add('loading');btn.innerHTML='<span class="spin-ico"></span> Processing…';try{const res=await fetch(`${WORKER}?mode=adreprocess&_v=${Date.now()}`,{cache:'no-cache'});const j=await res.json();if(!j.ok){alert('Error: '+j.error);return;}alert(`✅ Done! ${j.processed} scans processed from ${j.baselines} baselines.`);loadAD();}catch(e){alert('Failed: '+e.message);}finally{btn.classList.remove('loading');btn.innerHTML='🔄 Reprocess';}}
-async function reprocessDV(){const btn=document.getElementById('dv-reprocess-btn');btn.classList.add('loading');btn.innerHTML='<span class="spin-ico"></span> Processing…';try{const res=await fetch(`${WORKER}?mode=dvreprocess&_v=${Date.now()}`,{cache:'no-cache'});const j=await res.json();if(!j.ok){alert('Error: '+j.error);return;}alert(`✅ Done! ${j.processed} scans processed from ${j.baselines} baselines.`);loadDayView();}catch(e){alert('Failed: '+e.message);}finally{btn.classList.remove('loading');btn.innerHTML='🔄 Reprocess';}}
+async function reprocessAD(){const btn=document.getElementById('ad-reprocess-btn');btn.classList.add('loading');btn.innerHTML='<span class="spin-ico"></span> Processing…';try{const res=await fetch(`${WORKER}?mode=adreprocess`);const j=await res.json();if(!j.ok){alert('Error: '+j.error);return;}alert(`✅ Done! ${j.processed} scans processed from ${j.baselines} baselines.`);loadAD();}catch(e){alert('Failed: '+e.message);}finally{btn.classList.remove('loading');btn.innerHTML='🔄 Reprocess';}}
+async function reprocessDV(){const btn=document.getElementById('dv-reprocess-btn');btn.classList.add('loading');btn.innerHTML='<span class="spin-ico"></span> Processing…';try{const res=await fetch(`${WORKER}?mode=dvreprocess`);const j=await res.json();if(!j.ok){alert('Error: '+j.error);return;}alert(`✅ Done! ${j.processed} scans processed from ${j.baselines} baselines.`);loadDayView();}catch(e){alert('Failed: '+e.message);}finally{btn.classList.remove('loading');btn.innerHTML='🔄 Reprocess';}}
 
 function openAD(){document.getElementById('ad-modal').classList.add('open');if(_adTimer){clearInterval(_adTimer);_adTimer=null;}loadAD();_adTimer=setInterval(loadADSmart,60*1000);}
 function closeAD(){document.getElementById('ad-modal').classList.remove('open');if(_adTimer){clearInterval(_adTimer);_adTimer=null;}}
@@ -1173,10 +1173,10 @@ async function loadDayView(){
   const body=document.getElementById('dv-body'),sub=document.getElementById('dv-subtitle');
   body.innerHTML='<div class="modal-loading"><div class="mload-spin"></div> Loading today\'s signals…</div>';
   sub.textContent='Loading…';_dvLastSavedAt=null;
-  try{const res=await fetch(WORKER+'?mode=dayview&_v='+Date.now(),{cache:'no-cache'});const j=await res.json();if(!j.ok)throw new Error(j.error||'Worker error');const results=j.results||[];window._dvDebug=j.debug||{};if(results.length)_dvLastSavedAt=results[results.length-1].savedAt;_dvResults=results;renderDayView(results);}
+  try{const res=await fetch(WORKER+'?mode=dayview');const j=await res.json();if(!j.ok)throw new Error(j.error||'Worker error');const results=j.results||[];window._dvDebug=j.debug||{};if(results.length)_dvLastSavedAt=results[results.length-1].savedAt;_dvResults=results;renderDayView(results);}
   catch(e){body.innerHTML=`<div class="modal-empty"><div style="font-size:2rem;">⚠️</div>Failed to load: ${e.message}</div>`;sub.textContent='Error loading data';}
 }
-async function loadDayViewSmart(){try{const res=await fetch(WORKER+'?mode=dayview&_v='+Date.now(),{cache:'no-cache'});const j=await res.json();if(!j.ok)return;const results=j.results||[];if(!results.length)return;const latestSavedAt=results[results.length-1].savedAt;if(latestSavedAt===_dvLastSavedAt)return;_dvLastSavedAt=latestSavedAt;_dvResults=results;renderDayView(results);}catch(e){}}
+async function loadDayViewSmart(){try{const res=await fetch(WORKER+'?mode=dayview');const j=await res.json();if(!j.ok)return;const results=j.results||[];if(!results.length)return;const latestSavedAt=results[results.length-1].savedAt;if(latestSavedAt===_dvLastSavedAt)return;_dvLastSavedAt=latestSavedAt;_dvResults=results;renderDayView(results);}catch(e){}}
 
 function renderDayView(results){
   const body=document.getElementById('dv-body'),sub=document.getElementById('dv-subtitle');
@@ -1194,14 +1194,18 @@ function renderDayView(results){
   for(const r of results){
     const ms=r.savedAt?new Date(r.savedAt).getTime():0;
     const scanPriceMap={};
-    for(const comp of(r.comparisons||[])){for(const sig of(comp.signals||[])){const parts=sig.split(':');const sPrice=parseFloat(parts[4]);if(sPrice>0){scanPriceMap[parts[0]]=sPrice;symPrice[parts[0]]=sPrice;}}}
+    for(const comp of(r.comparisons||[])){for(const sig of(comp.signals||[])){const parts=sig.split(':');const sPrice=parseFloat(parts[4]);if(sPrice>0){scanPriceMap[parts[0]]=sPrice;}}}
     for(const s of(r.strong||[])){
-      const[sym,type,strength,cnt,vp,sInfo]=s.split(':');if(type==='acc'||type==='dist')continue;
+      const[sym,type,strength,cnt,vp,sInfo,sPriceRaw]=s.split(':');if(type==='acc'||type==='dist')continue;
+      // priceNow: index[6] from strong string (new format), fallback to scanPriceMap from signals
+      const sPrice=parseFloat(sPriceRaw)||scanPriceMap[sym]||0;
+      // Only update symPrice if this scan is newer than last saved price scan
+      if(sPrice>0&&ms>=(symLastMs[sym]||0))symPrice[sym]=sPrice;
       symCount[sym]=(symCount[sym]||0)+1;symStrength[sym]=strength;symType[sym]=type;symLastTime[sym]=r.timeStr;symLastMs[sym]=ms;
       if(bullTypes.has(type))lbBullMap[sym]=(lbBullMap[sym]||0)+1;
       if(bearTypes.has(type))lbBearMap[sym]=(lbBearMap[sym]||0)+1;
       if(!symHistory[sym])symHistory[sym]=[];
-      symHistory[sym].push({timeStr:r.timeStr,ms,type,volPct:vp,strength,priceNow:scanPriceMap[sym]||0,streakInfo:sInfo||''});
+      symHistory[sym].push({timeStr:r.timeStr,ms,type,volPct:vp,strength,priceNow:sPrice,streakInfo:sInfo||''});
     }
   }
 
@@ -1363,7 +1367,7 @@ function dvToggle(uid){const item=document.getElementById(uid);const det=documen
 let _allBaselines=[];
 async function loadBaselines(){
   try{
-    const res=await fetch(WORKER+'?mode=list&_v='+Date.now(),{cache:'no-cache'});const j=await res.json();if(!j.ok)return;
+    const res=await fetch(WORKER+'?mode=list');const j=await res.json();if(!j.ok)return;
     _allBaselines=j.baselines||[];const sel=document.getElementById('base-select');const prevVal=sel.value;
     while(sel.children.length>1)sel.removeChild(sel.lastChild);
     if(!_allBaselines.length){sel.options[0].text='— no baselines yet —';return;}
@@ -1373,13 +1377,13 @@ async function loadBaselines(){
     if(prevVal&&[...sel.options].some(o=>o.value===prevVal))sel.value=prevVal;
     else if(_allBaselines.length)sel.value=_allBaselines[0].key;
     onBaseChange();
-  }catch(e){const sel=document.getElementById('base-select');if(sel)sel.options[0].text='⚠️ Error: '+e.message;}
+  }catch(e){const sel=document.getElementById('base-select');if(sel)sel.options[0].text='⚠️ Error loading list';}
 }
 function onBaseChange(){
   const baseKey=document.getElementById('base-select').value,sel2=document.getElementById('cmp2-select');
   if(!sel2)return;while(sel2.options.length>1)sel2.remove(1);
   if(!baseKey){sel2.options[0].text='— live (latest) —';return;}
-  const parts=baseKey.split('_'),baseTs=parseInt(parts[2]),after=_allBaselines.filter(b=>b.ts>baseTs);
+  const baseTs=parseInt(baseKey.split('_').pop()),after=_allBaselines.filter(b=>b.ts>baseTs);
   sel2.options[0].text='— live (latest) —';
   after.forEach((b,i)=>{const opt=document.createElement('option');opt.value=b.key;opt.text=b.timeStr+(i===0?' (latest after base)':'');sel2.appendChild(opt);});
 }
@@ -1391,7 +1395,7 @@ function closePin(){document.getElementById('pin-modal').classList.remove('open'
 async function confirmPin(){const pin=document.getElementById('pin-input').value.trim();if(!pin)return;closePin();await manualBase(pin);}
 async function manualBase(pin){
   const btn=document.getElementById('manual-btn');btn.classList.add('loading');btn.innerHTML='<span class="spin-ico"></span> Saving…';setBadge('saved','Saving...');
-  try{const res=await fetch(`${WORKER}?mode=manualbase&pin=${encodeURIComponent(pin)}&_v=${Date.now()}`,{cache:'no-cache'});const j=await res.json();if(!j.ok){document.getElementById('pin-err').classList.add('show');openPin();setBadge('err','Wrong PIN');btn.classList.remove('loading');btn.innerHTML='🔐 Set Base';return;}setBadge('saved','✓ Base set · '+fmtTime(j.scanTime));await loadBaselines();}
+  try{const res=await fetch(`${WORKER}?mode=manualbase&pin=${encodeURIComponent(pin)}`);const j=await res.json();if(!j.ok){document.getElementById('pin-err').classList.add('show');openPin();setBadge('err','Wrong PIN');btn.classList.remove('loading');btn.innerHTML='🔐 Set Base';return;}setBadge('saved','✓ Base set · '+fmtTime(j.scanTime));await loadBaselines();}
   catch(e){setBadge('err','Error');alert('Manual base failed: '+e.message);}
   btn.classList.remove('loading');btn.innerHTML='🔐 Set Base';
 }
@@ -1403,17 +1407,14 @@ async function compareAndSignal(){
   const btn=document.getElementById('cmp-btn');btn.classList.add('loading');btn.innerHTML='<span class="spin-ico"></span> Comparing…';setBadge('','Comparing...');
   try{
     if(cmp2Key){
-      const[r1,r2]=await Promise.all([
-        fetch(`${WORKER}?mode=compare&key=${encodeURIComponent(baseKey)}&_v=${Date.now()}`,{cache:'no-cache'}).then(r=>r.json()),
-        fetch(`${WORKER}?mode=compare&key=${encodeURIComponent(cmp2Key)}&_v=${Date.now()}`,{cache:'no-cache'}).then(r=>r.json())
-      ]);
+      const[r1,r2]=await Promise.all([fetch(`${WORKER}?mode=compare&key=${encodeURIComponent(baseKey)}`).then(r=>r.json()),fetch(`${WORKER}?mode=compare&key=${encodeURIComponent(cmp2Key)}`).then(r=>r.json())]);
       if(!r1.ok)throw new Error(r1.error||'Baseline fetch error');if(!r2.ok)throw new Error(r2.error||'Compare-with fetch error');
       const freshData=r2.baseData,baseData=r1.baseData,baseTimeIso=r1.baseTime,scanTimeIso=r2.baseTime;
       document.getElementById('st-cnt').textContent=(freshData||[]).length+' symbols';setBadge('ready','● Stored · Base: '+fmtTime(baseTimeIso));
       _lastFresh=freshData;_lastBaseMap=toMap(baseData);_lastBaseTime=baseTimeIso;_lastScanTime=scanTimeIso;
       renderSignals(genSignals(_lastFresh,_lastBaseMap,baseTimeIso,scanTimeIso),fmtTime(baseTimeIso),fmtTime(scanTimeIso));
     }else{
-      const res=await fetch(`${WORKER}?mode=compare&key=${encodeURIComponent(baseKey)}&_v=${Date.now()}`,{cache:'no-cache'});const j=await res.json();if(!j.ok)throw new Error(j.error||'Worker error');
+      const res=await fetch(`${WORKER}?mode=compare&key=${encodeURIComponent(baseKey)}`);const j=await res.json();if(!j.ok)throw new Error(j.error||'Worker error');
       const freshData=j.data,baseData=j.baseData,baseTimeIso=j.baseTime,scanTimeIso=j.scanTime;
       document.getElementById('st-cnt').textContent=j.count+' symbols';setBadge('ready','● Live · Base: '+fmtTime(baseTimeIso));
       _lastFresh=freshData;_lastBaseMap=toMap(baseData);_lastBaseTime=baseTimeIso;_lastScanTime=scanTimeIso;
@@ -1435,7 +1436,7 @@ async function viewBaseData() {
   sub.textContent = 'Fetching raw data...';
   
   try {
-    const res = await fetch(`${WORKER}?mode=viewbase&key=${encodeURIComponent(baseKey)}&_v=${Date.now()}`,{cache:'no-cache'});
+    const res = await fetch(`${WORKER}?mode=viewbase&key=${encodeURIComponent(baseKey)}`);
     const j = await res.json();
     if (!j.ok) throw new Error(j.error || 'Failed to fetch base');
     
