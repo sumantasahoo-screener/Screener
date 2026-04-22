@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTST/STBT Premium Screener</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0b10;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --accent: #6366f1;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); overflow-x: hidden; min-height: 100vh; }
+
+        header {
+            padding: 2rem;
+            background: linear-gradient(to bottom, rgba(99, 102, 241, 0.1), transparent);
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; letter-spacing: -1px; margin-bottom: 0.5rem; }
+        .subtitle { color: #94a3b8; font-size: 0.9rem; }
+
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--card-bg);
+            padding: 0.4rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .tab {
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .tab.active { background: var(--accent); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+
+        .btn-scan {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-scan:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4); }
+        .btn-scan:active { transform: scale(0.98); }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .card:hover { border-color: rgba(255,255,255,0.3); transform: translateY(-5px); }
+
+        .grade-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .grade-a { background: #dc2626; color: white; animation: fire-glow 2s infinite alternate; }
+        .grade-b { background: #f59e0b; color: white; }
+        .grade-c { background: #10b981; color: white; }
+
+        @keyframes fire-glow {
+            from { box-shadow: 0 0 5px #ef4444, 0 0 10px #ef4444; }
+            to { box-shadow: 0 0 20px #ef4444, 0 0 30px #f87171; }
+        }
+
+        .symbol { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.2rem; }
+        .price-row { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 1rem; }
+        .price { font-size: 1.2rem; font-weight: 600; }
+        .change { font-size: 0.9rem; font-weight: 600; }
+        .change.plus { color: var(--success); }
+        .change.minus { color: var(--danger); }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+        }
+
+        .metric-item { display: flex; flex-direction: column; }
+        .m-label { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        .m-value { font-size: 1rem; font-weight: 700; color: #f1f5f9; }
+
+        .warning-box {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: var(--warning);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .history-section {
+            margin-top: 4rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .loader {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: #475569;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>BTST <span style="color: var(--accent);">STBT</span> PRO</h1>
+    <p class="subtitle">Triple Confirmation Algorithm • Real-time Snapshot Analysis</p>
+</header>
+
+<div class="container">
+    <div class="controls">
+        <div class="tabs">
+            <div class="tab active" onclick="setTab('Intraday')">Intraday (10:35)</div>
+            <div class="tab" onclick="setTab('2nd Session')">2nd Session (12:35)</div>
+            <div class="tab" onclick="setTab('BTST Zone')">BTST Zone (2:05 / 3:05)</div>
+        </div>
+        
+        <button class="btn-scan" onclick="triggerScan()">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            Manual Scan
+        </button>
+    </div>
+
+    <div id="loader" class="loader"></div>
+    <div id="signal-grid" class="grid">
+        <!-- Cards will be injected here -->
+    </div>
+
+    <div id="empty" class="empty-state">
+        <p>No signals found for this session yet.</p>
+    </div>
+
+    <div class="history-section">
+        <h3>Historical Reports</h3>
+        <p class="subtitle" style="margin-bottom: 1.5rem;">Access last 10 days of processed data</p>
+        <div style="display: flex; gap: 1rem;">
+            <input type="date" id="history-date" style="background: var(--bg); color: white; border: 1px solid var(--border); padding: 0.5rem; border-radius: 8px;">
+            <button class="btn-scan" style="padding: 0.5rem 1.5rem; font-size: 0.8rem;" onclick="fetchHistory()">View History</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const WORKER_URL = "https://btst-scanner-worker.susanta41012.workers.dev/";
+    let currentTab = "Intraday";
+    let allSignals = [];
+
+    async function fetchData(isScan = false) {
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('signal-grid').innerHTML = '';
+        document.getElementById('empty').style.display = 'none';
+
+        try {
+            const url = isScan ? `${WORKER_URL}?scan=true` : `${WORKER_URL}latest_scan.json`;
+            const res = await fetch(url);
+            const data = await res.json();
+            
+            if (data.signals) {
+                allSignals = data.signals;
+                renderSignals();
+            } else {
+                document.getElementById('empty').style.display = 'block';
+            }
+        } catch (e) {
+            console.error(e);
+            document.getElementById('empty').innerHTML = `<p style="color: var(--danger)">Error connecting to scanner.</p>`;
+            document.getElementById('empty').style.display = 'block';
+        }
+        document.getElementById('loader').style.display = 'none';
+    }
+
+    function setTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab').forEach(t => {
+            t.classList.toggle('active', t.innerText.includes(tab));
+        });
+        renderSignals();
+    }
+
+    function renderSignals() {
+        const grid = document.getElementById('signal-grid');
+        grid.innerHTML = '';
+        
+        const filtered = allSignals.filter(s => s.scanType === currentTab);
+        
+        if (filtered.length === 0) {
+            document.getElementById('empty').style.display = 'block';
+            return;
+        }
+
+        document.getElementById('empty').style.display = 'none';
+
+        filtered.forEach(s => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            const pClass = s.pChange >= 0 ? 'plus' : 'minus';
+            const sign = s.pChange >= 0 ? '+' : '';
+            
+            card.innerHTML = `
+                <div class="grade-badge grade-${s.grade.toLowerCase()}">GRADE ${s.grade}</div>
+                <div class="symbol">${s.symbol}</div>
+                <div class="price-row">
+                    <span class="price">₹${s.price}</span>
+                    <span class="change ${pClass}">${sign}${s.pChange}%</span>
+                </div>
+                <div class="metrics">
+                    <div class="metric-item">
+                        <span class="m-label">OI Change</span>
+                        <span class="m-value">${s.oiChange}%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Volume</span>
+                        <span class="m-value">${s.volChange}x</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Day High</span>
+                        <span class="m-value">₹${s.high}</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Day Low</span>
+                        <span class="m-value">₹${s.low}</span>
+                    </div>
+                </div>
+                ${s.rallyFading ? `
+                <div class="warning-box">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    Price dropping from High (Rally Fading)
+                </div>` : ''}
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function triggerScan() {
+        if(confirm("Start manual triple confirmation scan? This takes a few seconds.")) {
+            fetchData(true);
+        }
+    }
+
+    async function fetchHistory() {
+        const date = document.getElementById('history-date').value;
+        if (!date) return alert("Please select a date");
+        
+        // This would fetch from results/YYYY-MM-DD/latest_scan.json or similar
+        // For now using date based fetch
+        alert("Fetching history for " + date + ". (Backend integration pending)");
+    }
+
+    // Initial load
+    fetchData();
+</script>
+
+</body>
+</html>
