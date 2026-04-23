@@ -30,7 +30,7 @@
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: var(--bg); color: var(--ink); font-family: var(--fm); font-size: 13px; line-height: 1.4; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--fm); font-size: 15px; line-height: 1.5; }
 
     header {
       padding: 15px 30px;
@@ -91,11 +91,12 @@
       text-align: left;
       padding: 12px 20px;
       background: var(--bg2);
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--ink2);
       border-bottom: 1px solid var(--border);
       white-space: nowrap;
+      letter-spacing: 0.5px;
     }
     th.sortable {
       cursor: pointer;
@@ -109,7 +110,7 @@
     th.sortable.active-asc .sort-icon,
     th.sortable.active-desc .sort-icon { opacity: 1; }
 
-    td { padding: 10px 20px; border-bottom: 1px solid rgba(42, 52, 80, 0.4); }
+    td { padding: 12px 20px; border-bottom: 1px solid rgba(42, 52, 80, 0.4); font-size: 0.9rem; }
 
     .sym { font-weight: 600; color: var(--ink); }
     .score { font-weight: 700; color: var(--gold); }
@@ -482,40 +483,53 @@
         const lines = csv.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         if (lines.length < 2) continue;
         const header = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-        const hMap = {
-          contract: header.find(h => h.includes('CONTRACT')),
-          close: header.find(h => h.includes('CLOSE')),
-          oi: header.find(h => h.includes('OI') || h.includes('OPEN_INT')),
-          chg: header.find(h => h.includes('CHG') || h.includes('CHANGE')),
-          type: header.find(h => h.includes('TYPE') || h.includes('OPTION_TYP')),
-          strike: header.find(h => h.includes('STRIKE'))
-        };
+        // NSE CSV columns: CONTRACT_D has expiry+type+strike embedded; OI = OI_NO_CON; Close = CLOSE_PRIC
+        const colContract = header.find(h => h.includes('CONTRACT')) || '';
+        const colClose    = header.find(h => h === 'CLOSE_PRIC' || h.includes('CLOSE')) || '';
+        const colOI       = header.find(h => h === 'OI_NO_CON' || h === 'OPEN_INT' || h.includes('OI_NO')) || '';
+        const colChg      = header.find(h => h === 'NET_CHANGE' || h.includes('CHANGE') || h.includes('CHG')) || '';
+
         for (let i = 1; i < lines.length; i++) {
           const vals = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
           const r = {}; header.forEach((h, j) => r[h] = vals[j]);
-          const contract = (r[hMap.contract] || '').toUpperCase();
+          const contract = (r[colContract] || '').toUpperCase();
           if (!contract) continue;
-          const m = contract.match(/(\d{2}-[A-Z]{3}-\d{4})/);
-          if (!m) continue;
-          const exp = m[1];
+
           const isFut = contract.includes('FUT');
           const isOpt = contract.includes('OPT');
-          let sym = contract.replace('FUTSTK','').replace('FUTIDX','').replace('OPTSTK','').replace('OPTIDX','').replace(exp,'');
-          let type = r[hMap.type] || "";
-          if (isOpt && !type) {
-            if (contract.includes(exp + 'CE')) type = 'CE';
-            else if (contract.includes(exp + 'PE')) type = 'PE';
+          if (!isFut && !isOpt) continue;
+
+          // Expiry: DD-MMM-YYYY embedded in contract string
+          const mExp = contract.match(/(\d{2}-[A-Z]{3}-\d{4})/);
+          if (!mExp) continue;
+          const exp = mExp[1];
+
+          // Symbol: remove instrument type + expiry
+          let sym = contract
+            .replace('FUTSTK','').replace('FUTIDX','')
+            .replace('OPTSTK','').replace('OPTIDX','')
+            .replace(exp, '');
+
+          // Option type + strike: extracted from contract (no separate column)
+          let type = '', strike = 0;
+          if (isOpt) {
+            const ceM = sym.match(/^(.+)CE(\d+\.?\d*)$/);
+            const peM = sym.match(/^(.+)PE(\d+\.?\d*)$/);
+            if (ceM)      { sym = ceM[1]; type = 'CE'; strike = parseFloat(ceM[2]); }
+            else if (peM) { sym = peM[1]; type = 'PE'; strike = parseFloat(peM[2]); }
           }
-          if (isOpt) { sym = sym.replace('CE','').replace('PE','').replace(/\d+\.?\d*$/,''); }
-          sym = sym.trim();
+
+          sym = sym.replace(/-/g,'').trim();
           if (!sym) continue;
+
           if (!dataIndex[sym]) dataIndex[sym] = { FUT: [], OPT: [] };
           const cleanRow = {
-            ...r, SYMBOL: sym, EXPIRY_DT: exp, OPTION_TYP: type,
-            STRIKE_PR: parseFloat(r[hMap.strike] || 0),
-            CLOSE: parseFloat(r[hMap.close] || 0),
-            OPEN_INT: parseInt(r[hMap.oi] || 0),
-            CHG_IN_OI: parseInt(r[hMap.chg] || 0)
+            SYMBOL: sym, EXPIRY_DT: exp, OPTION_TYP: type,
+            STRIKE_PR: strike,
+            CLOSE: parseFloat(r[colClose] || 0),
+            OPEN_INT: parseInt(r[colOI] || 0),
+            CHG_IN_OI: parseInt(r[colChg] || 0),
+            CONTRACT_D: contract
           };
           if (isFut) dataIndex[sym].FUT.push(cleanRow);
           else if (isOpt) dataIndex[sym].OPT.push(cleanRow);
@@ -537,7 +551,10 @@
           const todayExps = [...new Set(symData.FUT.map(f => f.EXPIRY_DT))].sort((a,b) => parseDate(a) - parseDate(b));
           const nearExp = todayExps[0];
           const near = symData.FUT.find(f => f.EXPIRY_DT === nearExp);
-          const opts = (symData.OPT || []).filter(o => o.EXPIRY_DT === nearExp);
+          // Options ki apni nearest expiry use karo (weekly ho sakti hai, futures se alag)
+          const optExps = [...new Set((symData.OPT || []).map(o => o.EXPIRY_DT))].filter(Boolean).sort((a,b) => parseDate(a) - parseDate(b));
+          const nearOptExp = optExps[0] || nearExp;
+          const opts = (symData.OPT || []).filter(o => o.EXPIRY_DT === nearOptExp);
           let cOI = 0, pOI = 0;
           opts.forEach(o => {
             const contract = (o.CONTRACT_D || "").toUpperCase();
@@ -669,7 +686,7 @@
           <td class="num score ${sColor}">${data.score}</td>
           <td class="num">
             <div>₹${data.price.toFixed(2)}</div>
-            <div style="font-size:0.6rem; color:var(--muted);">W: <span class="bull">P${data.peWall}</span> - <span class="bear">C${data.ceWall}</span></div>
+            <div style="font-size:0.72rem; color:var(--muted); margin-top:2px;">W: <span class="bull">P${data.peWall || '—'}</span> - <span class="bear">C${data.ceWall || '—'}</span></div>
           </td>
           <td class="num ${data.oiPct > 0 ? 'bull' : 'bear'}">${data.oiPct}%</td>
           <td class="num"><span class="${data.pcr > 1.2 ? 'bull' : (data.pcr < 0.8 ? 'bear' : '')}">${data.pcr.toFixed(2)} ${pcrTrend}</span></td>
