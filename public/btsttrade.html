@@ -372,6 +372,8 @@
             <div class="tabs">
                 <div id="tab-Intraday" class="tab active" onclick="setTab('Intraday')">9:30 V/S 10:35</div>
                 <div id="tab-2nd-Session" class="tab" onclick="setTab('2nd Session')">9:30 V/S 12:35</div>
+                <!-- ✅ NEW TAB: 10AM vs 1:15 -->
+                <div id="tab-10AM-1-15" class="tab" onclick="setTab('10AM (1:15)')">10:00 V/S 1:15</div>
                 <div id="tab-BTST-2-05" class="tab" onclick="setTab('BTST (2:05)')">9:30 V/S 2:05</div>
                 <div id="tab-BTST-3-05" class="tab" onclick="setTab('BTST (3:05)')">12:30 V/S 3:05</div>
             </div>
@@ -441,7 +443,6 @@
             }
             document.getElementById('loader').style.display = 'block';
             try {
-                // Request specific historical file from worker
                 const url = `${WORKER_URL}results/${date}/daily_signals.json`;
                 const res = await fetch(url);
                 if (!res.ok) throw new Error("History not found for this date");
@@ -460,7 +461,6 @@
 
         function setTab(tab) {
             currentTab = tab;
-            // Get all tabs in the first tabs container (sessions)
             const sessionTabs = document.querySelectorAll('.controls .tabs:first-child .tab');
             sessionTabs.forEach(t => {
                 t.classList.toggle('active', t.getAttribute('onclick').includes(`'${tab}'`));
