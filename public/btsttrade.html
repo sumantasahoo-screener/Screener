@@ -158,7 +158,43 @@
             }
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .header-right {
+                width: 100%;
+                text-align: left !important;
+            }
+            .header-right > div:last-child {
+                justify-content: flex-start !important;
+                flex-wrap: wrap;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .tab {
+                flex: 1;
+                text-align: center;
+                padding: 0.6rem 0.5rem;
+                font-size: 0.85rem;
+            }
+            .btn-scan {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
             .grid {
                 grid-template-columns: 1fr;
             }
@@ -320,12 +356,12 @@
                 <h1>BTST <span style="color: var(--accent);">STBT</span> PRO</h1>
                 <p class="subtitle">Triple Confirmation Algorithm • Real-time Snapshot Analysis</p>
                 <div id="scan-info" class="scan-meta" style="text-align: left; margin-top: 0.5rem;">Loading scan info...</div>
-                <p style="color: #94a3b8; font-size: 0.85rem; font-weight: 600; margin-top: 0.4rem; border-left: 3px solid var(--accent); padding-left: 8px;">* Today's 1st report starts after 10:35 AM</p>
             </div>
             <div class="header-right" style="text-align: right;">
+                <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.5rem; font-weight: 600;">HISTORICAL REPORTS</div>
                 <div style="display: flex; gap: 0.6rem; align-items: center; justify-content: flex-end;">
                     <input type="date" id="history-date" style="background: #1a1d23; color: white; border: 1px solid var(--border); padding: 0.4rem; border-radius: 8px; font-size: 0.8rem; outline: none;">
-                    <button class="btn-scan" style="padding: 0.5rem 1.2rem; font-size: 0.8rem;" onclick="fetchHistory()">View History</button>
+                    <button class="btn-scan" style="padding: 0.5rem 1.2rem; font-size: 0.8rem;" onclick="viewHistory()">View History</button>
                 </div>
             </div>
         </div>
@@ -468,8 +504,9 @@
                     <span class="price">₹${s.pScan}</span>
                     <span class="change ${pClass}">${sign}${s.pChange}%</span>
                 </div>
-                <div style="font-size: 0.65rem; color: #94a3b8; margin-bottom: 0.5rem;">
-                    Base: ₹${s.pBase} | Scan: ₹${s.pScan}
+                <div style="font-size: 0.65rem; color: #94a3b8; margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+                    <span>Base: ₹${s.pBase} | Scan: ₹${s.pScan}</span>
+                    <span style="color: var(--accent); font-weight: 600;">⏱ ${s.signalTime || 'N/A'}</span>
                 </div>
                 <div class="metrics">
                     <div class="metric-item">
