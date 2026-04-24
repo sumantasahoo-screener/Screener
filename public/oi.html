@@ -3,233 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPTION TERMINAL BETA | CLOUD SYNC ACTIVE</title>
+    <title>OPTION TERMINAL | ☁️ CLOUD</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #050508;
-            --panel: rgba(16, 18, 27, 0.95);
-            --border: rgba(255, 255, 255, 0.1);
-            --accent: #00d2ff;
-            --green: #00ff9f;
-            --red: #ff2d55;
-            --yellow: #ffcc00;
-            --text-dim: #9999aa;
-            --ce-itm-bg: rgba(0, 255, 159, 0.12);
-            --pe-itm-bg: rgba(255, 45, 85, 0.12);
-            --glow-cyan: 0 0 15px rgba(0, 210, 255, 0.4);
+            --bg: #050508; --panel: rgba(16,18,27,0.95); --border: rgba(255,255,255,0.1);
+            --accent: #00d2ff; --green: #00ff9f; --red: #ff2d55; --yellow: #ffcc00;
+            --text-dim: #9999aa; --ce-itm-bg: rgba(0,255,159,0.12); --pe-itm-bg: rgba(255,45,85,0.12);
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            scrollbar-width: thin;
-            scrollbar-color: #444 transparent;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: #f0f0f5;
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 50% -20%, rgba(0, 210, 255, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 0% 100%, rgba(0, 255, 159, 0.03) 0%, transparent 30%);
-            min-height: 100vh;
-        }
-
-        header {
-            height: 52px;
-            background: rgba(10, 12, 20, 0.98);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            justify-content: space-between;
-        }
-
-        .logo {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 800;
-            font-size: 15px;
-            color: var(--accent);
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .status-badge {
-            background: rgba(0, 255, 159, 0.1);
-            border: 1px solid var(--green);
-            color: var(--green);
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--green);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--green);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.9); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
-        .header-stats { display: flex; gap: 40px; align-items: center; }
-        .stat-item { display: flex; gap: 12px; align-items: center; font-family: 'JetBrains Mono', monospace; }
-        .stat-label { color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-        .stat-val { font-weight: 700; font-size: 14px; }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: 340px 1fr;
-            gap: 1px;
-            background: var(--border);
-            min-height: calc(100vh - 52px);
-        }
-
-        .sidebar {
-            background: var(--bg);
-            padding: 20px;
-            overflow-y: auto;
-            max-height: calc(100vh - 52px);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .main-content { background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
-
-        /* Navigation Bar */
-        .symbol-nav { background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); display: flex; flex-direction: column; }
-        .indices-bar { padding: 10px 24px; display: flex; gap: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); overflow-x: auto; }
-        .stocks-bar { padding: 10px 24px; display: flex; gap: 10px; overflow-x: auto; align-items: center; }
-
-        .index-btn {
-            padding: 8px 24px; background: #111; border: 1px solid var(--border); border-radius: 4px; cursor: pointer;
-            font-weight: 800; font-size: 14px; color: #fff; transition: all 0.2s; letter-spacing: 1px; white-space: nowrap;
-        }
-        .index-btn.active { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 210, 255, 0.4); }
-
-        .symbol-pill {
-            padding: 6px 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 4px;
-            cursor: pointer; white-space: nowrap; font-weight: 600; font-family: 'JetBrains Mono', monospace;
-            transition: all 0.2s; font-size: 11px; color: var(--text-dim);
-        }
-        .symbol-pill.active { background: #fff; color: #000; border-color: #fff; }
-
-        .section-title {
-            font-size: 11px; text-transform: uppercase; color: var(--text-dim); letter-spacing: 1.5px;
-            margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;
-        }
-
-        /* Signal Cards */
-        .signal-card {
-            background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px;
-            cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;
-        }
-        .signal-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
-        .signal-card.BUY::before { background: var(--green); box-shadow: 2px 0 10px rgba(0, 255, 159, 0.4); }
-        .signal-card.SELL::before { background: var(--red); box-shadow: 2px 0 10px rgba(255, 45, 85, 0.4); }
-
-        .sig-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
-        .sig-sym { font-weight: 800; font-size: 13px; color: #fff; }
-        .sig-score { font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #fff; }
-
-        /* History Panel Redesign */
-        #history-panel { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 5px; }
-        .hist-item {
-            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px;
-            padding: 10px; display: flex; align-items: center; justify-content: space-between;
-            transition: all 0.2s; position: relative; overflow: hidden;
-        }
-        .hist-item:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); transform: translateX(4px); }
-        .hist-item::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
-        .hist-item.CE::after { background: var(--green); box-shadow: 2px 0 8px var(--green); }
-        .hist-item.PE::after { background: var(--red); box-shadow: 2px 0 8px var(--red); }
-        
-        .hist-time { font-family: 'JetBrains Mono'; font-size: 9px; color: var(--text-dim); }
-        .hist-info { flex: 1; margin-left: 12px; display: flex; flex-direction: column; }
-        .hist-sym { font-weight: 800; font-size: 11px; color: #fff; }
-        .hist-side-badge { 
-            font-size: 8px; font-weight: 900; padding: 1px 5px; border-radius: 3px; 
-            width: fit-content; margin-top: 2px; text-transform: uppercase;
-        }
-        .bg-ce { background: rgba(0, 255, 159, 0.1); color: var(--green); border: 1px solid rgba(0, 255, 159, 0.2); }
-        .bg-pe { background: rgba(255, 45, 85, 0.1); color: var(--red); border: 1px solid rgba(255, 45, 85, 0.2); }
-        
-        .hist-score-wrap { text-align: right; }
-        .hist-score { font-family: 'JetBrains Mono'; font-weight: 800; font-size: 16px; color: var(--accent); }
-
-        /* Table Styles */
-        .table-wrapper { flex: 1; overflow: auto; padding: 0 24px 24px 24px; }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; font-family: 'JetBrains Mono', monospace; min-width: 1000px; }
-        th { position: sticky; top: 0; background: var(--bg); padding: 12px 8px; font-size: 10px; color: var(--text-dim); text-transform: uppercase; border-bottom: 2px solid var(--border); z-index: 100; }
-        td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.03); text-align: center; position: relative; color: #ddd; }
-
-        .strike-col { background: #0c0d15; color: var(--yellow); font-weight: 800; font-size: 14px; border-left: 2px solid var(--border); border-right: 2px solid var(--border); transition: all 0.3s; }
-        .itm-ce { background: var(--ce-itm-bg) !important; }
-        .itm-pe { background: var(--pe-itm-bg) !important; }
-        
-        .atm-row { background: rgba(255, 204, 0, 0.05) !important; }
-        .atm-row td { border-top: 1px solid rgba(255, 204, 0, 0.3); border-bottom: 1px solid rgba(255, 204, 0, 0.3); }
-        .atm-strike { color: #fff !important; background: var(--yellow) !important; color: #000 !important; box-shadow: 0 0 15px var(--yellow); }
-
-        .pulse-wall-ce { box-shadow: inset 0 0 10px var(--green); border: 1px solid var(--green) !important; }
-        .pulse-wall-pe { box-shadow: inset 0 0 10px var(--red); border: 1px solid var(--red) !important; }
-
-        .controls { padding: 15px 24px; display: flex; gap: 20px; align-items: center; background: var(--bg); flex-wrap: wrap; }
-        .checkbox-container { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 11px; color: var(--text-dim); font-weight: 600; }
-
-        #spot-display { font-size: 26px; font-weight: 900; color: #fff; font-family: 'JetBrains Mono'; }
-        
-        .oi-bar-bg { position: absolute; bottom: 0; height: 100%; z-index: -1; transition: width 0.4s; opacity: 0.15; }
-        .ce-oi-bar { right: 0; background: var(--green); }
-        .pe-oi-bar { left: 0; background: var(--red); }
-
-        /* Mobile Responsive */
-        @media (max-width: 900px) {
-            .dashboard { grid-template-columns: 1fr; }
-            .sidebar { max-height: none; border-right: none; }
-            header { padding: 0 12px; }
-            .header-stats { gap: 15px; }
-        }
+        *{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:#444 transparent}
+        body{background-color:var(--bg);color:#f0f0f5;font-family:'Inter',sans-serif;font-size:13px;overflow-x:hidden;
+            background-image:radial-gradient(circle at 50% -20%,rgba(0,210,255,0.08) 0%,transparent 50%),
+            radial-gradient(circle at 0% 100%,rgba(0,255,159,0.03) 0%,transparent 30%);min-height:100vh}
+        header{height:52px;background:rgba(10,12,20,0.98);backdrop-filter:blur(15px);border-bottom:1px solid var(--border);
+            display:flex;align-items:center;padding:0 24px;position:sticky;top:0;z-index:1000;justify-content:space-between}
+        .logo{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:15px;color:var(--accent);
+            letter-spacing:1px;display:flex;align-items:center;gap:10px}
+        .cloud-badge{background:rgba(0,210,255,0.12);border:1px solid var(--accent);color:var(--accent);
+            padding:3px 12px;border-radius:20px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:6px}
+        .status-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;
+            box-shadow:0 0 8px var(--accent);animation:pulse 2s infinite}
+        @keyframes pulse{0%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.9)}100%{opacity:1;transform:scale(1)}}
+        .header-stats{display:flex;gap:30px;align-items:center}
+        .stat-item{display:flex;gap:8px;align-items:center;font-family:'JetBrains Mono',monospace}
+        .stat-label{color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:1px}
+        .stat-val{font-weight:700;font-size:14px}
+        .dashboard{display:grid;grid-template-columns:340px 1fr;gap:1px;background:var(--border);min-height:calc(100vh - 52px)}
+        .sidebar{background:var(--bg);padding:20px;overflow-y:auto;max-height:calc(100vh - 52px);
+            border-right:1px solid var(--border);display:flex;flex-direction:column;gap:20px}
+        .main-content{background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+        .symbol-nav{background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border);display:flex;flex-direction:column}
+        .indices-bar{padding:10px 24px;display:flex;gap:15px;border-bottom:1px solid rgba(255,255,255,0.05);overflow-x:auto}
+        .stocks-bar{padding:10px 24px;display:flex;gap:10px;overflow-x:auto;align-items:center}
+        .index-btn{padding:8px 24px;background:#111;border:1px solid var(--border);border-radius:4px;cursor:pointer;
+            font-weight:800;font-size:14px;color:#fff;transition:all 0.2s;letter-spacing:1px;white-space:nowrap}
+        .index-btn.active{background:var(--accent);color:#000;border-color:var(--accent);box-shadow:0 0 15px rgba(0,210,255,0.4)}
+        .symbol-pill{padding:6px 14px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:4px;
+            cursor:pointer;white-space:nowrap;font-weight:600;font-family:'JetBrains Mono',monospace;transition:all 0.2s;font-size:11px;color:var(--text-dim)}
+        .symbol-pill.active{background:#fff;color:#000;border-color:#fff}
+        .section-title{font-size:11px;text-transform:uppercase;color:var(--text-dim);letter-spacing:1.5px;
+            margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
+            border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:5px}
+        .signal-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px;
+            cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+        .signal-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
+        .signal-card.BUY::before{background:var(--green);box-shadow:2px 0 10px rgba(0,255,159,0.4)}
+        .signal-card.SELL::before{background:var(--red);box-shadow:2px 0 10px rgba(255,45,85,0.4)}
+        .sig-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px}
+        .sig-sym{font-weight:800;font-size:13px;color:#fff}
+        .sig-score{font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#fff}
+        #history-panel{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:5px}
+        .hist-item{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:6px;
+            padding:10px;display:flex;align-items:center;justify-content:space-between;transition:all 0.2s;position:relative;overflow:hidden}
+        .hist-item:hover{background:rgba(255,255,255,0.05);transform:translateX(4px)}
+        .hist-item::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px}
+        .hist-item.CE::after{background:var(--green);box-shadow:2px 0 8px var(--green)}
+        .hist-item.PE::after{background:var(--red);box-shadow:2px 0 8px var(--red)}
+        .hist-time{font-family:'JetBrains Mono';font-size:9px;color:var(--text-dim)}
+        .hist-info{flex:1;margin-left:12px;display:flex;flex-direction:column}
+        .hist-sym{font-weight:800;font-size:11px;color:#fff}
+        .hist-side-badge{font-size:8px;font-weight:900;padding:1px 5px;border-radius:3px;width:fit-content;margin-top:2px}
+        .bg-ce{background:rgba(0,255,159,0.1);color:var(--green);border:1px solid rgba(0,255,159,0.2)}
+        .bg-pe{background:rgba(255,45,85,0.1);color:var(--red);border:1px solid rgba(255,45,85,0.2)}
+        .hist-score-wrap{text-align:right}
+        .hist-score{font-family:'JetBrains Mono';font-weight:800;font-size:16px;color:var(--accent)}
+        .table-wrapper{flex:1;overflow:auto;padding:0 24px 24px 24px}
+        table{width:100%;border-collapse:separate;border-spacing:0;font-family:'JetBrains Mono',monospace;min-width:1000px}
+        th{position:sticky;top:0;background:var(--bg);padding:12px 8px;font-size:10px;color:var(--text-dim);
+            text-transform:uppercase;border-bottom:2px solid var(--border);z-index:100}
+        td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:center;position:relative;color:#ddd}
+        .strike-col{background:#0c0d15;color:var(--yellow);font-weight:800;font-size:14px;
+            border-left:2px solid var(--border);border-right:2px solid var(--border);transition:all 0.3s}
+        .itm-ce{background:var(--ce-itm-bg)!important}
+        .itm-pe{background:var(--pe-itm-bg)!important}
+        .atm-row{background:rgba(255,204,0,0.05)!important}
+        .atm-row td{border-top:1px solid rgba(255,204,0,0.3);border-bottom:1px solid rgba(255,204,0,0.3)}
+        .atm-strike{color:#fff!important;background:var(--yellow)!important;color:#000!important;box-shadow:0 0 15px var(--yellow)}
+        .pulse-wall-ce{box-shadow:inset 0 0 10px var(--green);border:1px solid var(--green)!important}
+        .pulse-wall-pe{box-shadow:inset 0 0 10px var(--red);border:1px solid var(--red)!important}
+        .controls{padding:15px 24px;display:flex;gap:20px;align-items:center;background:var(--bg);flex-wrap:wrap}
+        .checkbox-container{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:11px;color:var(--text-dim);font-weight:600}
+        #spot-display{font-size:26px;font-weight:900;color:#fff;font-family:'JetBrains Mono'}
+        .oi-bar-bg{position:absolute;bottom:0;height:100%;z-index:-1;transition:width 0.4s;opacity:0.15}
+        .ce-oi-bar{right:0;background:var(--green)}
+        .pe-oi-bar{left:0;background:var(--red)}
+        #err-banner{display:none;background:rgba(255,45,85,0.1);border-bottom:1px solid var(--red);
+            padding:6px 24px;color:var(--red);font-size:11px;text-align:center;font-weight:700}
+        @media(max-width:900px){.dashboard{grid-template-columns:1fr}.sidebar{max-height:none;border-right:none}
+            header{padding:0 12px}.header-stats{gap:15px}}
     </style>
 </head>
 <body>
+
+<div id="err-banner">❌ Cloud data unavailable. Check R2 connection.</div>
 
 <header>
     <div class="logo">
         <div class="status-dot"></div>
         OPTION TERMINAL BETA
     </div>
-    <div class="status-badge">
-        <div class="status-dot"></div> CLOUD SYNC ACTIVE
+    <div class="cloud-badge">
+        <div class="status-dot"></div> ☁️ CLOUD ONLY
     </div>
     <div class="header-stats">
         <div class="stat-item"><span class="stat-label">LAST SCAN:</span> <span id="last-fetch-time" class="stat-val" style="color:var(--accent)">--:--:--</span></div>
-        <div id="market-time" class="stat-val" style="font-size: 12px; color: var(--text-dim); font-family: 'JetBrains Mono'; border-left: 1px solid var(--border); padding-left: 15px;">--:--:--</div>
-        <a href="oi-compare.html" target="_blank" style="background:rgba(0,210,255,.12);border:1px solid rgba(0,210,255,.4);color:#00d2ff;padding:5px 14px;border-radius:4px;font-size:11px;font-weight:bold;text-decoration:none;white-space:nowrap;transition:all .2s" onmouseover="this.style.background='rgba(0,210,255,.28)'" onmouseout="this.style.background='rgba(0,210,255,.12)'">📊 OI COMPARE</a>
+        <div id="market-time" class="stat-val" style="font-size:12px;color:var(--text-dim);font-family:'JetBrains Mono';border-left:1px solid var(--border);padding-left:15px">--:--:--</div>
+        <a href="oi-compare.html" target="_blank" style="background:rgba(0,210,255,.12);border:1px solid rgba(0,210,255,.4);color:#00d2ff;padding:5px 14px;border-radius:4px;font-size:11px;font-weight:bold;text-decoration:none;white-space:nowrap">📊 OI COMPARE</a>
     </div>
 </header>
 
@@ -237,35 +116,32 @@
     <aside class="sidebar">
         <div>
             <div class="section-title">LIVE SPOT</div>
-            <div id="spot-display">00000.00</div>
-            <div id="bias-badge" style="font-size:10px; font-weight:800; margin-top:8px; display:inline-block; padding:2px 8px; border-radius:4px; background:rgba(255,255,255,0.05)">NEUTRAL</div>
+            <div id="spot-display">--</div>
+            <div id="bias-badge" style="font-size:10px;font-weight:800;margin-top:8px;display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,0.05)">--</div>
         </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:6px; border:1px solid var(--border)">
-                <div style="font-size:9px; color:var(--text-dim)">RESISTANCE (CE)</div>
-                <div id="res-val" style="font-size:14px; font-weight:800; color:var(--green)">0</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:6px;border:1px solid var(--border)">
+                <div style="font-size:9px;color:var(--text-dim)">RESISTANCE (CE)</div>
+                <div id="res-val" style="font-size:14px;font-weight:800;color:var(--green)">--</div>
             </div>
-            <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:6px; border:1px solid var(--border)">
-                <div style="font-size:9px; color:var(--text-dim)">SUPPORT (PE)</div>
-                <div id="sup-val" style="font-size:14px; font-weight:800; color:var(--red)">0</div>
+            <div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:6px;border:1px solid var(--border)">
+                <div style="font-size:9px;color:var(--text-dim)">SUPPORT (PE)</div>
+                <div id="sup-val" style="font-size:14px;font-weight:800;color:var(--red)">--</div>
             </div>
-            <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:6px; border:1px solid var(--border)">
-                <div style="font-size:9px; color:var(--text-dim)">PCR</div>
-                <div id="pcr-val" style="font-size:14px; font-weight:800">0.00</div>
+            <div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:6px;border:1px solid var(--border)">
+                <div style="font-size:9px;color:var(--text-dim)">PCR</div>
+                <div id="pcr-val" style="font-size:14px;font-weight:800">--</div>
             </div>
-            <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:6px; border:1px solid var(--border)">
-                <div style="font-size:9px; color:var(--text-dim)">MAX PAIN</div>
-                <div id="mp-val" style="font-size:14px; font-weight:800; color:var(--yellow)">0</div>
+            <div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:6px;border:1px solid var(--border)">
+                <div style="font-size:9px;color:var(--text-dim)">MAX PAIN</div>
+                <div id="mp-val" style="font-size:14px;font-weight:800;color:var(--yellow)">--</div>
             </div>
         </div>
-
         <div>
             <div class="section-title">ACTIVE SIGNALS <span id="sig-count" style="color:var(--accent)">0</span></div>
             <div id="signal-container"></div>
         </div>
-
-        <div style="flex:1; display:flex; flex-direction:column; min-height: 200px;">
+        <div style="flex:1;display:flex;flex-direction:column;min-height:200px">
             <div class="section-title">SIGNAL HISTORY</div>
             <div id="history-panel"></div>
         </div>
@@ -275,23 +151,20 @@
         <div class="symbol-nav">
             <div class="indices-bar" id="indices-pills"></div>
             <div class="stocks-bar" id="stocks-pills"></div>
-
         </div>
-
         <div class="controls">
-            <select id="expiry-select" onchange="loadData()" style="background:#111; color:#fff; border:1px solid var(--border); padding:6px; border-radius:4px; font-size:11px"></select>
+            <select id="expiry-select" onchange="loadData()" style="background:#111;color:#fff;border:1px solid var(--border);padding:6px;border-radius:4px;font-size:11px"></select>
             <label class="checkbox-container"><input type="checkbox" id="show-all-chk" onchange="loadData()"><span>Focus Mode (ATM ±10)</span></label>
             <div style="flex:1"></div>
             <div class="stat-item"><span class="stat-label">VIX:</span> <span id="vix-val" class="stat-val" style="color:var(--yellow)">--</span></div>
         </div>
-
         <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
-                        <th colspan="6" style="background: rgba(0,255,159,0.03)">CALLS</th>
-                        <th style="background: #111">STRIKE</th>
-                        <th colspan="6" style="background: rgba(255,45,85,0.03)">PUTS</th>
+                        <th colspan="6" style="background:rgba(0,255,159,0.03)">CALLS</th>
+                        <th style="background:#111">STRIKE</th>
+                        <th colspan="6" style="background:rgba(255,45,85,0.03)">PUTS</th>
                     </tr>
                     <tr>
                         <th>Delta</th><th>Theta</th><th>IV</th><th>LTP</th><th>ChgOI</th><th>OI</th>
@@ -306,216 +179,171 @@
 </div>
 
 <script>
-    const API_LOCAL = 'http://localhost:5000';
-    const R2_BASE = 'https://pub-7381e1c00b8f43138d4f7ef3b96d862d.r2.dev';
+    // ═══════════════════════════════════════════
+    //  CLOUD-ONLY MODE — No local server calls
+    // ═══════════════════════════════════════════
+    const R2 = 'https://pub-7381e1c00b8f43138d4f7ef3b96d862d.r2.dev';
     let currentSym = 'NIFTY';
-    let availableSyms = ['NIFTY', 'BANKNIFTY'];
-    let isCloudMode = false;
-    // Fast-fail timeout: 300ms so cloud switch is instant
-    const LOCAL_TIMEOUT = 300;
+    let availableSyms = ['NIFTY', 'BANKNIFTY', 'FINNIFTY', 'MIDCPNIFTY'];
 
-    async function fetchAPI(path) { 
-        try { 
-            // 1. Try Local First (fast-fail in 300ms)
-            const r = await fetch(`${API_LOCAL}${path}`, { signal: AbortSignal.timeout(LOCAL_TIMEOUT) });
-            const data = await r.json();
-            isCloudMode = false;
-            updateCloudBadge();
-            return data;
-        } catch (e) { 
-            // 2. Fallback to Cloud (R2)
-            try {
-                let cloudPath = '';
-                if (path.includes('/api/chain'))           cloudPath = `/${currentSym}/latest.json`;
-                else if (path.includes('/api/screener'))   cloudPath = `/${currentSym}/signals.json`;
-                else if (path.includes('/api/status'))     cloudPath = `/${currentSym}/meta.json`;
-                else if (path.includes('/api/signal_history')) cloudPath = `/${currentSym}/signals_log.json`;
-                else return null;
-
-                const r = await fetch(`${R2_BASE}${cloudPath}`);
-                if (!r.ok) return null;
-                const data = await r.json();
-                isCloudMode = true;
-                updateCloudBadge();
-                return data;
-            } catch (ce) {
-                return null;
-            }
-        } 
-    }
-
-    function updateCloudBadge() {
-        const badge = document.querySelector('.status-badge');
-        if (isCloudMode) {
-            badge.innerHTML = '<div class="status-dot" style="background:var(--accent); box-shadow:0 0 8px var(--accent)"></div> CLOUD DATA ACTIVE';
-            badge.style.borderColor = 'var(--accent)';
-            badge.style.color = 'var(--accent)';
-        } else {
-            badge.innerHTML = '<div class="status-dot"></div> LOCAL SERVER ACTIVE';
-            badge.style.borderColor = 'var(--green)';
-            badge.style.color = 'var(--green)';
+    async function r2Fetch(path) {
+        try {
+            const r = await fetch(`${R2}${path}`);
+            if (!r.ok) return null;
+            return await r.json();
+        } catch(e) {
+            return null;
         }
     }
-    function format(n, d = 0) { if (!n && n !== 0) return '--'; return n.toLocaleString('en-IN', { minimumFractionDigits: d, maximumFractionDigits: d }); }
+
+    function format(n, d=0) {
+        if (n == null || n === '') return '--';
+        const num = Number(n);
+        if (isNaN(num)) return '--';
+        return num.toLocaleString('en-IN', {minimumFractionDigits:d, maximumFractionDigits:d});
+    }
+
+    function showError(show) {
+        document.getElementById('err-banner').style.display = show ? 'block' : 'none';
+    }
 
     async function updateStatus() {
-        const data = await fetchAPI('/api/status');
+        const data = await r2Fetch('/meta.json');
         if (!data) return;
-        // Local server response
-        if (data.ok) {
-            if (data.vix) document.getElementById('vix-val').innerText = `${data.vix.value}%`;
-            if (data.market) document.getElementById('market-time').innerText = data.market.time_ist;
-            if (data.cached && JSON.stringify(data.cached) !== JSON.stringify(availableSyms)) { 
-                availableSyms = data.cached; 
-                renderSymbolPills(); 
-            }
-        }
-        // Cloud meta.json response (different structure)
-        if (data.syms) {
-            if (JSON.stringify(data.syms) !== JSON.stringify(availableSyms)) {
-                availableSyms = data.syms;
-                renderSymbolPills();
-            }
-            if (data.vix) document.getElementById('vix-val').innerText = `${data.vix}%`;
-            if (data.ts) document.getElementById('market-time').innerText = data.ts;
-        }
-    }
-
-    function renderSymbolPills() {
-        const primary = ['NIFTY', 'BANKNIFTY', 'FINNIFTY', 'MIDCPNIFTY'];
-        const indicesPills = document.getElementById('indices-pills');
-        const stocksPills = document.getElementById('stocks-pills');
-        indicesPills.innerHTML = availableSyms.filter(s => primary.includes(s)).map(s => `<div class="index-btn ${s === currentSym ? 'active' : ''}" onclick="switchSym('${s}')">${s}</div>`).join('');
-        stocksPills.innerHTML = availableSyms.filter(s => !primary.includes(s)).map(s => `<div class="symbol-pill ${s === currentSym ? 'active' : ''}" onclick="switchSym('${s}')">${s}</div>`).join('');
-    }
-
-    async function updateHistory() {
-        const data = await fetchAPI('/api/signal_history');
-        if (!data) return;
-        // Support both local (data.history) and cloud (data.signals) format
-        const history = data.history || (data.signals ? data.signals.map(s => ({
-            ts: s.ts || '', sym: s.sym || currentSym, strike: s.atm || '',
-            side: s.direction === 'BULLISH' ? 'CE' : 'PE', score: s.score || 0
-        })) : []);
-        if (history.length) {
-            document.getElementById('history-panel').innerHTML = history.map(h => `
-                <div class="hist-item ${h.side}">
-                    <div class="hist-time">${h.ts}</div>
-                    <div class="hist-info">
-                        <div class="hist-sym">${h.sym} ${h.strike}</div>
-                        <div class="hist-side-badge ${h.side === 'CE' ? 'bg-ce' : 'bg-pe'}">
-                            ${h.side === 'CE' ? 'BULL' : 'BEAR'}
-                        </div>
-                    </div>
-                    <div class="hist-score-wrap">
-                        <div class="hist-score">${h.score}</div>
-                    </div>
-                </div>
-            `).join('');
+        if (data.vix) document.getElementById('vix-val').innerText = `${data.vix}%`;
+        if (data.ts) document.getElementById('market-time').innerText = data.ts;
+        if (data.syms && JSON.stringify(data.syms) !== JSON.stringify(availableSyms)) {
+            availableSyms = data.syms;
+            renderSymbolPills();
         }
     }
 
     async function loadData() {
-        const exp = document.getElementById('expiry-select').value;
-        const focusMode = document.getElementById('show-all-chk').checked;
-        const data = await fetchAPI(`/api/chain?symbol=${currentSym}${exp ? '&expiry=' + exp : ''}`);
-        if (data && data.ok) {
-            if (data.timestamp) {
-                const timePart = data.timestamp.includes(' ') ? data.timestamp.split(' ')[1] : data.timestamp;
-                document.getElementById('last-fetch-time').innerText = timePart;
-            }
-            document.getElementById('spot-display').innerText = format(data.spot, 2);
-            document.getElementById('pcr-val').innerText = data.pcr;
-            document.getElementById('mp-val').innerText = format(data.max_pain);
-            document.getElementById('res-val').innerText = format(data.ce_wall);
-            document.getElementById('sup-val').innerText = format(data.pe_wall);
-            const badge = document.getElementById('bias-badge');
-            badge.innerText = data.bias;
-            badge.style.color = data.bias === 'BULLISH' ? 'var(--green)' : (data.bias === 'BEARISH' ? 'var(--red)' : 'var(--text-dim)');
-            
-            if (data.expiries) {
-                const sel = document.getElementById('expiry-select');
-                const cur = sel.value;
-                sel.innerHTML = data.expiries.map(e => `<option value="${e}" ${e === data.expiry ? 'selected' : ''}>${e}</option>`).join('');
-            }
+        const data = await r2Fetch(`/${currentSym}/latest.json`);
+        if (!data || !data.symbol) { showError(true); return; }
+        showError(false);
 
-            let strikes = [...data.strikes].reverse();
-            if (focusMode) {
-                const atmIdx = strikes.findIndex(s => s.ATM === 'ATM');
-                if (atmIdx !== -1) strikes = strikes.slice(Math.max(0, atmIdx - 10), Math.min(strikes.length, atmIdx + 11));
-            }
-
-            const maxOI = Math.max(...data.strikes.map(s => Math.max(s.CE_OI, s.PE_OI)));
-            document.getElementById('chain-body').innerHTML = strikes.map(s => {
-                const ceBar = (s.CE_OI / maxOI) * 100;
-                const peBar = (s.PE_OI / maxOI) * 100;
-                const isATM = s.ATM === 'ATM';
-                const isCEWall = Number(s.K) === Number(data.ce_wall);
-                const isPEWall = Number(s.K) === Number(data.pe_wall);
-
-                return `<tr id="row-${s.K}" class="${isATM ? 'atm-row' : ''}">
-                    <td class="${s.K < data.spot ? 'itm-ce' : ''}">${s.CE_Delta.toFixed(2)}</td>
-                    <td class="${s.K < data.spot ? 'itm-ce' : ''}">${s.CE_Theta.toFixed(1)}</td>
-                    <td class="${s.K < data.spot ? 'itm-ce' : ''}">${s.CE_IV.toFixed(1)}</td>
-                    <td style="color:var(--green); font-weight:700">${s.CE_LTP}</td>
-                    <td style="color:${s.CE_COI >= 0 ? 'var(--green)' : 'var(--red)'}">${format(s.CE_COI)}</td>
-                    <td style="color:#fff; position:relative">
-                        ${format(s.CE_OI)}<div class="oi-bar-bg ce-oi-bar" style="width: ${ceBar}%"></div>
-                    </td>
-                    <td class="strike-col ${isATM ? 'atm-strike' : ''} ${isCEWall ? 'pulse-wall-ce' : ''} ${isPEWall ? 'pulse-wall-pe' : ''}">${s.K}</td>
-                    <td style="color:#fff; position:relative">
-                        <div class="oi-bar-bg pe-oi-bar" style="width: ${peBar}%"></div>${format(s.PE_OI)}
-                    </td>
-                    <td style="color:${s.PE_COI >= 0 ? 'var(--green)' : 'var(--red)'}">${format(s.PE_COI)}</td>
-                    <td style="color:var(--red); font-weight:700">${s.PE_LTP}</td>
-                    <td class="${s.K > data.spot ? 'itm-pe' : ''}">${s.PE_IV.toFixed(1)}</td>
-                    <td class="${s.K > data.spot ? 'itm-pe' : ''}">${s.PE_Theta.toFixed(1)}</td>
-                    <td class="${s.K > data.spot ? 'itm-pe' : ''}">${s.PE_Delta.toFixed(2)}</td>
-                </tr>`;
-            }).join('');
-            updateSignals();
+        if (data.timestamp) {
+            const tp = data.timestamp.includes(' ') ? data.timestamp.split(' ')[1] : data.timestamp;
+            document.getElementById('last-fetch-time').innerText = tp;
         }
+        document.getElementById('spot-display').innerText = format(data.spot, 2);
+        document.getElementById('pcr-val').innerText = data.pcr || '--';
+        document.getElementById('mp-val').innerText = format(data.max_pain);
+        document.getElementById('res-val').innerText = format(data.ce_wall);
+        document.getElementById('sup-val').innerText = format(data.pe_wall);
+
+        const badge = document.getElementById('bias-badge');
+        badge.innerText = data.bias || '--';
+        badge.style.color = data.bias === 'BULLISH' ? 'var(--green)' : data.bias === 'BEARISH' ? 'var(--red)' : 'var(--text-dim)';
+
+        if (data.expiries) {
+            document.getElementById('expiry-select').innerHTML = data.expiries.map(e =>
+                `<option value="${e}" ${e === data.expiry ? 'selected' : ''}>${e}</option>`).join('');
+        }
+
+        const focusMode = document.getElementById('show-all-chk').checked;
+        let strikes = [...data.strikes].reverse();
+        if (focusMode) {
+            const atmIdx = strikes.findIndex(s => s.ATM === 'ATM');
+            if (atmIdx !== -1) strikes = strikes.slice(Math.max(0, atmIdx-10), Math.min(strikes.length, atmIdx+11));
+        }
+
+        const maxOI = Math.max(...data.strikes.map(s => Math.max(s.CE_OI||0, s.PE_OI||0)), 1);
+        document.getElementById('chain-body').innerHTML = strikes.map(s => {
+            const ceBar = ((s.CE_OI||0) / maxOI) * 100;
+            const peBar = ((s.PE_OI||0) / maxOI) * 100;
+            const isATM = s.ATM === 'ATM';
+            const isCEWall = Number(s.K) === Number(data.ce_wall);
+            const isPEWall = Number(s.K) === Number(data.pe_wall);
+            return `<tr id="row-${s.K}" class="${isATM ? 'atm-row' : ''}">
+                <td class="${s.K < data.spot ? 'itm-ce' : ''}">${(s.CE_Delta||0).toFixed(2)}</td>
+                <td class="${s.K < data.spot ? 'itm-ce' : ''}">${(s.CE_Theta||0).toFixed(1)}</td>
+                <td class="${s.K < data.spot ? 'itm-ce' : ''}">${(s.CE_IV||0).toFixed(1)}</td>
+                <td style="color:var(--green);font-weight:700">${s.CE_LTP||'--'}</td>
+                <td style="color:${(s.CE_COI||0) >= 0 ? 'var(--green)' : 'var(--red)'}">${format(s.CE_COI)}</td>
+                <td style="color:#fff;position:relative">${format(s.CE_OI)}<div class="oi-bar-bg ce-oi-bar" style="width:${ceBar}%"></div></td>
+                <td class="strike-col ${isATM ? 'atm-strike' : ''} ${isCEWall ? 'pulse-wall-ce' : ''} ${isPEWall ? 'pulse-wall-pe' : ''}">${s.K}</td>
+                <td style="color:#fff;position:relative"><div class="oi-bar-bg pe-oi-bar" style="width:${peBar}%"></div>${format(s.PE_OI)}</td>
+                <td style="color:${(s.PE_COI||0) >= 0 ? 'var(--green)' : 'var(--red)'}">${format(s.PE_COI)}</td>
+                <td style="color:var(--red);font-weight:700">${s.PE_LTP||'--'}</td>
+                <td class="${s.K > data.spot ? 'itm-pe' : ''}">${(s.PE_IV||0).toFixed(1)}</td>
+                <td class="${s.K > data.spot ? 'itm-pe' : ''}">${(s.PE_Theta||0).toFixed(1)}</td>
+                <td class="${s.K > data.spot ? 'itm-pe' : ''}">${(s.PE_Delta||0).toFixed(2)}</td>
+            </tr>`;
+        }).join('');
+
+        await updateSignals();
     }
 
     async function updateSignals() {
-        const data = await fetchAPI(`/api/screener?symbol=${currentSym}&min_score=5`);
-        if (data && data.ok) {
-            document.getElementById('sig-count').innerText = data.signals.length;
-            document.getElementById('signal-container').innerHTML = data.signals.map(s => `
-                <div class="signal-card ${s.side === 'CE' ? 'BUY' : 'SELL'}" onclick="scrollToStrike(${s.strike})">
-                    <div class="sig-header">
-                        <div>
-                            <div class="sig-sym">${s.sym} ${s.strike}</div>
-                            <div style="display:flex; gap:6px; margin-top:4px; align-items:center;">
-                                <span style="font-size:10px; font-weight:900; padding:2px 8px; border-radius:4px; 
-                                    background:${s.side === 'CE' ? 'rgba(0,255,159,0.15)' : 'rgba(255,45,85,0.15)'}; 
-                                    color:${s.side === 'CE' ? 'var(--green)' : 'var(--red)'};
-                                    border:1px solid ${s.side === 'CE' ? 'var(--green)' : 'var(--red)'}">
-                                    ${s.side}
-                                </span>
-                                <span style="font-size:9px; color:var(--text-dim); font-family:'JetBrains Mono'">${s.expiry || ''}</span>
-                            </div>
+        const data = await r2Fetch(`/api/screener`);
+        if (!data) return;
+        const signals = data.signals || [];
+        document.getElementById('sig-count').innerText = signals.length;
+        document.getElementById('signal-container').innerHTML = signals.map(s => `
+            <div class="signal-card ${s.side === 'CE' ? 'BUY' : 'SELL'}" onclick="scrollToStrike(${s.strike})">
+                <div class="sig-header">
+                    <div>
+                        <div class="sig-sym">${s.sym} ${s.strike}</div>
+                        <div style="display:flex;gap:6px;margin-top:4px;align-items:center">
+                            <span style="font-size:10px;font-weight:900;padding:2px 8px;border-radius:4px;
+                                background:${s.side==='CE'?'rgba(0,255,159,0.15)':'rgba(255,45,85,0.15)'};
+                                color:${s.side==='CE'?'var(--green)':'var(--red)'};
+                                border:1px solid ${s.side==='CE'?'var(--green)':'var(--red)'}">
+                                ${s.side}
+                            </span>
+                            <span style="font-size:9px;color:var(--text-dim);font-family:'JetBrains Mono'">${s.expiry||''}</span>
                         </div>
-                        <div class="sig-score" style="color:${s.side === 'CE' ? 'var(--green)' : 'var(--red)'}">${s.score}</div>
                     </div>
-                    <div style="font-size:10px; color:var(--accent); font-weight:700; margin-top:6px">${s.conf}% CONF | LTP: ${s.ltp}</div>
-                    <div style="font-size:9px; color:var(--text-dim); margin-top:4px">${s.reason}</div>
+                    <div class="sig-score" style="color:${s.side==='CE'?'var(--green)':'var(--red)'}">${s.score}</div>
                 </div>
-            `).join('');
-        }
+                <div style="font-size:10px;color:var(--accent);font-weight:700;margin-top:6px">${s.conf||0}% CONF | LTP: ${s.ltp||'--'}</div>
+                <div style="font-size:9px;color:var(--text-dim);margin-top:4px">${s.reason||''}</div>
+            </div>`).join('');
+    }
+
+    async function updateHistory() {
+        const data = await r2Fetch(`/${currentSym}/signals_log.json`);
+        if (!data) return;
+        const history = data.history || (data.signals ? data.signals.map(s => ({
+            ts: s.ts||'', sym: s.sym||currentSym, strike: s.atm||'',
+            side: s.direction === 'BULLISH' ? 'CE' : 'PE', score: s.score||0
+        })) : []);
+        if (!history.length) return;
+        document.getElementById('history-panel').innerHTML = history.map(h => `
+            <div class="hist-item ${h.side}">
+                <div class="hist-time">${h.ts}</div>
+                <div class="hist-info">
+                    <div class="hist-sym">${h.sym} ${h.strike}</div>
+                    <div class="hist-side-badge ${h.side==='CE'?'bg-ce':'bg-pe'}">${h.side==='CE'?'BULL':'BEAR'}</div>
+                </div>
+                <div class="hist-score-wrap"><div class="hist-score">${h.score}</div></div>
+            </div>`).join('');
+    }
+
+    function renderSymbolPills() {
+        const primary = ['NIFTY','BANKNIFTY','FINNIFTY','MIDCPNIFTY'];
+        document.getElementById('indices-pills').innerHTML = availableSyms
+            .filter(s => primary.includes(s))
+            .map(s => `<div class="index-btn ${s===currentSym?'active':''}" onclick="switchSym('${s}')">${s}</div>`).join('');
+        document.getElementById('stocks-pills').innerHTML = availableSyms
+            .filter(s => !primary.includes(s))
+            .map(s => `<div class="symbol-pill ${s===currentSym?'active':''}" onclick="switchSym('${s}')">${s}</div>`).join('');
     }
 
     function switchSym(s) { currentSym = s; renderSymbolPills(); loadData(); }
-    function scrollToStrike(k) { const row = document.getElementById(`row-${k}`); if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-    async function init() { 
-        document.getElementById('show-all-chk').checked = true; // Default focus mode
-        await updateStatus(); 
-        renderSymbolPills(); 
-        await loadData(); 
-        await updateHistory(); 
-        setInterval(updateStatus, 10000); 
-        setInterval(loadData, 60000); 
-        setInterval(updateHistory, 30000); 
+    function scrollToStrike(k) { const row = document.getElementById(`row-${k}`); if(row) row.scrollIntoView({behavior:'smooth',block:'center'}); }
+
+    async function init() {
+        document.getElementById('show-all-chk').checked = true;
+        await updateStatus();
+        renderSymbolPills();
+        await loadData();
+        await updateHistory();
+        setInterval(updateStatus, 15000);
+        setInterval(loadData, 60000);
+        setInterval(updateHistory, 60000);
     }
     init();
 </script>

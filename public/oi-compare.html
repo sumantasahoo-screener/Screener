@@ -119,8 +119,8 @@ td{padding:2px 6px;vertical-align:middle}
   <div class="ctrl"><label>T1</label><select id="t1-sel"><option value="">09:15</option></select></div>
   <div class="ctrl"><label>T2</label><select id="t2-sel"><option value="">11:30</option></select></div>
   <button class="btn-cmp" onclick="loadCompare()">COMPARE</button>
-  <button class="btn-live on" id="live-btn" onclick="toggleLive()">● LIVE</button>
-  <div id="src">LOCAL</div>
+  <button class="btn-live on" id="live-btn" onclick="toggleLive()">● AUTO FETCH</button>
+  <div id="src">☁️ CLOUD</div>
 </div>
 
 <!-- Stats -->
@@ -168,7 +168,7 @@ td{padding:2px 6px;vertical-align:middle}
 </div>
 
 <script>
-const LOCAL='http://localhost:5000', R2='https://pub-7381e1c00b8f43138d4f7ef3b96d862d.r2.dev';
+const R2='https://pub-7381e1c00b8f43138d4f7ef3b96d862d.r2.dev';
 let liveMode=true, liveTimer=null;
 
 window.onload=()=>{
@@ -178,31 +178,27 @@ window.onload=()=>{
 
 async function loadSymbols(){
   try{
-    const r=await fetch(LOCAL+'/api/symbols',{signal:AbortSignal.timeout(3000)});
+    const r=await fetch(R2+'/meta.json');
+    if(!r.ok) return;
     const d=await r.json();
     const IDX=['NIFTY','BANKNIFTY','FINNIFTY','MIDCPNIFTY','SENSEX'];
     const g=document.getElementById('stk-grp');
-    (d.all||[]).filter(s=>!IDX.includes(s)).sort().forEach(s=>{const o=document.createElement('option');o.value=o.textContent=s;g.appendChild(o);});
+    g.innerHTML=''; // Clear existing options
+    (d.syms||[]).filter(s=>!IDX.includes(s)).sort().forEach(s=>{const o=document.createElement('option');o.value=o.textContent=s;g.appendChild(o);});
   }catch(e){}
 }
 
 async function checkMarket(){
-  try{
-    const r=await fetch(LOCAL+'/api/market_status',{signal:AbortSignal.timeout(3000)});
-    const d=await r.json();
-    if(d.is_holiday)document.getElementById('hbanner').style.display='block';
-    if(d.date_iso){document.getElementById('date-sel').value=d.date_iso;loadList();}
-  }catch(e){setSrc('☁️ R2','#00d2ff');}
+  setSrc('☁️ CLOUD','#00d2ff');
 }
 
-function setSrc(t,c='#556'){const b=document.getElementById('src');b.textContent=t;b.style.color=c;b.style.borderColor=c;}
+function setSrc(t,c='#556'){const b=document.getElementById('src');if(b){b.textContent=t;b.style.color=c;b.style.borderColor=c;}}
 
 async function loadList(){
   const sym=document.getElementById('sym-sel').value, date=document.getElementById('date-sel').value;
   let ts=[];
-  try{const r=await fetch(`${LOCAL}/api/history_list?symbol=${sym}&date=${date}`,{signal:AbortSignal.timeout(3000)});const d=await r.json();if(d.ok)ts=d.timestamps||[];}catch(e){
-    try{const r=await fetch(`${R2}/${sym}/${date}/index.json`);if(r.ok){const d=await r.json();ts=d.timestamps||[];}}catch(e2){}
-  }
+  try{const r=await fetch(`${R2}/${sym}/${date}/index.json`);if(r.ok){const d=await r.json();ts=d.timestamps||[];}}catch(e){}
+  
   const t1=document.getElementById('t1-sel'),t2=document.getElementById('t2-sel');
   t1.innerHTML='<option value="">-- Latest --</option>';
   t2.innerHTML='<option value="">-- None --</option>';
@@ -223,12 +219,10 @@ async function loadCompare(){
 
 async function fetchSnap(sym,date,tk){
   if(!tk){
-    try{const r=await fetch(`${LOCAL}/api/chain?symbol=${sym}`,{signal:AbortSignal.timeout(3000)});const d=await r.json();if(d.ok){setSrc('🖥 LOCAL','#00e676');return d;}}catch(e){}
-    try{const r=await fetch(`${R2}/${sym}/latest.json`);if(r.ok){setSrc('☁️ R2');return await r.json();}}catch(e){}
+    try{const r=await fetch(`${R2}/${sym}/latest.json`);if(r.ok){setSrc('☁️ LATEST','#00d2ff');return await r.json();}}catch(e){}
     return null;
   }
-  try{const r=await fetch(`${R2}/${sym}/${date}/${tk}.json`);if(r.ok){setSrc(`☁️ R2 ${tk.replace('-',':')}`);;return await r.json();}}catch(e){}
-  try{const r=await fetch(`${LOCAL}/api/chain?symbol=${sym}`,{signal:AbortSignal.timeout(3000)});const d=await r.json();if(d.ok){setSrc('🖥 LOCAL','#00e676');return d;}}catch(e){}
+  try{const r=await fetch(`${R2}/${sym}/${date}/${tk}.json`);if(r.ok){setSrc(`☁️ R2 ${tk.replace('-',':')}`,'#00d2ff');return await r.json();}}catch(e){}
   return null;
 }
 
@@ -301,8 +295,7 @@ function updateStats(d){
 
 async function loadSignals(sym){
   let sigs=[];
-  try{const r=await fetch(`${LOCAL}/api/snapshot_signals?symbol=${sym}`,{signal:AbortSignal.timeout(2000)});const d=await r.json();if(d.ok)sigs=d.signals||[];}catch(e){}
-  if(!sigs.length){try{const r=await fetch(`${R2}/${sym}/signals_log.json`);if(r.ok){const d=await r.json();sigs=d.signals||[];}}catch(e){}}
+  try{const r=await fetch(`${R2}/${sym}/signals_log.json`);if(r.ok){const d=await r.json();sigs=d.signals||[];}}catch(e){}
   const g=document.getElementById('sig-grid');
   if(!sigs.length){g.innerHTML='<div id="no-sig">No signals yet — appear after 2+ scan cycles</div>';return;}
   g.innerHTML=sigs.slice(0,9).map(s=>{
@@ -324,7 +317,7 @@ async function loadSignals(sym){
 function startLive(){
   liveMode=true;
   document.getElementById('live-btn').classList.add('on');
-  document.getElementById('live-btn').textContent='● LIVE';
+  document.getElementById('live-btn').textContent='● AUTO FETCH';
   clearInterval(liveTimer);
   loadCompare();
   liveTimer=setInterval(()=>{document.getElementById('t1-sel').value='';document.getElementById('t2-sel').value='';loadList();loadCompare();},60000);
