@@ -178,7 +178,7 @@ window.onload=()=>{
 
 async function loadSymbols(){
   try{
-    const r=await fetch(R2+'/meta.json');
+    const r=await fetch(R2+'/meta.json?t='+Date.now());
     if(!r.ok) return;
     const d=await r.json();
     const IDX=['NIFTY','BANKNIFTY','FINNIFTY','MIDCPNIFTY','SENSEX'];
@@ -197,7 +197,7 @@ function setSrc(t,c='#556'){const b=document.getElementById('src');if(b){b.textC
 async function loadList(){
   const sym=document.getElementById('sym-sel').value, date=document.getElementById('date-sel').value;
   let ts=[];
-  try{const r=await fetch(`${R2}/${sym}/${date}/index.json`);if(r.ok){const d=await r.json();ts=d.timestamps||[];}}catch(e){}
+  try{const r=await fetch(`${R2}/${sym}/${date}/index.json?t=${Date.now()}`);if(r.ok){const d=await r.json();ts=d.timestamps||[];}}catch(e){}
   
   const t1=document.getElementById('t1-sel'),t2=document.getElementById('t2-sel');
   t1.innerHTML='<option value="">-- Latest --</option>';
@@ -219,10 +219,10 @@ async function loadCompare(){
 
 async function fetchSnap(sym,date,tk){
   if(!tk){
-    try{const r=await fetch(`${R2}/${sym}/latest.json`);if(r.ok){setSrc('☁️ LATEST','#00d2ff');return await r.json();}}catch(e){}
+    try{const r=await fetch(`${R2}/${sym}/latest.json?t=${Date.now()}`);if(r.ok){setSrc('☁️ LATEST','#00d2ff');return await r.json();}}catch(e){}
     return null;
   }
-  try{const r=await fetch(`${R2}/${sym}/${date}/${tk}.json`);if(r.ok){setSrc(`☁️ R2 ${tk.replace('-',':')}`,'#00d2ff');return await r.json();}}catch(e){}
+  try{const r=await fetch(`${R2}/${sym}/${date}/${tk}.json?t=${Date.now()}`);if(r.ok){setSrc(`☁️ R2 ${tk.replace('-',':')}`,'#00d2ff');return await r.json();}}catch(e){}
   return null;
 }
 
@@ -295,7 +295,7 @@ function updateStats(d){
 
 async function loadSignals(sym){
   let sigs=[];
-  try{const r=await fetch(`${R2}/${sym}/signals_log.json`);if(r.ok){const d=await r.json();sigs=d.signals||[];}}catch(e){}
+  try{const r=await fetch(`${R2}/${sym}/signals_log.json?t=${Date.now()}`);if(r.ok){const d=await r.json();sigs=d.signals||[];}}catch(e){}
   const g=document.getElementById('sig-grid');
   if(!sigs.length){g.innerHTML='<div id="no-sig">No signals yet — appear after 2+ scan cycles</div>';return;}
   g.innerHTML=sigs.slice(0,9).map(s=>{

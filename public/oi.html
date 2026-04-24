@@ -188,7 +188,8 @@
 
     async function r2Fetch(path) {
         try {
-            const r = await fetch(`${R2}${path}`);
+            const separator = path.includes('?') ? '&' : '?';
+            const r = await fetch(`${R2}${path}${separator}t=${Date.now()}`);
             if (!r.ok) return null;
             return await r.json();
         } catch(e) {
@@ -273,13 +274,37 @@
             </tr>`;
         }).join('');
 
-        await updateSignals();
+        await updateSignals(data);
     }
 
-    async function updateSignals() {
-        const data = await r2Fetch(`/api/screener`);
-        if (!data) return;
-        const signals = data.signals || [];
+    async function updateSignals(data) {
+        if (!data || !data.strikes) return;
+        const minScore = 5;
+        const minOi = 2000;
+        let signals = [];
+
+        data.strikes.forEach(s => {
+            if (s.CE_BuySc >= minScore && s.CE_OI >= minOi) {
+                signals.push({
+                    ts: data.timestamp ? data.timestamp.split(' ')[1] : '',
+                    sym: data.symbol, strike: s.K, side: 'CE', expiry: data.expiry,
+                    type: 'BUY', score: s.CE_BuySc, conf: s.CE_BuyConf,
+                    ltp: s.CE_LTP, iv: s.CE_IV, reason: s.CE_BuyReason
+                });
+            }
+            if (s.PE_BuySc >= minScore && s.PE_OI >= minOi) {
+                signals.push({
+                    ts: data.timestamp ? data.timestamp.split(' ')[1] : '',
+                    sym: data.symbol, strike: s.K, side: 'PE', expiry: data.expiry,
+                    type: 'BUY', score: s.PE_BuySc, conf: s.PE_BuyConf,
+                    ltp: s.PE_LTP, iv: s.PE_IV, reason: s.PE_BuyReason
+                });
+            }
+        });
+
+        // Sort by score descending
+        signals.sort((a, b) => b.score - a.score);
+
         document.getElementById('sig-count').innerText = signals.length;
         document.getElementById('signal-container').innerHTML = signals.map(s => `
             <div class="signal-card ${s.side === 'CE' ? 'BUY' : 'SELL'}" onclick="scrollToStrike(${s.strike})">
