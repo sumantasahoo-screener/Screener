@@ -311,24 +311,29 @@
     let currentSym = 'NIFTY';
     let availableSyms = ['NIFTY', 'BANKNIFTY'];
     let isCloudMode = false;
+    // Fast-fail timeout: 300ms so cloud switch is instant
+    const LOCAL_TIMEOUT = 300;
 
     async function fetchAPI(path) { 
         try { 
-            // 1. Try Local First
-            const r = await fetch(`${API_LOCAL}${path}`, { signal: AbortSignal.timeout(2000) });
+            // 1. Try Local First (fast-fail in 300ms)
+            const r = await fetch(`${API_LOCAL}${path}`, { signal: AbortSignal.timeout(LOCAL_TIMEOUT) });
             const data = await r.json();
             isCloudMode = false;
             updateCloudBadge();
             return data;
         } catch (e) { 
-            // 2. Fallback to Cloud (R2) if Local fails
+            // 2. Fallback to Cloud (R2)
             try {
                 let cloudPath = '';
-                if (path.includes('/api/chain')) cloudPath = `/${currentSym}/latest.json`;
-                else if (path.includes('/api/screener')) cloudPath = `/${currentSym}/signals.json`;
-                else return null; // Others not supported in cloud yet
+                if (path.includes('/api/chain'))           cloudPath = `/${currentSym}/latest.json`;
+                else if (path.includes('/api/screener'))   cloudPath = `/${currentSym}/signals.json`;
+                else if (path.includes('/api/status'))     cloudPath = `/${currentSym}/meta.json`;
+                else if (path.includes('/api/signal_history')) cloudPath = `/${currentSym}/signals_log.json`;
+                else return null;
 
                 const r = await fetch(`${R2_BASE}${cloudPath}`);
+                if (!r.ok) return null;
                 const data = await r.json();
                 isCloudMode = true;
                 updateCloudBadge();
@@ -355,13 +360,24 @@
 
     async function updateStatus() {
         const data = await fetchAPI('/api/status');
-        if (data && data.ok) {
+        if (!data) return;
+        // Local server response
+        if (data.ok) {
             if (data.vix) document.getElementById('vix-val').innerText = `${data.vix.value}%`;
-            document.getElementById('market-time').innerText = data.market.time_ist;
-            if (JSON.stringify(data.cached) !== JSON.stringify(availableSyms)) { 
+            if (data.market) document.getElementById('market-time').innerText = data.market.time_ist;
+            if (data.cached && JSON.stringify(data.cached) !== JSON.stringify(availableSyms)) { 
                 availableSyms = data.cached; 
                 renderSymbolPills(); 
             }
+        }
+        // Cloud meta.json response (different structure)
+        if (data.syms) {
+            if (JSON.stringify(data.syms) !== JSON.stringify(availableSyms)) {
+                availableSyms = data.syms;
+                renderSymbolPills();
+            }
+            if (data.vix) document.getElementById('vix-val').innerText = `${data.vix}%`;
+            if (data.ts) document.getElementById('market-time').innerText = data.ts;
         }
     }
 
@@ -375,8 +391,14 @@
 
     async function updateHistory() {
         const data = await fetchAPI('/api/signal_history');
-        if (data && data.ok) {
-            document.getElementById('history-panel').innerHTML = data.history.map(h => `
+        if (!data) return;
+        // Support both local (data.history) and cloud (data.signals) format
+        const history = data.history || (data.signals ? data.signals.map(s => ({
+            ts: s.ts || '', sym: s.sym || currentSym, strike: s.atm || '',
+            side: s.direction === 'BULLISH' ? 'CE' : 'PE', score: s.score || 0
+        })) : []);
+        if (history.length) {
+            document.getElementById('history-panel').innerHTML = history.map(h => `
                 <div class="hist-item ${h.side}">
                     <div class="hist-time">${h.ts}</div>
                     <div class="hist-info">
