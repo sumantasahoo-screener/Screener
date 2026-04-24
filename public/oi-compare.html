@@ -58,9 +58,9 @@ td{padding:2px 6px;vertical-align:middle}
 .td-chg{width:10%;text-align:center;padding:2px 4px}
 .chg-inner{display:flex;flex-direction:column;align-items:center;gap:2px}
 .chg-bar{height:9px;border-radius:2px;min-width:2px;transition:width .3s}
-.chg-bar.p{background:var(--g)}.chg-bar.n{background:var(--r)}
+.chg-bar.p{background:var(--g)}.chg-bar.n{background:#ffffff}
 .chg-val{font-size:10px;font-weight:600}
-.chg-val.p{color:var(--g)}.chg-val.n{color:var(--r)}
+.chg-val.p{color:var(--g)}.chg-val.n{color:#ffffff}
 
 /* Strike column */
 .td-sk{width:12%;text-align:center;padding:3px 6px}
@@ -276,10 +276,22 @@ function renderTable(d1,d2){
     const ceCOI=(ceCP?'+':'')+fmtN(s.CE_COI), peCOI=(peCP?'+':'')+fmtN(s.PE_COI);
     const ceBg = `linear-gradient(90deg,#00e676 ${cePct}%,rgba(0,230,118,.07) ${cePct}%)`;
     const peBg = `linear-gradient(270deg,#ff4560 ${pePct}%,rgba(255,69,96,.07) ${pePct}%)`;
-    const ceBg2 = s2 ? `linear-gradient(90deg,rgba(0,230,118,.35) ${(s2.CE_OI/mx*100).toFixed(1)}%,transparent ${(s2.CE_OI/mx*100).toFixed(1)}%)` : '';
-    const peBg2 = s2 ? `linear-gradient(270deg,rgba(255,69,96,.35) ${(s2.PE_OI/mx*100).toFixed(1)}%,transparent ${(s2.PE_OI/mx*100).toFixed(1)}%)` : '';
-    const ceFinalBg = s2 ? `${ceBg2},${ceBg}` : ceBg;
-    const peFinalBg = s2 ? `${peBg2},${peBg}` : peBg;
+    
+    let ceFinalBg, peFinalBg;
+    if (s2) {
+      const oCePct=(s2.CE_OI/mx*100).toFixed(1), oPePct=(s2.PE_OI/mx*100).toFixed(1);
+      const ceBg2 = s.CE_OI>=s2.CE_OI 
+        ? `linear-gradient(90deg,rgba(0,230,118,.35) ${oCePct}%,transparent ${oCePct}%)`
+        : `linear-gradient(90deg,transparent ${cePct}%,rgba(255,255,255,.8) ${cePct}%,rgba(255,255,255,.8) ${oCePct}%,transparent ${oCePct}%)`;
+      const peBg2 = s.PE_OI>=s2.PE_OI
+        ? `linear-gradient(270deg,rgba(255,69,96,.35) ${oPePct}%,transparent ${oPePct}%)`
+        : `linear-gradient(270deg,transparent ${pePct}%,rgba(255,255,255,.8) ${pePct}%,rgba(255,255,255,.8) ${oPePct}%,transparent ${oPePct}%)`;
+      ceFinalBg = `${ceBg2},${ceBg}`;
+      peFinalBg = `${peBg2},${peBg}`;
+    } else {
+      ceFinalBg = ceBg;
+      peFinalBg = peBg;
+    }
     const tr=document.createElement('tr');
     if(isATM)tr.className='atm-row';
     tr.innerHTML=`
