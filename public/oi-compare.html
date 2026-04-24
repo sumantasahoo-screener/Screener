@@ -170,6 +170,7 @@ td{padding:2px 6px;vertical-align:middle}
 <script>
 const R2='https://pub-7381e1c00b8f43138d4f7ef3b96d862d.r2.dev';
 let liveMode=true, liveTimer=null;
+let currentTimestamps=[];
 
 window.onload=()=>{
   document.getElementById('date-sel').value=new Date().toISOString().split('T')[0];
@@ -206,11 +207,36 @@ async function loadList(){
     return m >= (9*60+15) && m <= (15*60+33);
   });
 
-  const t1=document.getElementById('t1-sel'),t2=document.getElementById('t2-sel');
+  currentTimestamps = ts;
+  const t1=document.getElementById('t1-sel');
   t1.innerHTML='<option value="">-- Latest --</option>';
-  t2.innerHTML='<option value="">-- None --</option>';
-  ts.forEach(t=>{const hm=t.replace('-',':');t1.innerHTML+=`<option value="${t}">${hm}</option>`;t2.innerHTML+=`<option value="${t}">${hm}</option>`;});
-  if(ts.length>=2){t1.value=ts[0];t2.value=ts[ts.length-1];}
+  ts.forEach(t=>{const hm=t.replace('-',':');t1.innerHTML+=`<option value="${t}">${hm}</option>`;});
+  if(ts.length>=2){t1.value=ts[0];}
+  updateT2Options();
+}
+
+function updateT2Options() {
+  const t1v = document.getElementById('t1-sel').value;
+  const t2 = document.getElementById('t2-sel');
+  const oldT2v = t2.value;
+  
+  t2.innerHTML = '<option value="">-- None / Latest --</option>';
+  
+  let validTs = currentTimestamps;
+  if (t1v) validTs = currentTimestamps.filter(t => t > t1v);
+  
+  validTs.forEach(t => {
+    const hm = t.replace('-', ':');
+    t2.innerHTML += `<option value="${t}">${hm}</option>`;
+  });
+  
+  if (oldT2v && validTs.includes(oldT2v)) {
+    t2.value = oldT2v;
+  } else if (validTs.length > 0 && t1v) {
+    t2.value = validTs[validTs.length - 1];
+  } else {
+    t2.value = '';
+  }
 }
 
 async function loadCompare(){
@@ -346,6 +372,7 @@ function fmtCr(n){if(!n)return'--';if(n>=1e7)return(n/1e7).toFixed(2)+'Cr';if(n>
 
 document.getElementById('date-sel').addEventListener('change',loadList);
 document.getElementById('sym-sel').addEventListener('change',()=>{loadList();loadCompare();});
+document.getElementById('t1-sel').addEventListener('change', updateT2Options);
 </script>
 </body>
 </html>
