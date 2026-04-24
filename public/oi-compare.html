@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OI Compare Terminal | NSE</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a12;color:#e0e0e0;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;min-height:100vh;display:flex;flex-direction:column}
+:root{--g:#00e676;--r:#ff4560;--y:#f59e0b;--c:#00d2ff;--bg2:#111420;--bg3:#161926;--bdr:#1e2235}
+
+/* ── Header ── */
+#hdr{background:#111420;border-bottom:2px solid #1e2235;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{color:#00e676;font-size:16px;font-weight:900;letter-spacing:1px;line-height:1.1;margin-right:8px}
+.logo span{color:#00d2ff;display:block;font-size:11px;letter-spacing:3px;font-weight:400}
+.ctrl{display:flex;align-items:center;gap:5px}
+.ctrl label{color:#666;font-size:10px;letter-spacing:1px}
+select,input[type=date]{background:#0d0f1c;border:1px solid #2a2f4a;color:#e0e0e0;padding:5px 8px;border-radius:5px;font-size:11px;cursor:pointer;outline:none}
+select:focus,input:focus{border-color:var(--c)}
+#sym-sel{min-width:130px}
+.btn-cmp{background:var(--c);color:#050508;border:none;padding:6px 18px;border-radius:5px;font-weight:800;font-size:12px;cursor:pointer;letter-spacing:1px;transition:all .2s}
+.btn-cmp:hover{background:#00b8d9;transform:scale(1.04)}
+.btn-live{background:rgba(0,230,118,.12);border:1px solid var(--g);color:var(--g);padding:5px 12px;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer}
+.btn-live.on{background:var(--g);color:#050508}
+#src{margin-left:auto;font-size:10px;padding:3px 9px;border-radius:10px;border:1px solid #2a2f4a;color:#666}
+#hbanner{display:none;background:rgba(245,158,11,.1);border-bottom:1px solid var(--y);padding:5px 16px;color:var(--y);font-size:11px;text-align:center}
+
+/* ── Stats Card ── */
+#stats{background:#111420;border-bottom:2px solid #1e2235;padding:10px 16px;display:flex;gap:0}
+.st{flex:1;display:flex;flex-direction:column;align-items:center;padding:4px 8px;border-right:1px solid #1e2235}
+.st:last-child{border-right:none}
+.sl{font-size:9px;color:#555;letter-spacing:1.5px;margin-bottom:2px}
+.sv{font-size:16px;font-weight:800;letter-spacing:.5px}
+.sv.w{color:#fff}.sv.g{color:var(--g)}.sv.r{color:var(--r)}.sv.y{color:var(--y)}.sv.c{color:var(--c)}
+
+/* ── Main Table Area ── */
+#body{flex:1;overflow-y:auto;padding:10px 12px}
+#tbl-wrap table{width:100%;border-collapse:collapse;table-layout:fixed}
+thead th{background:#0d0f1c;color:#445;font-size:9px;letter-spacing:2px;padding:7px 8px;border-bottom:2px solid #1e2235;text-transform:uppercase;position:sticky;top:0;z-index:5}
+tbody tr{border-bottom:1px solid rgba(30,34,53,.5)}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+td{padding:2px 6px;vertical-align:middle}
+
+/* ATM row */
+.atm-row{background:rgba(245,158,11,.18) !important;border-top:2px solid var(--y) !important;border-bottom:2px solid var(--y) !important;box-shadow:0 0 12px rgba(245,158,11,.15) inset}
+.atm-row .ce-val{color:#ffd700 !important;font-size:13px}
+.atm-row .pe-val{color:#ffd700 !important;font-size:13px}
+.atm-row .ce-bar{background:#ffd700 !important;box-shadow:0 0 10px rgba(255,215,0,.5) !important}
+.atm-row .pe-bar{background:#ffd700 !important;box-shadow:0 0 10px rgba(255,215,0,.5) !important}
+
+/* CE OI column */
+.td-ce{width:30%}
+.ce-inner{display:flex;align-items:center;gap:6px;padding:3px 6px;height:26px}
+.ce-val{font-size:12px;font-weight:700;color:var(--g);white-space:nowrap;min-width:46px;text-align:right;flex-shrink:0}
+.ce-track{flex:1;height:18px;border-radius:0 3px 3px 0}
+
+/* CHG OI column */
+.td-chg{width:10%;text-align:center;padding:2px 4px}
+.chg-inner{display:flex;flex-direction:column;align-items:center;gap:2px}
+.chg-bar{height:9px;border-radius:2px;min-width:2px;transition:width .3s}
+.chg-bar.p{background:var(--g)}.chg-bar.n{background:var(--r)}
+.chg-val{font-size:10px;font-weight:600}
+.chg-val.p{color:var(--g)}.chg-val.n{color:var(--r)}
+
+/* Strike column */
+.td-sk{width:12%;text-align:center;padding:3px 6px}
+.sk-box{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:4px;padding:4px 8px;font-size:12px;font-weight:700;color:#f8c84a;display:inline-block;white-space:nowrap}
+.atm-row .sk-box{background:rgba(245,158,11,.35);border-color:var(--y);color:var(--y);box-shadow:0 0 10px rgba(245,158,11,.3)}
+
+/* PE OI column */
+.td-pe{width:30%}
+.pe-inner{display:flex;align-items:center;gap:6px;padding:3px 8px;height:26px}
+.pe-val{font-size:12px;font-weight:700;color:var(--r);white-space:nowrap;min-width:46px;text-align:left;flex-shrink:0}
+.pe-track{flex:1;height:18px;border-radius:3px 0 0 3px}
+.pe-bar{position:absolute;right:0;top:0;height:100%;background:var(--r);border-radius:3px 0 0 3px;box-shadow:0 0 6px rgba(255,69,96,.3);transition:width .4s}
+.pe-bar2{position:absolute;right:0;bottom:0;height:7px;background:rgba(255,69,96,.25);border-radius:2px 0 0 2px;transition:width .4s}
+
+/* Signals section */
+#signals-sec{background:#111420;border-top:2px solid #1e2235;padding:12px 16px}
+.sig-title{font-size:11px;letter-spacing:2px;color:#445;margin-bottom:10px;text-transform:uppercase}
+#sig-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.sc{border-radius:7px;padding:10px 12px;border:1px solid #1e2235;background:var(--bg3)}
+.sc.bull{border-color:rgba(0,230,118,.35);background:rgba(0,230,118,.05)}
+.sc.bear{border-color:rgba(255,69,96,.35);background:rgba(255,69,96,.05)}
+.sc.neut{border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.05)}
+.sc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.sc-dir{font-size:12px;font-weight:800;letter-spacing:.5px}
+.sc-dir.bull{color:var(--g)}.sc-dir.bear{color:var(--r)}.sc-dir.neut{color:var(--y)}
+.sc-sc{font-size:10px;background:rgba(255,255,255,.06);border-radius:8px;padding:1px 8px;color:#888}
+.sc-ts{font-size:9px;color:#444;margin-bottom:5px}
+.sc-rsn{font-size:10px;color:#999;line-height:1.6}
+.sc-spt{font-size:10px;color:#bbb;margin-top:4px;border-top:1px solid rgba(255,255,255,.05);padding-top:4px}
+#no-sig{text-align:center;padding:20px;color:#555;font-size:11px;grid-column:1/-1}
+
+/* Loading */
+#loading{text-align:center;padding:50px;color:#555}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:#0a0a12}
+::-webkit-scrollbar-thumb{background:#1e2235;border-radius:2px}
+</style>
+</head>
+<body>
+
+<div id="hbanner">🚫 NSE Holiday — No snapshots will be saved today.</div>
+
+<!-- Header -->
+<div id="hdr">
+  <a href="oi.html" title="Back to Main Terminal" style="background:rgba(0,210,255,.1);border:1px solid rgba(0,210,255,.3);color:#00d2ff;padding:5px 11px;border-radius:4px;font-size:11px;font-weight:bold;text-decoration:none;white-space:nowrap">← MAIN</a>
+  <div class="logo">OI COMPARE<span>TERMINAL</span></div>
+  <div class="ctrl">
+    <select id="sym-sel">
+      <optgroup label="── INDICES ──">
+        <option>NIFTY</option><option>BANKNIFTY</option><option>FINNIFTY</option><option>MIDCPNIFTY</option>
+      </optgroup>
+      <optgroup label="── F&amp;O STOCKS ──" id="stk-grp"></optgroup>
+    </select>
+  </div>
+  <div class="ctrl"><input type="date" id="date-sel"></div>
+  <div class="ctrl"><label>T1</label><select id="t1-sel"><option value="">09:15</option></select></div>
+  <div class="ctrl"><label>T2</label><select id="t2-sel"><option value="">11:30</option></select></div>
+  <button class="btn-cmp" onclick="loadCompare()">COMPARE</button>
+  <button class="btn-live on" id="live-btn" onclick="toggleLive()">● LIVE</button>
+  <div id="src">LOCAL</div>
+</div>
+
+<!-- Stats -->
+<div id="stats">
+  <div class="st"><div class="sl">SPOT</div><div class="sv w" id="s-spot">--</div></div>
+  <div class="st"><div class="sl">CE OI</div><div class="sv g" id="s-ceoi">--</div></div>
+  <div class="st"><div class="sl">PE OI</div><div class="sv r" id="s-peoi">--</div></div>
+  <div class="st"><div class="sl">PCR</div><div class="sv y" id="s-pcr">--</div></div>
+  <div class="st"><div class="sl">MAX CE @</div><div class="sv r" id="s-cew">--</div></div>
+  <div class="st"><div class="sl">MAX PE @</div><div class="sv g" id="s-pew">--</div></div>
+  <div class="st"><div class="sl">BIAS</div><div class="sv c" id="s-bias">--</div></div>
+  <div class="st"><div class="sl">TIME</div><div class="sv w" id="s-ts" style="font-size:13px">--</div></div>
+</div>
+
+<!-- Table -->
+<div id="body">
+  <div id="loading">⏳ Loading data…</div>
+  <div id="tbl-wrap" style="display:none">
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:right">CE OI</th>
+          <th>CHANGE IN OI</th>
+          <th>STRIKE</th>
+          <th>CHANGE IN OI</th>
+          <th style="text-align:left">PE OI</th>
+        </tr>
+      </thead>
+      <tbody id="oi-tbody"></tbody>
+      <tfoot>
+        <tr>
+          <th style="text-align:right;color:#333;font-size:9px;padding-top:5px">RIGHT</th>
+          <th></th><th style="color:#333;font-size:9px;padding-top:5px">STRIKE</th><th></th>
+          <th style="text-align:left;color:#333;font-size:9px;padding-top:5px">LEFT</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- Signals -->
+<div id="signals-sec">
+  <div class="sig-title">📡 Snapshot Signals</div>
+  <div id="sig-grid"><div id="no-sig">No signals yet — appear after 2+ scan cycles</div></div>
+</div>
+
+<script>
+const LOCAL='http://localhost:5000', R2='https://pub-7381e1c00b8f43138d4f7ef3b96d862d.r2.dev';
+let liveMode=true, liveTimer=null;
+
+window.onload=()=>{
+  document.getElementById('date-sel').value=new Date().toISOString().split('T')[0];
+  loadSymbols(); checkMarket(); loadList(); startLive();
+};
+
+async function loadSymbols(){
+  try{
+    const r=await fetch(LOCAL+'/api/symbols',{signal:AbortSignal.timeout(3000)});
+    const d=await r.json();
+    const IDX=['NIFTY','BANKNIFTY','FINNIFTY','MIDCPNIFTY','SENSEX'];
+    const g=document.getElementById('stk-grp');
+    (d.all||[]).filter(s=>!IDX.includes(s)).sort().forEach(s=>{const o=document.createElement('option');o.value=o.textContent=s;g.appendChild(o);});
+  }catch(e){}
+}
+
+async function checkMarket(){
+  try{
+    const r=await fetch(LOCAL+'/api/market_status',{signal:AbortSignal.timeout(3000)});
+    const d=await r.json();
+    if(d.is_holiday)document.getElementById('hbanner').style.display='block';
+    if(d.date_iso){document.getElementById('date-sel').value=d.date_iso;loadList();}
+  }catch(e){setSrc('☁️ R2','#00d2ff');}
+}
+
+function setSrc(t,c='#556'){const b=document.getElementById('src');b.textContent=t;b.style.color=c;b.style.borderColor=c;}
+
+async function loadList(){
+  const sym=document.getElementById('sym-sel').value, date=document.getElementById('date-sel').value;
+  let ts=[];
+  try{const r=await fetch(`${LOCAL}/api/history_list?symbol=${sym}&date=${date}`,{signal:AbortSignal.timeout(3000)});const d=await r.json();if(d.ok)ts=d.timestamps||[];}catch(e){
+    try{const r=await fetch(`${R2}/${sym}/${date}/index.json`);if(r.ok){const d=await r.json();ts=d.timestamps||[];}}catch(e2){}
+  }
+  const t1=document.getElementById('t1-sel'),t2=document.getElementById('t2-sel');
+  t1.innerHTML='<option value="">-- Latest --</option>';
+  t2.innerHTML='<option value="">-- None --</option>';
+  ts.forEach(t=>{const hm=t.replace('-',':');t1.innerHTML+=`<option value="${t}">${hm}</option>`;t2.innerHTML+=`<option value="${t}">${hm}</option>`;});
+  if(ts.length>=2){t1.value=ts[0];t2.value=ts[ts.length-1];}
+}
+
+async function loadCompare(){
+  const sym=document.getElementById('sym-sel').value, date=document.getElementById('date-sel').value;
+  const t1v=document.getElementById('t1-sel').value, t2v=document.getElementById('t2-sel').value;
+  document.getElementById('loading').style.display='block';
+  document.getElementById('tbl-wrap').style.display='none';
+  const d1=await fetchSnap(sym,date,t1v);
+  if(!d1){document.getElementById('loading').textContent='❌ No data. Server running?';return;}
+  const d2=(t2v&&t2v!==t1v)?await fetchSnap(sym,date,t2v):null;
+  renderTable(d1,d2); updateStats(d1); loadSignals(sym);
+}
+
+async function fetchSnap(sym,date,tk){
+  if(!tk){
+    try{const r=await fetch(`${LOCAL}/api/chain?symbol=${sym}`,{signal:AbortSignal.timeout(3000)});const d=await r.json();if(d.ok){setSrc('🖥 LOCAL','#00e676');return d;}}catch(e){}
+    try{const r=await fetch(`${R2}/${sym}/latest.json`);if(r.ok){setSrc('☁️ R2');return await r.json();}}catch(e){}
+    return null;
+  }
+  try{const r=await fetch(`${R2}/${sym}/${date}/${tk}.json`);if(r.ok){setSrc(`☁️ R2 ${tk.replace('-',':')}`);;return await r.json();}}catch(e){}
+  try{const r=await fetch(`${LOCAL}/api/chain?symbol=${sym}`,{signal:AbortSignal.timeout(3000)});const d=await r.json();if(d.ok){setSrc('🖥 LOCAL','#00e676');return d;}}catch(e){}
+  return null;
+}
+
+function renderTable(d1,d2){
+  if(!d1?.strikes)return;
+  const s2map=d2?Object.fromEntries((d2.strikes||[]).map(s=>[s.K,s])):{};
+  const ai=d1.strikes.findIndex(s=>s.ATM==='ATM');
+  const filt=ai>=0?d1.strikes.slice(Math.max(0,ai-10),ai+11):d1.strikes;
+  let mx=1,mxC=1;
+  filt.forEach(s=>{mx=Math.max(mx,s.CE_OI,s.PE_OI);mxC=Math.max(mxC,Math.abs(s.CE_COI),Math.abs(s.PE_COI));});
+  const tbody=document.getElementById('oi-tbody');
+  tbody.innerHTML='';
+  filt.slice().reverse().forEach(s=>{
+    const isATM=s.ATM==='ATM', s2=s2map[s.K];
+    const cePct=(s.CE_OI/mx*100).toFixed(1), pePct=(s.PE_OI/mx*100).toFixed(1);
+    const ceCPct=(Math.abs(s.CE_COI)/mxC*90).toFixed(1), peCPct=(Math.abs(s.PE_COI)/mxC*90).toFixed(1);
+    const ceCP=s.CE_COI>=0, peCP=s.PE_COI>=0;
+    const ceCOI=(ceCP?'+':'')+fmtN(s.CE_COI), peCOI=(peCP?'+':'')+fmtN(s.PE_COI);
+    const ceBg = `linear-gradient(90deg,#00e676 ${cePct}%,rgba(0,230,118,.07) ${cePct}%)`;
+    const peBg = `linear-gradient(270deg,#ff4560 ${pePct}%,rgba(255,69,96,.07) ${pePct}%)`;
+    const ceBg2 = s2 ? `linear-gradient(90deg,rgba(0,230,118,.35) ${(s2.CE_OI/mx*100).toFixed(1)}%,transparent ${(s2.CE_OI/mx*100).toFixed(1)}%)` : '';
+    const peBg2 = s2 ? `linear-gradient(270deg,rgba(255,69,96,.35) ${(s2.PE_OI/mx*100).toFixed(1)}%,transparent ${(s2.PE_OI/mx*100).toFixed(1)}%)` : '';
+    const ceFinalBg = s2 ? `${ceBg2},${ceBg}` : ceBg;
+    const peFinalBg = s2 ? `${peBg2},${peBg}` : peBg;
+    const tr=document.createElement('tr');
+    if(isATM)tr.className='atm-row';
+    tr.innerHTML=`
+      <td class="td-ce">
+        <div class="ce-inner">
+          <span class="ce-val">${fmtN(s.CE_OI)}</span>
+          <div class="ce-track" style="background:${ceFinalBg}"></div>
+        </div>
+      </td>
+      <td class="td-chg">
+        <div class="chg-inner">
+          <div class="chg-bar ${ceCP?'p':'n'}" style="width:${ceCPct}%"></div>
+          <span class="chg-val ${ceCP?'p':'n'}">${ceCOI}</span>
+        </div>
+      </td>
+      <td class="td-sk"><div class="sk-box">${s.K.toLocaleString('en-IN')}</div></td>
+      <td class="td-chg">
+        <div class="chg-inner">
+          <div class="chg-bar ${peCP?'p':'n'}" style="width:${peCPct}%"></div>
+          <span class="chg-val ${peCP?'p':'n'}">${peCOI}</span>
+        </div>
+      </td>
+      <td class="td-pe">
+        <div class="pe-inner">
+          <div class="pe-track" style="background:${peFinalBg}"></div>
+          <span class="pe-val">${fmtN(s.PE_OI)}</span>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('loading').style.display='none';
+  document.getElementById('tbl-wrap').style.display='block';
+}
+
+function updateStats(d){
+  document.getElementById('s-spot').textContent=d.spot?d.spot.toLocaleString('en-IN'):'--';
+  document.getElementById('s-ceoi').textContent=fmtCr(d.total_ce_oi);
+  document.getElementById('s-peoi').textContent=fmtCr(d.total_pe_oi);
+  document.getElementById('s-pcr').textContent=d.pcr||'--';
+  document.getElementById('s-cew').textContent=d.ce_wall?d.ce_wall.toLocaleString('en-IN'):'--';
+  document.getElementById('s-pew').textContent=d.pe_wall?d.pe_wall.toLocaleString('en-IN'):'--';
+  document.getElementById('s-bias').textContent=d.bias||'--';
+  const ts=(d.timestamp||'').split(' ');
+  document.getElementById('s-ts').textContent=ts[1]||ts[0]||'--';
+}
+
+async function loadSignals(sym){
+  let sigs=[];
+  try{const r=await fetch(`${LOCAL}/api/snapshot_signals?symbol=${sym}`,{signal:AbortSignal.timeout(2000)});const d=await r.json();if(d.ok)sigs=d.signals||[];}catch(e){}
+  if(!sigs.length){try{const r=await fetch(`${R2}/${sym}/signals_log.json`);if(r.ok){const d=await r.json();sigs=d.signals||[];}}catch(e){}}
+  const g=document.getElementById('sig-grid');
+  if(!sigs.length){g.innerHTML='<div id="no-sig">No signals yet — appear after 2+ scan cycles</div>';return;}
+  g.innerHTML=sigs.slice(0,9).map(s=>{
+    const dir=(s.direction||'NEUTRAL').toLowerCase();
+    const cls=dir==='bullish'?'bull':dir==='bearish'?'bear':'neut';
+    const em=cls==='bull'?'😊👍':cls==='bear'?'😔':'😐';
+    return `<div class="sc ${cls}">
+      <div class="sc-top">
+        <span class="sc-dir ${cls}">${s.direction||'NEUTRAL'} ${em}</span>
+        <span class="sc-sc">Score ${s.score>=0?'+':''}${s.score}</span>
+      </div>
+      <div class="sc-ts">${s.sym||''} | ${s.ts||''} | ATM: ${s.atm||'--'}</div>
+      <div class="sc-rsn">${(s.reasons||[]).slice(0,3).map(r=>`• ${r}`).join('<br>')}</div>
+      <div class="sc-spt">Spot: ${s.spot||'--'} &nbsp;|&nbsp; PCR: ${s.pcr||'--'} → ${s.pcr_prev||'--'}</div>
+    </div>`;
+  }).join('');
+}
+
+function startLive(){
+  liveMode=true;
+  document.getElementById('live-btn').classList.add('on');
+  document.getElementById('live-btn').textContent='● LIVE';
+  clearInterval(liveTimer);
+  loadCompare();
+  liveTimer=setInterval(()=>{document.getElementById('t1-sel').value='';document.getElementById('t2-sel').value='';loadList();loadCompare();},60000);
+}
+function toggleLive(){
+  if(liveMode){liveMode=false;clearInterval(liveTimer);document.getElementById('live-btn').classList.remove('on');document.getElementById('live-btn').textContent='⏸ PAUSED';}
+  else startLive();
+}
+
+function fmtN(n){
+  if(n==null)return'--';
+  const a=Math.abs(n),s=n<0?'-':'';
+  if(a>=1e7)return s+(a/1e7).toFixed(2)+'Cr';
+  if(a>=1e5)return s+(a/1e5).toFixed(1)+'L';
+  if(a>=1e3)return s+(a/1e3).toFixed(1)+'K';
+  return s+Math.round(a);
+}
+function fmtCr(n){if(!n)return'--';if(n>=1e7)return(n/1e7).toFixed(2)+'Cr';if(n>=1e5)return(n/1e5).toFixed(1)+'L';return n.toLocaleString('en-IN');}
+
+document.getElementById('date-sel').addEventListener('change',loadList);
+document.getElementById('sym-sel').addEventListener('change',()=>{loadList();loadCompare();});
+</script>
+</body>
+</html>
