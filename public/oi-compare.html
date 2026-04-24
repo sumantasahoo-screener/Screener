@@ -199,6 +199,13 @@ async function loadList(){
   let ts=[];
   try{const r=await fetch(`${R2}/${sym}/${date}/index.json?t=${Date.now()}`);if(r.ok){const d=await r.json();ts=d.timestamps||[];}}catch(e){}
   
+  ts = ts.filter(t => {
+    const p = t.split('-');
+    if(p.length!==2) return false;
+    const m = parseInt(p[0], 10)*60 + parseInt(p[1], 10);
+    return m >= (9*60+15) && m <= (15*60+33);
+  });
+
   const t1=document.getElementById('t1-sel'),t2=document.getElementById('t2-sel');
   t1.innerHTML='<option value="">-- Latest --</option>';
   t2.innerHTML='<option value="">-- None --</option>';
