@@ -184,7 +184,8 @@
     // ═══════════════════════════════════════════
     const R2 = 'https://pub-7381e1c00b8f43138d4f7ef3b96d862d.r2.dev';
     let currentSym = 'NIFTY';
-    let availableSyms = ['NIFTY', 'BANKNIFTY', 'FINNIFTY', 'MIDCPNIFTY'];
+    let indicesList = ['NIFTY', 'BANKNIFTY', 'FINNIFTY', 'MIDCPNIFTY'];
+    let stocksList = [];
 
     async function r2Fetch(path) {
         try {
@@ -212,16 +213,30 @@
         const data = await r2Fetch('/meta.json');
         if (!data) return;
         if (data.vix) document.getElementById('vix-val').innerText = `${data.vix}%`;
-        if (data.ts) document.getElementById('market-time').innerText = data.ts;
-        if (data.syms && JSON.stringify(data.syms) !== JSON.stringify(availableSyms)) {
-            availableSyms = data.syms;
+        if (data.groups) {
+            indicesList = data.groups.indices || [];
+            stocksList = data.groups.stocks || [];
             renderSymbolPills();
         }
     }
 
-    async function loadData() {
+    function startClock() {
+        setInterval(() => {
+            const now = new Date();
+            const day = now.getDate().toString().padStart(2, '0');
+            const mon = now.toLocaleString('en-IN', { month: 'short' });
+            const yr = now.getFullYear();
+            const time = now.toLocaleTimeString('en-IN', { hour12: false });
+            document.getElementById('market-time').innerText = `${day}-${mon}-${yr} ${time}`;
+        }, 1000);
+    }
+
+    async function loadData(silent=false) {
         const data = await r2Fetch(`/${currentSym}/latest.json`);
-        if (!data || !data.symbol) { showError(true); return; }
+        if (!data || !data.symbol) { 
+            if(!silent) showError(true); 
+            return; 
+        }
         showError(false);
 
         if (data.timestamp) {
@@ -348,13 +363,14 @@
     }
 
     function renderSymbolPills() {
-        const primary = ['NIFTY','BANKNIFTY','FINNIFTY','MIDCPNIFTY'];
-        document.getElementById('indices-pills').innerHTML = availableSyms
-            .filter(s => primary.includes(s))
+        document.getElementById('indices-pills').innerHTML = indicesList
             .map(s => `<div class="index-btn ${s===currentSym?'active':''}" onclick="switchSym('${s}')">${s}</div>`).join('');
-        document.getElementById('stocks-pills').innerHTML = availableSyms
-            .filter(s => !primary.includes(s))
+        
+        let stockHtml = stocksList
             .map(s => `<div class="symbol-pill ${s===currentSym?'active':''}" onclick="switchSym('${s}')">${s}</div>`).join('');
+        
+        // If there are many stocks, we could also use a dropdown, but for now pills
+        document.getElementById('stocks-pills').innerHTML = stockHtml;
     }
 
     function switchSym(s) { currentSym = s; renderSymbolPills(); loadData(); }
@@ -366,9 +382,16 @@
         renderSymbolPills();
         await loadData();
         await updateHistory();
+        startClock(); // Start live ticking clock
+        
+        // Status update every 15s
         setInterval(updateStatus, 15000);
-        setInterval(loadData, 60000);
-        setInterval(updateHistory, 60000);
+        
+        // Data update every 60s (Silent)
+        setInterval(async () => {
+            await loadData(true);
+            await updateHistory();
+        }, 60000);
     }
     init();
 </script>

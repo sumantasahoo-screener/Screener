@@ -29,14 +29,14 @@ select:focus,input:focus{border-color:var(--c)}
 #stats{background:#111420;border-bottom:2px solid #1e2235;padding:10px 16px;display:flex;gap:0}
 .st{flex:1;display:flex;flex-direction:column;align-items:center;padding:4px 8px;border-right:1px solid #1e2235}
 .st:last-child{border-right:none}
-.sl{font-size:9px;color:#555;letter-spacing:1.5px;margin-bottom:2px}
+.sl{font-size:9px;color:#ccc;letter-spacing:1.5px;margin-bottom:2px}
 .sv{font-size:16px;font-weight:800;letter-spacing:.5px}
 .sv.w{color:#fff}.sv.g{color:var(--g)}.sv.r{color:var(--r)}.sv.y{color:var(--y)}.sv.c{color:var(--c)}
 
 /* ── Main Table Area ── */
 #body{flex:1;overflow-y:auto;padding:10px 12px}
 #tbl-wrap table{width:100%;border-collapse:collapse;table-layout:fixed}
-thead th{background:#0d0f1c;color:#445;font-size:9px;letter-spacing:2px;padding:7px 8px;border-bottom:2px solid #1e2235;text-transform:uppercase;position:sticky;top:0;z-index:5}
+thead th{background:#0d0f1c;color:#ccc;font-size:9px;letter-spacing:2px;padding:7px 8px;border-bottom:2px solid #1e2235;text-transform:uppercase;position:sticky;top:0;z-index:5}
 tbody tr{border-bottom:1px solid rgba(30,34,53,.5)}
 tbody tr:hover{background:rgba(255,255,255,.02)}
 td{padding:2px 6px;vertical-align:middle}
@@ -58,9 +58,9 @@ td{padding:2px 6px;vertical-align:middle}
 .td-chg{width:10%;text-align:center;padding:2px 4px}
 .chg-inner{display:flex;flex-direction:column;align-items:center;gap:2px}
 .chg-bar{height:9px;border-radius:2px;min-width:2px;transition:width .3s}
-.chg-bar.p{background:var(--g)}.chg-bar.n{background:#ffffff}
+.chg-bar.p{background:var(--g)}.chg-bar.n{background:var(--r)}
 .chg-val{font-size:10px;font-weight:600}
-.chg-val.p{color:var(--g)}.chg-val.n{color:#ffffff}
+.chg-val.p{color:var(--g)}.chg-val.n{color:var(--r)}
 
 /* Strike column */
 .td-sk{width:12%;text-align:center;padding:3px 6px}
@@ -108,9 +108,9 @@ td{padding:2px 6px;vertical-align:middle}
   <a href="oi.html" title="Back to Main Terminal" style="background:rgba(0,210,255,.1);border:1px solid rgba(0,210,255,.3);color:#00d2ff;padding:5px 11px;border-radius:4px;font-size:11px;font-weight:bold;text-decoration:none;white-space:nowrap">← MAIN</a>
   <div class="logo">OI COMPARE<span>TERMINAL</span></div>
   <div class="ctrl">
-    <select id="sym-sel">
+    <select id="sym-sel" onchange="switchSym(this.value)">
       <optgroup label="── INDICES ──">
-        <option>NIFTY</option><option>BANKNIFTY</option><option>FINNIFTY</option><option>MIDCPNIFTY</option>
+        <option>NIFTY</option>
       </optgroup>
       <optgroup label="── F&amp;O STOCKS ──" id="stk-grp"></optgroup>
     </select>
@@ -126,9 +126,11 @@ td{padding:2px 6px;vertical-align:middle}
 <!-- Stats -->
 <div id="stats">
   <div class="st"><div class="sl">SPOT</div><div class="sv w" id="s-spot">--</div></div>
+  <div class="st"><div class="sl">VIX</div><div class="sv y" id="s-vix">--</div></div>
   <div class="st"><div class="sl">CE OI</div><div class="sv g" id="s-ceoi">--</div></div>
   <div class="st"><div class="sl">PE OI</div><div class="sv r" id="s-peoi">--</div></div>
   <div class="st"><div class="sl">PCR</div><div class="sv y" id="s-pcr">--</div></div>
+  <div class="st"><div class="sl">MAX PAIN</div><div class="sv y" id="s-mp" style="color:var(--y)">--</div></div>
   <div class="st"><div class="sl">MAX CE @</div><div class="sv r" id="s-cew">--</div></div>
   <div class="st"><div class="sl">MAX PE @</div><div class="sv g" id="s-pew">--</div></div>
   <div class="st"><div class="sl">BIAS</div><div class="sv c" id="s-bias">--</div></div>
@@ -150,6 +152,11 @@ td{padding:2px 6px;vertical-align:middle}
         </tr>
       </thead>
       <tbody id="oi-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+
       <tfoot>
         <tr>
           <th style="text-align:right;color:#333;font-size:9px;padding-top:5px">RIGHT</th>
@@ -174,19 +181,42 @@ let currentTimestamps=[];
 
 window.onload=()=>{
   document.getElementById('date-sel').value=new Date().toISOString().split('T')[0];
-  loadSymbols(); checkMarket(); loadList(); startLive();
+  loadSymbols(); checkMarket(); loadList(); startLive(); startClock();
 };
+
+function startClock() {
+  setInterval(() => {
+    const now = new Date();
+    document.getElementById('s-ts').innerText = now.toLocaleTimeString('en-IN', { hour12: false });
+  }, 1000);
+}
 
 async function loadSymbols(){
   try{
     const r=await fetch(R2+'/meta.json?t='+Date.now());
     if(!r.ok) return;
     const d=await r.json();
-    const IDX=['NIFTY','BANKNIFTY','FINNIFTY','MIDCPNIFTY','SENSEX'];
-    const g=document.getElementById('stk-grp');
-    g.innerHTML=''; // Clear existing options
-    (d.syms||[]).filter(s=>!IDX.includes(s)).sort().forEach(s=>{const o=document.createElement('option');o.value=o.textContent=s;g.appendChild(o);});
+    if(!d.groups) return;
+    
+    // Populate Dropdown Menu
+    document.getElementById('sym-sel').innerHTML = `
+      <optgroup label="── INDICES ──">
+        ${(d.groups.indices || []).map(s => `<option value="${s}" ${s===currentSym?'selected':''}>${s}</option>`).join('')}
+      </optgroup>
+      <optgroup label="── F&O STOCKS ──">
+        ${(d.groups.stocks || []).map(s => `<option value="${s}" ${s===currentSym?'selected':''}>${s}</option>`).join('')}
+      </optgroup>
+    `;
+
   }catch(e){}
+}
+
+let currentSym = 'NIFTY';
+function switchSym(s) { 
+    currentSym = s; 
+    loadSymbols(); 
+    loadList(); 
+    if(!liveMode) loadCompare(); 
 }
 
 async function checkMarket(){
@@ -196,7 +226,8 @@ async function checkMarket(){
 function setSrc(t,c='#556'){const b=document.getElementById('src');if(b){b.textContent=t;b.style.color=c;b.style.borderColor=c;}}
 
 async function loadList(){
-  const sym=document.getElementById('sym-sel').value, date=document.getElementById('date-sel').value;
+  const sym = currentSym;
+  const date = document.getElementById('date-sel').value;
   let ts=[];
   try{const r=await fetch(`${R2}/${sym}/${date}/index.json?t=${Date.now()}`);if(r.ok){const d=await r.json();ts=d.timestamps||[];}}catch(e){}
   
@@ -239,15 +270,40 @@ function updateT2Options() {
   }
 }
 
-async function loadCompare(){
-  const sym=document.getElementById('sym-sel').value, date=document.getElementById('date-sel').value;
+async function loadCompare(silent=false){
+  const sym = currentSym;
+  const date = document.getElementById('date-sel').value;
   const t1v=document.getElementById('t1-sel').value, t2v=document.getElementById('t2-sel').value;
-  document.getElementById('loading').style.display='block';
-  document.getElementById('tbl-wrap').style.display='none';
+  
+  if(!silent){
+    document.getElementById('loading').style.display='block';
+    document.getElementById('tbl-wrap').style.display='none';
+  }
+  
   const d1=await fetchSnap(sym,date,t1v);
-  if(!d1){document.getElementById('loading').textContent='❌ No data. Server running?';return;}
+  if(!d1){
+    if(!silent) document.getElementById('loading').textContent='❌ No data found.';
+    return;
+  }
   const d2=(t2v&&t2v!==t1v)?await fetchSnap(sym,date,t2v):null;
-  renderTable(d1,d2); updateStats(d1); loadSignals(sym);
+  
+  let latestD = d1, olderD = d2;
+  if (d2) {
+    if (!t1v) { // t1 is LATEST, so d1 is newer
+      latestD = d1; olderD = d2;
+    } else if (t2v > t1v) { // t2 is chronologically later than t1
+      latestD = d2; olderD = d1;
+    }
+  }
+
+  renderTable(latestD, olderD); 
+  updateStats(latestD); 
+  loadSignals(sym);
+  
+  if(!silent){
+    document.getElementById('loading').style.display='none';
+    document.getElementById('tbl-wrap').style.display='block';
+  }
 }
 
 async function fetchSnap(sym,date,tk){
@@ -265,29 +321,46 @@ function renderTable(d1,d2){
   const ai=d1.strikes.findIndex(s=>s.ATM==='ATM');
   const filt=ai>=0?d1.strikes.slice(Math.max(0,ai-10),ai+11):d1.strikes;
   let mx=1,mxC=1;
-  filt.forEach(s=>{mx=Math.max(mx,s.CE_OI,s.PE_OI);mxC=Math.max(mxC,Math.abs(s.CE_COI),Math.abs(s.PE_COI));});
+  filt.forEach(s=>{
+    const s2=s2map[s.K];
+    const cChg=s2 ? s.CE_OI - s2.CE_OI : s.CE_COI;
+    const pChg=s2 ? s.PE_OI - s2.PE_OI : s.PE_COI;
+    mx=Math.max(mx, s.CE_OI, s.PE_OI, s2?s2.CE_OI:0, s2?s2.PE_OI:0);
+    mxC=Math.max(mxC,Math.abs(cChg),Math.abs(pChg));
+  });
   const tbody=document.getElementById('oi-tbody');
   tbody.innerHTML='';
   filt.slice().reverse().forEach(s=>{
     const isATM=s.ATM==='ATM', s2=s2map[s.K];
+    const cChg=s2 ? s.CE_OI - s2.CE_OI : s.CE_COI;
+    const pChg=s2 ? s.PE_OI - s2.PE_OI : s.PE_COI;
     const cePct=(s.CE_OI/mx*100).toFixed(1), pePct=(s.PE_OI/mx*100).toFixed(1);
-    const ceCPct=(Math.abs(s.CE_COI)/mxC*90).toFixed(1), peCPct=(Math.abs(s.PE_COI)/mxC*90).toFixed(1);
-    const ceCP=s.CE_COI>=0, peCP=s.PE_COI>=0;
-    const ceCOI=(ceCP?'+':'')+fmtN(s.CE_COI), peCOI=(peCP?'+':'')+fmtN(s.PE_COI);
+    const ceCPct=(Math.abs(cChg)/mxC*100).toFixed(1), peCPct=(Math.abs(pChg)/mxC*100).toFixed(1);
+    const ceCP=cChg>=0, peCP=pChg>=0;
+    const ceCOI=(ceCP?'+':'')+fmtN(cChg), peCOI=(peCP?'+':'')+fmtN(pChg);
+
+    // Precalculate widths to avoid template literal errors
+    const ceCPctHalf = (Math.abs(cChg)/mxC*50).toFixed(1);
+    const peCPctHalf = (Math.abs(pChg)/mxC*50).toFixed(1);
+    
     const ceBg = `linear-gradient(90deg,#00e676 ${cePct}%,rgba(0,230,118,.07) ${cePct}%)`;
     const peBg = `linear-gradient(270deg,#ff4560 ${pePct}%,rgba(255,69,96,.07) ${pePct}%)`;
     
     let ceFinalBg, peFinalBg;
     if (s2) {
       const oCePct=(s2.CE_OI/mx*100).toFixed(1), oPePct=(s2.PE_OI/mx*100).toFixed(1);
-      const ceBg2 = s.CE_OI>=s2.CE_OI 
-        ? `linear-gradient(90deg,rgba(0,230,118,.35) ${oCePct}%,transparent ${oCePct}%)`
-        : `linear-gradient(90deg,transparent ${cePct}%,rgba(255,255,255,.8) ${cePct}%,rgba(255,255,255,.8) ${oCePct}%,transparent ${oCePct}%)`;
-      const peBg2 = s.PE_OI>=s2.PE_OI
-        ? `linear-gradient(270deg,rgba(255,69,96,.35) ${oPePct}%,transparent ${oPePct}%)`
-        : `linear-gradient(270deg,transparent ${pePct}%,rgba(255,255,255,.8) ${pePct}%,rgba(255,255,255,.8) ${oPePct}%,transparent ${oPePct}%)`;
-      ceFinalBg = `${ceBg2},${ceBg}`;
-      peFinalBg = `${peBg2},${peBg}`;
+      
+      if (s.CE_OI >= s2.CE_OI) { // Increased
+        ceFinalBg = `linear-gradient(90deg, rgba(0,230,118,0.3) ${oCePct}%, #00e676 ${oCePct}%, #00e676 ${cePct}%, rgba(0,230,118,.07) ${cePct}%)`;
+      } else { // Decreased
+        ceFinalBg = `linear-gradient(90deg, rgba(0,230,118,0.5) ${cePct}%, rgba(255,255,255,0.85) ${cePct}%, rgba(255,255,255,0.85) ${oCePct}%, rgba(0,230,118,.07) ${oCePct}%)`;
+      }
+
+      if (s.PE_OI >= s2.PE_OI) { // Increased
+        peFinalBg = `linear-gradient(270deg, rgba(255,69,96,0.3) ${oPePct}%, #ff4560 ${oPePct}%, #ff4560 ${pePct}%, rgba(255,69,96,.07) ${pePct}%)`;
+      } else { // Decreased
+        peFinalBg = `linear-gradient(270deg, rgba(255,69,96,0.5) ${pePct}%, rgba(255,255,255,0.85) ${pePct}%, rgba(255,255,255,0.85) ${oPePct}%, rgba(255,69,96,.07) ${oPePct}%)`;
+      }
     } else {
       ceFinalBg = ceBg;
       peFinalBg = peBg;
@@ -301,17 +374,19 @@ function renderTable(d1,d2){
           <div class="ce-track" style="background:${ceFinalBg}"></div>
         </div>
       </td>
-      <td class="td-chg">
-        <div class="chg-inner">
-          <div class="chg-bar ${ceCP?'p':'n'}" style="width:${ceCPct}%"></div>
-          <span class="chg-val ${ceCP?'p':'n'}">${ceCOI}</span>
+      <td class="td-chg" style="text-align:center; padding: 4px 6px;">
+        <div style="position:relative; width:100%; min-width:80px; height:26px; margin:0 auto; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.03); border-radius:4px; overflow:hidden;">
+          <div style="position:absolute; right:50%; height:100%; background:rgba(255,69,96,0.35); width:${!ceCP ? ceCPctHalf : 0}%; border-left:${!ceCP ? '2px solid #ff4560' : 'none'};"></div>
+          <div style="position:absolute; left:50%; height:100%; background:rgba(0,230,118,0.35); width:${ceCP ? ceCPctHalf : 0}%; border-right:${ceCP ? '2px solid #00e676' : 'none'};"></div>
+          <span class="chg-val ${ceCP?'p':'n'}" style="position:relative; z-index:2; font-size:13px; font-weight:800; letter-spacing:0.5px; text-shadow: 0 1px 4px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,0.8);">${ceCOI}</span>
         </div>
       </td>
       <td class="td-sk"><div class="sk-box">${s.K.toLocaleString('en-IN')}</div></td>
-      <td class="td-chg">
-        <div class="chg-inner">
-          <div class="chg-bar ${peCP?'p':'n'}" style="width:${peCPct}%"></div>
-          <span class="chg-val ${peCP?'p':'n'}">${peCOI}</span>
+      <td class="td-chg" style="text-align:center; padding: 4px 6px;">
+        <div style="position:relative; width:100%; min-width:80px; height:26px; margin:0 auto; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.03); border-radius:4px; overflow:hidden;">
+          <div style="position:absolute; right:50%; height:100%; background:rgba(255,69,96,0.35); width:${!peCP ? peCPctHalf : 0}%; border-left:${!peCP ? '2px solid #ff4560' : 'none'};"></div>
+          <div style="position:absolute; left:50%; height:100%; background:rgba(0,230,118,0.35); width:${peCP ? peCPctHalf : 0}%; border-right:${peCP ? '2px solid #00e676' : 'none'};"></div>
+          <span class="chg-val ${peCP?'p':'n'}" style="position:relative; z-index:2; font-size:13px; font-weight:800; letter-spacing:0.5px; text-shadow: 0 1px 4px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,0.8);">${peCOI}</span>
         </div>
       </td>
       <td class="td-pe">
@@ -331,6 +406,7 @@ function updateStats(d){
   document.getElementById('s-ceoi').textContent=fmtCr(d.total_ce_oi);
   document.getElementById('s-peoi').textContent=fmtCr(d.total_pe_oi);
   document.getElementById('s-pcr').textContent=d.pcr||'--';
+  document.getElementById('s-mp').textContent=d.max_pain?d.max_pain.toLocaleString('en-IN'):'--';
   document.getElementById('s-cew').textContent=d.ce_wall?d.ce_wall.toLocaleString('en-IN'):'--';
   document.getElementById('s-pew').textContent=d.pe_wall?d.pe_wall.toLocaleString('en-IN'):'--';
   document.getElementById('s-bias').textContent=d.bias||'--';
@@ -359,13 +435,27 @@ async function loadSignals(sym){
   }).join('');
 }
 
+async function fetchVix(){
+  try{
+    const r=await fetch(R2+'/meta.json?t='+Date.now());
+    if(!r.ok) return;
+    const d=await r.json();
+    if(d.vix) document.getElementById('s-vix').textContent = d.vix + '%';
+  }catch(e){}
+}
+
 function startLive(){
   liveMode=true;
   document.getElementById('live-btn').classList.add('on');
   document.getElementById('live-btn').textContent='● AUTO FETCH';
   clearInterval(liveTimer);
   loadCompare();
-  liveTimer=setInterval(()=>{document.getElementById('t1-sel').value='';document.getElementById('t2-sel').value='';loadList();loadCompare();},60000);
+  fetchVix();
+  liveTimer=setInterval(()=>{
+    // Silent update: don't reset T1/T2, just refresh data and list
+    fetchVix();
+    loadList().then(() => loadCompare(true));
+  },60000);
 }
 function toggleLive(){
   if(liveMode){liveMode=false;clearInterval(liveTimer);document.getElementById('live-btn').classList.remove('on');document.getElementById('live-btn').textContent='⏸ PAUSED';}
