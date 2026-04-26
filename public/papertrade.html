@@ -600,14 +600,15 @@
                     <i data-lucide="briefcase"></i>
                     <span>Positions</span>
                 </li>
+                <li class="nav-item" onclick="showSection('pending')">
+                    <i data-lucide="list"></i>
+                    <span>Pending Orders</span>
+                </li>
                 <li class="nav-item" onclick="showSection('history'); loadHistory()">
                     <i data-lucide="clock"></i>
                     <span>Trade History</span>
                 </li>
-                <li class="nav-item" onclick="resetPortfolio()" style="margin-top: 20px; color: var(--text-secondary); opacity: 0.6; font-size: 12px;">
-                    <i data-lucide="refresh-cw"></i>
-                    <span>Reset Account</span>
-                </li>
+
                 <li class="nav-item" onclick="logout()" style="margin-top: 10px; color: var(--accent-sell);">
                     <i data-lucide="log-out"></i>
                     <span>Logout</span>
@@ -632,6 +633,10 @@
             <button class="mob-nav-item" id="mobNavPositions" onclick="showSection('positions'); setMobNav('mobNavPositions')">
                 <i data-lucide="briefcase"></i>
                 <span>Positions</span>
+            </button>
+            <button class="mob-nav-item" id="mobNavPending" onclick="showSection('pending'); setMobNav('mobNavPending')">
+                <i data-lucide="list"></i>
+                <span>Pending</span>
             </button>
             <button class="mob-nav-item" id="mobNavHistory" onclick="showSection('history'); loadHistory(); setMobNav('mobNavHistory')">
                 <i data-lucide="clock"></i>
@@ -659,6 +664,7 @@
                         <select id="adminUserDropdown" class="admin-user-select" onchange="adminSwitchUser(this.value)">
                             <option value="">— Select Account —</option>
                         </select>
+                        <button id="adminResetBtn" onclick="adminResetUser()" class="hidden" style="background: rgba(244,63,94,0.15); border: 1px solid rgba(244,63,94,0.4); color: var(--accent-sell); border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space:nowrap;" onmouseover="this.style.background='rgba(244,63,94,0.3)'" onmouseout="this.style.background='rgba(244,63,94,0.15)'">🚫 Reset Account</button>
                     </div>
                     <!-- User Info -->
                     <div style="display: flex; align-items: center; gap: 15px; background: var(--bg-card); padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border-color);">
@@ -807,15 +813,8 @@
                     <!-- Trading Panel -->
                     <div id="optTradingPanel" class="card hidden" style="padding:20px;">
 
-                        <!-- Row 1: Strike + Option Type + Qty -->
-                        <div style="display:grid; grid-template-columns:2fr 1fr auto; gap:12px; align-items:end; margin-bottom:16px;">
-                            <div>
-                                <label style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; font-weight:700; margin-bottom:5px; display:block; letter-spacing:0.8px;">Strike Price</label>
-                                <select id="optStrike" class="form-input" onchange="updateOptionPrice()"
-                                    style="margin:0; padding:0 12px; width:100%; height:42px; box-sizing:border-box;">
-                                    <option value="">Select Strike</option>
-                                </select>
-                            </div>
+                        <!-- Row 1: Option Type + Qty -->
+                        <div style="display:grid; grid-template-columns:1fr auto; gap:12px; align-items:end; margin-bottom:16px;">
                             <div>
                                 <label style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; font-weight:700; margin-bottom:5px; display:block; letter-spacing:0.8px;">Option Type</label>
                                 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; height:42px; margin:0; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.08); border-radius:8px; overflow:hidden; box-sizing:border-box;">
@@ -831,23 +830,72 @@
                             </div>
                         </div>
 
-                        <!-- Row 2: Price Info Bar -->
-                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:1px; background:rgba(255,255,255,0.05); border-radius:10px; overflow:hidden; margin-bottom:16px;">
-                            <div style="background:var(--bg-secondary,#12151f); padding:10px 14px;">
-                                <div style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; font-weight:700; margin-bottom:3px;">CE LTP</div>
-                                <div id="optCELTP" style="font-weight:800; font-size:16px; color:var(--accent-buy);">₹0.00</div>
+                        <!-- Row 2 & 3: Strike Prices and Info -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+                            <!-- CE Column -->
+                            <div style="display:flex; flex-direction:column; gap:8px;">
+                                <div id="ceStrikeContainer">
+                                    <label style="font-size:10px; color:var(--accent-buy); text-transform:uppercase; font-weight:700; margin-bottom:5px; display:block; letter-spacing:0.8px;">CE Strike Price</label>
+                                    <select id="optStrikeCE" class="form-input" onchange="updateOptionPrice(true)"
+                                        style="margin:0; padding:0 12px; width:100%; height:42px; box-sizing:border-box; border-color: rgba(16,185,129,0.3);">
+                                        <option value="">Select CE Strike</option>
+                                    </select>
+                                </div>
+                                <div id="ceInfoRow" style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-secondary,#12151f); border:1px solid rgba(16,185,129,0.2); border-radius:8px; padding:10px 14px;">
+                                    <div style="display:flex; flex-direction:column;">
+                                        <span style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">CE LTP</span>
+                                        <span id="optCELTP" style="font-weight:800; font-size:16px; color:var(--accent-buy);">₹0.00</span>
+                                    </div>
+                                    <div style="display:flex; gap:16px; align-items:center;">
+                                        <div style="text-align:right;">
+                                            <span style="font-size:10px; color:var(--text-secondary); display:block;">IV</span>
+                                            <span id="optCEIV" style="font-size:12px; font-weight:600; color:white;">0.0%</span>
+                                        </div>
+                                        <div style="text-align:right;">
+                                            <span style="font-size:10px; color:var(--text-secondary); display:block;">Delta Δ</span>
+                                            <span id="optCEDelta" style="font-size:12px; font-weight:600; color:white;">0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div style="background:var(--bg-secondary,#12151f); padding:10px 14px;">
-                                <div style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; font-weight:700; margin-bottom:3px;">PE LTP</div>
-                                <div id="optPELTP" style="font-weight:800; font-size:16px; color:var(--accent-sell);">₹0.00</div>
+                            
+                            <!-- PE Column -->
+                            <div style="display:flex; flex-direction:column; gap:8px;">
+                                <div id="peStrikeContainer" style="opacity: 0.5; pointer-events: none;">
+                                    <label style="font-size:10px; color:var(--accent-sell); text-transform:uppercase; font-weight:700; margin-bottom:5px; display:block; letter-spacing:0.8px;">PE Strike Price</label>
+                                    <select id="optStrikePE" class="form-input" onchange="updateOptionPrice(true)"
+                                        style="margin:0; padding:0 12px; width:100%; height:42px; box-sizing:border-box; border-color: rgba(244,63,94,0.3);" disabled>
+                                        <option value="">Select PE Strike</option>
+                                    </select>
+                                </div>
+                                <div id="peInfoRow" style="display:none; align-items:center; justify-content:space-between; background:var(--bg-secondary,#12151f); border:1px solid rgba(244,63,94,0.2); border-radius:8px; padding:10px 14px;">
+                                    <div style="display:flex; flex-direction:column;">
+                                        <span style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">PE LTP</span>
+                                        <span id="optPELTP" style="font-weight:800; font-size:16px; color:var(--accent-sell);">₹0.00</span>
+                                    </div>
+                                    <div style="display:flex; gap:16px; align-items:center;">
+                                        <div style="text-align:right;">
+                                            <span style="font-size:10px; color:var(--text-secondary); display:block;">IV</span>
+                                            <span id="optPEIV" style="font-size:12px; font-weight:600; color:white;">0.0%</span>
+                                        </div>
+                                        <div style="text-align:right;">
+                                            <span style="font-size:10px; color:var(--text-secondary); display:block;">Delta Δ</span>
+                                            <span id="optPEDelta" style="font-size:12px; font-weight:600; color:white;">0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div style="background:var(--bg-secondary,#12151f); padding:10px 14px;">
-                                <div style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; font-weight:700; margin-bottom:3px;">Selected</div>
-                                <div id="optLTP" style="font-weight:800; font-size:16px; color:var(--accent-primary);">₹0.00</div>
+                        </div>
+
+                        <!-- Row 4: Total Info -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); border-radius:10px; overflow:hidden; margin-bottom:16px;">
+                            <div style="background:transparent; padding:10px 14px; display:flex; flex-direction:column; justify-content:center;">
+                                <div style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; font-weight:700; margin-bottom:3px;">Selected Price</div>
+                                <div id="optLTP" style="font-weight:800; font-size:18px; color:var(--accent-primary);">₹0.00</div>
                             </div>
-                            <div style="background:var(--bg-secondary,#12151f); padding:10px 14px;">
+                            <div style="background:rgba(0,0,0,0.2); padding:10px 14px; display:flex; flex-direction:column; justify-content:center;">
                                 <div style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; font-weight:700; margin-bottom:3px;">Total Qty</div>
-                                <div style="font-weight:800; font-size:16px; color:white;"><span id="optTotalQty">0</span> <span style="font-size:11px; font-weight:500; color:var(--text-secondary);">(× <span id="optQtyMultiplier">0</span>)</span></div>
+                                <div style="font-weight:800; font-size:18px; color:white;"><span id="optTotalQty">0</span> <span style="font-size:11px; font-weight:500; color:var(--text-secondary);">(× <span id="optQtyMultiplier">0</span>)</span></div>
                             </div>
                         </div>
 
@@ -860,8 +908,14 @@
                             </div>
                             <!-- Limit Price (conditional) -->
                             <div id="optLimitPriceRow" style="display:none; align-items:center; gap:8px;">
-                                <input type="number" id="optLimitPrice" step="0.05" min="0" placeholder="Limit ₹"
-                                    style="width:110px; padding:7px 10px; background:rgba(0,0,0,0.4); border:1px solid rgba(99,102,241,0.4); color:white; border-radius:8px; outline:none; font-size:13px; font-weight:600;">
+                                <div id="optLimitCEContainer" style="display:flex; align-items:center; gap:6px;">
+                                    <input type="number" id="optLimitPriceCE" step="0.05" min="0" placeholder="CE Limit ₹"
+                                        style="width:90px; padding:7px 10px; background:rgba(0,0,0,0.4); border:1px solid rgba(16,185,129,0.4); color:white; border-radius:8px; outline:none; font-size:13px; font-weight:600;">
+                                </div>
+                                <div id="optLimitPEContainer" style="display:none; align-items:center; gap:6px;">
+                                    <input type="number" id="optLimitPricePE" step="0.05" min="0" placeholder="PE Limit ₹"
+                                        style="width:90px; padding:7px 10px; background:rgba(0,0,0,0.4); border:1px solid rgba(244,63,94,0.4); color:white; border-radius:8px; outline:none; font-size:13px; font-weight:600;">
+                                </div>
                                 <span style="font-size:11px; color:var(--text-secondary);">Ref: <span id="optLimitRefLTP" style="color:white;">₹0</span></span>
                             </div>
                             <!-- Cost pills -->
@@ -938,6 +992,30 @@
 
                     <!-- Today's Closed Trades -->
                     <div id="todayHistoryContainer" style="margin-top: 20px;"></div>
+                </section>
+
+                <!-- Pending Orders -->
+                <section id="pending" class="section">
+                    <div class="card">
+                        <h2 style="margin-bottom: 20px; font-family: 'Outfit';">Pending Orders</h2>
+                        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                        <table style="width: 100%; border-collapse: collapse; min-width: 580px;">
+                            <thead>
+                                <tr style="color: var(--text-secondary); border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; text-transform: uppercase;">
+                                    <th style="padding: 15px 10px; text-align: left; font-weight: 600;">Instrument</th>
+                                    <th style="padding: 15px 10px; text-align: right; font-weight: 600;">Limit Price</th>
+                                    <th style="padding: 15px 10px; text-align: right; font-weight: 600;">Status</th>
+                                    <th style="padding: 15px 10px; text-align: center; font-weight: 600;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingContainer">
+                                <tr>
+                                    <td colspan="4" style="padding: 40px; text-align: center; color: var(--text-secondary);">No pending orders</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
                 </section>
 
                 <!-- Trade History -->
@@ -1386,18 +1464,45 @@
             adminViewingUser = email;
             const banner = document.getElementById('adminViewingBanner');
             const nameEl = document.getElementById('adminViewingName');
+            const resetBtn = document.getElementById('adminResetBtn');
             if (email) {
                 banner.style.display = 'flex';
                 const dropdown = document.getElementById('adminUserDropdown');
                 const selectedOpt = dropdown.options[dropdown.selectedIndex];
                 nameEl.innerText = selectedOpt ? selectedOpt.text : email;
                 document.getElementById('adminUserDropdown').value = email;
+                if (resetBtn) resetBtn.classList.remove('hidden');
             } else {
                 banner.style.display = 'none';
                 nameEl.innerText = '';
                 document.getElementById('adminUserDropdown').value = '';
+                if (resetBtn) resetBtn.classList.add('hidden');
             }
             fetchPortfolio();
+        }
+
+        async function adminResetUser() {
+            if (!adminViewingUser) { alert('Please select an account first.'); return; }
+            const dropdown = document.getElementById('adminUserDropdown');
+            const selectedOpt = dropdown.options[dropdown.selectedIndex];
+            const displayName = selectedOpt ? selectedOpt.text : adminViewingUser;
+            if (!confirm(`⚠️ Are you sure you want to RESET ${displayName}?\n\nThis will DELETE all trades and reset balance to ₹1,00,000.\n\nThis cannot be undone.`)) return;
+            try {
+                const res = await fetch('https://paper-trade.teletechcare.workers.dev/api/reset-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-User-ID': currentUserEmail, 'X-View-User': adminViewingUser },
+                    body: JSON.stringify({ targetUser: adminViewingUser })
+                });
+                const result = await res.json();
+                if (res.ok && result.success) {
+                    alert(`✅ Account reset successfully for ${displayName}`);
+                    fetchPortfolio();
+                } else {
+                    alert('Reset failed: ' + (result.error || 'Unknown error'));
+                }
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
         }
 
         function logout() {
@@ -1778,6 +1883,9 @@
 
                 // Render Today's Closed Trades below positions
                 renderTodayHistory(db.history || []);
+                
+                // Render Pending Orders
+                renderPendingOrders(db.pendingOrders || []);
 
             } catch (err) {
                 console.error("Failed to load portfolio", err);
@@ -1859,6 +1967,66 @@
                 </div>
                 ${rows}
             </div>`;
+        }
+
+        function renderPendingOrders(pendingOrders) {
+            const container = document.getElementById('pendingContainer');
+            if (!container) return;
+
+            if (pendingOrders.length === 0) {
+                container.innerHTML = '<tr><td colspan="4" style="padding: 60px; text-align: center; color: var(--text-secondary);">No pending orders</td></tr>';
+                return;
+            }
+
+            let html = '';
+            pendingOrders.forEach(t => {
+                const isBuy = t.type === 'BUY';
+                const typeColor = isBuy ? 'var(--accent-buy)' : 'var(--accent-sell)';
+                const prodBadge = t.productType === 'Intraday' ? 'MIS' : 'CNC';
+
+                html += `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 15px 10px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <strong style="font-size: 15px; color: white;">${t.symbol}</strong>
+                            <span style="font-size: 10px; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: var(--text-secondary); font-weight: 600;">${prodBadge}</span>
+                        </div>
+                        <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                            <span style="color: ${typeColor}; font-size: 11px; border: 1px solid ${typeColor}; padding: 2px 6px; border-radius: 4px; font-weight: 600;">${t.qty} ${t.type}</span>
+                        </div>
+                    </td>
+                    <td style="padding: 15px 10px; text-align: right;">
+                        <div style="font-size: 14px; color: white; font-weight:600;">₹${t.entryPrice.toLocaleString(undefined, {minimumFractionDigits:2})}</div>
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">LIMIT</div>
+                    </td>
+                    <td style="padding: 15px 10px; text-align: right;">
+                        <span style="background: rgba(255, 165, 0, 0.1); color: #f59e0b; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase;">Pending</span>
+                    </td>
+                    <td style="padding: 15px 10px; text-align: center;">
+                        <button onclick="cancelPendingOrder('${t.id}')" style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.2); color: var(--accent-sell); padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(244, 63, 94, 0.2)'" onmouseout="this.style.background='rgba(244, 63, 94, 0.1)'">Cancel</button>
+                    </td>
+                </tr>`;
+            });
+            container.innerHTML = html;
+        }
+
+        async function cancelPendingOrder(tradeId) {
+            if(!confirm("Cancel pending order?")) return;
+            try {
+                const res = await fetch('https://paper-trade.teletechcare.workers.dev/api/cancel-pending', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ tradeId })
+                });
+                if (!res.ok) {
+                    const data = await res.json();
+                    throw new Error(data.error || 'Failed');
+                }
+                alert("Pending order cancelled successfully");
+                fetchPortfolio();
+            } catch(e) {
+                alert("Failed to cancel: " + e.message);
+            }
         }
 
         // Toggle stock history row in positions
@@ -2373,7 +2541,8 @@
             const strikeSelect = document.getElementById('optStrike');
             
             const currentExp = expSelect.value;
-            const currentStrikeIdx = strikeSelect ? strikeSelect.value : '';
+            const currentStrikeIdxCE = document.getElementById('optStrikeCE') ? document.getElementById('optStrikeCE').value : '';
+            const currentStrikeIdxPE = document.getElementById('optStrikePE') ? document.getElementById('optStrikePE').value : '';
             
             if (!symbol) {
                 sessionStorage.removeItem('optSelectedSymbol');
@@ -2418,7 +2587,7 @@
                     } else {
                         expSelect.value = data.expiries[0];
                     }
-                    populateStrikes(isSilent ? currentStrikeIdx : null);
+                    populateStrikes(isSilent ? currentStrikeIdxCE : null, isSilent ? currentStrikeIdxPE : null, isSilent);
                 }
 
             } catch (e) {
@@ -2429,9 +2598,10 @@
             }
         }
 
-        function populateStrikes(preservedIndex = null) {
+        function populateStrikes(preservedIndexCE = null, preservedIndexPE = null, isSilent = false) {
             if(!currentOptionData || !currentOptionData.strikes) return;
-            const strikeSelect = document.getElementById('optStrike');
+            const ceSelect = document.getElementById('optStrikeCE');
+            const peSelect = document.getElementById('optStrikePE');
             
             // Filter strikes close to spot (optional, for now show all)
             const strikes = currentOptionData.strikes;
@@ -2440,7 +2610,7 @@
             let atmIndex = 0;
             let minDiff = Infinity;
             
-            strikeSelect.innerHTML = '<option value="">Select Strike</option>' + 
+            const optionsHtml = '<option value="">Select Strike</option>' + 
                 strikes.map((s, index) => {
                     const diff = Math.abs(s.K - currentOptionData.spot);
                     if(diff < minDiff) {
@@ -2450,13 +2620,23 @@
                     return `<option value="${index}">${s.K} ${s.ATM ? '(ATM)' : ''}</option>`;
                 }).join('');
                 
+            ceSelect.innerHTML = optionsHtml;
+            peSelect.innerHTML = optionsHtml;
+                
             if(strikes.length > 0) {
-                if (preservedIndex !== null && strikes[preservedIndex]) {
-                    strikeSelect.value = preservedIndex;
+                if (preservedIndexCE !== null && strikes[preservedIndexCE]) {
+                    ceSelect.value = preservedIndexCE;
                 } else {
-                    strikeSelect.value = atmIndex;
+                    ceSelect.value = atmIndex;
                 }
-                updateOptionPrice();
+                
+                if (preservedIndexPE !== null && strikes[preservedIndexPE]) {
+                    peSelect.value = preservedIndexPE;
+                } else {
+                    peSelect.value = atmIndex;
+                }
+                
+                updateOptionPrice(!isSilent);
             }
         }
 
@@ -2481,11 +2661,13 @@
             document.getElementById('optOrdMKT').style.color = isMkt ? 'white' : 'var(--text-secondary)';
             document.getElementById('optOrdLMT').style.background = !isMkt ? 'var(--accent-primary)' : 'transparent';
             document.getElementById('optOrdLMT').style.color = !isMkt ? 'white' : 'var(--text-secondary)';
-            document.getElementById('optLimitPriceRow').style.display = isMkt ? 'none' : 'block';
+            document.getElementById('optLimitPriceRow').style.display = isMkt ? 'none' : 'flex';
             // Pre-fill limit price with current LTP
             if (!isMkt) {
-                const ltpText = document.getElementById('optLTP').innerText.replace('₹','').replace(/,/g,'');
-                document.getElementById('optLimitPrice').value = parseFloat(ltpText) || '';
+                const ceLtp = document.getElementById('optCELTP').innerText.replace('₹','').replace(/,/g,'');
+                const peLtp = document.getElementById('optPELTP').innerText.replace('₹','').replace(/,/g,'');
+                document.getElementById('optLimitPriceCE').value = parseFloat(ceLtp) || '';
+                document.getElementById('optLimitPricePE').value = parseFloat(peLtp) || '';
             }
         }
 
@@ -2494,33 +2676,68 @@
             const ceEl = document.getElementById('btnCE');
             const peEl = document.getElementById('btnPE');
             const bothEl = document.getElementById('btnBOTH');
+            const ceStrikeCont = document.getElementById('ceStrikeContainer');
+            const peStrikeCont = document.getElementById('peStrikeContainer');
+            const ceSelect = document.getElementById('optStrikeCE');
+            const peSelect = document.getElementById('optStrikePE');
+            const ceInfo = document.getElementById('ceInfoRow');
+            const peInfo = document.getElementById('peInfoRow');
 
             // Reset all
             [ceEl, peEl, bothEl].forEach(el => { if(el) { el.style.background = 'transparent'; el.style.color = 'var(--text-secondary)'; }});
 
+            // Adjust strike dropdowns and info rows
+            const limitCeCont = document.getElementById('optLimitCEContainer');
+            const limitPeCont = document.getElementById('optLimitPEContainer');
+            
             if (type === 'CE') {
                 if(ceEl) { ceEl.style.background = 'rgba(16,185,129,0.8)'; ceEl.style.color = 'white'; }
+                ceStrikeCont.style.opacity = '1'; ceStrikeCont.style.pointerEvents = 'auto'; ceSelect.disabled = false;
+                peStrikeCont.style.opacity = '0.5'; peStrikeCont.style.pointerEvents = 'none'; peSelect.disabled = true;
+                ceInfo.style.display = 'flex'; peInfo.style.display = 'none';
+                if(limitCeCont) limitCeCont.style.display = 'flex';
+                if(limitPeCont) limitPeCont.style.display = 'none';
             } else if (type === 'PE') {
                 if(peEl) { peEl.style.background = 'rgba(244,63,94,0.8)'; peEl.style.color = 'white'; }
+                ceStrikeCont.style.opacity = '0.5'; ceStrikeCont.style.pointerEvents = 'none'; ceSelect.disabled = true;
+                peStrikeCont.style.opacity = '1'; peStrikeCont.style.pointerEvents = 'auto'; peSelect.disabled = false;
+                ceInfo.style.display = 'none'; peInfo.style.display = 'flex';
+                if(limitCeCont) limitCeCont.style.display = 'none';
+                if(limitPeCont) limitPeCont.style.display = 'flex';
             } else if (type === 'BOTH') {
                 if(bothEl) { bothEl.style.background = 'rgba(99,102,241,0.8)'; bothEl.style.color = 'white'; }
+                ceStrikeCont.style.opacity = '1'; ceStrikeCont.style.pointerEvents = 'auto'; ceSelect.disabled = false;
+                peStrikeCont.style.opacity = '1'; peStrikeCont.style.pointerEvents = 'auto'; peSelect.disabled = false;
+                ceInfo.style.display = 'flex'; peInfo.style.display = 'flex';
+                if(limitCeCont) limitCeCont.style.display = 'flex';
+                if(limitPeCont) limitPeCont.style.display = 'flex';
             }
             updateOptionPrice();
         }
 
-        function updateOptionPrice() {
-            const strikeIndex = document.getElementById('optStrike').value;
-            if(!strikeIndex || !currentOptionData) return;
+        function updateOptionPrice(forceUpdateLimit = false) {
+            if(!currentOptionData) return;
             
-            const strikeObj = currentOptionData.strikes[strikeIndex];
-            const ceLtp = strikeObj.CE_LTP || 0;
-            const peLtp = strikeObj.PE_LTP || 0;
-
-            // Always show both CE and PE premiums
-            const ceEl = document.getElementById('optCELTP');
-            const peEl = document.getElementById('optPELTP');
-            if (ceEl) ceEl.innerText = '₹' + ceLtp.toFixed(2);
-            if (peEl) peEl.innerText = '₹' + peLtp.toFixed(2);
+            const ceIndex = document.getElementById('optStrikeCE').value;
+            const peIndex = document.getElementById('optStrikePE').value;
+            
+            let ceLtp = 0, peLtp = 0;
+            
+            if (ceIndex) {
+                const ceObj = currentOptionData.strikes[ceIndex];
+                ceLtp = ceObj.CE_LTP || 0;
+                document.getElementById('optCELTP').innerText = '₹' + ceLtp.toFixed(2);
+                document.getElementById('optCEIV').innerText = (ceObj.CE_IV || 0) + '%';
+                document.getElementById('optCEDelta').innerText = (ceObj.CE_Delta || 0).toFixed(2);
+            }
+            
+            if (peIndex) {
+                const peObj = currentOptionData.strikes[peIndex];
+                peLtp = peObj.PE_LTP || 0;
+                document.getElementById('optPELTP').innerText = '₹' + peLtp.toFixed(2);
+                document.getElementById('optPEIV').innerText = (peObj.PE_IV || 0) + '%';
+                document.getElementById('optPEDelta').innerText = (peObj.PE_Delta || 0).toFixed(2);
+            }
 
             let displayPrice = 0;
             if (selectedOptionType === 'CE') displayPrice = ceLtp;
@@ -2533,8 +2750,10 @@
             const refEl = document.getElementById('optLimitRefLTP');
             if (refEl) refEl.innerText = '₹' + displayPrice.toFixed(2);
             if (selectedOrderType === 'LIMIT') {
-                const lpEl = document.getElementById('optLimitPrice');
-                if (lpEl && !lpEl.value) lpEl.value = displayPrice.toFixed(2);
+                const lpCE = document.getElementById('optLimitPriceCE');
+                const lpPE = document.getElementById('optLimitPricePE');
+                if (lpCE && (!lpCE.value || forceUpdateLimit)) lpCE.value = ceLtp.toFixed(2);
+                if (lpPE && (!lpPE.value || forceUpdateLimit)) lpPE.value = peLtp.toFixed(2);
             }
             calcOptTSLPct();
         }
@@ -2609,17 +2828,37 @@
         async function executeOptionOrder(action) {
             const symbol = document.getElementById('optSymbol').value;
             const expiry = document.getElementById('optExpiry').value;
-            const strikeIndex = document.getElementById('optStrike').value;
+            const ceIndex = document.getElementById('optStrikeCE').value;
+            const peIndex = document.getElementById('optStrikePE').value;
             
-            if(!symbol || !expiry || !strikeIndex) {
-                alert("Please select Symbol, Expiry, and Strike");
+            if(!symbol || !expiry) {
+                alert("Please select Symbol and Expiry");
                 return;
             }
             
-            const strikeObj = currentOptionData.strikes[strikeIndex];
-            const strikeK = strikeObj.K;
-            const ceLtp = strikeObj.CE_LTP || 0;
-            const peLtp = strikeObj.PE_LTP || 0;
+            if ((selectedOptionType === 'CE' || selectedOptionType === 'BOTH') && !ceIndex) {
+                alert("Please select CE Strike");
+                return;
+            }
+            
+            if ((selectedOptionType === 'PE' || selectedOptionType === 'BOTH') && !peIndex) {
+                alert("Please select PE Strike");
+                return;
+            }
+            
+            let ceStrikeK = 0, peStrikeK = 0, ceLtp = 0, peLtp = 0;
+            
+            if (ceIndex) {
+                const ceObj = currentOptionData.strikes[ceIndex];
+                ceStrikeK = ceObj.K;
+                ceLtp = ceObj.CE_LTP || 0;
+            }
+            
+            if (peIndex) {
+                const peObj = currentOptionData.strikes[peIndex];
+                peStrikeK = peObj.K;
+                peLtp = peObj.PE_LTP || 0;
+            }
             
             const qtyLots = parseInt(document.getElementById('optQty').value) || 1;
             const totalQty = qtyLots * currentOptionData.lot;
@@ -2627,15 +2866,28 @@
             const expParts = expiry.split('-');
             const shortExp = expParts.length === 3 ? (expParts[0] + expParts[1].toUpperCase()) : expiry;
 
-            const placeOrder = async (optType, marketPrice) => {
-                const tradeSymbol = `${symbol} ${shortExp} ${strikeK} ${optType}`;
-                // Determine execution price based on order type
-                let execPrice = marketPrice;
-                if (selectedOrderType === 'LIMIT') {
-                    const lp = parseFloat(document.getElementById('optLimitPrice').value);
-                    if (!lp || lp <= 0) { alert('Please enter a valid Limit Price'); throw new Error('Invalid limit price'); }
-                    execPrice = lp;
+            let execPriceCE = ceLtp;
+            let execPricePE = peLtp;
+            
+            if (selectedOrderType === 'LIMIT') {
+                const lmtCE = parseFloat(document.getElementById('optLimitPriceCE').value);
+                const lmtPE = parseFloat(document.getElementById('optLimitPricePE').value);
+                
+                if ((selectedOptionType === 'CE' || selectedOptionType === 'BOTH') && (!lmtCE || isNaN(lmtCE) || lmtCE <= 0)) {
+                    alert("Please enter a valid Limit Price for CE");
+                    return;
                 }
+                if ((selectedOptionType === 'PE' || selectedOptionType === 'BOTH') && (!lmtPE || isNaN(lmtPE) || lmtPE <= 0)) {
+                    alert("Please enter a valid Limit Price for PE");
+                    return;
+                }
+                
+                execPriceCE = lmtCE;
+                execPricePE = lmtPE;
+            }
+
+            const placeOrder = async (optType, marketPrice, strikeK, execPrice) => {
+                const tradeSymbol = `${symbol} ${shortExp} ${strikeK} ${optType}`;
                 if (execPrice <= 0) { alert(`Cannot execute ${optType} - price is 0`); throw new Error('Zero price'); }
                 // Read user-entered Target and SL — only if checkbox is checked
                 const tgtChecked = document.getElementById('chkTarget')?.checked;
@@ -2643,7 +2895,7 @@
                 const userTarget = tgtChecked ? (parseFloat(document.getElementById('optTarget').value) || 0) : 0;
                 const userSL     = slChecked  ? (parseFloat(document.getElementById('optSL').value) || 0) : 0;
                 const payload = {
-                    symbol: tradeSymbol, type: action, qty: totalQty, ltp: execPrice,
+                    symbol: tradeSymbol, type: action, qty: totalQty, ltp: execPrice, marketLtp: marketPrice,
                     target: userTarget,
                     sl: userSL,
                     productType: selectedOptProduct, instrument: 'OPT', qtyLots,
@@ -2661,11 +2913,15 @@
 
             try {
                 if (selectedOptionType === 'BOTH' && action === 'BUY') {
-                    const [ceSym, peSym] = await Promise.all([placeOrder('CE', ceLtp), placeOrder('PE', peLtp)]);
-                    alert(`✅ Both orders placed!\n${ceSym} @ ₹${ceLtp}\n${peSym} @ ₹${peLtp}`);
+                    const [ceSym, peSym] = await Promise.all([
+                        placeOrder('CE', ceLtp, ceStrikeK, execPriceCE), 
+                        placeOrder('PE', peLtp, peStrikeK, execPricePE)
+                    ]);
+                    alert(`✅ Both orders placed!\n${ceSym} @ ₹${execPriceCE}\n${peSym} @ ₹${execPricePE}`);
                 } else {
-                    const price = selectedOptionType === 'CE' ? ceLtp : peLtp;
-                    const sym = await placeOrder(selectedOptionType, price);
+                    const price = selectedOptionType === 'CE' ? execPriceCE : execPricePE;
+                    const strike = selectedOptionType === 'CE' ? ceStrikeK : peStrikeK;
+                    const sym = await placeOrder(selectedOptionType, selectedOptionType === 'CE' ? ceLtp : peLtp, strike, price);
                     alert(`✅ ${action} order placed!\n${sym} x ${totalQty} @ ₹${price}`);
                 }
                 fetchPortfolio();
