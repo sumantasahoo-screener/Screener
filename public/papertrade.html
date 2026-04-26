@@ -1946,43 +1946,63 @@
                 if (!db.activeTrades || db.activeTrades.length === 0) {
                     html += `<tr><td colspan="5" style="padding: 60px; text-align: center; color: var(--text-secondary);">No active positions</td></tr>`;
                 } else {
+                    // Grouping Logic
+                    const grouped = {};
                     db.activeTrades.forEach(t => {
-                        const isBuy = t.type === 'BUY';
-                        const typeColor = isBuy ? 'var(--accent-buy)' : 'var(--accent-sell)';
+                        const cleanSymbol = t.symbol.trim();
+                        const key = `${cleanSymbol}_${t.type}_${t.productType}`;
+                        if (!grouped[key]) {
+                            grouped[key] = {
+                                symbol: cleanSymbol,
+                                type: t.type,
+                                productType: t.productType,
+                                totalQty: 0,
+                                totalMargin: 0,
+                                weightedSum: 0,
+                                trades: [],
+                                currentLtp: t.currentLtp || t.entryPrice
+                            };
+                        }
+                        grouped[key].totalQty += t.qty;
+                        grouped[key].totalMargin += t.margin;
+                        grouped[key].weightedSum += (t.entryPrice * t.qty);
+                        grouped[key].trades.push(t);
+                    });
 
-                        // Calculate Live P&L
-                        const currentLtp = t.currentLtp || t.entryPrice;
-                        const pnl = isBuy ? (currentLtp - t.entryPrice) * t.qty : (t.entryPrice - currentLtp) * t.qty;
-                        const pnlPct = (pnl / t.margin) * 100;
+                    Object.keys(grouped).forEach(key => {
+                        const g = grouped[key];
+                        const avgPrice = g.weightedSum / g.totalQty;
+                        const isBuy = g.type === 'BUY';
+                        const typeColor = isBuy ? 'var(--accent-buy)' : 'var(--accent-sell)';
+                        
+                        const pnl = isBuy ? (g.currentLtp - avgPrice) * g.totalQty : (avgPrice - g.currentLtp) * g.totalQty;
+                        const pnlPct = (pnl / g.totalMargin) * 100;
                         const pnlColor = pnl >= 0 ? 'var(--accent-buy)' : 'var(--accent-sell)';
                         const pnlSign = pnl > 0 ? '+' : '';
-
-                        // Product Badge
-                        const prodBadge = t.productType === 'Intraday' ? 'MIS' : 'CNC';
+                        const prodBadge = g.productType === 'Intraday' ? 'MIS' : 'CNC';
+                        
+                        const groupId = key.replace(/[^a-zA-Z0-9]/g, '_');
+                        const firstTrade = g.trades[0];
 
                         html += `
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; cursor: pointer;" onclick="toggleStockHistory('${t.id}', '${t.symbol}')" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; cursor: pointer;" onclick="togglePositionDetails('${groupId}')" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
                             <td style="padding: 15px 10px;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
-                                    <strong style="font-size: 15px; color: white;">${t.symbol}</strong>
+                                    <strong style="font-size: 15px; color: white;">${g.symbol}</strong>
                                     <span style="font-size: 10px; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: var(--text-secondary); font-weight: 600;">${prodBadge}</span>
                                 </div>
                                 <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
-                                    <span style="color: ${typeColor}; font-size: 11px; border: 1px solid ${typeColor}; padding: 2px 6px; border-radius: 4px; font-weight: 600;">${t.qty} ${t.type}</span>
+                                    <span style="color: ${typeColor}; font-size: 11px; border: 1px solid ${typeColor}; padding: 2px 6px; border-radius: 4px; font-weight: 600;">${g.totalQty} ${g.type}</span>
+                                    <span style="font-size: 10px; color: var(--text-secondary); opacity: 0.7;">(${g.trades.length} trades)</span>
                                 </div>
-                                <div style="margin-top: 5px; font-size: 11px; color: var(--text-secondary);">Invested: <span style="color: white; font-weight: 600;">\u20b9${t.margin.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>
+                                <div style="margin-top: 5px; font-size: 11px; color: var(--text-secondary);">Invested: <span style="color: white; font-weight: 600;">\u20b9${g.totalMargin.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>
                             </td>
                             <td style="padding: 15px 10px; text-align: right;">
-                                <div style="font-size: 14px; color: white;">₹${t.entryPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
-                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">LTP: ₹${currentLtp.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                                <div style="font-size: 14px; color: white;">₹${avgPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">LTP: ₹${g.currentLtp.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
                             </td>
                             <td style="padding: 15px 10px; text-align: right; font-size: 13px;">
-                                ${t.target == 0 && t.sl == 0 ?
-                                `<button onclick="event.stopPropagation(); openEditModal('${t.id}', 0, 0)" style="background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); color: var(--text-secondary); padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.color='white'; this.style.borderColor='white'; this.style.background='rgba(255,255,255,0.1)';" onmouseout="this.style.color='var(--text-secondary)'; this.style.borderColor='rgba(255,255,255,0.2)'; this.style.background='rgba(255,255,255,0.05)';">+ Add T/SL</button>`
-                                : `
-                                <div style="color: var(--accent-buy); display: flex; align-items: center; justify-content: flex-end; gap: 4px;"><i data-lucide="crosshair" style="width: 12px;"></i> ${t.target > 0 ? t.target : '-'}</div>
-                                <div style="color: var(--accent-sell); display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 4px;"><i data-lucide="shield-alert" style="width: 12px;"></i> ${t.sl > 0 ? t.sl : '-'}</div>
-                                `}
+                                <span style="color: var(--text-secondary); font-size: 11px;">Expand for individual T/SL</span>
                             </td>
                             <td style="padding: 15px 10px; text-align: right;">
                                 <div style="color: ${pnlColor}; font-weight: 700; font-size: 15px;">${pnlSign}₹${pnl.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
@@ -1990,16 +2010,40 @@
                             </td>
                             <td style="padding: 15px 10px; text-align: center;">
                                 <div style="display: flex; gap: 8px; justify-content: center;">
-                                    <button onclick="openAddModal('${t.id}', '${t.symbol}', ${currentLtp}, '${t.type}')" title="Add Quantity" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--accent-buy); padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(16, 185, 129, 0.2)'" onmouseout="this.style.background='rgba(16, 185, 129, 0.1)'"><i data-lucide="plus" style="width: 14px; height: 14px;"></i></button>
-                                    <button onclick="openReduceModal('${t.id}', '${t.symbol}', ${currentLtp}, '${t.type}', ${t.qty})" title="Reduce Quantity" style="background: rgba(255, 165, 0, 0.1); border: 1px solid rgba(255, 165, 0, 0.25); color: #f59e0b; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255, 165, 0, 0.2)'" onmouseout="this.style.background='rgba(255, 165, 0, 0.1)'"><i data-lucide="minus" style="width: 14px; height: 14px;"></i></button>
-                                    <button onclick="openEditModal('${t.id}', ${t.target}, ${t.sl})" title="Edit Order" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'"><i data-lucide="edit-2" style="width: 14px; height: 14px;"></i></button>
-                                    <button onclick="quickExit('${t.id}', ${currentLtp})" title="Quick Exit" style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.2); color: var(--accent-sell); padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(244, 63, 94, 0.2)'" onmouseout="this.style.background='rgba(244, 63, 94, 0.1)'"><i data-lucide="power" style="width: 14px; height: 14px;"></i></button>
+                                    <button onclick="event.stopPropagation(); openAddModal('${firstTrade.id}', '${g.symbol}', ${g.currentLtp}, '${g.type}')" title="Add Quantity" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--accent-buy); padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s;"><i data-lucide="plus" style="width: 14px; height: 14px;"></i></button>
+                                    <button onclick="event.stopPropagation(); openReduceModal('${firstTrade.id}', '${g.symbol}', ${g.currentLtp}, '${g.type}', ${g.totalQty})" title="Reduce Total Position" style="background: rgba(255, 165, 0, 0.1); border: 1px solid rgba(255, 165, 0, 0.25); color: #f59e0b; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s;"><i data-lucide="minus" style="width: 14px; height: 14px;"></i></button>
+                                    <button onclick="event.stopPropagation(); togglePositionDetails('${groupId}')" title="View Details" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s;"><i data-lucide="edit-2" style="width: 14px; height: 14px;"></i></button>
+                                    <button onclick="event.stopPropagation(); quickExitGroup('${btoa(JSON.stringify(g.trades.map(tr => tr.id)))}', ${g.currentLtp})" title="Exit All" style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.2); color: var(--accent-sell); padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s;"><i data-lucide="power" style="width: 14px; height: 14px;"></i></button>
                                 </div>
                             </td>
                         </tr>
-                        <tr id="history-row-${t.id}" style="display: none; background: rgba(0,0,0,0.2);">
+                        <tr id="details-row-${groupId}" style="display: none; background: rgba(0,0,0,0.3);">
                             <td colspan="5" style="padding: 0;">
-                                <div id="history-content-${t.id}" style="padding: 15px 20px; border-left: 3px solid ${typeColor};"></div>
+                                <div style="padding: 15px 20px; border-left: 3px solid ${typeColor};">
+                                    <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 800; margin-bottom: 10px; letter-spacing: 1px;">Individual Trade Details</div>
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        ${g.trades.map(tr => `
+                                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                                <td style="padding: 10px 0; color: white; font-size: 13px;">
+                                                    <div style="font-weight: 600;">${tr.qty} @ ₹${tr.entryPrice.toLocaleString()}</div>
+                                                    <div style="font-size: 10px; color: var(--text-secondary);">${new Date(tr.timestamp).toLocaleString()}</div>
+                                                </td>
+                                                <td style="padding: 10px 0; text-align: right;">
+                                                    <div style="font-size: 12px; color: var(--text-secondary);">Target: <span style="color: var(--accent-buy);">${tr.target || '-'}</span></div>
+                                                    <div style="font-size: 12px; color: var(--text-secondary);">SL: <span style="color: var(--accent-sell);">${tr.sl || '-'}</span></div>
+                                                </td>
+                                                <td style="padding: 10px 0; text-align: right;">
+                                                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                                        <button onclick="openAddModal('${tr.id}', '${tr.symbol}', ${g.currentLtp}, '${tr.type}')" title="Add Qty" style="background:none; border:none; color:var(--accent-buy); cursor:pointer;"><i data-lucide="plus" style="width:14px;"></i></button>
+                                                        <button onclick="openReduceModal('${tr.id}', '${tr.symbol}', ${g.currentLtp}, '${tr.type}', ${tr.qty})" title="Reduce Qty" style="background:none; border:none; color:#f59e0b; cursor:pointer;"><i data-lucide="minus" style="width:14px;"></i></button>
+                                                        <button onclick="openEditModal('${tr.id}', ${tr.target}, ${tr.sl})" title="Edit T/SL" style="background:none; border:none; color:white; cursor:pointer;"><i data-lucide="edit-2" style="width:14px;"></i></button>
+                                                        <button onclick="quickExit('${tr.id}', ${g.currentLtp})" title="Exit This" style="background:none; border:none; color:var(--accent-sell); cursor:pointer;"><i data-lucide="power" style="width:14px;"></i></button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </table>
+                                </div>
                             </td>
                         </tr>`;
                     });
@@ -2156,9 +2200,35 @@
         }
 
         // Toggle stock history row in positions
+        function togglePositionDetails(groupId) {
+            const row = document.getElementById('details-row-' + groupId);
+            if (row.style.display === 'none') {
+                row.style.display = 'table-row';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+
+        async function quickExitGroup(encodedIds, ltp) {
+            const ids = JSON.parse(atob(encodedIds));
+            if (!confirm(`Are you sure you want to exit all ${ids.length} trades in this group?`)) return;
+            
+            for (const id of ids) {
+                try {
+                    await fetch('https://paper-trade.teletechcare.workers.dev/api/close-position', {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({ tradeId: id, ltp: Number(ltp) })
+                    });
+                } catch (e) { console.error("Failed to exit trade " + id, e); }
+            }
+            fetchPortfolio();
+        }
+
         function toggleStockHistory(tradeId, symbol) {
             const row = document.getElementById('history-row-' + tradeId);
             const content = document.getElementById('history-content-' + tradeId);
+            if (!row || !content) return;
             if (row.style.display === 'none') {
                 row.style.display = 'table-row';
                 const trades = (window._orderCache || []).filter(t => t.symbol === symbol && t.action !== 'PENDING' && t.action !== 'CANCELLED_PENDING').reverse();
