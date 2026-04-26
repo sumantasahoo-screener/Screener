@@ -14,11 +14,11 @@ html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 button{cursor:pointer;background:none;border:none;font:inherit;}
 
 :root,[data-theme="dark"]{
-  --bg:#080b11;--bg1:#0d1018;--bg2:#111520;--bg3:#161c28;
-  --sidebar:#090c14;--border:rgba(124,58,237,.10);--border2:rgba(124,58,237,.20);--border3:rgba(124,58,237,.38);
-  --ink:#e8edf5;--ink2:#8892a8;--ink3:#4a5270;
-  --accent:#7c3aed;--accent2:#6d28d9;--acc-glow:rgba(124,58,237,.18);
-  --acc-dim:rgba(124,58,237,.08);--acc-mid:rgba(124,58,237,.15);
+  --bg:#040812;--bg1:#061021;--bg2:#09162e;--bg3:#0d1d3b;
+  --sidebar:#050c1a;--border:rgba(2,109,168,.10);--border2:rgba(2,109,168,.20);--border3:rgba(2,109,168,.38);
+  --ink:#e8edf5;--ink2:#8ba0c2;--ink3:#5a7194;
+  --accent:#026DA8;--accent2:#015582;--acc-glow:rgba(2,109,168,.25);
+  --acc-dim:rgba(2,109,168,.08);--acc-mid:rgba(2,109,168,.15);
   --live:#34d399;--live-bg:rgba(52,211,153,.08);--live-bd:rgba(52,211,153,.25);
   --warn:#fbbf24;--warn-bg:rgba(251,191,36,.07);--warn-bd:rgba(251,191,36,.22);
   --red:#f87171;--shadow:0 4px 32px rgba(0,0,0,.65);
@@ -110,12 +110,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
 .sf-note{font-size:9.5px;color:var(--ink3);line-height:1.7;font-family:'JetBrains Mono',monospace;}
 .mob-apk{display:none;}
 
+/* SIDEBAR DIM EFFECT */
+.sidebar.has-open .nav-section { opacity: 0.35; filter: saturate(0.5); transition: all var(--trans); }
+.sidebar.has-open .nav-section:hover { opacity: 0.7; }
+.sidebar.has-open .nav-section:has(.submenu.open) { opacity: 1; filter: none; }
+.sidebar.has-open .sidebar-top, .sidebar.has-open .sidebar-footer { opacity: 0.5; }
+
 /* MAIN */
 .main{margin-left:var(--side-w);width:calc(100% - var(--side-w));margin-top:var(--top-h);height:calc(100vh - var(--top-h));display:flex;flex-direction:column;transition:margin var(--trans),width var(--trans);}
 .main.expanded{margin-left:0;width:100%;}
 
 /* WELCOME */
-.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;position:relative;overflow:hidden;background:var(--bg);}
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;padding:40px 0;gap:24px;position:relative;overflow-y:auto;background:var(--bg);}
 .w-bg-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:44px 44px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 10%,transparent 75%);opacity:.5;}
 .w-glow{position:absolute;inset:0;background:radial-gradient(ellipse 50% 38% at 50% 50%,var(--acc-glow),transparent 68%);pointer-events:none;}
 .w-inner{position:relative;text-align:center;max-width:480px;padding:0 24px;}
@@ -134,6 +140,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
 .w-stat:hover{border-color:var(--border3);box-shadow:0 0 20px var(--acc-glow);transform:translateY(-2px);}
 .w-stat-val{font-size:22px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;line-height:1;}
 .w-stat-lbl{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);margin-top:6px;font-weight:500;}
+
+.w-stat-lbl{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);margin-top:6px;font-weight:500;}
+
+.w-resources{margin-top:48px;display:grid;grid-template-columns:repeat(3, 1fr);gap:20px;max-width:440px;margin-left:auto;margin-right:auto;}
+.w-res-item{display:flex;flex-direction:column;align-items:center;gap:10px;text-decoration:none;transition:all var(--trans);}
+.w-res-ico{width:52px;height:52px;border-radius:15px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--ink2);box-shadow:0 4px 12px rgba(0,0,0,.4);transition:all var(--trans);position:relative;overflow:hidden;}
+.w-res-ico::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg, rgba(255,255,255,0.05), transparent);opacity:0;transition:opacity var(--trans);}
+.w-res-lbl{font-size:9px;color:var(--ink3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.8px;text-align:center;font-weight:600;}
+.w-res-item:hover .w-res-ico{background:var(--acc-mid);border-color:var(--accent);transform:translateY(-5px);box-shadow:0 10px 28px var(--acc-glow);color:var(--accent);}
+.w-res-item:hover .w-res-ico::before{opacity:1;}
+.w-res-item:hover .w-res-lbl{color:var(--accent);}
+@media(max-width:480px){ .w-resources{grid-template-columns:repeat(3, 1fr); gap:12px;} .w-res-ico{width:44px;height:44px;font-size:18px;} }
 
 .content-frame{flex:1;border:none;background:var(--bg);display:none;}
 
@@ -216,8 +234,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
   </div>
   <div class="topbar-clock" id="clock">Loading...</div>
   <div class="topbar-right">
-    <a href="https://screener-epd.pages.dev/public/oi" target="_blank" rel="noopener" class="forum-btn" title="OI Terminal">📊 OI-Terminal</a>
-    <a href="https://trade-forum.teletechcare.workers.dev/" target="_blank" rel="noopener" class="forum-btn" title="Trade Forum">&#128172; Forum</a>
+    <a href="https://screener2-584.pages.dev/StockTrade" target="_blank" rel="noopener" class="forum-btn" title="Old Stock Trade">📉 V1-Stock</a>
+    <a href="https://screener-epd.pages.dev/public/orb_scanner" target="_blank" rel="noopener" class="forum-btn" title="Old ORB Scanner">🎯 V1-ORB</a>
+    <a href="https://screener-epd.pages.dev/public/TradeChat" target="_blank" rel="noopener" class="forum-btn" title="Trade Chat">💬 Trade-setup</a>
     <div class="live-badge"><span class="live-dot"></span>LIVE</div>
     <div class="theme-switcher" title="Switch Theme">
       <div class="t-btn active" id="btn-dark" style="background:#080b11;border-color:var(--accent);" onclick="setTheme('dark')" title="Dark"></div>
@@ -233,6 +252,36 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-top">
     <div class="sidebar-top-lbl">&#9642; Navigation Menu</div>
+  </div>
+
+
+  <!-- 0. COMMUNITY (RENAMED) -->
+  <div class="nav-section" style="border-bottom: 2px solid var(--acc-mid); background: linear-gradient(to bottom, var(--acc-dim), transparent);">
+    <button class="sec-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico" style="background: var(--accent); color: #fff;">🌐</div>
+        <div><span class="sec-title" style="color: var(--accent);">COMMUNITY</span> <span class="sec-count">2</span></div>
+      </div>
+      <span class="sec-arrow open">&#9660;</span>
+    </button>
+    <div class="submenu open">
+      <a href="https://screener-epd.pages.dev/public/papertrade" class="nav-link external" target="_blank" rel="noopener" style="font-weight: 600; color: var(--ink);">Paper Trade <span class="nbadge live">NEW</span></a>
+      <a href="https://trade-forum.teletechcare.workers.dev/" class="nav-link external" target="_blank" rel="noopener">Community Forum</a>
+    </div>
+  </div>
+
+  <!-- OI TERMINAL (NEW SECTION) -->
+  <div class="nav-section">
+    <button class="sec-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico" style="background: var(--acc-dim); color: var(--accent); border: 1px solid var(--accent);">📊</div>
+        <div><span class="sec-title">OI TERMINAL</span> <span class="sec-count">1</span></div>
+      </div>
+      <span class="sec-arrow">&#9660;</span>
+    </button>
+    <div class="submenu">
+      <a href="https://screener-epd.pages.dev/public/oi" class="nav-link external" target="_blank" rel="noopener">OI Terminal <span class="nbadge live">LIVE</span></a>
+    </div>
   </div>
 
   <!-- 1. BASIC TOOL -->
@@ -323,53 +372,22 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
     </div>
   </div>
   
-    <!-- 5. PLANNER -->
-  <div class="nav-section">
-    <button class="sec-hdr" onclick="toggleSection(this)">
-      <div class="sec-hdr-left">
-        <div class="sec-ico">&#128172;</div>
-        <div><span class="sec-title">PLANNER</span> <span class="sec-count">1</span></div>
-      </div>
-      <span class="sec-arrow">&#9660;</span>
-    </button>
-    <div class="submenu">
-
-      <a href="https://screener-epd.pages.dev/public/TradeChat" class="nav-link">TradeChat <span class="nbadge live">CHAT</span></a>
-    </div>
-  </div>
   
   
 
 
-  <!-- 6. EXTERNAL LINK -->
-  <div class="nav-section">
-    <button class="sec-hdr" onclick="toggleSection(this)">
-      <div class="sec-hdr-left">
-        <div class="sec-ico">&#128279;</div>
-        <div><span class="sec-title">External Link</span> <span class="sec-count">7</span></div>
-      </div>
-      <span class="sec-arrow">&#9660;</span>
-    </button>
-    <div class="submenu">
-      <a href="https://upstox.com/fno-discovery/open-interest-analysis/nifty-pcr/" class="nav-link external" target="_blank" rel="noopener">PCR Data</a>
-      <a href="https://groww.in/indices/global-indices" class="nav-link external" target="_blank" rel="noopener">Global Index</a>
-      <a href="https://web.quantsapp.com/signin" class="nav-link external" target="_blank" rel="noopener">Quantsapp</a>
-      <a href="https://login.dhan.co/?location=DH_WEB" class="nav-link external" target="_blank" rel="noopener">Dhan</a>
-      <a href="https://www.nseindia.com/option-chain" class="nav-link external" target="_blank" rel="noopener">Nifty Option Chain</a>
-      <a href="https://nifty-pe-ratio.com" class="nav-link external" target="_blank" rel="noopener">Nifty PE Ratio</a>
-      <a href="https://screener2-584.pages.dev/indextracker" class="nav-link">Index Tracker <span class="nbadge live">Delay</span></a>
-	  <a href="https://tradingtick.in/" class="nav-link">Option Related <span class="nbadge live">Useful Site</span></a>
-	  <a href="https://gocharting.com/" class="nav-link">Chart <span class="nbadge live">Unique Chart</span></a>
-	  
-    </div>
-  </div>
 
-  <!-- 7. GUIDE -->
+  
+  
+
+  <!-- 7. GUIDE (RESTORED) -->
   <div class="nav-section">
     <button class="sec-hdr" onclick="toggleSection(this)">
-      <div class="sec-hdr-left">
-        <div class="sec-ico">&#128214;</div>
-        <div><span class="sec-title">Guide</span> <span class="sec-count">2</span></div>
+      <div class="sec-ico-wrap">
+        <div class="sec-hdr-left">
+          <div class="sec-ico">&#128214;</div>
+          <div><span class="sec-title">GUIDE</span> <span class="sec-count">2</span></div>
+        </div>
       </div>
       <span class="sec-arrow">&#9660;</span>
     </button>
@@ -378,23 +396,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
       <a href="https://screener-epd.pages.dev/public/williams-fractal-scalping-guide.html" class="nav-link">2M Option Scalp <span class="nbadge info">Guide</span></a>
     </div>
   </div>
-  
-    <!-- 2. OLD TOOL -->
-  <div class="nav-section">
-    <button class="sec-hdr" onclick="toggleSection(this)">
-      <div class="sec-hdr-left">
-        <div class="sec-ico">&#128202;</div>
-        <div><span class="sec-title">OLD INTRADAY TOOL</span> <span class="sec-count">2</span></div>
-      </div>
-      <span class="sec-arrow">&#9660;</span>
-    </button>
-    <div class="submenu">
-      <a href="https://screener2-584.pages.dev/StockTrade" class="nav-link">Stock Trade <span class="nbadge live">LIVE</span></a>
-	  <a href="https://screener-epd.pages.dev/public/orb_scanner" class="nav-link">ORB <span class="nbadge live">LIVE</span></a>
-      
-    </div>
-  </div>
-  
 
   <!-- Footer -->
   <div class="sidebar-footer">
@@ -423,6 +424,44 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
         <div class="w-stat"><div class="w-stat-val" style="color:var(--live)">LIVE</div><div class="w-stat-lbl">Data</div></div>
         <div class="w-stat"><div class="w-stat-val">AI</div><div class="w-stat-lbl">Powered</div></div>
         <div class="w-stat"><div class="w-stat-val">APK</div><div class="w-stat-lbl">Android</div></div>
+      </div>
+      <div class="w-resources">
+        <a href="https://upstox.com/fno-discovery/open-interest-analysis/nifty-pcr/" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">📈</div>
+          <div class="w-res-lbl">PCR Data</div>
+        </a>
+        <a href="https://groww.in/indices/global-indices" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">🌍</div>
+          <div class="w-res-lbl">Global</div>
+        </a>
+        <a href="https://web.quantsapp.com/signin" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">📊</div>
+          <div class="w-res-lbl">Quantsapp</div>
+        </a>
+        <a href="https://login.dhan.co/?location=DH_WEB" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">💰</div>
+          <div class="w-res-lbl">Dhan</div>
+        </a>
+        <a href="https://www.nseindia.com/option-chain" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">🏦</div>
+          <div class="w-res-lbl">NSE Chain</div>
+        </a>
+        <a href="https://nifty-pe-ratio.com" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">📉</div>
+          <div class="w-res-lbl">PE Ratio</div>
+        </a>
+        <a href="https://screener2-584.pages.dev/indextracker" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">📡</div>
+          <div class="w-res-lbl">Tracker</div>
+        </a>
+        <a href="https://tradingtick.in/" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">⏱️</div>
+          <div class="w-res-lbl">TradTick</div>
+        </a>
+        <a href="https://gocharting.com/" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">🕯️</div>
+          <div class="w-res-lbl">Charts</div>
+        </a>
       </div>
     </div>
   </div>
@@ -487,8 +526,21 @@ function closeMobileSidebar(){
 function toggleSection(btn){
   var sub=btn.nextElementSibling;
   var arr=btn.querySelector('.sec-arrow');
-  sub.classList.toggle('open');
-  arr.classList.toggle('open');
+  var isOpen=sub.classList.contains('open');
+  var sb=document.getElementById('sidebar');
+  
+  // Close all sections
+  document.querySelectorAll('.submenu').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.sec-arrow').forEach(a => a.classList.remove('open'));
+  
+  // Toggle current if it wasn't open
+  if(!isOpen){
+    sub.classList.add('open');
+    arr.classList.add('open');
+    sb.classList.add('has-open');
+  } else {
+    sb.classList.remove('has-open');
+  }
 }
 
 /* ─── HOME ─── */
