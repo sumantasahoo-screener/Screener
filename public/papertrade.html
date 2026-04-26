@@ -1488,10 +1488,10 @@
             const displayName = selectedOpt ? selectedOpt.text : adminViewingUser;
             if (!confirm(`⚠️ Are you sure you want to RESET ${displayName}?\n\nThis will DELETE all trades and reset balance to ₹1,00,000.\n\nThis cannot be undone.`)) return;
             try {
-                const res = await fetch('https://paper-trade.teletechcare.workers.dev/api/reset-data', {
+                const res = await fetch('https://paper-trade.teletechcare.workers.dev/api/admin/reset-user', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-User-ID': currentUserEmail, 'X-View-User': adminViewingUser },
-                    body: JSON.stringify({ targetUser: adminViewingUser })
+                    headers: { 'Content-Type': 'application/json', 'X-User-ID': currentUserEmail },
+                    body: JSON.stringify({ resetUserId: adminViewingUser })
                 });
                 const result = await res.json();
                 if (res.ok && result.success) {
