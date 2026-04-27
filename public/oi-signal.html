@@ -271,7 +271,6 @@
         if (currentView === 'INDICES') filtered = rawSignals.filter(s => s.isIndex);
         if (currentView === 'STOCKS') filtered = rawSignals.filter(s => !s.isIndex);
 
-        // --- NEW: Conflicting Signals Filter (Deduplication) ---
         // Group by Symbol and keep only the strongest signal (Highest Score)
         const bestSigs = {};
         filtered.forEach(sig => {
@@ -279,13 +278,11 @@
             if (!bestSigs[key] || sig.score > bestSigs[key].score) {
                 bestSigs[key] = sig;
             } else if (sig.score === bestSigs[key].score) {
-                // If scores are equal, pick the one that aligns with Price Change (pChng)
                 const aAligns = (sig.side === 'CE' && sig.pChng > 0) || (sig.side === 'PE' && sig.pChng < 0);
                 if (aAligns) bestSigs[key] = sig;
             }
         });
         filtered = Object.values(bestSigs);
-        // -------------------------------------------------------
 
         filtered.sort((a, b) => {
             const aSpike = (a.reason || '').includes('Volume Spike') ? 1 : 0;
