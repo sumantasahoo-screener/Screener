@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LIVE SIGNALS | NSE OPTION TRADER</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
     <style>
         :root {
             --bg: #050508;
@@ -114,6 +115,10 @@
             <span id="market-time" class="tool-val">--:--:--</span>
         </div>
         <div class="tool-item">
+            <span class="tool-label">NEXT REFRESH</span>
+            <span id="next-refresh" class="tool-val" style="color:var(--green)">60s</span>
+        </div>
+        <div class="tool-item">
             <span class="tool-label">LAST FETCH</span>
             <span id="last-fetch" class="tool-val" style="color:var(--accent)">--:--:--</span>
         </div>
@@ -184,6 +189,7 @@
     let lastSignalCount = 0;
     let currentView = 'ALL';
     let rawSignals = [];
+    let countdown = 60;
 
     function setView(view) {
         currentView = view;
@@ -208,6 +214,10 @@
     async function fetchAllSignals() {
         const meta = await r2Fetch('/meta.json');
         if (!meta) return;
+        
+        countdown = 60; // Reset countdown
+        document.getElementById('next-refresh').innerText = `60s`;
+        document.getElementById('next-refresh').style.color = 'var(--green)';
 
         document.getElementById('vix-val').innerText = `${meta.vix}%`;
         document.getElementById('last-fetch').innerText = meta.updated || '--:--:--';
@@ -349,6 +359,15 @@
         setInterval(() => {
             const now = new Date();
             document.getElementById('market-time').innerText = now.toLocaleTimeString('en-IN', { hour12: false });
+            
+            // Handle Countdown
+            if (countdown > 0) {
+                countdown--;
+                const timerElem = document.getElementById('next-refresh');
+                timerElem.innerText = `${countdown}s`;
+                if (countdown <= 10) timerElem.style.color = 'var(--red)';
+                else if (countdown <= 30) timerElem.style.color = 'var(--yellow)';
+            }
         }, 1000);
     }
 
