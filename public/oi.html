@@ -89,6 +89,20 @@
         .pe-oi-bar{left:0;background:var(--red)}
         #err-banner{display:none;background:rgba(255,45,85,0.1);border-bottom:1px solid var(--red);
             padding:6px 24px;color:var(--red);font-size:11px;text-align:center;font-weight:700}
+        .signal-toggle{display:flex;background:rgba(255,255,255,0.05);border-radius:6px;padding:2px;width:100%;border:1px solid rgba(255,255,255,0.1)}
+        .toggle-btn{flex:1;text-align:center;padding:6px;font-size:10px;font-weight:800;border-radius:4px;cursor:pointer;color:var(--text-dim);transition:all 0.3s;font-family:'JetBrains Mono'}
+        .toggle-btn.active{background:#111;color:var(--accent);box-shadow:0 2px 10px rgba(0,0,0,0.5);border:1px solid rgba(0,210,255,0.3)}
+        
+        @keyframes ticker-scroll { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+        #live-ticker-wrap:hover #live-ticker-content { animation-play-state: paused !important; }
+        .pill-alert { box-shadow: 0 0 8px var(--red); border-color: var(--red) !important; color: #fff !important; }
+        .pill-alert-gamma { box-shadow: 0 0 10px #ff00ff; border-color: #ff00ff !important; color: #fff !important; animation: pulse-gamma 1.5s infinite; }
+        @keyframes pulse-gamma { 0% { box-shadow: 0 0 5px #ff00ff; } 50% { box-shadow: 0 0 15px #ff00ff; } 100% { box-shadow: 0 0 5px #ff00ff; } }
+        .spot-pchange { font-size: 13px; font-weight: 800; padding: 2px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono'; margin-left: 10px; }
+        .pchange-up { background: rgba(0, 255, 159, 0.15); color: var(--green); border: 1px solid rgba(0, 255, 159, 0.3); }
+        .pchange-down { background: rgba(255, 45, 85, 0.15); color: var(--red); border: 1px solid rgba(255, 45, 85, 0.3); }
+        .pchange-neutral { background: rgba(255, 255, 255, 0.05); color: var(--text-dim); border: 1px solid var(--border); }
+        
         @media(max-width:900px){.dashboard{grid-template-columns:1fr}.sidebar{max-height:none;border-right:none}
             header{padding:0 12px}.header-stats{gap:15px}}
     </style>
@@ -109,14 +123,22 @@
         <div class="stat-item"><span class="stat-label">LAST SCAN:</span> <span id="last-fetch-time" class="stat-val" style="color:var(--accent)">--:--:--</span></div>
         <div id="market-time" class="stat-val" style="font-size:12px;color:var(--text-dim);font-family:'JetBrains Mono';border-left:1px solid var(--border);padding-left:15px">--:--:--</div>
         <a href="oi-compare.html" target="_blank" style="background:rgba(0,210,255,.12);border:1px solid rgba(0,210,255,.4);color:#00d2ff;padding:5px 14px;border-radius:4px;font-size:11px;font-weight:bold;text-decoration:none;white-space:nowrap">📊 OI COMPARE</a>
+        <a href="oi-signal.html" target="_blank" style="background:rgba(0,255,159,.12);border:1px solid rgba(0,255,159,.4);color:#00ff9f;padding:5px 14px;border-radius:4px;font-size:11px;font-weight:bold;text-decoration:none;white-space:nowrap">🔥 SIGNALS</a>
     </div>
 </header>
+
+<div id="live-ticker-wrap" style="display:none; background:#111; border-bottom:1px solid var(--border); padding:6px 0; overflow:hidden; position:relative; width:100%; white-space:nowrap;">
+    <div id="live-ticker-content" style="display:inline-block; animation: ticker-scroll 60s linear infinite; font-size:11px; font-weight:800; color:var(--text-dim);"></div>
+</div>
 
 <div class="dashboard">
     <aside class="sidebar">
         <div>
             <div class="section-title">LIVE SPOT</div>
-            <div id="spot-display">--</div>
+            <div style="display:flex; align-items:center;">
+                <div id="spot-display">--</div>
+                <div id="spot-pchange-badge" class="spot-pchange pchange-neutral" style="display:none">--</div>
+            </div>
             <div id="bias-badge" style="font-size:10px;font-weight:800;margin-top:8px;display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,0.05)">--</div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -138,7 +160,13 @@
             </div>
         </div>
         <div>
-            <div class="section-title">ACTIVE SIGNALS <span id="sig-count" style="color:var(--accent)">0</span></div>
+            <div class="section-title" style="flex-direction:column; align-items:flex-start; gap:10px;">
+                <div style="display:flex; justify-content:space-between; width:100%">ACTIVE SIGNALS <span id="sig-count" style="color:var(--accent)">0</span></div>
+                <div class="signal-toggle">
+                    <div id="btn-std-sig" class="toggle-btn active" onclick="setSignalMode('STANDARD')">STANDARD</div>
+                    <div id="btn-gam-sig" class="toggle-btn" onclick="setSignalMode('GAMMA')">GAMMA BLAST</div>
+                </div>
+            </div>
             <div id="signal-container"></div>
         </div>
         <div style="flex:1;display:flex;flex-direction:column;min-height:200px">
@@ -162,14 +190,14 @@
             <table>
                 <thead>
                     <tr>
-                        <th colspan="6" style="background:rgba(0,255,159,0.03)">CALLS</th>
+                        <th colspan="8" style="background:rgba(0,255,159,0.03)">CALLS</th>
                         <th style="background:#111">STRIKE</th>
-                        <th colspan="6" style="background:rgba(255,45,85,0.03)">PUTS</th>
+                        <th colspan="8" style="background:rgba(255,45,85,0.03)">PUTS</th>
                     </tr>
                     <tr>
-                        <th>Delta</th><th>Theta</th><th>IV</th><th>LTP</th><th>ChgOI</th><th>OI</th>
+                        <th>Vega</th><th>Gamma</th><th>Delta</th><th>Theta</th><th>IV</th><th>LTP</th><th>ChgOI</th><th>OI</th>
                         <th class="strike-col">K</th>
-                        <th>OI</th><th>ChgOI</th><th>LTP</th><th>IV</th><th>Theta</th><th>Delta</th>
+                        <th>OI</th><th>ChgOI</th><th>LTP</th><th>IV</th><th>Theta</th><th>Delta</th><th>Gamma</th><th>Vega</th>
                     </tr>
                 </thead>
                 <tbody id="chain-body"></tbody>
@@ -178,14 +206,108 @@
     </main>
 </div>
 
+<style>
+.modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);
+    display: none; justify-content: center; align-items: center; z-index: 1000;
+    opacity: 0; transition: opacity 0.2s;
+}
+.modal-overlay.active { display: flex; opacity: 1; }
+.modal-content {
+    background: #111; border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; width: 350px; max-width: 90%; color: var(--text);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative;
+    transform: translateY(20px); transition: transform 0.2s;
+}
+.modal-overlay.active .modal-content { transform: translateY(0); }
+.modal-close {
+    position: absolute; top: 12px; right: 15px; cursor: pointer;
+    color: var(--text-dim); font-size: 16px;
+}
+.modal-close:hover { color: #fff; }
+</style>
+
+<div id="signal-modal" class="modal-overlay" onclick="if(event.target===this) closeSignalDetails()">
+    <div class="modal-content">
+        <div class="modal-close" onclick="closeSignalDetails()">✖</div>
+        <div id="sm-title" style="font-size:16px;font-weight:800;color:var(--accent);margin-bottom:5px"></div>
+        <div id="sm-time" style="font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono';margin-bottom:15px;border-bottom:1px solid var(--border);padding-bottom:10px"></div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">
+            <div style="background:rgba(255,255,255,0.03);padding:10px;border-radius:6px">
+                <div style="font-size:9px;color:var(--text-dim)">SCORE</div>
+                <div id="sm-score" style="font-size:14px;font-weight:800"></div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);padding:10px;border-radius:6px">
+                <div style="font-size:9px;color:var(--text-dim)">CONFIDENCE</div>
+                <div id="sm-conf" style="font-size:14px;font-weight:800"></div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);padding:10px;border-radius:6px">
+                <div style="font-size:9px;color:var(--text-dim)">SPOT</div>
+                <div id="sm-spot" style="font-size:14px;font-weight:800"></div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);padding:10px;border-radius:6px">
+                <div style="font-size:9px;color:var(--text-dim)">PCR</div>
+                <div id="sm-pcr" style="font-size:14px;font-weight:800"></div>
+            </div>
+        </div>
+        
+        <div style="font-size:10px;color:var(--text-dim);margin-bottom:5px;font-weight:bold">REASONING:</div>
+        <ul id="sm-reasons" style="font-size:12px;color:var(--text);margin:0;padding-left:15px;line-height:1.5"></ul>
+    </div>
+</div>
+
 <script>
+function showSignalDetails(jsonStr) {
+    try {
+        const s = JSON.parse(decodeURIComponent(jsonStr));
+        document.getElementById('sm-title').innerText = `${s.sym} ${s.strike} ${s.side}`;
+        document.getElementById('sm-title').style.color = s.side === 'CE' ? 'var(--green)' : 'var(--red)';
+        document.getElementById('sm-time').innerText = `Generated at: ${s.ts}`;
+        
+        document.getElementById('sm-score').innerText = `${s.score}/10`;
+        document.getElementById('sm-score').style.color = s.side === 'CE' ? 'var(--green)' : 'var(--red)';
+        
+        document.getElementById('sm-conf').innerText = s.conf ? `${s.conf}%` : '--';
+        document.getElementById('sm-spot').innerText = s.spot ? s.spot : '--';
+        document.getElementById('sm-pcr').innerText = s.pcr ? s.pcr : '--';
+        
+        let reasonsHtml = '';
+        if (s.reasons && Array.isArray(s.reasons)) {
+            reasonsHtml = s.reasons.map(r => `<li>${r}</li>`).join('');
+        } else if (s.reason) {
+            reasonsHtml = s.reason.split('+').map(r => `<li>${r.trim()}</li>`).join('');
+        } else {
+            reasonsHtml = `<li>No details available</li>`;
+        }
+        document.getElementById('sm-reasons').innerHTML = reasonsHtml;
+        
+        document.getElementById('signal-modal').classList.add('active');
+    } catch(e) {}
+}
+
+function closeSignalDetails() {
+    document.getElementById('signal-modal').classList.remove('active');
+}
     // ═══════════════════════════════════════════
     //  CLOUD-ONLY MODE — No local server calls
+    // ═══════════════════════════════════════════
     // ═══════════════════════════════════════════
     const R2 = 'https://pub-7381e1c00b8f43138d4f7ef3b96d862d.r2.dev';
     let currentSym = 'NIFTY';
     let indicesList = ['NIFTY', 'BANKNIFTY', 'FINNIFTY', 'MIDCPNIFTY'];
     let stocksList = [];
+    let currentSignalMode = 'STANDARD';
+    let activeAlertMap = {};
+
+    function setSignalMode(mode) {
+        currentSignalMode = mode;
+        document.getElementById('btn-std-sig').className = mode === 'STANDARD' ? 'toggle-btn active' : 'toggle-btn';
+        document.getElementById('btn-gam-sig').className = mode === 'GAMMA' ? 'toggle-btn active' : 'toggle-btn';
+        loadData(true);
+        updateHistory();
+    }
 
     async function r2Fetch(path) {
         try {
@@ -216,8 +338,33 @@
         if (data.groups) {
             indicesList = data.groups.indices || [];
             stocksList = data.groups.stocks || [];
-            renderSymbolPills();
         }
+        
+        if (data.alerts && data.alerts.length > 0) {
+            const wrap = document.getElementById('live-ticker-wrap');
+            const content = document.getElementById('live-ticker-content');
+            wrap.style.display = 'block';
+            
+            let tickerHtml = '';
+            activeAlertMap = {};
+            
+            data.alerts.forEach(a => {
+                const side = a.direction === 'BULLISH' ? 'CE' : 'PE';
+                const color = side === 'CE' ? 'var(--green)' : 'var(--red)';
+                const typeBadge = a.type === 'GAMMA' ? '<span style="color:#ff00ff">[GAMMA]</span>' : '<span style="color:#00d2ff">[STD]</span>';
+                const pc = a.pChng ? `(${(a.pChng > 0 ? '+' : '')}${a.pChng.toFixed(2)}%)` : '';
+                tickerHtml += `<span style="cursor:pointer; margin-right:40px;" onclick="switchSym('${a.sym}')">🔥 ${a.sym} <span style="font-size:9px;color:var(--text-dim)">${pc}</span> ${a.atm} <span style="color:${color}">${side}</span> ${typeBadge}</span>`;
+                
+                if (a.type === 'GAMMA') activeAlertMap[a.sym] = 'GAMMA';
+                else if (!activeAlertMap[a.sym]) activeAlertMap[a.sym] = 'STANDARD';
+            });
+            content.innerHTML = tickerHtml + tickerHtml + tickerHtml;
+        } else {
+            document.getElementById('live-ticker-wrap').style.display = 'none';
+            activeAlertMap = {};
+        }
+
+        renderSymbolPills();
     }
 
     function startClock() {
@@ -244,6 +391,15 @@
             document.getElementById('last-fetch-time').innerText = tp;
         }
         document.getElementById('spot-display').innerText = format(data.spot, 2);
+        
+        const pchg = data.pChng || 0;
+        const pchgBadge = document.getElementById('spot-pchange-badge');
+        if (pchgBadge) {
+            pchgBadge.style.display = 'inline-flex';
+            pchgBadge.innerText = (pchg > 0 ? '▲ ' : (pchg < 0 ? '▼ ' : '')) + Math.abs(pchg).toFixed(2) + '%';
+            pchgBadge.className = 'spot-pchange ' + (pchg > 0 ? 'pchange-up' : (pchg < 0 ? 'pchange-down' : 'pchange-neutral'));
+        }
+
         document.getElementById('pcr-val').innerText = data.pcr || '--';
         document.getElementById('mp-val').innerText = format(data.max_pain);
         document.getElementById('res-val').innerText = format(data.ce_wall);
@@ -273,6 +429,8 @@
             const isCEWall = Number(s.K) === Number(data.ce_wall);
             const isPEWall = Number(s.K) === Number(data.pe_wall);
             return `<tr id="row-${s.K}" class="${isATM ? 'atm-row' : ''}">
+                <td class="${s.K < data.spot ? 'itm-ce' : ''}">${(s.CE_Vega||0).toFixed(1)}</td>
+                <td class="${s.K < data.spot ? 'itm-ce' : ''}">${(s.CE_Gamma||0).toFixed(4)}</td>
                 <td class="${s.K < data.spot ? 'itm-ce' : ''}">${(s.CE_Delta||0).toFixed(2)}</td>
                 <td class="${s.K < data.spot ? 'itm-ce' : ''}">${(s.CE_Theta||0).toFixed(1)}</td>
                 <td class="${s.K < data.spot ? 'itm-ce' : ''}">${(s.CE_IV||0).toFixed(1)}</td>
@@ -286,6 +444,8 @@
                 <td class="${s.K > data.spot ? 'itm-pe' : ''}">${(s.PE_IV||0).toFixed(1)}</td>
                 <td class="${s.K > data.spot ? 'itm-pe' : ''}">${(s.PE_Theta||0).toFixed(1)}</td>
                 <td class="${s.K > data.spot ? 'itm-pe' : ''}">${(s.PE_Delta||0).toFixed(2)}</td>
+                <td class="${s.K > data.spot ? 'itm-pe' : ''}">${(s.PE_Gamma||0).toFixed(4)}</td>
+                <td class="${s.K > data.spot ? 'itm-pe' : ''}">${(s.PE_Vega||0).toFixed(1)}</td>
             </tr>`;
         }).join('');
 
@@ -294,26 +454,49 @@
 
     async function updateSignals(data) {
         if (!data || !data.strikes) return;
-        const minScore = 5;
+        const minScore = 6;
         const minOi = 2000;
         let signals = [];
 
         data.strikes.forEach(s => {
-            if (s.CE_BuySc >= minScore && s.CE_OI >= minOi) {
-                signals.push({
-                    ts: data.timestamp ? data.timestamp.split(' ')[1] : '',
-                    sym: data.symbol, strike: s.K, side: 'CE', expiry: data.expiry,
-                    type: 'BUY', score: s.CE_BuySc, conf: s.CE_BuyConf,
-                    ltp: s.CE_LTP, iv: s.CE_IV, reason: s.CE_BuyReason
-                });
-            }
-            if (s.PE_BuySc >= minScore && s.PE_OI >= minOi) {
-                signals.push({
-                    ts: data.timestamp ? data.timestamp.split(' ')[1] : '',
-                    sym: data.symbol, strike: s.K, side: 'PE', expiry: data.expiry,
-                    type: 'BUY', score: s.PE_BuySc, conf: s.PE_BuyConf,
-                    ltp: s.PE_LTP, iv: s.PE_IV, reason: s.PE_BuyReason
-                });
+            if (currentSignalMode === 'STANDARD') {
+                if (s.CE_BuySc >= minScore && s.CE_OI >= minOi) {
+                    signals.push({
+                        ts: data.timestamp ? data.timestamp.split(' ')[1] : '',
+                        sym: data.symbol, strike: s.K, side: 'CE', expiry: data.expiry,
+                        type: 'BUY', score: s.CE_BuySc, conf: s.CE_BuyConf,
+                        ltp: s.CE_LTP, iv: s.CE_IV, reason: s.CE_BuyReason,
+                        spot: data.spot, pcr: data.pcr
+                    });
+                }
+                if (s.PE_BuySc >= minScore && s.PE_OI >= minOi) {
+                    signals.push({
+                        ts: data.timestamp ? data.timestamp.split(' ')[1] : '',
+                        sym: data.symbol, strike: s.K, side: 'PE', expiry: data.expiry,
+                        type: 'BUY', score: s.PE_BuySc, conf: s.PE_BuyConf,
+                        ltp: s.PE_LTP, iv: s.PE_IV, reason: s.PE_BuyReason,
+                        spot: data.spot, pcr: data.pcr
+                    });
+                }
+            } else {
+                if (s.CE_GBuySc >= minScore && s.CE_OI >= minOi) {
+                    signals.push({
+                        ts: data.timestamp ? data.timestamp.split(' ')[1] : '',
+                        sym: data.symbol, strike: s.K, side: 'CE', expiry: data.expiry,
+                        type: 'BUY', score: s.CE_GBuySc, conf: s.CE_GBuyConf,
+                        ltp: s.CE_LTP, iv: s.CE_IV, reason: s.CE_GBuyReason,
+                        spot: data.spot, pcr: data.pcr
+                    });
+                }
+                if (s.PE_GBuySc >= minScore && s.PE_OI >= minOi) {
+                    signals.push({
+                        ts: data.timestamp ? data.timestamp.split(' ')[1] : '',
+                        sym: data.symbol, strike: s.K, side: 'PE', expiry: data.expiry,
+                        type: 'BUY', score: s.PE_GBuySc, conf: s.PE_GBuyConf,
+                        ltp: s.PE_LTP, iv: s.PE_IV, reason: s.PE_GBuyReason,
+                        spot: data.spot, pcr: data.pcr
+                    });
+                }
             }
         });
 
@@ -321,11 +504,17 @@
         signals.sort((a, b) => b.score - a.score);
 
         document.getElementById('sig-count').innerText = signals.length;
-        document.getElementById('signal-container').innerHTML = signals.map(s => `
-            <div class="signal-card ${s.side === 'CE' ? 'BUY' : 'SELL'}" onclick="scrollToStrike(${s.strike})">
+        document.getElementById('signal-container').innerHTML = signals.map(s => {
+            const sigJson = encodeURIComponent(JSON.stringify({...s, from:'active'}));
+            const isVolSpike = (s.reason || '').includes('Volume Spike');
+            const spikeBadge = isVolSpike ? `<span style="background:rgba(255,215,0,0.2);color:gold;padding:2px 6px;border-radius:4px;font-size:9px;margin-left:6px;border:1px solid gold;box-shadow:0 0 5px rgba(255,215,0,0.5);">⚡ VOL SPIKE</span>` : '';
+            const borderStyle = isVolSpike ? `border: 1px solid gold; box-shadow: 0 0 15px rgba(255,215,0,0.2);` : '';
+            
+            return `
+            <div class="signal-card ${s.side === 'CE' ? 'BUY' : 'SELL'}" onclick="showSignalDetails('${sigJson}')" style="cursor:pointer; ${borderStyle}">
                 <div class="sig-header">
                     <div>
-                        <div class="sig-sym">${s.sym} ${s.strike}</div>
+                        <div class="sig-sym">${s.sym} ${s.strike} <span style="font-size:10px;color:var(--text-dim);margin-left:8px;font-family:'JetBrains Mono'">${s.ts}</span>${spikeBadge}</div>
                         <div style="display:flex;gap:6px;margin-top:4px;align-items:center">
                             <span style="font-size:10px;font-weight:900;padding:2px 8px;border-radius:4px;
                                 background:${s.side==='CE'?'rgba(0,255,159,0.15)':'rgba(255,45,85,0.15)'};
@@ -336,38 +525,54 @@
                             <span style="font-size:9px;color:var(--text-dim);font-family:'JetBrains Mono'">${s.expiry||''}</span>
                         </div>
                     </div>
-                    <div class="sig-score" style="color:${s.side==='CE'?'var(--green)':'var(--red)'}">${s.score}</div>
+                    <div style="background:rgba(255,255,255,0.05);padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.1)">
+                        Score: <span style="color:${s.side==='CE'?'var(--green)':'var(--red)'}">${s.score}</span>
+                    </div>
                 </div>
                 <div style="font-size:10px;color:var(--accent);font-weight:700;margin-top:6px">${s.conf||0}% CONF | LTP: ${s.ltp||'--'}</div>
                 <div style="font-size:9px;color:var(--text-dim);margin-top:4px">${s.reason||''}</div>
-            </div>`).join('');
+            </div>`}).join('');
     }
 
     async function updateHistory() {
         const data = await r2Fetch(`/${currentSym}/signals_log.json`);
         if (!data) return;
-        const history = data.history || (data.signals ? data.signals.map(s => ({
+        const history = data.history || (data.signals ? data.signals.filter(s => s.type === currentSignalMode).map(s => ({
             ts: s.ts||'', sym: s.sym||currentSym, strike: s.atm||'',
-            side: s.direction === 'BULLISH' ? 'CE' : 'PE', score: s.score||0
+            side: s.direction === 'BULLISH' ? 'CE' : 'PE', score: s.score||0,
+            reasons: s.reasons||[], spot: s.spot||'--', pcr: s.pcr||'--'
         })) : []);
         if (!history.length) return;
-        document.getElementById('history-panel').innerHTML = history.map(h => `
-            <div class="hist-item ${h.side}">
-                <div class="hist-time">${h.ts}</div>
+        document.getElementById('history-panel').innerHTML = history.map(h => {
+            const timeOnly = h.ts.includes(' ') ? h.ts.split(' ')[1] : h.ts;
+            const hJson = encodeURIComponent(JSON.stringify({...h, from:'history'}));
+            return `
+            <div class="hist-item ${h.side}" onclick="showSignalDetails('${hJson}')" style="cursor:pointer">
+                <div class="hist-time">${timeOnly}</div>
                 <div class="hist-info">
                     <div class="hist-sym">${h.sym} ${h.strike}</div>
                     <div class="hist-side-badge ${h.side==='CE'?'bg-ce':'bg-pe'}">${h.side==='CE'?'BULL':'BEAR'}</div>
                 </div>
                 <div class="hist-score-wrap"><div class="hist-score">${h.score}</div></div>
-            </div>`).join('');
+            </div>`}).join('');
     }
 
     function renderSymbolPills() {
         document.getElementById('indices-pills').innerHTML = indicesList
-            .map(s => `<div class="index-btn ${s===currentSym?'active':''}" onclick="switchSym('${s}')">${s}</div>`).join('');
+            .map(s => {
+                let glow = '';
+                if (activeAlertMap[s] === 'GAMMA') glow = 'pill-alert-gamma';
+                else if (activeAlertMap[s] === 'STANDARD') glow = 'pill-alert';
+                return `<div class="index-btn ${s===currentSym?'active':''} ${glow}" onclick="switchSym('${s}')">${s}</div>`;
+            }).join('');
         
         let stockHtml = stocksList
-            .map(s => `<div class="symbol-pill ${s===currentSym?'active':''}" onclick="switchSym('${s}')">${s}</div>`).join('');
+            .map(s => {
+                let glow = '';
+                if (activeAlertMap[s] === 'GAMMA') glow = 'pill-alert-gamma';
+                else if (activeAlertMap[s] === 'STANDARD') glow = 'pill-alert';
+                return `<div class="symbol-pill ${s===currentSym?'active':''} ${glow}" onclick="switchSym('${s}')">${s}</div>`;
+            }).join('');
         
         // If there are many stocks, we could also use a dropdown, but for now pills
         document.getElementById('stocks-pills').innerHTML = stockHtml;
