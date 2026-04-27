@@ -667,22 +667,30 @@
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <!-- Admin User Selector (visible only for admin) -->
-                    <div id="adminBar" class="admin-bar hidden">
+                    <div id="adminBar" class="admin-bar hidden" style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
                         <span class="admin-badge">👑 Admin</span>
                         <select id="adminUserDropdown" class="admin-user-select" onchange="adminSwitchUser(this.value)">
                             <option value="">— Select Account —</option>
                         </select>
-                        <button id="adminResetBtn" onclick="adminResetUser()" class="hidden"
-                            style="background: rgba(244,63,94,0.15); border: 1px solid rgba(244,63,94,0.4); color: var(--accent-sell); border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space:nowrap;"
-                            onmouseover="this.style.background='rgba(244,63,94,0.3)'"
-                            onmouseout="this.style.background='rgba(244,63,94,0.15)'">🚫 Reset Account</button>
+                        <div id="adminActions" class="hidden" style="display:flex; gap:10px; align-items:center;">
+                            <input type="number" id="adminNewBalance" placeholder="New Bal" style="width:100px; padding:5px; border-radius:6px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1); color:white; outline:none; font-size:12px;">
+                            <button onclick="adminUpdateBalance()" style="background: var(--accent-primary); color:white; border:none; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer;">Set</button>
+                            <button id="adminResetBtn" onclick="adminResetUser()" style="background: rgba(244,63,94,0.15); border: 1px solid rgba(244,63,94,0.4); color: var(--accent-sell); border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space:nowrap;" onmouseover="this.style.background='rgba(244,63,94,0.3)'" onmouseout="this.style.background='rgba(244,63,94,0.15)'">🚫 Reset</button>
+                        </div>
                     </div>
                     <!-- User Info -->
-                    <div
-                        style="display: flex; align-items: center; gap: 15px; background: var(--bg-card); padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border-color);">
+                    <div onclick="toggleUserDropdown()" style="position: relative; display: flex; align-items: center; gap: 15px; background: var(--bg-card); padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer;">
                         <div id="userAvatar" class="avatar">--</div>
                         <span id="userName" style="font-size: 14px; font-weight: 500;">Loading...</span>
+                        <i data-lucide="chevron-down" style="width: 16px; height: 16px; color: var(--text-secondary);"></i>
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="userDropdownMenu" class="hidden" style="position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--bg-sidebar); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px; min-width: 150px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                            <div onclick="logout()" style="display: flex; align-items: center; gap: 8px; padding: 10px; color: var(--accent-sell); border-radius: 8px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(244,63,94,0.1)'" onmouseout="this.style.background='transparent'">
+                                <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>
+                                <span style="font-weight: 500;">Logout</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -1590,19 +1598,19 @@
             adminViewingUser = email;
             const banner = document.getElementById('adminViewingBanner');
             const nameEl = document.getElementById('adminViewingName');
-            const resetBtn = document.getElementById('adminResetBtn');
+            const actionsDiv = document.getElementById('adminActions');
             if (email) {
                 banner.style.display = 'flex';
                 const dropdown = document.getElementById('adminUserDropdown');
                 const selectedOpt = dropdown.options[dropdown.selectedIndex];
                 nameEl.innerText = selectedOpt ? selectedOpt.text : email;
                 document.getElementById('adminUserDropdown').value = email;
-                if (resetBtn) resetBtn.classList.remove('hidden');
+                if (actionsDiv) actionsDiv.classList.remove('hidden');
             } else {
                 banner.style.display = 'none';
                 nameEl.innerText = '';
                 document.getElementById('adminUserDropdown').value = '';
-                if (resetBtn) resetBtn.classList.add('hidden');
+                if (actionsDiv) actionsDiv.classList.add('hidden');
             }
             fetchPortfolio();
         }
@@ -1631,6 +1639,29 @@
             }
         }
 
+        async function adminUpdateBalance() {
+            if (!adminViewingUser) { alert('Please select an account first.'); return; }
+            const newBal = document.getElementById('adminNewBalance').value;
+            if (!newBal) { alert('Please enter a new balance.'); return; }
+            try {
+                const res = await fetch('https://paper-trade.teletechcare.workers.dev/api/admin/update-balance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-User-ID': currentUserEmail },
+                    body: JSON.stringify({ targetUserId: adminViewingUser, newBalance: newBal })
+                });
+                const result = await res.json();
+                if (res.ok && result.success) {
+                    alert(`✅ Balance updated to ₹${result.newBalance}`);
+                    fetchPortfolio();
+                    document.getElementById('adminNewBalance').value = '';
+                } else {
+                    alert('Failed: ' + (result.error || 'Unknown error'));
+                }
+            } catch(e) {
+                alert('Error: ' + e.message);
+            }
+        }
+
         function logout() {
             localStorage.removeItem('paperTradeSession');
             localStorage.removeItem('paperTradeUserEmail');
@@ -1638,6 +1669,19 @@
             adminViewingUser = '';
             initView();
         }
+
+        function toggleUserDropdown() {
+            const menu = document.getElementById('userDropdownMenu');
+            if(menu) menu.classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            const userMenu = document.getElementById('userDropdownMenu');
+            const userBtn = document.querySelector('[onclick="toggleUserDropdown()"]');
+            if (userMenu && !userMenu.classList.contains('hidden') && userBtn && !userBtn.contains(e.target)) {
+                userMenu.classList.add('hidden');
+            }
+        });
 
         // Mobile nav section map
         const mobNavMap = {
