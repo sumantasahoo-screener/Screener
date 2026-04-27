@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIVE SIGNALS | NSE OPTION TRADER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050508;
+            --panel: #10121b;
+            --border: rgba(255,255,255,0.1);
+            --accent: #00d2ff;
+            --green: #00ff9f;
+            --red: #ff2d55;
+            --yellow: #ffcc00;
+            --text-dim: #9999aa;
+            --row-hover: rgba(255,255,255,0.03);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg);
+            color: #f0f0f5;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 0%, rgba(0,210,255,0.05) 0%, transparent 50%);
+        }
+        header {
+            height: 60px;
+            background: rgba(10,12,20,0.98);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            justify-content: space-between;
+        }
+        .logo-box { display: flex; align-items: center; gap: 12px; }
+        .logo-text { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 16px; color: var(--accent); letter-spacing: 1px; }
+        .live-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; box-shadow: 0 0 10px var(--green); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+
+        .header-tools { display: flex; gap: 25px; align-items: center; }
+        .tool-item { display: flex; flex-direction: column; align-items: flex-end; }
+        .tool-label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+        .tool-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; color: #fff; }
+
+        .dashboard-container { padding: 30px; max-width: 1600px; margin: 0 auto; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; }
+        .stat-card::after { content: ""; position: absolute; bottom: 0; left: 0; height: 3px; width: 100%; background: var(--accent); opacity: 0.3; }
+        .stat-card.bullish::after { background: var(--green); opacity: 0.6; }
+        .stat-card.bearish::after { background: var(--red); opacity: 0.6; }
+        .stat-card h3 { font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
+        .stat-card .val { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+
+        .table-container { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
+        table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; text-align: left; }
+        thead th { background: rgba(255,255,255,0.02); padding: 16px 20px; font-size: 11px; color: var(--text-dim); text-transform: uppercase; border-bottom: 2px solid var(--border); letter-spacing: 0.5px; }
+        tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); transition: all 0.2s; cursor: pointer; }
+        tbody tr:hover { background: var(--row-hover); }
+        tbody td { padding: 16px 20px; font-size: 13px; vertical-align: middle; }
+
+        .badge { padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; display: inline-block; }
+        .badge-ce { background: rgba(0,255,159,0.12); color: var(--green); border: 1px solid rgba(0,255,159,0.3); }
+        .badge-pe { background: rgba(255,45,85,0.12); color: var(--red); border: 1px solid rgba(255,45,85,0.3); }
+        .badge-std { background: rgba(0,210,255,0.1); color: var(--accent); border: 1px solid rgba(0,210,255,0.3); }
+        .badge-gamma { background: rgba(255,0,255,0.1); color: #ff00ff; border: 1px solid rgba(255,0,255,0.3); }
+
+        .score-val { font-size: 16px; font-weight: 800; }
+        .reason-text { font-size: 11px; color: var(--text-dim); font-family: 'Inter', sans-serif; max-width: 300px; line-height: 1.4; }
+        .spike-icon { color: var(--yellow); font-size: 14px; margin-right: 5px; filter: drop-shadow(0 0 5px var(--yellow)); }
+
+        .refresh-btn { background: var(--accent); color: #000; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 800; font-size: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .refresh-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,210,255,0.3); }
+        .refresh-btn:active { transform: translateY(0); }
+
+        #last-update { font-style: italic; opacity: 0.7; }
+
+        .empty-state { padding: 100px; text-align: center; color: var(--text-dim); }
+        .empty-state i { font-size: 40px; margin-bottom: 15px; display: block; opacity: 0.3; }
+
+        .filter-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .filter-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-dim); padding: 8px 20px; border-radius: 6px; cursor: pointer; font-weight: 700; transition: 0.2s; }
+        .filter-btn.active { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 4px 15px rgba(0,210,255,0.3); }
+
+        @media (max-width: 1000px) {
+            .dashboard-container { padding: 15px; }
+            .table-container { overflow-x: auto; }
+            table { min-width: 1000px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-box">
+        <div class="live-dot"></div>
+        <div class="logo-text">ACTIVE SIGNAL DASHBOARD</div>
+    </div>
+    <div class="header-tools">
+        <div class="tool-item">
+            <span class="tool-label">INDIA VIX</span>
+            <span id="vix-val" class="tool-val" style="color:var(--yellow)">--</span>
+        </div>
+        <div class="tool-item">
+            <span class="tool-label">MARKET TIME</span>
+            <span id="market-time" class="tool-val">--:--:--</span>
+        </div>
+        <div class="tool-item">
+            <span class="tool-label">LAST FETCH</span>
+            <span id="last-fetch" class="tool-val" style="color:var(--accent)">--:--:--</span>
+        </div>
+        <button class="refresh-btn" onclick="manualRefresh()">
+            🔄 REFRESH
+        </button>
+        <a href="oi.html" style="text-decoration:none; color:var(--text-dim); font-size:11px; font-weight:700; border:1px solid var(--border); padding:8px 15px; border-radius:6px; transition:0.2s" onmouseover="this.style.borderColor=this.style.color='#fff'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">
+            ⬅️ BACK TO TERMINAL
+        </a>
+    </div>
+</header>
+
+<div class="dashboard-container">
+    <div class="filter-tabs">
+        <button id="view-all" class="filter-btn active" onclick="setView('ALL')">ALL SIGNALS</button>
+        <button id="view-indices" class="filter-btn" onclick="setView('INDICES')">INDICES ONLY</button>
+        <button id="view-stocks" class="filter-btn" onclick="setView('STOCKS')">STOCKS ONLY</button>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Active Signals</h3>
+            <div class="val" id="stat-total">0</div>
+        </div>
+        <div class="stat-card bullish">
+            <h3>Bullish Momentum</h3>
+            <div class="val" id="stat-bull" style="color:var(--green)">0</div>
+        </div>
+        <div class="stat-card bearish">
+            <h3>Bearish Momentum</h3>
+            <div class="val" id="stat-bear" style="color:var(--red)">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>Market Sentiment</h3>
+            <div class="val" id="stat-bias">--</div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table id="signals-table">
+            <thead>
+                <tr>
+                    <th style="width:100px">Time</th>
+                    <th style="width:120px">Symbol</th>
+                    <th style="width:100px">Strike</th>
+                    <th style="width:150px">Instrument</th>
+                    <th style="width:120px">Type</th>
+                    <th style="width:80px">Score</th>
+                    <th>Momentum & Reasoning</th>
+                    <th style="width:120px; text-align:right">LTP</th>
+                    <th style="width:80px; text-align:center">Action</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Rows will be injected here -->
+            </tbody>
+        </table>
+        <div id="loading-overlay" style="display:none; padding:50px; text-align:center; color:var(--text-dim)">
+            Scanning NSE Market for signals...
+        </div>
+    </div>
+</div>
+
+<audio id="alert-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+<script>
+    const R2 = 'https://pub-7381e1c00b8f43138d4f7ef3b96d862d.r2.dev';
+    let lastSignalCount = 0;
+    let currentView = 'ALL';
+    let rawSignals = [];
+
+    function setView(view) {
+        currentView = view;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`view-${view.toLowerCase()}`).classList.add('active');
+        filterAndRender();
+    }
+
+    async function r2Fetch(path) {
+        try {
+            const r = await fetch(`${R2}${path}?t=${Date.now()}`);
+            if (!r.ok) return null;
+            return await r.json();
+        } catch(e) { return null; }
+    }
+
+    function format(n, d=2) {
+        if (n == null || isNaN(n)) return '--';
+        return Number(n).toLocaleString('en-IN', {minimumFractionDigits:d, maximumFractionDigits:d});
+    }
+
+    async function fetchAllSignals() {
+        const meta = await r2Fetch('/meta.json');
+        if (!meta) return;
+
+        document.getElementById('vix-val').innerText = `${meta.vix}%`;
+        document.getElementById('last-fetch').innerText = meta.updated || '--:--:--';
+
+        const indicesSet = new Set(meta.groups?.indices || []);
+        const symbols = meta.syms || [];
+        const results = await Promise.all(symbols.map(s => r2Fetch(`/${s}/latest.json`)));
+        
+        rawSignals = [];
+        results.forEach(data => {
+            if (!data || !data.strikes) return;
+            
+            const spot = data.spot;
+            const isIndex = indicesSet.has(data.symbol);
+            const minScore = isIndex ? 10 : 8; 
+            
+            data.strikes.forEach(s => {
+                const distPercent = (Math.abs(s.K - spot) / spot) * 100;
+                if (distPercent > 1.5) return; 
+
+                const common = { 
+                    sym: data.symbol, strike: s.K, ltp: 0, time: data.timestamp.split(' ')[1], 
+                    dist: distPercent, isIndex: isIndex, pChng: data.pChng || 0 
+                };
+
+                if (s.CE_BuySc >= minScore && (s.CE_OI >= 1000 || !isIndex)) {
+                    rawSignals.push({ ...common, side: 'CE', score: s.CE_BuySc, reason: s.CE_BuyReason, ltp: s.CE_LTP, type: 'STANDARD' });
+                }
+                if (s.PE_BuySc >= minScore && (s.PE_OI >= 1000 || !isIndex)) {
+                    rawSignals.push({ ...common, side: 'PE', score: s.PE_BuySc, reason: s.PE_BuyReason, ltp: s.PE_LTP, type: 'STANDARD' });
+                }
+                if (s.CE_GBuySc >= minScore && (s.CE_OI >= 1000 || !isIndex)) {
+                    rawSignals.push({ ...common, side: 'CE', score: s.CE_GBuySc, reason: s.CE_GBuyReason, ltp: s.CE_LTP, type: 'GAMMA BLAST' });
+                }
+                if (s.PE_GBuySc >= minScore && (s.PE_OI >= 1000 || !isIndex)) {
+                    rawSignals.push({ ...common, side: 'PE', score: s.PE_GBuySc, reason: s.PE_GBuyReason, ltp: s.PE_LTP, type: 'GAMMA BLAST' });
+                }
+            });
+        });
+
+        filterAndRender();
+
+        if (rawSignals.length > lastSignalCount && lastSignalCount !== 0) {
+            document.getElementById('alert-sound').play();
+        }
+        lastSignalCount = rawSignals.length;
+    }
+
+    function filterAndRender() {
+        let filtered = rawSignals;
+        if (currentView === 'INDICES') filtered = rawSignals.filter(s => s.isIndex);
+        if (currentView === 'STOCKS') filtered = rawSignals.filter(s => !s.isIndex);
+
+        // --- NEW: Conflicting Signals Filter (Deduplication) ---
+        // Group by Symbol and keep only the strongest signal (Highest Score)
+        const bestSigs = {};
+        filtered.forEach(sig => {
+            const key = sig.sym;
+            if (!bestSigs[key] || sig.score > bestSigs[key].score) {
+                bestSigs[key] = sig;
+            } else if (sig.score === bestSigs[key].score) {
+                // If scores are equal, pick the one that aligns with Price Change (pChng)
+                const aAligns = (sig.side === 'CE' && sig.pChng > 0) || (sig.side === 'PE' && sig.pChng < 0);
+                if (aAligns) bestSigs[key] = sig;
+            }
+        });
+        filtered = Object.values(bestSigs);
+        // -------------------------------------------------------
+
+        filtered.sort((a, b) => {
+            const aSpike = (a.reason || '').includes('Volume Spike') ? 1 : 0;
+            const bSpike = (b.reason || '').includes('Volume Spike') ? 1 : 0;
+            
+            if (aSpike !== bSpike) return bSpike - aSpike;
+            if (b.score !== a.score) return b.score - a.score;
+            return a.dist - b.dist;
+        });
+
+        renderTable(filtered);
+        updateStats(filtered);
+    }
+
+    function renderTable(signals) {
+        const tbody = document.getElementById('table-body');
+        if (signals.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" class="empty-state"><i>🔍</i>No active signals found at this moment. Market is scanning...</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = signals.map(s => {
+            const sideClass = s.side === 'CE' ? 'badge-ce' : 'badge-pe';
+            const sideText = s.side === 'CE' ? 'BUY CALL (CE)' : 'BUY PUT (PE)';
+            const typeClass = s.type === 'STANDARD' ? 'badge-std' : 'badge-gamma';
+            const isVolSpike = (s.reason || '').includes('Volume Spike');
+            const spikeIcon = isVolSpike ? '<span class="spike-icon">⚡</span>' : '';
+            
+            return `
+                <tr onclick="window.location.href='oi.html?sym=${s.sym}'">
+                    <td style="color:var(--text-dim)">${s.time}</td>
+                    <td><strong style="color:var(--accent)">${s.sym}</strong></td>
+                    <td style="font-weight:700">${format(s.strike, 0)}</td>
+                    <td><span class="badge ${sideClass}" style="width:100%; text-align:center">${sideText}</span></td>
+                    <td><span class="badge ${typeClass}">${s.type}</span></td>
+                    <td class="score-val" style="color:${s.side==='CE'?'var(--green)':'var(--red)'}">${s.score}</td>
+                    <td>
+                        <div class="reason-text">${spikeIcon}${s.reason}</div>
+                    </td>
+                    <td style="text-align:right; font-weight:800; color:#fff">₹${format(s.ltp, 2)}</td>
+                    <td style="text-align:center">
+                        <a href="oi.html?sym=${s.sym}" style="color:var(--accent); text-decoration:none; font-size:18px">🎯</a>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function updateStats(signals) {
+        document.getElementById('stat-total').innerText = signals.length;
+        const bulls = signals.filter(s => s.side === 'CE').length;
+        const bears = signals.filter(s => s.side === 'PE').length;
+        document.getElementById('stat-bull').innerText = bulls;
+        document.getElementById('stat-bear').innerText = bears;
+        
+        const bias = bulls > bears ? 'BULLISH' : (bears > bulls ? 'BEARISH' : 'NEUTRAL');
+        const biasElem = document.getElementById('stat-bias');
+        biasElem.innerText = bias;
+        biasElem.style.color = bias === 'BULLISH' ? 'var(--green)' : (bias === 'BEARISH' ? 'var(--red)' : 'var(--text-dim)');
+    }
+
+    function manualRefresh() {
+        document.getElementById('table-body').innerHTML = '';
+        document.getElementById('loading-overlay').style.display = 'block';
+        fetchAllSignals().then(() => {
+            document.getElementById('loading-overlay').style.display = 'none';
+        });
+    }
+
+    function startClock() {
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('market-time').innerText = now.toLocaleTimeString('en-IN', { hour12: false });
+        }, 1000);
+    }
+
+    // Initialize
+    startClock();
+    fetchAllSignals();
+    setInterval(fetchAllSignals, 60000); // Auto refresh every 1 min
+</script>
+
+</body>
+</html>
