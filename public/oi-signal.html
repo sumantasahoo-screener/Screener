@@ -62,17 +62,26 @@
         .stat-card .val { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
 
         .table-container { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
-        table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; text-align: left; }
-        thead th { background: rgba(255,255,255,0.02); padding: 16px 20px; font-size: 11px; color: var(--text-dim); text-transform: uppercase; border-bottom: 2px solid var(--border); letter-spacing: 0.5px; }
+        table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; text-align: left; table-layout: fixed; }
+        thead th { background: rgba(255,255,255,0.02); padding: 12px 14px; font-size: 10px; color: var(--text-dim); text-transform: uppercase; border-bottom: 2px solid var(--border); letter-spacing: 0.5px; white-space: nowrap; }
+        thead th:nth-child(1) { width: 80px; }   /* TIME */
+        thead th:nth-child(2) { width: 110px; }  /* SYMBOL */
+        thead th:nth-child(3) { width: 80px; }   /* STRIKE */
+        thead th:nth-child(4) { width: 130px; }  /* INSTRUMENT */
+        thead th:nth-child(5) { width: 130px; }  /* TYPE */
+        thead th:nth-child(6) { width: 55px; }   /* SCORE */
+        thead th:nth-child(7) { width: auto; }   /* REASONING */
+        thead th:nth-child(8) { width: 80px; }   /* LTP */
+        thead th:nth-child(9) { width: 50px; }   /* ACTION */
         tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); transition: all 0.2s; cursor: pointer; }
         tbody tr:hover { background: var(--row-hover); }
-        tbody td { padding: 16px 20px; font-size: 13px; vertical-align: middle; }
+        tbody td { padding: 12px 14px; font-size: 13px; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .badge { padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; display: inline-block; }
+        .badge { padding: 5px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; display: inline-block; white-space: nowrap; letter-spacing: 0.5px; }
         .badge-ce { background: rgba(0,255,159,0.12); color: var(--green); border: 1px solid rgba(0,255,159,0.3); }
         .badge-pe { background: rgba(255,45,85,0.12); color: var(--red); border: 1px solid rgba(255,45,85,0.3); }
-        .badge-sc { background: rgba(255,165,0,0.1); color: #FFA500; border: 1px solid rgba(255,165,0,0.3); }
-        .badge-gb { background: rgba(0,210,255,0.1); color: var(--accent); border: 1px solid rgba(0,210,255,0.3); }
+        .badge-sc { background: rgba(255,165,0,0.1); color: #FFA500; border: 1px solid rgba(255,165,0,0.3); white-space: nowrap; }
+        .badge-gb { background: rgba(0,210,255,0.1); color: var(--accent); border: 1px solid rgba(0,210,255,0.3); white-space: nowrap; }
 
         .score-val { font-size: 16px; font-weight: 800; }
         .reason-text { font-size: 11px; color: var(--text-dim); font-family: 'Inter', sans-serif; max-width: 300px; line-height: 1.4; }
@@ -373,23 +382,24 @@
 
             return `
                 <tr onclick="window.location.href='oi.html?sym=${s.sym}'">
-                    <td style="color:var(--text-dim)">${s.time}</td>
-                    <td><strong style="color:var(--accent)">${s.sym}</strong></td>
-                    <td style="font-weight:700">${format(s.strike, 0)}</td>
-                    <td><span class="badge ${sideClass}" style="width:100%; text-align:center">${sideText}</span></td>
-                    <td><span class="badge ${typeClass}">${s.type}</span></td>
-                    <td class="score-val" style="color:${s.side==='CE'?'var(--green)':'var(--red)'}">${s.score}</td>
-                    <td>
-                        <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; max-width:320px;">
+                    <td style="color:var(--text-dim); font-size:11px; white-space:nowrap">${s.time}</td>
+                    <td><strong style="color:var(--accent); font-size:13px; white-space:nowrap">${s.sym}</strong></td>
+                    <td style="font-weight:700; white-space:nowrap">${format(s.strike, 0)}</td>
+                    <td style="white-space:nowrap"><span class="badge ${sideClass}">${sideText}</span></td>
+                    <td style="white-space:nowrap"><span class="badge ${typeClass}">${s.type}</span></td>
+                    <td class="score-val" style="color:${s.side==='CE'?'var(--green)':'var(--red)'}; text-align:center; white-space:nowrap">${s.score}</td>
+                    <td style="overflow:visible">
+                        <div style="display:flex; flex-wrap:wrap; gap:5px; align-items:center;">
                             ${spikeIcon}${reasonBadges}
                         </div>
                     </td>
-                    <td style="text-align:right; font-weight:800; color:#fff">₹${format(s.ltp, 2)}</td>
-                    <td style="text-align:center">
+                    <td style="text-align:right; font-weight:800; color:#fff; white-space:nowrap">₹${format(s.ltp, 2)}</td>
+                    <td style="text-align:center; white-space:nowrap">
                         <a href="oi.html?sym=${s.sym}" style="color:var(--accent); text-decoration:none; font-size:18px">🎯</a>
                     </td>
                 </tr>
             `;
+
         }).join('');
     }
 
