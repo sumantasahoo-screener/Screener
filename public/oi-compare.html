@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OI Compare Terminal | NSE</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0a0a12;color:#e0e0e0;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;min-height:100vh;display:flex;flex-direction:column}
@@ -341,39 +342,46 @@ async function loadList(){
 
   currentTimestamps = ts;
   const t1=document.getElementById('t1-sel');
+  const savedT1 = localStorage.getItem('compareT1');
+  const savedT2 = localStorage.getItem('compareT2');
+  
+  // Reverse so latest time appears at top
+  const tsReversed = [...ts].reverse();
+  
   t1.innerHTML='<option value="">-- Latest --</option>';
-  ts.forEach(t=>{const hm=t.replace('-',':');t1.innerHTML+=`<option value="${t}">${hm}</option>`;});
-  if(ts.length>=2){t1.value=ts[0];}
-  updateT2Options();
+  tsReversed.forEach(t=>{const hm=t.replace('-',':');t1.innerHTML+=`<option value="${t}">${hm}</option>`;});
+  
+  // On first load: default to Latest (empty). Restore saved only if valid.
+  if (savedT1 && ts.includes(savedT1)) {
+    t1.value = savedT1;
+  } else {
+    t1.value = ''; // Latest
+  }
+  updateT2Options(savedT2);
 }
 
-function updateT2Options() {
+function updateT2Options(savedT2Val) {
   const t1v = document.getElementById('t1-sel').value;
   const t2 = document.getElementById('t2-sel');
-  const oldT2v = t2.value;
+  const oldT2v = savedT2Val || t2.value;
   
   t2.innerHTML = '<option value="">-- None / Latest --</option>';
   
   let validTs = currentTimestamps;
   if (t1v) validTs = currentTimestamps.filter(t => t > t1v);
   
-  validTs.forEach(t => {
+  // Reverse so latest appears at top
+  const validTsReversed = [...validTs].reverse();
+  validTsReversed.forEach(t => {
     const hm = t.replace('-', ':');
     t2.innerHTML += `<option value="${t}">${hm}</option>`;
   });
   
   if (oldT2v && validTs.includes(oldT2v)) {
     t2.value = oldT2v;
-  } else if (validTs.length > 0 && t1v) {
-    t2.value = validTs[validTs.length - 1];
   } else {
-    t2.value = '';
+    t2.value = ''; // Default T2 to Latest too
   }
-  // Load persisted times
-  const pT1 = localStorage.getItem('compareT1');
-  const pT2 = localStorage.getItem('compareT2');
-  if(pT1) document.getElementById('t1-sel').value = pT1;
-  if(pT2) document.getElementById('t2-sel').value = pT2;
 
   loadCompare();
 }
