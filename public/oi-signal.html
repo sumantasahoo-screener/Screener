@@ -71,8 +71,8 @@
         .badge { padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; display: inline-block; }
         .badge-ce { background: rgba(0,255,159,0.12); color: var(--green); border: 1px solid rgba(0,255,159,0.3); }
         .badge-pe { background: rgba(255,45,85,0.12); color: var(--red); border: 1px solid rgba(255,45,85,0.3); }
-        .badge-std { background: rgba(0,210,255,0.1); color: var(--accent); border: 1px solid rgba(0,210,255,0.3); }
-        .badge-gamma { background: rgba(255,0,255,0.1); color: #ff00ff; border: 1px solid rgba(255,0,255,0.3); }
+        .badge-sc { background: rgba(255,165,0,0.1); color: #FFA500; border: 1px solid rgba(255,165,0,0.3); }
+        .badge-gb { background: rgba(0,210,255,0.1); color: var(--accent); border: 1px solid rgba(0,210,255,0.3); }
 
         .score-val { font-size: 16px; font-weight: 800; }
         .reason-text { font-size: 11px; color: var(--text-dim); font-family: 'Inter', sans-serif; max-width: 300px; line-height: 1.4; }
@@ -106,6 +106,10 @@
         <div class="logo-text">ACTIVE SIGNAL DASHBOARD</div>
     </div>
     <div class="header-tools">
+        <input type="date" id="hist-date" style="background:#1e1e24; border:1px solid var(--border); color:#fff; padding:4px 8px; border-radius:4px; font-family:'Inter',sans-serif; font-size:11px;">
+        <input type="time" id="hist-time" style="background:#1e1e24; border:1px solid var(--border); color:#fff; padding:4px 8px; border-radius:4px; font-family:'Inter',sans-serif; font-size:11px;">
+        <button class="filter-btn" id="btn-load-hist" style="padding:4px 8px; font-size:11px;" onclick="loadHistory()">LOAD HISTORY</button>
+        <button class="filter-btn active" id="btn-live" style="padding:4px 8px; font-size:11px; margin-right:10px;" onclick="goLive()">LIVE</button>
         <div class="tool-item">
             <span class="tool-label">INDIA VIX</span>
             <span id="vix-val" class="tool-val" style="color:var(--yellow)">--</span>
@@ -211,6 +215,33 @@
         return Number(n).toLocaleString('en-IN', {minimumFractionDigits:d, maximumFractionDigits:d});
     }
 
+    let isLiveMode = true;
+    let histDateStr = "";
+    let histTimeStr = "";
+
+    function goLive() {
+        isLiveMode = true;
+        document.getElementById('btn-live').classList.add('active');
+        document.getElementById('btn-load-hist').classList.remove('active');
+        fetchAllSignals();
+    }
+
+    function loadHistory() {
+        const dVal = document.getElementById('hist-date').value;
+        const tVal = document.getElementById('hist-time').value;
+        if (!dVal || !tVal) {
+            alert("Please select both Date and Time for history view.");
+            return;
+        }
+        isLiveMode = false;
+        document.getElementById('btn-live').classList.remove('active');
+        document.getElementById('btn-load-hist').classList.add('active');
+        
+        histDateStr = dVal; // YYYY-MM-DD
+        histTimeStr = tVal.replace(':', '-'); // HH-MM
+        fetchAllSignals();
+    }
+
     async function fetchAllSignals() {
         const meta = await r2Fetch('/meta.json');
         if (!meta) return;
@@ -224,15 +255,29 @@
 
         const indicesSet = new Set(meta.groups?.indices || []);
         const symbols = meta.syms || [];
-        const results = await Promise.all(symbols.map(s => r2Fetch(`/${s}/latest.json`)));
         
+        document.getElementById('loading-overlay').style.display = 'block';
+        document.getElementById('table-body').innerHTML = '';
+        
+        let results = [];
+        if (isLiveMode) {
+            results = await Promise.all(symbols.map(s => r2Fetch(`/${s}/latest.json`)));
+        } else {
+            results = await Promise.all(symbols.map(s => r2Fetch(`/${s}/${histDateStr}/${histTimeStr}.json`)));
+            document.getElementById('last-fetch').innerText = `${histDateStr} ${histTimeStr.replace('-',':')}`;
+            document.getElementById('next-refresh').innerText = `PAUSED`;
+            document.getElementById('next-refresh').style.color = 'var(--red)';
+        }
+        
+        document.getElementById('loading-overlay').style.display = 'none';
+
         rawSignals = [];
         results.forEach(data => {
             if (!data || !data.strikes) return;
             
             const spot = data.spot;
             const isIndex = indicesSet.has(data.symbol);
-            const minScore = isIndex ? 10 : 8; 
+            const minScore = 6; 
             
             data.strikes.forEach(s => {
                 const distPercent = (Math.abs(s.K - spot) / spot) * 100;
@@ -244,16 +289,16 @@
                 };
 
                 if (s.CE_BuySc >= minScore && (s.CE_OI >= 1000 || !isIndex)) {
-                    rawSignals.push({ ...common, side: 'CE', score: s.CE_BuySc, reason: s.CE_BuyReason, ltp: s.CE_LTP, type: 'STANDARD' });
+                    rawSignals.push({ ...common, side: 'CE', score: s.CE_BuySc, reason: s.CE_BuyReason, ltp: s.CE_LTP, type: 'SHORT COVERING 🚀' });
                 }
                 if (s.PE_BuySc >= minScore && (s.PE_OI >= 1000 || !isIndex)) {
-                    rawSignals.push({ ...common, side: 'PE', score: s.PE_BuySc, reason: s.PE_BuyReason, ltp: s.PE_LTP, type: 'STANDARD' });
+                    rawSignals.push({ ...common, side: 'PE', score: s.PE_BuySc, reason: s.PE_BuyReason, ltp: s.PE_LTP, type: 'SHORT COVERING 🚀' });
                 }
-                if (s.CE_GBuySc >= minScore && (s.CE_OI >= 1000 || !isIndex)) {
-                    rawSignals.push({ ...common, side: 'CE', score: s.CE_GBuySc, reason: s.CE_GBuyReason, ltp: s.CE_LTP, type: 'GAMMA BLAST' });
+                if (s.CE_GBuySc >= 7 && (s.CE_OI >= 1000 || !isIndex)) {
+                    rawSignals.push({ ...common, side: 'CE', score: s.CE_GBuySc, reason: s.CE_GBuyReason, ltp: s.CE_LTP, type: 'GAMMA BREAKOUT ⚡' });
                 }
-                if (s.PE_GBuySc >= minScore && (s.PE_OI >= 1000 || !isIndex)) {
-                    rawSignals.push({ ...common, side: 'PE', score: s.PE_GBuySc, reason: s.PE_GBuyReason, ltp: s.PE_LTP, type: 'GAMMA BLAST' });
+                if (s.PE_GBuySc >= 7 && (s.PE_OI >= 1000 || !isIndex)) {
+                    rawSignals.push({ ...common, side: 'PE', score: s.PE_GBuySc, reason: s.PE_GBuyReason, ltp: s.PE_LTP, type: 'GAMMA BREAKOUT ⚡' });
                 }
             });
         });
@@ -307,7 +352,7 @@
         tbody.innerHTML = signals.map(s => {
             const sideClass = s.side === 'CE' ? 'badge-ce' : 'badge-pe';
             const sideText = s.side === 'CE' ? 'BUY CALL (CE)' : 'BUY PUT (PE)';
-            const typeClass = s.type === 'STANDARD' ? 'badge-std' : 'badge-gamma';
+            const typeClass = s.type.includes('SHORT') ? 'badge-sc' : 'badge-gb';
             const isVolSpike = (s.reason || '').includes('Volume Spike');
             const spikeIcon = isVolSpike ? '<span class="spike-icon">⚡</span>' : '';
             
@@ -357,6 +402,8 @@
             const now = new Date();
             document.getElementById('market-time').innerText = now.toLocaleTimeString('en-IN', { hour12: false });
             
+            if (!isLiveMode) return;
+            
             // Handle Countdown
             if (countdown > 0) {
                 countdown--;
@@ -368,10 +415,16 @@
         }, 1000);
     }
 
+    // Initialize date picker to today
+    const tzOffset = (new Date()).getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(Date.now() - tzOffset)).toISOString().slice(0, 10);
+    const dateInput = document.getElementById('hist-date');
+    if (dateInput) dateInput.value = localISOTime;
+
     // Initialize
     startClock();
     fetchAllSignals();
-    setInterval(fetchAllSignals, 60000); // Auto refresh every 1 min
+    setInterval(() => { if(isLiveMode) fetchAllSignals(); }, 60000); // Auto refresh every 1 min
 </script>
 
 </body>
