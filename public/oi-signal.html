@@ -294,11 +294,14 @@
                 if (s.PE_BuySc >= minScore && (s.PE_OI >= 1000 || !isIndex)) {
                     rawSignals.push({ ...common, side: 'PE', score: s.PE_BuySc, reason: s.PE_BuyReason, ltp: s.PE_LTP, type: 'SHORT COVERING 🚀' });
                 }
-                if (s.CE_GBuySc >= 7 && (s.CE_OI >= 1000 || !isIndex)) {
-                    rawSignals.push({ ...common, side: 'CE', score: s.CE_GBuySc, reason: s.CE_GBuyReason, ltp: s.CE_LTP, type: 'GAMMA BREAKOUT ⚡' });
+                // WRITER WALL (Reversal Trade)
+                if (s.CE_WallSc >= 7 && (s.CE_OI >= 1000 || !isIndex)) {
+                    // CE Addition means Market goes DOWN. So we recommend BUY PUT (PE).
+                    rawSignals.push({ ...common, side: 'PE', score: s.CE_WallSc, reason: s.CE_WallReason, ltp: s.PE_LTP, type: 'WRITER WALL 🧱' });
                 }
-                if (s.PE_GBuySc >= 7 && (s.PE_OI >= 1000 || !isIndex)) {
-                    rawSignals.push({ ...common, side: 'PE', score: s.PE_GBuySc, reason: s.PE_GBuyReason, ltp: s.PE_LTP, type: 'GAMMA BREAKOUT ⚡' });
+                if (s.PE_WallSc >= 7 && (s.PE_OI >= 1000 || !isIndex)) {
+                    // PE Addition means Market goes UP. So we recommend BUY CALL (CE).
+                    rawSignals.push({ ...common, side: 'CE', score: s.PE_WallSc, reason: s.PE_WallReason, ltp: s.CE_LTP, type: 'WRITER WALL 🧱' });
                 }
             });
         });
@@ -353,9 +356,21 @@
             const sideClass = s.side === 'CE' ? 'badge-ce' : 'badge-pe';
             const sideText = s.side === 'CE' ? 'BUY CALL (CE)' : 'BUY PUT (PE)';
             const typeClass = s.type.includes('SHORT') ? 'badge-sc' : 'badge-gb';
-            const isVolSpike = (s.reason || '').includes('Volume Spike');
-            const spikeIcon = isVolSpike ? '<span class="spike-icon">⚡</span>' : '';
+            const isVolSpike = (s.reason || '').includes('Vol Spike');
+            const spikeIcon = isVolSpike ? '<span class="spike-icon" style="margin-right:2px">⚡</span>' : '';
             
+            const reasonBadges = (s.reason || '').split(' + ').map(r => {
+                if(!r.trim()) return '';
+                let bg = 'rgba(255,255,255,0.05)';
+                let color = '#ccc';
+                if (r.includes('Addition') || r.includes('Vol Spike')) { bg = 'rgba(0,210,255,0.1)'; color = 'var(--accent)'; }
+                if (r.includes('Unwinding')) { bg = 'rgba(0,255,159,0.1)'; color = 'var(--green)'; }
+                if (r.includes('Delta') || r.includes('PCR') || r.includes('IV')) { bg = 'rgba(255,165,0,0.1)'; color = '#FFA500'; }
+                if (r.includes('Expiry') || r.includes('Gamma')) { bg = 'rgba(255,45,85,0.1)'; color = 'var(--red)'; }
+                
+                return `<span style="display:inline-block; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:700; font-family:'Inter',sans-serif; background:${bg}; color:${color}; border:1px solid ${bg.replace('0.1', '0.3').replace('0.05', '0.2')}">${r}</span>`;
+            }).join('');
+
             return `
                 <tr onclick="window.location.href='oi.html?sym=${s.sym}'">
                     <td style="color:var(--text-dim)">${s.time}</td>
@@ -365,7 +380,9 @@
                     <td><span class="badge ${typeClass}">${s.type}</span></td>
                     <td class="score-val" style="color:${s.side==='CE'?'var(--green)':'var(--red)'}">${s.score}</td>
                     <td>
-                        <div class="reason-text">${spikeIcon}${s.reason}</div>
+                        <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; max-width:320px;">
+                            ${spikeIcon}${reasonBadges}
+                        </div>
                     </td>
                     <td style="text-align:right; font-weight:800; color:#fff">₹${format(s.ltp, 2)}</td>
                     <td style="text-align:center">
