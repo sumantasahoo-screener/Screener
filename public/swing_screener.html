@@ -962,9 +962,10 @@ function renderTable() {
     const okMacd  = macdFilter==='all' || macd===macdFilter;
     const okSec   = secFilter==='all' || sector===secFilter;
     const okQ     = !q || sym.toLowerCase().includes(q) || sector.toLowerCase().includes(q);
-    // Index filter — uses indices field from JSON
-    const symIndices = (s.indices || '').split(',').map(x => x.trim()).filter(Boolean);
-    const okIndex = indexFilter==='all' || symIndices.includes(indexFilter);
+    // Index filter — uses indices field from JSON (Space-insensitive match)
+    const symIndices = (s.indices || '').split(',').map(x => x.trim().replace(/\s+/g,'').toUpperCase()).filter(Boolean);
+    const filterVal = indexFilter.replace(/\s+/g,'').toUpperCase();
+    const okIndex = indexFilter==='all' || symIndices.includes(filterVal);
     // F&O filter — uses isFnO field from JSON
     const okFno   = !fnoOnly || s.isFnO === true;
 
