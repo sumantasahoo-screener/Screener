@@ -195,6 +195,7 @@ body {
   white-space: nowrap;
 }
 .filter-chip:hover { border-color: var(--text-muted); color: var(--text); }
+.filter-chip.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
 .filter-chip.fc-strong-bull { border-color: rgba(0,232,150,0.4); }
 .filter-chip.fc-strong-bull.active { background: rgba(0,232,150,0.15); border-color: var(--green); color: var(--green); }
 .filter-chip.fc-bull { border-color: rgba(0,255,157,0.3); }
@@ -208,12 +209,41 @@ body {
 .filter-chip.fc-watch.active { background: rgba(255,195,0,0.1); border-color: var(--gold); color: var(--gold); }
 .filter-chip.fc-flip.active { background: rgba(168,85,247,0.1); border-color: var(--purple); color: var(--purple); }
 .filter-chip.fc-all { border-color: var(--border2); color: var(--text-muted); }
-.filter-chip.fc-all.active { background: rgba(0,200,248,0.12); border-color: var(--accent); color: var(--accent); font-weight: 900; }
 
 .tb-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
 .tb-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-.tb-count { font-size: 12px; color: var(--text-muted); font-weight: 600; }
-.tb-count strong { color: var(--text); }
+
+/* Sector & F&O */
+.tb-select {
+  background: rgba(0,0,0,0.2); border: 1px solid var(--border2);
+  border-radius: 4px; padding: 4px 8px; color: var(--text);
+  font-size: 11px; font-weight: 600; outline: none; cursor: pointer;
+  font-family: inherit; transition: all 0.2s;
+}
+.tb-select:focus { border-color: var(--accent); }
+.tb-select option { background: var(--bg-card); color: var(--text); }
+
+.fno-toggle-wrap {
+  display: flex; align-items: center; gap: 6px; cursor: pointer;
+  padding: 4px 10px; border-radius: 4px; border: 1px solid var(--border2);
+  background: rgba(0,0,0,0.1); transition: all 0.2s;
+}
+.fno-toggle-wrap:hover { border-color: var(--text-dim); }
+.fno-toggle-wrap.active { border-color: var(--accent); background: rgba(0,200,248,0.1); }
+.fno-toggle-wrap.active .toggle-label { color: var(--accent); }
+.toggle-switch {
+  width: 24px; height: 12px; background: var(--border2); border-radius: 10px;
+  position: relative; transition: 0.3s;
+}
+.fno-toggle-wrap.active .toggle-switch { background: var(--accent); }
+.toggle-dot {
+  width: 8px; height: 8px; background: #fff; border-radius: 50%;
+  position: absolute; top: 2px; left: 2px; transition: 0.3s;
+}
+.fno-toggle-wrap.active .toggle-dot { left: 14px; }
+.toggle-label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.tb-count { font-size: 11px; color: var(--text-muted); margin-left: auto; }
 
 /* Score threshold slider area */
 .score-wrap { display: flex; align-items: center; gap: 6px; }
@@ -596,7 +626,17 @@ tbody tr:hover td { background: var(--bg-hover); }
   </div>
 
   <div class="tb-right">
-    <span class="tb-count" id="tbCount">Showing <strong>0</strong> stocks</span>
+    <span class="tb-label" style="margin-left:8px;">Sector:</span>
+    <select class="tb-select" id="sectorSelect" onchange="applyFiltersAndRender()">
+      <option value="all">ALL SECTORS</option>
+    </select>
+
+    <div class="fno-toggle-wrap" id="fnoToggle" onclick="toggleFnoFilter()">
+      <div class="toggle-switch"><div class="toggle-dot"></div></div>
+      <span class="toggle-label">F&O ONLY</span>
+    </div>
+
+    <div class="tb-count" id="tbCount">Showing <strong>0</strong> stocks</div>
   </div>
 </div>
 
@@ -686,10 +726,12 @@ let masterMap = {};   // { SYM: { meta, history: { dateLabel: {signal,ltp,rsi,ch
 let symbolList= [];   // sorted array of all symbols
 let analysed  = [];   // computed TrendObj per symbol
 
-let trendFilter  = 'all';
+let trendFilter    = 'all';
 let scoreMinFilter = 0;
-let currentView  = 'summary'; // 'summary' | 'matrix'
-let sortCol      = 'score';
+let sectorFilter   = 'all';
+let fnoOnlyFilter  = false;
+let currentView    = 'summary'; 
+let sortCol        = 'score';
 let sortAsc      = false;
 let watchlist    = new Set(JSON.parse(localStorage.getItem('wl') || '[]'));
 let notes        = JSON.parse(localStorage.getItem('notes') || '{}');
@@ -722,25 +764,26 @@ async function init() {
   try {
     setLoad(5, 'ACCESSING CLOUDFLARE CLUSTER...');
     const idxRes = await fetch(`${R2_BASE}/dates_index.json?t=${Date.now()}`);
+    if (!idxRes.ok) throw new Error(`dates_index.json fetch failed: ${idxRes.status}`);
     const idxData = await idxRes.json();
-    let rawDates = (idxData.dates || []).slice(0, MAX_DAYS - 1); // leave 1 slot for live
-    rawDates = rawDates.reverse(); // oldest first
+    let rawDates = (idxData.dates || []).slice(0, MAX_DAYS - 1); 
+    rawDates = rawDates.reverse(); 
 
-    setLoad(15, `FOUND ${rawDates.length} HISTORICAL SNAPSHOTS`);
+    setLoad(15, `FOUND ${rawDates.length} SNAPSHOTS`);
 
-    // Fetch all historical data in parallel
-    const histFetches = rawDates.map(async (d, i) => {
+    const histFetches = rawDates.map(async (d) => {
       try {
         const r = await fetch(`${R2_BASE}/screener_data_${d}.json?t=${Date.now()}`);
         return r.ok ? { date: d, data: await r.json() } : null;
-      } catch(e) { return null; }
+      } catch(e) { console.warn(`Hist fetch failed for ${d}`, e); return null; }
     });
 
-    setLoad(30, 'FETCHING HISTORICAL SNAPSHOTS...');
+    setLoad(30, 'FETCHING HISTORICAL DATA...');
     const histResults = await Promise.all(histFetches);
 
     setLoad(65, 'FETCHING LIVE SNAPSHOT...');
     const liveRes = await fetch(`${R2_BASE}/screener_data.json?t=${Date.now()}`);
+    if (!liveRes.ok) throw new Error(`screener_data.json fetch failed: ${liveRes.status}`);
     const liveData = await liveRes.json();
 
     setLoad(80, 'BUILDING MASTER MAP...');
@@ -765,6 +808,7 @@ async function init() {
 
     setLoad(99, 'RENDERING MATRIX...');
     buildHeaders();
+    populateSectors();
     applyFiltersAndRender();
 
     setTimeout(() => {
@@ -772,7 +816,7 @@ async function init() {
     }, 300);
 
   } catch(e) {
-    setLoad(100, '❌ CONNECTION ERROR — Check R2 URL');
+    setLoad(100, `❌ ERROR: ${e.message}`);
     console.error(e);
   }
 }
@@ -963,15 +1007,44 @@ function onScoreSlider() {
   applyFiltersAndRender();
 }
 
+function populateSectors() {
+  const sectors = new Set();
+  analysed.forEach(a => { if (a.sector && a.sector !== '—') sectors.add(a.sector); });
+  const sorted = Array.from(sectors).sort();
+  const sel = document.getElementById('sectorSelect');
+  sel.innerHTML = '<option value="all">ALL SECTORS</option>' + 
+    sorted.map(s => `<option value="${s}">${s.toUpperCase()}</option>`).join('');
+}
+
+function toggleFnoFilter() {
+  fnoOnlyFilter = !fnoOnlyFilter;
+  document.getElementById('fnoToggle').classList.toggle('active', fnoOnlyFilter);
+  applyFiltersAndRender();
+}
+
 function applyFiltersAndRender() {
   const q = document.getElementById('searchInput').value.trim().toUpperCase();
+  const sec = document.getElementById('sectorSelect').value;
 
   let filtered = analysed.filter(a => {
+    // 1. Search Query
     if (q && !a.sym.includes(q) && !a.sector.toUpperCase().includes(q)) return false;
+    
+    // 2. Score Threshold
     if (a.trendScore < scoreMinFilter) return false;
+    
+    // 3. Trend Type / Watchlist / Flips
     if (trendFilter === 'watch' && !watchlist.has(a.sym)) return false;
     if (trendFilter === 'flips' && !a.isNewFlip) return false;
     if (trendFilter !== 'all' && trendFilter !== 'watch' && trendFilter !== 'flips' && a.trendType !== trendFilter) return false;
+
+    // 4. Sector Filter
+    if (sec !== 'all' && a.sector !== sec) return false;
+
+    // 5. F&O Filter
+    const meta = masterMap[a.sym]?.meta;
+    if (fnoOnlyFilter && (!meta || meta.isFnO !== true)) return false;
+
     return true;
   });
 
