@@ -191,9 +191,11 @@ body {
 .card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 5px; }
 .card-value { font-size: 26px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
 .card-hint  { font-size: 9px; color: var(--text-dim); margin-top: 3px; }
-.c-total { color: #3b82f6; } [data-theme="dark"] .c-total { color: #60a5fa; }
-.c-buy   { color: #16a34a; } [data-theme="dark"] .c-buy   { color: #4ade80; }
-.c-sell  { color: #dc2626; } [data-theme="dark"] .c-sell  { color: #f87171; }
+.c-total   { color: #3b82f6; } [data-theme="dark"] .c-total   { color: #60a5fa; }
+.c-buy     { color: #16a34a; } [data-theme="dark"] .c-buy     { color: #4ade80; }
+.c-sell    { color: #dc2626; } [data-theme="dark"] .c-sell    { color: #f87171; }
+.c-neutral { color: #64748b; } [data-theme="dark"] .c-neutral { color: #94a3b8; }
+.card-neutral.card-active::before { background: #64748b; }
 
 /* ── TOOLBAR ── */
 .toolbar { padding: 10px 16px 4px; display: flex; flex-direction: column; gap: 7px; }
@@ -216,13 +218,15 @@ body {
   font-size: 11.5px; font-weight: 600; transition: all 0.15s; white-space: nowrap;
 }
 .filter-btn:hover { border-color: #0891b2; color: #0891b2; }
-.filter-btn.f-all  { color: #3b82f6; border-color: #93c5fd; background: #dbeafe; }
-.filter-btn.f-buy  { color: #16a34a; border-color: #86efac; background: #dcfce7; }
-.filter-btn.f-sell { color: #dc2626; border-color: #fca5a5; background: #fee2e2; }
+.filter-btn.f-all     { color: #3b82f6; border-color: #93c5fd; background: #dbeafe; }
+.filter-btn.f-buy     { color: #16a34a; border-color: #86efac; background: #dcfce7; }
+.filter-btn.f-sell    { color: #dc2626; border-color: #fca5a5; background: #fee2e2; }
+.filter-btn.f-neutral { color: #475569; border-color: #cbd5e1; background: #f1f5f9; }
 [data-theme="dark"] .filter-btn { background: #01202E; border-color: #0b5e76; color: #6aacbf; }
-[data-theme="dark"] .filter-btn.f-all  { background: linear-gradient(135deg,#0c2240,#0e3460); border-color:#3b82f6; color:#60a5fa; }
-[data-theme="dark"] .filter-btn.f-buy  { background: linear-gradient(135deg,#052e14,#083d1c); border-color:#16a34a; color:#4ade80; }
-[data-theme="dark"] .filter-btn.f-sell { background: linear-gradient(135deg,#3b0808,#4c0e0e); border-color:#dc2626; color:#f87171; }
+[data-theme="dark"] .filter-btn.f-all     { background: linear-gradient(135deg,#0c2240,#0e3460); border-color:#3b82f6; color:#60a5fa; }
+[data-theme="dark"] .filter-btn.f-buy     { background: linear-gradient(135deg,#052e14,#083d1c); border-color:#16a34a; color:#4ade80; }
+[data-theme="dark"] .filter-btn.f-sell    { background: linear-gradient(135deg,#3b0808,#4c0e0e); border-color:#dc2626; color:#f87171; }
+[data-theme="dark"] .filter-btn.f-neutral { background: linear-gradient(135deg,#111827,#1f2937); border-color:#4b5563; color:#94a3b8; }
 
 /* Entry filter */
 .efb {
@@ -318,6 +322,7 @@ td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: now
 .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 5px; font-size: 11px; font-weight: 700; white-space: nowrap; }
 .badge-buy        { background: #dcfce7; color: #15803d; }
 .badge-sell       { background: #fee2e2; color: #b91c1c; }
+.badge-neutral    { background: #f1f5f9; color: #475569; }
 .badge-breakout   { background: #fff7ed; color: #c2410c; }
 .badge-breakdown  { background: #fff1f2; color: #be123c; }
 .badge-cont       { background: #ecfeff; color: #0e7490; }
@@ -327,6 +332,7 @@ td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: now
 .badge-bear-cross { background: #fee2e2; color: #b91c1c; }
 [data-theme="dark"] .badge-buy        { background: rgba(21,128,61,0.2);  color: #4ade80; }
 [data-theme="dark"] .badge-sell       { background: rgba(185,28,28,0.2);  color: #f87171; }
+[data-theme="dark"] .badge-neutral    { background: rgba(255,255,255,0.08); color: #94a3b8; }
 [data-theme="dark"] .badge-breakout   { background: rgba(194,65,12,0.2);  color: #fb923c; }
 [data-theme="dark"] .badge-breakdown  { background: rgba(190,18,60,0.2);  color: #fb7185; }
 [data-theme="dark"] .badge-cont       { background: rgba(14,116,144,0.2); color: #22d3ee; }
@@ -525,7 +531,7 @@ td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: now
 <!-- SIGNAL CARDS -->
 <div class="cards">
   <div class="card card-total card-active" onclick="setSigFilter('all',this)">
-    <div class="card-label">Total Signals</div>
+    <div class="card-label">Total Stocks</div>
     <div class="card-value c-total" id="cTotal">—</div>
     <div class="card-hint">Tap to show all</div>
   </div>
@@ -539,6 +545,11 @@ td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: now
     <div class="card-value c-sell" id="cSell">—</div>
     <div class="card-hint">Tap to filter</div>
   </div>
+  <div class="card card-neutral" onclick="setSigFilter('neutral',this)">
+    <div class="card-label">Neutral</div>
+    <div class="card-value c-neutral" id="cNeutral">—</div>
+    <div class="card-hint">Tap to filter</div>
+  </div>
 </div>
 
 <!-- TOOLBAR -->
@@ -550,10 +561,11 @@ td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: now
       <span class="s-icon">🔍</span>
       <input class="search-input" id="searchInput" type="text" placeholder="Search symbol..." oninput="applyFilters()">
     </div>
-    <button class="filter-btn f-all"  id="btnAll"   onclick="setSigFilter('all')">All (<span id="cntAll">0</span>)</button>
-    <button class="filter-btn"        id="btnBuy"   onclick="setSigFilter('buy')">▲ Buy (<span id="cntBuy">0</span>)</button>
-    <button class="filter-btn"        id="btnSell"  onclick="setSigFilter('sell')">▼ Sell (<span id="cntSell">0</span>)</button>
-    <button class="filter-btn"        id="btnWatch" onclick="setSigFilter('watch')">⭐ Watchlist (<span id="cntWatch">0</span>)</button>
+    <button class="filter-btn f-all"  id="btnAll"     onclick="setSigFilter('all')">All (<span id="cntAll">0</span>)</button>
+    <button class="filter-btn"        id="btnBuy"     onclick="setSigFilter('buy')">▲ Buy (<span id="cntBuy">0</span>)</button>
+    <button class="filter-btn"        id="btnSell"    onclick="setSigFilter('sell')">▼ Sell (<span id="cntSell">0</span>)</button>
+    <button class="filter-btn"        id="btnNeutral" onclick="setSigFilter('neutral')">■ Neutral (<span id="cntNeutral">0</span>)</button>
+    <button class="filter-btn"        id="btnWatch"   onclick="setSigFilter('watch')">⭐ Watchlist (<span id="cntWatch">0</span>)</button>
     <button class="fno-btn" id="btnFno" onclick="toggleFno()">⚡ F&amp;O Only</button>
   </div>
 
@@ -570,11 +582,30 @@ td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: now
     </select>
   </div>
 
-  <!-- Row 3: Sector Dropdown -->
+  <!-- Row 3: Sector and Index Dropdown -->
   <div class="toolbar-row">
     <span class="toolbar-label">Sector:</span>
     <select class="filter-dropdown" id="sectorDropdown" onchange="setSecFilter(this.value)">
       <option value="all">All Sectors</option>
+    </select>
+    
+    <span class="toolbar-label" style="margin-left: 10px;">Index:</span>
+    <select class="filter-dropdown" id="indexDropdown" onchange="setIndexFilterDropdown(this.value)">
+      <option value="all">All Indices</option>
+      <optgroup label="Broad Market">
+        <option value="NIFTY50">NIFTY 50</option>
+        <option value="BANKNIFTY">BANK NIFTY</option>
+        <option value="FINNIFTY">FIN NIFTY</option>
+        <option value="MIDCPNIFTY">MIDCAP</option>
+      </optgroup>
+      <optgroup label="Sectoral">
+        <option value="NIFTYIT">NIFTY IT</option>
+        <option value="NIFTYFMCG">FMCG</option>
+        <option value="NIFTYAUTO">AUTO</option>
+        <option value="NIFTYOILGAS">OIL & GAS</option>
+        <option value="NIFTYPHARMA">PHARMA</option>
+        <option value="NIFTYREALTY">REALTY</option>
+      </optgroup>
     </select>
   </div>
 
@@ -787,9 +818,10 @@ async function loadData(date) {
 
     // Update meta
     document.getElementById('lastScan').textContent = meta.generated_at || '—';
-    document.getElementById('cTotal').textContent   = meta.total_signals || allStocks.length;
-    document.getElementById('cBuy').textContent     = meta.buy_count  || 0;
-    document.getElementById('cSell').textContent    = meta.sell_count || 0;
+    document.getElementById('cTotal').textContent   = allStocks.length;
+    document.getElementById('cBuy').textContent     = meta.buy_count     || 0;
+    document.getElementById('cSell').textContent    = meta.sell_count    || 0;
+    document.getElementById('cNeutral').textContent = meta.neutral_count || 0;
 
     // Render indices
     renderIndices(data.indices || {});
@@ -899,8 +931,8 @@ function renderTable() {
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
 
-  const q     = document.getElementById('searchInput').value.toLowerCase();
-  let visible = 0, cntAll = 0, cntBuy = 0, cntSell = 0, cntWatch = 0;
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  let visible = 0, cntAll = 0, cntBuy = 0, cntSell = 0, cntNeutral = 0, cntWatch = 0;
 
   let stocks = [...allStocks];
 
@@ -917,7 +949,9 @@ function renderTable() {
   }
 
   stocks.forEach(s => {
-    const sig    = (s.signal||'').includes('Buy') ? 'buy' : 'sell';
+    let sig = 'neutral';
+    if ((s.signal||'').includes('Buy')) sig = 'buy';
+    else if ((s.signal||'').includes('Sell')) sig = 'sell';
     const entry  = (s.entry_type||'').toLowerCase();
     const macd   = (s.macd_cross||'').toLowerCase();
     const sector = s.sector || 'Unknown';
@@ -936,8 +970,9 @@ function renderTable() {
 
     if (okEntry && okMacd && okSec && okQ && okIndex && okFno) {
       cntAll++;
-      if (sig==='buy')  cntBuy++;
-      if (sig==='sell') cntSell++;
+      if (sig==='buy')     cntBuy++;
+      if (sig==='sell')    cntSell++;
+      if (sig==='neutral') cntNeutral++;
       if (watchlist.has(sym)) cntWatch++;
     }
 
@@ -965,8 +1000,10 @@ function renderTable() {
           ${notes[sym] ? '<span style="font-size:9px;color:#0891b2;margin-left:2px;">●</span>' : ''}
         `;
       } else if (col.key === 'signal') {
-        const isBuy = (v||'').includes('Buy');
-        td.innerHTML = `<span class="badge ${isBuy?'badge-buy':'badge-sell'}">${isBuy?'▲':'▼'} ${v||'—'}</span>`;
+        let bClass = 'badge-neutral', icon = '■';
+        if ((v||'').includes('Buy')) { bClass = 'badge-buy'; icon = '▲'; }
+        else if ((v||'').includes('Sell')) { bClass = 'badge-sell'; icon = '▼'; }
+        td.innerHTML = `<span class="badge ${bClass}">${icon} ${v||'—'}</span>`;
       } else if (col.key === 'entry_type') {
         const map = { breakout:'badge-breakout ⚡', breakdown:'badge-breakdown ⚡', continuation:'badge-cont ↗', pullback:'badge-pullback ↩', reversal:'badge-reversal 🔃' };
         const e = (v||'').toLowerCase();
@@ -1016,10 +1053,11 @@ function renderTable() {
   });
 
   // Update counts
-  document.getElementById('cntAll').textContent   = cntAll;
-  document.getElementById('cntBuy').textContent   = cntBuy;
-  document.getElementById('cntSell').textContent  = cntSell;
-  document.getElementById('cntWatch').textContent = cntWatch;
+  document.getElementById('cntAll').textContent     = cntAll;
+  document.getElementById('cntBuy').textContent     = cntBuy;
+  document.getElementById('cntSell').textContent    = cntSell;
+  document.getElementById('cntNeutral').textContent = cntNeutral;
+  document.getElementById('cntWatch').textContent   = cntWatch;
 
   const isFiltered = sigFilter!=='all' || entryFilter!=='all' || macdFilter!=='all' || secFilter!=='all' || q;
   document.getElementById('showingCount').innerHTML = isFiltered
@@ -1042,17 +1080,17 @@ function setSigFilter(f, cardEl) {
     sigFilter = f;
   }
   // Buttons update
-  ['btnAll','btnBuy','btnSell','btnWatch'].forEach(id => {
+  ['btnAll','btnBuy','btnSell','btnNeutral','btnWatch'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.className = 'filter-btn';
   });
-  const btnMap = { all:'btnAll', buy:'btnBuy', sell:'btnSell', watch:'btnWatch' };
-  const clsMap = { all:'f-all', buy:'f-buy', sell:'f-sell', watch:'f-watch' };
+  const btnMap = { all:'btnAll', buy:'btnBuy', sell:'btnSell', neutral:'btnNeutral', watch:'btnWatch' };
+  const clsMap = { all:'f-all', buy:'f-buy', sell:'f-sell', neutral:'f-neutral', watch:'f-watch' };
   const activeBtn = document.getElementById(btnMap[sigFilter]);
   if (activeBtn) activeBtn.className = 'filter-btn ' + (clsMap[sigFilter] || 'f-all');
   // Cards update
   document.querySelectorAll('.card').forEach(c => c.classList.remove('card-active'));
-  const cardMap = { all:'card-total', buy:'card-buy', sell:'card-sell' };
+  const cardMap = { all:'card-total', buy:'card-buy', sell:'card-sell', neutral:'card-neutral' };
   const activeCard = document.querySelector('.' + (cardMap[sigFilter] || 'card-total'));
   if (activeCard) activeCard.classList.add('card-active');
   renderTable();
@@ -1088,11 +1126,25 @@ function setSecFilter(f) {
 // ══════════════════════════════════════════════════
 function setIndexFilter(key) {
   indexFilter = (indexFilter === key && key !== 'all') ? 'all' : key;
+  applyIndexUI();
+}
+
+function setIndexFilterDropdown(val) {
+  indexFilter = val;
+  applyIndexUI();
+}
+
+function applyIndexUI() {
   if (indexFilter !== 'all') {
     secFilter = 'all';
     const sectorDd = document.getElementById('sectorDropdown');
     if (sectorDd) sectorDd.value = 'all';
   }
+  
+  // Sync the dropdown
+  const idxDd = document.getElementById('indexDropdown');
+  if (idxDd) idxDd.value = indexFilter;
+
   document.querySelectorAll('.idx-card').forEach(c => c.classList.remove('idx-active'));
   const resetBtn = document.getElementById('idxResetBtn');
   if (indexFilter === 'all') {
@@ -1138,7 +1190,9 @@ function resetAllFilters() {
   const sectorDd = document.getElementById('sectorDropdown');
   if (sectorDd) sectorDd.value = 'all';
 
-  // Index cards
+  // Index cards and dropdown
+  const idxDd = document.getElementById('indexDropdown');
+  if (idxDd) idxDd.value = 'all';
   document.querySelectorAll('.idx-card').forEach(c => c.classList.remove('idx-active'));
   const resetBtn = document.getElementById('idxResetBtn');
   if (resetBtn) resetBtn.classList.add('idx-reset-active');
