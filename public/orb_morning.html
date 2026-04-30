@@ -323,11 +323,10 @@
             let h = -Infinity, l = Infinity;
             rangeSnaps.forEach(s => { h = Math.max(h, s.ltp); l = Math.min(l, s.ltp); });
 
-            const windowSnaps = snaps.filter(s => s.t >= timeframe);
-            for (let s of windowSnaps) {
-                if (s.ltp > h) return { type: 'BULL', price: s.ltp, time: s.t, h, l };
-                if (s.ltp < l) return { type: 'BEAR', price: s.ltp, time: s.t, h, l };
-            }
+            const ltp = snaps[snaps.length - 1].ltp;
+            if (ltp > h) return { type: 'BULL', price: ltp, time: snaps[snaps.length-1].t, h, l };
+            if (ltp < l) return { type: 'BEAR', price: ltp, time: snaps[snaps.length-1].t, h, l };
+            
             return { type: 'NEUTRAL', h, l };
         }
 
@@ -424,7 +423,9 @@
                             <span style="font-size:11px; color:${diffColor}; margin-left:4px">(${parseFloat(priceDiff) >= 0 ? '+' : ''}${priceDiff})</span>
                         </td>
                         <td>
-                            ${execPrice > 0 ? `<span class="pnl-badge ${parseFloat(pnl) >= 0 ? 'pnl-plus' : 'pnl-minus'}">${pnl}%</span>` : '--'}
+                            ${s.ltp && s.pd?.close ? 
+                                `<span class="pnl-badge ${s.ltp >= s.pd.close ? 'pnl-plus' : 'pnl-minus'}">${((s.ltp - s.pd.close) / s.pd.close * 100).toFixed(2)}%</span>` 
+                                : '--'}
                         </td>
                     </tr>
                 `;
