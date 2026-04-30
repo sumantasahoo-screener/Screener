@@ -502,15 +502,17 @@
                 const validDatasets = datasets.filter(d => d !== null);
                 if (validDatasets.length === 0) return;
 
-                // Pick latest dataset
-                let latest = validDatasets[0];
-                let maxT = -1;
+                // Granular Merge: Symbol-by-symbol, take the longest array
+                const mergedData = {};
                 validDatasets.forEach(ds => {
-                    const t = ds["RELIANCE"] ? ds["RELIANCE"][ds["RELIANCE"].length - 1].t : -1;
-                    if (t > maxT) { maxT = t; latest = ds; }
+                    for (let sym in ds) {
+                        if (!mergedData[sym] || ds[sym].length > mergedData[sym].length) {
+                            mergedData[sym] = ds[sym];
+                        }
+                    }
                 });
 
-                liveData = latest;
+                liveData = mergedData;
                 renderGrid();
             } catch (error) { console.error(error); }
         }
@@ -518,13 +520,17 @@
         function getBreakout(sym, timeframe) {
             if (!liveData[sym]) return null;
             const snaps = liveData[sym];
-            const rangeSnaps = snaps.filter(s => s.t < timeframe);
+            // Range is first N minutes (9:15 to 9:15+N)
+            const rangeSnaps = snaps.filter(s => s.t <= timeframe);
             if (rangeSnaps.length === 0) return null;
 
             let h = -Infinity, l = Infinity;
             rangeSnaps.forEach(s => { h = Math.max(h, s.ltp); l = Math.min(l, s.ltp); });
 
             const last = snaps[snaps.length - 1];
+            // Only show breakout if we are AFTER the range timeframe
+            if (last.t <= timeframe) return { type: 'NEUTRAL', h, l };
+
             if (last.ltp > h) return { type: 'BULL', price: last.ltp, time: last.t, h, l };
             if (last.ltp < l) return { type: 'BEAR', price: last.ltp, time: last.t, h, l };
             return { type: 'NEUTRAL', h, l };
