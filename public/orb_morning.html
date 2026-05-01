@@ -406,6 +406,8 @@
                 <thead>
                     <tr>
                         <th style="width:20%">Symbol</th>
+                        <th>STRENGTH</th>
+                        <th>RSI TREND</th>
                         <th>ORB Status (5/15/30)</th>
                         <th>15M Range</th>
                         <th>Prev Day (H/L)</th>
@@ -463,6 +465,48 @@
         let pdData = {};
         let liveData = {};
         let currentFilter = 'all';
+
+        function calculateRSI(snaps, period = 14) {
+            if (!snaps || !Array.isArray(snaps) || snaps.length < 2) return "--";
+            let actualPeriod = Math.min(period, snaps.length - 1);
+            let gains = 0, losses = 0;
+            const startIdx = Math.max(1, snaps.length - actualPeriod);
+            for (let i = startIdx; i < snaps.length; i++) {
+                const diff = snaps[i].ltp - snaps[i-1].ltp;
+                if (diff >= 0) gains += diff; else losses -= diff;
+            }
+            if (losses === 0) return 100;
+            const rs = gains / losses;
+            return Math.round(100 - (100 / (1 + rs)));
+        }
+
+        function getStrengthDonutSVG(score, isTrap, trapType) {
+            const absScore = Math.min(100, Math.abs(score));
+            const circumference = 2 * Math.PI * 16;
+            const offset = circumference - (absScore / 100) * circumference;
+            let color = score > 0 ? '#10b981' : (score < 0 ? '#ef4444' : '#6b7280');
+            let text = `${absScore}%`;
+            let textColor = '#fff';
+            let glow = '';
+
+            if (isTrap) {
+                color = trapType === 'BEAR_TRAP' ? '#f59e0b' : '#f97316'; // Gold/Orange
+                text = "REV";
+                textColor = color;
+                glow = `filter: drop-shadow(0 0 4px ${color})`;
+            } else if (absScore >= 95) {
+                glow = `filter: drop-shadow(0 0 6px ${color})`;
+            }
+
+            return `
+            <div style="position:relative; width:44px; height:44px; display:flex; align-items:center; justify-content:center; ${glow}" title="${isTrap ? 'Reversal Detected' : 'Trend Strength'}">
+                <svg width="44" height="44" style="transform: rotate(-90deg);">
+                    <circle cx="22" cy="22" r="16" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"></circle>
+                    <circle cx="22" cy="22" r="16" fill="none" stroke="${color}" stroke-width="4" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" style="transition: stroke-dashoffset 0.5s ease;"></circle>
+                </svg>
+                <div style="position:absolute; font-size:10px; font-weight:800; color:${textColor}; text-align:center; line-height:1">${text}</div>
+            </div>`;
+        }
 
         async function fetchPDH() {
             try {
@@ -602,22 +646,83 @@
                 const item = liveData[sym] || null;
                 const ltp = item ? item.ltp : 0;
                 const lastT = item ? item.t : 0;
+                const snaps = item ? item.history : [];
+                
+                const rsi = calculateRSI(snaps, 14);
+                const snaps3MinAgo = snaps.length > 3 ? snaps.slice(0, snaps.length - 3) : snaps;
+                const rsiOld = calculateRSI(snaps3MinAgo, 14);
+                
+                let rsiDir = 'FLAT';
+                let rsiIcon = '➡️';
+                let rsiColor = 'var(--text-dim)';
+                
+                if (rsi !== "--" && rsiOld !== "--") {
+                    if (rsi > rsiOld + 2) { rsiDir = 'UP'; rsiIcon = '↗️'; rsiColor = 'var(--bull)'; }
+                    else if (rsi < rsiOld - 2) { rsiDir = 'DOWN'; rsiIcon = '↘️'; rsiColor = 'var(--bear)'; }
+                }
+
                 const pd = pdData[sym] || {};
 
-                // Cumulative Scoring for sorting: 
-                // PDH/PDL = 10, 15M = 5, 5M = 2, 30M = 1
                 let score = 0;
                 let activeType = 'NEUTRAL';
+                let isTrap = false;
+                let trapType = null;
 
                 const isPDHBrk = ltp && pd.pdh && ltp > pd.pdh;
                 const isPDLBrk = ltp && pd.pdl && ltp < pd.pdl;
 
-                if (isPDHBrk || isPDLBrk) score += 10;
-                if (b15 && b15.type !== 'NEUTRAL') { score += 5; activeType = b15.type; }
-                if (b5 && b5.type !== 'NEUTRAL') { score += 2; if (activeType === 'NEUTRAL') activeType = b5.type; }
-                if (b30 && b30.type !== 'NEUTRAL') { score += 1; if (activeType === 'NEUTRAL') activeType = b30.type; }
+                // Strength Logic (Max 100/-100)
+                if (isPDHBrk) score += 30;
+                else if (isPDLBrk) score -= 30;
 
-                return { sym, b5, b15, b30, ltp, lastT, pd, score, activeType, isPDHBrk, isPDLBrk };
+                if (b15 && b15.type === 'BULL') { score += 25; activeType = 'BULL'; }
+                else if (b15 && b15.type === 'BEAR') { score -= 25; activeType = 'BEAR'; }
+
+                if (b5 && b5.type === 'BULL') { score += 20; if (activeType === 'NEUTRAL') activeType = 'BULL'; }
+                else if (b5 && b5.type === 'BEAR') { score -= 20; if (activeType === 'NEUTRAL') activeType = 'BEAR'; }
+
+                if (b30 && b30.type === 'BULL') { score += 25; if (activeType === 'NEUTRAL') activeType = 'BULL'; }
+                else if (b30 && b30.type === 'BEAR') { score -= 25; if (activeType === 'NEUTRAL') activeType = 'BEAR'; }
+
+                // RSI Boost
+                if (rsi !== "--") {
+                    if (score > 0 && rsi >= 65) score += 10;
+                    else if (score < 0 && rsi <= 35) score -= 10;
+                }
+                
+                if (score > 100) score = 100;
+                if (score < -100) score = -100;
+
+                // Trap (Reversal) Detection
+                if (item && item.orb) {
+                    const dayH = item.orb.day_h;
+                    const dayL = item.orb.day_l;
+                    const h15 = item.orb.h15;
+                    const l15 = item.orb.l15;
+                    
+                    // Bull Trap (Bearish Reversal): Broke high earlier, but now below 15M High and RSI < 60
+                    const prevBrokeHigh = (h15 && dayH > h15) || (pd.pdh && dayH > pd.pdh);
+                    if (prevBrokeHigh && h15 && ltp < h15 && rsi !== "--" && rsi < 60) {
+                        isTrap = true;
+                        trapType = 'BULL_TRAP';
+                        activeType = 'BEAR';
+                        score = score > 0 ? -Math.abs(score) : score; // Flip score
+                    }
+
+                    // Bear Trap (Bullish Reversal): Broke low earlier, but now above 15M Low and RSI > 40
+                    const prevBrokeLow = (l15 && dayL < l15) || (pd.pdl && dayL < pd.pdl);
+                    if (prevBrokeLow && l15 && ltp > l15 && rsi !== "--" && rsi > 40) {
+                        isTrap = true;
+                        trapType = 'BEAR_TRAP';
+                        activeType = 'BULL';
+                        score = score < 0 ? Math.abs(score) : score; // Flip score
+                    }
+                }
+
+                // For sorting magnitude
+                const sortScore = Math.abs(score) + (isTrap ? 200 : 0) + (rsiDir === 'UP' ? 10 : 0);
+
+                return { sym, b5, b15, b30, ltp, lastT, pd, score, sortScore, activeType, isPDHBrk, isPDLBrk, isTrap, trapType, rsi, rsiDir, rsiIcon, rsiColor };
             });
 
             // Apply Filters
@@ -626,8 +731,8 @@
             else if (currentFilter === 'pd') stocks = stocks.filter(s => s.isPDHBrk || s.isPDLBrk);
             else if (currentFilter === 'orb') stocks = stocks.filter(s => s.activeType !== 'NEUTRAL');
 
-            // Sort by Score, then Symbol
-            stocks.sort((a, b) => b.score - a.score || a.sym.localeCompare(b.sym));
+            // Sort by Magnitude of Score (Traps at top), then Symbol
+            stocks.sort((a, b) => b.sortScore - a.sortScore || Math.abs(b.score) - Math.abs(a.score) || a.sym.localeCompare(b.sym));
 
             grid.innerHTML = stocks.map(s => {
                 // Dynamic Execution Price for P&L
@@ -658,9 +763,18 @@
                             <div class="sym-cell">
                                 <div style="display:flex; align-items:center; gap:8px">
                                     <span class="sym-name">${s.sym}</span>
-                                    <span style="background:rgba(255,255,255,0.1); border:1px solid var(--border); color:var(--text-dim); padding:2px 6px; border-radius:20px; font-size:10px; font-weight:800">${s.score}</span>
+                                    <span style="background:rgba(255,255,255,0.1); border:1px solid var(--border); color:var(--text-dim); padding:2px 6px; border-radius:20px; font-size:10px; font-weight:800">${Math.abs(s.score)}%</span>
                                 </div>
                                 ${pdhAlert} ${pdlAlert}
+                            </div>
+                        </td>
+                        <td>
+                            ${getStrengthDonutSVG(s.score, s.isTrap, s.trapType)}
+                        </td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:6px; background:rgba(0,0,0,0.2); padding:4px 8px; border-radius:6px; width:fit-content; border:1px solid rgba(255,255,255,0.05)">
+                                <span style="font-size:14px; font-weight:800; color:${s.rsi > 60 ? 'var(--bull)' : (s.rsi < 40 ? 'var(--bear)' : 'var(--text-dim)')}">${s.rsi}</span>
+                                <span style="color:${s.rsiColor}; font-size:16px; font-weight:bold" title="3-Min Slope">${s.rsiIcon}</span>
                             </div>
                         </td>
                         <td>
