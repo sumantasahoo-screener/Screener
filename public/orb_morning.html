@@ -89,18 +89,21 @@
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 24px;
-            overflow: hidden;
+            overflow-x: auto; /* Enable horizontal scroll */
             backdrop-filter: blur(10px);
+            -webkit-overflow-scrolling: touch;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             font-size: 14px;
+            min-width: 1000px; /* Ensure table has enough width for scroll */
         }
 
         th {
-            background: rgba(255, 255, 255, 0.05);
+            background: #111827; /* Solid dark color for sticky header */
             color: var(--text-dim);
             text-align: left;
             padding: 15px;
@@ -110,7 +113,22 @@
             letter-spacing: 1px;
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 20;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Sticky Symbol Column */
+        th:first-child, td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 15;
+            background: #0f172a; /* Solid color for sticky column */
+            border-right: 1px solid var(--border);
+        }
+
+        th:first-child {
+            z-index: 30; /* Highest for corner cell */
+            background: #111827;
         }
 
         td {
@@ -274,8 +292,12 @@
 
             th,
             td {
-                padding: 8px 10px;
+                padding: 10px 12px;
                 font-size: 12px;
+            }
+
+            table {
+                min-width: 900px; /* Slightly less on mobile but still scrollable */
             }
 
             .sym-name {
@@ -385,6 +407,8 @@
                 <button class="btn" onclick="filterData('bear', this)">BEAR</button>
                 <button class="btn" onclick="filterData('pd', this)">PDH/PDL</button>
                 <button class="btn" onclick="filterData('orb', this)">ORB ONLY</button>
+                <button class="btn" onclick="filterData('rsi_up', this)">RSI UP ↗️</button>
+                <button class="btn" onclick="filterData('rsi_down', this)">RSI DOWN ↘️</button>
                 <button class="btn" style="border-color:var(--accent); color:var(--accent)" onclick="showLog()">📜
                     HISTORY</button>
                 <button class="btn" onclick="manualFetchPDH()" id="btn-pdh">🔄 SYNC PDH</button>
@@ -804,6 +828,8 @@
             else if (currentFilter === 'bear') stocks = stocks.filter(s => s.activeType === 'BEAR' || s.isPDLBrk);
             else if (currentFilter === 'pd') stocks = stocks.filter(s => s.isPDHBrk || s.isPDLBrk);
             else if (currentFilter === 'orb') stocks = stocks.filter(s => s.activeType !== 'NEUTRAL');
+            else if (currentFilter === 'rsi_up') stocks = stocks.filter(s => s.rsiDir === 'UP');
+            else if (currentFilter === 'rsi_down') stocks = stocks.filter(s => s.rsiDir === 'DOWN');
 
             // Sort by Magnitude of Score (Traps at top), then Symbol
             stocks.sort((a, b) => b.sortScore - a.sortScore || Math.abs(b.score) - Math.abs(a.score) || a.sym.localeCompare(b.sym));
