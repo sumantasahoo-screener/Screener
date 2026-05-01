@@ -480,32 +480,87 @@
             return Math.round(100 - (100 / (1 + rs)));
         }
 
-        function getStrengthDonutSVG(score, isTrap, trapType) {
+        function getStrengthDonutSVG(score, score5m, isTrap, trapType) {
             const absScore = Math.min(100, Math.abs(score));
-            const circumference = 2 * Math.PI * 16;
+            const circumference = 2 * Math.PI * 18; // r=18 for bigger ring
             const offset = circumference - (absScore / 100) * circumference;
             let color = score > 0 ? '#10b981' : (score < 0 ? '#ef4444' : '#6b7280');
-            let text = `${absScore}%`;
+            let text = `${absScore}`;
             let textColor = '#fff';
             let glow = '';
+
+            let arrowSvg = '';
+            if (score > score5m) {
+                arrowSvg = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="margin-top:1px"><path d="M7 17L17 7M7 7h10v10"/></svg>`;
+            } else if (score < score5m) {
+                arrowSvg = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="margin-top:1px"><path d="M7 7l10 10M17 7v10H7"/></svg>`;
+            }
 
             if (isTrap) {
                 color = trapType === 'BEAR_TRAP' ? '#f59e0b' : '#f97316'; // Gold/Orange
                 text = "REV";
                 textColor = color;
+                arrowSvg = ''; // No arrow needed for Reversals
                 glow = `filter: drop-shadow(0 0 4px ${color})`;
             } else if (absScore >= 95) {
                 glow = `filter: drop-shadow(0 0 6px ${color})`;
             }
 
             return `
-            <div style="position:relative; width:44px; height:44px; display:flex; align-items:center; justify-content:center; ${glow}" title="${isTrap ? 'Reversal Detected' : 'Trend Strength'}">
-                <svg width="44" height="44" style="transform: rotate(-90deg);">
-                    <circle cx="22" cy="22" r="16" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"></circle>
-                    <circle cx="22" cy="22" r="16" fill="none" stroke="${color}" stroke-width="4" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" style="transition: stroke-dashoffset 0.5s ease;"></circle>
+            <div style="position:relative; width:48px; height:48px; display:flex; align-items:center; justify-content:center; ${glow}" title="${isTrap ? 'Reversal Detected' : 'Trend Strength'}">
+                <svg width="48" height="48" style="transform: rotate(-90deg);">
+                    <circle cx="24" cy="24" r="18" fill="rgba(0,0,0,0.1)" stroke="rgba(255,255,255,0.05)" stroke-width="4"></circle>
+                    <circle cx="24" cy="24" r="18" fill="none" stroke="${color}" stroke-width="4" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" style="transition: stroke-dashoffset 0.5s ease;"></circle>
                 </svg>
-                <div style="position:absolute; font-size:10px; font-weight:800; color:${textColor}; text-align:center; line-height:1">${text}</div>
+                <div style="position:absolute; display:flex; flex-direction:column; align-items:center; line-height:1">
+                    <div style="font-size:11px; font-weight:800; color:${textColor}; display:flex; align-items:baseline">${text}<span style="font-size:8px">%</span></div>
+                    ${arrowSvg}
+                </div>
             </div>`;
+        }
+
+        function getRSIDonutSVG(rsi, rsiOld) {
+            if (rsi === "--") return `<span style="color:var(--text-dim)">--</span>`;
+            const absScore = Math.min(100, Math.max(0, rsi));
+            const circumference = 2 * Math.PI * 14; // smaller r=14
+            const offset = circumference - (absScore / 100) * circumference;
+            
+            let color = rsi > 60 ? '#10b981' : (rsi < 40 ? '#ef4444' : '#8b5cf6'); // Green, Red, Purple for chop
+            
+            let arrowSvg = '';
+            if (rsiOld !== "--") {
+                if (rsi > rsiOld + 2) {
+                    arrowSvg = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="margin-top:1px"><path d="M7 17L17 7M7 7h10v10"/></svg>`;
+                } else if (rsi < rsiOld - 2) {
+                    arrowSvg = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="margin-top:1px"><path d="M7 7l10 10M17 7v10H7"/></svg>`;
+                } else {
+                    arrowSvg = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="margin-top:1px"><path d="M5 12h14"/></svg>`;
+                }
+            }
+
+            return `
+            <div style="position:relative; width:40px; height:40px; display:flex; align-items:center; justify-content:center;">
+                <svg width="40" height="40" style="transform: rotate(-90deg);">
+                    <circle cx="20" cy="20" r="14" fill="rgba(0,0,0,0.2)" stroke="rgba(255,255,255,0.05)" stroke-width="3"></circle>
+                    <circle cx="20" cy="20" r="14" fill="none" stroke="${color}" stroke-width="3" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round"></circle>
+                </svg>
+                <div style="position:absolute; display:flex; flex-direction:column; align-items:center; line-height:1">
+                    <span style="font-size:11px; font-weight:800; color:#fff">${rsi}</span>
+                    ${arrowSvg}
+                </div>
+            </div>`;
+        }
+
+        function getHistoricalBreakout(item, timeframe, pastLtp, pastT) {
+            const hKey = 'h' + timeframe;
+            const lKey = 'l' + timeframe;
+            if (!item.orb || item.orb[hKey] === undefined) return { type: 'NEUTRAL' };
+            const h = item.orb[hKey];
+            const l = item.orb[lKey];
+            if (pastT <= timeframe) return { type: 'NEUTRAL' };
+            if (pastLtp > h) return { type: 'BULL' };
+            if (pastLtp < l) return { type: 'BEAR' };
+            return { type: 'NEUTRAL' };
         }
 
         async function fetchPDH() {
@@ -671,6 +726,25 @@
                 const isPDHBrk = ltp && pd.pdh && ltp > pd.pdh;
                 const isPDLBrk = ltp && pd.pdl && ltp < pd.pdl;
 
+                // 5-Minute Ago History Calculation
+                const snaps5MinAgo = snaps.length > 5 ? snaps[snaps.length - 6] : null;
+                let score5m = 0;
+                if (snaps5MinAgo) {
+                    const pLtp = snaps5MinAgo.ltp;
+                    const pT = snaps5MinAgo.t;
+                    
+                    if (pLtp > pd.pdh) score5m += 30; else if (pLtp < pd.pdl) score5m -= 30;
+
+                    const pb15 = getHistoricalBreakout(item, 15, pLtp, pT);
+                    if (pb15.type === 'BULL') score5m += 25; else if (pb15.type === 'BEAR') score5m -= 25;
+
+                    const pb5 = getHistoricalBreakout(item, 5, pLtp, pT);
+                    if (pb5.type === 'BULL') score5m += 20; else if (pb5.type === 'BEAR') score5m -= 20;
+
+                    const pb30 = getHistoricalBreakout(item, 30, pLtp, pT);
+                    if (pb30.type === 'BULL') score5m += 25; else if (pb30.type === 'BEAR') score5m -= 25;
+                }
+
                 // Strength Logic (Max 100/-100)
                 if (isPDHBrk) score += 30;
                 else if (isPDLBrk) score -= 30;
@@ -722,7 +796,7 @@
                 // For sorting magnitude
                 const sortScore = Math.abs(score) + (isTrap ? 200 : 0) + (rsiDir === 'UP' ? 10 : 0);
 
-                return { sym, b5, b15, b30, ltp, lastT, pd, score, sortScore, activeType, isPDHBrk, isPDLBrk, isTrap, trapType, rsi, rsiDir, rsiIcon, rsiColor };
+                return { sym, b5, b15, b30, ltp, lastT, pd, score, score5m, sortScore, activeType, isPDHBrk, isPDLBrk, isTrap, trapType, rsi, rsiOld, rsiDir };
             });
 
             // Apply Filters
@@ -769,13 +843,10 @@
                             </div>
                         </td>
                         <td>
-                            ${getStrengthDonutSVG(s.score, s.isTrap, s.trapType)}
+                            ${getStrengthDonutSVG(s.score, s.score5m, s.isTrap, s.trapType)}
                         </td>
                         <td>
-                            <div style="display:flex; align-items:center; gap:6px; background:rgba(0,0,0,0.2); padding:4px 8px; border-radius:6px; width:fit-content; border:1px solid rgba(255,255,255,0.05)">
-                                <span style="font-size:14px; font-weight:800; color:${s.rsi > 60 ? 'var(--bull)' : (s.rsi < 40 ? 'var(--bear)' : 'var(--text-dim)')}">${s.rsi}</span>
-                                <span style="color:${s.rsiColor}; font-size:16px; font-weight:bold" title="3-Min Slope">${s.rsiIcon}</span>
-                            </div>
+                            ${getRSIDonutSVG(s.rsi, s.rsiOld)}
                         </td>
                         <td>
                             <span class="orb-tag ${tag5}">5M</span>
