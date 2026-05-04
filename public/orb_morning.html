@@ -5,27 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multi-ORB Dashboard (5M/15M/30M)</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2310b981'/><path d='M25 70 l20-20 l15 15 l25-35' stroke='white' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round'/><path d='M85 30 l-20 0 m20 0 l0 20' stroke='white' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2310b981'/><path d='M25 70 l20-20 l15 15 l25-35' stroke='white' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round'/><path d='M85 30 l-20 0 m20 0 l0 20' stroke='white' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
 
         :root {
-            --bg: #030712;
-            --card: rgba(17, 24, 39, 0.7);
-            --border: rgba(255, 255, 255, 0.08);
-            --accent: #6366f1;
+            --bg: #020617;
+            --card: rgba(15, 23, 42, 0.9);
+            --border: rgba(56, 189, 248, 0.3);
+            --accent: #38bdf8;
             --bull: #10b981;
-            --bear: #ef4444;
-            --text: #f9fafb;
-            --text-dim: #9ca3af;
+            --bear: #fb7185;
+            --text: #ffffff;
+            --text-dim: #94a3b8;
         }
 
         body {
             font-family: 'Outfit', sans-serif;
-            background: var(--bg);
+            background: radial-gradient(circle at top, #1e293b 0%, #020617 100%);
+            background-attachment: fixed;
             color: var(--text);
             margin: 0;
-            background-image: radial-gradient(circle at 50% -10%, #1e1b4b, #030712);
             min-height: 100vh;
         }
 
@@ -40,58 +41,96 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            padding: 20px;
-            background: var(--card);
+            padding: 12px 24px;
+            background: #0f172a;
             border: 1px solid var(--border);
-            border-radius: 24px;
-            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.1);
         }
 
-        .logo h1 {
-            font-size: 24px;
-            font-weight: 800;
-            margin: 0;
-        }
-
-        .logo span {
-            color: var(--accent);
-        }
-
-        .controls {
+        .logo-box {
             display: flex;
-            gap: 10px;
+            flex-direction: column;
+        }
+
+        .logo-box h1 {
+            font-size: 18px;
+            margin: 0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .logo-box span {
+            font-size: 10px;
+            color: var(--accent);
+            font-weight: 800;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 15px;
             align-items: center;
         }
 
-        .btn {
+        .button-group {
+            display: flex;
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            padding: 8px 16px;
+            padding: 4px;
             border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .tool-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 800;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.2s;
+            transition: 0.2s;
+            text-transform: uppercase;
         }
 
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.1);
+        .tool-btn:hover {
             color: #fff;
+            background: rgba(255, 255, 255, 0.05);
         }
 
-        .btn.active {
+        .tool-btn.active {
             background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
+            color: #000;
+        }
+
+        .action-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .action-btn.secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            border: 1px solid var(--border);
+            box-shadow: none;
         }
 
         .main-content {
-            background: var(--card);
+            background: #0f172a;
             border: 1px solid var(--border);
-            border-radius: 24px;
-            overflow-x: auto; /* Enable horizontal scroll */
-            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            overflow-x: auto;
+            /* Enable horizontal scroll */
             -webkit-overflow-scrolling: touch;
         }
 
@@ -100,11 +139,13 @@
             border-collapse: separate;
             border-spacing: 0;
             font-size: 14px;
-            min-width: 1000px; /* Ensure table has enough width for scroll */
+            min-width: 1000px;
+            /* Ensure table has enough width for scroll */
         }
 
         th {
-            background: #111827; /* Solid dark color for sticky header */
+            background: #111827;
+            /* Solid dark color for sticky header */
             color: var(--text-dim);
             text-align: left;
             padding: 15px;
@@ -119,16 +160,19 @@
         }
 
         /* Sticky Symbol Column */
-        th:first-child, td:first-child {
+        th:first-child,
+        td:first-child {
             position: sticky;
             left: 0;
             z-index: 15;
-            background: #0f172a; /* Solid color for sticky column */
+            background: #0f172a;
+            /* Solid color for sticky column */
             border-right: 1px solid var(--border);
         }
 
         th:first-child {
-            z-index: 30; /* Highest for corner cell */
+            z-index: 30;
+            /* Highest for corner cell */
             background: #111827;
         }
 
@@ -185,6 +229,7 @@
             cursor: pointer;
             outline: none;
         }
+
         #snapshotTime option {
             background: #1e293b;
             color: #f8fafc;
@@ -316,7 +361,8 @@
             }
 
             table {
-                min-width: 900px; /* Slightly less on mobile but still scrollable */
+                min-width: 900px;
+                /* Slightly less on mobile but still scrollable */
             }
 
             .sym-name {
@@ -398,35 +444,173 @@
             font-size: 24px;
             cursor: pointer;
         }
+
+        /* Scan Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 7, 18, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .scan-modal-content {
+            background: rgba(15, 23, 42, 0.95);
+            width: 95%;
+            max-height: 92vh;
+            max-width: 1440px;
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(56, 189, 248, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .scan-grid {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            margin-top: 10px;
+            padding-right: 8px;
+        }
+
+        .scan-section {
+            background: rgba(255, 255, 255, 0.015);
+            border-radius: 12px;
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .scan-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 4px;
+        }
+
+        .scan-table th {
+            text-align: left;
+            font-size: 11px;
+            color: var(--text-dim);
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            text-transform: uppercase;
+        }
+
+        .scan-table td {
+            padding: 10px 10px;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .scan-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .orb-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .prob-badge {
+            background: rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .advice-tag {
+            margin-top: 15px;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .bull-card .advice-tag {
+            color: var(--bull);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .bear-card .advice-tag {
+            color: var(--bear);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 800;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <header>
-            <div class="logo">
-                <h1>ORB <span>MASTER</span></h1>
-                <div style="font-size: 11px; color: var(--text-dim)">5M | 15M | 30M Breakouts</div>
+            <div class="logo-box">
+                <h1>ORB <span>MASTER PRO</span></h1>
+                <span>5M | 15M | 30M BREAKOUTS</span>
             </div>
-            <div class="controls">
-                <input type="text" id="symbolSearch" class="search-input" placeholder="Search symbol..." oninput="handleSearch(this.value)">
-                <button class="btn active" onclick="filterData('all', this)">ALL</button>
-                <button class="btn" onclick="filterData('bull', this)">BULL</button>
-                <button class="btn" onclick="filterData('bear', this)">BEAR</button>
-                <button class="btn" onclick="filterData('pd', this)">PDH/PDL</button>
-                <button class="btn" onclick="filterData('orb', this)">ORB ONLY</button>
-                <button class="btn" onclick="filterData('rsi_up', this)">RSI UP ↗️</button>
-                <button class="btn" onclick="filterData('rsi_down', this)">RSI DOWN ↘️</button>
-                <button class="btn" style="border-color:var(--accent); color:var(--accent)" onclick="showLog()">📜
-                    HISTORY</button>
-                <button class="btn" onclick="manualFetchPDH()" id="btn-pdh">🔄 SYNC PDH</button>
-                <button class="btn" id="btn-force" style="background:var(--bear)" onclick="forceRefresh()">⚡ FORCE REFRESH</button>
-                <div id="market-time" class="status-badge" onclick="showLog()"
-                    style="background:var(--accent); color:#fff; padding:8px 12px; border-radius:12px; font-size:12px; font-weight:700; cursor:pointer; min-width:100px; line-height:1.2">
-                    --:--:--</div>
-                <div style="display:flex; gap:5px; align-items:center; margin-left:10px">
-                    <div id="status-s1" title="Source 1 (gsmmunna)" style="width:8px; height:8px; border-radius:50%; background:#666"></div>
-                    <div id="status-s2" title="Source 2 (susanta)" style="width:8px; height:8px; border-radius:50%; background:#666"></div>
+
+            <div class="toolbar">
+                <div class="button-group">
+                    <button class="tool-btn active" onclick="filterData('ALL', this)">ALL</button>
+                    <button class="tool-btn" onclick="filterData('BULL', this)">BULLISH</button>
+                    <button class="tool-btn" onclick="filterData('BEAR', this)">BEARISH</button>
+                </div>
+
+                <div class="button-group">
+                    <button class="tool-btn" onclick="filterData('pd', this)">PDH/PDL</button>
+                    <button class="tool-btn" onclick="filterData('orb', this)">ORB ONLY</button>
+                    <button class="tool-btn" onclick="filterData('rsi_up', this)">RSI ↗️</button>
+                    <button class="tool-btn" onclick="filterData('rsi_down', this)">RSI ↘️</button>
+                </div>
+
+                <input type="text" id="symbolSearch" class="search-input" placeholder="SEARCH SYMBOL..."
+                    oninput="handleSearch(this.value)"
+                    style="background:rgba(0,0,0,0.2); border:1px solid var(--border); color:#fff; padding:8px 12px; border-radius:10px; font-size:11px; width:160px">
+
+                <button class="tool-btn"
+                    style="border:1px solid var(--accent); color:var(--accent); background:rgba(56, 189, 248, 0.05)"
+                    onclick="showLog()">📜 HISTORY</button>
+                <button class="tool-btn" id="btn-pdh" onclick="manualFetchPDH()">🔄 SYNC</button>
+                <button class="action-btn" onclick="runSmartScan()" style="background:#f59e0b">🛰️ SMART SCAN</button>
+                <button class="action-btn" onclick="forceRefresh()" style="background:var(--bear); color:#fff">⚡
+                    REFRESH</button>
+
+                <div id="market-time" onclick="showLog()"
+                    style="font-weight:900; color:var(--accent); font-size:14px; cursor:pointer">00:00:00</div>
+
+                <div style="display:flex; gap:4px; align-items:center">
+                    <div id="status-s1" style="width:6px; height:6px; border-radius:50%; background:#666"></div>
+                    <div id="status-s2" style="width:6px; height:6px; border-radius:50%; background:#666"></div>
                 </div>
             </div>
         </header>
@@ -436,55 +620,74 @@
         <div class="main-content">
             <table id="orb-table">
                 <thead>
-                        <tr style="cursor:pointer; user-select:none">
-                            <th style="width:14%" onclick="setSort('sym')">SYMBOL <span id="sort-sym"></span></th>
-                            <th onclick="setSort('score')">STRENGTH <span id="sort-score"></span></th>
-                            <th onclick="setSort('rsi')">RSI TREND <span id="sort-rsi"></span></th>
-                            <th onclick="setSort('orb')">ORB STATUS (5/15/30) <span id="sort-orb"></span></th>
-                            <th onclick="setSort('range')">15M RANGE <span id="sort-range"></span></th>
-                            <th onclick="setSort('pd')">PREV DAY (H/L) <span id="sort-pd"></span></th>
-                            <th onclick="setSort('ltp')">LTP <span id="sort-ltp"></span></th>
-                            <th onclick="setSort('change')">CHANGE % <span id="sort-change"></span></th>
-                        </tr>
+                    <tr style="cursor:pointer; user-select:none">
+                        <th style="width:14%" onclick="setSort('sym')">SYMBOL <span id="sort-sym"></span></th>
+                        <th onclick="setSort('score')">STRENGTH <span id="sort-score"></span></th>
+                        <th onclick="setSort('rsi')">RSI TREND <span id="sort-rsi"></span></th>
+                        <th onclick="setSort('orb')">ORB STATUS (5/15/30) <span id="sort-orb"></span></th>
+                        <th onclick="setSort('range')">15M RANGE <span id="sort-range"></span></th>
+                        <th onclick="setSort('pd')">PREV DAY (H/L) <span id="sort-pd"></span></th>
+                        <th onclick="setSort('ltp')">LTP <span id="sort-ltp"></span></th>
+                        <th onclick="setSort('change')">CHANGE % <span id="sort-change"></span></th>
+                    </tr>
                 </thead>
                 <tbody id="main-grid"></tbody>
             </table>
         </div>
 
-        <div id="raw-modal">
-            <div class="modal-body">
+        <div id="raw-modal" class="modal-overlay">
+            <div class="modal-body"
+                style="background:var(--bg); padding:30px; border-radius:20px; max-width:800px; width:90%; position:relative">
                 <button onclick="document.getElementById('raw-modal').style.display='none'"
                     style="position:absolute; right:20px; top:20px; background:none; border:none; color:var(--bear); font-size:24px; cursor:pointer">&times;</button>
                 <h2>PDH/PDL Raw Data</h2>
-                <div id="raw-content"></div>
+                <div id="raw-content" style="max-height:60vh; overflow-y:auto"></div>
             </div>
         </div>
 
-        <!-- Log Modal -->
-        <div id="logModal">
-            <div class="log-modal-content" style="max-width:1200px; width:95%">
-                <div class="log-header">
-                    <div style="display:flex; align-items:center; gap:20px">
-                        <h2 style="margin:0">Breakout Event Logs</h2>
-                    </div>
-                    <button class="close-btn" onclick="document.getElementById('logModal').style.display='none'">&times;</button>
+        <!-- Scan Modal -->
+        <div id="scanModal" class="modal-overlay">
+            <div class="scan-modal-content">
+                <button class="close-btn" onclick="closeScan()"
+                    style="position:absolute; right:15px; top:15px; z-index:100; font-size:28px">×</button>
+                <div style="text-align:center; margin-bottom:10px">
+                    <h2 style="margin:0; font-size:20px; letter-spacing:-0.5px">🛰️ Smart Scan Report</h2>
+                    <p style="margin:2px 0 0 0; font-size:10.5px; color:var(--text-dim); font-weight:500">Top 2 Bullish
+                        & Bearish High Conviction Trades</p>
                 </div>
-                <div class="log-body" style="max-height:80vh; overflow-y:auto;">
-                    <table class="log-table" style="width:100%; border-collapse:collapse;">
-                        <thead style="position:sticky; top:0; background:var(--bg); z-index:10">
-                            <tr>
-                                <th style="text-align:left; padding:12px">Time</th>
-                                <th style="text-align:left">Symbol</th>
-                                <th style="text-align:center">Event</th>
-                                <th style="text-align:right">Price</th>
-                                <th style="text-align:right">Time (Min)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="logBody"></tbody>
-                    </table>
-                </div>
+                <div id="bullScanResults" class="scan-grid"></div>
+                <div id="bearScanResults"></div>
             </div>
         </div>
+    </div>
+    </div>
+
+    <!-- Log Modal -->
+    <div id="logModal">
+        <div class="log-modal-content" style="max-width:1200px; width:95%">
+            <div class="log-header">
+                <div style="display:flex; align-items:center; gap:20px">
+                    <h2 style="margin:0">Breakout Event Logs</h2>
+                </div>
+                <button class="close-btn"
+                    onclick="document.getElementById('logModal').style.display='none'">&times;</button>
+            </div>
+            <div class="log-body" style="max-height:80vh; overflow-y:auto;">
+                <table class="log-table" style="width:100%; border-collapse:collapse;">
+                    <thead style="position:sticky; top:0; background:var(--bg); z-index:10">
+                        <tr>
+                            <th style="text-align:left; padding:12px">Time</th>
+                            <th style="text-align:left">Symbol</th>
+                            <th style="text-align:center">Event</th>
+                            <th style="text-align:right">Price</th>
+                            <th style="text-align:right">Time (Min)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     </div>
 
     <script>
@@ -496,10 +699,65 @@
 
         let pdData = {};
         let liveData = {};
-        let currentFilter = 'all';
+        let currentFilter = 'ALL';
         let searchQuery = '';
         let sortCol = 'score';
         let sortOrder = -1; // 1 for ASC, -1 for DESC
+        let showTop5 = false;
+
+        function closeScan() {
+            document.getElementById('scanModal').style.display = 'none';
+        }
+
+        function getProbability(s) {
+            let prob = 70;
+            if (Math.abs(s.score) >= 100) prob += 10;
+            if (s.isPDHBrk || s.isPDLBrk) prob += 10;
+            if (s.rsiUTurn) prob += 5;
+            return Math.min(98, prob);
+        }
+
+        function getAdvice(s) {
+            if (Math.abs(s.score) >= 100 && (s.isPDHBrk || s.isPDLBrk)) return "🚀 AGGRESSIVE ENTRY";
+            if (s.rsiUTurn) return "⚡ MOMENTUM ENTRY";
+            return "⏳ WAIT FOR CONFIRMATION";
+        }
+
+
+
+        function calculateStockMetrics(item) {
+            const sym = item.sym; // Assuming item has sym property or passed appropriately
+            const b5 = getBreakout(sym, 5);
+            const b15 = getBreakout(sym, 15);
+            const b30 = getBreakout(sym, 30);
+            const ltp = item.ltp;
+            const lastT = item.t;
+            const snaps = item.history || [];
+            const pd = pdData[sym] || {};
+            const rsi = calculateRSI(snaps, 14);
+
+            let score = 0;
+            let activeType = 'NEUTRAL';
+            let isTrap = false;
+            let trapType = null;
+            const isPDHBrk = ltp && pd.pdh && ltp > pd.pdh;
+            const isPDLBrk = ltp && pd.pdl && ltp < pd.pdl;
+
+            if (isPDHBrk) score += 30; else if (isPDLBrk) score -= 30;
+            if (b15 && b15.type === 'BULL') { score += 25; activeType = 'BULL'; }
+            else if (b15 && b15.type === 'BEAR') { score -= 25; activeType = 'BEAR'; }
+
+            return { sym, score, ltp, lastT, isPDHBrk, isPDLBrk, isTrap, trapType, activeType };
+        }
+
+        function getCurrentMarketMinutes() {
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const ist = new Date(utc + (3600000 * 5.5)); // IST is GMT+5:30
+            const totalMins = ist.getHours() * 60 + ist.getMinutes();
+            const marketOpenMins = 555; // 9:15 AM
+            return totalMins - marketOpenMins;
+        }
 
         function handleSearch(val) {
             searchQuery = val.trim().toUpperCase();
@@ -517,16 +775,31 @@
         }
 
         function calculateRSI(snaps, period = 14) {
-            if (!snaps || !Array.isArray(snaps) || snaps.length < 2) return "--";
-            let actualPeriod = Math.min(period, snaps.length - 1);
+            if (!snaps || !Array.isArray(snaps) || snaps.length < 15) return "--";
+
+            // Adjust period if history is shorter than requested
+            let adjPeriod = Math.min(period, snaps.length - 1);
+
             let gains = 0, losses = 0;
-            const startIdx = Math.max(1, snaps.length - actualPeriod);
-            for (let i = startIdx; i < snaps.length; i++) {
-                const diff = snaps[i].ltp - snaps[i-1].ltp;
+            for (let i = 1; i <= adjPeriod; i++) {
+                const diff = snaps[i].ltp - snaps[i - 1].ltp;
                 if (diff >= 0) gains += diff; else losses -= diff;
             }
-            if (losses === 0) return 100;
-            const rs = gains / losses;
+
+            let avgGain = gains / adjPeriod;
+            let avgLoss = losses / adjPeriod;
+
+            for (let i = adjPeriod + 1; i < snaps.length; i++) {
+                const diff = snaps[i].ltp - snaps[i - 1].ltp;
+                let currentGain = diff >= 0 ? diff : 0;
+                let currentLoss = diff < 0 ? -diff : 0;
+
+                avgGain = ((avgGain * (adjPeriod - 1)) + currentGain) / adjPeriod;
+                avgLoss = ((avgLoss * (adjPeriod - 1)) + currentLoss) / adjPeriod;
+            }
+
+            if (avgLoss === 0) return 100;
+            const rs = avgGain / avgLoss;
             return Math.round(100 - (100 / (1 + rs)));
         }
 
@@ -587,7 +860,7 @@
                 color = trapType === 'BEAR_TRAP' ? '#3b82f6' : '#f97316'; // Blue for Bear Trap, Orange for Bull Trap
                 const arrowPath = trapType === 'BEAR_TRAP' ? 'M7 17L17 7M7 7h10v10' : 'M7 7l10 10M17 7v10H7';
                 const arrowIcon = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="margin-right:1px"><path d="${arrowPath}"/></svg>`;
-                
+
                 text = absScore;
                 textColor = color;
                 arrowSvg = `<div style="display:flex; align-items:center; font-size:10px; font-weight:900; color:${color}; margin-top:-2px">${arrowIcon}REV</div>`;
@@ -616,7 +889,7 @@
             const absScore = Math.min(100, Math.max(0, rsi));
             const circumference = 2 * Math.PI * 18; // Matched to Strength Donut r=18
             const offset = circumference - (absScore / 100) * circumference;
-            
+
             let color = rsi > 60 ? '#10b981' : (rsi < 40 ? '#ef4444' : '#8b5cf6'); // Green, Red, Purple for chop
             if (rsiUTurn) color = '#facc15'; // Amber/Yellow for U-turn
 
@@ -725,9 +998,9 @@
                         .then(res => res.ok ? res.json() : null).catch(() => null)
                 );
 
-                const datasets = await Promise.all(fetchPromises.map((p, i) => 
+                const datasets = await Promise.all(fetchPromises.map((p, i) =>
                     p.then(d => {
-                        document.getElementById(`status-s${i+1}`).style.background = d ? 'var(--bull)' : 'var(--bear)';
+                        document.getElementById(`status-s${i + 1}`).style.background = d ? 'var(--bull)' : 'var(--bear)';
                         return d;
                     })
                 ));
@@ -749,7 +1022,7 @@
                 });
 
                 liveData = mergedData;
-                
+
                 // Find Max T for the Sync badge
                 let maxT = 0;
                 for (let sym in liveData) {
@@ -775,9 +1048,9 @@
             const item = liveData[sym];
             const hKey = 'h' + timeframe;
             const lKey = 'l' + timeframe;
-            
+
             if (!item.orb || item.orb[hKey] === undefined) return null;
-            
+
             const h = item.orb[hKey];
             const l = item.orb[lKey];
 
@@ -805,7 +1078,7 @@
                 const ltp = item ? item.ltp : 0;
                 const lastT = item ? item.t : 0;
                 const snaps = item ? item.history : [];
-                
+
                 const rsi = calculateRSI(snaps, 14);
                 const snaps3MinAgo = snaps.length > 3 ? snaps.slice(0, snaps.length - 3) : snaps;
                 const rsiOld = calculateRSI(snaps3MinAgo, 14);
@@ -819,11 +1092,11 @@
                     // Bearish U-Turn (⤵️): rising then falling in 48-65 zone
                     if (rsiOlder < rsiOld - 1 && rsi < rsiOld - 1 && rsiOld >= 48 && rsiOld <= 65) rsiUTurn = 'BEARISH';
                 }
-                
+
                 let rsiDir = 'FLAT';
                 let rsiIcon = '➡️';
                 let rsiColor = 'var(--text-dim)';
-                
+
                 if (rsi !== "--" && rsiOld !== "--") {
                     if (rsi > rsiOld + 2) { rsiDir = 'UP'; rsiIcon = '↗️'; rsiColor = 'var(--bull)'; }
                     else if (rsi < rsiOld - 2) { rsiDir = 'DOWN'; rsiIcon = '↘️'; rsiColor = 'var(--bear)'; }
@@ -845,7 +1118,7 @@
                 if (snaps5MinAgo) {
                     const pLtp = snaps5MinAgo.ltp;
                     const pT = snaps5MinAgo.t;
-                    
+
                     if (pLtp > pd.pdh) score5m += 30; else if (pLtp < pd.pdl) score5m -= 30;
 
                     const pb15 = getHistoricalBreakout(item, 15, pLtp, pT);
@@ -876,7 +1149,7 @@
                     if (score > 0 && rsi >= 65) score += 10;
                     else if (score < 0 && rsi <= 35) score -= 10;
                 }
-                
+
                 if (score > 100) score = 100;
                 if (score < -100) score = -100;
 
@@ -886,7 +1159,7 @@
                     const dayL = item.orb.day_l;
                     const h15 = item.orb.h15;
                     const l15 = item.orb.l15;
-                    
+
                     // Bull Trap (Bearish Reversal): Broke high earlier, but now below 15M High and RSI < 60
                     const prevBrokeHigh = (h15 && dayH > h15) || (pd.pdh && dayH > pd.pdh);
                     if (prevBrokeHigh && h15 && ltp < h15 && rsi !== "--" && rsi < 60) {
@@ -913,12 +1186,21 @@
             });
 
             // Apply Filters
-            if (currentFilter === 'bull') stocks = stocks.filter(s => s.activeType === 'BULL' || s.isPDHBrk);
-            else if (currentFilter === 'bear') stocks = stocks.filter(s => s.activeType === 'BEAR' || s.isPDLBrk);
-            else if (currentFilter === 'pd') stocks = stocks.filter(s => s.isPDHBrk || s.isPDLBrk);
-            else if (currentFilter === 'orb') stocks = stocks.filter(s => s.activeType !== 'NEUTRAL');
-            else if (currentFilter === 'rsi_up') stocks = stocks.filter(s => s.rsiDir === 'UP');
-            else if (currentFilter === 'rsi_down') stocks = stocks.filter(s => s.rsiDir === 'DOWN');
+            if (currentFilter !== 'ALL') {
+                stocks = stocks.filter(s => s.activeType === currentFilter);
+            }
+
+            if (showTop5) {
+                const nowMins = getCurrentMarketMinutes();
+                stocks = stocks.filter(s => {
+                    const isFresh = (nowMins - s.lastT) <= 3;
+                    const isStrong = Math.abs(s.score) >= 90;
+                    const hasLevel = s.isPDHBrk || s.isPDLBrk;
+                    return isFresh && isStrong && hasLevel;
+                })
+                    .sort((a, b) => Math.abs(b.score) - Math.abs(a.score))
+                    .slice(0, 5);
+            }
 
             // Apply Search Filter
             if (searchQuery) {
@@ -1016,7 +1298,7 @@
 
         function filterData(type, btn) {
             currentFilter = type;
-            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             renderGrid();
         }
@@ -1053,7 +1335,7 @@
             try {
                 const response = await fetch(`https://history-worker.gsmmunna.workers.dev/get-log?v=${Date.now()}`);
                 const logs = await response.json();
-                
+
                 if (!Array.isArray(logs) || logs.length === 0) {
                     logBody.innerHTML = '<tr><td colspan="5" style="padding:40px; text-align:center; color:var(--text-dim)">No events found today.</td></tr>';
                     return;
@@ -1078,10 +1360,207 @@
             }
         }
 
+        function getCurrentMarketMinutes() {
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const ist = new Date(utc + (3600000 * 5.5)); // IST is GMT+5:30
+            const totalMins = ist.getHours() * 60 + ist.getMinutes();
+            const marketOpenMins = 555; // 9:15 AM
+            return totalMins - marketOpenMins;
+        }
+
+        function closeScan() {
+            document.getElementById('scanModal').style.display = 'none';
+        }
+
+        function getProbability(s) {
+            let prob = 70;
+            if (Math.abs(s.score) >= 100) prob += 10;
+            if (s.isPDHBrk || s.isPDLBrk) prob += 10;
+            if (s.rsiUTurn) prob += 5;
+            return Math.min(98, prob);
+        }
+
+        function getAdvice(s) {
+            if (Math.abs(s.score) >= 100 && (s.isPDHBrk || s.isPDLBrk)) return "🚀 AGGRESSIVE ENTRY";
+            if (s.rsiUTurn) return "⚡ MOMENTUM ENTRY";
+            return "⏳ WAIT FOR CONFIRMATION";
+        }
+
+        function calculateSMA(snaps, period) {
+            if (!snaps || snaps.length < period) return null;
+            const sum = snaps.slice(-period).reduce((a, b) => a + (b.ltp || 0), 0);
+            return (sum / period).toFixed(1);
+        }
+
+        function calculateStockMetrics(sym, item) {
+            const ltp = item.ltp;
+            const lastT = item.t;
+            const snaps = item.history || [];
+            const pd = pdData[sym] || {};
+
+            const b5 = getBreakout(sym, 5);
+            const b15 = getBreakout(sym, 15);
+            const b30 = getBreakout(sym, 30);
+
+            // 1M RSI for Velocity & Direction
+            const rsi1m = calculateRSI(snaps, 14);
+            const rsi1m_prev = snaps.length > 2 ? calculateRSI(snaps.slice(0, -2), 14) : rsi1m;
+            const rsi1mDir = (rsi1m !== "--" && rsi1m_prev !== "--") ? (rsi1m > rsi1m_prev ? 'UP' : (rsi1m < rsi1m_prev ? 'DOWN' : 'FLAT')) : 'FLAT';
+            const rsiAngle = (rsi1m !== "--" && rsi1m_prev !== "--") ? (rsi1m - rsi1m_prev) : 0;
+
+            // 5M RSI for Trend
+            const rsi5m = calculateRSI(snaps, 70);
+            const sma1m = calculateSMA(snaps, 5);
+            const sma5m = calculateSMA(snaps, 25);
+            const smaCross = (sma1m && sma5m) ? (sma1m > sma5m ? 'UP' : 'DOWN') : null;
+
+            let score = 0;
+            let isTrap = false;
+            let trapType = null;
+            const isPDHBrk = ltp && pd.pdh && ltp > pd.pdh;
+            const isPDLBrk = ltp && pd.pdl && ltp < pd.pdl;
+
+            // --- PRO-PROFIT SCORING ---
+            // 1. Trap / Reclamation (+40 Points) - Most Profitable
+            if (item.orb) {
+                const dayH = item.orb.day_h;
+                const dayL = item.orb.day_l;
+                const h15 = item.orb.h15;
+                const l15 = item.orb.l15;
+                if (h15 && dayH > h15 && ltp < h15) { isTrap = true; trapType = 'BULL_TRAP'; score -= 40; }
+                if (l15 && dayL < l15 && ltp > l15) { isTrap = true; trapType = 'BEAR_TRAP'; score += 40; }
+            }
+
+            // 2. Trend & Breakout (+20 Points)
+            if (isPDHBrk) score += 20; else if (isPDLBrk) score -= 20;
+            if (b15 && b15.type === 'BULL') score += 15; else if (b15 && b15.type === 'BEAR') score -= 15;
+
+            // 3. Velocity / RSI Angle (+25 Points)
+            if (rsiAngle > 3) score += 25; else if (rsiAngle < -3) score -= 25;
+
+            // 4. Mean Reversion Safety (Entry Check)
+            // If price is > 1% away from SMA, reduce score (risk of pull-back)
+            const smaDist = sma1m ? Math.abs(ltp - sma1m) / sma1m : 0;
+            if (smaDist > 0.01) score = score * 0.5; // Neutralize overextended moves
+
+            return { sym, score, ltp, lastT, pd, isPDHBrk, isPDLBrk, isTrap, trapType, rsi1m, rsi1mDir, rsi5m, rsiAngle, smaCross, smaDist, b5, b15, b30 };
+        }
+
+        function getAnalystVoice(s, type) {
+            if (s.isTrap) return s.trapType === 'BEAR_TRAP' ? "💎 SMART MONEY ENTRY (Trap)" : "⚠️ SMART MONEY EXIT (Trap)";
+            if (s.smaDist > 0.01) return "⏳ Overextended. Wait for SMA pull-back.";
+            if (Math.abs(s.rsiAngle) > 4) return "🚀 Institutional Velocity Detected.";
+            if (type === 'bull') return "🔥 Solid trend. SL below PDH.";
+            if (type === 'bear') return "❄️ Heavy pressure. Stay short.";
+            return "🛡️ Scanning for Ignition...";
+        }
+
+        function getScanRowHtml(s, type) {
+            const voice = getAnalystVoice(s, type);
+            const rsi5mColor = s.rsi5m > 60 ? 'var(--bull)' : (s.rsi5m < 40 ? 'var(--bear)' : '#8b5cf6');
+            const rsi1mDirIcon = s.rsi1mDir === 'UP' ? '↗️' : (s.rsi1mDir === 'DOWN' ? '↘️' : '➡️');
+            const rsi1mColor = s.rsi1mDir === 'UP' ? 'var(--bull)' : (s.rsi1mDir === 'DOWN' ? 'var(--bear)' : 'var(--text-dim)');
+            const smaColor = s.smaCross === 'UP' ? 'var(--bull)' : 'var(--bear)';
+            const orbStatus = (b) => `<span class="orb-dot" style="background:${b?.type === 'BULL' ? 'var(--bull)' : (b?.type === 'BEAR' ? 'var(--bear)' : '#333')}"></span>`;
+
+            return `
+                <tr>
+                    <td style="font-weight:bold; padding:12px 8px">
+                        <span style="font-size:16px; color:#fff">${s.sym}</span><br>
+                        <span style="font-size:11px; opacity:0.6">LTP: ${s.ltp}</span><br>
+                        <span style="font-size:11px; color:var(--text-dim)">H:${s.pd?.pdh?.toFixed(1)} | L:${s.pd?.pdl?.toFixed(1)}</span>
+                    </td>
+                    <td style="text-align:center"><div style="display:flex; gap:6px; justify-content:center">${orbStatus(s.b5)}${orbStatus(s.b15)}${orbStatus(s.b30)}</div></td>
+                    <td style="text-align:center">
+                        <span style="color:${rsi5mColor}; font-weight:800; font-size:16px">${s.rsi5m}</span>
+                        <span style="opacity:0.3; margin:0 6px">|</span>
+                        <span style="color:${rsi1mColor}; font-weight:800; font-size:16px">${s.rsi1m}${rsi1mDirIcon}</span>
+                    </td>
+                    <td style="text-align:center; font-weight:800; color:${smaColor}; font-size:14px">${s.smaCross || '--'}</td>
+                    <td style="text-align:center">
+                        ${s.isPDHBrk ? '<span style="color:var(--bull); font-weight:900; font-size:11px">PDH BREAK</span>' : ''}
+                        ${s.isPDLBrk ? '<span style="color:var(--bear); font-weight:900; font-size:11px">PDL BREAK</span>' : ''}
+                    </td>
+                    <td style="color:#6366f1; font-size:10.5px; font-style:italic">"${voice}"</td>
+                    <td style="text-align:right; font-weight:800">${getProbability(s)}%</td>
+                </tr>
+            `;
+        }
+
+        function getTableTemplate(title, color, rows, count) {
+            return `
+                <div class="scan-section">
+                    <h4 style="color:${color}; font-size:14px; margin:0 0 8px 0; border-bottom:1px solid ${color}44; padding-bottom:6px; display:flex; justify-content:space-between">
+                        <span>${title}</span>
+                        <span style="opacity:0.5; font-weight:normal; font-size:12px">${count} Setups Found</span>
+                    </h4>
+                    <table class="scan-table">
+                        <thead>
+                            <tr>
+                                <th>SYMBOL</th>
+                                <th style="text-align:center">ORB (5/15/30)</th>
+                                <th style="text-align:center">RSI(5M)</th>
+                                <th style="text-align:center">SMA</th>
+                                <th style="text-align:center">LEVEL</th>
+                                <th>ANALYST VOICE</th>
+                                <th style="text-align:right">PROB.</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows || '<tr><td colspan="7" style="text-align:center; opacity:0.5; padding:20px">No high conviction setups found</td></tr>'}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function runSmartScan() {
+            const nowMins = getCurrentMarketMinutes();
+            // Filter out noise: Only keep tradeable stocks AND main indices (NIFTY/BANKNIFTY)
+            const allMetrics = Object.entries(liveData)
+                .map(([sym, item]) => calculateStockMetrics(sym, item))
+                .filter(s => (nowMins - s.lastT) <= 20)
+                .filter(s => {
+                    // If it's an index product, only allow NIFTY and BANKNIFTY
+                    const isIndexNoise = s.sym.includes('VIX') || (s.sym.includes('NIFTY') && !['NIFTY 50', 'BANKNIFTY', 'NIFTY'].includes(s.sym));
+                    return !isIndexNoise;
+                });
+
+            // PRO-PROFIT FILTERS:
+            // 1. First find Reversals (Traps) - highest priority
+            const bullRevs = allMetrics.filter(s => s.isTrap && s.trapType === 'BEAR_TRAP' && s.rsi1mDir === 'UP')
+                .sort((a, b) => b.score - a.score);
+
+            const bearRevs = allMetrics.filter(s => s.isTrap && s.trapType === 'BULL_TRAP' && s.rsi1mDir === 'DOWN')
+                .sort((a, b) => a.score - b.score);
+
+            // Get IDs of stocks already in Trap lists to exclude them from Momentum lists
+            const trapIds = new Set([...bullRevs, ...bearRevs].map(s => s.sym));
+
+            // 2. Find Momentum Bulls/Bears (excluding those already listed as Traps)
+            // Lowered threshold to 50 to capture "Ignition" moves (Breakout 20 + Velocity 25 + Trend 15)
+            const bulls = allMetrics.filter(s => !trapIds.has(s.sym) && s.score >= 50 && s.rsi1mDir === 'UP')
+                .sort((a, b) => b.score - a.score);
+
+            const bears = allMetrics.filter(s => !trapIds.has(s.sym) && s.score <= -50 && s.rsi1mDir === 'DOWN')
+                .sort((a, b) => a.score - b.score);
+
+            const html = `
+                ${getTableTemplate('🟢 MOMENTUM BULLS (STRICT)', 'var(--bull)', bulls.slice(0, 2).map(s => getScanRowHtml(s, 'bull')).join(''), bulls.length)}
+                ${getTableTemplate('🔵 BULLISH REVERSAL (BEAR TRAP)', '#3b82f6', bullRevs.slice(0, 2).map(s => getScanRowHtml(s, 'bull_rev')).join(''), bullRevs.length)}
+                ${getTableTemplate('🔴 MOMENTUM BEARS (STRICT)', 'var(--bear)', bears.slice(0, 2).map(s => getScanRowHtml(s, 'bear')).join(''), bears.length)}
+                ${getTableTemplate('🟠 BEARISH REVERSAL (BULL TRAP)', '#f59e0b', bearRevs.slice(0, 2).map(s => getScanRowHtml(s, 'bear_rev')).join(''), bearRevs.length)}
+            `;
+
+            document.getElementById('bullScanResults').innerHTML = html;
+            document.getElementById('bearScanResults').innerHTML = '';
+            document.getElementById('scanModal').style.display = 'flex';
+        }
+
         setInterval(updateClock, 1000);
         setInterval(fetchData, 15000);
         fetchPDH();
         fetchData();
     </script>
 </body>
+
 </html>
