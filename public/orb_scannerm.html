@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORB PRO — Premium Dashboard (Local)</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap");
+        :root {
+            --bg: #030712; --surface: rgba(17, 24, 39, 0.7); --border: rgba(255, 255, 255, 0.08);
+            --text-main: #f9fafb; --text-dim: #9ca3af; --accent: #6366f1; --bull: #10b981; --bear: #ef4444;
+        }
+        body { font-family: "Plus Jakarta Sans", sans-serif; background: var(--bg); color: var(--text-main); margin: 0; background-image: radial-gradient(circle at 50% -10%, #1e1b4b, #030712); min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 30px 20px; }
+        nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .logo h1 { font-size: 24px; font-weight: 800; margin: 0; }
+        .logo span { background: var(--accent); color: white; padding: 2px 8px; border-radius: 6px; font-size: 12px; }
+        .sector-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 40px; }
+        .sector-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+        .main-scanner { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; }
+        .tab-bar { display: flex; padding: 20px; border-bottom: 1px solid var(--border); gap: 30px; }
+        .tab { font-size: 14px; font-weight: 600; color: var(--text-dim); cursor: pointer; }
+        .tab.active { color: var(--text-main); border-bottom: 2px solid var(--accent); }
+        .controls-row { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 15px 20px; font-size: 11px; color: var(--text-dim); border-bottom: 1px solid var(--border); }
+        td { padding: 18px 20px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        .orb-dot { width: 44px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; }
+        .orb-bull { background: rgba(16,185,129,0.15); color: var(--bull); }
+        .orb-bear { background: rgba(239,68,68,0.15); color: var(--bear); }
+        .orb-wait { background: rgba(255,255,255,0.03); color: var(--text-dim); }
+        details.sector-accordion { margin-bottom: 40px; }
+        details.sector-accordion summary { cursor: pointer; padding: 10px 18px; font-size: 13px; font-weight: 700; color: var(--text-main); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; list-style-type: none; display: flex; align-items: center; gap: 10px; width: fit-content; transition: 0.2s; user-select: none; }
+        details.sector-accordion summary::-webkit-details-marker { display: none; }
+        details.sector-accordion summary::before { content: "▶"; font-size: 10px; color: var(--accent); transition: transform 0.2s; }
+        details.sector-accordion[open] summary::before { transform: rotate(90deg); }
+        details.sector-accordion[open] summary { margin-bottom: 20px; }
+        details.sector-accordion summary:hover { border-color: rgba(255,255,255,0.2); }
+        .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text-dim); transition: 0.2s; }
+        .filter-btn.active { color: white; border-color: transparent; }
+        .filter-btn.f-all.active { background: var(--accent); }
+        .filter-btn.f-bull.active { background: var(--bull); }
+        .filter-btn.f-bear.active { background: var(--bear); }
+        .filter-btn.f-ob.active { background: #fb923c; }
+        .filter-btn.f-os.active { background: #22d3ee; color: #000; }
+        .trigger-btn { padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid rgba(99,102,241,0.5); background: rgba(99,102,241,0.1); color: var(--accent); transition: all 0.2s; white-space: nowrap; }
+        .trigger-btn:hover { background: rgba(99,102,241,0.25); border-color: var(--accent); }
+        .trigger-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .trigger-btn.success { background: rgba(16,185,129,0.2); border-color: var(--bull); color: var(--bull); }
+        .trigger-btn.error { background: rgba(239,68,68,0.15); border-color: var(--bear); color: var(--bear); }
+        @media (max-width: 768px) {
+            .container { padding: 15px 10px; }
+            nav { flex-direction: row; margin-bottom: 20px; align-items: flex-start; }
+            .logo h1 { font-size: 20px; }
+            details.sector-accordion { margin-bottom: 25px; }
+            details.sector-accordion[open] summary { margin-bottom: 15px; }
+            
+            .sector-grid { 
+                display: flex; 
+                overflow-x: auto; 
+                scroll-snap-type: x mandatory; 
+                gap: 12px; 
+                margin-bottom: 25px;
+                padding-bottom: 5px;
+                -ms-overflow-style: none; scrollbar-width: none; 
+            }
+            .sector-grid::-webkit-scrollbar { display: none; }
+            .sector-card { 
+                min-width: 190px; 
+                flex-shrink: 0; 
+                scroll-snap-align: start; 
+                padding: 15px; 
+            }
+            .sector-card b { font-size: 11px !important; }
+            .sector-card span { font-size: 14px !important; }
+            
+            .tab-bar { 
+                gap: 20px; 
+                padding: 15px; 
+                overflow-x: auto; 
+                white-space: nowrap; 
+                -ms-overflow-style: none; scrollbar-width: none; 
+            }
+            .tab-bar::-webkit-scrollbar { display: none; }
+            .tab { font-size: 12px; }
+            
+            .controls-row { flex-direction: column; align-items: stretch; gap: 15px; padding: 15px; }
+            #symbol-search { width: 100%; box-sizing: border-box; font-size: 14px; }
+            
+            .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 0 0 24px 24px; }
+            table { min-width: 750px; width: 100%; border-collapse: separate; border-spacing: 0; }
+            th:first-child, td:first-child { 
+                position: sticky; left: 0; z-index: 10; 
+                background: #0d111b;
+                box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+                max-width: 60px;
+                min-width: 60px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-size: 11px;
+            }
+            th { padding: 12px 10px; font-size: 10px; white-space: nowrap; }
+            td { padding: 12px 10px; font-size: 13px; }
+            
+            .orb-dot { width: 38px; height: 26px; font-size: 8px; }
+            /* No hiding columns anymore as requested */
+            .hide-mobile { display: table-cell !important; } 
+        }
+
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: #0d111b; border: 1px solid var(--border); border-radius: 24px; width: 98%; max-width: 1600px; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal-content.fullscreen { width: 100vw; height: 100vh; max-width: none; max-height: none; border-radius: 0; border: none; }
+        .modal-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 15px; overflow-y: auto; flex-grow: 1; display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:15px; align-content: start; }
+        .log-card { display: none; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); padding: 15px; border-radius: 14px; flex-direction: column; gap: 12px; backdrop-filter: blur(8px); transition: 0.2s; position: relative; }
+        .log-card.show { display: flex; }
+        .log-card.history-item { opacity: 0.6; filter: grayscale(0.5); }
+        .log-card.history-item:hover { opacity: 1; filter: grayscale(0); }
+        
+        @keyframes blazeGlow {
+            0% { box-shadow: 0 0 8px rgba(99,102,241,0.2), inset 0 0 5px rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.4); }
+            50% { box-shadow: 0 0 20px rgba(99,102,241,0.6), inset 0 0 10px rgba(99,102,241,0.2); border-color: rgba(99,102,241,1); }
+            100% { box-shadow: 0 0 8px rgba(99,102,241,0.2), inset 0 0 5px rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.4); }
+        }
+        .blaze-active { animation: blazeGlow 2s infinite; position: relative; }
+        .blaze-active::after { content: "🔥 NEW"; position: absolute; top: -10px; right: 15px; background: #6366f1; font-weight: 800; font-size: 10px; padding: 3px 8px; border-radius: 6px; color: white; border: 1px solid rgba(255,255,255,0.2); z-index: 5; }
+
+        .log-card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+        .log-time { font-size: 11px; font-weight: 700; color: var(--text-dim); margin-right: 10px; }
+        .log-symbol { font-weight: 800; font-size: 16px; color: var(--text-main); margin-right: 10px; letter-spacing: 0.5px; }
+        .log-badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        
+        .log-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; }
+        .grid-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); display: flex; flex-direction: column; gap: 4px; align-items: center; text-align: center; justify-content: center; }
+        .grid-label { font-size: 10px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; }
+        .grid-val { font-size: 14px; font-weight: 800; color: white; font-family: monospace; }
+        .pnl-green { color: #10b981; }
+        .pnl-red { color: #ef4444; }
+
+        .btn-close { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 20px; }
+        .btn-log { background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); color: #818cf8; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .btn-log:hover { background: rgba(99,102,241,0.25); }
+        
+        .tag-pending { background: rgba(156,163,175,0.15); color: #9ca3af; border: 1px solid rgba(156,163,175,0.3); padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 700; }
+        .tag-strong { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; box-shadow: 0 0 8px rgba(16,185,129,0.2); }
+        .tag-weak { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 700; }
+        .tag-reversal { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; animation: blazeGlow 2s infinite; }
+
+        .modal-filters { display:flex; gap:8px; margin-top: 15px; width: 100%; border-top: 1px solid var(--border); padding-top: 15px; }
+        .mf-btn { padding: 8px 12px; border-radius: 12px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.2s; flex-grow:1; }
+        .mf-btn.active { color: white; background: var(--surface); border-color: var(--accent); }
+
+        /* RS Badge Styles */
+        .rs-badge { padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; border: 1px solid transparent; }
+        .rs-strong { background: rgba(99,102,241,0.15); color: #818cf8; border-color: rgba(99,102,241,0.3); } /* Indigo */
+        .rs-trending { background: rgba(16,185,129,0.15); color: #10b981; border-color: rgba(16,185,129,0.3); } /* Green */
+        .rs-neutral { background: rgba(255,255,255,0.05); color: var(--text-dim); }
+        .rs-weak { background: rgba(245,158,11,0.15); color: #f59e0b; border-color: rgba(245,158,11,0.3); } /* Orange */
+        #date-selector { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: white; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; outline: none; }
+        #date-selector::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+
+        .btn-readme { background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #a78bfa; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+        .btn-readme:hover { background: rgba(139, 92, 246, 0.2); border-color: #8b5cf6; color: white; }
+
+        /* Rules Modal Specific Styles */
+        .rules-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); display: none; z-index: 2000; flex-direction: column; }
+        .rules-modal-header { padding: 20px 40px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); }
+        .rules-modal-body { flex-grow: 1; overflow-y: auto; padding: 40px 20px; display: flex; justify-content: center; background: #050505; }
+        .rules-content-container { max-width: 800px; width: 100%; }
+        .rules-card { background: rgba(20, 20, 20, 0.8); border: 1px solid var(--border); border-radius: 24px; padding: 48px; backdrop-filter: blur(40px); box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8); }
+        .rules-header { text-align: left; margin-bottom: 48px; }
+        .rules-header h1 { font-family: "Outfit", sans-serif; font-size: 36px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 12px 0; background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .rules-header p { color: var(--text-dim); font-size: 16px; margin: 0; font-weight: 400; }
+        .rules-section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
+        .rules-section-title::after { content: ""; height: 1px; flex-grow: 1; background: var(--border); }
+        .rules-grid { display: grid; gap: 16px; margin-bottom: 48px; }
+        .rule-item { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 16px; padding: 24px; transition: all 0.2s ease; }
+        .rule-item:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1); }
+        .rule-item h3 { margin: 0 0 8px 0; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 12px; color: #fff; }
+        .rule-item p { margin: 0; color: var(--text-dim); font-size: 14px; line-height: 1.6; }
+        .rules-highlight { background: rgba(245, 158, 11, 0.05); border: 1px dashed rgba(245, 158, 11, 0.3); padding: 24px; border-radius: 16px; margin-bottom: 48px; }
+        .rules-highlight h4 { margin: 0 0 8px 0; color: #f59e0b; font-size: 14px; font-weight: 700; text-transform: uppercase; }
+        .rules-highlight p { margin: 0; font-size: 14px; color: #d1d5db; }
+        .rules-table { width: 100%; border-collapse: collapse; margin-bottom: 48px; }
+        .rules-table th { text-align: left; padding: 12px 16px; font-size: 12px; text-transform: uppercase; color: var(--text-dim); border-bottom: 1px solid var(--border); }
+        .rules-table td { padding: 16px; font-size: 14px; border-bottom: 1px solid var(--border); color: #fff; }
+        .rules-tag { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; }
+        .rules-tag-bull { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .rules-tag-bear { background: rgba(244, 63, 94, 0.1); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.2); }
+        .rules-declaration { background: rgba(255, 255, 255, 0.02); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid var(--border); }
+        .rules-declaration p { margin: 0; font-size: 13px; color: var(--text-dim); font-style: italic; }
+        .rules-footer { text-align: center; margin-top: 40px; font-size: 11px; color: rgba(255, 255, 255, 0.2); letter-spacing: 0.05em; }
+
+        @media (max-width: 768px) {
+            .rules-modal-header { padding: 10px 15px; }
+            .rules-modal-header h3 { font-size: 14px; }
+            .rules-card { padding: 32px 24px; }
+            .rules-header h1 { font-size: 28px; }
+            .rules-modal-body { padding: 20px 10px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav>
+        <div style="display:flex; align-items:center; gap:20px;">
+            <div class="logo"><h1>ORB PRO</h1><span>ULTRA LIVE</span></div>
+            <button class="btn-readme" onclick="openRules()">📖 Read Me (Rules)</button>
+        </div>
+        <div style="text-align: right">
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div id="ist-clock" style="font-size: 12px; font-weight: 700;">--:--:--</div>
+                    <button id="manual-trigger-btn" class="trigger-btn" onclick="manualTrigger()" title="Force fetch latest data from NSE now">⚡ Manual Scan</button>
+                    <div id="refresh-indicator" style="font-size: 10px; font-weight: 800; color:var(--accent); visibility:hidden;">REFRESHING...</div>
+                </div>
+                <div id="last-scan" style="font-size: 10px; color: var(--text-dim);">LAST SCAN: --:--</div>
+            </div>
+        </div>
+    </nav>
+    <details class="sector-accordion">
+        <summary>📊 Market Indices & Sector Performance</summary>
+        <div class="sector-grid" id="sector-grid"></div>
+    </details>
+    <div class="main-scanner">
+        <div class="tab-bar">
+          <div class="tab active" data-cat="stocks">STOCKS (213)</div>
+          <div class="tab" data-cat="indices">INDICES</div>
+          <div class="tab" data-cat="vix">VOLATILITY (VIX)</div>
+        </div>
+        <div class="controls-row">
+          <input type="text" id="symbol-search" placeholder="Search symbol..." style="background:rgba(0,0,0,0.2); border:1px solid var(--border); color:white; padding:8px 15px; border-radius:8px;">
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:center;">
+            <button class="filter-btn f-all active" data-filter="all">ALL</button>
+            <button class="filter-btn f-bull" data-filter="bull">🟢 BULL</button>
+            <button class="filter-btn f-bear" data-filter="bear">🔴 BEAR (SHORT)</button>
+            <button class="filter-btn f-ob" data-filter="ob">⚡ OB ≥70</button>
+            <button class="filter-btn f-os" data-filter="os">💧 OS ≤30</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <input type="date" id="date-selector" onchange="fetchData()">
+            <button class="btn-log" onclick="openSignalLog()">🔔 Activity Log</button>
+            <div id="market-status" style="font-size: 12px; font-weight:700;">STATUS: <span id="status-text">...</span></div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Live LTP</th>
+                <th id="rsi-header" style="cursor:pointer; color:var(--accent); text-decoration:underline">R14MSI ⇅</th>
+                <th class="hide-mobile" id="trend-header" style="cursor:pointer; color:var(--accent); text-decoration:underline">30M Trnd</th>
+                <th class="hide-mobile" title="Opening Range: 9:15-9:20 AM">9:20</th>
+                <th title="Opening Range: 9:15-9:30 AM">9:30</th>
+                <th title="Opening Range: 9:15-9:45 AM">9:45</th>
+                <th class="hide-mobile" title="Opening Range: 9:15-10:15 AM">10:15</th>
+                <th>RS vs Nifty 50</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+    </div>
+</div>
+
+<!-- Signal Log Modal -->
+<div id="log-modal" class="modal-overlay" onclick="closeSignalLog(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header" style="flex-direction:column; align-items:flex-start; padding: 20px 20px 15px 20px;">
+            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                <h3 style="margin:0; font-size:16px;">🔔 Smart Signal Log & Tracker</h3>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button class="btn-close" onclick="toggleLogFullscreen()" title="Toggle Fullscreen" style="font-size:16px;">⛶</button>
+                    <button class="btn-close" onclick="closeSignalLog(event)">&times;</button>
+                </div>
+            </div>
+            <div class="modal-filters">
+                <button class="mf-btn active" data-f="all" onclick="applyLogFilter('all', event)">LIVE ALL</button>
+                <button class="mf-btn" data-f="bull" onclick="applyLogFilter('bull', event)">BULL</button>
+                <button class="mf-btn" data-f="bear" onclick="applyLogFilter('bear', event)">BEAR</button>
+                <button class="mf-btn" data-f="history" onclick="applyLogFilter('history', event)" style="border-color:rgba(99,102,241,0.3); color:#818cf8;">📜 HISTORY</button>
+            </div>
+        </div>
+        <div class="modal-body" id="log-body">
+            <!-- Log items appear here -->
+        </div>
+    </div>
+</div>
+
+<!-- Rules Modal -->
+<div id="rules-modal" class="rules-modal-overlay">
+    <div class="rules-modal-header">
+        <h3 style="margin:0; font-size:16px; color:#fff;">📖 Golden Trading Protocols</h3>
+        <button class="btn-close" onclick="closeRules()" style="font-size: 28px;">&times;</button>
+    </div>
+    <div class="rules-modal-body">
+        <div class="rules-content-container">
+            <div class="rules-card">
+                <header class="rules-header">
+                    <h1>Trading Protocols</h1>
+                    <p>ORB PRO Market Scanner Execution Guide</p>
+                </header>
+
+                <div class="rules-section-title">Core Strategy</div>
+                
+                <div class="rules-grid">
+                    <div class="rule-item">
+                        <h3><span>🔍</span> Buildup Trend Confirmation</h3>
+                        <p>Trade lene se pahele <strong>Buildup tool</strong> se Trend bhi dekho. Agar trend support kar raha hai, to trade success ka chance kafi behtar ho sakta hai.</p>
+                    </div>
+
+                    <div class="rule-item">
+                        <h3><span>📊</span> Timeframe Alignment</h3>
+                        <p>Check 9:20, 9:30, 9:45, and 10:15 timeframes. Single signals are risky; consistency across majority timeframes confirms strength.</p>
+                    </div>
+
+                    <div class="rule-item">
+                        <h3><span>⚡</span> 15M Trend Filter</h3>
+                        <p>The 15M Trend is your primary filter. BULL signals require an UP trend; BEAR signals require a DOWN trend.</p>
+                    </div>
+                </div>
+
+                <div class="rules-highlight">
+                    <h4>⚠️ Entry Protocol</h4>
+                    <p>If the ORB signal is BULL but the 15M Trend is DOWN (or vice versa), <strong>DO NOT ENTER</strong>. This is a high-probability trap zone.</p>
+                </div>
+
+                <div class="rules-section-title">Execution Checklist</div>
+
+                <table class="rules-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Bullish Setup</th>
+                            <th>Bearish Setup</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ORB Signal</td>
+                            <td><span class="rules-tag rules-tag-bull">BULL</span></td>
+                            <td><span class="rules-tag rules-tag-bear">BEAR</span></td>
+                        </tr>
+                        <tr>
+                            <td>Buildup Trend</td>
+                            <td>Supportive ✅</td>
+                            <td>Supportive ✅</td>
+                        </tr>
+                        <tr>
+                            <td>15M Trend</td>
+                            <td>Upward 📈</td>
+                            <td>Downward 📉</td>
+                        </tr>
+                        <tr>
+                            <td>Day Trend</td>
+                            <td>Positive</td>
+                            <td>Negative</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="rules-declaration">
+                    <p>"Ye koi trading tips ya advice nahin hai, ye sirf personal observation aur research purpose ke liye hai."</p>
+                </div>
+                
+                <footer class="rules-footer">
+                    SYSTEM PROTOCOL V1.2 • ANTIGRAVITY ANALYTICS
+                </footer>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const BASE_URL = "https://orb-pro-worker.gsmmunna.workers.dev";
+    const HOLIDAYS = ["2026-01-26","2026-03-03","2026-03-26","2026-03-31","2026-04-03","2026-04-14","2026-05-01","2026-05-28","2026-06-26","2026-09-14","2026-10-02","2026-10-20","2026-11-10","2026-11-24","2026-12-25"];
+    const SECTOR_SYMBOLS = ["NIFTY BANK", "NIFTY IT", "NIFTY PHARMA", "NIFTY AUTO", "NIFTY FMCG", "NIFTY METAL", "NIFTY REALTY", "NIFTY ENERGY", "NIFTY MEDIA", "NIFTY PSU BANK", "NIFTY FIN SERVICE", "NIFTY MID SELECT"];
+    let currentCategory = "stocks", rawData = null, latestQuotes = null, searchQuery = "", signalFilter = "all", trendPeriod = 30;
+    let sortBy = "orb", countdownSecs = 60;
+
+    function getEffectiveDate() {
+        let d = new Date(Date.now() + 5.5 * 3600000);
+        const mins = d.getUTCHours() * 60 + d.getUTCMinutes();
+        
+        // If it's before market opens (9:15 AM) on a trading day, use the previous session
+        if (mins < 555 && d.getUTCDay() >= 1 && d.getUTCDay() <= 5) {
+             d.setUTCDate(d.getUTCDate() - 1);
+        }
+
+        const istStr = () => d.toISOString().split('T')[0];
+        while (d.getUTCDay() === 0 || d.getUTCDay() === 6 || HOLIDAYS.includes(istStr())) {
+            d.setUTCDate(d.getUTCDate() - 1);
+        }
+        return istStr();
+    }
+
+    async function fetchData() {
+        countdownSecs = 60;
+        const refreshEl = document.getElementById("refresh-indicator");
+        if (refreshEl) refreshEl.style.visibility = "visible";
+        try {
+            const queryDate = document.getElementById("date-selector").value;
+            const [historyRes, quotesRes] = await Promise.all([
+               fetch(BASE_URL + "/data?path=" + queryDate + "/orb_pro_data.json&v=" + Date.now()),
+               fetch(BASE_URL + "/data?path=latest_quotes.json&v=" + Date.now())
+            ]);
+            if (historyRes.ok) rawData = await historyRes.json();
+            if (quotesRes.ok) latestQuotes = await quotesRes.json();
+            renderAll();
+        } catch (e) { console.error("Fetch error:", e); }
+        if (refreshEl) setTimeout(() => refreshEl.style.visibility = "hidden", 1000);
+    }
+
+    function renderAll() { 
+        renderSectorGrid(); 
+        renderTable(); 
+        updateMarketStatus(); 
+        updateLastScan(); 
+    }
+
+    function updateLastScan() {
+        const el = document.getElementById("last-scan");
+        if (latestQuotes && latestQuotes.timestamp) {
+            el.innerHTML = "LAST SCAN: " + latestQuotes.timestamp + " <span style='color:var(--text-dim)'>| NEXT: " + countdownSecs + "s</span>";
+            el.style.color = "var(--bull)";
+        }
+    }
+
+    function updateMarketStatus() {
+        const ist = new Date(Date.now() + 5.5 * 3600000);
+        const mins = ist.getUTCHours() * 60 + ist.getUTCMinutes();
+        const statusEl = document.getElementById("status-text");
+        if (mins >= 555 && mins <= 932 && ist.getUTCDay() >= 1 && ist.getUTCDay() <= 5) { 
+            statusEl.textContent = "OPEN"; statusEl.style.color = "var(--bull)"; 
+        } else { 
+            statusEl.textContent = "CLOSED"; statusEl.style.color = "var(--bear)"; 
+        }
+    }
+
+    function renderSectorGrid() {
+        if (!latestQuotes || !latestQuotes.indices) return;
+        const grid = document.getElementById("sector-grid"); 
+        grid.innerHTML = "";
+        SECTOR_SYMBOLS.forEach(sym => {
+            const data = latestQuotes.indices.find(i => (i.symbol||"").toUpperCase() === sym);
+            if (!data) return;
+            const card = document.createElement("div"); card.className = "sector-card";
+            const snapData = rawData ? rawData[sym] : null;
+            const spark = generateSparkline(snapData ? snapData.history : null, 80, 24);
+            card.style.display = "flex"; card.style.justifyContent = "space-between"; card.style.alignItems = "center";
+            card.innerHTML = "<div><b style='font-size:12px'>" + sym + "</b><br><span style='font-size:16px; font-weight:700'>₹" + data.ltp.toLocaleString() + "</span><br><small style='color:" + (data.pct >= 0 ? "var(--bull)" : "var(--bear)") + "'>" + (data.pct >= 0 ? "▲" : "▼") + " " + Math.abs(data.pct).toFixed(2) + "%</small></div>" + 
+                "<div style='opacity:0.8'>" + spark + "</div>";
+            grid.appendChild(card);
+        });
+    }
+
+    function getORBSignal(ltp, orb, thresholdMins) {
+        if (!orb) return "FORM";
+        let hKey = 'h' + thresholdMins, lKey = 'l' + thresholdMins;
+        if (orb[hKey] === undefined || orb[lKey] === undefined) return "FORM";
+        return ltp > orb[hKey] ? "BULL" : (ltp < orb[lKey] ? "BEAR" : "WAIT");
+    }
+
+    function calculateRSI(snaps, period = 14) {
+        if (!snaps || !Array.isArray(snaps) || snaps.length < 2) return "--";
+        let actualPeriod = Math.min(period, snaps.length - 1);
+        let gains = 0, losses = 0;
+        const startIdx = Math.max(1, snaps.length - actualPeriod);
+        for (let i = startIdx; i < snaps.length; i++) {
+            const diff = snaps[i].ltp - snaps[i-1].ltp;
+            if (diff >= 0) gains += diff; else losses -= diff;
+        }
+        if (losses === 0) return 100;
+        const rs = gains / losses;
+        return Math.round(100 - (100 / (1 + rs)));
+    }
+
+    function calculateRS(snaps, niftySnaps) {
+        if (!snaps || !niftySnaps || snaps.length < 2 || niftySnaps.length < 2) return 0;
+        const sBase = snaps[0].ltp, sNow = snaps[snaps.length - 1].ltp;
+        const nBase = niftySnaps[0].ltp, nNow = niftySnaps[niftySnaps.length - 1].ltp;
+        if (sBase === 0 || nBase === 0) return 0;
+        const sPerf = (sNow / sBase) - 1;
+        const nPerf = (nNow / nBase) - 1;
+        return (sPerf - nPerf) * 100;
+    }
+
+    function getRSBadgeHtml(rs) {
+        let cls = "rs-neutral", arrow = "→";
+        if (rs > 0.3) { cls = "rs-strong"; arrow = "↑"; }
+        else if (rs > 0) { cls = "rs-trending"; arrow = "↑"; }
+        else if (rs < -0.1) { cls = "rs-weak"; arrow = "↓"; }
+        const sign = rs >= 0 ? "+" : "";
+        return "<div class='rs-badge " + cls + "'><span>" + arrow + "</span>" + sign + rs.toFixed(2) + "%</div>";
+    }
+
+    function generateSparkline(snaps, width = 60, height = 24, count = 30) {
+        if (!snaps || !Array.isArray(snaps) || snaps.length < 2) return "";
+        const points = (count === null ? snaps : snaps.slice(-count)).map(s => s.ltp);
+        const min = Math.min(...points), max = Math.max(...points), range = (max - min) || 1;
+        const color = points[points.length-1] >= points[0] ? "var(--bull)" : "var(--bear)";
+        let path = "";
+        points.forEach((p, i) => {
+            const x = (i / (points.length - 1)) * width;
+            const y = height - ((p - min) / range) * height;
+            path += (i === 0 ? "M" : "L") + x + "," + y + " ";
+        });
+        return "<svg width='" + width + "' height='" + height + "' style='overflow:visible'><path d='" + path + "' fill='none' stroke='" + color + "' stroke-width='1.5' stroke-linejoin='round'/></svg>";
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById("table-body"); 
+        tbody.innerHTML = "";
+        if (!rawData) {
+            tbody.innerHTML = "<tr><td colspan='8' style='text-align:center; padding:40px; color:var(--text-dim)'>⏳ Loading Market Data...</td></tr>";
+            return;
+        }
+        const items = [];
+        for (const [sym, snapData] of Object.entries(rawData)) {
+            const snaps = snapData.history || [];
+            if (!Array.isArray(snaps) || snaps.length === 0) continue;
+            const isIndex = sym.startsWith("NIFTY") || sym === "INDIA VIX";
+            if (currentCategory === "stocks" && isIndex) continue;
+            if (currentCategory === "indices" && (!isIndex || sym === "INDIA VIX")) continue;
+            if (currentCategory === "vix" && sym !== "INDIA VIX") continue;
+            if (searchQuery && !sym.includes(searchQuery)) continue;
+            const ltp = snapData.ltp;
+            items.push({ sym, ltp, orb: snapData.orb, snaps });
+        }
+        
+        if (sortBy === "orb") {
+            items.sort((a, b) => {
+                const sA = getORBSignal(a.ltp, a.orb, 15); // 9:30 AM threshold
+                const sB = getORBSignal(b.ltp, b.orb, 15);
+                if (sA === "BULL" && sB !== "BULL") return -1;
+                if (sB === "BULL" && sA !== "BULL") return 1;
+                if (sA === "BEAR" && sB !== "BEAR") return -1;
+                if (sB === "BEAR" && sA !== "BEAR") return 1;
+                return b.ltp - a.ltp;
+            });
+        } else {
+            items.sort((a, b) => {
+                let rA = calculateRSI(a.snaps, 14);
+                let rB = calculateRSI(b.snaps, 14);
+                if (rA === "--") rA = (sortBy === "rsi_desc" ? -1 : 101);
+                if (rB === "--") rB = (sortBy === "rsi_desc" ? -1 : 101);
+                return sortBy === "rsi_desc" ? (rB - rA) : (rA - rB);
+            });
+        }
+
+        const filtered = items.filter(item => {
+            const signal930 = getORBSignal(item.ltp, item.orb, 15); // 9:30 AM = 15 mins threshold
+            if (signalFilter === "bull") return signal930 === "BULL";
+            if (signalFilter === "bear") return signal930 === "BEAR";
+            const r = calculateRSI(item.snaps, 14);
+            if (signalFilter === "ob") return r !== "--" && r >= 70;
+            if (signalFilter === "os") return r !== "--" && r <= 30;
+            return true;
+        });
+
+        filtered.forEach(item => {
+            const row = document.createElement("tr");
+            const orsi = calculateRSI(item.snaps, 14);
+            let orsiColor = "var(--text-dim)";
+            if (orsi !== "--") {
+                if (orsi >= 70) orsiColor = "#fb923c";
+                else if (orsi <= 30) orsiColor = "#22d3ee";
+            }
+            const trend = generateSparkline(item.snaps, 60, 20, trendPeriod);
+            row.innerHTML = "<td style='font-weight:700'>" + item.sym + "</td>" + 
+                "<td style='font-family:monospace'>₹" + item.ltp.toFixed(item.ltp < 100 ? 2 : 1) + "</td>" + 
+                "<td><b style='color:" + orsiColor + "'>" + orsi + "</b></td>" + 
+                "<td class='hide-mobile'>" + trend + "</td>" + 
+                "<td class='hide-mobile'>" + renderDot(getORBSignal(item.ltp, item.orb, 5)) + "</td>" + 
+                "<td>" + renderDot(getORBSignal(item.ltp, item.orb, 15)) + "</td>" + 
+                "<td>" + renderDot(getORBSignal(item.ltp, item.orb, 30)) + "</td>" + 
+                "<td class='hide-mobile'>" + renderDot(getORBSignal(item.ltp, item.orb, 60)) + "</td>" +
+                "<td>" + getRSBadgeHtml(calculateRS(item.snaps, rawData["NIFTY 50"] ? rawData["NIFTY 50"].history : [])) + "</td>";
+            tbody.appendChild(row);
+        });
+    }
+
+    function renderDot(sig) {
+        const cls = sig === "BULL" ? "orb-bull" : (sig === "BEAR" ? "orb-bear" : "orb-wait");
+        return "<div class='orb-dot " + cls + "'>" + sig + "</div>";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".tab").forEach(t => t.onclick = (e) => {
+            document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+            e.target.classList.add("active"); currentCategory = e.target.dataset.cat; renderTable();
+        });
+        document.querySelectorAll(".filter-btn").forEach(b => b.onclick = (e) => {
+            document.querySelectorAll(".filter-btn").forEach(x => x.classList.remove("active"));
+            e.target.classList.add("active"); signalFilter = e.target.dataset.filter; renderTable();
+        });
+        document.getElementById("symbol-search").oninput = (e) => { searchQuery = e.target.value.toUpperCase(); renderTable(); };
+        
+        document.getElementById("trend-header").onclick = () => {
+            if (trendPeriod === 30) trendPeriod = 15;
+            else trendPeriod = 30;
+            const label = trendPeriod === 30 ? "30M Trnd" : "15M Trnd";
+            document.getElementById("trend-header").textContent = label;
+            renderTable();
+        };
+
+        document.getElementById("rsi-header").onclick = () => {
+            if (sortBy === "orb") sortBy = "rsi_desc";
+            else if (sortBy === "rsi_desc") sortBy = "rsi_asc";
+            else sortBy = "orb";
+            
+            const label = sortBy === "orb" ? "R14MSI ⇅" : (sortBy === "rsi_desc" ? "R14MSI ⬇" : "R14MSI ⬆");
+            document.getElementById("rsi-header").textContent = label;
+            renderTable();
+        };
+
+        // Manual Trigger Function (Opens in new tab)
+        window.manualTrigger = function() {
+            window.open(BASE_URL + "/trigger", "_blank");
+        };
+
+        setInterval(fetchData, 60000);
+        setInterval(() => {
+            const ist = new Date(Date.now() + 5.5 * 3600000);
+            const h = String(ist.getUTCHours()).padStart(2, "0"), m = String(ist.getUTCMinutes()).padStart(2, "0"), s = String(ist.getUTCSeconds()).padStart(2, "0");
+            const ts = document.getElementById("ist-clock"); if (ts) ts.textContent = h + ":" + m + ":" + s + " IST";
+            if (countdownSecs > 0) countdownSecs--;
+            updateLastScan();
+        }, 1000);
+        // Initialize Date Selector with the last trading day
+        const dateInput = document.getElementById("date-selector");
+        if (dateInput) {
+            const lastTradingDay = getEffectiveDate();
+            dateInput.value = lastTradingDay;
+        }
+        fetchData();
+    });
+
+    function applyLogFilter(filter, e) {
+        if(e) e.stopPropagation();
+        document.querySelectorAll('.mf-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.mf-btn[data-f="${filter}"]`).classList.add('active');
+        document.querySelectorAll('.log-card').forEach(card => {
+            if (filter === 'all') {
+                if(card.dataset.status === 'live') card.classList.add('show');
+                else card.classList.remove('show');
+            } else if (filter === 'history') {
+                if(card.dataset.status === 'history') card.classList.add('show');
+                else card.classList.remove('show');
+            } else {
+                if(card.dataset.status === 'live' && card.dataset.type === filter.toUpperCase()) card.classList.add('show');
+                else card.classList.remove('show');
+            }
+        });
+    }
+
+    function toggleLogFullscreen() {
+        document.querySelector('.modal-content').classList.toggle('fullscreen');
+    }
+
+    function openSignalLog() {
+        const modal = document.getElementById("log-modal");
+        const body = document.getElementById("log-body");
+        body.innerHTML = "";
+        
+        if (!rawData) {
+            body.innerHTML = "<div style='grid-column: 1 / -1; padding:40px; text-align:center; color:var(--text-dim)'>No data available yet.</div>";
+            modal.style.display = "flex";
+            return;
+        }
+
+        const activeLogs = [];
+        const historyLogs = [];
+        const niftySnaps = rawData["NIFTY 50"] || [];
+        const buffer = 0.0002; // 0.02%
+
+        // Latest T for blaze effect
+        let globalT = 0;
+        for (const snaps of Object.values(rawData)) {
+            if (Array.isArray(snaps) && snaps.length > 0) {
+                const last = snaps[snaps.length - 1];
+                const currentT = last.t !== undefined ? last.t : snaps.length;
+                if (currentT > globalT) globalT = currentT;
+            }
+        }
+
+        for (const [sym, snaps] of Object.entries(rawData)) {
+            if (!Array.isArray(snaps) || snaps.length < 5) continue;
+            if (sym === "INDIA VIX" || sym.startsWith("NIFTY")) continue;
+            
+            const ranges = {};
+            [5, 15, 30, 60].forEach(threshold => {
+                let s = snaps[0].t !== undefined ? snaps.filter(x => x.t <= threshold) : snaps.slice(0, threshold);
+                if (s.length > 0) {
+                    let prices = s.map(x => x.ltp);
+                    ranges[threshold] = { high: Math.max(...prices), low: Math.min(...prices) };
+                }
+            });
+
+            let log = null; 
+            let bullSustain = 0, bearSustain = 0;
+
+            for (let i = 0; i < snaps.length; i++) {
+                const snap = snaps[i];
+                const t = snap.t !== undefined ? snap.t : i;
+                if (t <= 5) continue;
+
+                let range = (t > 5 && t <= 15) ? ranges[5] : (t > 15 && t <= 30) ? ranges[15] : (t > 30 && t <= 60) ? ranges[30] : (t > 60) ? ranges[60] : null;
+                if (!range) continue;
+
+                if (!log) {
+                    if (snap.ltp > range.high * (1 + buffer)) {
+                        bullSustain++; bearSustain = 0;
+                    } else if (snap.ltp < range.low * (1 - buffer)) {
+                        bearSustain++; bullSustain = 0;
+                    } else {
+                        bullSustain = 0; bearSustain = 0;
+                    }
+
+                    if (bullSustain >= 3 || bearSustain >= 3) {
+                        const type = bullSustain >= 3 ? "BULL" : "BEAR";
+                        const ctxSnaps = snaps.slice(0, i + 1);
+                        const rsi = calculateRSI(ctxSnaps, 14);
+                        let rs = "--";
+                        if (niftySnaps.length >= 2) {
+                            let nSnaps = niftySnaps.filter(ns => ns.t <= t);
+                            if(nSnaps.length >= 2) rs = calculateRS(ctxSnaps, nSnaps);
+                        }
+                        const startIdx = Math.max(0, i - 15);
+                        const localStartPrice = ctxSnaps[startIdx].ltp;
+                        const localTrend = snap.ltp >= localStartPrice ? "UP" : "DOWN";
+                        const matched = (type === "BULL" && localTrend === "UP") || (type === "BEAR" && localTrend === "DOWN");
+                        const status = (rs === "--") ? "pending" : (isStrongSig(type, rsi, rs, matched)) ? "strong" : "weak";
+
+                        log = { 
+                            time: formatTToTime(t), rawT: t, sym, type, entryPrice: snap.ltp, 
+                            maxPrice: snap.ltp, minPrice: snap.ltp, currentPrice: snaps[snaps.length-1].ltp,
+                            statusTag: status, rsiAtBreakout: rsi, rsAtBreakout: rs, local15mTrend: localTrend, 
+                            exitType: null, isHistory: false, slPrice: (type === "BULL" ? range.low : range.high)
+                        };
+                    }
+                } else if (!log.exitType) {
+                    log.maxPrice = Math.max(log.maxPrice, snap.ltp);
+                    log.minPrice = Math.min(log.minPrice, snap.ltp);
+                    
+                    const pnl = ((snap.ltp - log.entryPrice) / log.entryPrice) * 100;
+                    const adjustedPnl = log.type === "BULL" ? pnl : -pnl;
+                    
+                    if (adjustedPnl >= 1.0) {
+                        log.exitType = "TARGET"; log.isHistory = true; log.exitPrice = snap.ltp;
+                    } else if (log.type === "BULL" && snap.ltp < log.slPrice) {
+                        log.exitType = "STOPLOSS"; log.isHistory = true; log.exitPrice = snap.ltp;
+                    } else if (log.type === "BEAR" && snap.ltp > log.slPrice) {
+                        log.exitType = "STOPLOSS"; log.isHistory = true; log.exitPrice = snap.ltp;
+                    }
+                }
+            }
+
+            if (log) {
+                finalizeLog(log);
+                if (log.isHistory) historyLogs.push(log); else activeLogs.push(log);
+            }
+        }
+
+        const sorted = [...activeLogs, ...historyLogs].sort((a,b) => b.rawT - a.rawT);
+
+        if (sorted.length === 0) {
+            body.innerHTML = "<div style='grid-column: 1 / -1; padding:40px; text-align:center; color:var(--text-dim)'>No sustained breakouts detected after 9:20 AM yet.</div>";
+        } else {
+            sorted.forEach(log => {
+                const badgeCls = log.type === "BULL" ? "orb-bull" : "orb-bear";
+                let statusBadge = "";
+                if (log.exitType === "TARGET") statusBadge = '<span class="tag-strong" style="background:#059669; border-color:#059669; color:white">🎯 TARGET 1% HIT</span>';
+                else if (log.exitType === "STOPLOSS") statusBadge = '<span class="tag-weak" style="background:#dc2626; border-color:#dc2626; color:white">🛑 SL HIT</span>';
+                else statusBadge = '<span class="tag-pending" style="background:#2563eb; border-color:#2563eb; color:white">🔵 RUNNING</span>';
+
+                const rsV = log.rsAtBreakout === "--" ? "--" : (parseFloat(log.rsAtBreakout) > 0 ? "+" + log.rsAtBreakout + "%" : log.rsAtBreakout + "%");
+                const isB = (!log.isHistory && (globalT - log.rawT) <= 5);
+
+                const card = document.createElement("div");
+                card.className = "log-card" + (isB ? " blaze-active" : "") + (log.isHistory ? " history-item" : "");
+                card.dataset.type = log.type;
+                card.dataset.status = log.isHistory ? "history" : "live";
+                
+                card.innerHTML = `
+                    <div class="log-card-header">
+                        <div style="display:flex; align-items:center;">
+                            <span class="log-time">${log.time}</span>
+                            <span class="log-symbol">${log.sym}</span>
+                            <span class="log-badge ${badgeCls}">${log.type}</span>
+                        </div>
+                        ${statusBadge}
+                    </div>
+                    <div class="log-grid">
+                        <div class="grid-box"><span class="grid-label">Entry Price</span><span class="grid-val">₹${log.entryPrice.toFixed(1)}</span></div>
+                        <div class="grid-box"><span class="grid-label">Current/Exit</span><span class="grid-val">₹${(log.exitPrice || log.currentPrice).toFixed(1)}</span></div>
+                        <div class="grid-box"><span class="grid-label">Live P&L</span><span class="grid-val ${log.pnlClass}">${log.pnlSign}${log.pnlChange.toFixed(2)}%</span></div>
+                        <div class="grid-box"><span class="grid-label">Max Fav (MFE)</span><span class="grid-val" style="color:#10b981">+${calculateMFE(log).toFixed(2)}%</span></div>
+                        <div class="grid-box"><span class="grid-label">R14MSI (Brk)</span><span class="grid-val">${log.rsiAtBreakout}</span></div>
+                        <div class="grid-box"><span class="grid-label">Nifty RS</span><span class="grid-val">${rsV}</span></div>
+                    </div>
+                `;
+                body.appendChild(card);
+            });
+        }
+        applyLogFilter('all');
+        modal.style.display = "flex";
+    }
+
+    function calculateMFE(l) {
+        let p = ((l.maxPrice - l.entryPrice) / l.entryPrice) * 100;
+        let m = ((l.minPrice - l.entryPrice) / l.entryPrice) * 100;
+        return l.type === "BULL" ? Math.max(0, p) : Math.max(0, -m);
+    }
+
+    function isStrongSig(t, r, rs, m) { return (t === "BULL" && r > 60 && rs > 0 && m) || (t === "BEAR" && r < 40 && rs < 0 && m); }
+    function finalizeLog(l) {
+        let priceToCompare = l.exitPrice || l.currentPrice;
+        let pc = ((priceToCompare - l.entryPrice) / l.entryPrice) * 100;
+        let v = l.type === "BEAR" ? -pc : pc;
+        l.pnlChange = v; l.pnlClass = v >= 0 ? "pnl-green" : "pnl-red"; l.pnlSign = v >= 0 ? "+" : "";
+    }
+
+    function closeSignalLog(e) {
+        document.getElementById("log-modal").style.display = "none";
+    }
+
+    function formatTToTime(t) {
+        const startMins = 9 * 60 + 15;
+        const totalMins = startMins + t;
+        const h = Math.floor(totalMins / 60);
+        const m = totalMins % 60;
+        return (h > 12 ? h - 12 : h) + ":" + String(m).padStart(2, '0') + (h >= 12 ? " PM" : " AM");
+    }
+
+    function openRules() {
+        document.getElementById('rules-modal').style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    function closeRules() {
+        document.getElementById('rules-modal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+</script>
+</body>
+</html>
