@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multi-ORB Dashboard (5M/15M/30M)</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2310b981'/><path d='M25 70 l20-20 l15 15 l25-35' stroke='white' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round'/><path d='M85 30 l-20 0 m20 0 l0 20' stroke='white' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
 
@@ -529,6 +530,17 @@
             return Math.round(100 - (100 / (1 + rs)));
         }
 
+        function formatMarketTime(m) {
+            if (m === '--' || isNaN(m) || m === null) return '--';
+            const openMinutes = 555; // 9:15 AM (9*60 + 15)
+            const totalMinutes = openMinutes + parseInt(m);
+            const hours = Math.floor(totalMinutes / 60) % 24;
+            const mins = totalMinutes % 60;
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
+            return `${displayHours}:${mins.toString().padStart(2, '0')} ${ampm}`;
+        }
+
         function explainSignal(sym, score, isTrap, trapType, isPDH, isPDL, rsiUTurn) {
             let msg = `Symbol: ${sym}\nStrength: ${Math.abs(score)}%\n\n`;
             if (rsiUTurn && rsiUTurn !== 'null') {
@@ -991,7 +1003,7 @@
                             ${s.ltp?.toFixed(1) || '--'}
                             <div style="font-size:10px; font-weight:400; color:var(--text-dim)">
                                 <span style="color:${diffColor}">(${parseFloat(priceDiff) >= 0 ? '+' : ''}${priceDiff})</span>
-                                | T:${s.lastT}m
+                                | ${formatMarketTime(s.lastT)}
                             </div>
                         </td>
                         <td>
