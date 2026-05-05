@@ -1485,6 +1485,8 @@
 
                 fetchStockData();
                 fetchPortfolio();
+                if (window._ltpPollInterval) clearInterval(window._ltpPollInterval);
+                window._ltpPollInterval = setInterval(refreshActiveLtps, 30000);
             } else {
                 document.getElementById('loginView').classList.remove('hidden');
                 document.getElementById('mainView').style.display = 'none';
@@ -1977,6 +1979,7 @@
                 });
                 if (!response.ok) return;
                 const db = await response.json();
+                window._activeTrades = db.activeTrades || [];
 
                 currentFunds = db.funds;
                 window._historyCache = db.history || [];
@@ -2070,7 +2073,7 @@
                                 <div style="font-size: 14px; color: white;">₹${avgPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
                             </td>
                             <td style="padding: 15px 10px; text-align: right;">
-                                <div style="font-size: 14px; color: var(--accent-primary); font-weight: 600;">
+                                <div id="ltp-${groupId}" data-symbol="${g.symbol}" data-qty="${g.totalQty}" data-avg="${avgPrice}" data-type="${g.type}" data-margin="${g.totalMargin}" style="font-size: 14px; color: var(--accent-primary); font-weight: 600;">
                                     ${g.currentLtp ? '₹' + g.currentLtp.toLocaleString(undefined, { minimumFractionDigits: 2 }) : 'N/A'}
                                 </div>
                             </td>
@@ -2078,8 +2081,10 @@
                                 <span style="color: var(--text-secondary); font-size: 11px;">Expand for individual T/SL</span>
                             </td>
                             <td style="padding: 15px 10px; text-align: right;">
-                                <div style="color: ${pnlColor}; font-weight: 700; font-size: 15px;">${pnlSign}₹${pnl.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
-                                <div style="color: ${pnlColor}; font-size: 12px; margin-top: 4px; font-weight: 500;">${pnlSign}${pnlPct.toFixed(2)}%</div>
+                                <div id="pnl-${groupId}">
+                                    <div style="color: ${pnlColor}; font-weight: 700; font-size: 15px;">${pnlSign}₹${pnl.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                                    <div style="color: ${pnlColor}; font-size: 12px; margin-top: 4px; font-weight: 500;">${pnlSign}${pnlPct.toFixed(2)}%</div>
+                                </div>
                             </td>
                             <td style="padding: 15px 10px; text-align: center;">
                                 <div style="display: flex; gap: 8px; justify-content: center;">
@@ -2123,6 +2128,7 @@
                 }
                 tableBody.innerHTML = html;
                 lucide.createIcons();
+                refreshActiveLtps();
 
                 // Render Today's Closed Trades below positions
                 renderTodayHistory(db.history || []);
@@ -2133,6 +2139,57 @@
             } catch (err) {
                 console.error("Failed to load portfolio", err);
             }
+        }
+
+        // =============================================
+        // LIVE LTP POLLING FOR ACTIVE POSITIONS
+        // =============================================
+        async function refreshActiveLtps() {
+            const trades = window._activeTrades || [];
+            if (!trades.length) return;
+
+            const symbols = [...new Set(trades.map(t => t.symbol.trim().toUpperCase()))];
+
+            // Fetch all prices in parallel
+            const prices = {};
+            await Promise.all(symbols.map(async sym => {
+                try {
+                    const res = await fetch(`/api/get-price?symbol=${sym}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        prices[sym] = data.ltp;
+                    }
+                } catch(e) {}
+            }));
+
+            // Update each grouped position LTP and P&L in DOM
+            document.querySelectorAll('[id^="ltp-"]').forEach(el => {
+                const sym = (el.dataset.symbol || '').trim().toUpperCase();
+                const ltp = prices[sym];
+                if (!ltp) return;
+
+                const qty    = parseFloat(el.dataset.qty);
+                const avg    = parseFloat(el.dataset.avg);
+                const type   = el.dataset.type;
+                const margin = parseFloat(el.dataset.margin);
+                const groupId = el.id.replace('ltp-', '');
+
+                // Update LTP display
+                el.textContent = '\u20b9' + ltp.toLocaleString(undefined, { minimumFractionDigits: 2 });
+
+                // Recalculate P&L
+                const pnl     = type === 'BUY' ? (ltp - avg) * qty : (avg - ltp) * qty;
+                const pnlPct  = (pnl / margin) * 100;
+                const pnlClr  = pnl >= 0 ? 'var(--accent-buy)' : 'var(--accent-sell)';
+                const pnlSign = pnl > 0 ? '+' : '';
+
+                const pnlEl = document.getElementById('pnl-' + groupId);
+                if (pnlEl) {
+                    pnlEl.innerHTML = `
+                        <div style="color:${pnlClr};font-weight:700;font-size:15px;">${pnlSign}\u20b9${pnl.toLocaleString(undefined,{minimumFractionDigits:2})}</div>
+                        <div style="color:${pnlClr};font-size:12px;margin-top:4px;font-weight:500;">${pnlSign}${pnlPct.toFixed(2)}%</div>`;
+                }
+            });
         }
 
         function renderTodayHistory(history) {
