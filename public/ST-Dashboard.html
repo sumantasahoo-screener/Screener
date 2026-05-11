@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ST·OI Pulse Analyzer (Server-Side)</title>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -96,6 +96,36 @@
             .stats-grid { grid-template-columns: 1fr !important; }
             .nifty-bar { flex-wrap: wrap; height: auto; padding: 10px; gap: 10px; }
             .nb-item { border: none; padding: 0; }
+
+            /* --- MOBILE GRAPH FIXES --- */
+            /* Chart container overflow fix */
+            #chart, #chart > div, .apexcharts-canvas {
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow: hidden !important;
+            }
+            /* Crosshair info panel: stack vertically on mobile */
+            #chartInfoPanel {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 6px !important;
+                font-size: 0.78rem !important;
+                padding: 8px 12px !important;
+            }
+            /* Legend: allow wrapping on mobile */
+            #customLegend {
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+                justify-content: flex-start !important;
+            }
+            /* Volume heatmap legend: wrap */
+            #volHeatmap { height: 38px !important; }
+            /* Ensure glass panel doesn't overflow viewport */
+            .glass-panel { overflow: hidden; padding: 15px; }
+            /* Stats card span fix */
+            #stats .stat-card[style*="span 3"] {
+                grid-column: span 1 !important;
+            }
         }
 
         .field {
@@ -933,7 +963,7 @@
                     { name: 'VWAP', type: 'line', data: vwap },
                     { name: 'Total OI', type: 'line', data: data.map(d => ({ x: d.time, y: d.oi })) }
                 ],
-                chart: { height: 550, type: 'line', background: 'transparent', animations: { enabled: false } },
+                chart: { height: window.innerWidth < 768 ? 320 : 550, type: 'line', background: 'transparent', animations: { enabled: false }, zoom: { enabled: false }, toolbar: { show: false } },
                 grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 3, xaxis: { lines: { show: false } }, yaxis: { lines: { show: true } } },
                 stroke: { width: [2, 4, 4, 4, 2, 3], curve: 'smooth', dashArray: [0, 0, 0, 0, 5, 0] },
                 colors: ['#60a5fa', '#10b981', '#ef4444', '#f59e0b', '#818cf8', '#f59e0b'],
@@ -966,13 +996,14 @@
                 const panel = document.getElementById('chartInfoPanel');
                 const crosshair = document.getElementById('chartCrosshair');
 
-                chartEl.addEventListener('mousemove', (evt) => {
+                function handleChartInteraction(clientX, rect) {
                     const labels = chart.w?.globals?.categoryLabels || [];
                     if (!labels.length) return;
 
                     const plotLeft = chart.w.globals.translateX || 0;
                     const plotW = chart.w.globals.gridWidth || 1;
-                    const relX = evt.offsetX - plotLeft;
+                    const offsetX = clientX - rect.left;
+                    const relX = offsetX - plotLeft;
                     const ratio = Math.min(1, Math.max(0, relX / plotW));
                     const closestIdx = Math.round(ratio * (data.length - 1));
                     const d = data[closestIdx];
@@ -1011,11 +1042,30 @@
                         sigEl.style.display = 'none';
                     }
                     panel.style.display = 'flex';
+                }
+
+                // Mouse events (desktop)
+                chartEl.addEventListener('mousemove', (evt) => {
+                    handleChartInteraction(evt.clientX, chartEl.getBoundingClientRect());
                 }, { signal: abortSig });
 
                 chartEl.addEventListener('mouseleave', () => {
                     panel.style.display = 'none';
                     crosshair.style.display = 'none';
+                }, { signal: abortSig });
+
+                // Touch events (mobile)
+                chartEl.addEventListener('touchmove', (evt) => {
+                    evt.preventDefault();
+                    const touch = evt.touches[0];
+                    handleChartInteraction(touch.clientX, chartEl.getBoundingClientRect());
+                }, { signal: abortSig, passive: false });
+
+                chartEl.addEventListener('touchend', () => {
+                    setTimeout(() => {
+                        panel.style.display = 'none';
+                        crosshair.style.display = 'none';
+                    }, 1500);
                 }, { signal: abortSig });
             });
 
@@ -1114,7 +1164,7 @@
             const curStatusHtml = `<span style="color:${curColor};font-weight:700">${curStatus}</span> <span style="color:#64748b;font-size:0.8rem">vs VWAP: ${distNum >= 0 ? '+' : ''}${vwapDist}%</span>`;
 
             document.getElementById('stats').innerHTML = `
-                <div class="stat-card" style="grid-column: span 3; border-color: ${c}">
+                <div class="stat-card" style="grid-column: span ${window.innerWidth < 768 ? 1 : 3}; border-color: ${c}">
                     <div class="stat-label" style="color: ${c}">SERVER-SIDE VERDICT</div>
                     <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
                         <div class="stat-value" style="color: ${c}">${v}</div>
