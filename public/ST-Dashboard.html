@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ST·OI Pulse Analyzer (Server-Side)</title>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #010c1f;
+            --card: rgba(8, 29, 69, 0.85);
+            --text: #e0f2fe;
+            --accent: #0ea5e9;
+            --accent-light: #38bdf8;
+            --accent-glow: rgba(14, 165, 233, 0.3);
+            --border: rgba(56, 189, 248, 0.25);
+            --success: #10b981;
+            --danger: #ef4444;
+            --gold: #f59e0b;
+        }
+
+        body {
+            background: var(--bg);
+            background-image: radial-gradient(circle at 50% -20%, #0a3178 0%, #010c1f 100%);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1350px;
+            margin: 0 auto;
+        }
+
+        .glass-panel {
+            background: var(--card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-area h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .config-bar {
+            background: #00000044;
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 1px solid #ffffff11;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.85rem;
+        }
+
+        .config-bar input {
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            width: 400px;
+            outline: none;
+            font-family: monospace;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        .field input {
+            background: rgba(4, 18, 48, 0.7);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            outline: none;
+            transition: 0.3s ease;
+        }
+        .field input:focus {
+            border-color: var(--accent-light);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+
+        .btn {
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            letter-spacing: 0.02em;
+        }
+
+        .btn-primary { 
+            background: linear-gradient(to right, #0284c7, #0ea5e9); 
+            color: #fff; 
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(14, 165, 233, 0.5); }
+        
+        .btn-success { 
+            background: linear-gradient(to right, #059669, #10b981); 
+            color: #fff; 
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+        .btn-success:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3); }
+
+        .btn-secondary { background: rgba(30, 41, 59, 0.8); color: #f8fafc; border: 1px solid rgba(255,255,255,0.05); }
+        .btn-secondary:hover { background: rgba(51, 65, 85, 0.8); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, rgba(12, 40, 90, 0.7), rgba(4, 18, 48, 0.9));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px;
+            background: var(--accent-light);
+            box-shadow: 0 0 10px var(--accent-light);
+        }
+
+        .stat-label { color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; font-weight: 600;}
+        .stat-value { font-size: 1.6rem; font-weight: 700; color: #fff; }
+
+        #loader {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(3, 7, 18, 0.8); display: none;
+            justify-content: center; align-items: center; z-index: 1000;
+        }
+
+        .spinner { width: 40px; height: 40px; border: 4px solid #1f2937; border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* NIFTY STATUS BAR */
+        .nifty-bar {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            background: linear-gradient(to right, rgba(12, 40, 90, 0.8), rgba(4, 18, 48, 0.8));
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 24px;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        .nifty-bar .nb-label {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .nifty-bar .nb-val {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .nifty-bar .nb-bias {
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+        }
+        .nb-bias.bull  { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid #10b98155; }
+        .nb-bias.bear  { background: rgba(239,68,68,0.15);  color: #ef4444; border: 1px solid #ef444455; }
+        .nb-bias.flat  { background: rgba(148,163,184,0.1); color: #94a3b8; border: 1px solid #94a3b855; }
+        .nb-bias.mbull { background: rgba(16,185,129,0.08); color: #34d399; border: 1px solid #34d39955; }
+        .nb-bias.mbear { background: rgba(239,68,68,0.08);  color: #f87171; border: 1px solid #f8717155; }
+        .nb-divider { width: 1px; height: 28px; background: #1f2937; }
+    </style>
+</head>
+
+<body>
+    <div id="loader"><div class="spinner"></div></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo-area">
+                <h1>ST·OI Pulse <span style="font-weight: 300; opacity: 0.5;">Server-Logic</span></h1>
+            </div>
+            <div class="controls">
+                <div class="field">
+                    <label>Symbol</label>
+                    <input type="text" id="symbol" placeholder="Search..." list="symbolList">
+                    <datalist id="symbolList"></datalist>
+                </div>
+                <div class="field">
+                    <label>Date</label>
+                    <input type="date" id="date">
+                </div>
+                <button class="btn btn-primary" onclick="fetchData()">Analyze</button>
+                <button class="btn btn-success" onclick="forceScan()">Force Scan R2</button>
+                <button class="btn btn-accent" onclick="viewAllSignals()" style="background: var(--accent); color: #000;">View Signals</button>
+                <button class="btn btn-secondary" onclick="exportCSV()" style="background: var(--card); color: #fff; border: 1px solid var(--border); margin-left: 10px;">Export CSV</button>
+            </div>
+            </div>
+        </div>
+
+        <!-- Worker URL hidden — hardcoded -->
+        <input type="hidden" id="worker_url" value="https://oi-graph.susanta41012.workers.dev/">
+
+        <!-- NIFTY STATUS BAR -->
+        <div class="nifty-bar" id="niftyBar">
+            <div>
+                <div class="nb-label">NIFTY</div>
+                <div class="nb-val" id="nbPrice">—</div>
+            </div>
+            <div class="nb-divider"></div>
+            <div>
+                <div class="nb-label">VWAP</div>
+                <div class="nb-val" id="nbVwap">—</div>
+            </div>
+            <div class="nb-divider"></div>
+            <div>
+                <div class="nb-label">vs VWAP</div>
+                <div class="nb-val" id="nbDist" style="color:#94a3b8">—</div>
+            </div>
+            <div class="nb-divider"></div>
+            <div>
+                <span class="nb-bias flat" id="nbBias">⏳ Waiting for Scan...</span>
+            </div>
+            <div style="margin-left:auto; color:#475569; font-size:0.75rem;" id="nbDetail"></div>
+        </div>
+
+        <div class="glass-panel">
+            <div id="customLegend" style="display:flex; justify-content:center; align-items:center; gap:24px; flex-wrap:nowrap; padding-bottom:12px; font-size:13px; font-family:'Outfit',sans-serif; color:#94a3b8;"></div>
+            <!-- Fixed Crosshair Info Panel -->
+            <div id="chartInfoPanel" style="display:none; position:relative; margin-bottom:8px; background:rgba(15,23,42,0.95); border:1px solid #1e293b; border-radius:10px; padding:10px 18px; font-family:'Outfit',sans-serif; font-size:0.85rem; display:flex; align-items:center; gap:24px; flex-wrap:wrap; min-height:38px;">
+                <span id="cipTime" style="color:#64748b; font-size:0.8rem; font-weight:600; min-width:70px;">—</span>
+                <span><span style="color:#64748b;font-size:0.75rem">Price</span> <span id="cipPrice" style="color:#38bdf8;font-weight:700">—</span></span>
+                <span><span style="color:#64748b;font-size:0.75rem">VWAP</span> <span id="cipVwap" style="color:#a855f7;font-weight:700">—</span></span>
+                <span><span style="color:#64748b;font-size:0.75rem">vs VWAP</span> <span id="cipDist" style="font-weight:700">—</span></span>
+                <span><span style="color:#64748b;font-size:0.75rem">OI</span> <span id="cipOI" style="color:#f59e0b;font-weight:700">—</span></span>
+                <span id="cipSignal" style="display:none; padding:3px 12px; border-radius:10px; font-weight:700; font-size:0.82rem;"></span>
+            </div>
+            <!-- Custom Crosshair Line (outside #chart so it survives chart.destroy) -->
+            <div style="position:relative;">
+                <div id="chartCrosshair" style="display:none; position:absolute; top:0; bottom:0; width:1px; background:rgba(148,163,184,0.35); border-left:1px dashed rgba(148,163,184,0.5); pointer-events:none; z-index:10; transition: left 0.04s linear;"></div>
+                <div id="chart"></div>
+            </div>
+            <!-- Volume Mini Bar Chart Strip -->
+            <div style="margin-top:10px; padding:0 4px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+                    <span style="font-size:11px; color:#64748b; font-family:'Outfit',sans-serif; letter-spacing:0.05em;">VOLUME</span>
+                    <div style="display:flex; align-items:center; gap:10px; font-size:10px;">
+                        <span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;background:#334155;border-radius:2px;"></span><span style="color:#64748b;">Normal</span></span>
+                        <span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;background:#f59e0b;border-radius:2px;"></span><span style="color:#94a3b8;">High</span></span>
+                        <span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;background:#ef4444;border-radius:2px;"></span><span style="color:#fca5a5;">Spike</span></span>
+                        <span id="volLegendHigh" style="color:#ef4444; font-weight:600;"></span>
+                    </div>
+                </div>
+                <div id="volHeatmap" style="display:flex; align-items:flex-end; width:100%; height:48px; gap:1px; background:#0f172a; border-radius:6px; padding:3px; box-sizing:border-box; overflow:hidden;"></div>
+            </div>
+        </div>
+
+        <div id="stats" class="stats-grid"></div>
+
+        <div id="signalPanel" class="glass-panel" style="display: none; margin-top: 2rem;">
+            <h2 style="margin-bottom: 1rem; color: var(--accent);">Signal Log</h2>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid #374151; color: #9ca3af;">
+                            <th style="padding: 1rem;">Time</th>
+                            <th style="padding: 1rem;">Symbol</th>
+                            <th style="padding: 1rem;">Type</th>
+                            <th style="padding: 1rem;">Grade</th>
+                            <th style="padding: 1rem;">Price</th>
+                            <th style="padding: 1rem;">OI Change</th>
+                            <th style="padding: 1rem;">VWAP Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="signalLogBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Restore saved symbol & date from localStorage ---
+        const yest = new Date(); yest.setDate(yest.getDate() - 1);
+        const savedDate = localStorage.getItem('oi_date') || yest.toISOString().split('T')[0];
+        document.getElementById('date').value = savedDate;
+
+        // Save date whenever it changes
+        document.getElementById('date').onchange = function() {
+            localStorage.setItem('oi_date', this.value);
+            loadSymbols();
+        };
+
+        // Save symbol whenever it changes
+        document.getElementById('symbol').addEventListener('input', function() {
+            localStorage.setItem('oi_symbol', this.value.toUpperCase());
+        });
+
+        window.onload = async function() {
+            // Restore NIFTY bar from last scan
+            try {
+                const saved = localStorage.getItem('nifty_bar');
+                if (saved) {
+                    const d = JSON.parse(saved);
+                    updateNiftyBar(d.nBias, d.nPrice, d.nVwap, d.nDetail);
+                    // Show age of data
+                    const mins = Math.round((Date.now() - d.ts) / 60000);
+                    document.getElementById('nbDetail').textContent = (d.nDetail || '') + (mins > 0 ? `  (${mins} min ago)` : '');
+                }
+            } catch(e) {}
+            await loadSymbols();
+            // Restore saved symbol after symbols list is loaded
+            const savedSym = localStorage.getItem('oi_symbol');
+            if (savedSym) {
+                document.getElementById('symbol').value = savedSym;
+                fetchData(); // auto-load last chart
+            }
+        };
+
+        let chart = null;
+
+        function updateNiftyBar(bias, price, vwap, detail) {
+            document.getElementById('nbPrice').textContent = price;
+            document.getElementById('nbVwap').textContent = vwap;
+            document.getElementById('nbDetail').textContent = detail;
+
+            // Calculate % distance
+            const np = parseFloat(price), nv = parseFloat(vwap);
+            const distEl = document.getElementById('nbDist');
+            if (np && nv) {
+                const d = ((np - nv) / nv * 100).toFixed(2);
+                distEl.textContent = (d >= 0 ? '+' : '') + d + '%';
+                distEl.style.color = d >= 0 ? '#10b981' : '#ef4444';
+            }
+
+            // Set bias badge
+            const badgeEl = document.getElementById('nbBias');
+            const biasText = bias.replace(/[\u{1F4C8}\u{1F4C9}\u{2194}\u{2197}\u{2198}]/gu, '').trim();
+            let cls = 'flat', icon = '↔';
+            if (bias.includes('BULLISH') && !bias.includes('MILD')) { cls = 'bull'; icon = '📈'; }
+            else if (bias.includes('BEARISH') && !bias.includes('MILD')) { cls = 'bear'; icon = '📉'; }
+            else if (bias.includes('MILD BULL')) { cls = 'mbull'; icon = '↗'; }
+            else if (bias.includes('MILD BEAR')) { cls = 'mbear'; icon = '↘'; }
+            badgeEl.className = `nb-bias ${cls}`;
+            badgeEl.textContent = `${icon} ${biasText}`;
+        }
+
+        async function loadSymbols() {
+            const date = document.getElementById('date').value;
+            let url = document.getElementById('worker_url').value.trim();
+            if (!url) return;
+            if (url.endsWith('/')) url = url.slice(0, -1);
+            try {
+                const res = await fetch(`${url}?mode=getsymbols&date=${date}`);
+                const json = await res.json();
+                if (json.ok) document.getElementById('symbolList').innerHTML = json.symbols.map(s => `<option value="${s}">${s}</option>`).join('');
+            } catch (e) {}
+        }
+
+        async function forceScan() {
+            const date = document.getElementById('date').value;
+            let url = document.getElementById('worker_url').value.trim();
+            if (!url) return alert("Worker URL missing!");
+            if (url.endsWith('/')) url = url.slice(0, -1);
+            document.getElementById('loader').style.display = 'flex';
+            try {
+                const res = await fetch(`${url}?mode=scan&batch=true&date=${date}`);
+                const json = await res.json();
+                if (json.ok) {
+                    const c = json.counts || {};
+                    const pnl = json.totalPnL || "0.00";
+                    const bullPnl = json.bullPnL || "0.00";
+                    const bearPnl = json.bearPnL || "0.00";
+                    const nBias = json.niftyBias || "N/A";
+                    const nPrice = json.niftyPrice || "-";
+                    const nVwap = json.niftyVwap || "-";
+                    const nDetail = json.niftyDetail || "";
+
+                    // ---- UPDATE NIFTY STATUS BAR & PERSIST ----
+                    updateNiftyBar(nBias, nPrice, nVwap, nDetail);
+                    localStorage.setItem('nifty_bar', JSON.stringify({ nBias, nPrice, nVwap, nDetail, ts: Date.now() }));
+
+                    alert(`Batch Scan Complete! Total Signals: ${json.signalsFound}\n\n` +
+                        `━━━━━━ 📊 NIFTY STATUS ━━━━━━\n` +
+                        `${nBias}\n` +
+                        `Price: ${nPrice}  |  VWAP: ${nVwap}\n` +
+                        `(${nDetail})\n\n` +
+                        `━━━━━━ 🚦 SIGNALS ━━━━━━\n` +
+                        `🟢 BUY: ${c.BULLISH || 0}  (SL Hit: ${c.BULLISH_SL || 0})\n` +
+                        `🔴 SELL: ${c.BEARISH || 0}  (SL Hit: ${c.BEARISH_SL || 0})\n` +
+                        `🎯 TARGET HIT: ${c.TARGET || 0}\n` +
+                        `🛑 TOTAL SL / EXIT: ${c.SL || 0}\n\n` +
+                        `━━━━━━ 💰 P&L ━━━━━━\n` +
+                        `TOTAL: ${pnl}%\n` +
+                        `📈 BUY: ${bullPnl}%  |  📉 SELL: ${bearPnl}%`);
+                    fetchData();
+                } else {
+                    alert("Scan Failed: " + json.error);
+                }
+            } catch (e) { alert(e.message); }
+            finally { document.getElementById('loader').style.display = 'none'; }
+        }
+
+        async function fetchData() {
+            const sym = document.getElementById('symbol').value.toUpperCase();
+            const date = document.getElementById('date').value;
+            let url = document.getElementById('worker_url').value.trim();
+            if (!url) return alert("Worker URL missing!");
+            if (url.endsWith('/')) url = url.slice(0, -1);
+            
+            document.getElementById('loader').style.display = 'flex';
+            try {
+                let finalUrl = `${url}?mode=stockhistory&symbol=${sym}&date=${date}`;
+                const res = await fetch(finalUrl);
+                const json = await res.json();
+                if (!json.ok) throw new Error(json.error);
+                renderChart(json.data, json.signals || []);
+                renderStats(json.data, json.signals || []);
+            } catch (e) { alert(e.message); }
+            finally { document.getElementById('loader').style.display = 'none'; }
+        }
+
+        async function viewAllSignals() {
+            const date = document.getElementById('date').value;
+            let url = document.getElementById('worker_url').value.trim();
+            if (!url) return alert("Worker URL missing!");
+            if (url.endsWith('/')) url = url.slice(0, -1);
+            
+            document.getElementById('loader').style.display = 'flex';
+            try {
+                const res = await fetch(`${url}?mode=allsignals&date=${date}`);
+                const json = await res.json();
+                if (!json.ok) throw new Error("No signals found for this date.");
+                
+                const panel = document.getElementById('signalPanel');
+                const tbody = document.getElementById('signalLogBody');
+                panel.style.display = 'block';
+                
+                const grouped = {};
+                json.signals.forEach(s => {
+                    if (!grouped[s.symbol]) grouped[s.symbol] = [];
+                    const list = grouped[s.symbol];
+                    if (s.type === 'BULLISH' || s.type === 'BEARISH') list.push({ entry: s, targets: [], exit: null });
+                    else if (s.type.includes('TARGET') && list.length > 0) list[list.length - 1].targets.push(s);
+                    else if (s.type === 'EXIT' && list.length > 0) list[list.length - 1].exit = s;
+                });
+
+                let html = '';
+                for (const sym in grouped) {
+                    grouped[sym].forEach(trade => {
+                        const entry = trade.entry;
+                        const target = trade.targets.length > 0 ? trade.targets[trade.targets.length - 1] : null;
+                        const exit = trade.exit;
+                        
+                        let profitStr = "-";
+                        if (exit) {
+                            const pct = entry.type === 'BULLISH' ? ((exit.price - entry.price)/entry.price*100) : ((entry.price - exit.price)/entry.price*100);
+                            profitStr = `<span style="color: ${pct > 0 ? '#10b981' : '#ef4444'}">${pct > 0 ? '+' : ''}${pct.toFixed(2)}%</span>`;
+                        }
+
+                        // Score Badge
+                        const sc = entry.score !== undefined ? entry.score : null;
+                        let scoreBadge = '<span style="color:#64748b">-</span>';
+                        if (sc !== null) {
+                            let bg = '#374151', col = '#94a3b8', label = 'LOW';
+                            if (sc >= 85) { bg='rgba(16,185,129,0.15)'; col='#10b981'; label='HIGH'; }
+                            else if (sc >= 65) { bg='rgba(245,158,11,0.15)'; col='#f59e0b'; label='MED'; }
+                            else if (sc >= 45) { bg='rgba(249,115,22,0.15)'; col='#f97316'; label='LOW'; }
+                            else { bg='rgba(239,68,68,0.1)'; col='#ef4444'; label='AVOID'; }
+                            scoreBadge = `<span style="background:${bg};color:${col};border:1px solid ${col}55;padding:3px 10px;border-radius:12px;font-weight:700;font-size:0.82rem">${sc}/100 ${label}</span>`;
+                        }
+
+                        html += `
+                        <tr style="border-bottom: 1px solid #1f2937; cursor: pointer;" onclick="quickLoad('${sym}')">
+                            <td style="padding: 1rem; font-weight: bold; color: var(--accent);">${sym}</td>
+                            <td style="padding: 1rem;">
+                                <div style="color: ${entry.type==='BULLISH'?'#10b981':'#ef4444'}; font-weight:bold">${entry.type}</div>
+                                <div style="font-size:0.8rem; color:#94a3b8">${entry.time} @ ₹${entry.price.toFixed(2)}</div>
+                            </td>
+                            <td style="padding: 1rem;">${scoreBadge}</td>
+                            <td style="padding: 1rem;">
+                                ${target ? `<div style="color:#10b981; font-weight:bold">HIT</div><div style="font-size:0.8rem; color:#94a3b8">${target.time} @ ₹${target.price.toFixed(2)}</div>` : `<span style="color:#64748b">Pending</span>`}
+                            </td>
+                            <td style="padding: 1rem;">
+                                ${exit ? `<div style="color:${exit.grade.includes('Hit')?'#f59e0b':'#ef4444'}">${exit.grade.split(':')[0] || 'EXIT'}</div><div style="font-size:0.8rem; color:#94a3b8">${exit.time} @ ₹${exit.price.toFixed(2)}</div>` : `<span style="color:#64748b">Active</span>`}
+                            </td>
+                            <td style="padding: 1rem; font-weight:bold; font-size:1.1rem;">
+                                ${profitStr}
+                            </td>
+                            <td style="padding: 1rem;"><span style="font-size:0.85rem; padding:4px 8px; border-radius:6px; font-weight:600; background: rgba(255,255,255,0.05); color:#d1d5db;">${entry.grade || '-'}</span></td>
+                        </tr>
+                        `;
+                    });
+                }
+                
+                document.querySelector('#signalPanel thead').innerHTML = `
+                    <tr style="border-bottom: 1px solid #374151; color: #9ca3af; text-align:left;">
+                        <th style="padding: 1rem;">Symbol</th>
+                        <th style="padding: 1rem;">Entry</th>
+                        <th style="padding: 1rem;">🎯 Score</th>
+                        <th style="padding: 1rem;">Target</th>
+                        <th style="padding: 1rem;">Exit / SL</th>
+                        <th style="padding: 1rem;">Final P&L</th>
+                        <th style="padding: 1rem;">Setup Grade</th>
+                    </tr>
+                `;
+
+                tbody.innerHTML = html;
+                
+                panel.scrollIntoView({ behavior: 'smooth' });
+            } catch (e) { alert(e.message); }
+            finally { document.getElementById('loader').style.display = 'none'; }
+        }
+
+        async function exportCSV() {
+            const date = document.getElementById('date').value;
+            let url = document.getElementById('worker_url').value.trim();
+            if (!url) return alert("Worker URL missing!");
+            if (url.endsWith('/')) url = url.slice(0, -1);
+            
+            document.getElementById('loader').style.display = 'flex';
+            try {
+                const res = await fetch(`${url}?mode=allsignals&date=${date}`);
+                const json = await res.json();
+                if (!json.ok || !json.signals.length) throw new Error("No signals found to export.");
+                
+                const grouped = {};
+                json.signals.forEach(s => {
+                    if (!grouped[s.symbol]) grouped[s.symbol] = [];
+                    const list = grouped[s.symbol];
+                    if (s.type === 'BULLISH' || s.type === 'BEARISH') list.push({ entry: s, targets: [], exit: null });
+                    else if (s.type.includes('TARGET') && list.length > 0) list[list.length - 1].targets.push(s);
+                    else if (s.type === 'EXIT' && list.length > 0) list[list.length - 1].exit = s;
+                });
+
+                let csv = "Symbol,Entry Time,Type,Entry Price,Confidence Score,Rating,Target Hit?,Exit Time,Exit Reason,Exit Price,P&L %,Setup Grade\n";
+                for (const sym in grouped) {
+                    grouped[sym].forEach(trade => {
+                        const entry = trade.entry;
+                        const target = trade.targets.length > 0 ? trade.targets[trade.targets.length - 1] : null;
+                        const exit = trade.exit;
+                        
+                        let profitPct = "";
+                        let exitTime = "";
+                        let exitPrice = "";
+                        let exitReason = "";
+                        let targetHit = target ? "YES" : "NO";
+                        const score = entry.score !== undefined ? entry.score : "-";
+                        const rating = (entry.rating || "-").replace(/[\u{1F7E2}\u{1F7E1}\u{1F7E0}\u{1F534}]/gu, '').trim();
+                        
+                        if (exit) {
+                            const pct = entry.type === 'BULLISH' ? ((exit.price - entry.price)/entry.price*100) : ((entry.price - exit.price)/entry.price*100);
+                            profitPct = pct.toFixed(2) + "%";
+                            exitTime = exit.time;
+                            exitPrice = exit.price.toFixed(2);
+                            exitReason = exit.grade || "EXIT";
+                        }
+
+                        csv += `${sym},${entry.time},${entry.type},${entry.price.toFixed(2)},${score},${rating},${targetHit},${exitTime},${exitReason},${exitPrice},${profitPct},${entry.grade || ""}\n`;
+                    });
+                }
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `ST_Signals_${date}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+            } catch (e) { alert(e.message); }
+            finally { document.getElementById('loader').style.display = 'none'; }
+        }
+
+        function quickLoad(sym) {
+            document.getElementById('symbol').value = sym;
+            fetchData();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderChart(data, signals) {
+            if(chart) chart.destroy();
+            if(!data.length) return;
+
+            const minP = Math.min(...data.map(d => d.price)) * 0.999;
+            const maxP = Math.max(...data.map(d => d.price)) * 1.001;
+            const minOI = Math.min(...data.map(d => d.oi)) * 0.99;
+            const maxOI = Math.max(...data.map(d => d.oi)) * 1.01;
+
+            // Calculate VWAP for reference
+            let cPV = 0, cV = 0;
+            const vwap = data.map(d => { cPV += (d.price * d.volume); cV += d.volume; return { x: d.time, y: cV > 0 ? cPV / cV : d.price }; });
+
+            // Line coloring based on R2 Signals
+            const basePrice = [], longPrice = [], shortPrice = [], exitPrice = [];
+            data.forEach(d => {
+                basePrice.push({ x: d.time, y: d.price });
+                const sig = signals.find(s => s.time === d.time);
+                longPrice.push({ x: d.time, y: (sig && sig.type === 'BULLISH') ? d.price : null });
+                shortPrice.push({ x: d.time, y: (sig && sig.type === 'BEARISH') ? d.price : null });
+                exitPrice.push({ x: d.time, y: (sig && sig.type === 'EXIT') ? d.price : null });
+            });
+
+            const options = {
+                series: [
+                    { name: 'Price', type: 'line', data: basePrice },
+                    { name: 'BULL (R2)', type: 'line', data: longPrice },
+                    { name: 'BEAR (R2)', type: 'line', data: shortPrice },
+                    { name: 'EXIT (SL)', type: 'line', data: exitPrice },
+                    { name: 'VWAP', type: 'line', data: vwap },
+                    { name: 'Total OI', type: 'line', data: data.map(d => ({ x: d.time, y: d.oi })) }
+                ],
+                chart: { height: 550, type: 'line', background: 'transparent', animations: { enabled: false } },
+                grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 3, xaxis: { lines: { show: false } }, yaxis: { lines: { show: true } } },
+                stroke: { width: [2, 4, 4, 4, 2, 3], curve: 'smooth', dashArray: [0, 0, 0, 0, 5, 0] },
+                colors: ['#60a5fa', '#10b981', '#ef4444', '#f59e0b', '#818cf8', '#f59e0b'],
+                xaxis: { type: 'category', labels: { style: { colors: '#94a3b8' } } },
+                yaxis: [
+                    { seriesName: 'Price', min: minP, max: maxP, title: { text: 'Price', style: { color: '#60a5fa' } }, labels: { style: { colors: '#60a5fa' }, formatter: v => +v.toFixed(2) } },
+                    { seriesName: 'Price', show: false, min: minP, max: maxP },
+                    { seriesName: 'Price', show: false, min: minP, max: maxP },
+                    { seriesName: 'Price', show: false, min: minP, max: maxP },
+                    { seriesName: 'Price', show: false, min: minP, max: maxP },
+                    { name: 'Total OI', opposite: true, min: minOI, max: maxOI, title: { text: 'Total OI', style: { color: '#f59e0b' } }, labels: { style: { colors: '#f59e0b' }, formatter: v => v >= 1e6 ? (v/1e6).toFixed(2)+'M' : (v/1e3).toFixed(1)+'K' } }
+                ],
+                plotOptions: { bar: { columnWidth: '60%' } },
+                markers: { size: [0, 5, 5, 5, 0, 0], strokeWidth: 0, hover: { size: 7 } },
+                colors: ['#60a5fa', '#10b981', '#ef4444', '#f59e0b', '#818cf8', '#f59e0b'],
+                legend: { show: false },
+                tooltip: { enabled: false },
+            };
+            window._chartSignals = signals;
+            window._chartData    = data;
+            chart = new ApexCharts(document.querySelector("#chart"), options);
+
+            // Remove previous listeners to prevent stacking
+            if (window._chartAbort) window._chartAbort.abort();
+            window._chartAbort = new AbortController();
+            const { signal: abortSig } = window._chartAbort;
+
+            chart.render().then(() => {
+                const chartEl   = document.querySelector('#chart');
+                const panel     = document.getElementById('chartInfoPanel');
+                const crosshair = document.getElementById('chartCrosshair');
+
+                chartEl.addEventListener('mousemove', (evt) => {
+                    const labels = chart.w?.globals?.categoryLabels || [];
+                    if (!labels.length) return;
+
+                    const plotLeft   = chart.w.globals.translateX || 0;
+                    const plotW      = chart.w.globals.gridWidth  || 1;
+                    const relX       = evt.offsetX - plotLeft;
+                    const ratio      = Math.min(1, Math.max(0, relX / plotW));
+                    const closestIdx = Math.round(ratio * (data.length - 1));
+                    const d = data[closestIdx];
+                    if (!d) return;
+
+                    // Move crosshair
+                    const candleX = plotLeft + (closestIdx / (data.length - 1)) * plotW;
+                    crosshair.style.display = 'block';
+                    crosshair.style.left    = candleX + 'px';
+
+                    // VWAP cumulative up to this point
+                    let cpv = 0, cv = 0;
+                    for (let i = 0; i <= closestIdx; i++) { cpv += data[i].price * (data[i].volume || 1); cv += (data[i].volume || 1); }
+                    const vwapNow = cv > 0 ? cpv / cv : d.price;
+                    const dist    = ((d.price - vwapNow) / vwapNow * 100);
+                    const distCol = dist > 0 ? '#10b981' : dist < 0 ? '#ef4444' : '#94a3b8';
+
+                    document.getElementById('cipTime').textContent  = d.time || '';
+                    document.getElementById('cipPrice').textContent = '₹' + d.price.toFixed(2);
+                    document.getElementById('cipVwap').textContent  = '₹' + vwapNow.toFixed(2);
+                    document.getElementById('cipDist').style.color  = distCol;
+                    document.getElementById('cipDist').textContent  = (dist >= 0 ? '+' : '') + dist.toFixed(2) + '%';
+                    document.getElementById('cipOI').textContent    = d.oi >= 1e6 ? (d.oi/1e6).toFixed(2)+'M' : (d.oi/1e3).toFixed(1)+'K';
+
+                    const sig   = (window._chartSignals || []).find(s => s.time === d.time && (s.type === 'BULLISH' || s.type === 'BEARISH'));
+                    const sigEl = document.getElementById('cipSignal');
+                    if (sig) {
+                        const sc  = sig.score !== undefined ? sig.score : '';
+                        const lbl = sc >= 85 ? 'HIGH' : sc >= 65 ? 'MED' : sc >= 45 ? 'LOW' : 'AVOID';
+                        const bg  = sig.type === 'BULLISH' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)';
+                        const col = sig.type === 'BULLISH' ? '#10b981' : '#ef4444';
+                        const icon = sig.type === 'BULLISH' ? '🟢' : '🔴';
+                        sigEl.style.cssText = `display:inline; padding:3px 12px; border-radius:10px; font-weight:700; font-size:0.82rem; background:${bg}; color:${col}; border:1px solid ${col}55;`;
+                        sigEl.textContent   = `${icon} ${sig.type} | Score: ${sc}/100 (${lbl})`;
+                    } else {
+                        sigEl.style.display = 'none';
+                    }
+                    panel.style.display = 'flex';
+                }, { signal: abortSig });
+
+                chartEl.addEventListener('mouseleave', () => {
+                    panel.style.display     = 'none';
+                    crosshair.style.display = 'none';
+                }, { signal: abortSig });
+            });
+
+            // Custom single-line legend
+            const legendItems = [
+                { name: 'VWAP', color: '#818cf8', dash: true },
+                { name: 'BEAR (R2)', color: '#ef4444', dash: false },
+                { name: 'BULL (R2)', color: '#10b981', dash: false },
+                { name: 'EXIT (SL)', color: '#f59e0b', dash: false },
+                { name: 'Price', color: '#60a5fa', dash: false },
+                { name: 'Total OI', color: '#f59e0b', dash: false }
+            ];
+            document.getElementById('customLegend').innerHTML = legendItems.map(item => `
+                <span style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; background:rgba(30, 58, 138, 0.2); padding:4px 14px; border-radius:20px; border:1px solid rgba(59, 130, 246, 0.15);">
+                    <span style="display:inline-block; width:12px; height:12px; background:${item.color}; border-radius:50%; ${item.dash ? 'box-shadow: 0 0 6px '+item.color : ''}"></span>
+                    <span style="font-weight:600; color:#e2e8f0; font-size:11px;">${item.name}</span>
+                </span>
+            `).join('');
+
+            // --- Volume Mini Bar Chart (variable height + threshold color) ---
+            const volumes = data.map(d => d.volume || 0);
+            const maxVol  = Math.max(...volumes);
+            const p60 = [...volumes].sort((a,b)=>a-b)[Math.floor(volumes.length * 0.60)]; // 60th pct
+            const p80 = [...volumes].sort((a,b)=>a-b)[Math.floor(volumes.length * 0.80)]; // 80th pct
+            const STRIP_H = 42; // usable height in px
+            const heatmap = document.getElementById('volHeatmap');
+            heatmap.innerHTML = volumes.map((v, i) => {
+                const ratio    = maxVol > 0 ? v / maxVol : 0;
+                const barH     = Math.max(3, Math.round(ratio * STRIP_H));  // min 3px
+                const volLabel = v >= 1e6 ? (v/1e6).toFixed(2)+'M' : (v/1e3).toFixed(1)+'K';
+
+                // Color by threshold
+                let color, glow = '';
+                if (v >= p80) {
+                    color = '#ef4444';                                        // 🔴 Spike
+                    glow  = 'box-shadow:0 0 6px 2px rgba(239,68,68,0.7);';
+                } else if (v >= p60) {
+                    color = '#f59e0b';                                        // 🟡 High
+                } else {
+                    color = '#334155';                                        // ⬛ Normal
+                }
+                return `<div title="${data[i].time}\n${volLabel}" style="flex:1; min-width:2px; height:${barH}px; background:${color}; border-radius:2px 2px 0 0; cursor:pointer; ${glow} transition:opacity 0.2s;" onmouseover="this.style.opacity=0.75" onmouseout="this.style.opacity=1"></div>`;
+            }).join('');
+
+            // Update spike legend
+            document.getElementById('volLegendHigh').textContent = 'Max: ' + (maxVol >= 1e6 ? (maxVol/1e6).toFixed(2)+'M' : (maxVol/1e3).toFixed(0)+'K');
+        }
+
+        function renderStats(data, signals) {
+            if (!data.length) return;
+            const e = data[data.length - 1];
+            // Find ACTIVE signal: last BULLISH/BEARISH entry that has no EXIT after it
+            let activeSig = null;
+            let lastEntryIdx = -1;
+            for (let i = signals.length - 1; i >= 0; i--) {
+                if (signals[i].type === 'BULLISH' || signals[i].type === 'BEARISH') {
+                    lastEntryIdx = i; break;
+                }
+            }
+            if (lastEntryIdx !== -1) {
+                // Check if there's an EXIT after this entry
+                const hasExit = signals.slice(lastEntryIdx + 1).some(s => s.type === 'EXIT');
+                if (!hasExit) activeSig = signals[lastEntryIdx]; // Still active!
+            }
+            // Fallback: show last entry regardless
+            const lastEntry = lastEntryIdx !== -1 ? signals[lastEntryIdx] : null;
+            const displaySig = activeSig || lastEntry;
+
+            let v = "NEUTRAL", c = "#94a3b8", d = "Scanning for smart money signals...";
+            if (displaySig) {
+                const isActive = !!activeSig;
+                const scoreStr = displaySig.score !== undefined ? ` | Score: ${displaySig.score}/100` : '';
+                v = displaySig.type === 'BULLISH' ? "🟢 STRONG BULLISH" : "🔴 STRONG BEARISH";
+                c = displaySig.type === 'BULLISH' ? "var(--success)" : "var(--danger)";
+                d = `${isActive ? '🔴 ACTIVE POSITION' : '✅ Closed'} — Entry at ${displaySig.time} @ ₹${displaySig.price?.toFixed(2) || '-'}${scoreStr} | ${displaySig.grade || ''}`;
+            }
+            // --- CURRENT STATUS from last scan snapshot ---
+            // Recalculate VWAP from data
+            let cumPV = 0, cumV = 0;
+            data.forEach(d => { cumPV += d.price * (d.volume || 1); cumV += (d.volume || 1); });
+            const liveVwap = cumV > 0 ? cumPV / cumV : e.price;
+            const vwapDist = ((e.price - liveVwap) / liveVwap * 100).toFixed(2);
+            const distNum = parseFloat(vwapDist);
+
+            // Price trend: last 3 candles
+            const last3 = data.slice(-3).map(d => d.price);
+            const trendUp = last3.length >= 2 && last3[last3.length-1] > last3[0];
+            const trendDown = last3.length >= 2 && last3[last3.length-1] < last3[0];
+
+            let curStatus = '↔ SIDEWAYS', curColor = '#94a3b8';
+            if (distNum > 0.15 && trendUp)       { curStatus = '📈 BULLISH';      curColor = '#10b981'; }
+            else if (distNum < -0.15 && trendDown){ curStatus = '📉 BEARISH';      curColor = '#ef4444'; }
+            else if (distNum > 0.05)              { curStatus = '↗ MILD BULLISH';  curColor = '#34d399'; }
+            else if (distNum < -0.05)             { curStatus = '↘ MILD BEARISH';  curColor = '#f87171'; }
+
+            const curStatusHtml = `<span style="color:${curColor};font-weight:700">${curStatus}</span> <span style="color:#64748b;font-size:0.8rem">vs VWAP: ${distNum >= 0 ? '+' : ''}${vwapDist}%</span>`;
+
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-card" style="grid-column: span 3; border-color: ${c}">
+                    <div class="stat-label" style="color: ${c}">SERVER-SIDE VERDICT</div>
+                    <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+                        <div class="stat-value" style="color: ${c}">${v}</div>
+                        <div style="border-left:1px solid #1f2937; padding-left:20px;">
+                            <div style="color:#64748b; font-size:0.72rem; letter-spacing:0.07em; font-weight:600; text-transform:uppercase; margin-bottom:3px;">Current Status (Last Scan)</div>
+                            <div style="font-size:1rem">${curStatusHtml}</div>
+                        </div>
+                    </div>
+                    <div style="font-size:0.85rem; opacity:0.65; margin-top:6px">${d}</div>
+                </div>
+                <div class="stat-card"><div class="stat-label">Price</div><div class="stat-value">${e.price.toLocaleString()}</div></div>
+                <div class="stat-card" style="border-color:var(--gold)"><div class="stat-label">OI</div><div class="stat-value">${e.oi.toLocaleString()}</div></div>
+                <div class="stat-card" style="border-color:#a855f7"><div class="stat-label">VWAP</div><div class="stat-value" style="font-size:1.1rem">₹${liveVwap.toFixed(2)}</div></div>
+            `;
+        }
+    </script>
+</body>
+</html>
