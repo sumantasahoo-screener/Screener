@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>F&O Screener Hub | Professional Trading Platform</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%237c3aed'/><text x='50%25' y='58%25' dominant-baseline='middle' text-anchor='middle' font-size='17' font-weight='800' fill='%23ffffff' font-family='monospace'>F</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+button{cursor:pointer;background:none;border:none;font:inherit;}
+
+:root,[data-theme="dark"]{
+  --bg:#040812;--bg1:#061021;--bg2:#09162e;--bg3:#0d1d3b;
+  --sidebar:#050c1a;--border:rgba(2,109,168,.10);--border2:rgba(2,109,168,.20);--border3:rgba(2,109,168,.38);
+  --ink:#e8edf5;--ink2:#8ba0c2;--ink3:#5a7194;
+  --accent:#026DA8;--accent2:#015582;--acc-glow:rgba(2,109,168,.25);
+  --acc-dim:rgba(2,109,168,.08);--acc-mid:rgba(2,109,168,.15);
+  --live:#34d399;--live-bg:rgba(52,211,153,.08);--live-bd:rgba(52,211,153,.25);
+  --warn:#fbbf24;--warn-bg:rgba(251,191,36,.07);--warn-bd:rgba(251,191,36,.22);
+  --red:#f87171;--shadow:0 4px 32px rgba(0,0,0,.65);
+  --radius:8px;--radius-lg:14px;--top-h:48px;--side-w:242px;
+  --trans:.18s cubic-bezier(.16,1,.3,1);
+}
+[data-theme="light"]{
+  --bg:#f3f4f8;--bg1:#ffffff;--bg2:#ebebf5;--bg3:#dde0f0;
+  --sidebar:#ffffff;--border:rgba(109,40,217,.08);--border2:rgba(109,40,217,.16);--border3:rgba(109,40,217,.30);
+  --ink:#0d0820;--ink2:rgba(13,8,32,.55);--ink3:rgba(13,8,32,.30);
+  --accent:#7c3aed;--accent2:#6d28d9;--acc-glow:rgba(124,58,237,.14);
+  --acc-dim:rgba(124,58,237,.07);--acc-mid:rgba(124,58,237,.13);
+  --live:#059669;--live-bg:rgba(5,150,105,.08);--live-bd:rgba(5,150,105,.22);
+  --warn:#d97706;--warn-bg:rgba(217,119,6,.07);--warn-bd:rgba(217,119,6,.22);
+  --red:#dc2626;--shadow:0 4px 18px rgba(0,0,0,.10);
+}
+
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow:hidden;transition:background var(--trans),color var(--trans);font-size:14px;line-height:1.5;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:var(--accent2);}
+
+/* TOPBAR */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--top-h);background:var(--bg1);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 16px;z-index:300;gap:12px;box-shadow:var(--shadow);}
+.topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,var(--accent) 50%,transparent 100%);opacity:.5;}
+
+.logo-wrap{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;cursor:pointer;}
+.logo-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px var(--acc-glow);position:relative;overflow:hidden;flex-shrink:0;}
+.logo-icon::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.22) 0%,transparent 55%);}
+.logo-icon-txt{font-size:13px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace;position:relative;}
+.logo-name{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:.1px;white-space:nowrap;}
+.logo-name span{color:var(--accent);}
+.logo-pill{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);background:var(--acc-dim);border:1px solid var(--border2);padding:2px 7px;border-radius:20px;font-family:'JetBrains Mono',monospace;}
+
+.ham-btn{color:var(--ink3);padding:7px;border-radius:var(--radius);transition:all var(--trans);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ham-btn:hover{background:var(--acc-dim);color:var(--accent);}
+.ham-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+.topbar-clock{flex:1;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:var(--ink2);letter-spacing:1.2px;}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.live-badge{display:flex;align-items:center;gap:5px;background:var(--live-bg);border:1px solid var(--live-bd);color:var(--live);padding:5px 11px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.8px;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--live);animation:blink 1.8s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(.65);}}
+.theme-switcher{display:flex;gap:3px;background:var(--bg2);border:1px solid var(--border);padding:3px;border-radius:var(--radius);}
+.t-btn{width:22px;height:22px;border-radius:5px;border:1.5px solid transparent;cursor:pointer;transition:all var(--trans);flex-shrink:0;}
+.t-btn:hover{transform:scale(1.12);}
+.t-btn.active{box-shadow:0 0 10px var(--acc-glow);}
+.forum-btn{display:flex;align-items:center;gap:5px;background:var(--acc-dim);color:var(--accent);border:1px solid var(--border2);border-radius:var(--radius);padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.5px;cursor:pointer;text-decoration:none;transition:all var(--trans);white-space:nowrap;}
+.forum-btn:hover{background:var(--acc-mid);border-color:var(--border3);box-shadow:0 0 14px var(--acc-glow);transform:translateY(-1px);}
+.apk-btn{display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;border:none;border-radius:var(--radius);padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.5px;cursor:pointer;text-decoration:none;transition:all var(--trans);white-space:nowrap;box-shadow:0 2px 14px var(--acc-glow);}
+.apk-btn:hover{opacity:.88;transform:translateY(-1px);box-shadow:0 4px 22px var(--acc-glow);}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:var(--top-h);width:var(--side-w);height:calc(100vh - var(--top-h));background:var(--sidebar);border-right:1px solid var(--border2);overflow-y:auto;z-index:200;transition:transform var(--trans);display:flex;flex-direction:column;}
+.sidebar.collapsed{transform:translateX(-100%);}
+.sidebar-top{padding:12px 14px 10px;border-bottom:1px solid var(--border);}
+.sidebar-top-lbl{font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:var(--accent);font-weight:700;font-family:'JetBrains Mono',monospace;opacity:.8;}
+
+.nav-section{border-bottom:1px solid var(--border);}
+.sec-hdr{width:100%;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background var(--trans);gap:8px;}
+.sec-hdr:hover{background:var(--acc-dim);}
+.sec-hdr-left{display:flex;align-items:center;gap:9px;}
+.sec-ico{width:28px;height:28px;border-radius:8px;background:var(--acc-dim);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all var(--trans);}
+.sec-hdr:hover .sec-ico{background:var(--acc-mid);border-color:var(--border3);box-shadow:0 0 10px var(--acc-glow);}
+.sec-title{font-size:11px;font-weight:700;color:var(--ink);letter-spacing:.6px;text-transform:uppercase;}
+.sec-count{font-size:9px;color:var(--ink3);font-family:'JetBrains Mono',monospace;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;margin-left:4px;}
+.sec-arrow{color:var(--ink3);font-size:10px;transition:transform .25s;flex-shrink:0;}
+.sec-arrow.open{transform:rotate(180deg);}
+.submenu{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+.submenu.open{max-height:700px;}
+
+.nav-link{display:flex;align-items:center;justify-content:space-between;padding:8px 14px 8px 50px;font-size:12px;color:var(--ink2);text-decoration:none;transition:all var(--trans);position:relative;border-left:2px solid transparent;gap:8px;}
+.nav-link::before{content:'';position:absolute;left:34px;width:6px;height:1px;background:var(--border2);}
+.nav-link:hover{background:var(--acc-dim);color:var(--ink);border-left-color:var(--border2);padding-left:52px;}
+.nav-link.active{background:var(--acc-mid);color:var(--accent);border-left-color:var(--accent);font-weight:600;}
+.nav-link.active::before{background:var(--accent);}
+.nav-link.external::after{content:'↗';font-size:9px;color:var(--ink3);margin-left:auto;}
+
+.nbadge{font-size:9px;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-weight:600;flex-shrink:0;}
+.nbadge.live{background:var(--live-bg);color:var(--live);border:1px solid var(--live-bd);}
+.nbadge.off{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-bd);}
+.nbadge.info{background:var(--acc-dim);color:var(--accent);border:1px solid var(--border2);}
+.nbadge.new-b{background:rgba(167,243,208,.1);color:#6ee7b7;border:1px solid rgba(110,231,183,.25);}
+
+.sidebar-footer{margin-top:auto;padding:14px;border-top:1px solid var(--border);}
+.sf-edu{font-size:9px;color:var(--accent);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;font-weight:600;text-transform:uppercase;display:flex;align-items:center;gap:5px;margin-bottom:6px;}
+.sf-edu::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);}
+.sf-note{font-size:9.5px;color:var(--ink3);line-height:1.7;font-family:'JetBrains Mono',monospace;}
+.mob-apk{display:none;}
+
+/* ICON STYLES */
+.comm-section{
+  border-bottom:2px solid var(--acc-mid);
+  background:linear-gradient(to bottom, var(--acc-dim), transparent);
+}
+.comm-ico{background:linear-gradient(135deg,#7c3aed,var(--accent))!important;color:#fff!important;border-color:var(--border3)!important;box-shadow:0 0 12px var(--acc-glow)!important;}
+.comm-title{color:var(--accent)!important;}
+.oi-ico{background:linear-gradient(135deg,#0ea5e9,#026DA8)!important;color:#fff!important;border-color:rgba(14,165,233,.3)!important;box-shadow:0 0 12px rgba(14,165,233,.3)!important;}
+.intraday-ico{background:linear-gradient(135deg,#f59e0b,#d97706)!important;color:#fff!important;border-color:rgba(245,158,11,.3)!important;box-shadow:0 0 12px rgba(245,158,11,.25)!important;}
+.btst-ico{background:linear-gradient(135deg,#6366f1,#4f46e5)!important;color:#fff!important;border-color:rgba(99,102,241,.3)!important;box-shadow:0 0 12px rgba(99,102,241,.25)!important;}
+.swing-ico{background:linear-gradient(135deg,#06b6d4,#0284c7)!important;color:#fff!important;border-color:rgba(6,182,212,.3)!important;box-shadow:0 0 12px rgba(6,182,212,.25)!important;}
+.analyser-ico{background:linear-gradient(135deg,#10b981,#059669)!important;color:#fff!important;border-color:rgba(16,185,129,.3)!important;box-shadow:0 0 12px rgba(16,185,129,.25)!important;}
+.ai-ico{background:linear-gradient(135deg,#ec4899,#db2777)!important;color:#fff!important;border-color:rgba(236,72,153,.3)!important;box-shadow:0 0 12px rgba(236,72,153,.25)!important;}
+.guide-ico{background:linear-gradient(135deg,#f97316,#ea580c)!important;color:#fff!important;border-color:rgba(249,115,22,.3)!important;box-shadow:0 0 12px rgba(249,115,22,.25)!important;}
+
+/* SIGNAL SECTION */
+.signal-section{
+  border-bottom:2px solid var(--live-bd)!important;
+  background:linear-gradient(135deg, rgba(52,211,153,.06) 0%, transparent 70%);
+  position:relative;
+  overflow:hidden;
+}
+.signal-section::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(90deg, transparent, var(--live), transparent);
+  animation:signalPulse 2.5s ease-in-out infinite;
+}
+@keyframes signalPulse{
+  0%,100%{opacity:.4;}
+  50%{opacity:1;}
+}
+.signal-hdr:hover{background:rgba(52,211,153,.06)!important;}
+.signal-ico{
+  background:linear-gradient(135deg, var(--live), #059669)!important;
+  color:#fff!important;
+  border-color:var(--live-bd)!important;
+  box-shadow:0 0 12px rgba(52,211,153,.35)!important;
+  font-size:16px!important;
+}
+.signal-title{
+  color:var(--live)!important;
+  text-shadow:0 0 12px rgba(52,211,153,.4);
+}
+.signal-pulse-badge{
+  display:inline-flex;
+  align-items:center;
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.8px;
+  color:var(--live);
+  background:var(--live-bg);
+  border:1px solid var(--live-bd);
+  border-radius:10px;
+  padding:1px 6px;
+  font-family:'JetBrains Mono',monospace;
+  margin-left:5px;
+  animation:blink 1.8s ease-in-out infinite;
+}
+.signal-link{
+  border-left-color:transparent;
+  transition:all var(--trans);
+}
+.signal-link:hover{
+  background:rgba(52,211,153,.06)!important;
+  color:var(--live)!important;
+  border-left-color:var(--live)!important;
+}
+.signal-link.active{
+  background:rgba(52,211,153,.10)!important;
+  color:var(--live)!important;
+  border-left-color:var(--live)!important;
+}
+.signal-link-inner{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.signal-dot{
+  width:5px;height:5px;
+  border-radius:50%;
+  background:var(--live);
+  flex-shrink:0;
+  animation:blink 1.8s ease-in-out infinite;
+  box-shadow:0 0 6px var(--live);
+}
+
+/* SIDEBAR DIM EFFECT */
+.sidebar.has-open .nav-section { opacity: 0.35; filter: saturate(0.5); transition: all var(--trans); }
+.sidebar.has-open .nav-section:hover { opacity: 0.7; }
+.sidebar.has-open .nav-section:has(.submenu.open) { opacity: 1; filter: none; }
+.sidebar.has-open .sidebar-top, .sidebar.has-open .sidebar-footer { opacity: 0.5; }
+
+/* MAIN */
+.main{margin-left:var(--side-w);width:calc(100% - var(--side-w));margin-top:var(--top-h);height:calc(100vh - var(--top-h));display:flex;flex-direction:column;transition:margin var(--trans),width var(--trans);}
+.main.expanded{margin-left:0;width:100%;}
+
+/* WELCOME */
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;padding:40px 0;gap:24px;position:relative;overflow-y:auto;background:var(--bg);}
+.w-bg-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:44px 44px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 10%,transparent 75%);opacity:.5;}
+.w-glow{position:absolute;inset:0;background:radial-gradient(ellipse 50% 38% at 50% 50%,var(--acc-glow),transparent 68%);pointer-events:none;}
+.w-inner{position:relative;text-align:center;max-width:480px;padding:0 24px;}
+.w-logo{width:76px;height:76px;border-radius:22px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;margin:0 auto 22px;box-shadow:0 0 48px var(--acc-glow),0 8px 32px rgba(0,0,0,.5);position:relative;overflow:hidden;}
+.w-logo::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.22),transparent 55%);}
+.w-logo-txt{font-size:22px;font-weight:800;color:#fff;font-family:'JetBrains Mono',monospace;position:relative;}
+.w-title{font-size:28px;font-weight:700;color:var(--ink);letter-spacing:-.4px;margin-bottom:10px;line-height:1.2;}
+.w-title span{color:var(--accent);}
+.w-sub{font-size:14px;color:var(--ink2);line-height:1.65;margin-bottom:22px;max-width:40ch;margin-left:auto;margin-right:auto;}
+.w-hint{font-size:11px;color:var(--ink3);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;margin-bottom:30px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.w-hint::before{content:'';display:inline-block;width:20px;height:1px;background:var(--border2);}
+.w-hint::after{content:'';display:inline-block;width:20px;height:1px;background:var(--border2);}
+.w-stats{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.w-stat{background:var(--bg1);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px 22px;min-width:82px;text-align:center;transition:all var(--trans);position:relative;overflow:hidden;}
+.w-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.4;}
+.w-stat:hover{border-color:var(--border3);box-shadow:0 0 20px var(--acc-glow);transform:translateY(-2px);}
+.w-stat-val{font-size:22px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;line-height:1;}
+.w-stat-lbl{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);margin-top:6px;font-weight:500;}
+
+.w-stat-lbl{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);margin-top:6px;font-weight:500;}
+
+.w-resources{margin-top:48px;display:grid;grid-template-columns:repeat(3, 1fr);gap:20px;max-width:440px;margin-left:auto;margin-right:auto;}
+.w-res-item{display:flex;flex-direction:column;align-items:center;gap:10px;text-decoration:none;transition:all var(--trans);}
+.w-res-ico{width:52px;height:52px;border-radius:15px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--ink2);box-shadow:0 4px 12px rgba(0,0,0,.4);transition:all var(--trans);position:relative;overflow:hidden;}
+.w-res-ico::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg, rgba(255,255,255,0.05), transparent);opacity:0;transition:opacity var(--trans);}
+.w-res-lbl{font-size:9px;color:var(--ink3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.8px;text-align:center;font-weight:600;}
+.w-res-item:hover .w-res-ico{background:var(--acc-mid);border-color:var(--accent);transform:translateY(-5px);box-shadow:0 10px 28px var(--acc-glow);color:var(--accent);}
+.w-res-item:hover .w-res-ico::before{opacity:1;}
+.w-res-item:hover .w-res-lbl{color:var(--accent);}
+@media(max-width:480px){ .w-resources{grid-template-columns:repeat(3, 1fr); gap:12px;} .w-res-ico{width:44px;height:44px;font-size:18px;} }
+
+.content-frame{flex:1;border:none;background:var(--bg);display:none;}
+
+/* DISCLAIMER */
+#disc-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;}
+#disc-box{background:var(--bg1);border:1px solid var(--border2);border-radius:var(--radius-lg);max-width:440px;width:100%;padding:30px 28px 24px;box-shadow:0 24px 80px rgba(0,0,0,.7);position:relative;animation:fadeUp .35s cubic-bezier(.16,1,.3,1);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+#disc-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
+.disc-icon{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 0 28px var(--acc-glow);}
+.disc-icon svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+.disc-title{font-size:17px;font-weight:700;color:var(--ink);text-align:center;margin-bottom:4px;}
+.disc-subtitle{font-size:10px;color:var(--accent);text-align:center;font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:18px;font-weight:600;}
+.disc-edu-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:#34d399;border-radius:20px;padding:5px 14px;font-size:10px;font-weight:600;font-family:'JetBrains Mono',monospace;letter-spacing:.8px;text-transform:uppercase;margin-bottom:16px;}
+.disc-edu-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:#34d399;animation:blink 1.8s ease-in-out infinite;}
+.disc-body{font-size:12px;color:var(--ink2);line-height:1.85;margin-bottom:18px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+.disc-body ul{padding-left:16px;}
+.disc-body li{margin-bottom:5px;}
+.disc-body li::marker{color:var(--accent);}
+.disc-agree{width:100%;padding:12px;border:none;border-radius:var(--radius);background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all var(--trans);box-shadow:0 4px 20px var(--acc-glow);}
+.disc-agree:hover{opacity:.88;transform:translateY(-1px);box-shadow:0 6px 28px var(--acc-glow);}
+.disc-decline{display:block;width:100%;margin-top:10px;font-size:11px;color:var(--ink3);cursor:pointer;background:none;border:none;font-family:'JetBrains Mono',monospace;transition:color var(--trans);padding:4px;text-align:center;}
+.disc-decline:hover{color:var(--red);}
+
+/* MOBILE */
+#mob-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150;display:none;backdrop-filter:blur(2px);}
+#mob-overlay.visible{display:block;}
+@media(max-width:768px){
+  :root{--top-h:50px;--side-w:260px;}
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.mobile-open{transform:translateX(0);}
+  .main{margin-left:0!important;width:100%!important;}
+  .topbar-clock{font-size:11px;letter-spacing:.5px;}
+  .logo-name,.logo-pill,.apk-btn{display:none;}
+  .mob-apk{display:flex!important;}
+}
+@media(max-width:400px){
+  #disc-box{padding:22px 18px 18px;}
+  .w-title{font-size:22px;}
+}
+</style>
+</head>
+<body>
+
+<div id="mob-overlay" onclick="closeMobileSidebar()"></div>
+
+<!-- ═══ DISCLAIMER ═══ -->
+<div id="disc-overlay">
+  <div id="disc-box">
+    <div style="text-align:center">
+      <div class="disc-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="disc-edu-tag">Educational &amp; Research Use</div>
+      <div class="disc-title">F&amp;O Screener Hub</div>
+      <div class="disc-subtitle">Terms of Use &mdash; Please Read</div>
+    </div>
+    <div class="disc-body">
+      <ul>
+        <li>This platform is built <strong>strictly for educational and research purposes</strong>.</li>
+        <li>All data and analysis are for <strong>learning purposes only</strong> &mdash; not investment advice.</li>
+        <li>Not affiliated with or registered under SEBI or any financial regulator.</li>
+        <li>The creator bears <strong>no liability</strong> for any financial decisions made using this platform.</li>
+        <li>Redistribution or commercial resale is <strong>not permitted</strong> without written consent.</li>
+      </ul>
+    </div>
+    <button class="disc-agree" onclick="acceptDisc()">&#10003; &nbsp;I Understand &mdash; Enter Platform</button>
+    <button class="disc-decline" onclick="declineDisc()">I Do Not Agree &mdash; Exit</button>
+  </div>
+</div>
+
+<!-- ═══ TOPBAR ═══ -->
+<header class="topbar">
+  <button class="ham-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="logo-wrap" onclick="goHome()">
+    <div class="logo-icon"><span class="logo-icon-txt">F</span></div>
+    <span class="logo-name">F<span>&amp;</span>O <span>Screener</span> Hub</span>
+    <span class="logo-pill">PRO</span>
+  </div>
+  <div class="topbar-clock" id="clock">Loading...</div>
+  <div class="topbar-right">
+    <a href="https://screener2-584.pages.dev/StockTrade" target="_blank" rel="noopener" class="forum-btn" title="Old Stock Trade">📉 V1-Stock</a>
+    <a href="https://screener-epd.pages.dev/public/orb_scanner" target="_blank" rel="noopener" class="forum-btn" title="Old ORB Scanner">🎯 V1-ORB</a>
+    <a href="https://screener-epd.pages.dev/public/TradeChat" target="_blank" rel="noopener" class="forum-btn" title="Trade Chat">💬 Trade-setup</a>
+    <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+    <div class="theme-switcher" title="Switch Theme">
+      <div class="t-btn active" id="btn-dark" style="background:#080b11;border-color:var(--accent);" onclick="setTheme('dark')" title="Dark"></div>
+      <div class="t-btn" id="btn-light" style="background:#f3f4f8;" onclick="setTheme('light')" title="Light"></div>
+    </div>
+    <a href="https://screener-epd.pages.dev/public/Screenerv1.apk" download class="apk-btn" title="Download Android App">
+      &#8595; APK
+    </a>
+  </div>
+</header>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-top-lbl">&#9642; Navigation Menu</div>
+  </div>
+  
+  
+  
+  <!-- 0. SIGNAL SECTION -->
+  <div class="nav-section signal-section">
+    <button class="sec-hdr signal-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico signal-ico">⚡</div>
+        <div>
+          <span class="sec-title signal-title">LIVE SIGNALS</span>
+          <span class="sec-count">2</span>
+          <span class="signal-pulse-badge">LIVE</span>
+        </div>
+      </div>
+      <span class="sec-arrow open">&#9660;</span>
+    </button>
+    <div class="submenu open">
+      <a href="https://nse-volume-scanner.teletechcare-b71.workers.dev/live" class="nav-link signal-link external" target="_blank" rel="noopener">
+        <span class="signal-link-inner">
+          <span class="signal-dot"></span>Volume Break
+        </span>
+        <span class="nbadge live">LIVE</span>
+      </a>
+      <a href="https://screener-epd.pages.dev/public/ST-Dashboard" class="nav-link signal-link external" target="_blank" rel="noopener">
+        <span class="signal-link-inner">
+          <span class="signal-dot"></span>INTRADAY Signal
+        </span>
+        <span style="display:flex;gap:4px;align-items:center;"><span class="nbadge new-b">NEW</span><span class="nbadge live">LIVE</span></span>
+      </a>
+    </div>
+  </div>
+
+
+  <!-- 0. COMMUNITY -->
+  <div class="nav-section comm-section">
+    <button class="sec-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico comm-ico">🤝</div>
+        <div><span class="sec-title comm-title">COMMUNITY</span> <span class="sec-count">3</span></div>
+      </div>
+      <span class="sec-arrow open">&#9660;</span>
+    </button>
+    <div class="submenu open">
+      <a href="https://screener-epd.pages.dev/public/papertrade" class="nav-link external" target="_blank" rel="noopener" style="font-weight: 600; color: var(--ink);">Paper Trade <span class="nbadge live">NEW</span></a>
+      <a href="https://trade-forum.teletechcare.workers.dev/" class="nav-link external" target="_blank" rel="noopener">Community Forum</a>
+	  <a href="https://stock-selection.teletechcare.workers.dev/" class="nav-link external" target="_blank" rel="noopener">Stock Selection</a>
+    </div>
+  </div>
+
+  <!-- OI TERMINAL -->
+  <div class="nav-section">
+    <button class="sec-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico oi-ico">📡</div>
+        <div><span class="sec-title">OI TERMINAL</span> <span class="sec-count">3</span></div>
+      </div>
+      <span class="sec-arrow">&#9660;</span>
+    </button>
+    <div class="submenu">
+      <a href="https://screener-epd.pages.dev/public/oi" class="nav-link external" target="_blank" rel="noopener">OI Terminal <span class="nbadge live">LIVE</span></a>
+	  <a href="https://screener-epd.pages.dev/public/oi-compare" class="nav-link external" target="_blank" rel="noopener">OI Compare <span class="nbadge live">LIVE</span></a>
+	  <a href="https://screener-epd.pages.dev/public/oi-signal" class="nav-link external" target="_blank" rel="noopener">OI Signal <span class="nbadge live">LIVE</span></a>
+    </div>
+  </div>
+
+  <!-- 1. INTRADAY TOOL -->
+  <div class="nav-section">
+    <button class="sec-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico intraday-ico">🎯</div>
+        <div><span class="sec-title">INTRADAY TOOL</span> <span class="sec-count">5</span></div>
+      </div>
+      <span class="sec-arrow">&#9660;</span>
+    </button>
+    <div class="submenu">
+	  <a href="https://screener2-584.pages.dev/StockTrade-Beta" class="nav-link">Pro-Stock Trade <span class="nbadge live">LIVE</span></a>
+	  
+	  <a href="https://screener-epd.pages.dev/public/orb_morning" class="nav-link">ORB-Break <span class="nbadge live">LIVE</span></a>
+	  
+      <a href="https://screener2-584.pages.dev/OptionTrade" class="nav-link">Option Trade <span class="nbadge live">LIVE</span></a>
+      <a href="https://screener-epd.pages.dev/public/Heatmap.html" class="nav-link">Heatmap <span class="nbadge live">LIVE</span></a>
+      <a href="https://screener-epd.pages.dev/public/Nifty-levels" class="nav-link">Nifty Level <span class="nbadge live">LIVE</span></a>
+    </div>
+  </div>
+  <!-- 2. BTST -->
+  <div class="nav-section">
+    <button class="sec-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico btst-ico">🌙</div>
+        <div><span class="sec-title">BTST TOOL</span> <span class="sec-count">1</span></div>
+      </div>
+      <span class="sec-arrow">&#9660;</span>
+    </button>
+    <div class="submenu">
+      <a href="https://screener-epd.pages.dev/public/btsttrade" class="nav-link">BTST SCAN <span class="nbadge new-b">SCAN</span></a>
+
+    </div>
+  </div>
+    
+  <!-- 2. SWING -->
+  <div class="nav-section">
+    <button class="sec-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico swing-ico">🌊</div>
+        <div><span class="sec-title">SWING TOOL</span> <span class="sec-count">3</span></div>
+      </div>
+      <span class="sec-arrow">&#9660;</span>
+    </button>
+    <div class="submenu">
+      <a href="https://screener-epd.pages.dev/public/swing_screener" class="nav-link">Swing Signal <span class="nbadge new-b">SCAN</span></a>
+	  <a href="https://screener-epd.pages.dev/public/Trend" class="nav-link">Trend <span class="nbadge new-b">SCAN</span></a>
+	  <a href="https://screener-epd.pages.dev/public/Buildup" class="nav-link">Buildup <span class="nbadge live">SCAN</span></a>
+    </div>
+  </div>
+
+
+  <!-- 3. ANALYSE TOOL -->
+  <div class="nav-section">
+    <button class="sec-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico analyser-ico">🔬</div>
+        <div><span class="sec-title">STOCK ANALYSER</span> <span class="sec-count">4</span></div>
+      </div>
+      <span class="sec-arrow">&#9660;</span>
+    </button>
+    <div class="submenu">
+      <a href="https://screener2-584.pages.dev/MulBhav" class="nav-link">MulBhav <span class="nbadge info">KB</span></a> 
+      <a href="https://screener2-584.pages.dev/fii_dashboard" class="nav-link">FII Data <span class="nbadge info">KB</span></a>
+      <a href="https://screener-epd.pages.dev/public/volatility_dashboard" class="nav-link">Volatility <span class="nbadge info">KB</span></a>
+      <a href="https://screener-epd.pages.dev/public/contractnote" class="nav-link">Contract Note Analyser <span class="nbadge info">KB</span></a>
+	  
+	  
+    </div>
+  </div>
+
+
+  
+
+
+  <!-- 5. AI TOOL -->
+  <div class="nav-section">
+    <button class="sec-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico ai-ico">🤖</div>
+        <div><span class="sec-title">AI TOOL</span> <span class="sec-count">2</span></div>
+      </div>
+      <span class="sec-arrow">&#9660;</span>
+    </button>
+    <div class="submenu">
+	  <a href="https://screener-epd.pages.dev/public/company-detail" class="nav-link">StockLens AI <span class="nbadge info">AI</span></a>
+      <a href="https://screener-epd.pages.dev/public/AI-ChatBoat" class="nav-link">AI ChatBoat <span class="nbadge info">AI</span></a>
+
+    </div>
+  </div>
+  
+  
+  
+
+
+
+  
+  
+
+  <!-- 7. GUIDE -->
+  <div class="nav-section">
+    <button class="sec-hdr" onclick="toggleSection(this)">
+      <div class="sec-hdr-left">
+        <div class="sec-ico guide-ico">🗺️</div>
+        <div><span class="sec-title">GUIDE</span> <span class="sec-count">2</span></div>
+      </div>
+      <span class="sec-arrow">&#9660;</span>
+    </button>
+    <div class="submenu">
+      <a href="https://screener-epd.pages.dev/public/Manual" class="nav-link">Guide V1 <span class="nbadge new-b">NEW</span></a>
+      <a href="https://screener-epd.pages.dev/public/williams-fractal-scalping-guide.html" class="nav-link">2M Option Scalp <span class="nbadge info">Guide</span></a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <div class="mob-apk" style="margin-bottom:12px;">
+      <a href="https://screener-epd.pages.dev/public/Screenerv1.apk" download class="apk-btn" style="width:100%;justify-content:center;font-size:12px;">
+        &#8595; Download F&amp;O APK v1
+      </a>
+    </div>
+    <div class="sf-edu">Educational Use Only</div>
+    <div class="sf-note">For research &amp; learning purposes.<br>Not financial or investment advice.</div>
+  </div>
+</nav>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<main class="main" id="main">
+  <div class="welcome" id="welcome">
+    <div class="w-bg-grid"></div>
+    <div class="w-glow"></div>
+    <div class="w-inner">
+      <div class="w-logo"><span class="w-logo-txt">F&O</span></div>
+      <div class="w-title">F<span>&amp;</span>O <span>Screener</span> Hub</div>
+      <div class="w-sub">Professional tools for Options &amp; Futures traders &mdash; real-time data, AI analysis, and market insights in one place.</div>
+      <div class="w-hint">Select a tool from the sidebar to begin</div>
+      <div class="w-stats">
+        <div class="w-stat"><div class="w-stat-val">10+</div><div class="w-stat-lbl">Tools</div></div>
+        <div class="w-stat"><div class="w-stat-val" style="color:var(--live)">LIVE</div><div class="w-stat-lbl">Data</div></div>
+        <div class="w-stat"><div class="w-stat-val">AI</div><div class="w-stat-lbl">Powered</div></div>
+        <div class="w-stat"><div class="w-stat-val">APK</div><div class="w-stat-lbl">Android</div></div>
+      </div>
+      <div class="w-resources">
+        <a href="https://upstox.com/fno-discovery/open-interest-analysis/nifty-pcr/" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">📈</div>
+          <div class="w-res-lbl">PCR Data</div>
+        </a>
+        <a href="https://groww.in/indices/global-indices" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">🌍</div>
+          <div class="w-res-lbl">Global</div>
+        </a>
+        <a href="https://web.quantsapp.com/signin" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">📊</div>
+          <div class="w-res-lbl">Quantsapp</div>
+        </a>
+        <a href="https://login.dhan.co/?location=DH_WEB" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">💰</div>
+          <div class="w-res-lbl">Dhan</div>
+        </a>
+        <a href="https://www.nseindia.com/option-chain" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">🏦</div>
+          <div class="w-res-lbl">NSE Chain</div>
+        </a>
+        <a href="https://nifty-pe-ratio.com" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">📉</div>
+          <div class="w-res-lbl">PE Ratio</div>
+        </a>
+        <a href="https://screener2-584.pages.dev/indextracker" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">📡</div>
+          <div class="w-res-lbl">Tracker</div>
+        </a>
+        <a href="https://tradingtick.in/" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">⏱️</div>
+          <div class="w-res-lbl">TradTick</div>
+        </a>
+        <a href="https://gocharting.com/" target="_blank" rel="noopener" class="w-res-item">
+          <div class="w-res-ico">🕯️</div>
+          <div class="w-res-lbl">Charts</div>
+        </a>
+      </div>
+    </div>
+  </div>
+  <iframe src="about:blank" id="main-frame" class="content-frame" title="Tool Content"></iframe>
+</main>
+
+<script>
+/* ─── DISCLAIMER ─── */
+(function(){
+  if(sessionStorage.getItem('fo_disc')==='ok'){
+    document.getElementById('disc-overlay').style.display='none';
+  }
+})();
+function acceptDisc(){
+  sessionStorage.setItem('fo_disc','ok');
+  var o=document.getElementById('disc-overlay');
+  o.style.transition='opacity .3s';
+  o.style.opacity='0';
+  setTimeout(function(){o.style.display='none';},320);
+}
+function declineDisc(){ window.location.href='about:blank'; }
+
+/* ─── CLOCK ─── */
+function updateClock(){
+  var n=new Date();
+  var t=n.toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+  var d=n.toLocaleDateString('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('clock').textContent=d+' | '+t+' IST';
+}
+setInterval(updateClock,1000);
+updateClock();
+
+/* ─── THEME ─── */
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('btn-dark').style.borderColor  = t==='dark'  ? 'var(--accent)' : 'transparent';
+  document.getElementById('btn-light').style.borderColor = t==='light' ? 'var(--accent)' : 'transparent';
+  document.getElementById('btn-dark').classList.toggle('active',  t==='dark');
+  document.getElementById('btn-light').classList.toggle('active', t==='light');
+}
+
+/* ─── SIDEBAR ─── */
+var sideOpen = true;
+function toggleSidebar(){
+  var sb=document.getElementById('sidebar');
+  var mn=document.getElementById('main');
+  if(window.innerWidth<=768){
+    var op=sb.classList.toggle('mobile-open');
+    document.getElementById('mob-overlay').classList.toggle('visible',op);
+  } else {
+    sideOpen=!sideOpen;
+    sb.classList.toggle('collapsed',!sideOpen);
+    mn.classList.toggle('expanded',!sideOpen);
+  }
+}
+function closeMobileSidebar(){
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('mob-overlay').classList.remove('visible');
+}
+
+/* ─── SECTION TOGGLE ─── */
+function toggleSection(btn){
+  var sub=btn.nextElementSibling;
+  var arr=btn.querySelector('.sec-arrow');
+  var isOpen=sub.classList.contains('open');
+  var sb=document.getElementById('sidebar');
+  
+  // Close all sections
+  document.querySelectorAll('.submenu').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.sec-arrow').forEach(a => a.classList.remove('open'));
+  
+  // Toggle current if it wasn't open
+  if(!isOpen){
+    sub.classList.add('open');
+    arr.classList.add('open');
+    sb.classList.add('has-open');
+  } else {
+    sb.classList.remove('has-open');
+  }
+}
+
+/* ─── HOME ─── */
+function goHome(){
+  document.getElementById('welcome').style.display='flex';
+  document.getElementById('main-frame').style.display='none';
+  document.getElementById('main-frame').src='about:blank';
+  document.querySelectorAll('.nav-link').forEach(function(l){l.classList.remove('active');});
+}
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') goHome(); });
+
+/* ─── IFRAME LOADING ─── */
+var frame   = document.getElementById('main-frame');
+var welcome = document.getElementById('welcome');
+
+document.querySelectorAll('.nav-link:not(.external)').forEach(function(link){
+  link.addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    var url = this.getAttribute('href');
+    frame.src = url;
+    frame.style.display = 'block';
+    welcome.style.display = 'none';
+    document.querySelectorAll('.nav-link').forEach(function(l){ l.classList.remove('active'); });
+    this.classList.add('active');
+    if(window.innerWidth<=768) closeMobileSidebar();
+  });
+});
+</script>
+</body>
+</html>
