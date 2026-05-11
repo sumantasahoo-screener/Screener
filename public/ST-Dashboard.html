@@ -425,6 +425,12 @@
             <span id="cipSignal"
                 style="display:none; padding:3px 12px; border-radius:10px; font-weight:700; font-size:0.82rem;"></span>
         </div>
+        <!-- Zoom Controls -->
+        <div id="zoomControls" style="display:none; justify-content:flex-end; align-items:center; gap:8px; margin-bottom:6px;">
+            <button onclick="chartZoomIn()" style="background:rgba(14,165,233,0.15); border:1px solid rgba(14,165,233,0.35); color:#38bdf8; border-radius:8px; padding:5px 14px; font-size:1.1rem; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif;" title="Zoom In">＋</button>
+            <button onclick="chartZoomOut()" style="background:rgba(14,165,233,0.15); border:1px solid rgba(14,165,233,0.35); color:#38bdf8; border-radius:8px; padding:5px 14px; font-size:1.1rem; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif;" title="Zoom Out">－</button>
+            <button onclick="chartZoomReset()" style="background:rgba(148,163,184,0.1); border:1px solid rgba(148,163,184,0.25); color:#94a3b8; border-radius:8px; padding:5px 14px; font-size:0.8rem; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif;" title="Reset">↺ Reset</button>
+        </div>
         <!-- Custom Crosshair Line (outside #chart so it survives chart.destroy) -->
         <div style="position:relative;">
             <div id="chartCrosshair"
@@ -931,6 +937,41 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // --- ZOOM STATE ---
+        let _zoomMin = 0, _zoomMax = 0, _zoomStep = 0;
+
+        function chartZoomIn() {
+            if (!chart || !window._chartData) return;
+            const data = window._chartData;
+            const total = data.length;
+            const curMin = chart.w.globals.minX ?? 0;
+            const curMax = chart.w.globals.maxX ?? total - 1;
+            const visible = curMax - curMin;
+            const newVisible = Math.max(5, Math.round(visible * 0.6));
+            const center = Math.round((curMin + curMax) / 2);
+            const newMin = Math.max(0, center - Math.floor(newVisible / 2));
+            const newMax = Math.min(total - 1, newMin + newVisible);
+            chart.zoomX(newMin, newMax);
+        }
+
+        function chartZoomOut() {
+            if (!chart || !window._chartData) return;
+            const total = window._chartData.length;
+            const curMin = chart.w.globals.minX ?? 0;
+            const curMax = chart.w.globals.maxX ?? total - 1;
+            const visible = curMax - curMin;
+            const newVisible = Math.min(total, Math.round(visible * 1.6));
+            const center = Math.round((curMin + curMax) / 2);
+            const newMin = Math.max(0, center - Math.floor(newVisible / 2));
+            const newMax = Math.min(total - 1, newMin + newVisible);
+            chart.zoomX(newMin, newMax);
+        }
+
+        function chartZoomReset() {
+            if (!chart || !window._chartData) return;
+            chart.zoomX(0, window._chartData.length - 1);
+        }
+
         function renderChart(data, signals) {
             if (chart) chart.destroy();
             if (!data.length) return;
@@ -963,7 +1004,7 @@
                     { name: 'VWAP', type: 'line', data: vwap },
                     { name: 'Total OI', type: 'line', data: data.map(d => ({ x: d.time, y: d.oi })) }
                 ],
-                chart: { height: window.innerWidth < 768 ? 320 : 550, type: 'line', background: 'transparent', animations: { enabled: false }, zoom: { enabled: false }, toolbar: { show: false } },
+                chart: { height: window.innerWidth < 768 ? 320 : 550, type: 'line', background: 'transparent', animations: { enabled: false }, zoom: { enabled: true, type: 'x' }, toolbar: { show: false } },
                 grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 3, xaxis: { lines: { show: false } }, yaxis: { lines: { show: true } } },
                 stroke: { width: [2, 4, 4, 4, 2, 3], curve: 'smooth', dashArray: [0, 0, 0, 0, 5, 0] },
                 colors: ['#60a5fa', '#10b981', '#ef4444', '#f59e0b', '#818cf8', '#f59e0b'],
@@ -992,6 +1033,8 @@
             const { signal: abortSig } = window._chartAbort;
 
             chart.render().then(() => {
+                // Show zoom controls
+                document.getElementById('zoomControls').style.display = 'flex';
                 const chartEl = document.querySelector('#chart');
                 const panel = document.getElementById('chartInfoPanel');
                 const crosshair = document.getElementById('chartCrosshair');
