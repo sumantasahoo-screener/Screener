@@ -110,6 +110,95 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
 .sf-note{font-size:9.5px;color:var(--ink3);line-height:1.7;font-family:'JetBrains Mono',monospace;}
 .mob-apk{display:none;}
 
+/* ICON STYLES */
+.comm-section{
+  border-bottom:2px solid var(--acc-mid);
+  background:linear-gradient(to bottom, var(--acc-dim), transparent);
+}
+.comm-ico{background:linear-gradient(135deg,#7c3aed,var(--accent))!important;color:#fff!important;border-color:var(--border3)!important;box-shadow:0 0 12px var(--acc-glow)!important;}
+.comm-title{color:var(--accent)!important;}
+.oi-ico{background:linear-gradient(135deg,#0ea5e9,#026DA8)!important;color:#fff!important;border-color:rgba(14,165,233,.3)!important;box-shadow:0 0 12px rgba(14,165,233,.3)!important;}
+.intraday-ico{background:linear-gradient(135deg,#f59e0b,#d97706)!important;color:#fff!important;border-color:rgba(245,158,11,.3)!important;box-shadow:0 0 12px rgba(245,158,11,.25)!important;}
+.btst-ico{background:linear-gradient(135deg,#6366f1,#4f46e5)!important;color:#fff!important;border-color:rgba(99,102,241,.3)!important;box-shadow:0 0 12px rgba(99,102,241,.25)!important;}
+.swing-ico{background:linear-gradient(135deg,#06b6d4,#0284c7)!important;color:#fff!important;border-color:rgba(6,182,212,.3)!important;box-shadow:0 0 12px rgba(6,182,212,.25)!important;}
+.analyser-ico{background:linear-gradient(135deg,#10b981,#059669)!important;color:#fff!important;border-color:rgba(16,185,129,.3)!important;box-shadow:0 0 12px rgba(16,185,129,.25)!important;}
+.ai-ico{background:linear-gradient(135deg,#ec4899,#db2777)!important;color:#fff!important;border-color:rgba(236,72,153,.3)!important;box-shadow:0 0 12px rgba(236,72,153,.25)!important;}
+.guide-ico{background:linear-gradient(135deg,#f97316,#ea580c)!important;color:#fff!important;border-color:rgba(249,115,22,.3)!important;box-shadow:0 0 12px rgba(249,115,22,.25)!important;}
+
+/* SIGNAL SECTION */
+.signal-section{
+  border-bottom:2px solid var(--live-bd)!important;
+  background:linear-gradient(135deg, rgba(52,211,153,.06) 0%, transparent 70%);
+  position:relative;
+  overflow:hidden;
+}
+.signal-section::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(90deg, transparent, var(--live), transparent);
+  animation:signalPulse 2.5s ease-in-out infinite;
+}
+@keyframes signalPulse{
+  0%,100%{opacity:.4;}
+  50%{opacity:1;}
+}
+.signal-hdr:hover{background:rgba(52,211,153,.06)!important;}
+.signal-ico{
+  background:linear-gradient(135deg, var(--live), #059669)!important;
+  color:#fff!important;
+  border-color:var(--live-bd)!important;
+  box-shadow:0 0 12px rgba(52,211,153,.35)!important;
+  font-size:16px!important;
+}
+.signal-title{
+  color:var(--live)!important;
+  text-shadow:0 0 12px rgba(52,211,153,.4);
+}
+.signal-pulse-badge{
+  display:inline-flex;
+  align-items:center;
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.8px;
+  color:var(--live);
+  background:var(--live-bg);
+  border:1px solid var(--live-bd);
+  border-radius:10px;
+  padding:1px 6px;
+  font-family:'JetBrains Mono',monospace;
+  margin-left:5px;
+  animation:blink 1.8s ease-in-out infinite;
+}
+.signal-link{
+  border-left-color:transparent;
+  transition:all var(--trans);
+}
+.signal-link:hover{
+  background:rgba(52,211,153,.06)!important;
+  color:var(--live)!important;
+  border-left-color:var(--live)!important;
+}
+.signal-link.active{
+  background:rgba(52,211,153,.10)!important;
+  color:var(--live)!important;
+  border-left-color:var(--live)!important;
+}
+.signal-link-inner{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.signal-dot{
+  width:5px;height:5px;
+  border-radius:50%;
+  background:var(--live);
+  flex-shrink:0;
+  animation:blink 1.8s ease-in-out infinite;
+  box-shadow:0 0 6px var(--live);
+}
+
 /* SIDEBAR DIM EFFECT */
 .sidebar.has-open .nav-section { opacity: 0.35; filter: saturate(0.5); transition: all var(--trans); }
 .sidebar.has-open .nav-section:hover { opacity: 0.7; }
@@ -256,29 +345,42 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
   
   
   
-  <!-- 0. SIGNAL (RENAMED) -->
-  <div class="nav-section" style="border-bottom: 2px solid var(--acc-mid); background: linear-gradient(to bottom, var(--acc-dim), transparent);">
-    <button class="sec-hdr" onclick="toggleSection(this)">
+  <!-- 0. SIGNAL SECTION -->
+  <div class="nav-section signal-section">
+    <button class="sec-hdr signal-hdr" onclick="toggleSection(this)">
       <div class="sec-hdr-left">
-        <div class="sec-ico" style="background: var(--accent); color: #fff;">🌐</div>
-        <div><span class="sec-title" style="color: var(--accent);">COMMUNITY</span> <span class="sec-count">2</span></div>
+        <div class="sec-ico signal-ico">⚡</div>
+        <div>
+          <span class="sec-title signal-title">LIVE SIGNALS</span>
+          <span class="sec-count">2</span>
+          <span class="signal-pulse-badge">LIVE</span>
+        </div>
       </div>
       <span class="sec-arrow open">&#9660;</span>
     </button>
     <div class="submenu open">
-      <a href="https://nse-volume-scanner.teletechcare-b71.workers.dev/live" class="nav-link">Volume Break <span class="nbadge live">LIVE</span></a>
-      <a href="https://screener-epd.pages.dev/public/ST-Dashboard" class="nav-link">iNTRADAY Signal <span class="nbadge live">LIVE</span></a>
-	  
+      <a href="https://nse-volume-scanner.teletechcare-b71.workers.dev/live" class="nav-link signal-link external" target="_blank" rel="noopener">
+        <span class="signal-link-inner">
+          <span class="signal-dot"></span>Volume Break
+        </span>
+        <span class="nbadge live">LIVE</span>
+      </a>
+      <a href="https://screener-epd.pages.dev/public/ST-Dashboard" class="nav-link signal-link external" target="_blank" rel="noopener">
+        <span class="signal-link-inner">
+          <span class="signal-dot"></span>INTRADAY Signal
+        </span>
+        <span style="display:flex;gap:4px;align-items:center;"><span class="nbadge new-b">NEW</span><span class="nbadge live">LIVE</span></span>
+      </a>
     </div>
   </div>
 
 
-  <!-- 0. COMMUNITY (RENAMED) -->
-  <div class="nav-section" style="border-bottom: 2px solid var(--acc-mid); background: linear-gradient(to bottom, var(--acc-dim), transparent);">
+  <!-- 0. COMMUNITY -->
+  <div class="nav-section comm-section">
     <button class="sec-hdr" onclick="toggleSection(this)">
       <div class="sec-hdr-left">
-        <div class="sec-ico" style="background: var(--accent); color: #fff;">🌐</div>
-        <div><span class="sec-title" style="color: var(--accent);">COMMUNITY</span> <span class="sec-count">2</span></div>
+        <div class="sec-ico comm-ico">🤝</div>
+        <div><span class="sec-title comm-title">COMMUNITY</span> <span class="sec-count">3</span></div>
       </div>
       <span class="sec-arrow open">&#9660;</span>
     </button>
@@ -289,11 +391,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
     </div>
   </div>
 
-  <!-- OI TERMINAL (NEW SECTION) -->
+  <!-- OI TERMINAL -->
   <div class="nav-section">
     <button class="sec-hdr" onclick="toggleSection(this)">
       <div class="sec-hdr-left">
-        <div class="sec-ico" style="background: var(--acc-dim); color: var(--accent); border: 1px solid var(--accent);">📊</div>
+        <div class="sec-ico oi-ico">📡</div>
         <div><span class="sec-title">OI TERMINAL</span> <span class="sec-count">3</span></div>
       </div>
       <span class="sec-arrow">&#9660;</span>
@@ -305,11 +407,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
     </div>
   </div>
 
-  <!-- 1. BASIC TOOL -->
+  <!-- 1. INTRADAY TOOL -->
   <div class="nav-section">
     <button class="sec-hdr" onclick="toggleSection(this)">
       <div class="sec-hdr-left">
-        <div class="sec-ico">&#128295;</div>
+        <div class="sec-ico intraday-ico">🎯</div>
         <div><span class="sec-title">INTRADAY TOOL</span> <span class="sec-count">5</span></div>
       </div>
       <span class="sec-arrow">&#9660;</span>
@@ -328,7 +430,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
   <div class="nav-section">
     <button class="sec-hdr" onclick="toggleSection(this)">
       <div class="sec-hdr-left">
-        <div class="sec-ico">&#128200;</div>
+        <div class="sec-ico btst-ico">🌙</div>
         <div><span class="sec-title">BTST TOOL</span> <span class="sec-count">1</span></div>
       </div>
       <span class="sec-arrow">&#9660;</span>
@@ -339,11 +441,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
     </div>
   </div>
     
-    <!-- 2. SWING -->
+  <!-- 2. SWING -->
   <div class="nav-section">
     <button class="sec-hdr" onclick="toggleSection(this)">
       <div class="sec-hdr-left">
-        <div class="sec-ico">&#128200;</div>
+        <div class="sec-ico swing-ico">🌊</div>
         <div><span class="sec-title">SWING TOOL</span> <span class="sec-count">3</span></div>
       </div>
       <span class="sec-arrow">&#9660;</span>
@@ -360,7 +462,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
   <div class="nav-section">
     <button class="sec-hdr" onclick="toggleSection(this)">
       <div class="sec-hdr-left">
-        <div class="sec-ico">&#128300;</div>
+        <div class="sec-ico analyser-ico">🔬</div>
         <div><span class="sec-title">STOCK ANALYSER</span> <span class="sec-count">4</span></div>
       </div>
       <span class="sec-arrow">&#9660;</span>
@@ -379,11 +481,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
   
 
 
-  <!-- 5. ONLINE TOOL -->
+  <!-- 5. AI TOOL -->
   <div class="nav-section">
     <button class="sec-hdr" onclick="toggleSection(this)">
       <div class="sec-hdr-left">
-        <div class="sec-ico">&#128172;</div>
+        <div class="sec-ico ai-ico">🤖</div>
         <div><span class="sec-title">AI TOOL</span> <span class="sec-count">2</span></div>
       </div>
       <span class="sec-arrow">&#9660;</span>
@@ -403,14 +505,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-he
   
   
 
-  <!-- 7. GUIDE (RESTORED) -->
+  <!-- 7. GUIDE -->
   <div class="nav-section">
     <button class="sec-hdr" onclick="toggleSection(this)">
-      <div class="sec-ico-wrap">
-        <div class="sec-hdr-left">
-          <div class="sec-ico">&#128214;</div>
-          <div><span class="sec-title">GUIDE</span> <span class="sec-count">2</span></div>
-        </div>
+      <div class="sec-hdr-left">
+        <div class="sec-ico guide-ico">🗺️</div>
+        <div><span class="sec-title">GUIDE</span> <span class="sec-count">2</span></div>
       </div>
       <span class="sec-arrow">&#9660;</span>
     </button>
