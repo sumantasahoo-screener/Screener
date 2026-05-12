@@ -639,28 +639,6 @@
 
         window.addEventListener('DOMContentLoaded', init);
 
-        // Pull-to-refresh support for mobile/WebView
-        let pullStartY = 0;
-        let isPulling = false;
-        const PULL_THRESHOLD = 80; // pixels to pull before refresh triggers
-
-        document.addEventListener('touchstart', (e) => {
-            if (window.scrollY === 0) {
-                pullStartY = e.touches[0].clientY;
-                isPulling = true;
-            }
-        }, { passive: true });
-
-        document.addEventListener('touchend', (e) => {
-            if (isPulling) {
-                const pullDistance = e.changedTouches[0].clientY - pullStartY;
-                if (pullDistance > PULL_THRESHOLD) {
-                    window.location.reload();
-                }
-                isPulling = false;
-            }
-        }, { passive: true });
-
         function loadTheme() {
             const savedTheme = localStorage.getItem('dashboard-theme') || 'light';
             if (savedTheme === 'midnight') {
@@ -837,27 +815,11 @@
                 if (mobileNavLinks) {
                     const mLink = document.createElement('a');
                     mLink.href = `javascript:void(0)`;
-                    // Derive emoji and clean label ALWAYS from cat.title (source of truth)
-                    // Never use cat.navTitle as display label — it may have typos from R2
-                    let emoji = '📂';
-                    let cleanLabel = cat.title || 'Category';
-                    if (cat.title) {
-                        const parts = cat.title.trim().split(' ');
-                        const firstWord = parts[0];
-                        // If first character is emoji (not a letter/number), extract it
-                        if (firstWord && !/^[a-zA-Z0-9]/.test(firstWord)) {
-                            emoji = firstWord;
-                            // Label = everything AFTER the emoji
-                            cleanLabel = parts.slice(1).join(' ').trim() || cat.title;
-                        }
-                        // If title starts with text (no emoji), keep full title as label, use 📂 icon
-                    }
+                    // SIMPLE & RELIABLE: just use navTitle as-is. No emoji parsing that breaks with R2 data.
+                    const displayLabel = cat.navTitle || cat.title || 'Category';
                     mLink.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <span style="font-size: 18px; width: 24px; text-align: center;">${emoji}</span>
-                            <span style="letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${cleanLabel}</span>
-                        </div>
-                        <span style="opacity: 0.3; font-size: 12px;">❯</span>
+                        <span style="font-size: 15px; font-weight: 600; letter-spacing: 0.3px;">${displayLabel}</span>
+                        <span style="opacity: 0.25; font-size: 11px; flex-shrink: 0;">❯</span>
                     `;
                     mLink.style.cssText = "display: flex; justify-content: space-between; align-items: center; color: var(--text-main); text-decoration: none; font-size: 15px; font-weight: 600; padding: 14px 10px; border-bottom: 1px solid var(--glass-border); width: 100%;";
                     
