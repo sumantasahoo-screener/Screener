@@ -568,7 +568,7 @@
 
     <div class="mobile-nav" id="mobile-nav">
         <button class="mobile-nav-close" onclick="closeMobileNav()">✕</button>
-        <div id="mobile-nav-links" style="display:flex;flex-direction:column;align-items:center;gap:2rem;width:100%; margin-top: 40px;">
+        <div id="mobile-nav-links" style="display:flex;flex-direction:column;align-items:center;gap:0;width:100%; margin-top: 20px;">
         </div>
     </div>
 
@@ -813,8 +813,18 @@
                 if (mobileNavLinks) {
                     const mLink = document.createElement('a');
                     mLink.href = `javascript:void(0)`;
-                    mLink.textContent = cat.navTitle;
-                    mLink.style.cssText = "color: var(--text-main); text-decoration: none; font-size: 20px; font-weight: 700; text-transform: uppercase; padding: 15px; border-bottom: 1px solid var(--border); width: 100%; text-align: center;";
+                    
+                    // Extract emoji from title (first character/word usually)
+                    const emoji = cat.title ? cat.title.split(' ')[0] : '📂';
+                    
+                    mLink.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <span style="font-size: 18px; width: 24px; text-align: center;">${emoji}</span>
+                            <span style="letter-spacing: 0.5px;">${cat.navTitle}</span>
+                        </div>
+                        <span style="opacity: 0.3; font-size: 12px;">❯</span>
+                    `;
+                    mLink.style.cssText = "display: flex; justify-content: space-between; align-items: center; color: var(--text-main); text-decoration: none; font-size: 15px; font-weight: 600; padding: 14px 10px; border-bottom: 1px solid var(--glass-border); width: 100%;";
                     
                     mLink.onclick = () => {
                         mobileNavLinks.innerHTML = `
