@@ -815,19 +815,25 @@
                 if (mobileNavLinks) {
                     const mLink = document.createElement('a');
                     mLink.href = `javascript:void(0)`;
-                    // Extract emoji from title, fallback to default if it's just text
+                    // Derive emoji and clean label from cat.title (source of truth)
+                    // cat.navTitle may have typos if stored in R2, so we also derive a clean label
                     let emoji = '📂';
+                    let cleanLabel = cat.navTitle || cat.title || 'Category';
                     if (cat.title) {
-                        const firstWord = cat.title.trim().split(' ')[0];
-                        // If the first word doesn't start with a letter/number, it's likely an emoji
+                        const parts = cat.title.trim().split(' ');
+                        const firstWord = parts[0];
+                        // If first word is an emoji (not a letter/number), extract it and use rest as label
                         if (!/^[a-zA-Z0-9]/.test(firstWord)) {
                             emoji = firstWord;
+                            // Use the title text (after emoji) as the display label — more reliable than navTitle
+                            const titleLabel = parts.slice(1).join(' ').trim();
+                            if (titleLabel) cleanLabel = titleLabel;
                         }
-                    }                    
+                    }
                     mLink.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <span style="font-size: 18px; width: 24px; text-align: center;">${emoji}</span>
-                            <span style="letter-spacing: 0.5px;">${cat.navTitle}</span>
+                            <span style="letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${cleanLabel}</span>
                         </div>
                         <span style="opacity: 0.3; font-size: 12px;">❯</span>
                     `;
