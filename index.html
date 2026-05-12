@@ -57,9 +57,9 @@
             line-height: 1.6;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
-            -webkit-user-select: none; /* Prevent text selection like a native app */
+            -webkit-user-select: none;
             user-select: none;
-            overscroll-behavior-y: none; /* Prevent pull-to-refresh bounce */
+            /* overscroll-behavior-y: none -- removed to allow pull-to-refresh */
         }
 
         /* CUSTOM SCROLLBAR */
@@ -638,6 +638,28 @@
         }
 
         window.addEventListener('DOMContentLoaded', init);
+
+        // Pull-to-refresh support for mobile/WebView
+        let pullStartY = 0;
+        let isPulling = false;
+        const PULL_THRESHOLD = 80; // pixels to pull before refresh triggers
+
+        document.addEventListener('touchstart', (e) => {
+            if (window.scrollY === 0) {
+                pullStartY = e.touches[0].clientY;
+                isPulling = true;
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            if (isPulling) {
+                const pullDistance = e.changedTouches[0].clientY - pullStartY;
+                if (pullDistance > PULL_THRESHOLD) {
+                    window.location.reload();
+                }
+                isPulling = false;
+            }
+        }, { passive: true });
 
         function loadTheme() {
             const savedTheme = localStorage.getItem('dashboard-theme') || 'light';
