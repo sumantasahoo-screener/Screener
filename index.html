@@ -815,20 +815,20 @@
                 if (mobileNavLinks) {
                     const mLink = document.createElement('a');
                     mLink.href = `javascript:void(0)`;
-                    // Derive emoji and clean label from cat.title (source of truth)
-                    // cat.navTitle may have typos if stored in R2, so we also derive a clean label
+                    // Derive emoji and clean label ALWAYS from cat.title (source of truth)
+                    // Never use cat.navTitle as display label — it may have typos from R2
                     let emoji = '📂';
-                    let cleanLabel = cat.navTitle || cat.title || 'Category';
+                    let cleanLabel = cat.title || 'Category';
                     if (cat.title) {
                         const parts = cat.title.trim().split(' ');
                         const firstWord = parts[0];
-                        // If first word is an emoji (not a letter/number), extract it and use rest as label
-                        if (!/^[a-zA-Z0-9]/.test(firstWord)) {
+                        // If first character is emoji (not a letter/number), extract it
+                        if (firstWord && !/^[a-zA-Z0-9]/.test(firstWord)) {
                             emoji = firstWord;
-                            // Use the title text (after emoji) as the display label — more reliable than navTitle
-                            const titleLabel = parts.slice(1).join(' ').trim();
-                            if (titleLabel) cleanLabel = titleLabel;
+                            // Label = everything AFTER the emoji
+                            cleanLabel = parts.slice(1).join(' ').trim() || cat.title;
                         }
+                        // If title starts with text (no emoji), keep full title as label, use 📂 icon
                     }
                     mLink.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 15px;">
