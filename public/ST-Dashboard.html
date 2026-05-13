@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STOCK OI GRAPH</title>
+    <title>Intraday Signal</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -357,7 +357,7 @@
     <div class="container">
         <div class="header">
             <div class="logo-area">
-                <h1>STOCK OI GRAPH <span style="font-weight: 300; opacity: 0.5;">Server-Logic</span></h1>
+                <h1>Intraday <span style="font-weight: 300; opacity: 0.8; color: #38bdf8; -webkit-text-fill-color: initial;">Signal</span></h1>
             </div>
             <div class="controls">
                 <div class="field">
@@ -693,6 +693,7 @@
                 const tbody = document.getElementById('signalLogBody');
                 document.getElementById('signalLogHead').style.display = 'table-header-group';
                 panel.style.display = 'block';
+                panel.querySelector('h2').textContent = 'Signal Log';
 
                 const grouped = {};
                 json.signals.forEach(s => {
@@ -795,80 +796,146 @@
                 const state = await res.json();
                 if (!state || !state.symbols) throw new Error("No state found for this date.");
 
-                const panel = document.getElementById('signalPanel');
-                const tbody = document.getElementById('signalLogBody');
-                document.getElementById('signalLogHead').style.display = 'none'; // Hide normal headers
-                panel.style.display = 'block';
-
-                let rising = [];
-                let decreasing = [];
-
-                for (const sym in state.symbols) {
-                    const oiH = state.symbols[sym].oiHistory;
-                    const pH = state.symbols[sym].priceHistory;
-                    if (!oiH || oiH.length < 2 || !pH || pH.length < 2) continue;
-
-                    const currentOI = oiH[oiH.length - 1];
-                    const startOI = oiH[0];
-                    const currentP = pH[pH.length - 1];
-                    const startP = pH[0];
-                    
-                    const oiChg = ((currentOI - startOI) / startOI) * 100;
-                    const pChg = ((currentP - startP) / startP) * 100;
-                    
-                    if (oiChg >= 0.15) rising.push({ sym, oiChg, price: currentP, pChg });
-                    else if (oiChg <= -0.15) decreasing.push({ sym, oiChg, price: currentP, pChg });
-                }
-
-                rising.sort((a, b) => b.oiChg - a.oiChg);
-                decreasing.sort((a, b) => a.oiChg - b.oiChg);
-
-                let risingHtml = '';
-                rising.forEach(r => {
-                    const pColor = r.pChg >= 0 ? '#10b981' : '#ef4444';
-                    risingHtml += `<tr onclick="quickLoad('${r.sym}')" style="cursor:pointer; border-bottom:1px solid #1e293b;">
-                        <td style="padding:0.5rem 0;"><strong>${r.sym}</strong></td>
-                        <td style="text-align:right; padding:0.5rem 0;">${r.price.toFixed(2)} <span style="color:${pColor};font-size:0.8rem;">(${r.pChg>0?'+':''}${r.pChg.toFixed(2)}%)</span></td>
-                        <td style="color:#10b981; font-weight:bold; text-align:right; padding:0.5rem 0;">+${r.oiChg.toFixed(2)}%</td>
-                    </tr>`;
-                });
-
-                let decreasingHtml = '';
-                decreasing.forEach(r => {
-                    const pColor = r.pChg >= 0 ? '#10b981' : '#ef4444';
-                    decreasingHtml += `<tr onclick="quickLoad('${r.sym}')" style="cursor:pointer; border-bottom:1px solid #1e293b;">
-                        <td style="padding:0.5rem 0;"><strong>${r.sym}</strong></td>
-                        <td style="text-align:right; padding:0.5rem 0;">${r.price.toFixed(2)} <span style="color:${pColor};font-size:0.8rem;">(${r.pChg>0?'+':''}${r.pChg.toFixed(2)}%)</span></td>
-                        <td style="color:#ef4444; font-weight:bold; text-align:right; padding:0.5rem 0;">${r.oiChg.toFixed(2)}%</td>
-                    </tr>`;
-                });
-
-                let html = `
-                <tr>
-                    <td colspan="7" style="padding: 0;">
-                        <div style="display: flex; flex-direction: row; width: 100%;">
-                            <div style="flex: 1; border-right: 1px solid #374151; padding: 1rem;">
-                                <h3 style="color: #34d399; text-align: center; margin-bottom: 1rem;">🟢 OI RISING STOCKS (${rising.length})</h3>
-                                <table style="width: 100%; border-collapse: collapse;">
-                                    <tr><th style="text-align:left; color:#9ca3af; padding-bottom:0.5rem;">Symbol</th><th style="text-align:right; color:#9ca3af; padding-bottom:0.5rem;">LTP (15m Chg)</th><th style="text-align:right; color:#9ca3af; padding-bottom:0.5rem;">OI Chg</th></tr>
-                                    ${risingHtml || '<tr><td colspan="3" style="text-align:center; padding:1rem; color:#64748b;">No stocks found</td></tr>'}
-                                </table>
-                            </div>
-                            <div style="flex: 1; padding: 1rem;">
-                                <h3 style="color: #f87171; text-align: center; margin-bottom: 1rem;">🔴 OI DECREASING STOCKS (${decreasing.length})</h3>
-                                <table style="width: 100%; border-collapse: collapse;">
-                                    <tr><th style="text-align:left; color:#9ca3af; padding-bottom:0.5rem;">Symbol</th><th style="text-align:right; color:#9ca3af; padding-bottom:0.5rem;">LTP (15m Chg)</th><th style="text-align:right; color:#9ca3af; padding-bottom:0.5rem;">OI Chg</th></tr>
-                                    ${decreasingHtml || '<tr><td colspan="3" style="text-align:center; padding:1rem; color:#64748b;">No stocks found</td></tr>'}
-                                </table>
-                            </div>
-                        </div>
-                    </td>
-                </tr>`;
-
-                tbody.innerHTML = html;
-                panel.scrollIntoView({ behavior: 'smooth' });
+                window.lastOIState = state;
+                window.renderOIView('ALL');
+                document.getElementById('signalPanel').scrollIntoView({ behavior: 'smooth' });
             } catch (e) { alert(e.message); }
             finally { document.getElementById('loader').style.display = 'none'; }
+        }
+
+        window.oiSortConfig = { rising: { key: 'oiChg', dir: 'desc' }, decreasing: { key: 'oiChg', dir: 'asc' } };
+
+        window.sortOITable = function(table, key) {
+            if (window.oiSortConfig[table].key === key) {
+                window.oiSortConfig[table].dir = window.oiSortConfig[table].dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                window.oiSortConfig[table].key = key;
+                window.oiSortConfig[table].dir = key === 'sym' ? 'asc' : 'desc';
+            }
+            const currentFilter = document.getElementById('oiFilterSelect') ? document.getElementById('oiFilterSelect').value : 'ALL';
+            window.renderOIView(currentFilter);
+        };
+
+        window.renderOIView = function(filter) {
+            const state = window.lastOIState;
+            if (!state) return;
+
+            const panel = document.getElementById('signalPanel');
+            const tbody = document.getElementById('signalLogBody');
+            
+            document.getElementById('signalLogHead').style.display = 'none';
+            panel.style.display = 'block';
+            
+            panel.querySelector('h2').innerHTML = `OI Status 
+                <select id="oiFilterSelect" onchange="window.renderOIView(this.value)" style="margin-left: 15px; padding: 5px 10px; background: rgba(4,18,48,0.9); color: #fff; border: 1px solid var(--accent); border-radius: 8px; font-family: 'Outfit'; font-size: 0.9rem; cursor: pointer;">
+                    <option value="ALL" ${filter === 'ALL' ? 'selected' : ''}>All OI Changes</option>
+                    <option value="LONG_BUILDUP" ${filter === 'LONG_BUILDUP' ? 'selected' : ''}>🟢 Long Buildup (Price Up, OI Up)</option>
+                    <option value="SHORT_BUILDUP" ${filter === 'SHORT_BUILDUP' ? 'selected' : ''}>🔴 Short Buildup (Price Down, OI Up)</option>
+                    <option value="SHORT_COVERING" ${filter === 'SHORT_COVERING' ? 'selected' : ''}>🟡 Short Covering (Price Up, OI Down)</option>
+                    <option value="LONG_UNWINDING" ${filter === 'LONG_UNWINDING' ? 'selected' : ''}>🟠 Long Unwinding (Price Down, OI Down)</option>
+                </select>`;
+
+            let rising = [];
+            let decreasing = [];
+
+            for (const sym in state.symbols) {
+                const oiH = state.symbols[sym].oiHistory;
+                const pH = state.symbols[sym].priceHistory;
+                if (!oiH || oiH.length < 2 || !pH || pH.length < 2) continue;
+
+                const currentOI = oiH[oiH.length - 1];
+                const startOI = state.symbols[sym].dayStartOI || oiH[0];
+                const currentP = pH[pH.length - 1];
+                const startP = state.symbols[sym].dayStartP || pH[0];
+                
+                const oiChg = ((currentOI - startOI) / startOI) * 100;
+                const pChg = ((currentP - startP) / startP) * 100;
+                
+                let type = '';
+                if (oiChg >= 0.15 && pChg >= 0) type = 'LONG_BUILDUP';
+                else if (oiChg >= 0.15 && pChg < 0) type = 'SHORT_BUILDUP';
+                else if (oiChg <= -0.15 && pChg >= 0) type = 'SHORT_COVERING';
+                else if (oiChg <= -0.15 && pChg < 0) type = 'LONG_UNWINDING';
+
+                if (filter !== 'ALL' && type !== filter) continue;
+
+                if (oiChg >= 0.15) rising.push({ sym, oiChg, price: currentP, pChg, type });
+                else if (oiChg <= -0.15) decreasing.push({ sym, oiChg, price: currentP, pChg, type });
+            }
+
+            const applySort = (arr, config) => {
+                arr.sort((a, b) => {
+                    let valA = a[config.key], valB = b[config.key];
+                    if (valA < valB) return config.dir === 'asc' ? -1 : 1;
+                    if (valA > valB) return config.dir === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            };
+
+            applySort(rising, window.oiSortConfig.rising);
+            applySort(decreasing, window.oiSortConfig.decreasing);
+
+            let risingHtml = '';
+            rising.forEach(r => {
+                const pColor = r.pChg >= 0 ? '#10b981' : '#ef4444';
+                let typeBadge = '';
+                if (r.type === 'LONG_BUILDUP') typeBadge = '<span style="font-size:0.7rem; background:rgba(16,185,129,0.15); color:#10b981; padding:2px 6px; border-radius:4px; margin-left:8px; border:1px solid #10b98155;">L-Build</span>';
+                if (r.type === 'SHORT_BUILDUP') typeBadge = '<span style="font-size:0.7rem; background:rgba(239,68,68,0.15); color:#ef4444; padding:2px 6px; border-radius:4px; margin-left:8px; border:1px solid #ef444455;">S-Build</span>';
+                
+                risingHtml += `<tr onclick="quickLoad('${r.sym}')" style="cursor:pointer; border-bottom:1px solid #1e293b; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                    <td style="padding:0.6rem 0;"><strong>${r.sym}</strong>${typeBadge}</td>
+                    <td style="text-align:right; padding:0.6rem 0;">${r.price.toFixed(2)} <span style="color:${pColor};font-size:0.8rem;">(${r.pChg>0?'+':''}${r.pChg.toFixed(2)}%)</span></td>
+                    <td style="color:#10b981; font-weight:bold; text-align:right; padding:0.6rem 0;">+${r.oiChg.toFixed(2)}%</td>
+                </tr>`;
+            });
+
+            let decreasingHtml = '';
+            decreasing.forEach(r => {
+                const pColor = r.pChg >= 0 ? '#10b981' : '#ef4444';
+                let typeBadge = '';
+                if (r.type === 'SHORT_COVERING') typeBadge = '<span style="font-size:0.7rem; background:rgba(245,158,11,0.15); color:#f59e0b; padding:2px 6px; border-radius:4px; margin-left:8px; border:1px solid #f59e0b55;">S-Cover</span>';
+                if (r.type === 'LONG_UNWINDING') typeBadge = '<span style="font-size:0.7rem; background:rgba(249,115,22,0.15); color:#f97316; padding:2px 6px; border-radius:4px; margin-left:8px; border:1px solid #f9731655;">L-Unwind</span>';
+                
+                decreasingHtml += `<tr onclick="quickLoad('${r.sym}')" style="cursor:pointer; border-bottom:1px solid #1e293b; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                    <td style="padding:0.6rem 0;"><strong>${r.sym}</strong>${typeBadge}</td>
+                    <td style="text-align:right; padding:0.6rem 0;">${r.price.toFixed(2)} <span style="color:${pColor};font-size:0.8rem;">(${r.pChg>0?'+':''}${r.pChg.toFixed(2)}%)</span></td>
+                    <td style="color:#ef4444; font-weight:bold; text-align:right; padding:0.6rem 0;">${r.oiChg.toFixed(2)}%</td>
+                </tr>`;
+            });
+
+            const getSortIcon = (table, key) => window.oiSortConfig[table].key === key ? (window.oiSortConfig[table].dir === 'asc' ? '↑' : '↓') : '<span style="opacity:0.3">↕</span>';
+
+            let html = `
+            <tr>
+                <td colspan="7" style="padding: 0;">
+                    <div style="display: flex; flex-direction: row; width: 100%; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 300px; border-right: 1px solid #374151; padding: 1rem;">
+                            <h3 style="color: #34d399; text-align: center; margin-bottom: 1rem;">🟢 OI RISING STOCKS (${rising.length})</h3>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <th onclick="window.sortOITable('rising', 'sym')" style="text-align:left; color:#9ca3af; padding-bottom:0.8rem; cursor:pointer; user-select:none;">Symbol ${getSortIcon('rising', 'sym')}</th>
+                                    <th onclick="window.sortOITable('rising', 'pChg')" style="text-align:right; color:#9ca3af; padding-bottom:0.8rem; cursor:pointer; user-select:none;">LTP (Day Chg) ${getSortIcon('rising', 'pChg')}</th>
+                                    <th onclick="window.sortOITable('rising', 'oiChg')" style="text-align:right; color:#9ca3af; padding-bottom:0.8rem; cursor:pointer; user-select:none;">OI Chg ${getSortIcon('rising', 'oiChg')}</th>
+                                </tr>
+                                ${risingHtml || '<tr><td colspan="3" style="text-align:center; padding:1rem; color:#64748b;">No stocks found</td></tr>'}
+                            </table>
+                        </div>
+                        <div style="flex: 1; min-width: 300px; padding: 1rem;">
+                            <h3 style="color: #f87171; text-align: center; margin-bottom: 1rem;">🔴 OI DECREASING STOCKS (${decreasing.length})</h3>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <th onclick="window.sortOITable('decreasing', 'sym')" style="text-align:left; color:#9ca3af; padding-bottom:0.8rem; cursor:pointer; user-select:none;">Symbol ${getSortIcon('decreasing', 'sym')}</th>
+                                    <th onclick="window.sortOITable('decreasing', 'pChg')" style="text-align:right; color:#9ca3af; padding-bottom:0.8rem; cursor:pointer; user-select:none;">LTP (Day Chg) ${getSortIcon('decreasing', 'pChg')}</th>
+                                    <th onclick="window.sortOITable('decreasing', 'oiChg')" style="text-align:right; color:#9ca3af; padding-bottom:0.8rem; cursor:pointer; user-select:none;">OI Chg ${getSortIcon('decreasing', 'oiChg')}</th>
+                                </tr>
+                                ${decreasingHtml || '<tr><td colspan="3" style="text-align:center; padding:1rem; color:#64748b;">No stocks found</td></tr>'}
+                            </table>
+                        </div>
+                    </div>
+                </td>
+            </tr>`;
+
+            tbody.innerHTML = html;
         }
 
         async function exportCSV() {
