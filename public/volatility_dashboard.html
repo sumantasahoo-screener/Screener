@@ -181,25 +181,14 @@
 <main>
 
   <div class="upload-zone" id="upload-zone">
-    <input type="file" id="csv-input" accept=".csv" style="display: none;">
     <div class="upload-icon">📂</div>
     <h2>FOVOLT CSV Load Karo</h2>
 
     <div class="button-row">
       <button onclick="loadFromCloudflare()" class="action-btn btn-blue" id="nse-btn">
-        <span class="icon-box">⬇️</span> Load NSE Data
-      </button>
-
-      <button onclick="downloadDirect()" class="action-btn btn-dark" id="direct-btn">
-        <span class="icon-box">⬇️</span> DIRECT DOWNLOAD
+        <span class="icon-box">⬇️</span> LOAD DATA
       </button>
     </div>
-
-    <div class="divider">YA MANUALLY UPLOAD KARO</div>
-
-    <label for="csv-input" class="action-btn btn-green">
-      <span class="icon-box">📁</span> BROWSE FILE
-    </label>
   </div>
 
   <div class="section-title">📖 Volatility Strategy Guide</div>
@@ -299,18 +288,6 @@
 // 1. BUTTON & DATE LOGIC (FULLY FIXED)
 // =========================================================
 
-function downloadDirect() {
-    window.open('https://www.nseindia.com/all-reports', '_blank');
-}
-
-document.getElementById('csv-input').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => loadData(ev.target.result, file.name);
-    reader.readAsText(file);
-});
-
 async function loadFromCloudflare() {
     const btn = document.getElementById('nse-btn');
     btn.innerHTML = '<span class="icon-box">⏳</span> Loading...';
@@ -342,7 +319,7 @@ async function loadFromCloudflare() {
         loadData(text, "FOVOLT_Live.csv");
         
         btn.innerHTML = '<span class="icon-box">✅</span> Loaded';
-        setTimeout(() => { btn.innerHTML = '<span class="icon-box">⬇️</span> Load NSE Data'; }, 3000);
+        setTimeout(() => { btn.innerHTML = '<span class="icon-box">⬇️</span> LOAD DATA'; }, 3000);
         
     } catch (e) {
         alert("NSE Load Failed: " + e.message);
@@ -544,19 +521,12 @@ function loadData(text, filename) {
   document.getElementById('upload-zone').style.display = 'none';
 }
 
-// Drag & drop logic (Original)
-const zone = document.getElementById('upload-zone');
-zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-zone.addEventListener('drop', e => {
-  e.preventDefault();
-  zone.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => loadData(ev.target.result, file.name);
-  reader.readAsText(file);
+// Drag & drop logic removed
+// Automatically load data when the page opens
+window.addEventListener('DOMContentLoaded', () => {
+    loadFromCloudflare();
 });
+
 </script>
 </body>
 </html>
