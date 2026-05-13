@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -314,25 +315,30 @@ async function loadFromCloudflare() {
     const btn = document.getElementById('nse-btn');
     btn.innerHTML = '<span class="icon-box">⏳</span> Loading...';
     try {
-        const response = await fetch('https://fovolt-downloader.sumantasahoo.workers.dev/');
+        const response = await fetch('https://fovolt-worker.sumantasahoo.workers.dev/');
+        
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`Worker Error (${response.status}): ${errText}`);
+        }
+        
         const text = await response.text();
         
-        // FIX 1: ULTRA ROBUST DATE EXTRACTION
-        // Ye code CSV text ke andar jaa kar date scan karega (e.g., 27-FEB-2026)
+        // FIX: Extract date from the CSV content dynamically
         let dataDate = "";
         const dateMatch = text.match(/\b(\d{2}[-\/][a-zA-Z]{3}[-\/]\d{2,4}|\d{2}[-\/]\d{2}[-\/]\d{2,4})\b/);
         
         if (dateMatch) {
-            dataDate = dateMatch[1].toUpperCase(); // Text se date nikaal kar set karega
+            dataDate = dateMatch[1].toUpperCase();
         } else {
-            // Agar file itni ajeeb hai ki regex fail ho jaye tabhi aaj ki date lega
             const today = new Date();
             dataDate = today.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
         }
         
+        // Update UI
         document.getElementById('file-date').textContent = `${dataDate} (Live NSE Data)`;
 
-        // Load data in table (Filename as "FOVOLT_Live.csv" so it doesn't overwrite our date)
+        // Load data in table
         loadData(text, "FOVOLT_Live.csv");
         
         btn.innerHTML = '<span class="icon-box">✅</span> Loaded';
@@ -368,10 +374,23 @@ function parseCSV(text) {
   const data = [];
   for (let i = 1; i < lines.length; i++) {
     const cols = lines[i].split(',').map(s => s.trim());
-    if (cols.length < 16) continue;
-    const symbol = cols[1];
-    const annVol = parseFloat(cols[15]) * 100;
-    const prevDailyVol = parseFloat(cols[11]) * 100 * Math.sqrt(365);
+    
+    let symbol, annVol, prevDailyVol;
+
+    // Check for 16-column format (Purana) ya 8-column format (Naya CMVOLT)
+    if (cols.length >= 16) {
+        symbol = cols[1];
+        annVol = parseFloat(cols[15]) * 100;
+        prevDailyVol = parseFloat(cols[11]) * 100 * Math.sqrt(365);
+    } else if (cols.length >= 8) {
+        symbol = cols[1];
+        // CMVOLT format: Index 7 is Current Annualised Volatility, Index 5 is Prev Daily Volatility
+        annVol = parseFloat(cols[7]) * 100;
+        prevDailyVol = parseFloat(cols[5]) * 100 * Math.sqrt(365);
+    } else {
+        continue; // Invalid row
+    }
+
     if (!symbol || isNaN(annVol)) continue;
     data.push({ symbol, annVol: +annVol.toFixed(2), prevAnnVol: +prevDailyVol.toFixed(2) });
   }
