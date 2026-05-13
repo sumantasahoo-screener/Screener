@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liquidity & Sector Flow Analyzer</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💧</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f7f9;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --text2: #475569;
+      --border: #e2e8f0;
+      --bull: #059669;
+      --bull-bg: rgba(5, 150, 105, 0.1);
+      --bear: #dc2626;
+      --bear-bg: rgba(220, 38, 38, 0.1);
+      --blue: #2563eb;
+      --blue-bg: rgba(37, 99, 235, 0.1);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px 20px; }
+    
+    .container { max-width: 1600px; margin: 0 auto; width: 100%; }
+    
+    .header { text-align: center; margin-bottom: 40px; }
+    .header h1 { font-size: 2.2rem; font-weight: 800; color: var(--text); margin-bottom: 8px; letter-spacing: -0.5px; }
+    .header p { color: var(--text2); font-size: 1rem; }
+    
+    .upload-box {
+      max-width: 500px; margin: 0 auto 40px auto;
+      background: var(--panel); border: 2px dashed #94a3b8;
+      border-radius: 16px; padding: 40px; text-align: center;
+      box-shadow: var(--shadow); transition: all 0.3s ease;
+    }
+    .upload-box h3 { margin-bottom: 10px; font-size: 1.2rem; color: var(--text); }
+    .upload-box p { color: var(--text2); font-size: 0.9rem; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    
+    .panel {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 12px; box-shadow: var(--shadow);
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .panel-header {
+      background: #f8fafc; border-bottom: 1px solid var(--border);
+      padding: 16px 20px; font-weight: 700; color: var(--text);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 1.05rem;
+    }
+    .panel-subtitle { font-size: 0.75rem; color: var(--text2); font-weight: 500; text-align: right; }
+    .panel-body { padding: 20px; flex-grow: 1; }
+
+    .list-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0; border-bottom: 1px solid #f1f5f9;
+    }
+    .list-item:last-child { border-bottom: none; }
+    .item-name { font-weight: 600; font-size: 0.95rem; color: var(--text); }
+    .item-val { font-weight: 700; font-size: 0.95rem; padding: 4px 10px; border-radius: 6px; }
+    
+    .bull { color: var(--bull); }
+    .bear { color: var(--bear); }
+    .bg-bull { background: var(--bull-bg); color: var(--bull); }
+    .bg-bear { background: var(--bear-bg); color: var(--bear); }
+    
+    .metric-card {
+      background: #f8fafc; padding: 16px; border-radius: 10px;
+      border: 1px solid var(--border); display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    .metric-title { font-weight: 600; font-size: 0.9rem; color: var(--text2); }
+    .metric-val { font-weight: 800; font-size: 1.3rem; color: var(--text); }
+
+    .insight-box {
+      padding: 16px; border-radius: 8px; margin-bottom: 12px;
+      font-size: 0.9rem; line-height: 1.5; border-left: 4px solid;
+    }
+    .insight-bull { background: var(--bull-bg); border-left-color: var(--bull); color: #064e3b; }
+    .insight-bear { background: var(--bear-bg); border-left-color: var(--bear); color: #7f1d1d; }
+
+    .liquidity-card {
+      background: var(--panel); border: 1px solid var(--border);
+      padding: 16px; border-radius: 12px; transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .liquidity-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -5px rgba(0,0,0,0.08); border-color: #cbd5e1; }
+    .lc-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: flex-start; }
+    .lc-symbol { font-weight: 800; font-size: 1.05rem; color: var(--text); }
+    .lc-price { font-size: 0.85rem; color: var(--text2); font-weight: 600; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; }
+    .lc-footer { display: flex; justify-content: space-between; align-items: center; }
+    .lc-val { font-weight: 800; color: var(--text); font-size: 0.95rem; }
+    .lc-val-badge { background: var(--blue-bg); color: var(--blue); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; }
+
+    .expand-btn {
+      width: 100%; padding: 12px; background: #ffffff; border: none;
+      border-top: 1px solid var(--border); color: var(--blue);
+      font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 0.95rem;
+    }
+    .expand-btn:hover { background: var(--blue-bg); }
+
+    /* Progress Bar for Breadth */
+    .breadth-bar { height: 10px; border-radius: 5px; overflow: hidden; display: flex; background: #e2e8f0; margin-top: 8px; }
+    .breadth-adv { background: var(--bull); transition: width 1s ease; }
+    .breadth-dec { background: var(--bear); transition: width 1s ease; }
+
+    #results { display: none; }
+
+    /* Mobile Perfect Adjustments */
+    @media (max-width: 900px) {
+      .grid-2 { grid-template-columns: 1fr; gap: 16px; }
+      .grid-4 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+      .header h1 { font-size: 1.6rem; }
+      .panel-header { flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 15px; }
+      .panel-subtitle { text-align: left; }
+      .metric-card { flex-direction: column; align-items: flex-start; gap: 4px; }
+      .upload-box { padding: 25px 15px; }
+      .upload-box h3 { font-size: 1.1rem; }
+      .item-name { font-size: 0.85rem; }
+      .item-val { font-size: 0.85rem; padding: 3px 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>💧 Institutional Liquidity & Flow</h1>
+    <p>Professional EOD Market Activity Analyzer</p>
+    <div style="margin-top: 10px; font-weight: bold; color: var(--blue); background: var(--blue-bg); display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem;" id="data-date">
+      Live Auto-Fetch Mode
+    </div>
+  </div>
+
+  <div class="upload-box" id="upload-box">
+    <h3 style="color:var(--blue)">Connecting to Server...</h3>
+    <p>Initializing auto-fetch for the latest Market Activity (MA) Report...</p>
+  </div>
+
+  <div id="results">
+    
+    <div class="grid-2">
+      <!-- Market Pulse -->
+      <div class="panel">
+        <div class="panel-header"><span>📈 Major Indices</span></div>
+        <div class="panel-body" id="major-idx-bd"></div>
+      </div>
+      
+      <!-- Breadth & VIX -->
+      <div class="panel">
+        <div class="panel-header"><span>⚖️ Market Breadth & Sentiment</span></div>
+        <div class="panel-body">
+          <div style="margin-bottom: 24px;">
+            <div style="display:flex; justify-content:space-between; font-weight:700; font-size:0.95rem;">
+              <span class="bull" id="adv-text">Advances: 0</span>
+              <span class="bear" id="dec-text">Declines: 0</span>
+            </div>
+            <div class="breadth-bar">
+              <div class="breadth-adv" id="adv-bar" style="width:50%"></div>
+              <div class="breadth-dec" id="dec-bar" style="width:50%"></div>
+            </div>
+          </div>
+          
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div class="metric-card">
+              <span class="metric-title">India VIX</span>
+              <span class="metric-val" id="vix-val">0.00</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-title">Circuit Hitters</span>
+              <span class="metric-val bull" id="circuit-val">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sector Rotation -->
+    <div class="panel" style="margin-bottom: 24px;">
+      <div class="panel-header">
+        <span>🔄 Sector Rotation (Smart Money Flow)</span>
+        <span class="panel-subtitle">Capital Rotation Trends</span>
+      </div>
+      <div class="panel-body">
+        <div class="grid-2" style="margin-bottom: 20px;">
+          <div>
+            <div style="font-size:0.8rem; font-weight:700; color:var(--text2); margin-bottom:10px; letter-spacing:1px;">🔥 TOP PERFORMING SECTORS</div>
+            <div id="sec-top"></div>
+          </div>
+          <div>
+            <div style="font-size:0.8rem; font-weight:700; color:var(--text2); margin-bottom:10px; letter-spacing:1px;">🧊 WEAKEST SECTORS</div>
+            <div id="sec-bot"></div>
+          </div>
+        </div>
+        <div id="sector-insight"></div>
+      </div>
+    </div>
+
+    <!-- Nifty 50 -->
+    <div class="panel" style="margin-bottom: 24px;">
+      <div class="panel-header">
+        <span>👑 Nifty 50 Top Movers</span>
+        <span class="panel-subtitle">Index Heavyweights</span>
+      </div>
+      <div class="panel-body grid-2">
+        <div>
+          <div style="font-size:0.8rem; font-weight:700; color:var(--text2); margin-bottom:10px; letter-spacing:1px;">TOP GAINERS</div>
+          <div id="n50-gain"></div>
+        </div>
+        <div>
+          <div style="font-size:0.8rem; font-weight:700; color:var(--text2); margin-bottom:10px; letter-spacing:1px;">TOP LOSERS</div>
+          <div id="n50-loss"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Liquidity Leaders -->
+    <div class="panel" style="margin-bottom: 24px;">
+      <div class="panel-header">
+        <span>💰 Top Liquidity Leaders (Turnover)</span>
+        <span class="panel-subtitle">Highest Traded Value in Crores</span>
+      </div>
+      <div class="panel-body">
+        <div class="grid-4" id="top25-bd"></div>
+        <button class="expand-btn" onclick="toggleCards('liq-card-item', this)" style="margin-top:15px;">View Top 50</button>
+      </div>
+    </div>
+
+    <!-- Highest Volume Leaders -->
+    <div class="panel" style="margin-bottom: 24px;">
+      <div class="panel-header">
+        <span>🌊 Highest Volume Leaders (Quantity)</span>
+        <span class="panel-subtitle">Most Traded Shares Today</span>
+      </div>
+      <div class="panel-body">
+        <div class="grid-4" id="volume-bd"></div>
+        <button class="expand-btn" onclick="toggleCards('vol-card-item', this)" style="margin-top:15px;">View Top 50</button>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<script>
+  function toggleCards(className, btn) {
+    const cards = document.querySelectorAll('.' + className);
+    let isExpanding = btn.innerText.includes('50');
+    
+    cards.forEach((card, index) => {
+      if(index >= 24) {
+        card.style.display = isExpanding ? 'table-row' : 'none';
+      }
+    });
+    
+    btn.innerText = isExpanding ? 'Show Less (Top 24)' : 'View Top 50';
+  }
+  // Cloudflare worker URL for MA.csv
+  const MA_WORKER_URL = "https://liquidity.21aoips3531a1zi.workers.dev";
+
+  window.onload = function() {
+    autoFetchData();
+  };
+
+  async function autoFetchData() {
+    try {
+      document.getElementById('upload-box').innerHTML = '<h3 style="color:var(--blue)">Downloading Live Data...</h3><p>Fetching today\'s Market Activity Report from NSE...</p>';
+      
+      const response = await fetch(MA_WORKER_URL);
+      if(!response.ok) throw new Error("Worker failed");
+      
+      const csvData = await response.text();
+      parseCSV(csvData);
+      
+    } catch(err) {
+      document.getElementById('upload-box').innerHTML = '<h3 style="color:var(--bear)">Auto-Fetch Failed</h3><p>Click here to manually upload MA.csv</p><input type="file" id="fallbackFileInput" accept=".csv" style="display: none;">';
+      
+      const box = document.getElementById('upload-box');
+      box.style.cursor = 'pointer';
+      box.onclick = () => document.getElementById('fallbackFileInput').click();
+      
+      document.getElementById('fallbackFileInput').addEventListener('change', function(e) {
+        if(e.target.files[0]) {
+           document.getElementById('upload-box').innerHTML = '<h3 style="color:var(--blue)">Processing...</h3>';
+           const reader = new FileReader();
+           reader.onload = ev => parseCSV(ev.target.result);
+           reader.readAsText(e.target.files[0]);
+        }
+      });
+    }
+  }
+
+  function parseCSV(csvText) {
+    const lines = csvText.split('\n');
+    let data = {
+      indices: [], n50Gain: [], n50Loss: [], top25: [], allStocks: [],
+      advances: 0, declines: 0, unchanged: 0, vix: 0, circuits: 0
+    };
+    
+    let currentMode = '';
+
+    for(let i=0; i<lines.length; i++) {
+      const line = lines[i].trim();
+      if(!line) { currentMode = ''; continue; }
+      
+      const cols = line.split(',').map(c => c.trim().replace(/"/g, ''));
+      if(cols.length < 2) continue;
+      
+      // Global Stats
+      if(cols[1] === 'India VIX') { data.vix = parseFloat(cols[6]); continue; }
+      if(cols[1] === 'ADVANCES') { data.advances = parseInt(cols[2]); continue; }
+      if(cols[1] === 'DECLINES') { data.declines = parseInt(cols[2]); continue; }
+      if(cols[1] === 'UNCHANGED') { data.unchanged = parseInt(cols[2]); continue; }
+      if(line.includes('price bands')) {
+        const parts = line.split(',');
+        data.circuits = parseInt(parts[parts.length - 1].replace(/"/g, '').trim()) || 0;
+        continue;
+      }
+
+      // Detect Sections
+      if(cols[1] === 'INDEX' && cols[2] === 'PREVIOUS CLOSE') { currentMode = 'INDEX'; continue; }
+      if(cols[1] === 'Top Five Nifty 50 Gainers:') { currentMode = 'N50_GAIN'; continue; }
+      if(cols[1] === 'Top Five Nifty 50 Losers:') { currentMode = 'N50_LOSS'; continue; }
+      if(cols[1] === 'SYMBOL' && cols[5] === '%VAR') { currentMode = 'TOP25'; continue; }
+      if(cols[1] === 'Securities Price Volume Data in Normal market') { currentMode = 'ALL_STOCKS'; continue; }
+
+      // Parse Data
+      if(currentMode === 'INDEX' && cols.length >= 7 && cols[1]) {
+        const prev = parseFloat(cols[2]);
+        const close = parseFloat(cols[6]);
+        const pct = prev > 0 ? ((close - prev) / prev) * 100 : 0;
+        data.indices.push({ name: cols[1], close: close, pct: pct });
+      }
+
+      if(currentMode === 'N50_GAIN' && cols[2] === 'EQ') {
+        data.n50Gain.push({ symbol: cols[1], close: parseFloat(cols[3]), pct: parseFloat(cols[5]) });
+      }
+      if(currentMode === 'N50_LOSS' && cols[2] === 'EQ') {
+        data.n50Loss.push({ symbol: cols[1], close: parseFloat(cols[3]), pct: parseFloat(cols[5]) });
+      }
+
+      if(currentMode === 'TOP25' && cols.length >= 6 && cols[1] && cols[2] === 'EQ') {
+        data.top25.push({
+          symbol: cols[1],
+          close: parseFloat(cols[4]),
+          pct: parseFloat(cols[5]),
+          valCr: parseFloat(cols[6])
+        });
+      }
+
+      if(currentMode === 'ALL_STOCKS' && cols.length >= 5 && cols[2] === 'EQ') {
+        data.allStocks.push({
+          symbol: cols[1],
+          close: parseFloat(cols[3]),
+          value: parseFloat(cols[4]),
+          qty: parseInt(cols[5])
+        });
+      }
+    }
+
+    if(data.indices.length > 0) {
+      document.getElementById('upload-box').style.display = 'none';
+      document.getElementById('results').style.display = 'block';
+      renderDashboard(data);
+    } else {
+      alert("Invalid CSV format. Please upload the official MA.csv.");
+      location.reload();
+    }
+  }
+
+  function renderDashboard(data) {
+    // 1. Major Indices
+    const majorNames = ['Nifty 50', 'Nifty Bank', 'NIFTY MIDCAP 50', 'NIFTY SMLCAP 100'];
+    let idxHtml = '';
+    majorNames.forEach(name => {
+      const idx = data.indices.find(i => i.name.toUpperCase() === name.toUpperCase());
+      if(idx) {
+        const cls = idx.pct >= 0 ? 'bg-bull' : 'bg-bear';
+        const sign = idx.pct >= 0 ? '+' : '';
+        idxHtml += `<div class="list-item"><span class="item-name">${idx.name}</span><span class="item-val ${cls}">${sign}${idx.pct.toFixed(2)}%</span></div>`;
+      }
+    });
+    document.getElementById('major-idx-bd').innerHTML = idxHtml;
+
+    // 2. Breadth & VIX
+    const total = data.advances + data.declines;
+    const advPct = total > 0 ? (data.advances / total) * 100 : 50;
+    const decPct = total > 0 ? (data.declines / total) * 100 : 50;
+    
+    document.getElementById('adv-text').innerText = `Advances: ${data.advances}`;
+    document.getElementById('dec-text').innerText = `Declines: ${data.declines}`;
+    document.getElementById('adv-bar').style.width = `${advPct}%`;
+    document.getElementById('dec-bar').style.width = `${decPct}%`;
+    
+    document.getElementById('vix-val').innerText = data.vix.toFixed(2);
+    document.getElementById('circuit-val').innerText = data.circuits;
+
+    // 3. Sector Rotation
+    const sectorIndices = data.indices.filter(i => i.name.startsWith('NIFTY ') && !['NIFTY 50', 'NIFTY NEXT 50'].includes(i.name) && i.name.indexOf('CAP') === -1);
+    sectorIndices.sort((a, b) => b.pct - a.pct);
+    const topSec = sectorIndices.slice(0, 6);
+    const botSec = sectorIndices.slice(-6).reverse();
+
+    let tSecHtml = '', bSecHtml = '';
+    topSec.forEach(s => {
+      const cls = s.pct >= 0 ? 'bg-bull' : 'bg-bear';
+      const sign = s.pct >= 0 ? '+' : '';
+      tSecHtml += `<div class="list-item"><span class="item-name">${s.name.replace('NIFTY ','')}</span><span class="item-val ${cls}">${sign}${s.pct.toFixed(2)}%</span></div>`;
+    });
+    botSec.forEach(s => {
+      const cls = s.pct >= 0 ? 'bg-bull' : 'bg-bear';
+      const sign = s.pct >= 0 ? '+' : '';
+      bSecHtml += `<div class="list-item"><span class="item-name">${s.name.replace('NIFTY ','')}</span><span class="item-val ${cls}">${sign}${s.pct.toFixed(2)}%</span></div>`;
+    });
+    
+    document.getElementById('sec-top').innerHTML = tSecHtml;
+    document.getElementById('sec-bot').innerHTML = bSecHtml;
+
+    // Sector Insight
+    let insightHtml = '';
+    if(topSec.length > 0 && topSec[0].pct > 0.5) {
+      insightHtml += `
+        <div class="insight-box insight-bull">
+          <strong>🟢 Accumulation Phase: ${topSec[0].name}</strong><br>
+          Big money is aggressively flowing into this sector (${topSec[0].pct.toFixed(2)}% up). Institutional players are deploying capital here. Consider focusing on top-weightage stocks within this index for long trades.
+        </div>`;
+    }
+    if(botSec.length > 0 && botSec[0].pct < -0.5) {
+      insightHtml += `
+        <div class="insight-box insight-bear">
+          <strong>🔴 Distribution Phase: ${botSec[0].name}</strong><br>
+          Institutions are liquidating positions in this sector (${botSec[0].pct.toFixed(2)}% down). It is currently under pressure. Avoid catching falling knives here.
+        </div>`;
+    }
+    document.getElementById('sector-insight').innerHTML = insightHtml;
+
+    // 4. Nifty 50 Movers
+    let nGainHtml = '', nLossHtml = '';
+    data.n50Gain.forEach(s => nGainHtml += `<div class="list-item"><span class="item-name">${s.symbol}</span><span class="item-val bull" style="font-weight:800">+${s.pct.toFixed(2)}%</span></div>`);
+    data.n50Loss.forEach(s => nLossHtml += `<div class="list-item"><span class="item-name">${s.symbol}</span><span class="item-val bear" style="font-weight:800">${s.pct.toFixed(2)}%</span></div>`);
+    document.getElementById('n50-gain').innerHTML = nGainHtml;
+    document.getElementById('n50-loss').innerHTML = nLossHtml;
+
+    // 5. Top Liquidity Leaders
+    let top25Html = '';
+    const top50Liq = data.allStocks.sort((a,b) => b.value - a.value).slice(0, 50);
+    top50Liq.forEach((st, index) => {
+      const inTop25 = data.top25.find(t => t.symbol === st.symbol);
+      const displayPct = inTop25 ? inTop25.pct : null;
+      const displayValCr = st.value / 10000000;
+      
+      const isHidden = index >= 24 ? 'display:none;' : 'display:flex;';
+      const cls = displayPct !== null ? (displayPct >= 0 ? 'bull' : 'bear') : '';
+      const sign = displayPct !== null && displayPct >= 0 ? '+' : '';
+      
+      const pctHtml = displayPct !== null 
+        ? `<span class="${cls}" style="font-weight:800; font-size:0.9rem;">${sign}${displayPct.toFixed(2)}%</span>` 
+        : `<span></span>`;
+      
+      top25Html += `
+        <div class="liquidity-card liq-card-item" style="${isHidden}">
+          <div class="lc-header">
+            <span class="lc-symbol">${st.symbol}</span>
+            <span class="lc-price">₹${st.close}</span>
+          </div>
+          <div class="lc-footer">
+            ${pctHtml}
+            <span class="lc-val-badge">₹${displayValCr.toLocaleString(undefined, {maximumFractionDigits:0})} Cr</span>
+          </div>
+        </div>
+      `;
+    });
+    document.getElementById('top25-bd').innerHTML = top25Html || '<div>No data found.</div>';
+
+    // 6. Highest Volume Leaders
+    let volHtml = '';
+    const top50Vol = data.allStocks.sort((a,b) => b.qty - a.qty).slice(0, 50);
+    top50Vol.forEach((st, index) => {
+      const isHidden = index >= 24 ? 'display:none;' : 'display:flex;';
+      volHtml += `
+        <div class="liquidity-card vol-card-item" style="${isHidden}">
+          <div class="lc-header">
+            <span class="lc-symbol">${st.symbol}</span>
+            <span class="lc-price">₹${st.close}</span>
+          </div>
+          <div class="lc-footer" style="justify-content: space-between;">
+            <span style="color:var(--text2); font-weight:600; font-size:0.8rem">VOL</span>
+            <span class="lc-val" style="color:var(--text);">${st.qty.toLocaleString()}</span>
+          </div>
+        </div>
+      `;
+    });
+    document.getElementById('volume-bd').innerHTML = volHtml || '<div>No data found.</div>';
+  }
+</script>
+
+</body>
+</html>
