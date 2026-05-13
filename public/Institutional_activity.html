@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Institutional Delivery & Circuit Scanner</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
+<style>
+  :root {
+    --bg1: #f4f7f9;
+    --bg2: #ffffff;
+    --bg3: #f1f5f9;
+    --text1: #0f172a;
+    --text2: #475569;
+    --bull: #059669;
+    --bull-bg: rgba(5, 150, 105, 0.1);
+    --bear: #dc2626;
+    --bear-bg: rgba(220, 38, 38, 0.1);
+    --blue: #2563eb;
+    --blue-bg: rgba(37, 99, 235, 0.1);
+    --warn: #d97706;
+    --border: #e2e8f0;
+  }
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+  body { background: var(--bg1); color: var(--text1); padding: 20px; }
+  
+  .header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .header h1 { font-size: 2rem; margin-bottom: 5px; color: var(--blue); }
+  .header p { color: var(--text2); font-size: 0.9rem; }
+  
+  .upload-area { max-width: 500px; margin: 0 auto 30px auto; background: var(--bg2); padding: 30px; text-align: center; border-radius: 12px; border: 2px dashed var(--border); }
+  .upload-area h3 { margin-bottom: 10px; }
+  .upload-btn { background: var(--blue); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 15px; }
+  .upload-btn:hover { background: #1d4ed8; }
+
+  .dashboard { display: none; max-width: 1400px; margin: 0 auto; }
+  
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
+  .stat-card { background: var(--bg2); padding: 20px; border-radius: 10px; border: 1px solid var(--border); text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .stat-title { font-size: 0.8rem; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
+  .stat-val { font-size: 1.8rem; font-weight: 800; }
+
+  .section-title { font-size: 1.2rem; font-weight: 600; padding: 12px 15px; background: var(--bg3); border: 1px solid var(--border); border-bottom: none; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; }
+  .section-subtitle { font-size: 0.8rem; font-weight: 400; color: var(--text2); }
+  
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px; }
+  
+  .table-container { width: 100%; border-collapse: collapse; background: var(--bg2); border: 1px solid var(--border); border-radius: 0 0 8px 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+  th { background: #ffffff; color: var(--text2); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; }
+  th:hover { background: var(--bg3); color: var(--text1); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: var(--bg3); }
+  
+  .bull { color: var(--bull); }
+  .bear { color: var(--bear); }
+  
+  .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+  .badge.uc { background: var(--bull-bg); color: var(--bull); border: 1px solid var(--bull); }
+  .badge.lc { background: var(--bear-bg); color: var(--bear); border: 1px solid var(--bear); }
+  
+  .expand-btn { width: 100%; padding: 10px; background: #ffffff; border: none; border-top: 1px solid var(--border); color: var(--blue); font-weight: 600; cursor: pointer; transition: 0.2s; }
+  .expand-btn:hover { background: var(--bg3); }
+  
+  /* Mobile Responsiveness */
+  @media (max-width: 768px) {
+    body { padding: 10px; }
+    .header h1 { font-size: 1.5rem; }
+    .grid-2 { grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .section-title { flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px; }
+    .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { white-space: nowrap; }
+    th, td { padding: 10px; font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Institutional Delivery & Circuit Scanner</h1>
+  <p>Day End Institutional Activity Data</p>
+  <div style="margin-top: 15px; font-weight: bold; color: var(--warn); background: rgba(245, 158, 11, 0.1); display: inline-block; padding: 5px 15px; border-radius: 20px; border: 1px solid var(--warn);" id="data-date">
+    Data Date: Fetching...
+  </div>
+</div>
+
+<div class="upload-area" id="upload-area">
+  <h3 id="status-text">Fetching Live Data from NSE...</h3>
+  <p style="color:var(--text2); font-size:0.85rem;" id="status-subtext">Connecting to Cloudflare Worker</p>
+</div>
+
+<div class="dashboard" id="dashboard">
+  
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-title">Upper Circuits</div>
+      <div class="stat-val bull" id="stat-uc">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Lower Circuits</div>
+      <div class="stat-val bear" id="stat-lc">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Advances</div>
+      <div class="stat-val bull" id="stat-adv">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Declines</div>
+      <div class="stat-val bear" id="stat-dec">0</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="section-title">
+        <span>🚀 Institutional Accumulation</span>
+        <span class="section-subtitle">Price Up + Delivery > 50% + High Value (> 5 Cr)</span>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead><tr>
+            <th onclick="sortTable('accum', 'symbol')">SYMBOL ↕</th>
+            <th onclick="sortTable('accum', 'close')">CLOSE ↕</th>
+            <th onclick="sortTable('accum', 'pctChg')">% CHG ↕</th>
+            <th onclick="sortTable('accum', 'delivPct')">DELIVERY ↕</th>
+            <th onclick="sortTable('accum', 'turnoverCr')">TURNOVER ↕</th>
+          </tr></thead>
+          <tbody id="tbl-accum"></tbody>
+        </table>
+        <button class="expand-btn" id="btn-accum" onclick="toggleExpand('accum')" style="display:none">View Top 50</button>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">
+        <span>🩸 Institutional Distribution</span>
+        <span class="section-subtitle">Price Down + Delivery > 50% + High Value (> 5 Cr)</span>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead><tr>
+            <th onclick="sortTable('dist', 'symbol')">SYMBOL ↕</th>
+            <th onclick="sortTable('dist', 'close')">CLOSE ↕</th>
+            <th onclick="sortTable('dist', 'pctChg')">% CHG ↕</th>
+            <th onclick="sortTable('dist', 'delivPct')">DELIVERY ↕</th>
+            <th onclick="sortTable('dist', 'turnoverCr')">TURNOVER ↕</th>
+          </tr></thead>
+          <tbody id="tbl-dist"></tbody>
+        </table>
+        <button class="expand-btn" id="btn-dist" onclick="toggleExpand('dist')" style="display:none">View Top 50</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="section-title">
+        <span>🔒 Circuit Hitters (Upper)</span>
+        <span class="section-subtitle">Locked at High</span>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead><tr>
+            <th onclick="sortTable('uc', 'symbol')">SYMBOL ↕</th>
+            <th onclick="sortTable('uc', 'close')">CLOSE ↕</th>
+            <th onclick="sortTable('uc', 'pctChg')">% CHG ↕</th>
+            <th onclick="sortTable('uc', 'delivPct')">DELIVERY ↕</th>
+            <th onclick="sortTable('uc', 'turnoverCr')">TURNOVER ↕</th>
+          </tr></thead>
+          <tbody id="tbl-uc"></tbody>
+        </table>
+        <button class="expand-btn" id="btn-uc" onclick="toggleExpand('uc')" style="display:none">View Top 50</button>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">
+        <span>🔒 Circuit Hitters (Lower)</span>
+        <span class="section-subtitle">Locked at Low</span>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead><tr>
+            <th onclick="sortTable('lc', 'symbol')">SYMBOL ↕</th>
+            <th onclick="sortTable('lc', 'close')">CLOSE ↕</th>
+            <th onclick="sortTable('lc', 'pctChg')">% CHG ↕</th>
+            <th onclick="sortTable('lc', 'delivPct')">DELIVERY ↕</th>
+            <th onclick="sortTable('lc', 'turnoverCr')">TURNOVER ↕</th>
+          </tr></thead>
+          <tbody id="tbl-lc"></tbody>
+        </table>
+        <button class="expand-btn" id="btn-lc" onclick="toggleExpand('lc')" style="display:none">View Top 50</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 30px;">
+    <div class="section-title">
+      <span>📦 Hidden Delivery Spikes (Silent Accumulation)</span>
+      <span class="section-subtitle">Price flat (-1.5% to 1.5%) BUT Delivery > 60% + High Value (> 5 Cr)</span>
+    </div>
+      <div class="table-container">
+        <table>
+          <thead><tr>
+            <th onclick="sortTable('hidden', 'symbol')">SYMBOL ↕</th>
+            <th onclick="sortTable('hidden', 'close')">CLOSE ↕</th>
+            <th onclick="sortTable('hidden', 'pctChg')">% CHG ↕</th>
+            <th onclick="sortTable('hidden', 'delivPct')">DELIVERY % ↕</th>
+            <th onclick="sortTable('hidden', 'turnoverCr')">TURNOVER (CR) ↕</th>
+          </tr></thead>
+          <tbody id="tbl-hidden"></tbody>
+        </table>
+        <button class="expand-btn" id="btn-hidden" onclick="toggleExpand('hidden')" style="display:none">View Top 50</button>
+      </div>
+  </div>
+
+</div>
+
+<script>
+  const WORKER_URL = "https://bhav-full-worker.21aoips3531a1zi.workers.dev";
+
+  window.onload = function() {
+    autoFetchData();
+  };
+
+  async function autoFetchData() {
+    try {
+      document.getElementById('status-text').innerText = "Downloading Bhavcopy...";
+      document.getElementById('status-subtext').innerText = "Please wait, parsing thousands of rows...";
+      
+      const response = await fetch(WORKER_URL);
+      if(!response.ok) throw new Error("Worker failed");
+      
+      const csvData = await response.text();
+      parseBhavcopy(csvData);
+      
+    } catch(err) {
+      document.getElementById('status-text').innerText = "Auto-Fetch Failed";
+      document.getElementById('status-subtext').innerText = "Worker is offline or NSE is blocking requests.";
+      document.getElementById('data-date').innerText = "Data Date: Unknown (Offline)";
+    }
+  }
+
+  let globalLists = { accum: [], dist: [], uc: [], lc: [], hidden: [] };
+  let expandedState = { accum: false, dist: false, uc: false, lc: false, hidden: false };
+  let sortState = {
+    accum: { key: null, asc: false },
+    dist: { key: null, asc: false },
+    uc: { key: null, asc: false },
+    lc: { key: null, asc: false },
+    hidden: { key: null, asc: false }
+  };
+
+  function parseBhavcopy(csv) {
+    const lines = csv.split('\n');
+    
+    // Extract Date from the first row of data (Column 3)
+    if(lines.length > 1) {
+      const firstCols = lines[1].split(',');
+      if(firstCols.length > 3) {
+        document.getElementById('data-date').innerText = "Data Date: " + firstCols[2].trim();
+      }
+    }
+
+    let stocks = [];
+    
+    let stats = { uc: 0, lc: 0, adv: 0, dec: 0 };
+
+    for(let i=1; i<lines.length; i++) {
+      const line = lines[i].trim();
+      if(!line) continue;
+      
+      const cols = line.split(',').map(c => c.trim());
+      if(cols.length < 15) continue;
+      
+      const symbol = cols[0];
+      const series = cols[1];
+      
+      if(series !== 'EQ' && series !== 'BE' && series !== 'SM') continue; // Only scan equity and SME
+      if(symbol.includes('ETF') || symbol.includes('BEES') || symbol.includes('LIQUID') || symbol.includes('NIFTY')) continue; // Exclude ETFs
+      
+      const prevClose = parseFloat(cols[3]);
+      const open = parseFloat(cols[4]);
+      const high = parseFloat(cols[5]);
+      const low = parseFloat(cols[6]);
+      const close = parseFloat(cols[8]);
+      const turnoverLacs = parseFloat(cols[11]);
+      const turnoverCr = turnoverLacs / 100;
+      const delivPct = parseFloat(cols[14]) || 0;
+      
+      if(prevClose <= 0) continue;
+      
+      const pctChg = ((close - prevClose) / prevClose) * 100;
+      
+      // Strict Circuit Detection (Locked)
+      let isUC = false;
+      let isLC = false;
+      
+      // If it closed exactly at high, and moved at least 4.5% up
+      if(close === high && pctChg >= 4.5) isUC = true;
+      // If it closed exactly at low, and moved at least 4.5% down
+      if(close === low && pctChg <= -4.5) isLC = true;
+      
+      if(isUC) stats.uc++;
+      if(isLC) stats.lc++;
+      if(pctChg > 0) stats.adv++;
+      if(pctChg < 0) stats.dec++;
+
+      stocks.push({
+        symbol, close, pctChg, turnoverCr, delivPct, isUC, isLC
+      });
+    }
+
+    renderDashboard(stocks, stats);
+  }
+
+  function renderDashboard(stocks, stats) {
+    document.getElementById('upload-area').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+
+    document.getElementById('stat-uc').innerText = stats.uc;
+    document.getElementById('stat-lc').innerText = stats.lc;
+    document.getElementById('stat-adv').innerText = stats.adv;
+    document.getElementById('stat-dec').innerText = stats.dec;
+
+    // 1. Institutional Accumulation
+    globalLists.accum = stocks.filter(s => s.pctChg >= 1.0 && s.delivPct >= 50 && s.turnoverCr >= 5);
+    globalLists.accum.sort((a,b) => (b.delivPct * b.turnoverCr) - (a.delivPct * a.turnoverCr));
+    
+    // 2. Institutional Distribution
+    globalLists.dist = stocks.filter(s => s.pctChg <= -1.0 && s.delivPct >= 50 && s.turnoverCr >= 5);
+    globalLists.dist.sort((a,b) => (b.delivPct * b.turnoverCr) - (a.delivPct * a.turnoverCr));
+
+    // 3. Circuit Hitters
+    globalLists.uc = stocks.filter(s => s.isUC).sort((a,b) => b.turnoverCr - a.turnoverCr);
+    globalLists.lc = stocks.filter(s => s.isLC).sort((a,b) => b.turnoverCr - a.turnoverCr);
+
+    // 4. Hidden Delivery Spikes
+    globalLists.hidden = stocks.filter(s => Math.abs(s.pctChg) <= 1.5 && s.delivPct >= 60 && s.turnoverCr >= 5);
+    globalLists.hidden.sort((a,b) => b.turnoverCr - a.turnoverCr);
+
+    renderTable('accum');
+    renderTable('dist');
+    renderTable('uc');
+    renderTable('lc');
+    renderTable('hidden');
+  }
+
+  function renderTable(type) {
+    const list = globalLists[type];
+    const isCircuit = (type === 'uc' || type === 'lc');
+    const defaultLimit = (type === 'hidden') ? 15 : 10;
+    const limit = expandedState[type] ? 100 : defaultLimit;
+    
+    document.getElementById('tbl-' + type).innerHTML = generateRows(list.slice(0, limit), isCircuit);
+    
+    const btn = document.getElementById('btn-' + type);
+    if(list.length > defaultLimit) {
+      btn.style.display = 'inline-block';
+      btn.innerText = expandedState[type] ? 'Collapse List' : 'View Top 100';
+      btn.onclick = function() { 
+        expandedState[type] = !expandedState[type]; 
+        renderTable(type); 
+      };
+    } else {
+      btn.style.display = 'none';
+    }
+  }
+
+  function sortTable(type, key) {
+    let state = sortState[type];
+    if(state.key === key) {
+      state.asc = !state.asc;
+    } else {
+      state.key = key;
+      state.asc = (key === 'symbol') ? true : false;
+    }
+    
+    globalLists[type].sort((a, b) => {
+      let valA = a[key];
+      let valB = b[key];
+      
+      if(valA < valB) return state.asc ? -1 : 1;
+      if(valA > valB) return state.asc ? 1 : -1;
+      return 0;
+    });
+    
+    renderTable(type);
+  }
+
+  function generateRows(list, isCircuit = false) {
+    if(list.length === 0) return '<tr><td colspan="5" style="text-align:center; color:var(--text2)">No stocks found in this category.</td></tr>';
+    
+    let html = '';
+    list.forEach(s => {
+      const cClass = s.pctChg >= 0 ? 'bull' : 'bear';
+      const cSign = s.pctChg >= 0 ? '+' : '';
+      
+      let badge = '';
+      if(isCircuit) {
+        badge = s.isUC ? '<span class="badge uc">UC</span>' : '<span class="badge lc">LC</span>';
+      }
+
+      if(isCircuit) {
+        html += `<tr>
+          <td><strong style="color:var(--text1)">${s.symbol}</strong> ${badge}</td>
+          <td>₹${s.close.toFixed(2)}</td>
+          <td class="${cClass}" style="font-weight:700">${cSign}${s.pctChg.toFixed(2)}%</td>
+          <td style="color:#eab308; font-weight:700;">${s.delivPct.toFixed(1)}%</td>
+          <td>₹${s.turnoverCr.toFixed(1)} Cr</td>
+        </tr>`;
+      } else {
+        html += `<tr>
+          <td><strong style="color:var(--text1)">${s.symbol}</strong></td>
+          <td>₹${s.close.toFixed(2)}</td>
+          <td class="${cClass}" style="font-weight:700">${cSign}${s.pctChg.toFixed(2)}%</td>
+          <td style="color:#eab308; font-weight:700;">${s.delivPct.toFixed(1)}%</td>
+          <td>₹${s.turnoverCr.toFixed(1)} Cr</td>
+        </tr>`;
+      }
+    });
+    return html;
+  }
+</script>
+
+</body>
+</html>
