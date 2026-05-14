@@ -1,428 +1,1186 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Institutional Delivery & Circuit Scanner</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
-<style>
-  :root {
-    --bg1: #f4f7f9;
-    --bg2: #ffffff;
-    --bg3: #f1f5f9;
-    --text1: #0f172a;
-    --text2: #475569;
-    --bull: #059669;
-    --bull-bg: rgba(5, 150, 105, 0.1);
-    --bear: #dc2626;
-    --bear-bg: rgba(220, 38, 38, 0.1);
-    --blue: #2563eb;
-    --blue-bg: rgba(37, 99, 235, 0.1);
-    --warn: #d97706;
-    --border: #e2e8f0;
-  }
-  
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-  body { background: var(--bg1); color: var(--text1); padding: 20px; }
-  
-  .header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
-  .header h1 { font-size: 2rem; margin-bottom: 5px; color: var(--blue); }
-  .header p { color: var(--text2); font-size: 0.9rem; }
-  
-  .upload-area { max-width: 500px; margin: 0 auto 30px auto; background: var(--bg2); padding: 30px; text-align: center; border-radius: 12px; border: 2px dashed var(--border); }
-  .upload-area h3 { margin-bottom: 10px; }
-  .upload-btn { background: var(--blue); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 15px; }
-  .upload-btn:hover { background: #1d4ed8; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Institutional Delivery & Circuit Scanner</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%231e293b'/><path d='M6 16h3v-6H6v6zm5 0h3v-8h-3v8zm5 0h3V6h-3v10z' fill='%233b82f6'/><path d='M4 18h16v2H4v-2z' fill='%2394a3b8'/></svg>">
+  <style>
+    :root {
+      --bg1: #f4f7f9;
+      --bg2: #ffffff;
+      --bg3: #f1f5f9;
+      --text1: #0f172a;
+      --text2: #475569;
+      --bull: #059669;
+      --bull-bg: rgba(5, 150, 105, 0.1);
+      --bear: #dc2626;
+      --bear-bg: rgba(220, 38, 38, 0.1);
+      --blue: #2563eb;
+      --blue-bg: rgba(37, 99, 235, 0.1);
+      --warn: #d97706;
+      --border: #e2e8f0;
+    }
 
-  .dashboard { display: none; max-width: 1400px; margin: 0 auto; }
-  
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
-  .stat-card { background: var(--bg2); padding: 20px; border-radius: 10px; border: 1px solid var(--border); text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-  .stat-title { font-size: 0.8rem; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
-  .stat-val { font-size: 1.8rem; font-weight: 800; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
 
-  .section-title { font-size: 1.2rem; font-weight: 600; padding: 12px 15px; background: var(--bg3); border: 1px solid var(--border); border-bottom: none; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; }
-  .section-subtitle { font-size: 0.8rem; font-weight: 400; color: var(--text2); }
-  
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px; }
-  
-  .table-container { width: 100%; border-collapse: collapse; background: var(--bg2); border: 1px solid var(--border); border-radius: 0 0 8px 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-  table { width: 100%; border-collapse: collapse; }
-  th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-  th { background: #ffffff; color: var(--text2); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; }
-  th:hover { background: var(--bg3); color: var(--text1); }
-  tr:last-child td { border-bottom: none; }
-  tr:hover { background: var(--bg3); }
-  
-  .bull { color: var(--bull); }
-  .bear { color: var(--bear); }
-  
-  .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
-  .badge.uc { background: var(--bull-bg); color: var(--bull); border: 1px solid var(--bull); }
-  .badge.lc { background: var(--bear-bg); color: var(--bear); border: 1px solid var(--bear); }
-  
-  .expand-btn { width: 100%; padding: 10px; background: #ffffff; border: none; border-top: 1px solid var(--border); color: var(--blue); font-weight: 600; cursor: pointer; transition: 0.2s; }
-  .expand-btn:hover { background: var(--bg3); }
-  
-  /* Mobile Responsiveness */
-  @media (max-width: 768px) {
-    body { padding: 10px; }
-    .header h1 { font-size: 1.5rem; }
-    .grid-2 { grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
-    .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .section-title { flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px; }
-    .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    table { white-space: nowrap; }
-    th, td { padding: 10px; font-size: 0.85rem; }
-  }
-</style>
+    body {
+      background: var(--bg1);
+      color: var(--text1);
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 5px;
+      color: var(--blue);
+    }
+
+    .header p {
+      color: var(--text2);
+      font-size: 0.9rem;
+    }
+
+    .upload-area {
+      max-width: 500px;
+      margin: 0 auto 30px auto;
+      background: var(--bg2);
+      padding: 30px;
+      text-align: center;
+      border-radius: 12px;
+      border: 2px dashed var(--border);
+    }
+
+    .upload-area h3 {
+      margin-bottom: 10px;
+    }
+
+    .upload-btn {
+      background: var(--blue);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    .upload-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .dashboard {
+      display: none;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: var(--bg2);
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-title {
+      font-size: 0.8rem;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .stat-val {
+      font-size: 1.8rem;
+      font-weight: 800;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      padding: 12px 15px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-subtitle {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--text2);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .table-container {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 0 0 8px 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: #ffffff;
+      color: var(--text2);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    th:hover {
+      background: var(--bg3);
+      color: var(--text1);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover {
+      background: var(--bg3);
+    }
+
+    .bull {
+      color: var(--bull);
+    }
+
+    .bear {
+      color: var(--bear);
+    }
+
+    .badge {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .badge.uc {
+      background: var(--bull-bg);
+      color: var(--bull);
+      border: 1px solid var(--bull);
+    }
+
+    .badge.lc {
+      background: var(--bear-bg);
+      color: var(--bear);
+      border: 1px solid var(--bear);
+    }
+
+    .expand-btn {
+      width: 100%;
+      padding: 10px;
+      background: #ffffff;
+      border: none;
+      border-top: 1px solid var(--border);
+      color: var(--blue);
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .expand-btn:hover {
+      background: var(--bg3);
+    }
+
+    /* Delivery Progress Bar */
+    .deliv-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 110px;
+    }
+
+    .deliv-bar-bg {
+      flex: 1;
+      background: var(--border);
+      border-radius: 4px;
+      height: 7px;
+      min-width: 55px;
+      overflow: hidden;
+    }
+
+    .deliv-bar-fill {
+      height: 7px;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+
+    .bull-fill {
+      background: linear-gradient(90deg, #059669, #34d399);
+    }
+
+    .bear-fill {
+      background: linear-gradient(90deg, #dc2626, #f87171);
+    }
+
+    .deliv-bar-text {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #d97706;
+      min-width: 36px;
+      text-align: right;
+    }
+
+    /* Chart Container */
+    .chart-container {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 15px 20px 10px;
+    }
+
+    .chart-label {
+      font-size: 0.75rem;
+      color: var(--text2);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .section-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 10px;
+      }
+
+      .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      table {
+        white-space: nowrap;
+      }
+
+      th,
+      td {
+        padding: 10px;
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* Modal Popup */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.7); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .modal-content { background: var(--bg1); border-radius: 12px; max-width: 650px; width: 95%; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: popIn 0.3s ease-out; padding: 20px; }
+    .modal-close-btn { position: absolute; top: 12px; right: 15px; font-size: 1.2rem; color: var(--text2); cursor: pointer; background: var(--bg2); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+    .modal-close-btn:hover { background: var(--border); color: var(--text1); }
+    @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    /* Search Result Card - Unique */
+    .sr-card { margin-top: 0; background: transparent; border: none; padding: 0; display: block; box-shadow: none; }
+    .sr-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .sr-symbol { font-size: 1.4rem; font-weight: 900; color: var(--text1); }
+    .sr-badge { padding: 4px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; }
+    .sr-badge.accum  { background: rgba(5,150,105,0.12); color: #059669; border: 1px solid #059669; }
+    .sr-badge.dist   { background: rgba(220,38,38,0.10); color: #dc2626; border: 1px solid #dc2626; }
+    .sr-badge.uc     { background: rgba(5,150,105,0.12); color: #059669; border: 1px solid #059669; }
+    .sr-badge.lc     { background: rgba(220,38,38,0.10); color: #dc2626; border: 1px solid #dc2626; }
+    .sr-badge.hidden { background: rgba(37,99,235,0.10); color: #2563eb; border: 1px solid #2563eb; }
+    .sr-badge.none   { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+    .sr-body { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+    .sr-gauge-wrap { flex: 0 0 120px; text-align: center; }
+    .sr-gauge-label { font-size: 0.7rem; color: var(--text2); font-weight: 700; text-transform: uppercase; margin-top: 4px; }
+    .sr-split-wrap { flex: 1; min-width: 200px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; }
+    .sr-split-lbl { font-size: 0.72rem; color: var(--text2); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; text-align: center; }
+    .sr-split-bar { height: 12px; background: #cbd5e1; border-radius: 6px; overflow: hidden; display: flex; width: 100%; }
+    .sr-split-fill { height: 100%; transition: width 0.8s ease; }
+    .sr-split-vals { display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.75rem; font-weight: 800; }
+    .sr-stats { flex: 1; display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; min-width: 200px; }
+    .sr-stat { background: var(--bg3); border-radius: 8px; padding: 10px 12px; }
+    .sr-stat-lbl { font-size: 0.7rem; color: var(--text2); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .sr-stat-val { font-size: 1.05rem; font-weight: 800; margin-top: 2px; }
+    .sr-signal { margin-top: 14px; }
+    .sr-signal-lbl { font-size: 0.72rem; color: var(--text2); font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
+    .sr-signal-bar-bg { background: var(--border); border-radius: 20px; height: 8px; overflow: hidden; }
+    .sr-signal-bar-fill { height: 8px; border-radius: 20px; transition: width 0.8s ease; }
+    .sr-signal-text { font-size: 0.8rem; font-weight: 700; margin-top: 4px; }
+    .sr-not-found { color: var(--bear); font-weight: 600; text-align: center; padding: 8px 0; }
+    @media(max-width:600px){ .sr-body { flex-direction: column; } .sr-stats { grid-template-columns: repeat(2,1fr); } }
+
+    /* Date Dropdown */
+    .date-select-wrap { display: none; }
+    .date-select { padding: 6px 14px; border-radius: 8px; border: 1.5px solid var(--warn); background: rgba(245,158,11,0.08); color: var(--warn); font-size: 0.85rem; font-weight: 700; cursor: pointer; outline: none; }
+
+    /* Search Bar & Top 10 */
+    .search-wrap { max-width: 700px; margin: 0 auto 20px; display: none; }
+    .search-row { display: flex; gap: 8px; max-width: 480px; margin: 0 auto; }
+    .search-input { flex: 1; padding: 10px 15px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.95rem; font-weight: 600; text-transform: uppercase; outline: none; transition: border 0.2s; background: var(--bg2); color: var(--text1); }
+    .search-input:focus { border-color: var(--blue); }
+    .search-btn { padding: 10px 20px; background: var(--blue); color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .search-btn:hover { background: #1d4ed8; }
+
+    /* Top 10 Panel */
+    .top10-btns { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
+    .top10-btn { padding: 8px 16px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; color: white; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .top10-btn.buy { background: #059669; }
+    .top10-btn.buy:hover { background: #047857; }
+    .top10-btn.sell { background: #dc2626; }
+    .top10-btn.sell:hover { background: #b91c1c; }
+    .top10-btn.super { background: #6366f1; }
+    .top10-btn.super:hover { background: #4f46e5; }
+    .top10-panel { margin-top: 15px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 15px 20px; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    .top10-header { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1.05rem; margin-bottom: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+    .top10-close { cursor: pointer; color: var(--text2); padding: 0 5px; font-size: 1.2rem; }
+    .top10-list { display: flex; flex-direction: column; }
+    .top10-item { display: flex; justify-content: space-between; padding: 12px 6px; border-bottom: 1px solid rgba(0,0,0,0.04); align-items: center; cursor: pointer; transition: background 0.2s; }
+    .top10-item:last-child { border-bottom: none; }
+    .top10-item:hover { background: rgba(0,0,0,0.02); border-radius: 6px; }
+    .t10-sym { font-weight: 600; width: 30%; font-size: 0.95rem; color: var(--text1); }
+    .t10-chg { font-weight: 600; width: 25%; text-align: center; font-size: 0.95rem; }
+    .t10-turn { font-weight: 500; width: 45%; text-align: right; color: var(--text2); font-size: 0.85rem; }
+    @media(max-width:600px){ .top10-btns { flex-direction: column; } .t10-sym{width:40%;} .t10-chg{width:25%;} .t10-turn{width:35%;} }
+    @media(max-width:600px){ .date-btns { gap: 4px; } }
+  </style>
 </head>
+
 <body>
 
-<div class="header">
-  <h1>Institutional Delivery & Circuit Scanner</h1>
-  <p>Day End Institutional Activity Data</p>
-  <div style="margin-top: 15px; font-weight: bold; color: var(--warn); background: rgba(245, 158, 11, 0.1); display: inline-block; padding: 5px 15px; border-radius: 20px; border: 1px solid var(--warn);" id="data-date">
-    Data Date: Fetching...
-  </div>
-</div>
-
-<div class="upload-area" id="upload-area">
-  <h3 id="status-text">Fetching Live Data from NSE...</h3>
-  <p style="color:var(--text2); font-size:0.85rem;" id="status-subtext">Connecting to Cloudflare Worker</p>
-</div>
-
-<div class="dashboard" id="dashboard">
-  
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-title">Upper Circuits</div>
-      <div class="stat-val bull" id="stat-uc">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title">Lower Circuits</div>
-      <div class="stat-val bear" id="stat-lc">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title">Advances</div>
-      <div class="stat-val bull" id="stat-adv">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title">Declines</div>
-      <div class="stat-val bear" id="stat-dec">0</div>
-    </div>
-  </div>
-
-  <div class="grid-2">
-    <div>
-      <div class="section-title">
-        <span>🚀 Institutional Accumulation</span>
-        <span class="section-subtitle">Price Up + Delivery > 50% + High Value (> 5 Cr)</span>
-      </div>
-      <div class="table-container">
-        <table>
-          <thead><tr>
-            <th onclick="sortTable('accum', 'symbol')">SYMBOL ↕</th>
-            <th onclick="sortTable('accum', 'close')">CLOSE ↕</th>
-            <th onclick="sortTable('accum', 'pctChg')">% CHG ↕</th>
-            <th onclick="sortTable('accum', 'delivPct')">DELIVERY ↕</th>
-            <th onclick="sortTable('accum', 'turnoverCr')">TURNOVER ↕</th>
-          </tr></thead>
-          <tbody id="tbl-accum"></tbody>
-        </table>
-        <button class="expand-btn" id="btn-accum" onclick="toggleExpand('accum')" style="display:none">View Top 50</button>
-      </div>
-    </div>
-    <div>
-      <div class="section-title">
-        <span>🩸 Institutional Distribution</span>
-        <span class="section-subtitle">Price Down + Delivery > 50% + High Value (> 5 Cr)</span>
-      </div>
-      <div class="table-container">
-        <table>
-          <thead><tr>
-            <th onclick="sortTable('dist', 'symbol')">SYMBOL ↕</th>
-            <th onclick="sortTable('dist', 'close')">CLOSE ↕</th>
-            <th onclick="sortTable('dist', 'pctChg')">% CHG ↕</th>
-            <th onclick="sortTable('dist', 'delivPct')">DELIVERY ↕</th>
-            <th onclick="sortTable('dist', 'turnoverCr')">TURNOVER ↕</th>
-          </tr></thead>
-          <tbody id="tbl-dist"></tbody>
-        </table>
-        <button class="expand-btn" id="btn-dist" onclick="toggleExpand('dist')" style="display:none">View Top 50</button>
+  <div class="header">
+    <h1>Institutional Delivery & Circuit Scanner</h1>
+    <p> (Full EOD Bhav) </p>
+    <div style="margin-top: 15px; display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;">
+      <div style="font-weight: bold; color: var(--warn); background: rgba(245,158,11,0.1); padding: 5px 15px; border-radius: 20px; border: 1px solid var(--warn);" id="data-date">Data Date: Fetching...</div>
+      <div class="date-select-wrap" id="date-select-wrap">
+        <select class="date-select" id="date-select" onchange="fetchForDate(this.value)"></select>
       </div>
     </div>
   </div>
 
-  <div class="grid-2">
-    <div>
-      <div class="section-title">
-        <span>🔒 Circuit Hitters (Upper)</span>
-        <span class="section-subtitle">Locked at High</span>
-      </div>
-      <div class="table-container">
-        <table>
-          <thead><tr>
-            <th onclick="sortTable('uc', 'symbol')">SYMBOL ↕</th>
-            <th onclick="sortTable('uc', 'close')">CLOSE ↕</th>
-            <th onclick="sortTable('uc', 'pctChg')">% CHG ↕</th>
-            <th onclick="sortTable('uc', 'delivPct')">DELIVERY ↕</th>
-            <th onclick="sortTable('uc', 'turnoverCr')">TURNOVER ↕</th>
-          </tr></thead>
-          <tbody id="tbl-uc"></tbody>
-        </table>
-        <button class="expand-btn" id="btn-uc" onclick="toggleExpand('uc')" style="display:none">View Top 50</button>
-      </div>
-    </div>
-    <div>
-      <div class="section-title">
-        <span>🔒 Circuit Hitters (Lower)</span>
-        <span class="section-subtitle">Locked at Low</span>
-      </div>
-      <div class="table-container">
-        <table>
-          <thead><tr>
-            <th onclick="sortTable('lc', 'symbol')">SYMBOL ↕</th>
-            <th onclick="sortTable('lc', 'close')">CLOSE ↕</th>
-            <th onclick="sortTable('lc', 'pctChg')">% CHG ↕</th>
-            <th onclick="sortTable('lc', 'delivPct')">DELIVERY ↕</th>
-            <th onclick="sortTable('lc', 'turnoverCr')">TURNOVER ↕</th>
-          </tr></thead>
-          <tbody id="tbl-lc"></tbody>
-        </table>
-        <button class="expand-btn" id="btn-lc" onclick="toggleExpand('lc')" style="display:none">View Top 50</button>
-      </div>
-    </div>
+  <div class="upload-area" id="upload-area">
+    <h3 id="status-text">Fetching Live Data from NSE...</h3>
+    <p style="color:var(--text2); font-size:0.85rem;" id="status-subtext">Connecting to Cloudflare Worker</p>
   </div>
 
-  <div style="margin-bottom: 30px;">
-    <div class="section-title">
-      <span>📦 Hidden Delivery Spikes (Silent Accumulation)</span>
-      <span class="section-subtitle">Price flat (-1.5% to 1.5%) BUT Delivery > 60% + High Value (> 5 Cr)</span>
+
+  <!-- Symbol Search -->
+  <div class="search-wrap" id="search-wrap">
+    <div class="search-row">
+      <input class="search-input" id="search-input" type="text" list="symbol-list" placeholder="Search Symbol... e.g. RELIANCE" onkeydown="if(event.key==='Enter') searchSymbol()">
+      <datalist id="symbol-list"></datalist>
+      <button class="search-btn" onclick="searchSymbol()">🔍 Search</button>
     </div>
+    
+    <div class="modal-overlay" id="sr-modal" onclick="if(event.target===this) this.style.display='none'">
+      <div class="modal-content">
+        <div class="modal-close-btn" onclick="document.getElementById('sr-modal').style.display='none'">✖</div>
+        <div class="sr-card" id="search-result"></div>
+      </div>
+    </div>
+
+    <!-- Top 10 Intraday Buttons -->
+    <div class="top10-btns">
+      <button class="top10-btn buy" onclick="showTopIntraday('buy')">🚀 Top 10 Intraday Buy</button>
+      <button class="top10-btn sell" onclick="showTopIntraday('sell')">🩸 Top 10 Intraday Sell</button>
+      <button class="top10-btn super" onclick="showTopIntraday('super')">🎯 Super 10 (FOR LONG)</button>
+    </div>
+    <!-- Top 10 Panel -->
+    <div class="top10-panel" id="top10-panel"></div>
+  </div>
+
+  <div class="dashboard" id="dashboard">
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">Upper Circuits</div>
+        <div class="stat-val bull" id="stat-uc">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Lower Circuits</div>
+        <div class="stat-val bear" id="stat-lc">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Advances</div>
+        <div class="stat-val bull" id="stat-adv">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Declines</div>
+        <div class="stat-val bear" id="stat-dec">0</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="section-title">
+          <span>🚀 Institutional Accumulation</span>
+          <span class="section-subtitle">Price Up + Delivery > 50% + High Value (> 5 Cr)</span>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th onclick="sortTable('accum', 'symbol')">SYMBOL ↕</th>
+                <th onclick="sortTable('accum', 'close')">CLOSE ↕</th>
+                <th onclick="sortTable('accum', 'pctChg')">% CHG ↕</th>
+                <th onclick="sortTable('accum', 'delivPct')">DELIVERY ↕</th>
+                <th onclick="sortTable('accum', 'turnoverCr')">TURNOVER ↕</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-accum"></tbody>
+          </table>
+          <button class="expand-btn" id="btn-accum" onclick="toggleExpand('accum')" style="display:none">View Top
+            50</button>
+        </div>
+        <div class="chart-container" id="chart-wrap-accum">
+          <div class="chart-label">📊 Delivery % &amp; Turnover — Top Stocks</div>
+          <canvas id="chart-accum" height="170"></canvas>
+        </div>
+        <div class="chart-container" id="chart-wrap-accum2" style="margin-top:6px;">
+          <div class="chart-label">📊 Delivery % vs Intraday % — Top Stocks</div>
+          <canvas id="chart-accum2" height="170"></canvas>
+        </div>
+      </div>
+      <div>
+        <div class="section-title">
+          <span>🩸 Institutional Distribution</span>
+          <span class="section-subtitle">Price Down + Delivery > 50% + High Value (> 5 Cr)</span>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th onclick="sortTable('dist', 'symbol')">SYMBOL ↕</th>
+                <th onclick="sortTable('dist', 'close')">CLOSE ↕</th>
+                <th onclick="sortTable('dist', 'pctChg')">% CHG ↕</th>
+                <th onclick="sortTable('dist', 'delivPct')">DELIVERY ↕</th>
+                <th onclick="sortTable('dist', 'turnoverCr')">TURNOVER ↕</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-dist"></tbody>
+          </table>
+          <button class="expand-btn" id="btn-dist" onclick="toggleExpand('dist')" style="display:none">View Top
+            50</button>
+        </div>
+        <div class="chart-container" id="chart-wrap-dist">
+          <div class="chart-label">📊 Delivery % &amp; Turnover — Top Stocks</div>
+          <canvas id="chart-dist" height="170"></canvas>
+        </div>
+        <div class="chart-container" id="chart-wrap-dist2" style="margin-top:6px;">
+          <div class="chart-label">📊 Delivery % vs Intraday % — Top Stocks</div>
+          <canvas id="chart-dist2" height="170"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="section-title">
+          <span>🔒 Circuit Hitters (Upper)</span>
+          <span class="section-subtitle">Locked at High</span>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th onclick="sortTable('uc', 'symbol')">SYMBOL ↕</th>
+                <th onclick="sortTable('uc', 'close')">CLOSE ↕</th>
+                <th onclick="sortTable('uc', 'pctChg')">% CHG ↕</th>
+                <th onclick="sortTable('uc', 'delivPct')">DELIVERY ↕</th>
+                <th onclick="sortTable('uc', 'turnoverCr')">TURNOVER ↕</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-uc"></tbody>
+          </table>
+          <button class="expand-btn" id="btn-uc" onclick="toggleExpand('uc')" style="display:none">View Top 50</button>
+        </div>
+      </div>
+      <div>
+        <div class="section-title">
+          <span>🔒 Circuit Hitters (Lower)</span>
+          <span class="section-subtitle">Locked at Low</span>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th onclick="sortTable('lc', 'symbol')">SYMBOL ↕</th>
+                <th onclick="sortTable('lc', 'close')">CLOSE ↕</th>
+                <th onclick="sortTable('lc', 'pctChg')">% CHG ↕</th>
+                <th onclick="sortTable('lc', 'delivPct')">DELIVERY ↕</th>
+                <th onclick="sortTable('lc', 'turnoverCr')">TURNOVER ↕</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-lc"></tbody>
+          </table>
+          <button class="expand-btn" id="btn-lc" onclick="toggleExpand('lc')" style="display:none">View Top 50</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 30px;">
+      <div class="section-title">
+        <span>📦 Hidden Delivery Spikes (Silent Accumulation)</span>
+        <span class="section-subtitle">Price flat (-1.5% to 1.5%) BUT Delivery > 60% + High Value (> 5 Cr)</span>
+      </div>
       <div class="table-container">
         <table>
-          <thead><tr>
-            <th onclick="sortTable('hidden', 'symbol')">SYMBOL ↕</th>
-            <th onclick="sortTable('hidden', 'close')">CLOSE ↕</th>
-            <th onclick="sortTable('hidden', 'pctChg')">% CHG ↕</th>
-            <th onclick="sortTable('hidden', 'delivPct')">DELIVERY % ↕</th>
-            <th onclick="sortTable('hidden', 'turnoverCr')">TURNOVER (CR) ↕</th>
-          </tr></thead>
+          <thead>
+            <tr>
+              <th onclick="sortTable('hidden', 'symbol')">SYMBOL ↕</th>
+              <th onclick="sortTable('hidden', 'close')">CLOSE ↕</th>
+              <th onclick="sortTable('hidden', 'pctChg')">% CHG ↕</th>
+              <th onclick="sortTable('hidden', 'delivPct')">DELIVERY % ↕</th>
+              <th onclick="sortTable('hidden', 'turnoverCr')">TURNOVER (CR) ↕</th>
+            </tr>
+          </thead>
           <tbody id="tbl-hidden"></tbody>
         </table>
-        <button class="expand-btn" id="btn-hidden" onclick="toggleExpand('hidden')" style="display:none">View Top 50</button>
+        <button class="expand-btn" id="btn-hidden" onclick="toggleExpand('hidden')" style="display:none">View Top
+          50</button>
       </div>
+    </div>
+
   </div>
 
-</div>
+  <script>
+    const WORKER_URL = "https://bhav-full-worker.21aoips3531a1zi.workers.dev";
 
-<script>
-  const WORKER_URL = "https://bhav-full-worker.21aoips3531a1zi.workers.dev";
+    // ---- Global allStocks for search ----
+    var allStocks = [];
+    var srGaugeChart = null;
+    let activeDate = null; // currently loaded date
 
-  window.onload = function() {
-    autoFetchData();
-  };
+    window.onload = function () {
+      autoFetchData();
+    };
 
-  async function autoFetchData() {
-    try {
-      document.getElementById('status-text').innerText = "Downloading Bhavcopy...";
-      document.getElementById('status-subtext').innerText = "Please wait, parsing thousands of rows...";
-      
-      const response = await fetch(WORKER_URL);
-      if(!response.ok) throw new Error("Worker failed");
-      
-      const csvData = await response.text();
-      parseBhavcopy(csvData);
-      
-    } catch(err) {
-      document.getElementById('status-text').innerText = "Auto-Fetch Failed";
-      document.getElementById('status-subtext').innerText = "Worker is offline or NSE is blocking requests.";
-      document.getElementById('data-date').innerText = "Data Date: Unknown (Offline)";
-    }
-  }
+    async function autoFetchData() {
+      try {
+        document.getElementById('status-text').innerText = "Connecting to Cloudflare Worker...";
+        document.getElementById('status-subtext').innerText = "Checking R2 cache...";
 
-  let globalLists = { accum: [], dist: [], uc: [], lc: [], hidden: [] };
-  let expandedState = { accum: false, dist: false, uc: false, lc: false, hidden: false };
-  let sortState = {
-    accum: { key: null, asc: false },
-    dist: { key: null, asc: false },
-    uc: { key: null, asc: false },
-    lc: { key: null, asc: false },
-    hidden: { key: null, asc: false }
-  };
+        // Step 1: Get list of available dates from R2
+        let availDates = [];
+        try {
+          const listResp = await fetch(WORKER_URL + "?list=1");
+          if (listResp.ok) availDates = await listResp.json();
+        } catch(e) {}
 
-  function parseBhavcopy(csv) {
-    const lines = csv.split('\n');
-    
-    // Extract Date from the first row of data (Column 3)
-    if(lines.length > 1) {
-      const firstCols = lines[1].split(',');
-      if(firstCols.length > 3) {
-        document.getElementById('data-date').innerText = "Data Date: " + firstCols[2].trim();
+        // Step 2: Fetch today's data (worker auto-picks latest)
+        document.getElementById('status-text').innerText = "Downloading Bhavcopy...";
+        document.getElementById('status-subtext').innerText = "Please wait, parsing thousands of rows...";
+
+        const response = await fetch(WORKER_URL);
+        if (!response.ok) throw new Error("Worker failed");
+
+        const csvData = await response.text();
+        const loadedDate = response.headers.get('X-Data-Date');
+        activeDate = loadedDate;
+
+        // Merge loaded date into availDates list if not present
+        if (loadedDate && !availDates.includes(loadedDate)) {
+          availDates.unshift(loadedDate);
+        }
+
+        parseBhavcopy(csvData);
+        renderDateButtons(availDates, activeDate);
+        document.getElementById('search-wrap').style.display = 'block';
+
+      } catch (err) {
+        document.getElementById('status-text').innerText = "Auto-Fetch Failed";
+        document.getElementById('status-subtext').innerText = "Worker is offline or NSE is blocking requests.";
+        document.getElementById('data-date').innerText = "Data Date: Unknown (Offline)";
       }
     }
 
-    let stocks = [];
-    
-    let stats = { uc: 0, lc: 0, adv: 0, dec: 0 };
+    async function fetchForDate(dateStr) {
+      document.getElementById('upload-area').style.display = 'block';
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('status-text').innerText = `Loading data for ${dateStr}...`;
+      document.getElementById('status-subtext').innerText = 'Fetching from R2 cache...';
+      try {
+        const resp = await fetch(WORKER_URL + '?date=' + dateStr);
+        if (!resp.ok) throw new Error('Not found');
+        const csv = await resp.text();
+        activeDate = dateStr;
+        parseBhavcopy(csv);
+        // Update active button
+        document.querySelectorAll('.date-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.date === dateStr);
+        });
+        document.getElementById('search-result').style.display = 'none';
+        document.getElementById('search-input').value = '';
+      } catch(e) {
+        document.getElementById('status-text').innerText = `No data for ${dateStr}`;
+        document.getElementById('status-subtext').innerText = 'This date is not in R2 cache.';
+      }
+    }
 
-    for(let i=1; i<lines.length; i++) {
-      const line = lines[i].trim();
-      if(!line) continue;
-      
-      const cols = line.split(',').map(c => c.trim());
-      if(cols.length < 15) continue;
-      
-      const symbol = cols[0];
-      const series = cols[1];
-      
-      if(series !== 'EQ' && series !== 'BE' && series !== 'SM') continue; // Only scan equity and SME
-      if(symbol.includes('ETF') || symbol.includes('BEES') || symbol.includes('LIQUID') || symbol.includes('NIFTY')) continue; // Exclude ETFs
-      
-      const prevClose = parseFloat(cols[3]);
-      const open = parseFloat(cols[4]);
-      const high = parseFloat(cols[5]);
-      const low = parseFloat(cols[6]);
-      const close = parseFloat(cols[8]);
-      const turnoverLacs = parseFloat(cols[11]);
-      const turnoverCr = turnoverLacs / 100;
-      const delivPct = parseFloat(cols[14]) || 0;
-      
-      if(prevClose <= 0) continue;
-      
-      const pctChg = ((close - prevClose) / prevClose) * 100;
-      
-      // Strict Circuit Detection (Locked)
-      let isUC = false;
-      let isLC = false;
-      
-      // If it closed exactly at high, and moved at least 4.5% up
-      if(close === high && pctChg >= 4.5) isUC = true;
-      // If it closed exactly at low, and moved at least 4.5% down
-      if(close === low && pctChg <= -4.5) isLC = true;
-      
-      if(isUC) stats.uc++;
-      if(isLC) stats.lc++;
-      if(pctChg > 0) stats.adv++;
-      if(pctChg < 0) stats.dec++;
+    function renderDateButtons(dates, currentDate) {
+      if (!dates || dates.length === 0) return;
+      const sel  = document.getElementById('date-select');
+      const wrap = document.getElementById('date-select-wrap');
+      sel.innerHTML = '';
+      dates.forEach(d => {
+        const day = d.substring(0,2);
+        const mon = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(d.substring(2,4))];
+        const yr  = d.substring(4);
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.text  = `📅 ${day} ${mon} ${yr}`;
+        opt.selected = (d === currentDate);
+        sel.appendChild(opt);
+      });
+      wrap.style.display = 'block';
+    }
 
-      stocks.push({
-        symbol, close, pctChg, turnoverCr, delivPct, isUC, isLC
+    let globalLists = { accum: [], dist: [], uc: [], lc: [], hidden: [] };
+    let expandedState = { accum: false, dist: false, uc: false, lc: false, hidden: false };
+    let sortState = {
+      accum: { key: null, asc: false },
+      dist: { key: null, asc: false },
+      uc: { key: null, asc: false },
+      lc: { key: null, asc: false },
+      hidden: { key: null, asc: false }
+    };
+
+    function parseBhavcopy(csv) {
+      const lines = csv.split('\n');
+
+      // Extract Date from the first row of data (Column 3)
+      if (lines.length > 1) {
+        const firstCols = lines[1].split(',');
+        if (firstCols.length > 3) {
+          document.getElementById('data-date').innerText = "Data Date: " + firstCols[2].trim();
+        }
+      }
+
+      let stocks = [];
+
+      let stats = { uc: 0, lc: 0, adv: 0, dec: 0 };
+
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        const cols = line.split(',').map(c => c.trim());
+        if (cols.length < 15) continue;
+
+        const symbol = cols[0];
+        const series = cols[1];
+
+        if (series !== 'EQ' && series !== 'BE' && series !== 'SM') continue; // Only scan equity and SME
+        if (symbol.includes('ETF') || symbol.includes('BEES') || symbol.includes('LIQUID') || symbol.includes('NIFTY')) continue; // Exclude ETFs
+
+        const prevClose = parseFloat(cols[3]);
+        const open = parseFloat(cols[4]);
+        const high = parseFloat(cols[5]);
+        const low = parseFloat(cols[6]);
+        const close = parseFloat(cols[8]);
+        const turnoverLacs = parseFloat(cols[11]);
+        const turnoverCr = turnoverLacs / 100;
+        const delivPct = parseFloat(cols[14]) || 0;
+
+        if (prevClose <= 0) continue;
+
+        const pctChg = ((close - prevClose) / prevClose) * 100;
+
+        // Strict Circuit Detection (Locked)
+        let isUC = false;
+        let isLC = false;
+
+        // If it closed exactly at high, and moved at least 4.5% up
+        if (close === high && pctChg >= 4.5) isUC = true;
+        // If it closed exactly at low, and moved at least 4.5% down
+        if (close === low && pctChg <= -4.5) isLC = true;
+
+        if (isUC) stats.uc++;
+        if (isLC) stats.lc++;
+        if (pctChg > 0) stats.adv++;
+        if (pctChg < 0) stats.dec++;
+
+        stocks.push({
+          symbol, close, pctChg, turnoverCr, delivPct, isUC, isLC
+        });
+      }
+
+      allStocks = stocks; // save globally for symbol search
+      const dlist = document.getElementById('symbol-list');
+      if (dlist) {
+        dlist.innerHTML = stocks.map(s => `<option value="${s.symbol}">`).join('');
+      }
+      renderDashboard(stocks, stats);
+    }
+
+    function renderDashboard(stocks, stats) {
+      document.getElementById('upload-area').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+
+      document.getElementById('stat-uc').innerText = stats.uc;
+      document.getElementById('stat-lc').innerText = stats.lc;
+      document.getElementById('stat-adv').innerText = stats.adv;
+      document.getElementById('stat-dec').innerText = stats.dec;
+
+      // 1. Institutional Accumulation
+      globalLists.accum = stocks.filter(s => s.pctChg >= 1.0 && s.delivPct >= 50 && s.turnoverCr >= 5);
+      globalLists.accum.sort((a, b) => (b.delivPct * b.turnoverCr) - (a.delivPct * a.turnoverCr));
+
+      // 2. Institutional Distribution
+      globalLists.dist = stocks.filter(s => s.pctChg <= -1.0 && s.delivPct >= 50 && s.turnoverCr >= 5);
+      globalLists.dist.sort((a, b) => (b.delivPct * b.turnoverCr) - (a.delivPct * a.turnoverCr));
+
+      // 3. Circuit Hitters
+      globalLists.uc = stocks.filter(s => s.isUC).sort((a, b) => b.turnoverCr - a.turnoverCr);
+      globalLists.lc = stocks.filter(s => s.isLC).sort((a, b) => b.turnoverCr - a.turnoverCr);
+
+      // 4. Hidden Delivery Spikes
+      globalLists.hidden = stocks.filter(s => Math.abs(s.pctChg) <= 1.5 && s.delivPct >= 60 && s.turnoverCr >= 5);
+      globalLists.hidden.sort((a, b) => b.turnoverCr - a.turnoverCr);
+
+      renderTable('accum');
+      renderTable('dist');
+      renderTable('uc');
+      renderTable('lc');
+      renderTable('hidden');
+    }
+
+    function renderTable(type) {
+      const list = globalLists[type];
+      const isCircuit = (type === 'uc' || type === 'lc');
+      const defaultLimit = (type === 'hidden') ? 15 : 10;
+      const limit = expandedState[type] ? 100 : defaultLimit;
+
+      document.getElementById('tbl-' + type).innerHTML = generateRows(list.slice(0, limit), isCircuit, type);
+
+      const btn = document.getElementById('btn-' + type);
+      if (list.length > defaultLimit) {
+        btn.style.display = 'inline-block';
+        btn.innerText = expandedState[type] ? 'Collapse List' : 'View Top 100';
+        btn.onclick = function () {
+          expandedState[type] = !expandedState[type];
+          renderTable(type);
+        };
+      } else {
+        btn.style.display = 'none';
+      }
+      if (type === 'accum' || type === 'dist') { renderChart(type); renderChart2(type); }
+    }
+
+    function sortTable(type, key) {
+      let state = sortState[type];
+      if (state.key === key) {
+        state.asc = !state.asc;
+      } else {
+        state.key = key;
+        state.asc = (key === 'symbol') ? true : false;
+      }
+
+      globalLists[type].sort((a, b) => {
+        let valA = a[key];
+        let valB = b[key];
+
+        if (valA < valB) return state.asc ? -1 : 1;
+        if (valA > valB) return state.asc ? 1 : -1;
+        return 0;
+      });
+
+      renderTable(type);
+    }
+
+    function generateRows(list, isCircuit = false, type = '') {
+      if (list.length === 0) return '<tr><td colspan="5" style="text-align:center; color:var(--text2)">No stocks found in this category.</td></tr>';
+
+      const showBar = false;
+      const barClass = '';
+
+      let html = '';
+      list.forEach(s => {
+        const cClass = s.pctChg >= 0 ? 'bull' : 'bear';
+        const cSign = s.pctChg >= 0 ? '+' : '';
+
+        const delivCell = showBar
+          ? `<div class="deliv-bar-wrap"><div class="deliv-bar-bg"><div class="deliv-bar-fill ${barClass}" style="width:${Math.min(s.delivPct, 100)}%"></div></div><span class="deliv-bar-text">${s.delivPct.toFixed(1)}%</span></div>`
+          : `<span style="color:#eab308; font-weight:700;">${s.delivPct.toFixed(1)}%</span>`;
+
+        let badge = '';
+        if (isCircuit) {
+          badge = s.isUC ? '<span class="badge uc">UC</span>' : '<span class="badge lc">LC</span>';
+        }
+
+        if (isCircuit) {
+          html += `<tr>
+          <td><strong style="color:var(--text1); cursor:pointer; border-bottom:1px dashed var(--text2);" onclick="document.getElementById('search-input').value='${s.symbol}'; searchSymbol();">${s.symbol}</strong> ${badge}</td>
+          <td>₹${s.close.toFixed(2)}</td>
+          <td class="${cClass}" style="font-weight:700">${cSign}${s.pctChg.toFixed(2)}%</td>
+          <td>${delivCell}</td>
+          <td>₹${s.turnoverCr.toFixed(1)} Cr</td>
+        </tr>`;
+        } else {
+          html += `<tr>
+          <td><strong style="color:var(--text1); cursor:pointer; border-bottom:1px dashed var(--text2);" onclick="document.getElementById('search-input').value='${s.symbol}'; searchSymbol();">${s.symbol}</strong></td>
+          <td>₹${s.close.toFixed(2)}</td>
+          <td class="${cClass}" style="font-weight:700">${cSign}${s.pctChg.toFixed(2)}%</td>
+          <td>${delivCell}</td>
+          <td>₹${s.turnoverCr.toFixed(1)} Cr</td>
+        </tr>`;
+        }
+      });
+      return html;
+    }
+
+    // ---- Chart.js Bar Charts ----
+    let charts = {};
+    function renderChart(type) {
+      const list = globalLists[type];
+      const topStocks = list.slice(0, 15);
+      const wrap = document.getElementById('chart-wrap-' + type);
+      if (!wrap) return;
+      if (topStocks.length === 0) { wrap.style.display = 'none'; return; }
+      wrap.style.display = 'block';
+
+      const labels = topStocks.map(s => s.symbol);
+      const delivData = topStocks.map(s => parseFloat(s.delivPct.toFixed(1)));
+      const turnData = topStocks.map(s => parseFloat(s.turnoverCr.toFixed(1)));
+
+      const isAccum = type === 'accum';
+      const dColor = isAccum ? 'rgba(5,150,105,0.82)' : 'rgba(220,38,38,0.80)';
+      const dBorder = isAccum ? '#059669' : '#dc2626';
+
+      const ctx = document.getElementById('chart-' + type);
+      if (!ctx) return;
+      if (charts[type]) charts[type].destroy();
+
+      charts[type] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Delivery %', data: delivData, backgroundColor: dColor, borderColor: dBorder, borderWidth: 1.5, borderRadius: 0, yAxisID: 'yD' },
+            { label: 'Turnover (Cr)', data: turnData, backgroundColor: 'rgba(37,99,235,0.70)', borderColor: '#2563eb', borderWidth: 1.5, borderRadius: 0, yAxisID: 'yT' }
+          ]
+        },
+        options: {
+          responsive: true,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: true, position: 'top', labels: { font: { size: 11 }, color: '#475569', boxWidth: 12, padding: 14 } },
+            tooltip: { callbacks: { label: c => c.datasetIndex === 0 ? ` Delivery: ${c.raw}%` : ` Turnover: ₹${c.raw} Cr` } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#475569', maxRotation: 45 } },
+            yD: { type: 'linear', position: 'left', min: 0, max: 100, grid: { color: 'rgba(226,232,240,0.6)' }, ticks: { font: { size: 10 }, color: '#475569', callback: v => v + '%' }, title: { display: true, text: 'Delivery %', color: '#475569', font: { size: 10 } } },
+            yT: { type: 'linear', position: 'right', min: 0, grid: { display: false }, ticks: { font: { size: 10 }, color: '#2563eb', callback: v => '₹' + v }, title: { display: true, text: 'Turnover (Cr)', color: '#2563eb', font: { size: 10 } } }
+          }
+        }
       });
     }
 
-    renderDashboard(stocks, stats);
-  }
+    // ---- Chart 2: Delivery % vs Intraday % ----
+    let charts2 = {};
+    function renderChart2(type) {
+      const list = globalLists[type];
+      const topStocks = list.slice(0, 15);
+      const wrap = document.getElementById('chart-wrap-' + type + '2');
+      if (!wrap) return;
+      if (topStocks.length === 0) { wrap.style.display = 'none'; return; }
+      wrap.style.display = 'block';
 
-  function renderDashboard(stocks, stats) {
-    document.getElementById('upload-area').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
+      const labels = topStocks.map(s => s.symbol);
+      const delivData = topStocks.map(s => parseFloat(s.delivPct.toFixed(1)));
+      const intradayRaw = topStocks.map(s => parseFloat(s.pctChg.toFixed(2)));
+      const intradayData = intradayRaw.map(v => Math.abs(v)); // always positive so bars go UP
 
-    document.getElementById('stat-uc').innerText = stats.uc;
-    document.getElementById('stat-lc').innerText = stats.lc;
-    document.getElementById('stat-adv').innerText = stats.adv;
-    document.getElementById('stat-dec').innerText = stats.dec;
+      const isAccum = type === 'accum';
+      const dColor = isAccum ? 'rgba(5,150,105,0.82)' : 'rgba(220,38,38,0.80)';
+      const dBorder = isAccum ? '#059669' : '#dc2626';
+      const iColor = 'rgba(234,179,8,0.80)';
+      const iBorder = '#ca8a04';
 
-    // 1. Institutional Accumulation
-    globalLists.accum = stocks.filter(s => s.pctChg >= 1.0 && s.delivPct >= 50 && s.turnoverCr >= 5);
-    globalLists.accum.sort((a,b) => (b.delivPct * b.turnoverCr) - (a.delivPct * a.turnoverCr));
-    
-    // 2. Institutional Distribution
-    globalLists.dist = stocks.filter(s => s.pctChg <= -1.0 && s.delivPct >= 50 && s.turnoverCr >= 5);
-    globalLists.dist.sort((a,b) => (b.delivPct * b.turnoverCr) - (a.delivPct * a.turnoverCr));
+      const ctx = document.getElementById('chart-' + type + '2');
+      if (!ctx) return;
+      if (charts2[type]) charts2[type].destroy();
 
-    // 3. Circuit Hitters
-    globalLists.uc = stocks.filter(s => s.isUC).sort((a,b) => b.turnoverCr - a.turnoverCr);
-    globalLists.lc = stocks.filter(s => s.isLC).sort((a,b) => b.turnoverCr - a.turnoverCr);
-
-    // 4. Hidden Delivery Spikes
-    globalLists.hidden = stocks.filter(s => Math.abs(s.pctChg) <= 1.5 && s.delivPct >= 60 && s.turnoverCr >= 5);
-    globalLists.hidden.sort((a,b) => b.turnoverCr - a.turnoverCr);
-
-    renderTable('accum');
-    renderTable('dist');
-    renderTable('uc');
-    renderTable('lc');
-    renderTable('hidden');
-  }
-
-  function renderTable(type) {
-    const list = globalLists[type];
-    const isCircuit = (type === 'uc' || type === 'lc');
-    const defaultLimit = (type === 'hidden') ? 15 : 10;
-    const limit = expandedState[type] ? 100 : defaultLimit;
-    
-    document.getElementById('tbl-' + type).innerHTML = generateRows(list.slice(0, limit), isCircuit);
-    
-    const btn = document.getElementById('btn-' + type);
-    if(list.length > defaultLimit) {
-      btn.style.display = 'inline-block';
-      btn.innerText = expandedState[type] ? 'Collapse List' : 'View Top 100';
-      btn.onclick = function() { 
-        expandedState[type] = !expandedState[type]; 
-        renderTable(type); 
-      };
-    } else {
-      btn.style.display = 'none';
+      charts2[type] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Delivery %', data: delivData, backgroundColor: dColor, borderColor: dBorder, borderWidth: 1.5, borderRadius: 0, yAxisID: 'yD' },
+            { label: 'Intraday %', data: intradayData, backgroundColor: iColor, borderColor: iBorder, borderWidth: 1.5, borderRadius: 0, yAxisID: 'yI' }
+          ]
+        },
+        options: {
+          responsive: true,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: true, position: 'top', labels: { font: { size: 11 }, color: '#475569', boxWidth: 12, padding: 14 } },
+            tooltip: { callbacks: { label: c => { if (c.datasetIndex === 0) return ` Delivery: ${c.raw}%`; const raw = intradayRaw[c.dataIndex]; return ` Intraday: ${raw > 0 ? '+' : ''}${raw}%`; } } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#475569', maxRotation: 45 } },
+            yD: { type: 'linear', position: 'left', min: 0, max: 100, grid: { color: 'rgba(226,232,240,0.6)' }, ticks: { font: { size: 10 }, color: '#475569', callback: v => v + '%' }, title: { display: true, text: 'Delivery %', color: '#475569', font: { size: 10 } } },
+            yI: { type: 'linear', position: 'right', grid: { display: false }, ticks: { font: { size: 10 }, color: '#ca8a04', callback: v => v + '%' }, title: { display: true, text: 'Intraday %', color: '#ca8a04', font: { size: 10 } } }
+          }
+        }
+      });
     }
-  }
 
-  function sortTable(type, key) {
-    let state = sortState[type];
-    if(state.key === key) {
-      state.asc = !state.asc;
-    } else {
-      state.key = key;
-      state.asc = (key === 'symbol') ? true : false;
-    }
-    
-    globalLists[type].sort((a, b) => {
-      let valA = a[key];
-      let valB = b[key];
-      
-      if(valA < valB) return state.asc ? -1 : 1;
-      if(valA > valB) return state.asc ? 1 : -1;
-      return 0;
-    });
-    
-    renderTable(type);
-  }
+    window.searchSymbol = function() {
+      const query    = document.getElementById('search-input').value.trim().toUpperCase();
+      const resultEl = document.getElementById('search-result');
+      const modal    = document.getElementById('sr-modal');
+      if (modal) modal.style.display = 'flex';
 
-  function generateRows(list, isCircuit = false) {
-    if(list.length === 0) return '<tr><td colspan="5" style="text-align:center; color:var(--text2)">No stocks found in this category.</td></tr>';
-    
-    let html = '';
-    list.forEach(s => {
+      if (!query) { resultEl.innerHTML = '<div class="sr-not-found">Please enter a symbol.</div>'; return; }
+
+      const s = allStocks.find(st => st.symbol.toUpperCase() === query);
+      if (!s) { resultEl.innerHTML = `<div class="sr-not-found">❌ "${query}" not found in today's bhavcopy.</div>`; return; }
+
+      // Category
+      let cat = 'none', catLabel = 'No Signal';
+      if (s.isUC)                                                              { cat='uc';     catLabel='🔒 Upper Circuit'; }
+      else if (s.isLC)                                                          { cat='lc';     catLabel='🔒 Lower Circuit'; }
+      else if (s.pctChg >= 1.0 && s.delivPct >= 50 && s.turnoverCr >= 5)      { cat='accum';  catLabel='🚀 Accumulation'; }
+      else if (s.pctChg <= -1.0 && s.delivPct >= 50 && s.turnoverCr >= 5)     { cat='dist';   catLabel='🩸 Distribution'; }
+      else if (Math.abs(s.pctChg) <= 1.5 && s.delivPct >= 60 && s.turnoverCr >= 5){ cat='hidden'; catLabel='📦 Hidden Spike'; }
+
+      // Signal Score (0-100)
+      const dScore = Math.min(s.delivPct, 100) * 0.4;
+      const tScore = Math.min(s.turnoverCr / 10, 100) * 0.3;
+      const mScore = Math.min(Math.abs(s.pctChg) * 20, 100) * 0.3;
+      const signal = Math.round(dScore + tScore + mScore);
+      const sigLabel = signal >= 70 ? '🔥 Strong' : signal >= 40 ? '⚡ Moderate' : '🟡 Weak';
+      const sigColor = signal >= 70 ? '#059669' : signal >= 40 ? '#d97706' : '#94a3b8';
+
       const cClass = s.pctChg >= 0 ? 'bull' : 'bear';
-      const cSign = s.pctChg >= 0 ? '+' : '';
-      
-      let badge = '';
-      if(isCircuit) {
-        badge = s.isUC ? '<span class="badge uc">UC</span>' : '<span class="badge lc">LC</span>';
+      const cSign  = s.pctChg >= 0 ? '+' : '';
+      const gaugeColor = cat === 'accum' || cat === 'uc' ? '#059669' : cat === 'dist' || cat === 'lc' ? '#dc2626' : '#2563eb';
+
+      const delivCr = (s.turnoverCr * s.delivPct) / 100;
+      const intraCr = s.turnoverCr - delivCr;
+
+      resultEl.innerHTML = `
+        <div class="sr-top">
+          <span class="sr-symbol">${s.symbol}</span>
+          <span class="sr-badge ${cat}">${catLabel}</span>
+        </div>
+        <div class="sr-body">
+          <div class="sr-gauge-wrap">
+            <canvas id="sr-gauge" width="120" height="120"></canvas>
+            <div class="sr-gauge-label">Delivery %</div>
+          </div>
+          <div class="sr-split-wrap">
+            <div class="sr-split-lbl">Turnover Split (Cr)</div>
+            <div class="sr-split-bar">
+              <div class="sr-split-fill" style="width:${s.delivPct}%; background:${gaugeColor}"></div>
+            </div>
+            <div class="sr-split-vals">
+              <span style="color:${gaugeColor}">Del: ₹${delivCr.toFixed(1)}</span>
+              <span style="color:#64748b">Intra: ₹${intraCr.toFixed(1)}</span>
+            </div>
+          </div>
+          <div class="sr-stats">
+            <div class="sr-stat">
+              <div class="sr-stat-lbl">Close</div>
+              <div class="sr-stat-val">₹${s.close.toFixed(2)}</div>
+            </div>
+            <div class="sr-stat">
+              <div class="sr-stat-lbl">% Change</div>
+              <div class="sr-stat-val ${cClass}">${cSign}${s.pctChg.toFixed(2)}%</div>
+            </div>
+            <div class="sr-stat">
+              <div class="sr-stat-lbl">Turnover</div>
+              <div class="sr-stat-val">₹${s.turnoverCr.toFixed(1)} Cr</div>
+            </div>
+            <div class="sr-stat">
+              <div class="sr-stat-lbl">Delivery %</div>
+              <div class="sr-stat-val" style="color:#d97706">${s.delivPct.toFixed(1)}%</div>
+            </div>
+          </div>
+        </div>
+        <div class="sr-signal">
+          <div class="sr-signal-lbl">Signal Strength</div>
+          <div class="sr-signal-bar-bg"><div class="sr-signal-bar-fill" style="width:${signal}%; background:${sigColor}"></div></div>
+          <div class="sr-signal-text" style="color:${sigColor}">${sigLabel} &nbsp; ${signal}/100</div>
+        </div>`;
+
+      // Draw donut gauge
+      if (srGaugeChart) srGaugeChart.destroy();
+      const ctx = document.getElementById('sr-gauge');
+      if (ctx) {
+        srGaugeChart = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            datasets: [{
+              data: [s.delivPct, 100 - s.delivPct],
+              backgroundColor: [gaugeColor, '#e2e8f0'],
+              borderWidth: 0,
+              circumference: 270,
+              rotation: -135
+            }]
+          },
+          options: {
+            cutout: '72%',
+            plugins: {
+              legend: { display: false },
+              tooltip: { enabled: false },
+              afterDraw: null
+            },
+            animation: { duration: 800 }
+          },
+          plugins: [{
+            id: 'center-text',
+            afterDraw(chart) {
+              const { ctx, chartArea: { left, top, right, bottom } } = chart;
+              const cx = (left + right) / 2, cy = (top + bottom) / 2 + 10;
+              ctx.save();
+              ctx.font = 'bold 18px Segoe UI';
+              ctx.fillStyle = gaugeColor;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(s.delivPct.toFixed(1) + '%', cx, cy);
+              ctx.restore();
+            }
+          }]
+        });
+      }
+    };
+
+    window.showTopIntraday = function(type) {
+      const panel = document.getElementById('top10-panel');
+      if (!allStocks || allStocks.length === 0) return;
+
+      // Reset search result to save space
+      document.getElementById('search-result').style.display = 'none';
+
+      // Map and calculate metrics
+      let list = allStocks.map(s => {
+        const delivCr = (s.turnoverCr * s.delivPct) / 100;
+        const intraCr = s.turnoverCr - delivCr;
+        const conviction = delivCr * s.delivPct; // High Delivery Value + High Delivery %
+        return { ...s, intraCr, delivCr, conviction };
+      });
+
+      let title = '', tColor = '';
+
+      // Filter and Sort based on type
+      if (type === 'buy') {
+        list = list.filter(s => s.pctChg > 0 && s.intraCr > 0 && s.delivPct < 40).sort((a, b) => b.intraCr - a.intraCr).slice(0, 10);
+        title = '🚀 Top 10 Intraday Buyers (Low Delivery)'; tColor = '#059669';
+      } else if (type === 'sell') {
+        list = list.filter(s => s.pctChg < 0 && s.intraCr > 0 && s.delivPct < 40).sort((a, b) => b.intraCr - a.intraCr).slice(0, 10);
+        title = '🩸 Top 10 Intraday Sellers (Low Delivery)'; tColor = '#dc2626';
+      } else if (type === 'super') {
+        list = list.filter(s => s.turnoverCr >= 20 && s.pctChg >= -1.0 && s.pctChg <= 3.0 && s.delivPct >= 50)
+                   .sort((a, b) => b.conviction - a.conviction).slice(0, 10);
+        title = '🎯 Super 10 High Conviction (FOR LONG)'; tColor = '#6366f1';
       }
 
-      if(isCircuit) {
-        html += `<tr>
-          <td><strong style="color:var(--text1)">${s.symbol}</strong> ${badge}</td>
-          <td>₹${s.close.toFixed(2)}</td>
-          <td class="${cClass}" style="font-weight:700">${cSign}${s.pctChg.toFixed(2)}%</td>
-          <td style="color:#eab308; font-weight:700;">${s.delivPct.toFixed(1)}%</td>
-          <td>₹${s.turnoverCr.toFixed(1)} Cr</td>
-        </tr>`;
-      } else {
-        html += `<tr>
-          <td><strong style="color:var(--text1)">${s.symbol}</strong></td>
-          <td>₹${s.close.toFixed(2)}</td>
-          <td class="${cClass}" style="font-weight:700">${cSign}${s.pctChg.toFixed(2)}%</td>
-          <td style="color:#eab308; font-weight:700;">${s.delivPct.toFixed(1)}%</td>
-          <td>₹${s.turnoverCr.toFixed(1)} Cr</td>
-        </tr>`;
-      }
-    });
-    return html;
-  }
-</script>
+      let html = `
+        <div class="top10-header">
+          <span style="color:${tColor}">${title}</span>
+          <span class="top10-close" onclick="document.getElementById('top10-panel').style.display='none'">✖</span>
+        </div>
+        <div class="top10-list">
+      `;
+
+      list.forEach((s, idx) => {
+        const cClass = s.pctChg >= 0 ? 'bull' : 'bear';
+        const sign = s.pctChg >= 0 ? '+' : '';
+        
+        let metricHtml = '';
+        if (type === 'super') {
+          metricHtml = `Del: ₹${s.delivCr.toFixed(0)}Cr | ${s.delivPct.toFixed(1)}%`;
+        } else {
+          metricHtml = `Intra: ₹${s.intraCr.toFixed(0)} Cr`;
+        }
+
+        // Add onclick to jump to search card for this symbol
+        html += `
+          <div class="top10-item" onclick="document.getElementById('search-input').value='${s.symbol}'; searchSymbol();">
+            <div class="t10-sym"><span style="color:var(--text2); font-size:0.75rem; margin-right:6px; font-weight:500;">${idx+1}.</span> ${s.symbol}</div>
+            <div class="t10-chg ${cClass}">${sign}${s.pctChg.toFixed(2)}%</div>
+            <div class="t10-turn">${metricHtml}</div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+      
+      panel.innerHTML = html;
+      panel.style.display = 'block';
+    };
+  </script>
 
 </body>
+
 </html>
