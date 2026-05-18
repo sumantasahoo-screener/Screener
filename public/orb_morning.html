@@ -1620,9 +1620,33 @@
         }
 
         setInterval(updateClock, 1000);
-        setInterval(fetchData, 15000);
+        
+        // Smart Refresh Logic to save Cloudflare Quota (Prevents 100k limit exhaustion at 12 PM)
+        let fetchInterval;
+        
+        function startAutoRefresh() {
+            if (fetchInterval) clearInterval(fetchInterval);
+            fetchInterval = setInterval(() => {
+                if (!document.hidden) {
+                    fetchData();
+                }
+            }, 60000); // 60 seconds instead of 15s to reduce load by 75%
+        }
+        
+        // Stop fetching when tab is not active
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                fetchData(); // Fetch immediately when coming back
+                startAutoRefresh();
+            } else {
+                clearInterval(fetchInterval);
+            }
+        });
+        
+        // Initialize
         fetchPDH();
         fetchData();
+        startAutoRefresh();
     </script>
 </body>
 
