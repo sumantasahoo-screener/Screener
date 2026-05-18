@@ -568,6 +568,11 @@
             cursor: pointer;
             font-weight: 800;
         }
+
+        @keyframes ticker-scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
     </style>
 </head>
 
@@ -584,6 +589,7 @@
                     <button class="tool-btn active" onclick="filterData('ALL', this)">ALL</button>
                     <button class="tool-btn" onclick="filterData('BULL', this)">BULLISH</button>
                     <button class="tool-btn" onclick="filterData('BEAR', this)">BEARISH</button>
+                    <button class="tool-btn" onclick="filterData('LATEST', this)" style="color:#f59e0b">LATEST ⚡</button>
                 </div>
 
                 <div class="button-group">
@@ -616,6 +622,18 @@
         </header>
 
         <div id="pdh-status">Loading systems...</div>
+
+        <!-- Latest Alerts Ticker -->
+        <div id="ticker-wrap" style="display:flex; align-items:center; background:#0f172a; border:1px solid var(--accent); border-radius:12px; margin-bottom:15px; overflow:hidden; position:relative; box-shadow:0 0 15px rgba(56,189,248,0.2)">
+            <div style="background:var(--accent); color:#000; font-weight:900; padding:10px 15px; z-index:2; position:relative; border-right:1px solid var(--border)">
+                🔥 LATEST
+            </div>
+            <div style="flex:1; overflow:hidden; position:relative; padding:10px 0; background:rgba(0,0,0,0.2)">
+                <div id="ticker-content" style="display:flex; gap:40px; white-space:nowrap; padding-left:15px; animation: ticker-scroll 30s linear infinite;">
+                    <span style="color:var(--text-dim); font-size:13px; font-weight:600">Waiting for fresh alerts...</span>
+                </div>
+            </div>
+        </div>
 
         <div class="main-content">
             <table id="orb-table">
@@ -933,30 +951,38 @@
             return { type: 'NEUTRAL' };
         }
 
+        async function manualFetchPDH() {
+            const btn = document.getElementById('btn-pdh');
+            const og = btn.innerHTML;
+            btn.innerHTML = "🔄 SYNCING...";
+            btn.style.pointerEvents = "none";
+            btn.style.opacity = "0.5";
+            await fetchPDH();
+            btn.innerHTML = "✅ SYNCED";
+            setTimeout(() => {
+                btn.innerHTML = og;
+                btn.style.pointerEvents = "auto";
+                btn.style.opacity = "1";
+            }, 2000);
+            renderGrid();
+        }
+
         async function fetchPDH() {
             try {
-                const effectiveDate = getEffectiveDate();
-                const response = await fetch(`${OHLC_API}?date=${effectiveDate}&v=${Date.now()}`);
+                const prevDate = getPrevTradingDate();
+                const response = await fetch(`${OHLC_API}?date=${prevDate}&v=${Date.now()}`);
                 if (response.ok) {
                     pdData = await response.json();
                     const firstSym = Object.keys(pdData)[0];
-                    const dateInfo = pdData[firstSym]?.date || "Latest";
-                    document.getElementById('pdh-status').innerHTML = `
-                        <span>Session: ${dateInfo}</span> | 
-                        <span>Total: ${Object.keys(pdData).length} Stocks</span> | 
-                        <span id="last-scan-status" style="color:#fff; font-weight:bold">Last Scan: --:--</span> |
-                        <a href="#" onclick="showRawData()" style="color:var(--accent); text-decoration:none">🔍 View Table</a>
-                    `;
-                    renderGrid(); // Initial render with just PDH data
+                    const sourceInfo = pdData[firstSym]?.source || 'R2';
+                    document.getElementById('pdh-status').innerHTML = `<span style="color:var(--bull)">✅ PREV DAY DATA LOADED (${Object.keys(pdData).length} STOCKS)</span>`;
+                } else {
+                    document.getElementById('pdh-status').innerHTML = `<span style="color:var(--bear)">❌ PREV DAY DATA MISSING (${prevDate})</span>`;
                 }
-            } catch (e) { console.error(e); }
-        }
-
-        async function manualFetchPDH() {
-            document.getElementById('btn-pdh').innerText = "⏳ Syncing...";
-            await fetch("https://pd-ohlc-worker.gsmmunna.workers.dev/fetch-ohlc");
-            await fetchPDH();
-            document.getElementById('btn-pdh').innerText = "🔄 SYNC PDH";
+            } catch (error) {
+                console.error(error);
+                document.getElementById('pdh-status').innerHTML = `<span style="color:var(--bear)">❌ FAILED TO FETCH PREV DAY DATA</span>`;
+            }
         }
 
         const HOLIDAYS = [
@@ -965,6 +991,7 @@
             "2026-06-26", "2026-09-14", "2026-10-02", "2026-10-20",
             "2026-11-10", "2026-11-24", "2026-12-25"
         ];
+
         function getEffectiveDate() {
             let d = new Date(Date.now() + 5.5 * 3600000);
             const mins = d.getUTCHours() * 60 + d.getUTCMinutes();
@@ -976,10 +1003,20 @@
             return istStr();
         }
 
+        function getPrevTradingDate() {
+            let d = new Date(Date.now() + 5.5 * 3600000);
+            d.setUTCDate(d.getUTCDate() - 1);
+            const istStr = () => d.toISOString().split('T')[0];
+            while (d.getUTCDay() === 0 || d.getUTCDay() === 6 || HOLIDAYS.includes(istStr())) {
+                d.setUTCDate(d.getUTCDate() - 1);
+            }
+            return istStr();
+        }
+
         async function forceRefresh() {
-            const btn = document.getElementById('btn-force');
+            const btn = document.getElementById('btn-force') || document.querySelector('.action-btn[onclick="forceRefresh()"]');
             const og = btn.innerHTML;
-            btn.innerHTML = "⏳ REFRESHING...";
+            btn.innerHTML = "⚡ REFRESHING...";
             btn.style.pointerEvents = "none";
             btn.style.opacity = "0.7";
             await fetchData(true);
@@ -992,7 +1029,17 @@
             if (Object.keys(pdData).length === 0) await fetchPDH();
             try {
                 const today = getEffectiveDate();
-                const cacheBust = isForce ? Date.now() : Math.floor(Date.now() / 60000); // True bypass on manual refresh
+                const cacheBust = isForce ? Date.now() : Math.floor(Date.now() / 60000);
+                
+                // Fetch History Logs for Ticker
+                fetch(`https://history-worker.gsmmunna.workers.dev/get-log?v=${cacheBust}`)
+                    .then(res => res.json())
+                    .then(logs => {
+                        globalLogs = Array.isArray(logs) ? logs : [];
+                        updateTicker();
+                        if (currentFilter === 'LATEST') renderGrid(); // Refresh if LATEST filter is active
+                    }).catch(console.error);
+
                 const fetchPromises = SOURCES.map(url =>
                     fetch(`${url}?path=${today}/orb_pro_data.json&v=${cacheBust}`, { cache: 'no-store' })
                         .then(res => res.ok ? res.json() : null).catch(() => null)
@@ -1181,12 +1228,17 @@
 
                 // For sorting magnitude (Trends take priority, Traps ranked by actual score)
                 const sortScore = Math.abs(score) + (rsiDir === 'UP' ? 5 : 0) + (rsiUTurn ? 20 : 0);
+                
+                const logEntry = globalLogs.find(l => l.symbol === sym);
+                const latestBreakoutT = logEntry ? logEntry.t : -1;
 
-                return { sym, b5, b15, b30, ltp, lastT, pd, score, score5m, sortScore, activeType, isPDHBrk, isPDLBrk, isTrap, trapType, rsi, rsiOld, rsiDir, rsiUTurn };
+                return { sym, b5, b15, b30, ltp, lastT, pd, score, score5m, sortScore, activeType, isPDHBrk, isPDLBrk, isTrap, trapType, rsi, rsiOld, rsiDir, rsiUTurn, latestBreakoutT };
             });
 
             // Apply Filters
-            if (currentFilter !== 'ALL') {
+            if (currentFilter === 'LATEST') {
+                stocks = stocks.filter(s => s.latestBreakoutT > 0);
+            } else if (currentFilter !== 'ALL') {
                 stocks = stocks.filter(s => s.activeType === currentFilter);
             }
 
@@ -1209,6 +1261,10 @@
 
             // Sort logic
             stocks.sort((a, b) => {
+                if (currentFilter === 'LATEST') {
+                    return b.latestBreakoutT - a.latestBreakoutT;
+                }
+
                 let valA, valB;
                 if (sortCol === 'sym') { valA = a.sym; valB = b.sym; }
                 else if (sortCol === 'score') { valA = a.sortScore; valB = b.sortScore; }
@@ -1227,6 +1283,13 @@
                 const el = document.getElementById(`sort-${c}`);
                 if (el) el.innerText = sortCol === c ? (sortOrder === 1 ? ' ▲' : ' ▼') : '';
             });
+
+            if (stocks.length === 0) {
+                let msg = "No stocks match the current filter.";
+                if (currentFilter === 'LATEST') msg = "No fresh breakouts found yet today.";
+                grid.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:50px; color:var(--text-dim); font-size:15px; font-weight:600">${msg}</td></tr>`;
+                return;
+            }
 
             grid.innerHTML = stocks.map(s => {
                 // Dynamic Execution Price for P&L
