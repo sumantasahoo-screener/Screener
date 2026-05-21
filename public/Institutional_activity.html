@@ -383,7 +383,7 @@
     .date-select { padding: 6px 14px; border-radius: 8px; border: 1.5px solid var(--warn); background: rgba(245,158,11,0.08); color: var(--warn); font-size: 0.85rem; font-weight: 700; cursor: pointer; outline: none; }
 
     /* Search Bar & Top 10 */
-    .search-wrap { max-width: 700px; margin: 0 auto 20px; display: none; }
+    .search-wrap { max-width: 850px; margin: 0 auto 20px; display: none; }
     .search-row { display: flex; gap: 8px; max-width: 480px; margin: 0 auto; }
     .search-input { flex: 1; padding: 10px 15px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.95rem; font-weight: 600; text-transform: uppercase; outline: none; transition: border 0.2s; background: var(--bg2); color: var(--text1); }
     .search-input:focus { border-color: var(--blue); }
@@ -393,12 +393,14 @@
     /* Top 10 Panel */
     .top10-btns { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
     .top10-btn { padding: 8px 16px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; color: white; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .top10-btn.buy { background: #059669; }
-    .top10-btn.buy:hover { background: #047857; }
-    .top10-btn.sell { background: #dc2626; }
-    .top10-btn.sell:hover { background: #b91c1c; }
-    .top10-btn.super { background: #6366f1; }
-    .top10-btn.super:hover { background: #4f46e5; }
+    .top10-btn.sniper { background: #059669; }
+    .top10-btn.sniper:hover { background: #047857; }
+    .top10-btn.trap { background: #dc2626; }
+    .top10-btn.trap:hover { background: #b91c1c; }
+    .top10-btn.bottom { background: #2563eb; }
+    .top10-btn.bottom:hover { background: #1d4ed8; }
+    .top10-btn.dist { background: #0f172a; }
+    .top10-btn.dist:hover { background: #000000; }
     .top10-panel { margin-top: 15px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 15px 20px; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
     .top10-header { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1.05rem; margin-bottom: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
     .top10-close { cursor: pointer; color: var(--text2); padding: 0 5px; font-size: 1.2rem; }
@@ -406,9 +408,9 @@
     .top10-item { display: flex; justify-content: space-between; padding: 12px 6px; border-bottom: 1px solid rgba(0,0,0,0.04); align-items: center; cursor: pointer; transition: background 0.2s; }
     .top10-item:last-child { border-bottom: none; }
     .top10-item:hover { background: rgba(0,0,0,0.02); border-radius: 6px; }
-    .t10-sym { font-weight: 600; width: 30%; font-size: 0.95rem; color: var(--text1); }
-    .t10-chg { font-weight: 600; width: 25%; text-align: center; font-size: 0.95rem; }
-    .t10-turn { font-weight: 500; width: 45%; text-align: right; color: var(--text2); font-size: 0.85rem; }
+    .t10-sym { font-weight: 600; width: 45%; font-size: 0.95rem; color: var(--text1); display: flex; align-items: center; }
+    .t10-chg { font-weight: 600; width: 20%; text-align: center; font-size: 0.95rem; }
+    .t10-turn { font-weight: 500; width: 35%; text-align: right; color: var(--text2); font-size: 0.85rem; }
     @media(max-width:600px){ .top10-btns { flex-direction: column; } .t10-sym{width:40%;} .t10-chg{width:25%;} .t10-turn{width:35%;} }
     @media(max-width:600px){ .date-btns { gap: 4px; } }
   </style>
@@ -434,28 +436,30 @@
 
 
   <!-- Symbol Search -->
-  <div class="search-wrap" id="search-wrap">
+  <div class="search-wrap" id="search-wrap" style="display:block;">
     <div class="search-row">
       <input class="search-input" id="search-input" type="text" list="symbol-list" placeholder="Search Symbol... e.g. RELIANCE" onkeydown="if(event.key==='Enter') searchSymbol()">
       <datalist id="symbol-list"></datalist>
       <button class="search-btn" onclick="searchSymbol()">🔍 Search</button>
     </div>
-    
-    <div class="modal-overlay" id="sr-modal" onclick="if(event.target===this) this.style.display='none'">
-      <div class="modal-content">
-        <div class="modal-close-btn" onclick="document.getElementById('sr-modal').style.display='none'">✖</div>
-        <div class="sr-card" id="search-result"></div>
-      </div>
-    </div>
 
     <!-- Top 10 Intraday Buttons -->
     <div class="top10-btns">
-      <button class="top10-btn buy" onclick="showTopIntraday('buy')">🚀 Top 10 Intraday Buy</button>
-      <button class="top10-btn sell" onclick="showTopIntraday('sell')">🩸 Top 10 Intraday Sell</button>
-      <button class="top10-btn super" onclick="showTopIntraday('super')">🎯 Super 10 (FOR LONG)</button>
+      <button class="top10-btn sniper" onclick="showTopIntraday('sniper')">🚀 Intraday Momentum Buy</button>
+      <button class="top10-btn trap" onclick="showTopIntraday('trap')">🚨 Retail Trap (Short)</button>
+      <button class="top10-btn bottom" onclick="showTopIntraday('bottom')">💎 Crash Reversal (Buy)</button>
+      <button class="top10-btn dist" onclick="showTopIntraday('dist')">💀 Distribution Top (Sell)</button>
     </div>
     <!-- Top 10 Panel -->
     <div class="top10-panel" id="top10-panel"></div>
+
+    <!-- Modal Popup Overlay -->
+    <div class="modal-overlay" id="sr-modal" style="display:none;" onclick="if(event.target===this) this.style.display='none'">
+      <div class="modal-content">
+        <span class="modal-close-btn" onclick="document.getElementById('sr-modal').style.display='none'">✖</span>
+        <div id="search-result" class="sr-card"></div>
+      </div>
+    </div>
   </div>
 
   <div class="dashboard" id="dashboard">
@@ -654,7 +658,6 @@
 
         parseBhavcopy(csvData);
         renderDateButtons(availDates, activeDate);
-        document.getElementById('search-wrap').style.display = 'block';
 
       } catch (err) {
         document.getElementById('status-text').innerText = "Auto-Fetch Failed";
@@ -678,7 +681,6 @@
         document.querySelectorAll('.date-btn').forEach(b => {
           b.classList.toggle('active', b.dataset.date === dateStr);
         });
-        document.getElementById('search-result').style.display = 'none';
         document.getElementById('search-input').value = '';
       } catch(e) {
         document.getElementById('status-text').innerText = `No data for ${dateStr}`;
@@ -750,6 +752,8 @@
         const turnoverLacs = parseFloat(cols[11]);
         const turnoverCr = turnoverLacs / 100;
         const delivPct = parseFloat(cols[14]) || 0;
+        const noOfTrades = parseInt(cols[12], 10) || 0;
+        const avgTradeValue = noOfTrades > 0 ? (turnoverLacs * 100000) / noOfTrades : 0;
 
         if (prevClose <= 0) continue;
 
@@ -770,7 +774,7 @@
         if (pctChg < 0) stats.dec++;
 
         stocks.push({
-          symbol, close, pctChg, turnoverCr, delivPct, isUC, isLC
+          symbol, close, pctChg, turnoverCr, delivPct, isUC, isLC, noOfTrades, avgTradeValue
         });
       }
 
@@ -995,16 +999,25 @@
       });
     }
 
-    window.searchSymbol = function() {
-      const query    = document.getElementById('search-input').value.trim().toUpperCase();
+    // Unified popup modal details view (includes gorgeous Chart.js gauge chart)
+    window.openDetail = function(sym) {
+      sym = (sym || '').trim().toUpperCase();
+      const modal = document.getElementById('sr-modal');
       const resultEl = document.getElementById('search-result');
-      const modal    = document.getElementById('sr-modal');
-      if (modal) modal.style.display = 'flex';
+      if (!modal || !resultEl) { alert('Popup elements not found in DOM!'); return; }
 
-      if (!query) { resultEl.innerHTML = '<div class="sr-not-found">Please enter a symbol.</div>'; return; }
+      modal.style.display = 'flex';
+      resultEl.innerHTML = '<p style="text-align:center;color:#64748b;padding:20px;">Loading ' + sym + '...</p>';
 
-      const s = allStocks.find(st => st.symbol.toUpperCase() === query);
-      if (!s) { resultEl.innerHTML = `<div class="sr-not-found">❌ "${query}" not found in today's bhavcopy.</div>`; return; }
+      const s = allStocks.find(st => (st.symbol || '').trim().toUpperCase() === sym);
+      if (!s) {
+        resultEl.innerHTML = '<div class="sr-not-found">❌ ' + sym + ' not found in today\'s bhavcopy.</div>';
+        return;
+      }
+
+      // Safety defaults
+      if (!s.avgTradeValue) s.avgTradeValue = 0;
+      if (!s.noOfTrades) s.noOfTrades = 0;
 
       // Category
       let cat = 'none', catLabel = 'No Signal';
@@ -1028,10 +1041,27 @@
 
       const delivCr = (s.turnoverCr * s.delivPct) / 100;
       const intraCr = s.turnoverCr - delivCr;
+      const avgTradeK = s.avgTradeValue > 0 ? (s.avgTradeValue / 1000).toFixed(1) + 'K' : 'N/A';
+      const noTradesF = s.noOfTrades > 0 ? s.noOfTrades.toLocaleString('en-IN') : 'N/A';
+
+      // Determine special tag for this stock
+      let specialTag = '';
+      if (s.pctChg >= 5.0 && s.delivPct >= 70) {
+        specialTag = `<span style="font-size:0.78rem; background:rgba(220,38,38,0.15); color:#dc2626; padding:3px 10px; border-radius:6px; font-weight:700; border:1px solid #dc2626;">💀 DANGER: DISTRIBUTION</span>`;
+      } else if (s.pctChg <= -5.0 && s.delivPct >= 70) {
+        specialTag = `<span style="font-size:0.78rem; background:rgba(37,99,235,0.15); color:#2563eb; padding:3px 10px; border-radius:6px; font-weight:700;">💎 BOTTOM FISHING</span>`;
+      } else if (s.avgTradeValue > 75000 && s.delivPct > 65) {
+        specialTag = `<span style="font-size:0.78rem; background:rgba(5,150,105,0.15); color:#059669; padding:3px 10px; border-radius:6px; font-weight:700;">🌟 HIGH CONVICTION</span>`;
+      } else if (s.pctChg > 3.0 && s.delivPct < 15) {
+        specialTag = `<span style="font-size:0.78rem; background:rgba(220,38,38,0.10); color:#dc2626; padding:3px 10px; border-radius:6px; font-weight:700;">🔥 RETAIL TRAP</span>`;
+      }
 
       resultEl.innerHTML = `
         <div class="sr-top">
-          <span class="sr-symbol">${s.symbol}</span>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span class="sr-symbol">${s.symbol}</span>
+            ${specialTag}
+          </div>
           <span class="sr-badge ${cat}">${catLabel}</span>
         </div>
         <div class="sr-body">
@@ -1066,6 +1096,14 @@
               <div class="sr-stat-lbl">Delivery %</div>
               <div class="sr-stat-val" style="color:#d97706">${s.delivPct.toFixed(1)}%</div>
             </div>
+            <div class="sr-stat">
+              <div class="sr-stat-lbl">No. of Trades</div>
+              <div class="sr-stat-val">${noTradesF}</div>
+            </div>
+            <div class="sr-stat">
+              <div class="sr-stat-lbl">Avg Trade Size</div>
+              <div class="sr-stat-val" style="color:#7c3aed">₹${avgTradeK}</div>
+            </div>
           </div>
         </div>
         <div class="sr-signal">
@@ -1074,7 +1112,6 @@
           <div class="sr-signal-text" style="color:${sigColor}">${sigLabel} &nbsp; ${signal}/100</div>
         </div>`;
 
-      // Draw donut gauge
       if (srGaugeChart) srGaugeChart.destroy();
       const ctx = document.getElementById('sr-gauge');
       if (ctx) {
@@ -1116,12 +1153,22 @@
       }
     };
 
+    window.searchSymbol = function() {
+      const query = document.getElementById('search-input').value.trim().toUpperCase();
+      if (!query) { 
+        alert('Please enter a symbol.'); 
+        return; 
+      }
+      openDetail(query);
+    };
+
     window.showTopIntraday = function(type) {
       const panel = document.getElementById('top10-panel');
       if (!allStocks || allStocks.length === 0) return;
 
-      // Reset search result to save space
-      document.getElementById('search-result').style.display = 'none';
+      // Reset modal to save space
+      const modal = document.getElementById('sr-modal');
+      if (modal) modal.style.display = 'none';
 
       // Map and calculate metrics
       let list = allStocks.map(s => {
@@ -1134,16 +1181,23 @@
       let title = '', tColor = '';
 
       // Filter and Sort based on type
-      if (type === 'buy') {
-        list = list.filter(s => s.pctChg > 0 && s.intraCr > 0 && s.delivPct < 40).sort((a, b) => b.intraCr - a.intraCr).slice(0, 10);
-        title = '🚀 Top 10 Intraday Buyers (Low Delivery)'; tColor = '#059669';
-      } else if (type === 'sell') {
-        list = list.filter(s => s.pctChg < 0 && s.intraCr > 0 && s.delivPct < 40).sort((a, b) => b.intraCr - a.intraCr).slice(0, 10);
-        title = '🩸 Top 10 Intraday Sellers (Low Delivery)'; tColor = '#dc2626';
-      } else if (type === 'super') {
-        list = list.filter(s => s.turnoverCr >= 20 && s.pctChg >= -1.0 && s.pctChg <= 3.0 && s.delivPct >= 50)
-                   .sort((a, b) => b.conviction - a.conviction).slice(0, 10);
-        title = '🎯 Super 10 High Conviction (FOR LONG)'; tColor = '#6366f1';
+      if (type === 'sniper') {
+        // Exclude distribution trap from normal momentum
+        list = list.filter(s => s.pctChg > 2.0 && s.delivPct >= 40 && s.turnoverCr >= 15 && !(s.pctChg >= 5.0 && s.delivPct >= 70))
+                   .sort((a, b) => b.turnoverCr - a.turnoverCr).slice(0, 10);
+        title = '🚀 Top 10 Fast Momentum (Intraday Buy for Tomorrow)'; tColor = '#059669';
+      } else if (type === 'trap') {
+        list = list.filter(s => s.pctChg > 1.5 && s.delivPct <= 30 && s.turnoverCr >= 5)
+                   .sort((a, b) => b.intraCr - a.intraCr).slice(0, 10);
+        title = '🚨 Top 10 Operator Traps (Retail Trapped - Look to Short Gap Up)'; tColor = '#dc2626';
+      } else if (type === 'bottom') {
+        list = list.filter(s => s.pctChg <= -5.0 && s.delivPct >= 70 && s.turnoverCr >= 2)
+                   .sort((a, b) => b.turnoverCr - a.turnoverCr).slice(0, 10);
+        title = '💎 Extreme Crash Reversals (Guaranteed Bounce / Bottom Fishing)'; tColor = '#2563eb';
+      } else if (type === 'dist') {
+        list = list.filter(s => s.pctChg >= 5.0 && s.delivPct >= 70 && s.turnoverCr >= 2)
+                   .sort((a, b) => b.turnoverCr - a.turnoverCr).slice(0, 10);
+        title = '💀 Extreme Distribution Tops (Operator Dumping - Short It!)'; tColor = '#0f172a';
       }
 
       let html = `
@@ -1159,16 +1213,30 @@
         const sign = s.pctChg >= 0 ? '+' : '';
         
         let metricHtml = '';
-        if (type === 'super') {
+        let tagHtml = '';
+
+        if (type === 'sniper') {
           metricHtml = `Del: ₹${s.delivCr.toFixed(0)}Cr | ${s.delivPct.toFixed(1)}%`;
-        } else {
-          metricHtml = `Intra: ₹${s.intraCr.toFixed(0)} Cr`;
+          if (s.avgTradeValue > 75000 || s.delivPct > 65) {
+            tagHtml = `<span style="font-size:0.75rem; background:rgba(5, 150, 105, 0.15); color:#059669; padding:2px 6px; border-radius:4px; margin-left:8px; font-weight:700; white-space:nowrap;">🌟 HIGH CONVICTION</span>`;
+          }
+        } else if (type === 'trap') {
+          metricHtml = `Intra: ₹${s.intraCr.toFixed(0)}Cr | Del: ${s.delivPct.toFixed(1)}%`;
+          if (s.pctChg > 3.0 && s.delivPct < 15 && s.avgTradeValue < 40000) {
+            tagHtml = `<span style="font-size:0.75rem; background:rgba(220, 38, 38, 0.15); color:#dc2626; padding:2px 6px; border-radius:4px; margin-left:8px; font-weight:700; white-space:nowrap;">🔥 RETAIL TRAP</span>`;
+          }
+        } else if (type === 'bottom') {
+          metricHtml = `Del: ₹${s.delivCr.toFixed(0)}Cr | ${s.delivPct.toFixed(1)}%`;
+          tagHtml = `<span style="font-size:0.75rem; background:rgba(37, 99, 235, 0.15); color:#2563eb; padding:2px 6px; border-radius:4px; margin-left:8px; font-weight:700; white-space:nowrap;">💎 BOTTOM FISHING</span>`;
+        } else if (type === 'dist') {
+          metricHtml = `Del: ₹${s.delivCr.toFixed(0)}Cr | ${s.delivPct.toFixed(1)}%`;
+          tagHtml = `<span style="font-size:0.75rem; background:rgba(220, 38, 38, 0.2); color:#dc2626; padding:2px 6px; border-radius:4px; margin-left:8px; font-weight:800; border: 1px solid #dc2626; white-space:nowrap;">💀 DANGER: DISTRIBUTION</span>`;
         }
 
-        // Add onclick to jump to search card for this symbol
+        // Add onclick to jump to detail modal for this symbol
         html += `
-          <div class="top10-item" onclick="document.getElementById('search-input').value='${s.symbol}'; searchSymbol();">
-            <div class="t10-sym"><span style="color:var(--text2); font-size:0.75rem; margin-right:6px; font-weight:500;">${idx+1}.</span> ${s.symbol}</div>
+          <div class="top10-item" onclick="openDetail('${s.symbol}')">
+            <div class="t10-sym"><span style="color:var(--text2); font-size:0.75rem; margin-right:6px; font-weight:500;">${idx+1}.</span> <span style="margin-right:auto;">${s.symbol}</span>${tagHtml}</div>
             <div class="t10-chg ${cClass}">${sign}${s.pctChg.toFixed(2)}%</div>
             <div class="t10-turn">${metricHtml}</div>
           </div>
