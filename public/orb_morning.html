@@ -159,6 +159,8 @@
             border-radius: 16px;
             box-shadow: var(--shadow-lg);
             overflow-x: auto;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
             /* Enable horizontal scroll */
             -webkit-overflow-scrolling: touch;
         }
@@ -336,7 +338,8 @@
         #pdh-status {
             font-size: 11px;
             color: var(--text-dim);
-            margin-bottom: 15px;
+            margin-top: -12px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: flex-end;
             gap: 10px;
@@ -674,10 +677,36 @@
         @keyframes blinker {
             50% { opacity: 0.4; }
         }
+
+        #top-status-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            z-index: 9999;
+            transition: all 0.3s ease;
+        }
+
+        .status-bar-grey {
+            background: rgba(148, 163, 184, 0.4);
+        }
+
+        .status-bar-green {
+            background: linear-gradient(90deg, #10b981 0%, #34d399 50%, #10b981 100%);
+            background-size: 200% 100%;
+            animation: moveGradient 1.5s linear infinite;
+        }
+
+        @keyframes moveGradient {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
     </style>
 </head>
 
 <body>
+    <div id="top-status-bar" class="status-bar-grey"></div>
     <div class="container">
         <header>
             <div class="logo-box">
@@ -705,12 +734,14 @@
                     style="background:rgba(0,0,0,0.04); border:1px solid var(--border); color:var(--text); padding:8px 12px; border-radius:10px; font-size:11px; width:160px">
 
                 <button class="tool-btn"
-                    style="border:1px solid var(--border); color:var(--text-dim); background:rgba(0,0,0,0.02)"
+                    style="border:1px solid var(--border); color:var(--text-dim); background:rgba(0,0,0,0.02); display: flex; flex-direction: row; align-items: center; gap: 5px; padding: 6px 12px; white-space: nowrap; height: 32px"
                     onclick="showLog()">📜 HISTORY</button>
-                <button class="tool-btn" id="btn-pdh" onclick="manualFetchPDH()">🔄 SYNC</button>
-                <button class="action-btn" onclick="runSmartScan()" style="background:#f59e0b; color:#fff; box-shadow:0 4px 15px rgba(245,158,11,0.25)">🛰️ SMART SCAN</button>
-                <button class="action-btn" onclick="forceRefresh()" style="background:var(--bear); color:#fff; box-shadow:0 4px 15px rgba(225,29,72,0.25)">⚡
-                    REFRESH</button>
+                <button class="tool-btn" id="btn-pdh" onclick="manualFetchPDH()"
+                    style="display: flex; flex-direction: row; align-items: center; gap: 5px; padding: 6px 12px; white-space: nowrap; height: 32px">🔄 SYNC</button>
+                <button class="action-btn" onclick="runSmartScan()" 
+                    style="background:#f59e0b; color:#fff; box-shadow:0 4px 15px rgba(245,158,11,0.25); display: flex; flex-direction: row; align-items: center; gap: 6px; padding: 6px 14px; font-size: 11px; white-space: nowrap; height: 32px; border-radius: 10px">🛰️ SMART SCAN</button>
+                <button class="action-btn" onclick="forceRefresh()" 
+                    style="background:var(--bear); color:#fff; box-shadow:0 4px 15px rgba(225,29,72,0.25); display: flex; flex-direction: row; align-items: center; gap: 6px; padding: 6px 14px; font-size: 11px; white-space: nowrap; height: 32px; border-radius: 10px">⚡ REFRESH</button>
 
                 <div id="market-time" onclick="showLog()"
                     style="font-weight:900; color:var(--accent); font-size:14px; cursor:pointer">00:00:00</div>
@@ -747,6 +778,7 @@
                         <th onclick="setSort('orb')">ORB STATUS (5/15/30) <span id="sort-orb"></span></th>
                         <th onclick="setSort('range')">15M RANGE <span id="sort-range"></span></th>
                         <th onclick="setSort('pd')">PREV DAY (H/L) <span id="sort-pd"></span></th>
+                        <th onclick="setSort('close')">PREV CLOSE <span id="sort-close"></span></th>
                         <th onclick="setSort('ltp')">LTP <span id="sort-ltp"></span></th>
                         <th onclick="setSort('change')">CHANGE % <span id="sort-change"></span></th>
                     </tr>
@@ -1081,11 +1113,32 @@
                     const sourceInfo = pdData[firstSym]?.source || 'R2';
                     document.getElementById('pdh-status').innerHTML = `<span style="color:var(--bull)">✅ PREV DAY DATA LOADED (${Object.keys(pdData).length} STOCKS)</span>`;
                 } else {
-                    document.getElementById('pdh-status').innerHTML = `<span style="color:var(--bear)">❌ PREV DAY DATA MISSING (${prevDate})</span>`;
+                    document.getElementById('pdh-status').innerHTML = `<span style="color:var(--bear)">❌ PREV DAY DATA MISSING (${prevDate})</span> <button onclick="triggerBackendFetch()" style="margin-left:10px; background:var(--accent); color:#fff; border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:10px; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1)">FORCE GENERATE DATA</button>`;
                 }
             } catch (error) {
                 console.error(error);
                 document.getElementById('pdh-status').innerHTML = `<span style="color:var(--bear)">❌ FAILED TO FETCH PREV DAY DATA</span>`;
+            }
+        }
+
+        async function triggerBackendFetch() {
+            const btn = document.querySelector('#pdh-status button');
+            if (btn) {
+                btn.innerHTML = "GENERATING...";
+                btn.style.pointerEvents = "none";
+                btn.style.opacity = "0.7";
+            }
+            try {
+                const fetchApiUrl = OHLC_API.replace('/get-ohlc', '/fetch-ohlc');
+                const response = await fetch(fetchApiUrl);
+                if(response.ok) {
+                    if(btn) btn.innerHTML = "✅ DONE! SYNCING...";
+                    setTimeout(() => fetchPDH(), 2000);
+                } else {
+                    if(btn) btn.innerHTML = "❌ FAILED";
+                }
+            } catch(e) {
+                if(btn) btn.innerHTML = "❌ ERROR";
             }
         }
 
@@ -1371,6 +1424,7 @@
                 else if (sortCol === 'ltp') { valA = a.ltp; valB = b.ltp; }
                 else if (sortCol === 'change') { valA = parseFloat(a.chg); valB = parseFloat(b.chg); }
                 else if (sortCol === 'rsi') { valA = parseFloat(a.rsi) || 0; valB = parseFloat(b.rsi) || 0; }
+                else if (sortCol === 'close') { valA = a.pd?.close || 0; valB = b.pd?.close || 0; }
                 else { valA = a.sortScore; valB = b.sortScore; }
 
                 if (valA < valB) return -1 * sortOrder;
@@ -1379,7 +1433,7 @@
             });
 
             // Update Header UI Indicators
-            ['sym', 'score', 'rsi', 'orb', 'range', 'pd', 'ltp', 'change'].forEach(c => {
+            ['sym', 'score', 'rsi', 'orb', 'range', 'pd', 'close', 'ltp', 'change'].forEach(c => {
                 const el = document.getElementById(`sort-${c}`);
                 if (el) el.innerText = sortCol === c ? (sortOrder === 1 ? ' ▲' : ' ▼') : '';
             });
@@ -1401,7 +1455,8 @@
                 else if (s.b15 && s.b15.type !== 'NEUTRAL') { execPrice = s.b15.price; direction = s.b15.type === 'BULL' ? 1 : -1; }
                 else if (s.b5 && s.b5.type !== 'NEUTRAL') { execPrice = s.b5.price; direction = s.b5.type === 'BULL' ? 1 : -1; }
 
-                const pnl = s.ltp && execPrice ? ((s.ltp - execPrice) / execPrice * 100 * direction).toFixed(2) : '0.00';
+                const openPrice = s.pd && s.pd.close ? s.pd.close : 0;
+                const pnl = s.ltp && openPrice ? ((s.ltp - openPrice) / openPrice * 100).toFixed(2) : '0.00';
 
                 const pdhAlert = s.isPDHBrk ? `<div class="pd-alert" style="background:rgba(5,150,105,0.1); color:var(--bull); border:1px solid rgba(5,150,105,0.2); padding:3px 8px; border-radius:6px; width:fit-content">🔥 PDH BROKEN</div>` : '';
                 const pdlAlert = s.isPDLBrk ? `<div class="pd-alert" style="background:rgba(225,29,72,0.1); color:var(--bear); border:1px solid rgba(225,29,72,0.2); padding:3px 8px; border-radius:6px; width:fit-content">🔥 PDL BROKEN</div>` : '';
@@ -1410,7 +1465,6 @@
                 const tag15 = s.b15?.type === 'BULL' ? 'tag-bull' : s.b15?.type === 'BEAR' ? 'tag-bear' : 'tag-none';
                 const tag30 = s.b30?.type === 'BULL' ? 'tag-bull' : s.b30?.type === 'BEAR' ? 'tag-bear' : 'tag-none';
 
-                const openPrice = s.pd && s.pd.close ? s.pd.close : 0;
                 const priceDiff = s.ltp && openPrice ? (s.ltp - openPrice).toFixed(1) : '0.0';
                 const diffColor = parseFloat(priceDiff) >= 0 ? 'var(--bull)' : 'var(--bear)';
 
@@ -1444,11 +1498,13 @@
                             <div style="font-size:11px; color:var(--bull)">H: ${s.pd?.pdh?.toFixed(1) || '--'}</div>
                             <div style="font-size:11px; color:var(--bear)">L: ${s.pd?.pdl?.toFixed(1) || '--'}</div>
                         </td>
+                        <td style="font-weight:700; color:var(--text); font-size:14px">
+                            ${s.pd?.close?.toFixed(1) || '--'}
+                        </td>
                         <td class="ltp" style="font-weight:800; font-size:16px">
                             ${s.ltp?.toFixed(1) || '--'}
-                            <div style="font-size:10px; font-weight:400; color:var(--text-dim)">
-                                <span style="color:${diffColor}">(${parseFloat(priceDiff) >= 0 ? '+' : ''}${priceDiff})</span>
-                                | ${formatMarketTime(s.lastT)}
+                            <div style="font-size:12px; font-weight:600; color:var(--text-dim); margin-top:3px">
+                                ${formatMarketTime(s.lastT)}
                             </div>
                         </td>
                         <td>
@@ -1504,11 +1560,15 @@
             const diffMs = now.getTime() - lastDataTime.getTime();
             const diffMins = diffMs / 60000;
             const timeStr = lastDataTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+            
+            const topBar = document.getElementById('top-status-bar');
 
-            if (diffMins > 5) {
-                scanStatusEl.innerHTML = `<span style="color:#ef4444; font-weight:900; animation: blinker 1.5s linear infinite;">🔴 OFFLINE (${timeStr})</span>`;
+            if (diffMins > 5 || diffMins < -5) {
+                scanStatusEl.innerHTML = `<span style="color:#ef4444; font-weight:900; animation: blinker 1.5s linear infinite;">⚠️ OFFLINE (${timeStr})</span>`;
+                if (topBar) topBar.className = 'status-bar-grey';
             } else {
                 scanStatusEl.innerHTML = `<span style="color:#000000; font-weight:800">SCAN: ${timeStr}</span>`;
+                if (topBar) topBar.className = 'status-bar-green';
             }
         }
 
