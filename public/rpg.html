@@ -34,7 +34,7 @@
             border: 1px solid #e2e8f0;
             flex-wrap: wrap;
         }
-        input, button { 
+        input, button, select { 
             padding: 10px 14px; 
             border-radius: 8px; 
             border: 1px solid #cbd5e1; 
@@ -139,8 +139,8 @@
                 flex-direction: column;
                 align-items: stretch;
             }
-            .input-field, #dateInput, button {
-                width: 100%;
+            .input-field, #dateInput, button, select {
+                width: 100% !important;
             }
             .leaderboard-container {
                 flex-direction: column;
@@ -205,6 +205,10 @@
         <input type="text" id="symbolInput" list="symbolList" placeholder="Symbol (e.g., RELIANCE)" class="input-field" autocomplete="off">
         <span style="font-weight: bold; color: #475569; text-align: center;">VS</span>
         <input type="text" id="benchmarkInput" list="symbolList" placeholder="Benchmark (e.g., NIFTY 50)" class="input-field" autocomplete="off" value="NIFTY 50">
+        <select id="timeframeSelect" class="input-field" style="width: 160px;">
+            <option value="30m">🕒 Last 30 Mins</option>
+            <option value="full">📅 Full Day</option>
+        </select>
         <datalist id="symbolList"></datalist>
         <button onclick="loadChart()">Plot Graph</button>
         <div id="live-indicator"><span class="pulse-dot"></span> LIVE AUTO-REFRESH ON</div>
@@ -265,16 +269,27 @@
 
     let currentData = null;
     let currentDateFetched = null;
+    let currentTimeframeFetched = null;
+
+    function getJsonFileName() {
+        const tf = document.getElementById('timeframeSelect').value;
+        return tf === 'full' ? 'rpg_full_day_data.json' : 'orb_pro_data.json';
+    }
 
     // Pre-fetch data to populate the symbol dropdown list
     async function fetchAndPopulateSymbols(dateStr) {
-        if(currentDateFetched === dateStr) return; 
+        const tf = document.getElementById('timeframeSelect').value;
+        if(currentDateFetched === dateStr && currentTimeframeFetched === tf) return; 
         try {
-            const url = `${BASE_URL}/data?path=${dateStr}/orb_pro_data.json&v=${Date.now()}`;
-            const res = await fetch(url);
+            const fileName = getJsonFileName();
+            let url = `${BASE_URL}/data?path=${dateStr}/${fileName}&v=${Date.now()}`;
+            let res = await fetch(url);
+            
             if(!res.ok) return;
+
             currentData = await res.json();
             currentDateFetched = dateStr;
+            currentTimeframeFetched = tf;
             
             const datalist = document.getElementById('symbolList');
             datalist.innerHTML = '';
@@ -309,9 +324,17 @@
     // Load symbols for the default date on page load
     fetchAndPopulateSymbols(document.getElementById('dateInput').value);
 
-    // Refresh symbols if user manually changes the date
+    // Refresh symbols if user manually changes the date or timeframe
     document.getElementById('dateInput').addEventListener('change', (e) => {
         fetchAndPopulateSymbols(e.target.value);
+    });
+    document.getElementById('timeframeSelect').addEventListener('change', () => {
+        const dateStr = document.getElementById('dateInput').value;
+        fetchAndPopulateSymbols(dateStr).then(() => {
+            if(document.getElementById('symbolInput').value.trim()) {
+                loadChart();
+            }
+        });
     });
 
     // Auto-refresh logic
@@ -350,13 +373,18 @@
         document.getElementById('live-indicator').style.display = isLive ? 'flex' : 'none';
 
         try {
-            // Check if we already fetched data for this date, otherwise fetch it
-            if(currentDateFetched !== dateStr || !currentData) {
-                const url = `${BASE_URL}/data?path=${dateStr}/orb_pro_data.json&v=${Date.now()}`;
-                const res = await fetch(url);
-                if (!res.ok) throw new Error("No data found in R2 for this date. Check the date or try a different one.");
+            const tf = document.getElementById('timeframeSelect').value;
+            // Check if we already fetched data for this date and timeframe, otherwise fetch it
+            if(currentDateFetched !== dateStr || currentTimeframeFetched !== tf || !currentData) {
+                const fileName = getJsonFileName();
+                let url = `${BASE_URL}/data?path=${dateStr}/${fileName}&v=${Date.now()}`;
+                let res = await fetch(url);
+                
+                if (!res.ok) throw new Error(`No data found. Note: If you selected 'Full Day', the file might not be generated yet.`);
+                
                 currentData = await res.json();
                 currentDateFetched = dateStr;
+                currentTimeframeFetched = tf;
             }
             
             const data = currentData;
