@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG - Relative Performance Graph</title>
+    <!-- Simple SVG Favicon 'R' -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%233b82f6'/><text x='50' y='75' font-size='75' fill='white' font-family='sans-serif' font-weight='bold' text-anchor='middle'>R</text></svg>">
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #f8fafc; 
+            color: #0f172a; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 1400px; 
+            margin: auto; 
+        }
+        .header { 
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 20px; 
+            align-items: center; 
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+        input, button { 
+            padding: 10px 14px; 
+            border-radius: 8px; 
+            border: 1px solid #cbd5e1; 
+            background: #ffffff; 
+            color: #0f172a; 
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .input-field {
+            width: 200px;
+        }
+        input:focus {
+            border-color: #3b82f6;
+        }
+        button { 
+            background: #3b82f6; 
+            border-color: #3b82f6;
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: 0.2s;
+        }
+        button:hover { 
+            background: #2563eb; 
+        }
+        .chart-container { 
+            background: #ffffff; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            border: 1px solid #e2e8f0;
+            height: 600px;
+            position: relative;
+        }
+        h1 { 
+            margin: 0 0 5px 0; 
+            font-size: 24px; 
+            color: #0f172a;
+        }
+        p { 
+            margin: 0; 
+            color: #475569; 
+            font-size: 14px; 
+        }
+        
+        /* Leaderboard Styles */
+        .leaderboard-container {
+            width: 95%;
+            max-width: 1400px;
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .lb-col {
+            flex: 1;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+        .lb-col h3 { 
+            margin-top: 0; 
+            font-size: 16px; 
+            border-bottom: 2px solid #f1f5f9; 
+            padding-bottom: 10px; 
+        }
+        .lb-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 5px;
+            border-bottom: 1px solid #f8fafc;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s, padding-left 0.2s;
+        }
+        .lb-item:hover { 
+            background: #f1f5f9; 
+            font-weight: 600; 
+            padding-left: 10px;
+            border-radius: 4px;
+        }
+        .lb-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        /* Custom Scrollbar for the lists */
+        .lb-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .lb-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .input-field, #dateInput, button {
+                width: 100%;
+            }
+            .leaderboard-container {
+                flex-direction: column;
+            }
+            .lb-col {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            #live-indicator {
+                margin-left: 0;
+                justify-content: center;
+                margin-top: 10px;
+            }
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            color: #3b82f6;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+        }
+        #live-indicator {
+            display: none;
+            margin-left: 15px;
+            color: #10b981;
+            font-size: 13px;
+            font-weight: bold;
+            align-items: center;
+        }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div style="margin-bottom:20px;">
+        <h1>📈 Relative Performance Graph (RPG)</h1>
+        <p>Visualizing True Intraday Momentum vs NIFTY 50</p>
+    </div>
+    
+    <div class="header">
+        <input type="date" id="dateInput" title="Trading Date">
+        <input type="text" id="symbolInput" list="symbolList" placeholder="Symbol (e.g., RELIANCE)" class="input-field" autocomplete="off">
+        <span style="font-weight: bold; color: #475569; text-align: center;">VS</span>
+        <input type="text" id="benchmarkInput" list="symbolList" placeholder="Benchmark (e.g., NIFTY 50)" class="input-field" autocomplete="off" value="NIFTY 50">
+        <datalist id="symbolList"></datalist>
+        <button onclick="loadChart()">Plot Graph</button>
+        <div id="live-indicator"><span class="pulse-dot"></span> LIVE AUTO-REFRESH ON</div>
+    </div>
+
+    <div class="chart-container">
+        <div id="loading">Loading Data from R2...</div>
+        <canvas id="rpgChart"></canvas>
+    </div>
+
+    <!-- Performer Toggle Button -->
+    <div style="width: 95%; max-width: 1400px; margin-bottom: 15px; display: block;" id="performerBtnContainer">
+        <button id="togglePerformerBtn" onclick="togglePerformer()" style="width: 100%; font-size: 16px; padding: 12px; background: #0f172a; color: white; border-radius: 8px;">📊 Show Performer</button>
+    </div>
+
+    <!-- Performer Section (Formerly Leaderboard) -->
+    <div class="leaderboard-container" id="leaderboard" style="display: none;">
+        <div class="lb-col">
+            <h3 style="color: #10b981;">🟢 Top Outperformers</h3>
+            <div id="outperformersList" class="lb-list"></div>
+        </div>
+        <div class="lb-col">
+            <h3 style="color: #64748b;">⚪ Neutral (Matching Benchmark)</h3>
+            <div id="neutralList" class="lb-list"></div>
+        </div>
+        <div class="lb-col">
+            <h3 style="color: #ef4444;">🔴 Top Underperformers</h3>
+            <div id="underperformersList" class="lb-list"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const BASE_URL = "https://orb-pro-worker.gsmmunna.workers.dev";
+    let chartInstance = null;
+
+    // Helper: Find closest previous valid trading date if today is weekend
+    function getEffectiveDate() {
+        let d = new Date();
+        const istStr = () => d.toISOString().split('T')[0];
+        // Skip Sat (6) and Sun (0)
+        while (d.getUTCDay() === 0 || d.getUTCDay() === 6) {
+            d.setUTCDate(d.getUTCDate() - 1);
+        }
+        return istStr();
+    }
+
+    // Set default date
+    document.getElementById('dateInput').value = getEffectiveDate();
+
+    // Trigger on Enter key
+    document.getElementById('symbolInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') loadChart();
+    });
+    document.getElementById('benchmarkInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') loadChart();
+    });
+
+    let currentData = null;
+    let currentDateFetched = null;
+
+    // Pre-fetch data to populate the symbol dropdown list
+    async function fetchAndPopulateSymbols(dateStr) {
+        if(currentDateFetched === dateStr) return; 
+        try {
+            const url = `${BASE_URL}/data?path=${dateStr}/orb_pro_data.json&v=${Date.now()}`;
+            const res = await fetch(url);
+            if(!res.ok) return;
+            currentData = await res.json();
+            currentDateFetched = dateStr;
+            
+            const datalist = document.getElementById('symbolList');
+            datalist.innerHTML = '';
+            
+            let symbols = Object.keys(currentData).filter(s => {
+                if (['timestamp', 'ms_timestamp', 'indices'].includes(s)) return false;
+                // Explicitly allow major indices
+                if (s === 'NIFTY 50' || s === 'NIFTY BANK') return true;
+                // Remove Bonds, ETFs, and other indices
+                if (s.includes('NIFTY') || s.includes('BOND') || s.includes('SENSEX') || s.includes('BEES')) return false;
+                // NSE Stocks do not have spaces. Names with spaces are typically Indices.
+                if (s.includes(' ')) return false; 
+                return true;
+            });
+            symbols.sort();
+            
+            symbols.forEach(sym => {
+                const opt = document.createElement('option');
+                opt.value = sym;
+                datalist.appendChild(opt);
+            });
+            
+            // Pre-calculate the leaderboard as soon as data arrives
+            let defaultBenchmark = document.getElementById('benchmarkInput').value.trim().toUpperCase() || 'NIFTY 50';
+            updateLeaderboard(currentData, defaultBenchmark);
+
+        } catch(e) {
+            console.error("Failed to fetch symbols", e);
+        }
+    }
+
+    // Load symbols for the default date on page load
+    fetchAndPopulateSymbols(document.getElementById('dateInput').value);
+
+    // Refresh symbols if user manually changes the date
+    document.getElementById('dateInput').addEventListener('change', (e) => {
+        fetchAndPopulateSymbols(e.target.value);
+    });
+
+    // Auto-refresh logic
+    let refreshInterval = null;
+    function startAutoRefresh() {
+        if (refreshInterval) clearInterval(refreshInterval);
+        refreshInterval = setInterval(() => {
+            const dateStr = document.getElementById('dateInput').value;
+            const symbol = document.getElementById('symbolInput').value.trim();
+            // Only auto-refresh if it's the current active date and a symbol is entered
+            if (symbol && dateStr === getEffectiveDate()) {
+                loadChart(true);
+            }
+        }, 60000); // 1 minute
+    }
+    
+    // Start interval on load
+    startAutoRefresh();
+
+    async function loadChart(isSilent = false) {
+        const dateStr = document.getElementById('dateInput').value;
+        let symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
+        let benchmark = document.getElementById('benchmarkInput').value.trim().toUpperCase() || 'NIFTY 50';
+
+        if(!symbol) { 
+            if(!isSilent) alert("Please enter a primary stock symbol (e.g., RELIANCE)"); 
+            return; 
+        }
+
+        if(!isSilent) {
+            document.getElementById('loading').style.display = 'block';
+        }
+        
+        // Show/hide live indicator based on date
+        const isLive = (dateStr === getEffectiveDate());
+        document.getElementById('live-indicator').style.display = isLive ? 'flex' : 'none';
+
+        try {
+            // Check if we already fetched data for this date, otherwise fetch it
+            if(currentDateFetched !== dateStr || !currentData) {
+                const url = `${BASE_URL}/data?path=${dateStr}/orb_pro_data.json&v=${Date.now()}`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error("No data found in R2 for this date. Check the date or try a different one.");
+                currentData = await res.json();
+                currentDateFetched = dateStr;
+            }
+            
+            const data = currentData;
+            
+            if (!data[symbol]) throw new Error(`Symbol '${symbol}' not found in the selected day's data.`);
+            if (!data[benchmark]) throw new Error(`Benchmark '${benchmark}' not found in the selected day's data.`);
+
+            plotChart(symbol, benchmark, data[symbol].history, data[benchmark].history);
+            
+            // Generate Leaderboard
+            updateLeaderboard(data, benchmark);
+        } catch (err) {
+            if(!isSilent) alert(err.message);
+        } finally {
+            document.getElementById('loading').style.display = 'none';
+        }
+    }
+
+    let isPerformerOpen = false;
+
+    function togglePerformer() {
+        const lb = document.getElementById('leaderboard');
+        const btn = document.getElementById('togglePerformerBtn');
+        isPerformerOpen = !isPerformerOpen;
+        
+        if (isPerformerOpen) {
+            lb.style.display = 'flex';
+            btn.innerHTML = '🔽 Hide Performer';
+        } else {
+            lb.style.display = 'none';
+            btn.innerHTML = '📊 Show Performer';
+        }
+    }
+
+    function updateLeaderboard(data, benchmark) {
+        if (!data[benchmark] || !data[benchmark].history.length) return;
+        
+        let benchmarkHist = data[benchmark].history;
+        let benchmarkOpen = benchmarkHist[0].ltp;
+        let benchmarkCurrent = benchmarkHist[benchmarkHist.length - 1].ltp;
+        let benchmarkReturns = ((benchmarkCurrent / benchmarkOpen) - 1) * 100;
+
+        let results = [];
+
+        Object.keys(data).forEach(sym => {
+            // Filter out indices, bonds, ETFs (same logic as autocomplete)
+            if (['timestamp', 'ms_timestamp', 'indices'].includes(sym)) return;
+            if (sym.includes('NIFTY') || sym.includes('BOND') || sym.includes('SENSEX') || sym.includes('BEES') || sym.includes(' ')) return;
+            
+            let hist = data[sym].history;
+            if(!hist || hist.length === 0) return;
+            
+            let open = hist[0].ltp;
+            let current = hist[hist.length - 1].ltp;
+            let ret = ((current / open) - 1) * 100;
+            
+            let rsScore = ret - benchmarkReturns;
+            results.push({ sym, rsScore });
+        });
+
+        // Sort Highest RS Score first
+        results.sort((a, b) => b.rsScore - a.rsScore); 
+
+        // Categories (0.1% threshold for neutral) - Showing ALL stocks now
+        let outperformers = results.filter(r => r.rsScore > 0.1); 
+        let underperformers = results.filter(r => r.rsScore < -0.1).reverse(); // Reverse so most negative is at the top
+        
+        let neutrals = results.filter(r => r.rsScore >= -0.1 && r.rsScore <= 0.1)
+                              .sort((a, b) => Math.abs(a.rsScore) - Math.abs(b.rsScore));
+
+        renderList('outperformersList', outperformers, '#10b981');
+        renderList('neutralList', neutrals, '#64748b');
+        renderList('underperformersList', underperformers, '#ef4444');
+        
+        // Show the button, but only show the list if it's open
+        document.getElementById('performerBtnContainer').style.display = 'block';
+        if(isPerformerOpen) {
+            document.getElementById('leaderboard').style.display = 'flex';
+        } else {
+            document.getElementById('leaderboard').style.display = 'none';
+        }
+    }
+
+    function renderList(elementId, items, color) {
+        const el = document.getElementById(elementId);
+        el.innerHTML = '';
+        if (items.length === 0) {
+            el.innerHTML = '<div style="padding:10px; color:#94a3b8; font-size:13px;">No stocks in this category</div>';
+            return;
+        }
+        
+        items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'lb-item';
+            div.innerHTML = `<span>${item.sym}</span> <span style="color: ${color}; font-weight: bold;">${item.rsScore > 0 ? '+' : ''}${item.rsScore.toFixed(2)}%</span>`;
+            
+            // Click to plot
+            div.onclick = () => {
+                document.getElementById('symbolInput').value = item.sym;
+                loadChart(false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+            el.appendChild(div);
+        });
+    }
+
+    // Convert 't' (minutes from 9:15 AM) to IST HH:MM
+    function timeString(t) {
+        let istMins = t + 555; // Market open is 9:15 AM (9*60 + 15 = 555 mins)
+        let hrs = Math.floor(istMins / 60) % 24;
+        let mins = istMins % 60;
+        let ampm = hrs >= 12 ? 'PM' : 'AM';
+        let hFormat = hrs % 12 || 12;
+        return `${hFormat.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')} ${ampm}`;
+    }
+
+    function plotChart(symbol, benchmark, stockHistory, benchmarkHistory) {
+        if (!stockHistory || stockHistory.length === 0 || !benchmarkHistory || benchmarkHistory.length === 0) return;
+
+        let stockOpen = stockHistory[0].ltp;
+        let benchmarkOpen = benchmarkHistory[0].ltp;
+
+        let labels = [];
+        let stockReturns = [];
+        let benchmarkReturns = [];
+        let rsScores = [];
+        
+        let stockPrices = [];
+        let benchmarkPrices = [];
+
+        // Create a map of Benchmark data for quick time alignment
+        let timeMap = new Map();
+        benchmarkHistory.forEach(s => {
+            timeMap.set(s.t, { 
+                benchmarkPct: ((s.ltp / benchmarkOpen) - 1) * 100,
+                benchmarkLtp: s.ltp
+            });
+        });
+
+        // Compute aligned arrays
+        stockHistory.forEach(s => {
+            if(timeMap.has(s.t)) {
+                let stockPct = ((s.ltp / stockOpen) - 1) * 100;
+                let obj = timeMap.get(s.t);
+                
+                labels.push(timeString(s.t));
+                stockReturns.push(stockPct);
+                benchmarkReturns.push(obj.benchmarkPct);
+                
+                stockPrices.push(s.ltp);
+                benchmarkPrices.push(obj.benchmarkLtp);
+                
+                // RS Score is Stock Intraday % minus Benchmark Intraday %
+                rsScores.push(stockPct - obj.benchmarkPct);
+            }
+        });
+
+        const ctx = document.getElementById('rpgChart').getContext('2d');
+        
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: `${symbol} Intraday %`,
+                        data: stockReturns,
+                        borderColor: '#4f46e5', // Deep Indigo (Very Eye-Catching)
+                        borderWidth: 3, // Thicker line so it pops
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
+                        tension: 0.1
+                    },
+                    {
+                        label: `${benchmark} Intraday %`,
+                        data: benchmarkReturns,
+                        borderColor: '#000000', // Black
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
+                        tension: 0.1
+                    },
+                    {
+                        label: 'RS Score (Difference %)',
+                        data: rsScores,
+                        borderWidth: 1, // Thinner line
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
+                        tension: 0.1,
+                        fill: {
+                            target: 'origin',
+                            above: 'rgba(16, 185, 129, 0.2)',   // Green
+                            below: 'rgba(239, 68, 68, 0.2)'     // Red
+                        },
+                        segment: {
+                            borderColor: ctx => ctx.p0.parsed.y >= 0 ? 'rgba(16, 185, 129, 0.6)' : 'rgba(239, 68, 68, 0.6)'
+                        }
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(203, 213, 225, 0.5)' },
+                        ticks: { color: '#475569', maxTicksLimit: 15 }
+                    },
+                    y: {
+                        grid: { color: 'rgba(203, 213, 225, 0.5)' },
+                        ticks: { 
+                            color: '#0f172a',
+                            callback: function(value) {
+                                return value.toFixed(2) + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { 
+                        labels: { 
+                            color: '#0f172a',
+                            font: { family: 'Inter', size: 13, weight: 'bold' },
+                            usePointStyle: true
+                        } 
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#0f172a',
+                        bodyColor: '#475569',
+                        borderColor: '#cbd5e1',
+                        borderWidth: 1,
+                        padding: 10,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                let val = context.parsed.y.toFixed(2) + '%';
+                                let dataIdx = context.dataIndex;
+                                let dsIdx = context.datasetIndex;
+                                
+                                if (dsIdx === 1) { // Benchmark dataset
+                                    return `${label}: ${val}  (₹${benchmarkPrices[dataIdx]})`;
+                                } else if (dsIdx === 0) { // Primary Stock dataset
+                                    return `${label}: ${val}  (₹${stockPrices[dataIdx]})`;
+                                } else {
+                                    return `${label}: ${val}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>
