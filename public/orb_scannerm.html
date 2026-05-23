@@ -113,7 +113,7 @@
         .modal-content { background: #ffffff; border: 1px solid var(--border); border-radius: 24px; width: 98%; max-width: 1600px; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .modal-content.fullscreen { width: 100vw; height: 100vh; max-width: none; max-height: none; border-radius: 0; border: none; }
         .modal-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 15px; overflow-y: auto; flex-grow: 1; display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:15px; align-content: start; }
+        .modal-body { padding: 15px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 8px; align-content: start; background: #f8fafc; }
         .log-card { display: none; background: rgba(0, 0, 0, 0.02); border: 1px solid rgba(0,0,0,0.06); padding: 15px; border-radius: 14px; flex-direction: column; gap: 12px; backdrop-filter: blur(8px); transition: 0.2s; position: relative; }
         .log-card.show { display: flex; }
         .log-card.history-item { opacity: 0.6; filter: grayscale(0.5); }
@@ -201,6 +201,15 @@
             .rules-header h1 { font-size: 28px; }
             .rules-modal-body { padding: 20px 10px; }
         }
+
+        @keyframes blink-alert {
+            0% { background-color: #2563eb; color: white; transform: scale(1); }
+            50% { background-color: #dc2626; color: white; transform: scale(1.05); box-shadow: 0 0 15px #dc2626; }
+            100% { background-color: #2563eb; color: white; transform: scale(1); }
+        }
+        .blink-btn {
+            animation: blink-alert 1s infinite;
+        }
     </style>
 </head>
 <body>
@@ -242,7 +251,7 @@
           </div>
           <div style="display:flex; align-items:center; gap:12px;">
             <input type="date" id="date-selector" onchange="fetchData()">
-            <button class="btn-log" onclick="openSignalLog()">🔔 Activity Log</button>
+            <button class="btn-log" id="signalBtn" onclick="openSignalLog()">🔔 Latest Signal</button>
             <div id="market-status" style="font-size: 12px; font-weight:700;">STATUS: <span id="status-text">...</span></div>
           </div>
         </div>
@@ -272,17 +281,16 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header" style="flex-direction:column; align-items:flex-start; padding: 20px 20px 15px 20px;">
             <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                <h3 style="margin:0; font-size:16px;">🔔 Smart Signal Log & Tracker</h3>
+                <h3 style="margin:0; font-size:16px;">🔔 Latest Breakout Signals</h3>
                 <div style="display:flex; gap:10px; align-items:center;">
                     <button class="btn-close" onclick="toggleLogFullscreen()" title="Toggle Fullscreen" style="font-size:16px;">⛶</button>
                     <button class="btn-close" onclick="closeSignalLog(event)">&times;</button>
                 </div>
             </div>
             <div class="modal-filters">
-                <button class="mf-btn active" data-f="all" onclick="applyLogFilter('all', event)">LIVE ALL</button>
-                <button class="mf-btn" data-f="bull" onclick="applyLogFilter('bull', event)">BULL</button>
-                <button class="mf-btn" data-f="bear" onclick="applyLogFilter('bear', event)">BEAR</button>
-                <button class="mf-btn" data-f="history" onclick="applyLogFilter('history', event)" style="border-color:rgba(99,102,241,0.3); color:#818cf8;">📜 HISTORY</button>
+                <button class="mf-btn active" data-f="all" onclick="applyLogFilter('all', event)">ALL BRK</button>
+                <button class="mf-btn" data-f="bull" onclick="applyLogFilter('bull', event)">BULL BRK</button>
+                <button class="mf-btn" data-f="bear" onclick="applyLogFilter('bear', event)">BEAR BRK</button>
             </div>
         </div>
         <div class="modal-body" id="log-body">
@@ -379,8 +387,6 @@
     const BASE_URL = "https://orb-pro-worker.gsmmunna.workers.dev";
     const HOLIDAYS = ["2026-01-26","2026-03-03","2026-03-26","2026-03-31","2026-04-03","2026-04-14","2026-05-01","2026-05-28","2026-06-26","2026-09-14","2026-10-02","2026-10-20","2026-11-10","2026-11-24","2026-12-25"];
     const SECTOR_SYMBOLS = ["NIFTY BANK", "NIFTY IT", "NIFTY PHARMA", "NIFTY AUTO", "NIFTY FMCG", "NIFTY METAL", "NIFTY REALTY", "NIFTY ENERGY", "NIFTY MEDIA", "NIFTY PSU BANK", "NIFTY FIN SERVICE", "NIFTY MID SELECT"];
-    let currentCategory = "stocks", rawData = null, latestQuotes = null, searchQuery = "", signalFilter = "all", trendPeriod = 30;
-    let sortBy = "orb", countdownSecs = 60;
 
     function getEffectiveDate() {
         let d = new Date(Date.now() + 5.5 * 3600000);
@@ -397,6 +403,19 @@
         }
         return istStr();
     }
+    let currentCategory = "stocks", rawData = null, latestQuotes = null, searchQuery = "", signalFilter = "all", trendPeriod = 30;
+    let sortBy = "orb", countdownSecs = 60;
+    
+    // Latest Signals Logic (Upgraded to V4 to include ORB data)
+    let latestSignals = JSON.parse(localStorage.getItem('orbSignalsV4') || "[]");
+    const todayDateStr = new Date().toISOString().split('T')[0];
+    if (localStorage.getItem('orbSignalsDateV4') !== todayDateStr) {
+        latestSignals = [];
+        localStorage.setItem('orbSignalsDateV4', todayDateStr);
+        localStorage.setItem('orbSignalsV4', JSON.stringify(latestSignals));
+    }
+    let blinkTimeout = null;
+    let signalFilterModal = 'all';
 
     async function fetchData() {
         countdownSecs = 60;
@@ -415,9 +434,91 @@
         if (refreshEl) setTimeout(() => refreshEl.style.visibility = "hidden", 1000);
     }
 
+    function checkLatestSignals() {
+        if (!rawData) return;
+        let newSignalAdded = false;
+        const timeframes = [5, 15, 30];
+        
+        function formatTimeForT(t) {
+            const totalMins = 9 * 60 + 15 + t;
+            const h = Math.floor(totalMins / 60);
+            const m = totalMins % 60;
+            const ampm = h >= 12 ? "PM" : "AM";
+            let h12 = h > 12 ? h - 12 : h;
+            if (h12 === 0) h12 = 12;
+            return String(h12).padStart(2, '0') + ":" + String(m).padStart(2, '0') + " " + ampm;
+        }
+
+        for (const [sym, snapData] of Object.entries(rawData)) {
+            if (sym === "INDIA VIX" || sym.startsWith("NIFTY")) continue;
+            
+            const history = snapData.history;
+            if (!history || history.length < 2) continue;
+            
+            const orb = snapData.orb;
+            if (!orb) continue;
+
+            // Scan the entire 30-minute history for ANY crossovers
+            for (let i = 1; i < history.length; i++) {
+                const prevSnap = history[i - 1];
+                const currSnap = history[i];
+                const prevLtp = prevSnap.ltp;
+                const currLtp = currSnap.ltp;
+                const currentT = currSnap.t;
+
+                let highestBullTf = null;
+                let highestBearTf = null;
+
+                // Check from largest to smallest timeframe
+                [30, 15, 5].forEach(tf => {
+                    const hKey = 'h' + tf;
+                    const lKey = 'l' + tf;
+                    
+                    if (!highestBullTf && orb[hKey] !== undefined && prevLtp <= orb[hKey] && currLtp > orb[hKey]) {
+                        highestBullTf = tf;
+                    }
+                    if (!highestBearTf && orb[lKey] !== undefined && prevLtp >= orb[lKey] && currLtp < orb[lKey]) {
+                        highestBearTf = tf;
+                    }
+                });
+
+                if (highestBullTf) {
+                    const sigId = sym + "_BULL_" + highestBullTf + "_T" + currentT;
+                    if (!latestSignals.find(s => s.id === sigId)) {
+                        latestSignals.push({ id: sigId, sym: sym, type: "BULL", tf: highestBullTf, time: formatTimeForT(currentT), price: currLtp, orb: orb });
+                        newSignalAdded = true;
+                    }
+                }
+
+                if (highestBearTf) {
+                    const sigId = sym + "_BEAR_" + highestBearTf + "_T" + currentT;
+                    if (!latestSignals.find(s => s.id === sigId)) {
+                        latestSignals.push({ id: sigId, sym: sym, type: "BEAR", tf: highestBearTf, time: formatTimeForT(currentT), price: currLtp, orb: orb });
+                        newSignalAdded = true;
+                    }
+                }
+            }
+        }
+
+        if (newSignalAdded) {
+            localStorage.setItem('orbSignals', JSON.stringify(latestSignals));
+            const btn = document.getElementById('signalBtn');
+            btn.classList.add('blink-btn');
+            if (blinkTimeout) clearTimeout(blinkTimeout);
+            blinkTimeout = setTimeout(() => {
+                btn.classList.remove('blink-btn');
+            }, 120000);
+
+            if (document.getElementById("log-modal").style.display === "flex") {
+                renderSignalLog();
+            }
+        }
+    }
+
     function renderAll() { 
         renderSectorGrid(); 
         renderTable(); 
+        checkLatestSignals();
         updateMarketStatus(); 
         updateLastScan(); 
     }
@@ -535,7 +636,7 @@
         
         if (sortBy === "orb") {
             items.sort((a, b) => {
-                const sA = getORBSignal(a.ltp, a.orb, 15); // 9:30 AM threshold
+                const sA = getORBSignal(a.ltp, a.orb, 15);
                 const sB = getORBSignal(b.ltp, b.orb, 15);
                 if (sA === "BULL" && sB !== "BULL") return -1;
                 if (sB === "BULL" && sA !== "BULL") return 1;
@@ -554,7 +655,7 @@
         }
 
         const filtered = items.filter(item => {
-            const signal930 = getORBSignal(item.ltp, item.orb, 15); // 9:30 AM = 15 mins threshold
+            const signal930 = getORBSignal(item.ltp, item.orb, 15);
             if (signalFilter === "bull") return signal930 === "BULL";
             if (signalFilter === "bear") return signal930 === "BEAR";
             const r = calculateRSI(item.snaps, 14);
@@ -619,7 +720,6 @@
             renderTable();
         };
 
-        // Manual Trigger Function (Opens in new tab)
         window.manualTrigger = function() {
             window.open(BASE_URL + "/trigger", "_blank");
         };
@@ -632,210 +732,114 @@
             if (countdownSecs > 0) countdownSecs--;
             updateLastScan();
         }, 1000);
+        
         // Initialize Date Selector with the last trading day
         const dateInput = document.getElementById("date-selector");
         if (dateInput) {
-            const lastTradingDay = getEffectiveDate();
-            dateInput.value = lastTradingDay;
+            dateInput.value = getEffectiveDate();
         }
         fetchData();
     });
 
     function applyLogFilter(filter, e) {
         if(e) e.stopPropagation();
+        signalFilterModal = filter;
         document.querySelectorAll('.mf-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector(`.mf-btn[data-f="${filter}"]`).classList.add('active');
-        document.querySelectorAll('.log-card').forEach(card => {
-            if (filter === 'all') {
-                if(card.dataset.status === 'live') card.classList.add('show');
-                else card.classList.remove('show');
-            } else if (filter === 'history') {
-                if(card.dataset.status === 'history') card.classList.add('show');
-                else card.classList.remove('show');
-            } else {
-                if(card.dataset.status === 'live' && card.dataset.type === filter.toUpperCase()) card.classList.add('show');
-                else card.classList.remove('show');
-            }
-        });
+        if(e) e.target.classList.add('active');
+        renderSignalLog();
     }
 
     function toggleLogFullscreen() {
         document.querySelector('.modal-content').classList.toggle('fullscreen');
     }
 
-    function openSignalLog() {
-        const modal = document.getElementById("log-modal");
+    function renderSignalLog() {
         const body = document.getElementById("log-body");
         body.innerHTML = "";
         
-        if (!rawData) {
-            body.innerHTML = "<div style='grid-column: 1 / -1; padding:40px; text-align:center; color:var(--text-dim)'>No data available yet.</div>";
-            modal.style.display = "flex";
+        if (latestSignals.length === 0) {
+            body.innerHTML = "<div style='grid-column: 1 / -1; padding:40px; text-align:center; color:var(--text-dim)'>No breakout signals detected today yet.</div>";
             return;
         }
 
-        const activeLogs = [];
-        const historyLogs = [];
-        const niftySnaps = rawData["NIFTY 50"] || [];
-        const buffer = 0.0002; // 0.02%
+        const displaySignals = [...latestSignals].reverse().filter(s => {
+            if (signalFilterModal === "bull") return s.type === "BULL";
+            if (signalFilterModal === "bear") return s.type === "BEAR";
+            return true;
+        });
 
-        // Latest T for blaze effect
-        let globalT = 0;
-        for (const snaps of Object.values(rawData)) {
-            if (Array.isArray(snaps) && snaps.length > 0) {
-                const last = snaps[snaps.length - 1];
-                const currentT = last.t !== undefined ? last.t : snaps.length;
-                if (currentT > globalT) globalT = currentT;
-            }
+        if (displaySignals.length === 0) {
+            body.innerHTML = "<div style='grid-column: 1 / -1; padding:40px; text-align:center; color:var(--text-dim)'>No signals match this filter.</div>";
+            return;
         }
 
-        for (const [sym, snaps] of Object.entries(rawData)) {
-            if (!Array.isArray(snaps) || snaps.length < 5) continue;
-            if (sym === "INDIA VIX" || sym.startsWith("NIFTY")) continue;
+        displaySignals.forEach(log => {
+            const badgeCls = log.type === "BULL" ? "orb-bull" : "orb-bear";
+            const icon = log.type === "BULL" ? "🟢" : "🔴";
             
-            const ranges = {};
-            [5, 15, 30, 60].forEach(threshold => {
-                let s = snaps[0].t !== undefined ? snaps.filter(x => x.t <= threshold) : snaps.slice(0, threshold);
-                if (s.length > 0) {
-                    let prices = s.map(x => x.ltp);
-                    ranges[threshold] = { high: Math.max(...prices), low: Math.min(...prices) };
+            const card = document.createElement("div");
+            card.className = "log-card";
+            card.style.display = "flex";
+            card.style.flexDirection = "row";
+            card.style.justifyContent = "space-between";
+            card.style.alignItems = "center";
+            card.style.padding = "12px 20px";
+            card.style.background = "#ffffff";
+            card.style.border = "1px solid rgba(0,0,0,0.06)";
+            card.style.borderRadius = "8px";
+            card.style.boxShadow = "0 1px 3px rgba(0,0,0,0.05)";
+            
+            let brokenLineText = "";
+            let allDataTooltip = "";
+            if (log.orb) {
+                if (log.type === "BULL") {
+                    const hVal = log.orb['h' + log.tf];
+                    brokenLineText = `<span style="color:var(--text-dim);">Line Crossed:</span> <span style="color:#10b981; font-weight:bold; font-size:13px; margin-left:5px;">${hVal ? hVal.toFixed(1) : '-'}</span>`;
+                } else {
+                    const lVal = log.orb['l' + log.tf];
+                    brokenLineText = `<span style="color:var(--text-dim);">Line Crossed:</span> <span style="color:#ef4444; font-weight:bold; font-size:13px; margin-left:5px;">${lVal ? lVal.toFixed(1) : '-'}</span>`;
                 }
-            });
-
-            let log = null; 
-            let bullSustain = 0, bearSustain = 0;
-
-            for (let i = 0; i < snaps.length; i++) {
-                const snap = snaps[i];
-                const t = snap.t !== undefined ? snap.t : i;
-                if (t <= 5) continue;
-
-                let range = (t > 5 && t <= 15) ? ranges[5] : (t > 15 && t <= 30) ? ranges[15] : (t > 30 && t <= 60) ? ranges[30] : (t > 60) ? ranges[60] : null;
-                if (!range) continue;
-
-                if (!log) {
-                    if (snap.ltp > range.high * (1 + buffer)) {
-                        bullSustain++; bearSustain = 0;
-                    } else if (snap.ltp < range.low * (1 - buffer)) {
-                        bearSustain++; bullSustain = 0;
-                    } else {
-                        bullSustain = 0; bearSustain = 0;
-                    }
-
-                    if (bullSustain >= 3 || bearSustain >= 3) {
-                        const type = bullSustain >= 3 ? "BULL" : "BEAR";
-                        const ctxSnaps = snaps.slice(0, i + 1);
-                        const rsi = calculateRSI(ctxSnaps, 14);
-                        let rs = "--";
-                        if (niftySnaps.length >= 2) {
-                            let nSnaps = niftySnaps.filter(ns => ns.t <= t);
-                            if(nSnaps.length >= 2) rs = calculateRS(ctxSnaps, nSnaps);
-                        }
-                        const startIdx = Math.max(0, i - 15);
-                        const localStartPrice = ctxSnaps[startIdx].ltp;
-                        const localTrend = snap.ltp >= localStartPrice ? "UP" : "DOWN";
-                        const matched = (type === "BULL" && localTrend === "UP") || (type === "BEAR" && localTrend === "DOWN");
-                        const status = (rs === "--") ? "pending" : (isStrongSig(type, rsi, rs, matched)) ? "strong" : "weak";
-
-                        log = { 
-                            time: formatTToTime(t), rawT: t, sym, type, entryPrice: snap.ltp, 
-                            maxPrice: snap.ltp, minPrice: snap.ltp, currentPrice: snaps[snaps.length-1].ltp,
-                            statusTag: status, rsiAtBreakout: rsi, rsAtBreakout: rs, local15mTrend: localTrend, 
-                            exitType: null, isHistory: false, slPrice: (type === "BULL" ? range.low : range.high)
-                        };
-                    }
-                } else if (!log.exitType) {
-                    log.maxPrice = Math.max(log.maxPrice, snap.ltp);
-                    log.minPrice = Math.min(log.minPrice, snap.ltp);
-                    
-                    const pnl = ((snap.ltp - log.entryPrice) / log.entryPrice) * 100;
-                    const adjustedPnl = log.type === "BULL" ? pnl : -pnl;
-                    
-                    if (adjustedPnl >= 1.0) {
-                        log.exitType = "TARGET"; log.isHistory = true; log.exitPrice = snap.ltp;
-                    } else if (log.type === "BULL" && snap.ltp < log.slPrice) {
-                        log.exitType = "STOPLOSS"; log.isHistory = true; log.exitPrice = snap.ltp;
-                    } else if (log.type === "BEAR" && snap.ltp > log.slPrice) {
-                        log.exitType = "STOPLOSS"; log.isHistory = true; log.exitPrice = snap.ltp;
-                    }
-                }
-            }
-
-            if (log) {
-                finalizeLog(log);
-                if (log.isHistory) historyLogs.push(log); else activeLogs.push(log);
-            }
-        }
-
-        const sorted = [...activeLogs, ...historyLogs].sort((a,b) => b.rawT - a.rawT);
-
-        if (sorted.length === 0) {
-            body.innerHTML = "<div style='grid-column: 1 / -1; padding:40px; text-align:center; color:var(--text-dim)'>No sustained breakouts detected after 9:20 AM yet.</div>";
-        } else {
-            sorted.forEach(log => {
-                const badgeCls = log.type === "BULL" ? "orb-bull" : "orb-bear";
-                let statusBadge = "";
-                if (log.exitType === "TARGET") statusBadge = '<span class="tag-strong" style="background:#059669; border-color:#059669; color:white">🎯 TARGET 1% HIT</span>';
-                else if (log.exitType === "STOPLOSS") statusBadge = '<span class="tag-weak" style="background:#dc2626; border-color:#dc2626; color:white">🛑 SL HIT</span>';
-                else statusBadge = '<span class="tag-pending" style="background:#2563eb; border-color:#2563eb; color:white">🔵 RUNNING</span>';
-
-                const rsV = log.rsAtBreakout === "--" ? "--" : (parseFloat(log.rsAtBreakout) > 0 ? "+" + log.rsAtBreakout + "%" : log.rsAtBreakout + "%");
-                const isB = (!log.isHistory && (globalT - log.rawT) <= 5);
-
-                const card = document.createElement("div");
-                card.className = "log-card" + (isB ? " blaze-active" : "") + (log.isHistory ? " history-item" : "");
-                card.dataset.type = log.type;
-                card.dataset.status = log.isHistory ? "history" : "live";
                 
-                card.innerHTML = `
-                    <div class="log-card-header">
-                        <div style="display:flex; align-items:center;">
-                            <span class="log-time">${log.time}</span>
-                            <span class="log-symbol">${log.sym}</span>
-                            <span class="log-badge ${badgeCls}">${log.type}</span>
-                        </div>
-                        ${statusBadge}
-                    </div>
-                    <div class="log-grid">
-                        <div class="grid-box"><span class="grid-label">Entry Price</span><span class="grid-val">₹${log.entryPrice.toFixed(1)}</span></div>
-                        <div class="grid-box"><span class="grid-label">Current/Exit</span><span class="grid-val">₹${(log.exitPrice || log.currentPrice).toFixed(1)}</span></div>
-                        <div class="grid-box"><span class="grid-label">Live P&L</span><span class="grid-val ${log.pnlClass}">${log.pnlSign}${log.pnlChange.toFixed(2)}%</span></div>
-                        <div class="grid-box"><span class="grid-label">Max Fav (MFE)</span><span class="grid-val" style="color:#10b981">+${calculateMFE(log).toFixed(2)}%</span></div>
-                        <div class="grid-box"><span class="grid-label">R14MSI (Brk)</span><span class="grid-val">${log.rsiAtBreakout}</span></div>
-                        <div class="grid-box"><span class="grid-label">Nifty RS</span><span class="grid-val">${rsV}</span></div>
-                    </div>
-                `;
-                body.appendChild(card);
-            });
-        }
-        applyLogFilter('all');
+                const h5 = log.orb.h5 ? log.orb.h5.toFixed(1) : '-';
+                const l5 = log.orb.l5 ? log.orb.l5.toFixed(1) : '-';
+                const h15 = log.orb.h15 ? log.orb.h15.toFixed(1) : '-';
+                const l15 = log.orb.l15 ? log.orb.l15.toFixed(1) : '-';
+                const h30 = log.orb.h30 ? log.orb.h30.toFixed(1) : '-';
+                const l30 = log.orb.l30 ? log.orb.l30.toFixed(1) : '-';
+                allDataTooltip = `5M: ${h5} / ${l5}  |  15M: ${h15} / ${l15}  |  30M: ${h30} / ${l30}`;
+            }
+
+            card.innerHTML = `
+                <div style="display:flex; align-items:center; gap: 20px; flex: 1;">
+                    <span class="log-time" style="font-size:13px; font-weight: 600; color:var(--text-dim); width: 75px;">${log.time}</span>
+                    <span class="log-symbol" style="font-size:15px; font-weight:bold; letter-spacing: 0.5px; width: 100px;">${log.sym}</span>
+                </div>
+                
+                <div title="${allDataTooltip}" style="font-size: 12px; font-family: monospace; background: rgba(0,0,0,0.03); padding: 4px 14px; border-radius: 6px; cursor: help; border: 1px solid rgba(0,0,0,0.03);">
+                    ${brokenLineText}
+                </div>
+
+                <div style="display:flex; align-items:center; gap: 20px; flex: 1; justify-content: flex-end;">
+                    <span style="font-size:15px; font-weight:bold; font-family:monospace;">₹${log.price.toFixed(1)}</span>
+                    <span class="log-badge ${badgeCls}">${icon} ${log.tf}M BRK</span>
+                </div>
+            `;
+            body.appendChild(card);
+        });
+    }
+
+    function openSignalLog() {
+        const modal = document.getElementById("log-modal");
+        renderSignalLog();
         modal.style.display = "flex";
-    }
-
-    function calculateMFE(l) {
-        let p = ((l.maxPrice - l.entryPrice) / l.entryPrice) * 100;
-        let m = ((l.minPrice - l.entryPrice) / l.entryPrice) * 100;
-        return l.type === "BULL" ? Math.max(0, p) : Math.max(0, -m);
-    }
-
-    function isStrongSig(t, r, rs, m) { return (t === "BULL" && r > 60 && rs > 0 && m) || (t === "BEAR" && r < 40 && rs < 0 && m); }
-    function finalizeLog(l) {
-        let priceToCompare = l.exitPrice || l.currentPrice;
-        let pc = ((priceToCompare - l.entryPrice) / l.entryPrice) * 100;
-        let v = l.type === "BEAR" ? -pc : pc;
-        l.pnlChange = v; l.pnlClass = v >= 0 ? "pnl-green" : "pnl-red"; l.pnlSign = v >= 0 ? "+" : "";
+        
+        const btn = document.getElementById('signalBtn');
+        btn.classList.remove('blink-btn');
+        if (blinkTimeout) clearTimeout(blinkTimeout);
     }
 
     function closeSignalLog(e) {
         document.getElementById("log-modal").style.display = "none";
-    }
-
-    function formatTToTime(t) {
-        const startMins = 9 * 60 + 15;
-        const totalMins = startMins + t;
-        const h = Math.floor(totalMins / 60);
-        const m = totalMins % 60;
-        return (h > 12 ? h - 12 : h) + ":" + String(m).padStart(2, '0') + (h >= 12 ? " PM" : " AM");
     }
 
     function openRules() {
