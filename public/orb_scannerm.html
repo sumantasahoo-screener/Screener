@@ -268,7 +268,7 @@
                 <th title="Opening Range: 9:15-9:30 AM">9:30</th>
                 <th title="Opening Range: 9:15-9:45 AM">9:45</th>
                 <th class="hide-mobile" title="Opening Range: 9:15-10:15 AM">10:15</th>
-                <th>RS vs Nifty 50</th>
+                <th id="rs-header" style="cursor:pointer; color:var(--accent); text-decoration:underline" title="Click: Bullish first / Bearish first">RS vs Nifty 50 ⇅</th>
               </tr>
             </thead>
             <tbody id="table-body"></tbody>
@@ -635,6 +635,7 @@
             items.push({ sym, ltp, orb: snapData.orb, snaps });
         }
         
+        const niftySnaps = rawData["NIFTY 50"] ? rawData["NIFTY 50"].history : [];
         if (sortBy === "orb") {
             items.sort((a, b) => {
                 const sA = getORBSignal(a.ltp, a.orb, 15);
@@ -645,6 +646,10 @@
                 if (sB === "BEAR" && sA !== "BEAR") return 1;
                 return b.ltp - a.ltp;
             });
+        } else if (sortBy === "rs_desc") {
+            items.sort((a, b) => calculateRS(b.snaps, niftySnaps) - calculateRS(a.snaps, niftySnaps));
+        } else if (sortBy === "rs_asc") {
+            items.sort((a, b) => calculateRS(a.snaps, niftySnaps) - calculateRS(b.snaps, niftySnaps));
         } else {
             items.sort((a, b) => {
                 let rA = calculateRSI(a.snaps, 14);
@@ -718,6 +723,15 @@
             
             const label = sortBy === "orb" ? "R14MSI ⇅" : (sortBy === "rsi_desc" ? "R14MSI ⬇" : "R14MSI ⬆");
             document.getElementById("rsi-header").textContent = label;
+            renderTable();
+        };
+
+        document.getElementById("rs-header").onclick = () => {
+            if (sortBy !== "rs_desc" && sortBy !== "rs_asc") sortBy = "rs_desc";
+            else if (sortBy === "rs_desc") sortBy = "rs_asc";
+            else sortBy = "orb";
+            const label = sortBy === "rs_desc" ? "RS vs Nifty 50 ⬇" : (sortBy === "rs_asc" ? "RS vs Nifty 50 ⬆" : "RS vs Nifty 50 ⇅");
+            document.getElementById("rs-header").textContent = label;
             renderTable();
         };
 

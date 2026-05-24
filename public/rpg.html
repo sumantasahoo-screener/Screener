@@ -214,9 +214,46 @@
         <div id="live-indicator"><span class="pulse-dot"></span> LIVE AUTO-REFRESH ON</div>
     </div>
 
-    <div class="chart-container">
-        <div id="loading">Loading Data from R2...</div>
-        <canvas id="rpgChart"></canvas>
+    <div class="chart-container" style="display: flex; gap: 15px;">
+        <div style="flex: 1; min-width: 0; position: relative; height: 100%;">
+            <div id="loading">Loading Data from R2...</div>
+            <canvas id="rpgChart"></canvas>
+        </div>
+        <div id="rsBadgeContainer" style="width: 200px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; border-left: 2px dashed #e2e8f0; padding-left: 15px; overflow-y: auto;">
+            
+            <!-- Daily Section -->
+            <div style="width: 100%; text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9;">
+                <p style="font-size: 13px; color: #475569; font-weight: bold; margin-bottom: 10px; text-transform: uppercase;">FULL DAY RS</p>
+                <div id="rsScoreBadgeDaily" style="padding: 10px 15px; border-radius: 12px; font-weight: 900; font-size: 20px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid transparent; background: #e2e8f0; color: #334155; margin: 0 auto; max-width: max-content;">
+                    <span id="rsScoreArrowDaily" style="font-size: 18px;"></span><span id="rsScoreTextDaily">--.--%</span>
+                </div>
+                <p id="rsDailyFallbackMsg" style="font-size:10px; color:#ef4444; margin-top:5px; display:none;">Data Not Available</p>
+                
+                <div id="dailyDoughnutWrapper" style="width: 100%; margin-top: 20px; text-align: center; display: block;">
+                    <p style="font-size: 10px; color: #94a3b8; font-weight: bold; margin-bottom: 10px; letter-spacing: 0.5px;">DAILY CONSISTENCY</p>
+                    <div style="position: relative; width: 100px; height: 100px; margin: 0 auto;">
+                        <canvas id="rsDoughnutChartDaily"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 30M Section -->
+            <div style="width: 100%; text-align: center;">
+                <p style="font-size: 13px; color: #475569; font-weight: bold; margin-bottom: 10px; text-transform: uppercase;">LAST 30M RS</p>
+                <div id="rsScoreBadge30m" style="padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 4px; border: 1px solid transparent; background: #e2e8f0; color: #334155; margin: 0 auto; max-width: max-content;">
+                    <span id="rsScoreArrow30m" style="font-size: 14px;"></span><span id="rsScoreText30m">--.--%</span>
+                </div>
+                
+                <div style="width: 100%; margin-top: 25px; text-align: center;">
+                    <p style="font-size: 10px; color: #94a3b8; font-weight: bold; margin-bottom: 10px; letter-spacing: 0.5px;">30M CONSISTENCY</p>
+                    <div style="position: relative; width: 110px; height: 110px; margin: 0 auto;">
+                        <canvas id="rsDoughnutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <p id="rsBenchLabel" style="font-size: 11px; color: #94a3b8; margin-top: 20px; text-align: center; font-weight: bold;">vs NIFTY 50</p>
+        </div>
     </div>
 
     <!-- Performer Toggle Button -->
@@ -244,6 +281,8 @@
 <script>
     const BASE_URL = "https://orb-pro-worker.gsmmunna.workers.dev";
     let chartInstance = null;
+    let doughnutChartInstance = null;
+    let doughnutChartInstanceDaily = null;
 
     // Helper: Find closest previous valid trading date if today is weekend
     function getEffectiveDate() {
@@ -267,34 +306,32 @@
         if (e.key === 'Enter') loadChart();
     });
 
-    let currentData = null;
+    let fullDayData = null;
+    let min30Data = null;
     let currentDateFetched = null;
-    let currentTimeframeFetched = null;
-
-    function getJsonFileName() {
-        const tf = document.getElementById('timeframeSelect').value;
-        return tf === 'full' ? 'rpg_full_day_data.json' : 'orb_pro_data.json';
-    }
 
     // Pre-fetch data to populate the symbol dropdown list
     async function fetchAndPopulateSymbols(dateStr) {
-        const tf = document.getElementById('timeframeSelect').value;
-        if(currentDateFetched === dateStr && currentTimeframeFetched === tf) return; 
+        if(currentDateFetched === dateStr) return; 
         try {
-            const fileName = getJsonFileName();
-            let url = `${BASE_URL}/data?path=${dateStr}/${fileName}&v=${Date.now()}`;
-            let res = await fetch(url);
+            let url30 = `${BASE_URL}/data?path=${dateStr}/orb_pro_data.json&v=${Date.now()}`;
+            let urlFull = `${BASE_URL}/data?path=${dateStr}/rpg_full_day_data.json&v=${Date.now()}`;
             
-            if(!res.ok) return;
+            const [res30, resFull] = await Promise.all([
+                fetch(url30),
+                fetch(urlFull).catch(e => null)
+            ]);
+            
+            if(!res30.ok) return;
 
-            currentData = await res.json();
+            min30Data = await res30.json();
+            fullDayData = (resFull && resFull.ok) ? await resFull.json() : null;
             currentDateFetched = dateStr;
-            currentTimeframeFetched = tf;
             
             const datalist = document.getElementById('symbolList');
             datalist.innerHTML = '';
             
-            let symbols = Object.keys(currentData).filter(s => {
+            let symbols = Object.keys(min30Data).filter(s => {
                 if (['timestamp', 'ms_timestamp', 'indices'].includes(s)) return false;
                 // Explicitly allow major indices
                 if (s === 'NIFTY 50' || s === 'NIFTY BANK') return true;
@@ -313,8 +350,16 @@
             });
             
             // Pre-calculate the leaderboard as soon as data arrives
+            const tf = document.getElementById('timeframeSelect').value;
+            const dataToUse = (tf === 'full') ? fullDayData : min30Data;
             let defaultBenchmark = document.getElementById('benchmarkInput').value.trim().toUpperCase() || 'NIFTY 50';
-            updateLeaderboard(currentData, defaultBenchmark);
+            if (dataToUse) {
+                updateLeaderboard(dataToUse, defaultBenchmark);
+            } else {
+                document.getElementById('outperformersList').innerHTML = '<div style="padding:10px; color:#ef4444; font-weight:bold; text-align:center;">Data Not Available</div>';
+                document.getElementById('neutralList').innerHTML = '<div style="padding:10px; color:#ef4444; font-weight:bold; text-align:center;">Data Not Available</div>';
+                document.getElementById('underperformersList').innerHTML = '<div style="padding:10px; color:#ef4444; font-weight:bold; text-align:center;">Data Not Available</div>';
+            }
 
         } catch(e) {
             console.error("Failed to fetch symbols", e);
@@ -326,11 +371,27 @@
 
     // Refresh symbols if user manually changes the date or timeframe
     document.getElementById('dateInput').addEventListener('change', (e) => {
-        fetchAndPopulateSymbols(e.target.value);
+        fetchAndPopulateSymbols(e.target.value).then(() => {
+            if(document.getElementById('symbolInput').value.trim()) {
+                loadChart();
+            }
+        });
     });
     document.getElementById('timeframeSelect').addEventListener('change', () => {
         const dateStr = document.getElementById('dateInput').value;
         fetchAndPopulateSymbols(dateStr).then(() => {
+            if (min30Data) {
+                const tf = document.getElementById('timeframeSelect').value;
+                const dataToUse = (tf === 'full') ? fullDayData : min30Data;
+                if (!dataToUse) {
+                    document.getElementById('outperformersList').innerHTML = '<div style="padding:10px; color:#ef4444; font-weight:bold; text-align:center;">Data Not Available</div>';
+                    document.getElementById('neutralList').innerHTML = '<div style="padding:10px; color:#ef4444; font-weight:bold; text-align:center;">Data Not Available</div>';
+                    document.getElementById('underperformersList').innerHTML = '<div style="padding:10px; color:#ef4444; font-weight:bold; text-align:center;">Data Not Available</div>';
+                } else {
+                    let defaultBenchmark = document.getElementById('benchmarkInput').value.trim().toUpperCase() || 'NIFTY 50';
+                    updateLeaderboard(dataToUse, defaultBenchmark);
+                }
+            }
             if(document.getElementById('symbolInput').value.trim()) {
                 loadChart();
             }
@@ -374,27 +435,34 @@
 
         try {
             const tf = document.getElementById('timeframeSelect').value;
-            // Check if we already fetched data for this date and timeframe, otherwise fetch it
-            if(currentDateFetched !== dateStr || currentTimeframeFetched !== tf || !currentData) {
-                const fileName = getJsonFileName();
-                let url = `${BASE_URL}/data?path=${dateStr}/${fileName}&v=${Date.now()}`;
-                let res = await fetch(url);
+            // Fetch both datasets concurrently if not already loaded for today
+            if(currentDateFetched !== dateStr || !min30Data) {
+                let url30 = `${BASE_URL}/data?path=${dateStr}/orb_pro_data.json&v=${Date.now()}`;
+                let urlFull = `${BASE_URL}/data?path=${dateStr}/rpg_full_day_data.json&v=${Date.now()}`;
                 
-                if (!res.ok) throw new Error(`No data found. Note: If you selected 'Full Day', the file might not be generated yet.`);
+                const [res30, resFull] = await Promise.all([
+                    fetch(url30),
+                    fetch(urlFull).catch(e => null) // Ignore full day error if not generated
+                ]);
                 
-                currentData = await res.json();
+                if (!res30.ok) throw new Error(`No data found for this date.`);
+                
+                min30Data = await res30.json();
+                fullDayData = (resFull && resFull.ok) ? await resFull.json() : null;
                 currentDateFetched = dateStr;
-                currentTimeframeFetched = tf;
             }
             
-            const data = currentData;
+            // For chart plotting, if data is missing, throw an error to alert the user
+            const data = (tf === 'full') ? fullDayData : min30Data;
+            if (!data) throw new Error(`Data is not available for the selected timeframe (${tf}).`);
             
             if (!data[symbol]) throw new Error(`Symbol '${symbol}' not found in the selected day's data.`);
             if (!data[benchmark]) throw new Error(`Benchmark '${benchmark}' not found in the selected day's data.`);
 
             plotChart(symbol, benchmark, data[symbol].history, data[benchmark].history);
+            renderDualRS(symbol, benchmark, min30Data, fullDayData);
             
-            // Generate Leaderboard
+            // Generate Leaderboard using selected timeframe data
             updateLeaderboard(data, benchmark);
         } catch (err) {
             if(!isSilent) alert(err.message);
@@ -646,6 +714,207 @@
                 }
             }
         });
+
+    }
+
+    function renderDualRS(symbol, benchmark, min30, fullDay) {
+        document.getElementById('rsBenchLabel').innerText = "vs " + benchmark;
+        
+        function updateBadge(idSuffix, historyData, benchData) {
+            if (!historyData || !benchData || historyData.length === 0 || benchData.length === 0) {
+                document.getElementById('rsScoreText'+idSuffix).innerText = "--.--%";
+                return null;
+            }
+            const stockOpen = historyData[0].ltp;
+            const stockCurrent = historyData[historyData.length - 1].ltp;
+            const benchOpen = benchData[0].ltp;
+            const benchCurrent = benchData[benchData.length - 1].ltp;
+            
+            const stockPerf = ((stockCurrent / stockOpen) - 1) * 100;
+            const benchPerf = ((benchCurrent / benchOpen) - 1) * 100;
+            const rs = stockPerf - benchPerf;
+            
+            let arrow = "−", bg = "#e2e8f0", txt = "#334155";
+            if (rs >= 0.3) { bg = "#16a34a"; txt = "#ffffff"; arrow = "↑"; }
+            else if (rs >= 0.05) { bg = "#bbf7d0"; txt = "#166534"; arrow = "↑"; }
+            else if (rs <= -0.3) { bg = "#dc2626"; txt = "#ffffff"; arrow = "↓"; }
+            else if (rs <= -0.05) { bg = "#fecaca"; txt = "#991b1b"; arrow = "↓"; }
+            
+            const sign = rs > 0 ? "+" : "";
+            document.getElementById('rsScoreBadge'+idSuffix).style.background = bg;
+            document.getElementById('rsScoreBadge'+idSuffix).style.color = txt;
+            document.getElementById('rsScoreArrow'+idSuffix).innerText = arrow;
+            document.getElementById('rsScoreText'+idSuffix).innerText = sign + rs.toFixed(2) + "%";
+            return rs;
+        }
+
+        // 30M RS
+        const rs30 = updateBadge('30m', min30[symbol].history, min30[benchmark].history);
+        
+        // Full Day RS
+        if (fullDay && fullDay[symbol] && fullDay[benchmark]) {
+            document.getElementById('rsDailyFallbackMsg').style.display = 'none';
+            updateBadge('Daily', fullDay[symbol].history, fullDay[benchmark].history);
+        } else {
+            document.getElementById('rsDailyFallbackMsg').style.display = 'block';
+            document.getElementById('rsScoreTextDaily').innerText = "--.--%";
+            document.getElementById('rsScoreBadgeDaily').style.background = "#e2e8f0";
+            document.getElementById('rsScoreBadgeDaily').style.color = "#334155";
+            document.getElementById('rsScoreArrowDaily').innerText = "−";
+        }
+
+        function drawDoughnut(canvasId, sHist, bHist, isDaily) {
+            let slices = [];
+            let bgColors = [];
+            let labels = [];
+            
+            let bOpen = bHist[0].ltp;
+            let sOpen = sHist[0].ltp;
+            
+            let bMap = new Map();
+            bHist.forEach(b => bMap.set(b.t, b.ltp));
+            
+            function interpolateColor(c1, c2, factor) {
+                return `rgb(${Math.round(c1[0] + factor * (c2[0] - c1[0]))}, ${Math.round(c1[1] + factor * (c2[1] - c1[1]))}, ${Math.round(c1[2] + factor * (c2[2] - c1[2]))})`;
+            }
+
+            function getGradientColor(rs) {
+                const deepRed = [220, 38, 38];
+                const lightRed = [254, 202, 202];
+                const grey = [148, 163, 184];
+                const lightGreen = [187, 247, 208];
+                const deepGreen = [22, 163, 74];
+                
+                if (rs <= -0.3) return "rgb(220, 38, 38)";
+                if (rs >= 0.3) return "rgb(22, 163, 74)";
+                
+                if (rs < 0) {
+                    if (rs < -0.05) {
+                        let factor = (rs - (-0.3)) / 0.25;
+                        return interpolateColor(deepRed, lightRed, factor);
+                    } else {
+                        let factor = (rs - (-0.05)) / 0.05;
+                        return interpolateColor(lightRed, grey, factor);
+                    }
+                } else {
+                    if (rs > 0.05) {
+                        let factor = (rs - 0.05) / 0.25;
+                        return interpolateColor(lightGreen, deepGreen, factor);
+                    } else {
+                        let factor = rs / 0.05;
+                        return interpolateColor(grey, lightGreen, factor);
+                    }
+                }
+            }
+            
+            sHist.forEach(s => {
+                if (bMap.has(s.t)) {
+                    let sPct = ((s.ltp / sOpen) - 1) * 100;
+                    let bPct = ((bMap.get(s.t) / bOpen) - 1) * 100;
+                    let rs = sPct - bPct;
+                    
+                    let bg = getGradientColor(rs);
+                    
+                    let label = "Neutral";
+                    if (rs >= 0.3) label = "Super Bull";
+                    else if (rs >= 0.05) label = "Bull";
+                    else if (rs <= -0.3) label = "Super Bear";
+                    else if (rs <= -0.05) label = "Bear";
+                    
+                    slices.push(1); // Equal size slice for each minute
+                    bgColors.push(bg);
+                    
+                    let timeStr = new Date(s.ms).toLocaleTimeString('en-IN', {hour: '2-digit', minute:'2-digit', hour12: false});
+                    if (timeStr === "Invalid Date") timeStr = s.t; 
+                    
+                    labels.push(`${timeStr} - ${label} (${(rs>0?'+':'')}${rs.toFixed(2)}%)`);
+                }
+            });
+
+            const dCtx = document.getElementById(canvasId).getContext('2d');
+            
+            if (isDaily) {
+                if (doughnutChartInstanceDaily) doughnutChartInstanceDaily.destroy();
+            } else {
+                if (doughnutChartInstance) doughnutChartInstance.destroy();
+            }
+            
+            let newChart = new Chart(dCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: slices,
+                        backgroundColor: bgColors,
+                        borderWidth: 0,
+                        hoverOffset: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { 
+                            callbacks: { 
+                                label: function(c) { return ` ${c.label}`; } 
+                            } 
+                        }
+                    }
+                }
+            });
+            
+            if (isDaily) doughnutChartInstanceDaily = newChart;
+            else doughnutChartInstance = newChart;
+        }
+
+        // Helper to draw an empty (grey) placeholder doughnut
+        function drawEmptyDoughnut(canvasId, isDaily) {
+            const dCtx = document.getElementById(canvasId).getContext('2d');
+            if (isDaily) {
+                if (doughnutChartInstanceDaily) doughnutChartInstanceDaily.destroy();
+            } else {
+                if (doughnutChartInstance) doughnutChartInstance.destroy();
+            }
+            let newChart = new Chart(dCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['No Data'],
+                    datasets: [{
+                        data: [1],
+                        backgroundColor: ['#e2e8f0'],
+                        borderWidth: 0,
+                        hoverOffset: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+            if (isDaily) doughnutChartInstanceDaily = newChart;
+            else doughnutChartInstance = newChart;
+        }
+
+        // Draw 30M Doughnut
+        if (min30[symbol] && min30[benchmark]) {
+            drawDoughnut('rsDoughnutChart', min30[symbol].history, min30[benchmark].history, false);
+        } else {
+            drawEmptyDoughnut('rsDoughnutChart', false);
+        }
+        
+        // Draw Daily Doughnut
+        if (fullDay && fullDay[symbol] && fullDay[benchmark]) {
+            drawDoughnut('rsDoughnutChartDaily', fullDay[symbol].history, fullDay[benchmark].history, true);
+        } else {
+            drawEmptyDoughnut('rsDoughnutChartDaily', true);
+        }
     }
 </script>
 </body>
