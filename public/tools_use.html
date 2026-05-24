@@ -9,20 +9,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Carbon Sleek Dark Theme (Default) */
-            --bg: #090d16;
-            --grid-bg: radial-gradient(circle at 50% 50%, #0f172a 0%, #090d16 100%);
-            --card-bg: rgba(17, 24, 39, 0.75);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --bull: #10b981;
-            --bear: #f43f5e;
-            --bull-glow: rgba(16, 185, 129, 0.15);
-            --bear-glow: rgba(244, 63, 94, 0.15);
-            --accent: #0ea5e9;
-            --accent-glow: rgba(14, 165, 233, 0.2);
-            --accent-dark: rgba(14, 165, 233, 0.1);
+            /* Carbon Sleek Light Theme (Default) */
+            --bg: #f8fafc;
+            --grid-bg: radial-gradient(circle at 50% 50%, #f1f5f9 0%, #cbd5e1 100%);
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(15, 23, 42, 0.08);
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --bull: #059669;
+            --bear: #dc2626;
+            --bull-glow: rgba(5, 150, 105, 0.1);
+            --bear-glow: rgba(220, 38, 38, 0.1);
+            --accent: #0284c7;
+            --accent-glow: rgba(2, 132, 199, 0.15);
+            --accent-dark: rgba(2, 132, 199, 0.08);
             --sidebar-width: 320px;
         }
 
@@ -90,8 +90,8 @@
         }
 
         /* Dynamic Header */
-        header {
-            background: rgba(15, 23, 42, 0.6);
+        .header {
+            background: var(--card-bg);
             border-bottom: 1px solid var(--card-border);
             padding: 15px 30px;
             backdrop-filter: blur(12px);
@@ -149,10 +149,10 @@
             font-size: 13px;
             font-weight: 700;
             color: var(--text-sub);
-            background: rgba(0, 0, 0, 0.2);
+            background: var(--card-bg);
             padding: 6px 12px;
             border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.03);
+            border: 1px solid var(--card-border);
         }
 
         /* Workspace Grid (Sidebar + Main Pane) */
@@ -167,8 +167,7 @@
         .sidebar {
             width: var(--sidebar-width);
             border-right: 1px solid var(--card-border);
-            background: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(16px);
+            background: var(--bg);
             display: flex;
             flex-direction: column;
             overflow-y: hidden;
@@ -187,7 +186,7 @@
         .search-input {
             width: 100%;
             padding: 10px 15px 10px 35px;
-            background: rgba(0, 0, 0, 0.2);
+            background: var(--card-bg);
             border: 1px solid var(--card-border);
             color: var(--text-main);
             border-radius: 8px;
@@ -223,7 +222,7 @@
             width: 4px;
         }
         .logics-list::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(15, 23, 42, 0.15);
             border-radius: 20px;
         }
 
@@ -267,8 +266,8 @@
         }
 
         .logic-card-num {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.05);
+            border: 1px solid rgba(15, 23, 42, 0.08);
             font-family: 'Inter', sans-serif;
             font-size: 11px;
             font-weight: 800;
@@ -279,7 +278,7 @@
         }
         .logic-card.active .logic-card-num {
             background: var(--accent);
-            color: #090d16;
+            color: #ffffff;
         }
 
         .logic-card-info {
@@ -358,7 +357,7 @@
         }
 
         .welcome-stat-chip {
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--card-bg);
             border: 1px solid var(--card-border);
             padding: 8px 16px;
             border-radius: 8px;
@@ -564,10 +563,10 @@
             opacity: 0.85;
         }
         .bullish .m-lbl {
-            color: #a7f3d0;
+            color: var(--text-sub);
         }
         .bearish .m-lbl {
-            color: #fecdd3;
+            color: var(--text-sub);
         }
 
         .m-val {
@@ -768,8 +767,8 @@
 
         async function load() {
             try {
-                // Fetch new logics API
-                const res = await fetch('/api/logics?t=' + Date.now());
+                // Fetch new logics API from absolute URL
+                const res = await fetch('https://tools-use.teletechcare.workers.dev/api/logics?t=' + Date.now());
                 logics = await res.json();
                 
                 // Sort logics by logicId ascending
@@ -1005,7 +1004,8 @@
         load();
         async function launchAppTool(url) {
             try {
-                const res = await fetch('/api/tools-meta');
+                const AUTH_WORKER = 'https://auth-worker.teletechcare.workers.dev';
+                const res = await fetch(`${AUTH_WORKER}/api/tools-meta`);
                 if (res.ok) {
                     const tools = await res.json();
                     let matchedToolId = null;
@@ -1020,7 +1020,7 @@
                         const token = localStorage.getItem('fnohub_token');
                         const headers = { 'Content-Type': 'application/json' };
                         if (token) headers['Authorization'] = 'Bearer ' + token;
-                        const tokenRes = await fetch('/api/get-link', {
+                        const tokenRes = await fetch(`${AUTH_WORKER}/api/get-link`, {
                             method: 'POST',
                             headers: headers,
                             body: JSON.stringify({ toolId: matchedToolId })
