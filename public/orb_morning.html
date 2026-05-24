@@ -1161,7 +1161,8 @@
         }
 
         function getPrevTradingDate() {
-            let d = new Date(Date.now() + 5.5 * 3600000);
+            const effectiveDateStr = getEffectiveDate();
+            let d = new Date(effectiveDateStr + 'T00:00:00Z');
             d.setUTCDate(d.getUTCDate() - 1);
             const istStr = () => d.toISOString().split('T')[0];
             while (d.getUTCDay() === 0 || d.getUTCDay() === 6 || HOLIDAYS.includes(istStr())) {
@@ -1254,7 +1255,7 @@
             const h = item.orb[hKey];
             const l = item.orb[lKey];
 
-            if (item.t <= timeframe) return { type: 'NEUTRAL', h, l };
+            if (item.t < timeframe) return { type: 'NEUTRAL', h, l };
 
             if (item.ltp > h) return { type: 'BULL', price: item.ltp, time: item.t, h, l };
             if (item.ltp < l) return { type: 'BEAR', price: item.ltp, time: item.t, h, l };
