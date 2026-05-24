@@ -1008,15 +1008,22 @@
                 const res = await fetch('/api/tools-meta');
                 if (res.ok) {
                     const tools = await res.json();
-                    const matched = tools.find(x => x.url === url);
-                    if (matched) {
+                    let matchedToolId = null;
+                    if (url.includes('/v/')) {
+                        matchedToolId = url.split('/v/')[1].split('?')[0];
+                    } else {
+                        const matched = tools.find(x => x.url === url);
+                        if (matched) matchedToolId = matched.id;
+                    }
+
+                    if (matchedToolId) {
                         const token = localStorage.getItem('fnohub_token');
                         const headers = { 'Content-Type': 'application/json' };
                         if (token) headers['Authorization'] = 'Bearer ' + token;
                         const tokenRes = await fetch('/api/get-link', {
                             method: 'POST',
                             headers: headers,
-                            body: JSON.stringify({ toolId: matched.id })
+                            body: JSON.stringify({ toolId: matchedToolId })
                         });
                         const data = await tokenRes.json();
                         if (data.success) {
@@ -1027,6 +1034,9 @@
                             } else {
                                 window.open(finalUrl, '_blank');
                             }
+                            return;
+                        } else {
+                            alert('Access Error: ' + (data.error || 'Could not fetch secure link'));
                             return;
                         }
                     }
