@@ -237,12 +237,19 @@
     </details>
     <div class="main-scanner">
         <div class="tab-bar">
-          <div class="tab active" data-cat="stocks">STOCKS (213)</div>
+          <div class="tab active" data-cat="stocks" id="stocks-tab-title">STOCKS (500)</div>
           <div class="tab" data-cat="indices">INDICES</div>
           <div class="tab" data-cat="vix">VOLATILITY (VIX)</div>
         </div>
         <div class="controls-row">
-          <input type="text" id="symbol-search" placeholder="Search symbol..." style="background:#ffffff; border:2px solid #cbd5e1; color:#0f172a; font-weight:600; box-shadow:0 2px 4px rgba(0,0,0,0.05); padding:8px 15px; border-radius:8px;">
+          <div style="display:flex; gap:12px; align-items:center;">
+             <input type="text" id="symbol-search" placeholder="Search symbol..." style="background:#ffffff; border:2px solid #cbd5e1; color:#0f172a; font-weight:600; box-shadow:0 2px 4px rgba(0,0,0,0.05); padding:8px 15px; border-radius:8px; width:160px;">
+             <!-- Subset Selector for Stocks -->
+             <div style="display:flex; gap:4px; background:#e2e8f0; padding:4px; border-radius:10px; border: 1px solid var(--border);" id="subset-bar">
+                 <button class="filter-btn active" id="sub-all-btn" onclick="setSubset('all')" style="font-size:10px; padding:6px 12px; font-weight:800; border-radius:8px;">NIFTY 500</button>
+                 <button class="filter-btn" id="sub-fno-btn" onclick="setSubset('fno')" style="font-size:10px; padding:6px 12px; font-weight:800; border-radius:8px; background:none; border:none; color:var(--text-dim);">F&O ONLY</button>
+             </div>
+          </div>
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:center;">
             <button class="filter-btn f-all active" data-filter="all">ALL</button>
             <button class="filter-btn f-bull" data-filter="bull">🟢 BULL</button>
@@ -407,6 +414,56 @@
     let currentCategory = "stocks", rawData = null, latestQuotes = null, searchQuery = "", signalFilter = "all", trendPeriod = 30;
     let sortBy = "orb", countdownSecs = 60;
     
+    // Hardcoded F&O Symbols to bypass local browser CORS limits
+    let stocksSubset = "all"; // 'all' or 'fno'
+    const fnoSymbols = ["BHARATBOND-APR30","BHARATBOND-APR31","BHARATBOND-APR32","BHARATBOND-APR33","RELIANCE","SUNPHARMA","VEDL","HDFCBANK","ETERNAL","ICICIBANK","BHARTIARTL","ONGC","INFY","BSE","AXISBANK","COALINDIA","SBIN","TCS","MARUTI","ADANIENT","ADANIPOWER","DIXON","HINDALCO","M&M","HCLTECH","SUZLON","TATASTEEL","TATAPOWER","IDEA","VBL","LT","BAJFINANCE","SHRIRAMFIN","UNIONBANK","AUBANK","WAAREEENER","ULTRACEMCO","NESTLEIND","INDIGO","OFSS","JIOFIN","OIL","ADANIGREEN","BHEL","PFC","INDUSINDBK","MCX","SAIL","KOTAKBANK","WIPRO","BEL","BPCL","ADANIENSOL","GRASIM","KAYNES","RBLBANK","NAM-INDIA","HINDZINC","POWERINDIA","RECLTD","ADANIPORTS","INDUSTOWER","EICHERMOT","ITC","SBICARD","NATIONALUM","TRENT","HINDUNILVR","GLENMARK","COCHINSHIP","PERSISTENT","AMBER","HEROMOTOCO","BANKBARODA","HDFCLIFE","LODHA","NTPC","DRREDDY","CANBK","CROMPTON","HDFCAMC","ASHOKLEY","POLYCAB","POWERGRID","LUPIN","FORCEMOT","JSWENERGY","TECHM","HYUNDAI","TITAN","APOLLOHOSP","SBILIFE","MAZDOCK","PAYTM","NMDC","TMPV","BAJAJFINSV","BAJAJ-AUTO","JSWSTEEL","NHPC","SAMMAANCAP","HAL","SWIGGY","PNB","LAURUSLABS","PHOENIXLTD","BANKINDIA","ABB","VMM","SUPREMEIND","MANAPPURAM","DMART","SONACOMS","POLICYBZR","CIPLA","MOTHERSON","FEDERALBNK","TATACONSUM","APLAPOLLO","HAVELLS","CUMMINSIND","DALBHARAT","IDFCFIRSTB","DIVISLAB","HINDPETRO","RVNL","INDIANB","VOLTAS","IOC","CDSL","CGPOWER","LTF","ABCAPITAL","SOLARINDS","COFORGE","TVSMOTOR","GMRAIRPORT","BANDHANBNK","BIOCON","PIIND","CHOLAFIN","NAUKRI","JUBLFOOD","IEX","PREMIERENE","IRFC","BRITANNIA","ZYDUSLIFE","YESBANK","ASIANPAINT","TATAELXSI","UPL","TORNTPHARM","ANGELONE","DLF","LICI","IREDA","INDHOTEL","EXIDEIND","AUROPHARMA","FORTIS","KEI","MUTHOOTFIN","LTM","CAMS","MOTILALOFS","JINDALSTEL","BLUESTARCO","PGEL","KPITTECH","MAXHEALTH","BHARATFORG","SIEMENS","GODREJPROP","GAIL","BDL","INOXWIND","KALYANKJIL","PNBHOUSING","GODREJCP","NYKAA","PAGEIND","TIINDIA","AMBUJACEM","BOSCHLTD","UNITDSPR","SRF","COLPAL","OBEROIRLTY","SHREECEM","ASTRAL","GODFRYPHLP","NBCC","UNOMINDA","BAJAJHLDNG","MPHASIS","360ONE","ICICIPRULI","DELHIVERY","MANKIND","PRESTIGE","MFSL","ICICIGI","PIDILITIND","LICHSGFIN","CONCOR","MARICO","ALKEM","PATANJALI","KFINTECH","NUVAMA","PETRONET","DABUR"];
+
+    function formatTimeForT(t) {
+        if (t === undefined || t === null) return "--";
+        const totalMins = 9 * 60 + 15 + t;
+        const h = Math.floor(totalMins / 60);
+        const m = totalMins % 60;
+        const ampm = h >= 12 ? "PM" : "AM";
+        let h12 = h > 12 ? h - 12 : h;
+        if (h12 === 0) h12 = 12;
+        return String(h12).padStart(2, '0') + ":" + String(m).padStart(2, '0') + " " + ampm;
+    }
+    
+    window.setSubset = function(subset) {
+        stocksSubset = subset;
+        
+        const allBtn = document.getElementById("sub-all-btn");
+        const fnoBtn = document.getElementById("sub-fno-btn");
+        
+        if (subset === "all") {
+            if (allBtn) {
+                allBtn.classList.add("active");
+                allBtn.style.background = "";
+                allBtn.style.color = "";
+            }
+            if (fnoBtn) {
+                fnoBtn.classList.remove("active");
+                fnoBtn.style.background = "none";
+                fnoBtn.style.border = "none";
+                fnoBtn.style.color = "var(--text-dim)";
+            }
+        } else {
+            if (fnoBtn) {
+                fnoBtn.classList.add("active");
+                fnoBtn.style.background = "var(--accent)";
+                fnoBtn.style.color = "white";
+            }
+            if (allBtn) {
+                allBtn.classList.remove("active");
+                allBtn.style.background = "none";
+                allBtn.style.border = "none";
+                allBtn.style.color = "var(--text-dim)";
+            }
+        }
+        
+        renderTable();
+    };
+    
     // Latest Signals Logic (Upgraded to V4 to include ORB data)
     let latestSignals = JSON.parse(localStorage.getItem('orbSignalsV4') || "[]");
     const todayDateStr = new Date().toISOString().split('T')[0];
@@ -439,16 +496,6 @@
         if (!rawData) return;
         let newSignalAdded = false;
         const timeframes = [5, 15, 30];
-        
-        function formatTimeForT(t) {
-            const totalMins = 9 * 60 + 15 + t;
-            const h = Math.floor(totalMins / 60);
-            const m = totalMins % 60;
-            const ampm = h >= 12 ? "PM" : "AM";
-            let h12 = h > 12 ? h - 12 : h;
-            if (h12 === 0) h12 = 12;
-            return String(h12).padStart(2, '0') + ":" + String(m).padStart(2, '0') + " " + ampm;
-        }
 
         for (const [sym, snapData] of Object.entries(rawData)) {
             if (sym === "INDIA VIX" || sym.startsWith("NIFTY")) continue;
@@ -622,17 +669,49 @@
             tbody.innerHTML = "<tr><td colspan='8' style='text-align:center; padding:40px; color:var(--text-dim)'>⏳ Loading Market Data...</td></tr>";
             return;
         }
+        
+        // Hide/Show stocks subset bar based on active tab
+        const subsetBar = document.getElementById("subset-bar");
+        if (subsetBar) {
+            subsetBar.style.display = currentCategory === "stocks" ? "flex" : "none";
+        }
+        
         const items = [];
+        let totalStocksCount = 0;
+        let activeFnoCount = 0;
+        
         for (const [sym, snapData] of Object.entries(rawData)) {
             const snaps = snapData.history || [];
             if (!Array.isArray(snaps) || snaps.length === 0) continue;
+            
             const isIndex = sym.startsWith("NIFTY") || sym === "INDIA VIX";
-            if (currentCategory === "stocks" && isIndex) continue;
+            const isFNO = fnoSymbols.includes(sym.trim().toUpperCase());
+            
+            if (!isIndex && sym !== "INDIA VIX") {
+                totalStocksCount++;
+                if (isFNO) activeFnoCount++;
+            }
+            
+            if (currentCategory === "stocks") {
+                if (isIndex) continue;
+                if (stocksSubset === "fno" && !isFNO) continue;
+            }
             if (currentCategory === "indices" && (!isIndex || sym === "INDIA VIX")) continue;
             if (currentCategory === "vix" && sym !== "INDIA VIX") continue;
             if (searchQuery && !sym.includes(searchQuery)) continue;
+            
             const ltp = snapData.ltp;
-            items.push({ sym, ltp, orb: snapData.orb, snaps });
+            items.push({ sym, ltp, orb: snapData.orb, snaps, t: snapData.t });
+        }
+        
+        // Dynamic active category tab counting update
+        const stocksTitle = document.getElementById("stocks-tab-title");
+        if (stocksTitle) {
+            if (stocksSubset === "fno") {
+                stocksTitle.textContent = `STOCKS (${activeFnoCount})`;
+            } else {
+                stocksTitle.textContent = `STOCKS (${totalStocksCount})`;
+            }
         }
         
         const niftySnaps = rawData["NIFTY 50"] ? rawData["NIFTY 50"].history : [];
@@ -680,7 +759,7 @@
             }
             const trend = generateSparkline(item.snaps, 60, 20, trendPeriod);
             row.innerHTML = "<td style='font-weight:700'>" + item.sym + "</td>" + 
-                "<td style='font-family:monospace'>₹" + item.ltp.toFixed(item.ltp < 100 ? 2 : 1) + "</td>" + 
+                "<td style='font-family:monospace'>₹" + item.ltp.toFixed(item.ltp < 100 ? 2 : 1) + "<br><span style='font-size:10px; color:var(--text-dim)'>" + formatTimeForT(item.t) + "</span></td>" + 
                 "<td><b style='color:" + orsiColor + "'>" + orsi + "</b></td>" + 
                 "<td class='hide-mobile'>" + trend + "</td>" + 
                 "<td class='hide-mobile'>" + renderDot(getORBSignal(item.ltp, item.orb, 5)) + "</td>" + 
@@ -702,8 +781,8 @@
             document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
             e.target.classList.add("active"); currentCategory = e.target.dataset.cat; renderTable();
         });
-        document.querySelectorAll(".filter-btn").forEach(b => b.onclick = (e) => {
-            document.querySelectorAll(".filter-btn").forEach(x => x.classList.remove("active"));
+        document.querySelectorAll("button[data-filter]").forEach(b => b.onclick = (e) => {
+            document.querySelectorAll("button[data-filter]").forEach(x => x.classList.remove("active"));
             e.target.classList.add("active"); signalFilter = e.target.dataset.filter; renderTable();
         });
         document.getElementById("symbol-search").oninput = (e) => { searchQuery = e.target.value.toUpperCase(); renderTable(); };
