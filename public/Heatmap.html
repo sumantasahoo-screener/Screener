@@ -1023,8 +1023,8 @@ async function fetchGraphData() {
         if(!res.ok) return;
         const data = await res.json();
         
-        window.globalGraphData = data;
-        window.globalVix = data.vix || [];
+        globalGraphData = data;
+        globalVix = data.vix || [];
         
         if(document.getElementById('page-graphs').classList.contains('active')) {
             drawGraph();
@@ -1159,7 +1159,7 @@ async function fetchData(){
             localStorage.setItem('heatmap_vix', JSON.stringify(vData));
         }
     }
-    window.globalVix = vData.points;
+    globalVix = vData.points;
 
     updateTimestamp(updatedAt);
     updateDataStatus(updatedAt);
@@ -1380,7 +1380,7 @@ function renderHeatmap(){ filterHeatmap(); }
 // ── Draw Graph ────────────────────────────────────────────────────────────────
 function drawGraph(){
   const canvas=document.getElementById('graphCanvas');
-  const graphArray = window.globalGraphData ? window.globalGraphData[currentChartType] : null;
+  const graphArray = globalGraphData ? globalGraphData[currentChartType] : null;
   if(!canvas||!graphArray||graphArray.length<2) return;
   const dpr=window.devicePixelRatio||1;
   const W=canvas.parentElement.clientWidth-40;
@@ -1413,24 +1413,27 @@ function drawGraph(){
 
 // ── VIX Graphs ────────────────────────────────────────────────────────────────
 function drawVixGraph(){
-  const canvas=document.getElementById('vixCanvas');
-  drawVixOnCanvas(canvas,320,140);
-  document.getElementById('vix-float-val').textContent=getLastVix();
+  try {
+    document.getElementById('vix-float-val').textContent=getLastVix();
+    const canvas=document.getElementById('vixCanvas');
+    drawVixOnCanvas(canvas,320,140);
+  } catch(e) { console.error("drawVixGraph error:", e); }
 }
 
 function drawVixSheetGraph(){
   const canvas=document.getElementById('vixSheetCanvas');
   if(!canvas) return;
   const W=canvas.parentElement.clientWidth||window.innerWidth;
-  drawVixOnCanvas(canvas,W,180);
+  try { drawVixOnCanvas(canvas,W,180); } catch(e) { console.error(e); }
   const sv=document.getElementById('vix-sheet-val');
   if(sv) sv.textContent=getLastVix();
 }
 
 function getLastVix(){
-  if(!globalVix||globalVix.length<1) return '—';
+  if(!globalVix) return 'NULL';
+  if(globalVix.length<1) return 'EMPTY';
   const pts=globalVix.filter(p=>p.vix>0);
-  if(!pts.length) return '—';
+  if(!pts.length) return 'NO_PTS';
   return pts[pts.length-1].vix.toFixed(2);
 }
 
@@ -1441,7 +1444,7 @@ function drawVixOnCanvas(canvas,W,H){
   const ctx=canvas.getContext('2d');
   ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
   if(!globalVix||globalVix.length<2){
-    ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.font='12px DM Sans'; ctx.textAlign='center';
+    ctx.fillStyle='gray'; ctx.font='12px DM Sans'; ctx.textAlign='center';
     ctx.fillText('No VIX data yet',W/2,H/2); return;
   }
   const vixPts=globalVix.filter(p=>p.vix>0);
