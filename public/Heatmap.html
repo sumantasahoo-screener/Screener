@@ -1,27 +1,21 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Heatmap</title>
+
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230a84ff'/><text x='16' y='22' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' font-size='14' fill='white'>MT</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@500;600&display=swap" rel="stylesheet"/>
 <style>
 /* -- Theme Tokens -- */
 :root {
-  --bg: #0b0e14; --surface: #141820; --surface2: #1a1f2e; --border: #252b3b;
-  --text: #e8ecf4; --text2: #8892a4; --text3: #4a5568;
-  --accent: #4c9aff; --up: #36b37e; --up-bg: #0a2e1e;
-  --down: #ff5630; --down-bg: #2e0a08; --hero-bg: #0b0e14;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4); --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
-  --radius: 12px;
-}
-[data-theme="light"] {
   --bg: #f4f5f7; --surface: #ffffff; --surface2: #f0f1f4; --border: #e3e5ea;
   --text: #0f1923; --text2: #4a5568; --text3: #9aa5b4;
   --accent: #0052cc; --up: #0a7c42; --up-bg: #e3f5ec;
-  --down: #c0392b; --down-bg: #fdecea; --hero-bg: #0f1923;
+  --down: #c0392b; --down-bg: #fdecea; --hero-bg: #ffffff;
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --radius: 12px;
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -74,28 +68,28 @@ main{max-width:1400px;margin:0 auto;padding:24px 20px 48px}
 .update-time{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace}
 
 /* -- Hero -- */
-.hero{background:var(--hero-bg);border-radius:16px;padding:28px 32px;margin-bottom:30px;box-shadow:var(--shadow-md);position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.05)}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(76,154,255,0.1) 0%,transparent 65%);pointer-events:none}
+.hero{background:var(--hero-bg);border-radius:16px;padding:28px 32px;margin-bottom:30px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;border:1px solid var(--border)}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(0,82,204,0.04) 0%,transparent 65%);pointer-events:none}
 .hero-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:24px;position:relative}
-.hero-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:4px;font-weight:600}
-.hero-name{font-size:16px;font-weight:700;color:rgba(255,255,255,.9);margin-bottom:14px}
-.hero-price{font-size:48px;font-weight:500;color:#fff;letter-spacing:-2px;line-height:1;font-family:'DM Mono',monospace}
+.hero-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:4px;font-weight:600}
+.hero-name{font-size:16px;font-weight:700;color:var(--text);margin-bottom:14px}
+.hero-price{font-size:48px;font-weight:500;color:var(--text);letter-spacing:-2px;line-height:1;font-family:'DM Mono',monospace}
 .hero-change{font-size:16px;font-weight:600;margin-top:12px}
-.h-up{color:#57d9a3} .h-dn{color:#ff8f73}
+.h-up{color:var(--up)} .h-dn{color:var(--down)}
 .hero-right{text-align:right;}
 .hero-stat{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-bottom:6px}
-.hero-stat-label{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:1px;font-weight:600}
-.hero-stat-val{font-size:14px;color:rgba(255,255,255,.9);font-weight:500;font-family:'DM Mono',monospace}
-.hero-bottom{margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:24px;flex-wrap:wrap;position:relative}
-.vix-badge{display:inline-flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 18px;}
-.vix-label{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:600}
+.hero-stat-label{font-size:11px;color:var(--text3);letter-spacing:1px;font-weight:600}
+.hero-stat-val{font-size:14px;color:var(--text2);font-weight:500;font-family:'DM Mono',monospace}
+.hero-bottom{margin-top:24px;padding-top:20px;border-top:1px solid var(--border);display:flex;align-items:center;gap:24px;flex-wrap:wrap;position:relative}
+.vix-badge{display:inline-flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 18px;}
+.vix-label{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);font-weight:600}
 .vix-val{font-size:22px;font-weight:600;font-family:'DM Mono',monospace;color:#fbbf24}
 .hero-bars-wrap{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;max-width:600px}
 .hbr-row{display:flex;flex-direction:column;gap:6px}
 .hbr-head{display:flex;justify-content:space-between;align-items:center}
-.hbr-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.5);font-weight:700}
+.hbr-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:700}
 .hbr-nums{display:flex;gap:10px;font-family:'DM Mono',monospace;font-size:12px;font-weight:600}
-.hero-bar{height:6px;background:rgba(255,255,255,.1);border-radius:3px;display:flex;overflow:hidden}
+.hero-bar{height:6px;background:var(--border);border-radius:3px;display:flex;overflow:hidden}
 .hbar-a{background:#16a34a;transition:width 0.5s} .hbar-d{background:#dc2626;transition:width 0.5s}
 
 /* -- Sector Cards -- */
@@ -342,11 +336,11 @@ main{max-width:1400px;margin:0 auto;padding:24px 20px 48px}
     flex-wrap: wrap;
     margin-top: 12px;
     padding-top: 12px;
-    border-top: 1px solid rgba(255,255,255,0.1);
+    border-top: 1px solid var(--border);
   }
   .ohlc-item { display: flex; flex-direction: column; gap: 2px; }
-  .ohlc-lbl { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 1px; font-weight: 600; }
-  .ohlc-val { font-size: 13px; font-family: 'DM Mono', monospace; color: rgba(255,255,255,0.9); font-weight: 500; }
+  .ohlc-lbl { font-size: 10px; color: var(--text3); letter-spacing: 1px; font-weight: 600; }
+  .ohlc-val { font-size: 13px; font-family: 'DM Mono', monospace; color: var(--text2); font-weight: 500; }
   .grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .card { padding: 14px; }
   .card-price { font-size: 17px; }
@@ -431,10 +425,9 @@ main{max-width:1400px;margin:0 auto;padding:24px 20px 48px}
         <option value="0">Manual Polling</option>
         <option value="60" selected>1 min Auto</option>
       </select>
-      <button class="trigger-btn" id="triggerBtn" onclick="triggerWorker()">
-        <span class="spin">⚡</span> Trigger
+      <button class="trigger-btn" style="background:var(--surface2);color:var(--text)" onclick="openFnoSettings()">
+        ⚙️ F&O Settings
       </button>
-      <button class="icon-btn" onclick="toggleTheme()">&#9728;&#65039;</button>
       <button class="icon-btn" onclick="fetchData()">&#8635;</button>
     </div>
   </div>
@@ -449,17 +442,13 @@ main{max-width:1400px;margin:0 auto;padding:24px 20px 48px}
       <option value="60" selected>1 min Auto</option>
     </select>
   </div>
-  <button class="dd-item dd-trigger" id="ddTriggerBtn" onclick="triggerWorkerMobile()">
-    <span class="dd-icon">⚡</span>
-    <span class="dd-label">Trigger Update</span>
+  <button class="dd-item" onclick="openFnoSettings(); closeDropdown();">
+    <span class="dd-icon">⚙️</span>
+    <span class="dd-label">F&O Settings</span>
   </button>
-  <button class="dd-item" onclick="fetchData();closeDropdown()">
+  <button class="dd-item" onclick="fetchData(); closeDropdown();">
     <span class="dd-icon">🔄</span>
     <span class="dd-label">Refresh Data</span>
-  </button>
-  <button class="dd-item" id="ddThemeBtn" onclick="toggleTheme();updateThemeLabel()">
-    <span class="dd-icon" id="ddThemeIcon">☀️</span>
-    <span class="dd-label" id="ddThemeLabel">Light Mode</span>
   </button>
   <div class="dd-item" style="cursor:default;pointer-events:none;">
     <span class="dd-icon">🕐</span>
@@ -518,7 +507,7 @@ main{max-width:1400px;margin:0 auto;padding:24px 20px 48px}
         <div class="hero-bars-wrap">
           <div class="hbr-row">
             <div class="hbr-head">
-              <span class="hbr-label">F&amp;O Market Breadth</span>
+              <span class="hbr-label">Nifty 500 Market Breadth</span>
               <div class="hbr-nums"><span class="up" id="h-fno-a">0 Adv</span> | <span class="dn" id="h-fno-d">0 Dec</span></div>
             </div>
             <div class="hero-bar">
@@ -552,8 +541,29 @@ main{max-width:1400px;margin:0 auto;padding:24px 20px 48px}
       <input type="text" class="hm-search" id="hm-search" placeholder="Search F&O Symbol..." onkeyup="filterHeatmap()">
       <button class="hm-btn active" id="f-all" onclick="setHmFilter('all')">All F&amp;O (<span id="fno-count">&mdash;</span>)</button>
       <button class="hm-btn" id="f-n50" onclick="setHmFilter('n50')">Nifty 50 (<span id="n50-count">&mdash;</span>)</button>
+      <button class="hm-btn" id="f-n500" onclick="setHmFilter('n500')">Nifty 500 (<span id="n500-count">&mdash;</span>)</button>
     </div>
     <div class="heatmap-grid" id="heatmap-grid"><div class="loader">Loading F&O Heatmap...</div></div>
+  </div>
+
+  <!-- F&O SETTINGS MODAL -->
+  <div id="fnoModal" class="modal" onclick="if(event.target===this) closeFnoSettings()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">⚙️ Edit F&O List</div>
+        <button class="modal-close" onclick="closeFnoSettings()">&times;</button>
+      </div>
+      <div style="padding:15px">
+        <p style="font-size:12px; margin-bottom:10px; color:var(--text-muted)">
+          Enter comma-separated stock symbols for F&O filter.
+        </p>
+        <textarea id="fno-symbols-text" style="width:100%; height:150px; background:var(--surface); color:var(--text); border:1px solid var(--border); padding:10px; font-family:monospace; margin-bottom:15px;"></textarea>
+        <div style="display:flex; justify-content:space-between; gap:10px">
+          <button class="trigger-btn" style="background:#fbbf24; color:#000; padding:10px; border:none; border-radius:6px; cursor:pointer;" onclick="fetchLiveFno()">Fetch Live NSE</button>
+          <button class="trigger-btn" style="background:#36b37e; color:#fff; padding:10px; border:none; border-radius:6px; cursor:pointer;" onclick="saveFnoSettings()">Save List</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- SECTOR MODAL -->
@@ -572,7 +582,7 @@ main{max-width:1400px;margin:0 auto;padding:24px 20px 48px}
   <div class="page" id="page-graphs">
     <div class="graph-container">
       <div class="g-hdr">
-        <div class="g-title">Intraday F&O Advance vs Decline</div>
+        <div class="g-title">Intraday Nifty 500 Advance vs Decline</div>
         <div class="g-legend">
           <div class="gl-item"><div class="gl-dot" style="background:var(--up)"></div> Advance</div>
           <div class="gl-item"><div class="gl-dot" style="background:var(--down)"></div> Decline</div>
@@ -587,11 +597,11 @@ main{max-width:1400px;margin:0 auto;padding:24px 20px 48px}
   <div class="page" id="page-movers">
     <div class="movers-wrap">
       <div class="movers-box">
-        <div class="mv-title up">&#9650; Top 10 F&O Gainers</div>
+        <div class="mv-title up">&#9650; Top 10 Nifty 500 Gainers</div>
         <div id="mv-gainers"></div>
       </div>
       <div class="movers-box">
-        <div class="mv-title dn">&#9660; Top 10 F&O Losers</div>
+        <div class="mv-title dn">&#9660; Top 10 Nifty 500 Losers</div>
         <div id="mv-losers"></div>
       </div>
     </div>
@@ -639,11 +649,12 @@ main{max-width:1400px;margin:0 auto;padding:24px 20px 48px}
 <script>
 // ── Config ──────────────────────────────────────────────────────────────────
 const R2_BASE    = 'https://pub-872ee524d3b44e039d5b82f78c97bbcb.r2.dev';
-const WORKER_URL = 'https://vix-worker.sumantasahoo.workers.dev';
+const WORKER_URL = 'https://heatmap.sumantasahoo.workers.dev';
 const STALE_MINS = 5;
 
 // ── Sectors ──────────────────────────────────────────────────────────────────
 const SECTORS = [
+  {sym:'NIFTY 500',icon:'📊'},
   {sym:'NIFTY BANK',icon:'🏦'},{sym:'NIFTY IT',icon:'💻'},{sym:'NIFTY PHARMA',icon:'💊'},
   {sym:'NIFTY AUTO',icon:'🚗'},{sym:'NIFTY FMCG',icon:'🛒'},{sym:'NIFTY METAL',icon:'🏗️'},
   {sym:'NIFTY REALTY',icon:'🏠'},{sym:'NIFTY ENERGY',icon:'⚡'},{sym:'NIFTY MEDIA',icon:'🎬'},
@@ -652,6 +663,13 @@ const SECTORS = [
 
 // ── CONSTITUENTS — NSE official lists (updated) ──────────────────────────────
 const CONSTITUENTS = {
+  "NIFTY 50": [
+    "ADANIENT","ADANIPORTS","APOLLOHOSP","ASIANPAINT","AXISBANK","BAJAJ-AUTO","BAJFINANCE","BAJAJFINSV",
+    "BPCL","BHARTIARTL","BRITANNIA","CIPLA","COALINDIA","DIVISLAB","DRREDDY","EICHERMOT","GRASIM","HCLTECH",
+    "HDFCBANK","HDFCLIFE","HEROMOTOCO","HINDALCO","HINDUNILVR","ICICIBANK","ITC","INDUSINDBK","INFY","JSWSTEEL",
+    "KOTAKBANK","LTIM","LT","M&M","MARUTI","NTPC","NESTLEIND","ONGC","POWERGRID","RELIANCE","SBILIFE","SBIN",
+    "SUNPHARMA","TCS","TATACONSUM","TATAMOTORS","TATASTEEL","TECHM","TITAN","UPL","ULTRACEMCO","WIPRO"
+  ],
   "NIFTY BANK": [
     "HDFCBANK","ICICIBANK","SBIN","AXISBANK","KOTAKBANK","INDUSINDBK",
     "BANKBARODA","AUBANK","FEDERALBNK","IDFCFIRSTB","PNB","BANDHANBNK",
@@ -751,20 +769,6 @@ async function fetchWithFallback(filename) {
   return null;
 }
 
-// ── Theme ─────────────────────────────────────────────────────────────────────
-function toggleTheme(){
-  const html = document.documentElement;
-  const isDark = html.getAttribute('data-theme') === 'dark';
-  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-  if(globalGraph) drawGraph();
-}
-
-function updateThemeLabel(){
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  document.getElementById('ddThemeIcon').textContent  = isDark ? '☀️' : '🌙';
-  document.getElementById('ddThemeLabel').textContent = isDark ? 'Light Mode' : 'Dark Mode';
-}
-
 // ── Mobile Dropdown ───────────────────────────────────────────────────────────
 function toggleDropdown(){
   const dd  = document.getElementById('mobileDropdown');
@@ -772,7 +776,7 @@ function toggleDropdown(){
   const btn = document.getElementById('hamburgerBtn');
   const isOpen = dd.classList.contains('open');
   if(isOpen){ closeDropdown(); }
-  else { dd.classList.add('open'); ov.classList.add('open'); btn.textContent='✕'; updateThemeLabel(); }
+  else { dd.classList.add('open'); ov.classList.add('open'); btn.textContent='✕'; }
 }
 function closeDropdown(){
   document.getElementById('mobileDropdown').classList.remove('open');
@@ -858,48 +862,203 @@ function checkMarketStatus(){
   ['mdot','mdot-m'].forEach(id=>{ const el=document.getElementById(id); if(el) el.className=dc; });
 }
 
-// ── Desktop Trigger ───────────────────────────────────────────────────────────
-async function triggerWorker() {
-  const btn = document.getElementById('triggerBtn');
-  btn.disabled = true; btn.classList.add('loading');
-  btn.innerHTML = '<span class="spin">⟳</span> Triggering...';
-  try {
-    const res  = await fetch(`${WORKER_URL}/trigger`);
-    const data = await res.json();
-    if(data.success){ showToast(`✅ Triggered! adv:${data.saved.adv} dec:${data.saved.dec} vix:${data.saved.vix}`,'#36b37e'); setTimeout(fetchData,800); }
-    else showToast('❌ Trigger failed','#ff5630');
-  } catch(e){ showToast('❌ Worker unreachable','#ff5630'); }
-  btn.disabled=false; btn.classList.remove('loading');
-  btn.innerHTML='<span class="spin">⚡</span> Trigger';
-}
 
 function showToast(msg, color='var(--text)') {
   const t = document.getElementById('triggerToast');
+  if(!t) return;
   t.textContent=msg; t.style.color=color;
   t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+const DEFAULT_FNO_LIST = [
+  "360ONE", "ABB", "APLAPOLLO", "AUBANK", "ADANIENSOL", "ADANIENT", "ADANIGREEN", "ADANIPORTS", "ADANIPOWER", "ABCAPITAL", 
+  "ALKEM", "AMBER", "AMBUJACEM", "ANGELONE", "APOLLOHOSP", "ASHOKLEY", "ASIANPAINT", "ASTRAL", "AUROPHARMA", "DMART", 
+  "AXISBANK", "BSE", "BAJAJ-AUTO", "BAJFINANCE", "BAJAJFINSV", "BAJAJHLDNG", "BANDHANBNK", "BANKBARODA", "BANKINDIA", "BDL", 
+  "BEL", "BHARATFORG", "BHEL", "BPCL", "BHARTIARTL", "BIOCON", "BLUESTARCO", "BOSCHLTD", "BRITANNIA", "CGPOWER", 
+  "CANBK", "CDSL", "CHOLAFIN", "CIPLA", "COALINDIA", "COCHINSHIP", "COFORGE", "COLPAL", "CAMS", "CONCOR", 
+  "CROMPTON", "CUMMINSIND", "DLF", "DABUR", "DALBHARAT", "DELHIVERY", "DIVISLAB", "DIXON", "DRREDDY", "ETERNAL", 
+  "EICHERMOT", "EXIDEIND", "FORCEMOT", "NYKAA", "FORTIS", "GAIL", "GMRAIRPORT", "GLENMARK", "GODFRYPHLP", "GODREJCP", 
+  "GODREJPROP", "GRASIM", "HCLTECH", "HDFCAMC", "HDFCBANK", "HDFCLIFE", "HAVELLS", "HEROMOTOCO", "HINDALCO", "HAL", 
+  "HINDPETRO", "HINDUNILVR", "HINDZINC", "POWERINDIA", "HYUNDAI", "ICICIBANK", "ICICIGI", "ICICIPRULI", "IDFCFIRSTB", "ITC", 
+  "INDIANB", "IEX", "IOC", "IRFC", "IREDA", "INDUSTOWER", "INDUSINDBK", "NAUKRI", "INFY", "INOXWIND", 
+  "INDIGO", "JINDALSTEL", "JSWENERGY", "JSWSTEEL", "JIOFIN", "JUBLFOOD", "KEI", "KPITTECH", "KALYANKJIL", "KAYNES", 
+  "KFINTECH", "KOTAKBANK", "LTF", "LICHSGFIN", "LTM", "LT", "LAURUSLABS", "LICI", "LODHA", "LUPIN", 
+  "M&M", "MANAPPURAM", "MANKIND", "MARICO", "MARUTI", "MFSL", "MAXHEALTH", "MAZDOCK", "MOTILALOFS", "MPHASIS", 
+  "MCX", "MUTHOOTFIN", "NBCC", "NHPC", "NMDC", "NTPC", "NATIONALUM", "NESTLEIND", "NAM-INDIA", "NUVAMA", 
+  "OBEROIRLTY", "ONGC", "OIL", "PAYTM", "OFSS", "POLICYBZR", "PGEL", "PIIND", "PNBHOUSING", "PAGEIND", 
+  "PATANJALI", "PERSISTENT", "PETRONET", "PIDILITIND", "POLYCAB", "PFC", "POWERGRID", "PREMIERENE", "PRESTIGE", "PNB", 
+  "RBLBANK", "RECLTD", "RVNL", "RELIANCE", "SBICARD", "SBILIFE", "SHREECEM", "SRF", "SAMMAANCAP", "MOTHERSON", 
+  "SHRIRAMFIN", "SIEMENS", "SOLARINDS", "SONACOMS", "SBIN", "SAIL", "SUNPHARMA", "SUPREMEIND", "SUZLON", "SWIGGY", 
+  "TATACONSUM", "TVSMOTOR", "TCS", "TATAELXSI", "TMPV", "TATAPOWER", "TATASTEEL", "TECHM", "FEDERALBNK", "INDHOTEL", 
+  "PHOENIXLTD", "TITAN", "TORNTPHARM", "TRENT", "TIINDIA", "UNOMINDA", "UPL", "ULTRACEMCO", "UNIONBANK", "UNITDSPR", 
+  "VBL", "VEDL", "VMM", "IDEA", "VOLTAS", "WAAREEENER", "WIPRO", "YESBANK", "ZYDUSLIFE"
+];
+
+// ── Settings F&O Modal ────────────────────────────────────────────────────────
+function openFnoSettings() {
+  document.getElementById('fnoModal').classList.add('show');
+  let savedFno = localStorage.getItem('fno_list');
+  if (!savedFno) savedFno = DEFAULT_FNO_LIST.join(', ');
+  document.getElementById('fno-symbols-text').value = savedFno;
+}
+
+function closeFnoSettings() {
+  document.getElementById('fnoModal').classList.remove('show');
+}
+
+function saveFnoSettings() {
+  const val = document.getElementById('fno-symbols-text').value;
+  localStorage.setItem('fno_list', val);
+  showToast('✅ F&O List Saved!', '#36b37e');
+  closeFnoSettings();
+  filterHeatmap();
+}
+
+async function fetchLiveFno() {
+  const btn = event.target;
+  btn.textContent = 'Fetching...';
+  try {
+    // Attempt with corsproxy.io as it handles origin 'null' better
+    const res = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://www.nseindia.com/api/equity-stockIndices?index=SECURITIES%20IN%20F%26O'));
+    const data = await res.json();
+    if(data && data.data) {
+      const symbols = data.data.map(s => s.symbol).join(', ');
+      document.getElementById('fno-symbols-text').value = symbols;
+      showToast('✅ Live F&O Fetched!', '#36b37e');
+    } else {
+      throw new Error("Invalid format");
+    }
+  } catch(e) {
+    showToast('❌ Proxy Failed! Paste manually.', '#ff5630');
+    alert("Live fetching blocked by NSE/CORS. Please paste F&O list manually.");
+  }
+  btn.textContent = 'Fetch Live NSE';
 }
 
 // ── Fetch All Data ────────────────────────────────────────────────────────────
 async function fetchData(){
   const t = '?t='+Date.now();
   try {
-    const [latest, quotesRaw] = await Promise.all([
-      fetch(`${R2_BASE}/latest.json${t}`).then(r=>r.json()).catch(()=>null),
-      fetch(`${R2_BASE}/quotes.json${t}`).then(r=>r.json()).catch(()=>null),
-    ]);
-    const [graph, vixRaw] = await Promise.all([
-      fetchWithFallback('graph.json'),
-      fetchWithFallback('vix.json'),
-    ]);
-    if(latest) globalLatest=latest;
-    if(quotesRaw && quotesRaw.data){
-      globalQuotes={};
-      quotesRaw.data.forEach(q=>globalQuotes[q.symbol.toUpperCase()]=q);
+    const res = await fetch(`${WORKER_URL}${t}`);
+    const latestRaw = await res.json();
+    
+    if (latestRaw && latestRaw.index_statistics) {
+        globalLatest = {};
+        globalLatest.updated_at = latestRaw.timestamp;
+        
+        // Map stocks
+        const realStocks = latestRaw.stocks.filter(s => s.Industry !== 'Index');
+        globalLatest.stocks = realStocks.map(s => ({
+            Symbol: s.Symbol,
+            LTP: s.LTP,
+            'Change %': s['Change %'],
+            'Change Price': s.Change || 0,
+            Status: s['Change %'] >= 0 ? 'ADV' : 'DEC'
+        }));
+        
+        // Count AD
+        let adv = 0; let dec = 0;
+        globalLatest.stocks.forEach(s => {
+            if(s['Change %'] >= 0) adv++; else dec++;
+        });
+        globalLatest.adv = adv;
+        globalLatest.dec = dec;
+        
+        // Quotes mapping
+        globalQuotes = {};
+        const idx = latestRaw.index_statistics;
+        globalQuotes['NIFTY 500'] = {
+            price: idx.lastPrice,
+            change: idx.change,
+            pct: idx.pChange,
+            open: idx.open,
+            high: idx.high,
+            low: idx.low,
+            prev: idx.prevClose
+        };
+        
+        // Map Indices from stocks array (e.g., NIFTY 50, NIFTY BANK, INDIA VIX)
+        latestRaw.stocks.filter(s => s.Industry === 'Index').forEach(s => {
+            globalQuotes[s.Symbol.toUpperCase()] = {
+                price: s.LTP,
+                change: s.Change || 0,
+                pct: s['Change %'],
+                open: s.Open,
+                high: s.High,
+                low: s.Low,
+                prev: s['Prev Close']
+            };
+        });
+        
+        // Fallback in case NIFTY 50 is missing
+        if(!globalQuotes['NIFTY 50']) {
+            globalQuotes['NIFTY 50'] = globalQuotes['NIFTY 500'];
+        }
+        
+        // Calculate sector advances and declines dynamically
+        SECTORS.forEach(sec => {
+            let a = 0, d = 0;
+            if(sec.sym === 'NIFTY 500') {
+                a = globalLatest.adv;
+                d = globalLatest.dec;
+            } else {
+                const symList = CONSTITUENTS[sec.sym] || [];
+                symList.forEach(stockSym => {
+                    const stock = globalLatest.stocks.find(s => s.Symbol === stockSym);
+                    if(stock) {
+                        if(stock['Change %'] >= 0) a++;
+                        else d++;
+                    }
+                });
+            }
+            if(globalQuotes[sec.sym]) {
+                globalQuotes[sec.sym].advances = a;
+                globalQuotes[sec.sym].declines = d;
+            }
+        });
     }
-    if(graph)  globalGraph=graph;
-    if(vixRaw && Array.isArray(vixRaw)) globalVix=vixRaw;
-    const updatedAt = latest?.updated_at||null;
+
+    const updatedAt = globalLatest?.updated_at || null;
+    
+    // Client-side Chart Tracking
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+    const today = now.toLocaleDateString();
+    
+    let gData = JSON.parse(localStorage.getItem('heatmap_graph')||'{"date":"","points":[]}');
+    if(gData.date !== today) gData = { date: today, points: [] };
+    if(gData.points.length === 0) {
+        const earlier = new Date(now.getTime() - 60000);
+        gData.points.push({ 
+            time: earlier.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }), 
+            adv: globalLatest.adv, dec: globalLatest.dec, neutral: 500 - globalLatest.adv - globalLatest.dec 
+        });
+    }
+    if(gData.points.length === 0 || gData.points[gData.points.length-1].time !== timeStr) {
+        gData.points.push({ time: timeStr, adv: globalLatest.adv, dec: globalLatest.dec, neutral: 500 - globalLatest.adv - globalLatest.dec });
+        localStorage.setItem('heatmap_graph', JSON.stringify(gData));
+    }
+    window.globalGraph = gData.points;
+    
+    let vData = JSON.parse(localStorage.getItem('heatmap_vix')||'{"date":"","points":[]}');
+    if(vData.date !== today) vData = { date: today, points: [] };
+    const vixQ = globalQuotes['INDIA VIX'];
+    if(vixQ) {
+        if(vData.points.length === 0) {
+            const earlier = new Date(now.getTime() - 60000);
+            vData.points.push({ 
+                time: earlier.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }), 
+                vix: vixQ.price 
+            });
+        }
+        if(vData.points.length === 0 || vData.points[vData.points.length-1].time !== timeStr) {
+            vData.points.push({ time: timeStr, vix: vixQ.price });
+            localStorage.setItem('heatmap_vix', JSON.stringify(vData));
+        }
+    }
+    window.globalVix = vData.points;
+
     updateTimestamp(updatedAt);
     updateDataStatus(updatedAt);
     checkMarketStatus();
@@ -912,7 +1071,6 @@ async function fetchData(){
     renderMovers();
   } catch(e){ console.error('fetchData error:',e); }
 }
-
 // ── Render Overview ───────────────────────────────────────────────────────────
 function renderOverview(){
   if(!globalLatest||!globalQuotes) return;
@@ -1026,8 +1184,8 @@ function renderBreadth(){
   const fa=globalLatest.adv||0,fd=globalLatest.dec||0,ftot=fa+fd||1;
   document.getElementById('b-adv').textContent=fa;
   document.getElementById('b-dec').textContent=fd;
-  document.getElementById('b-adv-pct').textContent=(fa/ftot*100).toFixed(1)+'% of F&O stocks';
-  document.getElementById('b-dec-pct').textContent=(fd/ftot*100).toFixed(1)+'% of F&O stocks';
+  document.getElementById('b-adv-pct').textContent=(fa/ftot*100).toFixed(1)+'% of Nifty 500 stocks';
+  document.getElementById('b-dec-pct').textContent=(fd/ftot*100).toFixed(1)+'% of Nifty 500 stocks';
   document.getElementById('b-ratio').innerHTML=fd>0?(fa/fd).toFixed(2):'—';
   const chart=document.getElementById('breadth-chart');
   chart.innerHTML='';
@@ -1058,25 +1216,45 @@ function setHmFilter(f){
   hmFilter=f;
   document.getElementById('f-all').className='hm-btn '+(f==='all'?'active':'');
   document.getElementById('f-n50').className='hm-btn '+(f==='n50'?'active':'');
+  document.getElementById('f-n500').className='hm-btn '+(f==='n500'?'active':'');
   filterHeatmap();
 }
 
 function filterHeatmap(){
   if(!globalLatest||!globalLatest.stocks) return;
   const t=document.getElementById('hm-search').value.toLowerCase();
-  const n50Set=new Set((globalLatest.nifty50||[]).map(s=>s.trim().toUpperCase()));
-  document.getElementById('fno-count').textContent=globalLatest.stocks.length;
-  document.getElementById('n50-count').textContent=n50Set.size;
+  
+  const n50Set=new Set((CONSTITUENTS["NIFTY 50"]||[]).map(s=>s.trim().toUpperCase()));
+  let savedFno = localStorage.getItem('fno_list');
+  if (!savedFno) savedFno = DEFAULT_FNO_LIST.join(', ');
+  const fnoList = savedFno.split(',').map(s=>s.trim().toUpperCase()).filter(s=>s);
+  const fnoSet = new Set(fnoList);
+  
   const grid=document.getElementById('heatmap-grid');
   let html='';
   const sorted=[...globalLatest.stocks].sort((a,b)=>b['Change %']-a['Change %']);
+  
+  let fnoCount = 0;
+  let n50Count = 0;
+  let n500Count = 0;
+
   sorted.forEach(s=>{
     const symUp=s.Symbol.trim().toUpperCase();
-    if(hmFilter==='n50'&&!n50Set.has(symUp)) return;
+    let isN50 = n50Set.has(symUp);
+    let isFno = fnoSet.has(symUp); // Use exact check against the set now
+    
+    if (isFno) fnoCount++;
+    if (isN50) n50Count++;
+    n500Count++;
+
+    if(hmFilter==='n50'&&!isN50) return;
+    if(hmFilter==='all'&&!isFno) return;
+    // hmFilter==='n500' shows everything
+    
     if(t&&!s.Symbol.toLowerCase().includes(t)) return;
     const st=s.Status,cls=st==='ADV'?'adv':st==='DEC'?'dec':'nt';
     const up=s['Change %']>=0;
-    const dot=n50Set.has(symUp)?'<span class="ndot"></span>':'';
+    const dot=isN50?'<span class="ndot"></span>':'';
     html+=`
       <div class="hm-cell ${cls}" onclick="showMiniChart('${s.Symbol}',${s.LTP},${s['Change %']},this)" onmouseleave="hideMiniChart()">
         <div class="hc-sym">${dot}${s.Symbol}</div>
@@ -1086,6 +1264,10 @@ function filterHeatmap(){
       </div>`;
   });
   grid.innerHTML=html;
+  
+  document.getElementById('fno-count').textContent=fnoCount;
+  document.getElementById('n50-count').textContent=n50Count;
+  if(document.getElementById('n500-count')) document.getElementById('n500-count').textContent=n500Count;
 }
 
 function renderHeatmap(){ filterHeatmap(); }
@@ -1262,3 +1444,5 @@ fetchData();
 </script>
 </body>
 </html>
+
+
