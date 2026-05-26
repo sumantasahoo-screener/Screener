@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-ORB Dashboard (5M/15M/30M)</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2310b981'/><path d='M25 70 l20-20 l15 15 l25-35' stroke='white' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round'/><path d='M85 30 l-20 0 m20 0 l0 20' stroke='white' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
+        :root {
+            --bg: #f8fafc;
+            --card: rgba(255, 255, 255, 0.75);
+            --border: rgba(148, 163, 184, 0.25);
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --bull: #059669;
+            --bear: #e11d48;
+            --text: #0f172a;
+            --text-dim: #64748b;
+            --text-light: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at top, #f8fafc 0%, #e2e8f0 100%);
+            background-attachment: fixed;
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 12px 24px;
+            background: var(--card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .logo-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-box h1 {
+            font-size: 18px;
+            margin: 0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        .logo-box span {
+            font-size: 10px;
+            color: var(--accent);
+            font-weight: 800;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .button-group {
+            display: flex;
+            background: rgba(0, 0, 0, 0.04);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .tool-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 800;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+        }
+
+        .tool-btn:hover {
+            color: var(--text);
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .tool-btn.active {
+            background: var(--accent);
+            color: var(--text-light);
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+        }
+
+        .action-btn {
+            background: var(--accent);
+            color: var(--text-light);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2);
+        }
+
+        .action-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .action-btn.secondary {
+            background: rgba(0, 0, 0, 0.03);
+            color: var(--text);
+            border: 1px solid var(--border);
+            box-shadow: none;
+        }
+
+        .action-btn.secondary:hover {
+            background: rgba(0, 0, 0, 0.06);
+            box-shadow: none;
+        }
+
+        .main-content {
+            background: var(--card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+            /* Enable horizontal scroll */
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 14px;
+            min-width: 1000px;
+            /* Ensure table has enough width for scroll */
+        }
+
+        th {
+            background: #f1f5f9;
+            /* Solid dark color for sticky header */
+            color: var(--text-dim);
+            text-align: left;
+            padding: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Sticky Symbol Column */
+        th:first-child,
+        td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 15;
+            background: #ffffff;
+            /* Solid color for sticky column */
+            border-right: 1px solid var(--border);
+        }
+
+        th:first-child {
+            z-index: 30;
+            /* Highest for corner cell */
+            background: #f1f5f9;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            background: #ffffff;
+        }
+
+        tr:hover td {
+            background: #f8fafc !important;
+        }
+
+        .row-bull td {
+            background: #f0fdf4 !important;
+        }
+
+        .row-bear td {
+            background: #fff1f2 !important;
+        }
+
+        .row-bull:hover td {
+            background: #e6fced !important;
+        }
+
+        .row-bear:hover td {
+            background: #ffe4e6 !important;
+        }
+
+        .sym-cell {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sym-name {
+            font-weight: 800;
+            font-size: 15px;
+        }
+
+        .pnl-badge {
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 12px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .pnl-plus {
+            background: rgba(5, 150, 105, 0.1);
+            color: var(--bull);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+        }
+
+        .pnl-minus {
+            background: rgba(225, 29, 72, 0.1);
+            color: var(--bear);
+            border: 1px solid rgba(225, 29, 72, 0.2);
+        }
+
+        #snapshotTime {
+            background: #f1f5f9;
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            outline: none;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+        }
+
+        #snapshotTime option {
+            background: #ffffff;
+            color: var(--text);
+        }
+
+        .search-input {
+            background: rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+            transition: all 0.2s;
+            width: 150px;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        .orb-tag {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            display: inline-block;
+            margin-right: 4px;
+            text-transform: uppercase;
+        }
+
+        .tag-bull {
+            background: rgba(5, 150, 105, 0.12);
+            color: var(--bull);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+        }
+
+        .tag-bear {
+            background: rgba(225, 29, 72, 0.12);
+            color: var(--bear);
+            border: 1px solid rgba(225, 29, 72, 0.2);
+        }
+
+        .tag-none {
+            background: rgba(0, 0, 0, 0.03);
+            color: var(--text-dim);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .pd-alert {
+            font-size: 10px;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+
+        #pdh-status {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: -12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        #raw-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .modal-body {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 30px;
+            position: relative;
+            box-shadow: var(--shadow-xl), 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+                border-radius: 16px;
+                align-items: flex-start;
+            }
+
+            .controls {
+                width: 100%;
+                overflow-x: auto;
+                padding-bottom: 5px;
+                white-space: nowrap;
+                display: block;
+            }
+
+            .controls::-webkit-scrollbar {
+                display: none;
+            }
+
+            .btn {
+                padding: 6px 12px;
+                font-size: 11px;
+                display: inline-block;
+            }
+
+            .logo h1 {
+                font-size: 20px;
+            }
+
+            th,
+            td {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            table {
+                min-width: 900px;
+                /* Slightly less on mobile but still scrollable */
+            }
+
+            .sym-name {
+                font-size: 13px;
+            }
+
+            .ltp {
+                font-size: 14px !important;
+            }
+
+            .pnl-badge {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+
+
+        }
+
+        /* Log Modal Styles */
+        #logModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1001;
+        }
+
+        .log-modal-content {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: var(--shadow-xl), 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        .log-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        .log-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+            background: #ffffff;
+        }
+
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .log-table th {
+            position: sticky;
+            top: 0;
+            background: #f1f5f9;
+            color: var(--text-dim);
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
+        }
+
+        .log-table td {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            font-size: 13px;
+        }
+
+        .log-row:hover td {
+            background: #f8fafc;
+        }
+
+        .close-btn {
+            background: rgba(0, 0, 0, 0.04);
+            border: none;
+            color: var(--text-dim);
+            font-size: 20px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(0, 0, 0, 0.08);
+            color: var(--text);
+        }
+
+        /* Scan Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .scan-modal-content {
+            background: #ffffff;
+            width: 95%;
+            max-height: 92vh;
+            max-width: 1440px;
+            border-radius: 24px;
+            padding: 24px;
+            position: relative;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-xl), 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .scan-grid {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+            margin-top: 15px;
+            padding-right: 8px;
+        }
+
+        .scan-section {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 16px 20px;
+            border: 1px solid var(--border);
+        }
+
+        .scan-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .scan-table th {
+            text-align: left;
+            font-size: 11px;
+            color: var(--text-dim);
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+
+        .scan-table td {
+            padding: 12px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            color: var(--text);
+        }
+
+        .scan-table tr:hover td {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .orb-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .prob-badge {
+            background: rgba(2, 132, 199, 0.1);
+            color: var(--accent);
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(2, 132, 199, 0.2);
+            display: inline-block;
+        }
+
+        .advice-tag {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .bull-card .advice-tag {
+            color: var(--bull);
+            background: rgba(5, 150, 105, 0.1);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+        }
+
+        .bear-card .advice-tag {
+            color: var(--bear);
+            background: rgba(225, 29, 72, 0.1);
+            border: 1px solid rgba(225, 29, 72, 0.2);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.04);
+            border: none;
+            color: var(--text-dim);
+            padding: 10px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 14px;
+            transition: all 0.2s;
+            width: auto;
+            height: auto;
+        }
+
+        .close-btn:hover {
+            background: rgba(0, 0, 0, 0.08);
+            color: var(--text);
+        }
+
+        @keyframes ticker-scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        @keyframes blinker {
+            50% { opacity: 0.4; }
+        }
+
+        #top-status-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            z-index: 9999;
+            transition: all 0.3s ease;
+        }
+
+        .status-bar-grey {
+            background: rgba(148, 163, 184, 0.4);
+        }
+
+        .status-bar-green {
+            background: linear-gradient(90deg, #10b981 0%, #34d399 50%, #10b981 100%);
+            background-size: 200% 100%;
+            animation: moveGradient 1.5s linear infinite;
+        }
+
+        @keyframes moveGradient {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="top-status-bar" class="status-bar-grey"></div>
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <h1>ORB <span>MASTER PRO</span></h1>
+                <span>5M | 15M | 30M BREAKOUTS</span>
+            </div>
+
+            <div class="toolbar">
+                <div class="button-group">
+                    <button class="tool-btn active" onclick="filterData('ALL', this)">ALL</button>
+                    <button class="tool-btn" onclick="filterData('BULL', this)">BULLISH</button>
+                    <button class="tool-btn" onclick="filterData('BEAR', this)">BEARISH</button>
+                    <button class="tool-btn" onclick="filterData('LATEST', this)" style="color:#f59e0b">LATEST ⚡</button>
+                </div>
+
+                <div class="button-group">
+                    <button class="tool-btn" onclick="filterData('pd', this)">PDH/PDL</button>
+                    <button class="tool-btn" onclick="filterData('orb', this)">ORB ONLY</button>
+                    <button class="tool-btn" onclick="filterData('rsi_up', this)">RSI ↗️</button>
+                    <button class="tool-btn" onclick="filterData('rsi_down', this)">RSI ↘️</button>
+                </div>
+
+                <input type="text" id="symbolSearch" class="search-input" placeholder="SEARCH SYMBOL..."
+                    oninput="handleSearch(this.value)"
+                    style="background:rgba(0,0,0,0.04); border:1px solid var(--border); color:var(--text); padding:8px 12px; border-radius:10px; font-size:11px; width:160px">
+
+                <!-- Subset Selector for F&O -->
+                <div style="display:flex; gap:4px; background:rgba(0,0,0,0.04); padding:4px; border-radius:10px; border: 1px solid var(--border); height: 32px; box-sizing: border-box; align-items: center;" id="subset-bar">
+                    <button class="tool-btn active" id="sub-all-btn" onclick="setSubset('all')" style="font-size:10px; padding:4px 8px; font-weight:800; border-radius:8px; height: 100%; border: none;">NIFTY 500</button>
+                    <button class="tool-btn" id="sub-fno-btn" onclick="setSubset('fno')" style="font-size:10px; padding:4px 8px; font-weight:800; border-radius:8px; height: 100%; background:none; border:none; color:var(--text-dim);">F&O ONLY</button>
+                </div>
+
+                <button class="tool-btn"
+                    style="border:1px solid var(--border); color:var(--text-dim); background:rgba(0,0,0,0.02); display: flex; flex-direction: row; align-items: center; gap: 5px; padding: 6px 12px; white-space: nowrap; height: 32px"
+                    onclick="showLog()">📜 HISTORY</button>
+                <button class="tool-btn" id="btn-pdh" onclick="manualFetchPDH()"
+                    style="display: flex; flex-direction: row; align-items: center; gap: 5px; padding: 6px 12px; white-space: nowrap; height: 32px">🔄 SYNC</button>
+                <button class="action-btn" onclick="runSmartScan()" 
+                    style="background:#f59e0b; color:#fff; box-shadow:0 4px 15px rgba(245,158,11,0.25); display: flex; flex-direction: row; align-items: center; gap: 6px; padding: 6px 14px; font-size: 11px; white-space: nowrap; height: 32px; border-radius: 10px">🛰️ SMART SCAN</button>
+                <button class="action-btn" onclick="forceRefresh()" 
+                    style="background:var(--bear); color:#fff; box-shadow:0 4px 15px rgba(225,29,72,0.25); display: flex; flex-direction: row; align-items: center; gap: 6px; padding: 6px 14px; font-size: 11px; white-space: nowrap; height: 32px; border-radius: 10px">⚡ REFRESH</button>
+
+                <div id="market-time" onclick="showLog()"
+                    style="font-weight:900; color:var(--accent); font-size:14px; cursor:pointer">00:00:00</div>
+
+                <div style="display:flex; gap:4px; align-items:center">
+                    <div id="status-s1" style="width:6px; height:6px; border-radius:50%; background:#666"></div>
+                    <div id="status-s2" style="width:6px; height:6px; border-radius:50%; background:#666"></div>
+                </div>
+            </div>
+        </header>
+
+        <div id="pdh-status">Loading systems...</div>
+
+        <!-- Latest Alerts Ticker -->
+        <div id="ticker-wrap" style="display:flex; align-items:center; background:#ffffff; border:1px solid var(--border); border-radius:12px; margin-bottom:15px; overflow:hidden; position:relative; box-shadow:var(--shadow-md)">
+            <div style="background:var(--accent); color:#ffffff; font-weight:900; padding:10px 15px; z-index:2; position:relative; border-right:1px solid var(--border); display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:145px; text-align:center; box-sizing:border-box">
+                <span style="font-size:13px; font-weight:900">🔥 LATEST</span>
+                <span id="last-scan-status" style="font-size:9px; font-weight:800; opacity:0.9; margin-top:2px; letter-spacing:0.5px">SCANNING...</span>
+            </div>
+            <div style="flex:1; overflow:hidden; position:relative; padding:10px 0; background:rgba(0,0,0,0.015)">
+                <div id="ticker-content" style="display:flex; gap:40px; white-space:nowrap; padding-left:15px; animation: ticker-scroll 30s linear infinite;">
+                    <span style="color:var(--text-dim); font-size:13px; font-weight:600">Waiting for fresh alerts...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <table id="orb-table">
+                <thead>
+                    <tr style="cursor:pointer; user-select:none">
+                        <th style="width:14%" onclick="setSort('sym')">SYMBOL <span id="sort-sym"></span></th>
+                        <th onclick="setSort('score')">STRENGTH <span id="sort-score"></span></th>
+                        <th onclick="setSort('rsi')">RSI TREND <span id="sort-rsi"></span></th>
+                        <th onclick="setSort('orb')">ORB STATUS (5/15/30) <span id="sort-orb"></span></th>
+                        <th onclick="setSort('range')">15M RANGE <span id="sort-range"></span></th>
+                        <th onclick="setSort('pd')">PREV DAY (H/L) <span id="sort-pd"></span></th>
+                        <th onclick="setSort('close')">PREV CLOSE <span id="sort-close"></span></th>
+                        <th onclick="setSort('ltp')">LTP <span id="sort-ltp"></span></th>
+                        <th onclick="setSort('change')">CHANGE % <span id="sort-change"></span></th>
+                    </tr>
+                </thead>
+                <tbody id="main-grid"></tbody>
+            </table>
+        </div>
+
+        <div id="raw-modal" class="modal-overlay">
+            <div class="modal-body"
+                style="background:var(--bg); padding:30px; border-radius:20px; max-width:800px; width:90%; position:relative">
+                <button onclick="document.getElementById('raw-modal').style.display='none'"
+                    style="position:absolute; right:20px; top:20px; background:none; border:none; color:var(--bear); font-size:24px; cursor:pointer">&times;</button>
+                <h2>PDH/PDL Raw Data</h2>
+                <div id="raw-content" style="max-height:60vh; overflow-y:auto"></div>
+            </div>
+        </div>
+
+        <!-- Scan Modal -->
+        <div id="scanModal" class="modal-overlay">
+            <div class="scan-modal-content">
+                <button class="close-btn" onclick="closeScan()"
+                    style="position:absolute; right:15px; top:15px; z-index:100; font-size:28px">×</button>
+                <div style="text-align:center; margin-bottom:10px">
+                    <h2 style="margin:0; font-size:20px; letter-spacing:-0.5px">🛰️ Smart Scan Report</h2>
+                    <p style="margin:2px 0 0 0; font-size:10.5px; color:var(--text-dim); font-weight:500">Top 2 Bullish
+                        & Bearish High Conviction Trades</p>
+                </div>
+                <div id="bullScanResults" class="scan-grid"></div>
+                <div id="bearScanResults"></div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Log Modal -->
+    <div id="logModal">
+        <div class="log-modal-content" style="max-width:1200px; width:95%">
+            <div class="log-header">
+                <div style="display:flex; align-items:center; gap:20px">
+                    <h2 style="margin:0">Breakout Event Logs</h2>
+                </div>
+                <button class="close-btn"
+                    onclick="document.getElementById('logModal').style.display='none'">&times;</button>
+            </div>
+            <div class="log-body" style="max-height:80vh; overflow-y:auto;">
+                <table class="log-table" style="width:100%; border-collapse:collapse;">
+                    <thead style="position:sticky; top:0; background:var(--bg); z-index:10">
+                        <tr>
+                            <th style="text-align:left; padding:12px">Time</th>
+                            <th style="text-align:left">Symbol</th>
+                            <th style="text-align:center">Event</th>
+                            <th style="text-align:right">Price</th>
+                            <th style="text-align:right">Time (Min)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        const SOURCES = [
+            "https://orb-pro-worker.gsmmunna.workers.dev/data",
+            "https://orb-pro-worker.susanta41012.workers.dev/data"
+        ];
+        const OHLC_API = "https://pd-ohlc-worker.gsmmunna.workers.dev/get-ohlc";
+
+        const fnoSymbols = ["360ONE","ABB","ABCAPITAL","ADANIENSOL","ADANIENT","ADANIGREEN","ADANIPORTS","ADANIPOWER","ALKEM","AMBER","AMBUJACEM","ANGELONE","APLAPOLLO","APOLLOHOSP","ASHOKLEY","ASIANPAINT","ASTRAL","AUBANK","AUROPHARMA","AXISBANK","BAJAJ-AUTO","BAJAJFINSV","BAJAJHLDNG","BAJFINANCE","BANDHANBNK","BANKBARODA","BANKINDIA","BDL","BEL","BHARATFORG","BHARTIARTL","BHEL","BIOCON","BLUESTARCO","BOSCHLTD","BPCL","BRITANNIA","BSE","CAMS","CANBK","CDSL","CGPOWER","CHOLAFIN","CIPLA","COALINDIA","COCHINSHIP","COFORGE","COLPAL","CONCOR","CROMPTON","CUMMINSIND","DABUR","DALBHARAT","DELHIVERY","DIVISLAB","DIXON","DLF","DMART","DRREDDY","EICHERMOT","ETERNAL","EXIDEIND","FEDERALBNK","FORCEMOT","FORTIS","GAIL","GLENMARK","GMRAIRPORT","GODFRYPHLP","GODREJCP","GODREJPROP","GRASIM","HAL","HAVELLS","HCLTECH","HDFCAMC","HDFCBANK","HDFCLIFE","HEROMOTOCO","HINDALCO","HINDPETRO","HINDUNILVR","HINDZINC","HYUNDAI","ICICIBANK","ICICIGI","ICICIPRULI","IDEA","IDFCFIRSTB","IEX","INDIANB","INDIGO","INDHOTEL","INDUSINDBK","INDUSTOWER","INFY","INOXWIND","IOC","IREDA","IRFC","ITC","JINDALSTEL","JIOFIN","JSWENERGY","JSWSTEEL","JUBLFOOD","KALYANKJIL","KAYNES","KEI","KFINTECH","KOTAKBANK","KPITTECH","LAURUSLABS","LICHSGFIN","LICI","LODHA","LT","LTF","LTM","LUPIN","M&M","MANAPPURAM","MANKIND","MARICO","MARUTI","MAXHEALTH","MAZDOCK","MCX","MFSL","MOTHERSON","MOTILALOFS","MPHASIS","MUTHOOTFIN","NAM-INDIA","NATIONALUM","NAUKRI","NBCC","NESTLEIND","NHPC","NMDC","NTPC","NUVAMA","NYKAA","OBEROIRLTY","OFSS","OIL","ONGC","PAGEIND","PATANJALI","PAYTM","PERSISTENT","PETRONET","PFC","PGEL","PHOENIXLTD","PIDILITIND","PIIND","PNB","PNBHOUSING","POLICYBZR","POLYCAB","POWERGRID","POWERINDIA","PREMIERENE","PRESTIGE","RBLBANK","RECLTD","RELIANCE","RVNL","SAIL","SAMMAANCAP","SBICARD","SBILIFE","SBIN","SHREECEM","SHRIRAMFIN","SIEMENS","SOLARINDS","SONACOMS","SRF","SUNPHARMA","SUPREMEIND","SUZLON","SWIGGY","TATAELXSI","TATACONSUM","TATAPOWER","TATASTEEL","TCS","TECHM","TIINDIA","TITAN","TMPV","TORNTPHARM","TRENT","TVSMOTOR","ULTRACEMCO","UNIONBANK","UNITDSPR","UNOMINDA","UPL","VBL","VEDL","VMM","VOLTAS","WAAREEENER","WIPRO","YESBANK","ZYDUSLIFE"];
+        let stocksSubset = 'all';
+
+        window.setSubset = function(subset) {
+            stocksSubset = subset;
+            const allBtn = document.getElementById("sub-all-btn");
+            const fnoBtn = document.getElementById("sub-fno-btn");
+            if (subset === 'all') {
+                allBtn.classList.add("active");
+                allBtn.style.background = "";
+                allBtn.style.color = "";
+                fnoBtn.classList.remove("active");
+                fnoBtn.style.background = "none";
+                fnoBtn.style.color = "var(--text-dim)";
+            } else {
+                fnoBtn.classList.add("active");
+                fnoBtn.style.background = "var(--accent)";
+                fnoBtn.style.color = "white";
+                allBtn.classList.remove("active");
+                allBtn.style.background = "none";
+                allBtn.style.color = "var(--text-dim)";
+            }
+            renderGrid();
+        };
+
+        let pdData = {};
+        let liveData = {};
+        let lastDataTime = null;
+        let globalLogs = [];
+        let currentFilter = 'ALL';
+        let searchQuery = '';
+        let sortCol = 'score';
+        let sortOrder = -1; // 1 for ASC, -1 for DESC
+        let showTop5 = false;
+
+        function closeScan() {
+            document.getElementById('scanModal').style.display = 'none';
+        }
+
+        function getProbability(s) {
+            let prob = 70;
+            if (Math.abs(s.score) >= 100) prob += 10;
+            if (s.isPDHBrk || s.isPDLBrk) prob += 10;
+            if (s.rsiUTurn) prob += 5;
+            return Math.min(98, prob);
+        }
+
+        function getAdvice(s) {
+            if (Math.abs(s.score) >= 100 && (s.isPDHBrk || s.isPDLBrk)) return "🚀 AGGRESSIVE ENTRY";
+            if (s.rsiUTurn) return "⚡ MOMENTUM ENTRY";
+            return "⏳ WAIT FOR CONFIRMATION";
+        }
+
+
+
+        function calculateStockMetrics(item) {
+            const sym = item.sym; // Assuming item has sym property or passed appropriately
+            const b5 = getBreakout(sym, 5);
+            const b15 = getBreakout(sym, 15);
+            const b30 = getBreakout(sym, 30);
+            const ltp = item.ltp;
+            const lastT = item.t;
+            const snaps = item.history || [];
+            const pd = pdData[sym] || {};
+            const rsi = calculateRSI(snaps, 14);
+
+            let score = 0;
+            let activeType = 'NEUTRAL';
+            let isTrap = false;
+            let trapType = null;
+            const isPDHBrk = ltp && pd.pdh && ltp > pd.pdh;
+            const isPDLBrk = ltp && pd.pdl && ltp < pd.pdl;
+
+            if (isPDHBrk) score += 30; else if (isPDLBrk) score -= 30;
+            if (b15 && b15.type === 'BULL') { score += 25; activeType = 'BULL'; }
+            else if (b15 && b15.type === 'BEAR') { score -= 25; activeType = 'BEAR'; }
+
+            return { sym, score, ltp, lastT, isPDHBrk, isPDLBrk, isTrap, trapType, activeType };
+        }
+
+        function getCurrentMarketMinutes() {
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const ist = new Date(utc + (3600000 * 5.5)); // IST is GMT+5:30
+            const totalMins = ist.getHours() * 60 + ist.getMinutes();
+            const marketOpenMins = 555; // 9:15 AM
+            return totalMins - marketOpenMins;
+        }
+
+        function handleSearch(val) {
+            searchQuery = val.trim().toUpperCase();
+            renderGrid();
+        }
+
+        function setSort(col) {
+            if (sortCol === col) {
+                sortOrder *= -1;
+            } else {
+                sortCol = col;
+                sortOrder = -1;
+            }
+            renderGrid();
+        }
+
+        function calculateRSI(snaps, period = 14) {
+            if (!snaps || !Array.isArray(snaps) || snaps.length < 15) return "--";
+
+            // Adjust period if history is shorter than requested
+            let adjPeriod = Math.min(period, snaps.length - 1);
+
+            let gains = 0, losses = 0;
+            for (let i = 1; i <= adjPeriod; i++) {
+                const diff = snaps[i].ltp - snaps[i - 1].ltp;
+                if (diff >= 0) gains += diff; else losses -= diff;
+            }
+
+            let avgGain = gains / adjPeriod;
+            let avgLoss = losses / adjPeriod;
+
+            for (let i = adjPeriod + 1; i < snaps.length; i++) {
+                const diff = snaps[i].ltp - snaps[i - 1].ltp;
+                let currentGain = diff >= 0 ? diff : 0;
+                let currentLoss = diff < 0 ? -diff : 0;
+
+                avgGain = ((avgGain * (adjPeriod - 1)) + currentGain) / adjPeriod;
+                avgLoss = ((avgLoss * (adjPeriod - 1)) + currentLoss) / adjPeriod;
+            }
+
+            if (avgLoss === 0) return 100;
+            const rs = avgGain / avgLoss;
+            return Math.round(100 - (100 / (1 + rs)));
+        }
+
+        function formatMarketTime(m) {
+            if (m === '--' || isNaN(m) || m === null) return '--';
+            const openMinutes = 555; // 9:15 AM (9*60 + 15)
+            const totalMinutes = openMinutes + parseInt(m);
+            const hours = Math.floor(totalMinutes / 60) % 24;
+            const mins = totalMinutes % 60;
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
+            return `${displayHours}:${mins.toString().padStart(2, '0')} ${ampm}`;
+        }
+
+        function explainSignal(sym, score, isTrap, trapType, isPDH, isPDL, rsiUTurn) {
+            let msg = `Symbol: ${sym}\nStrength: ${Math.abs(score)}%\n\n`;
+            if (rsiUTurn && rsiUTurn !== 'null') {
+                if (rsiUTurn === 'BULLISH') {
+                    msg += "⤴️ RSI BULLISH U-TURN\n- RSI 40-50 ke zone se wapas upar mud gaya hai.\n- Momentum dobara build ho raha hai.\n- BUYING OPPORTUNITY DEKHEIN.";
+                } else if (rsiUTurn === 'BEARISH') {
+                    msg += "⤵️ RSI BEARISH U-TURN\n- RSI 50-60 ke zone se wapas neeche gir gaya hai.\n- Momentum weak ho raha hai.\n- SELLING OPPORTUNITY DEKHEIN.";
+                }
+                msg += "\n\n---\n\n";
+            }
+            if (isTrap) {
+                if (trapType === 'BULL_TRAP') {
+                    msg += "⚠️ BULL TRAP (Bearish Reversal)\n- Stock ne pehle High break kiya tha par sustain nahi kar paya.\n- Abhi ye 15M High ke neeche trade kar raha hai.\n- RSI weak hai (<60).\n- SELL SIDE PREFERRED.";
+                } else {
+                    msg += "✅ BEAR TRAP (Bullish Reversal)\n- Stock ne pehle Low break kiya tha par wahan se recover ho gaya.\n- Abhi ye 15M Low ke upar trade kar raha hai.\n- RSI improve ho raha hai (>40).\n- BUY SIDE PREFERRED.";
+                }
+            } else if (isPDH) {
+                msg += "🔥 PDH BREAKOUT\n- Stock Previous Day High ke upar trade kar raha hai.\n- Strong Bullish momentum hai.\n- Trend ke saath rahein.";
+            } else if (isPDL) {
+                msg += "❄️ PDL BREAKOUT\n- Stock Previous Day Low ke neeche trade kar raha hai.\n- Strong Bearish momentum hai.\n- Trend ke saath rahein.";
+            } else {
+                msg += "📊 TREND ANALYSIS\n- Stock apne current momentum ko follow kar raha hai.\n- RSI aur ORB status check karke entry lein.";
+            }
+            alert(msg);
+        }
+
+        function getStrengthDonutSVG(sym, score, score5m, isTrap, trapType, isPDH, isPDL, rsiUTurn) {
+            const absScore = Math.min(100, Math.abs(score));
+            const circumference = 2 * Math.PI * 18; // r=18 for bigger ring
+            const offset = circumference - (absScore / 100) * circumference;
+            let color = score > 0 ? '#059669' : (score < 0 ? '#e11d48' : '#64748b'); // Use premium colors here too
+            let text = `${absScore}`;
+            let textColor = '#0f172a';
+            let glow = '';
+
+            let arrowSvg = '';
+            if (score > score5m) {
+                arrowSvg = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="margin-top:1px"><path d="M7 17L17 7M7 7h10v10"/></svg>`;
+            } else if (score < score5m) {
+                arrowSvg = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="margin-top:1px"><path d="M7 7l10 10M17 7v10H7"/></svg>`;
+            }
+
+            if (isTrap) {
+                color = trapType === 'BEAR_TRAP' ? '#0284c7' : '#f97316'; // Sky Royal Blue for Bear Trap, Orange for Bull Trap
+                const arrowPath = trapType === 'BEAR_TRAP' ? 'M7 17L17 7M7 7h10v10' : 'M7 7l10 10M17 7v10H7';
+                const arrowIcon = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="margin-right:1px"><path d="${arrowPath}"/></svg>`;
+
+                text = absScore;
+                textColor = color;
+                arrowSvg = `<div style="display:flex; align-items:center; font-size:10px; font-weight:900; color:${color}; margin-top:-2px">${arrowIcon}REV</div>`;
+                glow = ''; // Removed blur for sharpness
+            } else if (absScore >= 95) {
+                glow = `filter: drop-shadow(0 0 6px ${color})`;
+            }
+
+            return `
+            <div onclick="explainSignal('${sym}', ${score}, ${isTrap}, '${trapType}', ${isPDH}, ${isPDL}, '${rsiUTurn}')" 
+                 style="position:relative; width:48px; height:48px; display:flex; align-items:center; justify-content:center; cursor:help" 
+                 title="Click for Signal Explanation">
+                <svg width="48" height="48" style="transform: rotate(-90deg);">
+                    <circle cx="24" cy="24" r="18" fill="rgba(0,0,0,0.03)" stroke="rgba(0,0,0,0.06)" stroke-width="4"></circle>
+                    <circle cx="24" cy="24" r="18" fill="none" stroke="${color}" stroke-width="4" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" style="transition: stroke-dashoffset 0.5s ease;"></circle>
+                </svg>
+                <div style="position:absolute; display:flex; flex-direction:column; align-items:center; line-height:1">
+                    <div style="font-size:11px; font-weight:800; color:${textColor}; display:flex; align-items:baseline">${text}<span style="font-size:8px">%</span></div>
+                    ${arrowSvg}
+                </div>
+            </div>`;
+        }
+
+        function getRSIDonutSVG(rsi, rsiOld, rsiUTurn) {
+            if (rsi === "--") return `<span style="color:var(--text-dim)">--</span>`;
+            const absScore = Math.min(100, Math.max(0, rsi));
+            const circumference = 2 * Math.PI * 18; // Matched to Strength Donut r=18
+            const offset = circumference - (absScore / 100) * circumference;
+
+            let color = rsi > 60 ? '#059669' : (rsi < 40 ? '#e11d48' : '#6366f1'); // Emerald, Crimson, Indigo for chop
+            if (rsiUTurn) color = '#d97706'; // Amber for U-turn
+
+            let arrowSvg = '';
+            if (rsiUTurn) {
+                // Professional Bold Hook Arrow
+                const path = rsiUTurn === 'BULLISH' ? 'M6 10a6 6 0 0 0 12 0v-5m-3 3l3-3 3 3' : 'M6 14a6 6 0 0 1 12 0v5m-3-3l3 3 3-3';
+                arrowSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px"><path d="${path}"/></svg>`;
+            } else if (rsiOld !== "--") {
+                if (rsi > rsiOld + 2) {
+                    arrowSvg = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="margin-top:1px"><path d="M7 17L17 7M7 7h10v10"/></svg>`;
+                } else if (rsi < rsiOld - 2) {
+                    arrowSvg = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="margin-top:1px"><path d="M7 7l10 10M17 7v10H7"/></svg>`;
+                } else {
+                    arrowSvg = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="margin-top:1px"><path d="M5 12h14"/></svg>`;
+                }
+            }
+
+            return `
+            <div style="position:relative; width:48px; height:48px; display:flex; align-items:center; justify-content:center;">
+                <svg width="48" height="48" style="transform: rotate(-90deg);">
+                    <circle cx="24" cy="24" r="18" fill="rgba(0,0,0,0.03)" stroke="rgba(0,0,0,0.06)" stroke-width="4"></circle>
+                    <circle cx="24" cy="24" r="18" fill="none" stroke="${color}" stroke-width="4" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round"></circle>
+                </svg>
+                <div style="position:absolute; display:flex; flex-direction:column; align-items:center; line-height:0.9">
+                    <span style="font-size:12px; font-weight:900; color:${rsiUTurn ? color : '#0f172a'}">${rsi}</span>
+                    ${arrowSvg}
+                </div>
+            </div>`;
+        }
+
+        function getHistoricalBreakout(item, timeframe, pastLtp, pastT) {
+            const hKey = 'h' + timeframe;
+            const lKey = 'l' + timeframe;
+            if (!item.orb || item.orb[hKey] === undefined) return { type: 'NEUTRAL' };
+            const h = item.orb[hKey];
+            const l = item.orb[lKey];
+            if (pastT <= timeframe) return { type: 'NEUTRAL' };
+            if (pastLtp > h) return { type: 'BULL' };
+            if (pastLtp < l) return { type: 'BEAR' };
+            return { type: 'NEUTRAL' };
+        }
+
+        async function manualFetchPDH() {
+            const btn = document.getElementById('btn-pdh');
+            const og = btn.innerHTML;
+            btn.innerHTML = "🔄 SYNCING...";
+            btn.style.pointerEvents = "none";
+            btn.style.opacity = "0.5";
+            await fetchPDH();
+            btn.innerHTML = "✅ SYNCED";
+            setTimeout(() => {
+                btn.innerHTML = og;
+                btn.style.pointerEvents = "auto";
+                btn.style.opacity = "1";
+            }, 2000);
+            renderGrid();
+        }
+
+        async function fetchPDH() {
+            try {
+                const prevDate = getPrevTradingDate();
+                const response = await fetch(`${OHLC_API}?date=${prevDate}&v=${Date.now()}`);
+                if (response.ok) {
+                    pdData = await response.json();
+                    const firstSym = Object.keys(pdData)[0];
+                    const sourceInfo = pdData[firstSym]?.source || 'R2';
+                    document.getElementById('pdh-status').innerHTML = `<span style="color:var(--bull)">✅ PREV DAY DATA LOADED (${Object.keys(pdData).length} STOCKS)</span>`;
+                } else {
+                    document.getElementById('pdh-status').innerHTML = `<span style="color:var(--bear)">❌ PREV DAY DATA MISSING (${prevDate})</span> <button onclick="triggerBackendFetch()" style="margin-left:10px; background:var(--accent); color:#fff; border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:10px; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1)">FORCE GENERATE DATA</button>`;
+                }
+            } catch (error) {
+                console.error(error);
+                document.getElementById('pdh-status').innerHTML = `<span style="color:var(--bear)">❌ FAILED TO FETCH PREV DAY DATA</span>`;
+            }
+        }
+
+        async function triggerBackendFetch() {
+            const btn = document.querySelector('#pdh-status button');
+            if (btn) {
+                btn.innerHTML = "GENERATING...";
+                btn.style.pointerEvents = "none";
+                btn.style.opacity = "0.7";
+            }
+            try {
+                const fetchApiUrl = OHLC_API.replace('/get-ohlc', '/fetch-ohlc');
+                const response = await fetch(fetchApiUrl);
+                if(response.ok) {
+                    if(btn) btn.innerHTML = "✅ DONE! SYNCING...";
+                    setTimeout(() => fetchPDH(), 2000);
+                } else {
+                    if(btn) btn.innerHTML = "❌ FAILED";
+                }
+            } catch(e) {
+                if(btn) btn.innerHTML = "❌ ERROR";
+            }
+        }
+
+        const HOLIDAYS = [
+            "2026-01-26", "2026-03-03", "2026-03-26", "2026-03-31",
+            "2026-04-03", "2026-04-14", "2026-05-01", "2026-05-28",
+            "2026-06-26", "2026-09-14", "2026-10-02", "2026-10-20",
+            "2026-11-10", "2026-11-24", "2026-12-25"
+        ];
+
+        function getEffectiveDate() {
+            let d = new Date(Date.now() + 5.5 * 3600000);
+            const mins = d.getUTCHours() * 60 + d.getUTCMinutes();
+            if (mins < 555 && d.getUTCDay() >= 1 && d.getUTCDay() <= 5) d.setUTCDate(d.getUTCDate() - 1);
+            const istStr = () => d.toISOString().split('T')[0];
+            while (d.getUTCDay() === 0 || d.getUTCDay() === 6 || HOLIDAYS.includes(istStr())) {
+                d.setUTCDate(d.getUTCDate() - 1);
+            }
+            return istStr();
+        }
+
+        function getPrevTradingDate() {
+            const effectiveDateStr = getEffectiveDate();
+            let d = new Date(effectiveDateStr + 'T00:00:00Z');
+            d.setUTCDate(d.getUTCDate() - 1);
+            const istStr = () => d.toISOString().split('T')[0];
+            while (d.getUTCDay() === 0 || d.getUTCDay() === 6 || HOLIDAYS.includes(istStr())) {
+                d.setUTCDate(d.getUTCDate() - 1);
+            }
+            return istStr();
+        }
+
+        async function forceRefresh() {
+            const btn = document.getElementById('btn-force') || document.querySelector('.action-btn[onclick="forceRefresh()"]');
+            const og = btn.innerHTML;
+            btn.innerHTML = "⚡ REFRESHING...";
+            btn.style.pointerEvents = "none";
+            btn.style.opacity = "0.7";
+            await fetchData(true);
+            btn.innerHTML = og;
+            btn.style.pointerEvents = "auto";
+            btn.style.opacity = "1";
+        }
+
+        async function fetchData(isForce = false) {
+            if (Object.keys(pdData).length === 0) await fetchPDH();
+            try {
+                const today = getEffectiveDate();
+                const cacheBust = isForce ? Date.now() : Math.floor(Date.now() / 60000);
+                
+                // Fetch History Logs for Ticker
+                fetch(`https://history-worker.gsmmunna.workers.dev/get-log?v=${cacheBust}`)
+                    .then(res => res.json())
+                    .then(logs => {
+                        globalLogs = Array.isArray(logs) ? logs : [];
+                        updateTicker();
+                        if (currentFilter === 'LATEST') renderGrid(); // Refresh if LATEST filter is active
+                    }).catch(console.error);
+
+                const fetchPromises = SOURCES.map(url =>
+                    fetch(`${url}?path=${today}/orb_pro_data.json&v=${cacheBust}`, { cache: 'no-store' })
+                        .then(res => res.ok ? res.json() : null).catch(() => null)
+                );
+
+                const datasets = await Promise.all(fetchPromises.map((p, i) =>
+                    p.then(d => {
+                        document.getElementById(`status-s${i + 1}`).style.background = d ? 'var(--bull)' : 'var(--bear)';
+                        return d;
+                    })
+                ));
+                const validDatasets = datasets.filter(d => d !== null);
+                if (validDatasets.length === 0) return;
+
+                // Deep Merge: Select the latest snapshot
+                const mergedData = {};
+                validDatasets.forEach(ds => {
+                    for (let sym in ds) {
+                        if (!mergedData[sym]) {
+                            mergedData[sym] = ds[sym];
+                        } else {
+                            if (ds[sym].t > mergedData[sym].t) {
+                                mergedData[sym] = ds[sym];
+                            }
+                        }
+                    }
+                });
+
+                liveData = mergedData;
+
+                // Find Max T for the Sync badge
+                let maxT = 0;
+                for (let sym in liveData) {
+                    const snap = liveData[sym];
+                    if (snap.t > maxT) {
+                        maxT = snap.t;
+                    }
+                }
+                const dataTime = new Date(new Date().setHours(9, 15, 0, 0) + maxT * 60000);
+                lastDataTime = dataTime;
+                updateScanStatus();
+
+                renderGrid();
+            } catch (error) { console.error(error); }
+        }
+
+        function getBreakout(sym, timeframe) {
+            if (!liveData[sym]) return null;
+            const item = liveData[sym];
+            const hKey = 'h' + timeframe;
+            const lKey = 'l' + timeframe;
+
+            if (!item.orb || item.orb[hKey] === undefined) return null;
+
+            const h = item.orb[hKey];
+            const l = item.orb[lKey];
+
+            if (item.t < timeframe) return { type: 'NEUTRAL', h, l };
+
+            if (item.ltp > h) return { type: 'BULL', price: item.ltp, time: item.t, h, l };
+            if (item.ltp < l) return { type: 'BEAR', price: item.ltp, time: item.t, h, l };
+            return { type: 'NEUTRAL', h, l };
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('main-grid');
+            const symbols = Object.keys(pdData).length > 0 ? Object.keys(pdData) : Object.keys(liveData);
+
+            if (symbols.length === 0) {
+                grid.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-dim)">No data available. Try Syncing PDH.</td></tr>';
+                return;
+            }
+
+            let stocks = symbols.filter(sym => liveData[sym] && typeof liveData[sym] === 'object' && Array.isArray(liveData[sym].history)).map(sym => {
+                const b5 = getBreakout(sym, 5);
+                const b15 = getBreakout(sym, 15);
+                const b30 = getBreakout(sym, 30);
+                const item = liveData[sym] || null;
+                const ltp = item ? item.ltp : 0;
+                const lastT = item ? item.t : 0;
+                const snaps = item ? item.history : [];
+
+                const rsi = calculateRSI(snaps, 14);
+                const snaps3MinAgo = snaps.length > 3 ? snaps.slice(0, snaps.length - 3) : snaps;
+                const rsiOld = calculateRSI(snaps3MinAgo, 14);
+                const snaps6MinAgo = snaps.length > 6 ? snaps.slice(0, snaps.length - 6) : [];
+                const rsiOlder = calculateRSI(snaps6MinAgo, 14);
+
+                let rsiUTurn = null;
+                if (rsi !== "--" && rsiOld !== "--" && rsiOlder !== "--") {
+                    // Bullish U-Turn (⤴️): falling then rising in 35-50 zone
+                    if (rsiOlder > rsiOld + 1 && rsi > rsiOld + 1 && rsiOld >= 35 && rsiOld <= 52) rsiUTurn = 'BULLISH';
+                    // Bearish U-Turn (⤵️): rising then falling in 48-65 zone
+                    if (rsiOlder < rsiOld - 1 && rsi < rsiOld - 1 && rsiOld >= 48 && rsiOld <= 65) rsiUTurn = 'BEARISH';
+                }
+
+                let rsiDir = 'FLAT';
+                let rsiIcon = '➡️';
+                let rsiColor = 'var(--text-dim)';
+
+                if (rsi !== "--" && rsiOld !== "--") {
+                    if (rsi > rsiOld + 2) { rsiDir = 'UP'; rsiIcon = '↗️'; rsiColor = 'var(--bull)'; }
+                    else if (rsi < rsiOld - 2) { rsiDir = 'DOWN'; rsiIcon = '↘️'; rsiColor = 'var(--bear)'; }
+                }
+
+                const pd = pdData[sym] || {};
+
+                let score = 0;
+                let activeType = 'NEUTRAL';
+                let isTrap = false;
+                let trapType = null;
+
+                const isPDHBrk = ltp && pd.pdh && ltp > pd.pdh;
+                const isPDLBrk = ltp && pd.pdl && ltp < pd.pdl;
+
+                // 5-Minute Ago History Calculation
+                const snaps5MinAgo = snaps.length > 5 ? snaps[snaps.length - 6] : null;
+                let score5m = 0;
+                if (snaps5MinAgo) {
+                    const pLtp = snaps5MinAgo.ltp;
+                    const pT = snaps5MinAgo.t;
+
+                    if (pLtp > pd.pdh) score5m += 30; else if (pLtp < pd.pdl) score5m -= 30;
+
+                    const pb15 = getHistoricalBreakout(item, 15, pLtp, pT);
+                    if (pb15.type === 'BULL') score5m += 25; else if (pb15.type === 'BEAR') score5m -= 25;
+
+                    const pb5 = getHistoricalBreakout(item, 5, pLtp, pT);
+                    if (pb5.type === 'BULL') score5m += 20; else if (pb5.type === 'BEAR') score5m -= 20;
+
+                    const pb30 = getHistoricalBreakout(item, 30, pLtp, pT);
+                    if (pb30.type === 'BULL') score5m += 25; else if (pb30.type === 'BEAR') score5m -= 25;
+                }
+
+                // Strength Logic (Max 100/-100)
+                if (isPDHBrk) score += 30;
+                else if (isPDLBrk) score -= 30;
+
+                if (b15 && b15.type === 'BULL') { score += 25; activeType = 'BULL'; }
+                else if (b15 && b15.type === 'BEAR') { score -= 25; activeType = 'BEAR'; }
+
+                if (b5 && b5.type === 'BULL') { score += 20; if (activeType === 'NEUTRAL') activeType = 'BULL'; }
+                else if (b5 && b5.type === 'BEAR') { score -= 20; if (activeType === 'NEUTRAL') activeType = 'BEAR'; }
+
+                if (b30 && b30.type === 'BULL') { score += 25; if (activeType === 'NEUTRAL') activeType = 'BULL'; }
+                else if (b30 && b30.type === 'BEAR') { score -= 25; if (activeType === 'NEUTRAL') activeType = 'BEAR'; }
+
+                // RSI Boost
+                if (rsi !== "--") {
+                    if (score > 0 && rsi >= 65) score += 10;
+                    else if (score < 0 && rsi <= 35) score -= 10;
+                }
+
+                if (score > 100) score = 100;
+                if (score < -100) score = -100;
+
+                // Trap (Reversal) Detection
+                if (item && item.orb) {
+                    const dayH = item.orb.day_h;
+                    const dayL = item.orb.day_l;
+                    const h15 = item.orb.h15;
+                    const l15 = item.orb.l15;
+
+                    // Bull Trap (Bearish Reversal): Broke high earlier, but now below 15M High and RSI < 60
+                    const prevBrokeHigh = (h15 && dayH > h15) || (pd.pdh && dayH > pd.pdh);
+                    if (prevBrokeHigh && h15 && ltp < h15 && rsi !== "--" && rsi < 60) {
+                        isTrap = true;
+                        trapType = 'BULL_TRAP';
+                        activeType = 'BEAR';
+                        score = score > 0 ? -Math.abs(score) : score; // Flip score
+                    }
+
+                    // Bear Trap (Bullish Reversal): Broke low earlier, but now above 15M Low and RSI > 40
+                    const prevBrokeLow = (l15 && dayL < l15) || (pd.pdl && dayL < pd.pdl);
+                    if (prevBrokeLow && l15 && ltp > l15 && rsi !== "--" && rsi > 40) {
+                        isTrap = true;
+                        trapType = 'BEAR_TRAP';
+                        activeType = 'BULL';
+                        score = score < 0 ? Math.abs(score) : score; // Flip score
+                    }
+                }
+
+                // For sorting magnitude (Trends take priority, Traps ranked by actual score)
+                const sortScore = Math.abs(score) + (rsiDir === 'UP' ? 5 : 0) + (rsiUTurn ? 20 : 0);
+                
+                const logEntry = globalLogs.find(l => l.symbol === sym);
+                const latestBreakoutT = logEntry ? logEntry.t : -1;
+
+                return { sym, b5, b15, b30, ltp, lastT, pd, score, score5m, sortScore, activeType, isPDHBrk, isPDLBrk, isTrap, trapType, rsi, rsiOld, rsiDir, rsiUTurn, latestBreakoutT };
+            });
+
+            // Apply Filters
+            if (currentFilter === 'LATEST') {
+                stocks = stocks.filter(s => s.latestBreakoutT > 0);
+            } else if (currentFilter !== 'ALL') {
+                stocks = stocks.filter(s => s.activeType === currentFilter);
+            }
+
+            if (showTop5) {
+                const nowMins = getCurrentMarketMinutes();
+                stocks = stocks.filter(s => {
+                    const isFresh = (nowMins - s.lastT) <= 3;
+                    const isStrong = Math.abs(s.score) >= 90;
+                    const hasLevel = s.isPDHBrk || s.isPDLBrk;
+                    return isFresh && isStrong && hasLevel;
+                })
+                    .sort((a, b) => Math.abs(b.score) - Math.abs(a.score))
+                    .slice(0, 5);
+            }
+
+            // Apply Search Filter
+            if (searchQuery) {
+                stocks = stocks.filter(s => s.sym.includes(searchQuery));
+            }
+
+            // Apply F&O Filter
+            if (stocksSubset === 'fno') {
+                stocks = stocks.filter(s => fnoSymbols.includes(s.sym));
+            }
+
+            // Sort logic
+            stocks.sort((a, b) => {
+                if (currentFilter === 'LATEST') {
+                    return b.latestBreakoutT - a.latestBreakoutT;
+                }
+
+                let valA, valB;
+                if (sortCol === 'sym') { valA = a.sym; valB = b.sym; }
+                else if (sortCol === 'score') { valA = a.sortScore; valB = b.sortScore; }
+                else if (sortCol === 'ltp') { valA = a.ltp; valB = b.ltp; }
+                else if (sortCol === 'change') { valA = parseFloat(a.chg); valB = parseFloat(b.chg); }
+                else if (sortCol === 'rsi') { valA = parseFloat(a.rsi) || 0; valB = parseFloat(b.rsi) || 0; }
+                else if (sortCol === 'close') { valA = a.pd?.close || 0; valB = b.pd?.close || 0; }
+                else { valA = a.sortScore; valB = b.sortScore; }
+
+                if (valA < valB) return -1 * sortOrder;
+                if (valA > valB) return 1 * sortOrder;
+                return a.sym.localeCompare(b.sym);
+            });
+
+            // Update Header UI Indicators
+            ['sym', 'score', 'rsi', 'orb', 'range', 'pd', 'close', 'ltp', 'change'].forEach(c => {
+                const el = document.getElementById(`sort-${c}`);
+                if (el) el.innerText = sortCol === c ? (sortOrder === 1 ? ' ▲' : ' ▼') : '';
+            });
+
+            if (stocks.length === 0) {
+                let msg = "No stocks match the current filter.";
+                if (currentFilter === 'LATEST') msg = "No fresh breakouts found yet today.";
+                grid.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:50px; color:var(--text-dim); font-size:15px; font-weight:600">${msg}</td></tr>`;
+                return;
+            }
+
+            grid.innerHTML = stocks.map(s => {
+                // Dynamic Execution Price for P&L
+                let execPrice = 0;
+                let direction = 1;
+
+                if (s.isPDHBrk) { execPrice = s.pd.pdh; direction = 1; }
+                else if (s.isPDLBrk) { execPrice = s.pd.pdl; direction = -1; }
+                else if (s.b15 && s.b15.type !== 'NEUTRAL') { execPrice = s.b15.price; direction = s.b15.type === 'BULL' ? 1 : -1; }
+                else if (s.b5 && s.b5.type !== 'NEUTRAL') { execPrice = s.b5.price; direction = s.b5.type === 'BULL' ? 1 : -1; }
+
+                const openPrice = s.pd && s.pd.close ? s.pd.close : 0;
+                const pnl = s.ltp && openPrice ? ((s.ltp - openPrice) / openPrice * 100).toFixed(2) : '0.00';
+
+                const pdhAlert = s.isPDHBrk ? `<div class="pd-alert" style="background:rgba(5,150,105,0.1); color:var(--bull); border:1px solid rgba(5,150,105,0.2); padding:3px 8px; border-radius:6px; width:fit-content">🔥 PDH BROKEN</div>` : '';
+                const pdlAlert = s.isPDLBrk ? `<div class="pd-alert" style="background:rgba(225,29,72,0.1); color:var(--bear); border:1px solid rgba(225,29,72,0.2); padding:3px 8px; border-radius:6px; width:fit-content">🔥 PDL BROKEN</div>` : '';
+
+                const tag5 = s.b5?.type === 'BULL' ? 'tag-bull' : s.b5?.type === 'BEAR' ? 'tag-bear' : 'tag-none';
+                const tag15 = s.b15?.type === 'BULL' ? 'tag-bull' : s.b15?.type === 'BEAR' ? 'tag-bear' : 'tag-none';
+                const tag30 = s.b30?.type === 'BULL' ? 'tag-bull' : s.b30?.type === 'BEAR' ? 'tag-bear' : 'tag-none';
+
+                const priceDiff = s.ltp && openPrice ? (s.ltp - openPrice).toFixed(1) : '0.0';
+                const diffColor = parseFloat(priceDiff) >= 0 ? 'var(--bull)' : 'var(--bear)';
+
+                return `
+                    <tr class="${s.activeType === 'BULL' ? 'row-bull' : s.activeType === 'BEAR' ? 'row-bear' : ''}">
+                        <td>
+                            <div class="sym-cell">
+                                <div style="display:flex; align-items:center; gap:8px">
+                                    <span class="sym-name">${s.sym}</span>
+                                    <span style="background:rgba(0,0,0,0.03); border:1px solid var(--border); color:var(--text-dim); padding:2px 6px; border-radius:20px; font-size:10px; font-weight:800">${Math.abs(s.score)}%</span>
+                                </div>
+                                ${pdhAlert} ${pdlAlert}
+                            </div>
+                        </td>
+                        <td>
+                            ${getStrengthDonutSVG(s.sym, s.score, s.score5m, s.isTrap, s.trapType, s.isPDHBrk, s.isPDLBrk, s.rsiUTurn)}
+                        </td>
+                        <td>
+                            ${getRSIDonutSVG(s.rsi, s.rsiOld, s.rsiUTurn)}
+                        </td>
+                        <td>
+                            <span class="orb-tag ${tag5}">5M</span>
+                            <span class="orb-tag ${tag15}">15M</span>
+                            <span class="orb-tag ${tag30}">30M</span>
+                        </td>
+                        <td>
+                            <div style="font-size:11px; color:var(--text-dim)">H: ${s.b15?.h?.toFixed(1) || '--'}</div>
+                            <div style="font-size:11px; color:var(--text-dim)">L: ${s.b15?.l?.toFixed(1) || '--'}</div>
+                        </td>
+                        <td>
+                            <div style="font-size:11px; color:var(--bull)">H: ${s.pd?.pdh?.toFixed(1) || '--'}</div>
+                            <div style="font-size:11px; color:var(--bear)">L: ${s.pd?.pdl?.toFixed(1) || '--'}</div>
+                        </td>
+                        <td style="font-weight:700; color:var(--text); font-size:14px">
+                            ${s.pd?.close?.toFixed(1) || '--'}
+                        </td>
+                        <td class="ltp" style="font-weight:800; font-size:16px">
+                            ${s.ltp?.toFixed(1) || '--'}
+                            <div style="font-size:12px; font-weight:600; color:var(--text-dim); margin-top:3px">
+                                ${formatMarketTime(s.lastT)}
+                            </div>
+                        </td>
+                        <td>
+                            ${execPrice > 0 ? `<span class="pnl-badge ${parseFloat(pnl) >= 0 ? 'pnl-plus' : 'pnl-minus'}">${pnl}%</span>` : '--'}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterData(type, btn) {
+            currentFilter = type;
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderGrid();
+        }
+
+        function showRawData() {
+            const modal = document.getElementById('raw-modal');
+            const content = document.getElementById('raw-content');
+            modal.style.display = 'block';
+            let html = `<table style="width:100%; border-collapse:collapse; color:var(--text)">
+                <tr style="color:var(--text-dim); text-align:left; border-bottom:1px solid var(--border)">
+                    <th style="padding:10px">Symbol</th><th>PDH</th><th>PDL</th>
+                </tr>`;
+            Object.keys(pdData).sort().forEach(sym => {
+                html += `<tr style="border-bottom:1px solid var(--border)">
+                    <td style="padding:10px; font-weight:600">${sym}</td>
+                    <td style="color:var(--bull); font-weight:600">${pdData[sym].pdh.toFixed(1)}</td>
+                    <td style="color:var(--bear); font-weight:600">${pdData[sym].pdl.toFixed(1)}</td>
+                </tr>`;
+            });
+            content.innerHTML = html + `</table>`;
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true });
+            document.getElementById('market-time').innerHTML = `🕒 ${timeStr}`;
+            updateScanStatus();
+        }
+
+        function updateScanStatus() {
+            const scanStatusEl = document.getElementById('last-scan-status');
+            if (!scanStatusEl) return;
+
+            if (!lastDataTime) {
+                scanStatusEl.innerText = "WAITING DATA";
+                return;
+            }
+
+            const now = new Date();
+            const diffMs = now.getTime() - lastDataTime.getTime();
+            const diffMins = diffMs / 60000;
+            const timeStr = lastDataTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+            
+            const topBar = document.getElementById('top-status-bar');
+
+            if (diffMins > 5 || diffMins < -5) {
+                scanStatusEl.innerHTML = `<span style="color:#ef4444; font-weight:900; animation: blinker 1.5s linear infinite;">⚠️ OFFLINE (${timeStr})</span>`;
+                if (topBar) topBar.className = 'status-bar-grey';
+            } else {
+                scanStatusEl.innerHTML = `<span style="color:#000000; font-weight:800">SCAN: ${timeStr}</span>`;
+                if (topBar) topBar.className = 'status-bar-green';
+            }
+        }
+
+        function updateTicker() {
+            const tickerContent = document.getElementById('ticker-content');
+            if (!tickerContent) return;
+            if (!globalLogs || globalLogs.length === 0) {
+                tickerContent.innerHTML = `<span style="color:var(--text-dim); font-size:13px; font-weight:600">Waiting for fresh alerts...</span>`;
+                return;
+            }
+            tickerContent.innerHTML = globalLogs.map(log => {
+                const isBull = log.event.includes('HIGH') || log.event.includes('PDH');
+                const color = isBull ? 'var(--bull)' : 'var(--bear)';
+                return `<span style="color:${color}; font-size:13px; font-weight:800">⚡ ${log.time} - ${log.symbol}: ${log.event} @ ${log.price.toFixed(1)} (${log.t}m)</span>`;
+            }).join('');
+        }
+
+        async function showLog() {
+            const modal = document.getElementById('logModal');
+            const logBody = document.getElementById('logBody');
+            modal.style.display = 'flex';
+            logBody.innerHTML = '<tr><td colspan="5" style="padding:40px; text-align:center; color:var(--text-dim)">Loading logs...</td></tr>';
+
+            try {
+                const response = await fetch(`https://history-worker.gsmmunna.workers.dev/get-log?v=${Date.now()}`);
+                const logs = await response.json();
+
+                if (!Array.isArray(logs) || logs.length === 0) {
+                    logBody.innerHTML = '<tr><td colspan="5" style="padding:40px; text-align:center; color:var(--text-dim)">No events found today.</td></tr>';
+                    return;
+                }
+
+                logBody.innerHTML = logs.map(log => {
+                    const isBull = log.event.includes('HIGH') || log.event.includes('PDH');
+                    const badgeClass = isBull ? 'tag-bull' : 'tag-bear';
+                    return `
+                        <tr class="log-row" style="border-bottom:1px solid var(--border)">
+                            <td style="color:var(--text-dim)">${log.time}</td>
+                            <td style="font-weight:bold">${log.symbol}</td>
+                            <td style="text-align:center"><span class="orb-tag ${badgeClass}" style="margin:0; padding:4px 10px">${log.event}</span></td>
+                            <td style="text-align:right; font-weight:800">${log.price.toFixed(1)}</td>
+                            <td style="text-align:right; color:var(--text-dim)">${log.t}m</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                logBody.innerHTML = `<tr><td colspan="5" style="padding:40px; text-align:center; color:var(--bear)">Error: ${e.message}</td></tr>`;
+            }
+        }
+
+        function getCurrentMarketMinutes() {
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const ist = new Date(utc + (3600000 * 5.5)); // IST is GMT+5:30
+            const totalMins = ist.getHours() * 60 + ist.getMinutes();
+            const marketOpenMins = 555; // 9:15 AM
+            return totalMins - marketOpenMins;
+        }
+
+        function closeScan() {
+            document.getElementById('scanModal').style.display = 'none';
+        }
+
+        function getProbability(s) {
+            let prob = 70;
+            if (Math.abs(s.score) >= 100) prob += 10;
+            if (s.isPDHBrk || s.isPDLBrk) prob += 10;
+            if (s.rsiUTurn) prob += 5;
+            return Math.min(98, prob);
+        }
+
+        function getAdvice(s) {
+            if (Math.abs(s.score) >= 100 && (s.isPDHBrk || s.isPDLBrk)) return "🚀 AGGRESSIVE ENTRY";
+            if (s.rsiUTurn) return "⚡ MOMENTUM ENTRY";
+            return "⏳ WAIT FOR CONFIRMATION";
+        }
+
+        function calculateSMA(snaps, period) {
+            if (!snaps || snaps.length < period) return null;
+            const sum = snaps.slice(-period).reduce((a, b) => a + (b.ltp || 0), 0);
+            return (sum / period).toFixed(1);
+        }
+
+        function calculateStockMetrics(sym, item) {
+            const ltp = item.ltp;
+            const lastT = item.t;
+            const snaps = item.history || [];
+            const pd = pdData[sym] || {};
+
+            const b5 = getBreakout(sym, 5);
+            const b15 = getBreakout(sym, 15);
+            const b30 = getBreakout(sym, 30);
+
+            // 1M RSI for Velocity & Direction
+            const rsi1m = calculateRSI(snaps, 14);
+            const rsi1m_prev = snaps.length > 2 ? calculateRSI(snaps.slice(0, -2), 14) : rsi1m;
+            const rsi1mDir = (rsi1m !== "--" && rsi1m_prev !== "--") ? (rsi1m > rsi1m_prev ? 'UP' : (rsi1m < rsi1m_prev ? 'DOWN' : 'FLAT')) : 'FLAT';
+            const rsiAngle = (rsi1m !== "--" && rsi1m_prev !== "--") ? (rsi1m - rsi1m_prev) : 0;
+
+            // 5M RSI for Trend
+            const rsi5m = calculateRSI(snaps, 70);
+            const sma1m = calculateSMA(snaps, 5);
+            const sma5m = calculateSMA(snaps, 25);
+            const smaCross = (sma1m && sma5m) ? (sma1m > sma5m ? 'UP' : 'DOWN') : null;
+
+            let score = 0;
+            let isTrap = false;
+            let trapType = null;
+            const isPDHBrk = ltp && pd.pdh && ltp > pd.pdh;
+            const isPDLBrk = ltp && pd.pdl && ltp < pd.pdl;
+
+            // --- PRO-PROFIT SCORING ---
+            // 1. Trap / Reclamation (+40 Points) - Most Profitable
+            if (item.orb) {
+                const dayH = item.orb.day_h;
+                const dayL = item.orb.day_l;
+                const h15 = item.orb.h15;
+                const l15 = item.orb.l15;
+                if (h15 && dayH > h15 && ltp < h15) { isTrap = true; trapType = 'BULL_TRAP'; score -= 40; }
+                if (l15 && dayL < l15 && ltp > l15) { isTrap = true; trapType = 'BEAR_TRAP'; score += 40; }
+            }
+
+            // 2. Trend & Breakout (+20 Points)
+            if (isPDHBrk) score += 20; else if (isPDLBrk) score -= 20;
+            if (b15 && b15.type === 'BULL') score += 15; else if (b15 && b15.type === 'BEAR') score -= 15;
+
+            // 3. Velocity / RSI Angle (+25 Points)
+            if (rsiAngle > 3) score += 25; else if (rsiAngle < -3) score -= 25;
+
+            // 4. Mean Reversion Safety (Entry Check)
+            // If price is > 1% away from SMA, reduce score (risk of pull-back)
+            const smaDist = sma1m ? Math.abs(ltp - sma1m) / sma1m : 0;
+            if (smaDist > 0.01) score = score * 0.5; // Neutralize overextended moves
+
+            return { sym, score, ltp, lastT, pd, isPDHBrk, isPDLBrk, isTrap, trapType, rsi1m, rsi1mDir, rsi5m, rsiAngle, smaCross, smaDist, b5, b15, b30 };
+        }
+
+        function getAnalystVoice(s, type) {
+            if (s.isTrap) return s.trapType === 'BEAR_TRAP' ? "💎 SMART MONEY ENTRY (Trap)" : "⚠️ SMART MONEY EXIT (Trap)";
+            if (s.smaDist > 0.01) return "⏳ Overextended. Wait for SMA pull-back.";
+            if (Math.abs(s.rsiAngle) > 4) return "🚀 Institutional Velocity Detected.";
+            if (type === 'bull') return "🔥 Solid trend. SL below PDH.";
+            if (type === 'bear') return "❄️ Heavy pressure. Stay short.";
+            return "🛡️ Scanning for Ignition...";
+        }
+
+        function getScanRowHtml(s, type) {
+            const voice = getAnalystVoice(s, type);
+            const rsi5mColor = s.rsi5m > 60 ? 'var(--bull)' : (s.rsi5m < 40 ? 'var(--bear)' : '#8b5cf6');
+            const rsi1mDirIcon = s.rsi1mDir === 'UP' ? '↗️' : (s.rsi1mDir === 'DOWN' ? '↘️' : '➡️');
+            const rsi1mColor = s.rsi1mDir === 'UP' ? 'var(--bull)' : (s.rsi1mDir === 'DOWN' ? 'var(--bear)' : 'var(--text-dim)');
+            const smaColor = s.smaCross === 'UP' ? 'var(--bull)' : 'var(--bear)';
+            const orbStatus = (b) => `<span class="orb-dot" style="background:${b?.type === 'BULL' ? 'var(--bull)' : (b?.type === 'BEAR' ? 'var(--bear)' : '#cbd5e1')}"></span>`;
+
+            return `
+                <tr>
+                    <td style="font-weight:bold; padding:12px 8px">
+                        <span style="font-size:16px; color:var(--text)">${s.sym}</span><br>
+                        <span style="font-size:11px; opacity:0.6; color:var(--text)">LTP: ${s.ltp}</span><br>
+                        <span style="font-size:11px; color:var(--text-dim)">H:${s.pd?.pdh?.toFixed(1)} | L:${s.pd?.pdl?.toFixed(1)}</span>
+                    </td>
+                    <td style="text-align:center"><div style="display:flex; gap:6px; justify-content:center">${orbStatus(s.b5)}${orbStatus(s.b15)}${orbStatus(s.b30)}</div></td>
+                    <td style="text-align:center">
+                        <span style="color:${rsi5mColor}; font-weight:800; font-size:16px">${s.rsi5m}</span>
+                        <span style="opacity:0.3; margin:0 6px">|</span>
+                        <span style="color:${rsi1mColor}; font-weight:800; font-size:16px">${s.rsi1m}${rsi1mDirIcon}</span>
+                    </td>
+                    <td style="text-align:center; font-weight:800; color:${smaColor}; font-size:14px">${s.smaCross || '--'}</td>
+                    <td style="text-align:center">
+                        ${s.isPDHBrk ? '<span style="color:var(--bull); font-weight:900; font-size:11px">PDH BREAK</span>' : ''}
+                        ${s.isPDLBrk ? '<span style="color:var(--bear); font-weight:900; font-size:11px">PDL BREAK</span>' : ''}
+                    </td>
+                    <td style="color:#6366f1; font-size:10.5px; font-style:italic">"${voice}"</td>
+                    <td style="text-align:right; font-weight:800">${getProbability(s)}%</td>
+                </tr>
+            `;
+        }
+
+        function getTableTemplate(title, color, rows, count) {
+            return `
+                <div class="scan-section">
+                    <h4 style="color:${color}; font-size:14px; margin:0 0 8px 0; border-bottom:1px solid ${color}44; padding-bottom:6px; display:flex; justify-content:space-between">
+                        <span>${title}</span>
+                        <span style="opacity:0.5; font-weight:normal; font-size:12px">${count} Setups Found</span>
+                    </h4>
+                    <table class="scan-table">
+                        <thead>
+                            <tr>
+                                <th>SYMBOL</th>
+                                <th style="text-align:center">ORB (5/15/30)</th>
+                                <th style="text-align:center">RSI(5M)</th>
+                                <th style="text-align:center">SMA</th>
+                                <th style="text-align:center">LEVEL</th>
+                                <th>ANALYST VOICE</th>
+                                <th style="text-align:right">PROB.</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows || '<tr><td colspan="7" style="text-align:center; opacity:0.5; padding:20px">No high conviction setups found</td></tr>'}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function runSmartScan() {
+            const nowMins = getCurrentMarketMinutes();
+            // Filter out noise: Only keep tradeable stocks AND main indices (NIFTY/BANKNIFTY)
+            const allMetrics = Object.entries(liveData)
+                .map(([sym, item]) => calculateStockMetrics(sym, item))
+                .filter(s => (nowMins - s.lastT) <= 20)
+                .filter(s => {
+                    // If it's an index product, only allow NIFTY and BANKNIFTY
+                    const isIndexNoise = s.sym.includes('VIX') || (s.sym.includes('NIFTY') && !['NIFTY 50', 'BANKNIFTY', 'NIFTY'].includes(s.sym));
+                    return !isIndexNoise;
+                });
+
+            // PRO-PROFIT FILTERS:
+            // 1. First find Reversals (Traps) - highest priority
+            const bullRevs = allMetrics.filter(s => s.isTrap && s.trapType === 'BEAR_TRAP' && s.rsi1mDir === 'UP')
+                .sort((a, b) => b.score - a.score);
+
+            const bearRevs = allMetrics.filter(s => s.isTrap && s.trapType === 'BULL_TRAP' && s.rsi1mDir === 'DOWN')
+                .sort((a, b) => a.score - b.score);
+
+            // Get IDs of stocks already in Trap lists to exclude them from Momentum lists
+            const trapIds = new Set([...bullRevs, ...bearRevs].map(s => s.sym));
+
+            // 2. Find Momentum Bulls/Bears (excluding those already listed as Traps)
+            // Lowered threshold to 50 to capture "Ignition" moves (Breakout 20 + Velocity 25 + Trend 15)
+            const bulls = allMetrics.filter(s => !trapIds.has(s.sym) && s.score >= 50 && s.rsi1mDir === 'UP')
+                .sort((a, b) => b.score - a.score);
+
+            const bears = allMetrics.filter(s => !trapIds.has(s.sym) && s.score <= -50 && s.rsi1mDir === 'DOWN')
+                .sort((a, b) => a.score - b.score);
+
+            const html = `
+                ${getTableTemplate('🟢 MOMENTUM BULLS (STRICT)', 'var(--bull)', bulls.slice(0, 2).map(s => getScanRowHtml(s, 'bull')).join(''), bulls.length)}
+                ${getTableTemplate('🔵 BULLISH REVERSAL (BEAR TRAP)', '#3b82f6', bullRevs.slice(0, 2).map(s => getScanRowHtml(s, 'bull_rev')).join(''), bullRevs.length)}
+                ${getTableTemplate('🔴 MOMENTUM BEARS (STRICT)', 'var(--bear)', bears.slice(0, 2).map(s => getScanRowHtml(s, 'bear')).join(''), bears.length)}
+                ${getTableTemplate('🟠 BEARISH REVERSAL (BULL TRAP)', '#f59e0b', bearRevs.slice(0, 2).map(s => getScanRowHtml(s, 'bear_rev')).join(''), bearRevs.length)}
+            `;
+
+            document.getElementById('bullScanResults').innerHTML = html;
+            document.getElementById('bearScanResults').innerHTML = '';
+            document.getElementById('scanModal').style.display = 'flex';
+        }
+
+        setInterval(updateClock, 1000);
+        
+        // Smart Refresh Logic to save Cloudflare Quota (Prevents 100k limit exhaustion at 12 PM)
+        let fetchInterval;
+        
+        function startAutoRefresh() {
+            if (fetchInterval) clearInterval(fetchInterval);
+            fetchInterval = setInterval(() => {
+                if (!document.hidden) {
+                    fetchData();
+                }
+            }, 60000); // 60 seconds instead of 15s to reduce load by 75%
+        }
+        
+        // Stop fetching when tab is not active
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                fetchData(); // Fetch immediately when coming back
+                startAutoRefresh();
+            } else {
+                clearInterval(fetchInterval);
+            }
+        });
+        
+        // Initialize
+        fetchPDH();
+        fetchData();
+        startAutoRefresh();
+    </script>
+</body>
+
+</html>
