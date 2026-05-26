@@ -733,12 +733,6 @@
                     oninput="handleSearch(this.value)"
                     style="background:rgba(0,0,0,0.04); border:1px solid var(--border); color:var(--text); padding:8px 12px; border-radius:10px; font-size:11px; width:160px">
 
-                <!-- Subset Selector for F&O -->
-                <div style="display:flex; gap:4px; background:rgba(0,0,0,0.04); padding:4px; border-radius:10px; border: 1px solid var(--border); height: 32px; box-sizing: border-box; align-items: center;" id="subset-bar">
-                    <button class="tool-btn active" id="sub-all-btn" onclick="setSubset('all')" style="font-size:10px; padding:4px 8px; font-weight:800; border-radius:8px; height: 100%; border: none;">NIFTY 500</button>
-                    <button class="tool-btn" id="sub-fno-btn" onclick="setSubset('fno')" style="font-size:10px; padding:4px 8px; font-weight:800; border-radius:8px; height: 100%; background:none; border:none; color:var(--text-dim);">F&O ONLY</button>
-                </div>
-
                 <button class="tool-btn"
                     style="border:1px solid var(--border); color:var(--text-dim); background:rgba(0,0,0,0.02); display: flex; flex-direction: row; align-items: center; gap: 5px; padding: 6px 12px; white-space: nowrap; height: 32px"
                     onclick="showLog()">📜 HISTORY</button>
@@ -854,31 +848,6 @@
             "https://orb-pro-worker.susanta41012.workers.dev/data"
         ];
         const OHLC_API = "https://pd-ohlc-worker.gsmmunna.workers.dev/get-ohlc";
-
-        const fnoSymbols = ["360ONE","ABB","ABCAPITAL","ADANIENSOL","ADANIENT","ADANIGREEN","ADANIPORTS","ADANIPOWER","ALKEM","AMBER","AMBUJACEM","ANGELONE","APLAPOLLO","APOLLOHOSP","ASHOKLEY","ASIANPAINT","ASTRAL","AUBANK","AUROPHARMA","AXISBANK","BAJAJ-AUTO","BAJAJFINSV","BAJAJHLDNG","BAJFINANCE","BANDHANBNK","BANKBARODA","BANKINDIA","BDL","BEL","BHARATFORG","BHARTIARTL","BHEL","BIOCON","BLUESTARCO","BOSCHLTD","BPCL","BRITANNIA","BSE","CAMS","CANBK","CDSL","CGPOWER","CHOLAFIN","CIPLA","COALINDIA","COCHINSHIP","COFORGE","COLPAL","CONCOR","CROMPTON","CUMMINSIND","DABUR","DALBHARAT","DELHIVERY","DIVISLAB","DIXON","DLF","DMART","DRREDDY","EICHERMOT","ETERNAL","EXIDEIND","FEDERALBNK","FORCEMOT","FORTIS","GAIL","GLENMARK","GMRAIRPORT","GODFRYPHLP","GODREJCP","GODREJPROP","GRASIM","HAL","HAVELLS","HCLTECH","HDFCAMC","HDFCBANK","HDFCLIFE","HEROMOTOCO","HINDALCO","HINDPETRO","HINDUNILVR","HINDZINC","HYUNDAI","ICICIBANK","ICICIGI","ICICIPRULI","IDEA","IDFCFIRSTB","IEX","INDIANB","INDIGO","INDHOTEL","INDUSINDBK","INDUSTOWER","INFY","INOXWIND","IOC","IREDA","IRFC","ITC","JINDALSTEL","JIOFIN","JSWENERGY","JSWSTEEL","JUBLFOOD","KALYANKJIL","KAYNES","KEI","KFINTECH","KOTAKBANK","KPITTECH","LAURUSLABS","LICHSGFIN","LICI","LODHA","LT","LTF","LTM","LUPIN","M&M","MANAPPURAM","MANKIND","MARICO","MARUTI","MAXHEALTH","MAZDOCK","MCX","MFSL","MOTHERSON","MOTILALOFS","MPHASIS","MUTHOOTFIN","NAM-INDIA","NATIONALUM","NAUKRI","NBCC","NESTLEIND","NHPC","NMDC","NTPC","NUVAMA","NYKAA","OBEROIRLTY","OFSS","OIL","ONGC","PAGEIND","PATANJALI","PAYTM","PERSISTENT","PETRONET","PFC","PGEL","PHOENIXLTD","PIDILITIND","PIIND","PNB","PNBHOUSING","POLICYBZR","POLYCAB","POWERGRID","POWERINDIA","PREMIERENE","PRESTIGE","RBLBANK","RECLTD","RELIANCE","RVNL","SAIL","SAMMAANCAP","SBICARD","SBILIFE","SBIN","SHREECEM","SHRIRAMFIN","SIEMENS","SOLARINDS","SONACOMS","SRF","SUNPHARMA","SUPREMEIND","SUZLON","SWIGGY","TATAELXSI","TATACONSUM","TATAPOWER","TATASTEEL","TCS","TECHM","TIINDIA","TITAN","TMPV","TORNTPHARM","TRENT","TVSMOTOR","ULTRACEMCO","UNIONBANK","UNITDSPR","UNOMINDA","UPL","VBL","VEDL","VMM","VOLTAS","WAAREEENER","WIPRO","YESBANK","ZYDUSLIFE"];
-        let stocksSubset = 'all';
-
-        window.setSubset = function(subset) {
-            stocksSubset = subset;
-            const allBtn = document.getElementById("sub-all-btn");
-            const fnoBtn = document.getElementById("sub-fno-btn");
-            if (subset === 'all') {
-                allBtn.classList.add("active");
-                allBtn.style.background = "";
-                allBtn.style.color = "";
-                fnoBtn.classList.remove("active");
-                fnoBtn.style.background = "none";
-                fnoBtn.style.color = "var(--text-dim)";
-            } else {
-                fnoBtn.classList.add("active");
-                fnoBtn.style.background = "var(--accent)";
-                fnoBtn.style.color = "white";
-                allBtn.classList.remove("active");
-                allBtn.style.background = "none";
-                allBtn.style.color = "var(--text-dim)";
-            }
-            renderGrid();
-        };
 
         let pdData = {};
         let liveData = {};
@@ -1302,7 +1271,7 @@
                 return;
             }
 
-            let stocks = symbols.filter(sym => liveData[sym] && typeof liveData[sym] === 'object' && Array.isArray(liveData[sym].history)).map(sym => {
+            let stocks = symbols.map(sym => {
                 const b5 = getBreakout(sym, 5);
                 const b15 = getBreakout(sym, 15);
                 const b30 = getBreakout(sym, 30);
@@ -1442,11 +1411,6 @@
             // Apply Search Filter
             if (searchQuery) {
                 stocks = stocks.filter(s => s.sym.includes(searchQuery));
-            }
-
-            // Apply F&O Filter
-            if (stocksSubset === 'fno') {
-                stocks = stocks.filter(s => fnoSymbols.includes(s.sym));
             }
 
             // Sort logic
