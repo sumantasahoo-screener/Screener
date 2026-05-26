@@ -428,6 +428,13 @@ main{max-width:1400px;margin:0 auto;padding:24px 20px 48px}
       <button class="trigger-btn" style="background:var(--surface2);color:var(--text)" onclick="openFnoSettings()">
         ⚙️ F&O Settings
       </button>
+      <button class="trigger-btn" style="background:#0ea5e9;color:#fff;" onclick="downloadFnoList()" title="Download Index Lists">
+        ⬇️ Index Lists
+      </button>
+      <label class="trigger-btn" style="background:#8b5cf6;color:#fff;cursor:pointer;" title="Upload Index Lists">
+        ⬆️ Index Lists
+        <input type="file" accept=".json" style="display:none;" onchange="uploadFnoList(this)">
+      </label>
       <button class="icon-btn" onclick="fetchData()">&#8635;</button>
     </div>
   </div>
@@ -580,9 +587,15 @@ main{max-width:1400px;margin:0 auto;padding:24px 20px 48px}
 
   <!-- GRAPHS -->
   <div class="page" id="page-graphs">
-    <div class="graph-container">
+    <div class="graph-container" style="position:relative;">
+      <div id="graph-hover-info" style="position:absolute; top:20px; right:20px; background:var(--surface); padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px; font-weight:600; display:none; pointer-events:none; z-index:10; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>
       <div class="g-hdr">
-        <div class="g-title">Intraday Nifty 500 Advance vs Decline</div>
+        <div class="g-title">Intraday Advance vs Decline</div>
+        <div class="chart-toggles" style="display:flex;gap:10px;margin-bottom:10px;">
+          <button class="hm-btn active" id="btn-chart-n500" onclick="setChartType('n500')">Nifty 500</button>
+          <button class="hm-btn" id="btn-chart-n50" onclick="setChartType('n50')">Nifty 50</button>
+          <button class="hm-btn" id="btn-chart-fno" onclick="setChartType('fno')">F&O</button>
+        </div>
         <div class="g-legend">
           <div class="gl-item"><div class="gl-dot" style="background:var(--up)"></div> Advance</div>
           <div class="gl-item"><div class="gl-dot" style="background:var(--down)"></div> Decline</div>
@@ -816,7 +829,14 @@ function switchTab(tabId, el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('page-'+tabId).classList.add('active');
-  if(tabId === 'graphs') setTimeout(drawGraph, 50);
+  if(tabId === 'graphs') {
+      setTimeout(() => {
+          drawGraph();
+          drawVixGraph();
+      }, 50);
+  } else if (tabId === 'heatmap') {
+      setTimeout(drawVixSheetGraph, 50);
+  }
 }
 
 // ── Online/Offline ────────────────────────────────────────────────────────────
@@ -896,6 +916,55 @@ const DEFAULT_FNO_LIST = [
 ];
 
 // ── Settings F&O Modal ────────────────────────────────────────────────────────
+async function downloadFnoList() {
+  try {
+    const res = await fetch(WORKER_URL + '/fno_list.json?t=' + Date.now());
+    let data;
+    if(res.ok) {
+      data = await res.json();
+      // upgrade old array format to object format locally if needed
+      if(Array.isArray(data)) {
+        data = { "NIFTY_50": CONSTITUENTS['NIFTY 50'] || [], "FNO": data };
+      }
+    } else {
+      // If file doesn't exist yet, construct default lists
+      const saved = localStorage.getItem('fno_list') || DEFAULT_FNO_LIST.join(', ');
+      const fno = saved.split(',').map(s => s.trim()).filter(s => s);
+      const n50 = CONSTITUENTS['NIFTY 50'] || [];
+      data = { "NIFTY_50": n50, "FNO": fno };
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'fno_list.json';
+    a.click();
+  } catch(e) {
+    showToast('❌ Download failed', '#ff5630');
+  }
+}
+
+async function uploadFnoList(input) {
+  const file = input.files[0];
+  if(!file) return;
+  try {
+    const text = await file.text();
+    JSON.parse(text); // validate
+    const res = await fetch(WORKER_URL + '/fno_list.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: text
+    });
+    if(res.ok) {
+      showToast('✅ Index Lists Uploaded!', '#36b37e');
+    } else {
+      showToast('❌ Upload failed', '#ff5630');
+    }
+  } catch(e) {
+    showToast('❌ Invalid JSON file', '#ff5630');
+  }
+  input.value = '';
+}
+
 function openFnoSettings() {
   document.getElementById('fnoModal').classList.add('show');
   let savedFno = localStorage.getItem('fno_list');
@@ -934,6 +1003,37 @@ async function fetchLiveFno() {
     alert("Live fetching blocked by NSE/CORS. Please paste F&O list manually.");
   }
   btn.textContent = 'Fetch Live NSE';
+}
+
+// ── Recover History Engine ──────────────────────────────────────────────────
+let currentChartType = 'n500';
+function setChartType(type) {
+    currentChartType = type;
+    document.getElementById('btn-chart-n500').classList.toggle('active', type === 'n500');
+    document.getElementById('btn-chart-n50').classList.toggle('active', type === 'n50');
+    document.getElementById('btn-chart-fno').classList.toggle('active', type === 'fno');
+    if(document.getElementById('page-graphs').classList.contains('active')) {
+        drawGraph();
+    }
+}
+
+async function fetchGraphData() {
+    try {
+        const res = await fetch(WORKER_URL + "/graph.json?t=" + Date.now());
+        if(!res.ok) return;
+        const data = await res.json();
+        
+        window.globalGraphData = data;
+        window.globalVix = data.vix || [];
+        
+        if(document.getElementById('page-graphs').classList.contains('active')) {
+            drawGraph();
+        }
+        drawVixGraph();
+        drawVixSheetGraph();
+    } catch(e) {
+        console.error("Graph fetch failed:", e);
+    }
 }
 
 // ── Fetch All Data ────────────────────────────────────────────────────────────
@@ -1027,7 +1127,9 @@ async function fetchData(){
     const today = now.toLocaleDateString();
     
     let gData = JSON.parse(localStorage.getItem('heatmap_graph')||'{"date":"","points":[]}');
-    if(gData.date !== today) gData = { date: today, points: [] };
+    if(gData.date !== today) {
+        gData = { date: today, points: [] };
+    }
     if(gData.points.length === 0) {
         const earlier = new Date(now.getTime() - 60000);
         gData.points.push({ 
@@ -1065,7 +1167,10 @@ async function fetchData(){
     renderOverview();
     renderBreadth();
     renderHeatmap();
-    if(document.getElementById('page-graphs').classList.contains('active')) drawGraph();
+    await fetchGraphData();
+    if(document.getElementById('page-graphs').classList.contains('active')) {
+        drawGraph();
+    }
     drawVixGraph();
     drawVixSheetGraph();
     renderMovers();
@@ -1275,34 +1380,35 @@ function renderHeatmap(){ filterHeatmap(); }
 // ── Draw Graph ────────────────────────────────────────────────────────────────
 function drawGraph(){
   const canvas=document.getElementById('graphCanvas');
-  if(!canvas||!globalGraph||globalGraph.length<2) return;
+  const graphArray = window.globalGraphData ? window.globalGraphData[currentChartType] : null;
+  if(!canvas||!graphArray||graphArray.length<2) return;
   const dpr=window.devicePixelRatio||1;
   const W=canvas.parentElement.clientWidth-40;
   const H=canvas.parentElement.clientHeight-80;
   canvas.width=W*dpr; canvas.height=H*dpr;
   const ctx=canvas.getContext('2d');
   ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
-  const n=globalGraph.length;
+  const n=graphArray.length;
   const pad={l:30,r:10,t:10,b:20};
   const cw=W-pad.l-pad.r,ch=H-pad.t-pad.b;
   const xp=i=>pad.l+(i/(n-1))*cw;
   function ypA(d){const t=(d.adv||0)+(d.dec||0)+(d.neutral||0)||1;return pad.t+(d.adv/t)*ch;}
-  function ypD(d){const t=(d.adv||0)+(d.dec||0)+(d.neutral||0)||1;return Math.max(ypA(d)+2,pad.t+ch-(d.dec/t)*ch);}
+  function ypD(d){const t=(d.adv||0)+(d.dec||0)+(d.neutral||0)||1;return pad.t+ch-(d.dec/t)*ch;}
   ctx.strokeStyle='rgba(128,128,128,0.15)'; ctx.lineWidth=1;
   for(let i=1;i<10;i++){const x=pad.l+i*(cw/10);ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+ch);ctx.stroke();}
   ctx.fillStyle='rgba(34,197,94,0.15)'; ctx.strokeStyle='#22c55e'; ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(xp(0),pad.t);
-  globalGraph.forEach((d,i)=>ctx.lineTo(xp(i),ypA(d)));
+  graphArray.forEach((d,i)=>ctx.lineTo(xp(i),ypA(d)));
   ctx.lineTo(xp(n-1),pad.t); ctx.fill();
-  ctx.beginPath(); globalGraph.forEach((d,i)=>{if(i===0)ctx.moveTo(xp(i),ypA(d));else ctx.lineTo(xp(i),ypA(d));}); ctx.stroke();
-  ctx.fillStyle='rgba(239,68,68,0.15)'; ctx.strokeStyle='#ef4444'; ctx.lineWidth=2;
+  ctx.beginPath(); graphArray.forEach((d,i)=>{if(i===0)ctx.moveTo(xp(i),ypA(d));else ctx.lineTo(xp(i),ypA(d));}); ctx.stroke();
+  ctx.fillStyle='rgba(239,68,68,0.35)'; ctx.strokeStyle='#ef4444'; ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(xp(0),pad.t+ch);
-  globalGraph.forEach((d,i)=>ctx.lineTo(xp(i),ypD(d)));
+  graphArray.forEach((d,i)=>ctx.lineTo(xp(i),ypD(d)));
   ctx.lineTo(xp(n-1),pad.t+ch); ctx.fill();
-  ctx.beginPath(); globalGraph.forEach((d,i)=>{if(i===0)ctx.moveTo(xp(i),ypD(d));else ctx.lineTo(xp(i),ypD(d));}); ctx.stroke();
+  ctx.beginPath(); graphArray.forEach((d,i)=>{if(i===0)ctx.moveTo(xp(i),ypD(d));else ctx.lineTo(xp(i),ypD(d));}); ctx.stroke();
   ctx.fillStyle='gray'; ctx.textAlign='center'; ctx.font='10px "DM Mono"';
   const step=Math.max(1,Math.floor(n/8));
-  globalGraph.forEach((d,i)=>{if(i%step===0||i===n-1)ctx.fillText(d.time,xp(i),pad.t+ch+15);});
+  graphArray.forEach((d,i)=>{if(i%step===0||i===n-1)ctx.fillText(d.time,xp(i),pad.t+ch+15);});
 }
 
 // ── VIX Graphs ────────────────────────────────────────────────────────────────
@@ -1440,6 +1546,40 @@ document.getElementById('interval-sel').addEventListener('change', function(){
 setInterval(()=>{ if(document.getElementById('interval-sel').value!=='0') fetchData(); },60000);
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
+// Attach Graph Hover Tooltip
+const graphCanvas = document.getElementById('graphCanvas');
+const hoverInfo = document.getElementById('graph-hover-info');
+if(graphCanvas && hoverInfo) {
+  graphCanvas.addEventListener('mousemove', (e) => {
+    const graphArray = window.globalGraphData ? window.globalGraphData[currentChartType] : null;
+    if(!graphArray || graphArray.length < 2) return;
+    
+    const rect = graphCanvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const pad = {l:30, r:10, t:10, b:20};
+    const cw = rect.width - pad.l - pad.r;
+    
+    let normX = x - pad.l;
+    if(normX < 0) normX = 0;
+    if(normX > cw) normX = cw;
+    
+    const n = graphArray.length;
+    let index = Math.round((normX / cw) * (n - 1));
+    if(index < 0) index = 0;
+    if(index >= n) index = n - 1;
+    
+    const d = graphArray[index];
+    if(d) {
+        hoverInfo.style.display = 'block';
+        hoverInfo.innerHTML = `⏱️ ${d.time} &nbsp;|&nbsp; <span style="color:#22c55e">▲ ${d.adv}</span> &nbsp;|&nbsp; <span style="color:#ef4444">▼ ${d.dec}</span>`;
+    }
+  });
+  
+  graphCanvas.addEventListener('mouseleave', () => {
+    hoverInfo.style.display = 'none';
+  });
+}
+
 fetchData();
 </script>
 </body>
