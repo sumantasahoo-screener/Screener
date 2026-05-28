@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Screener</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+            --success: #059669;
+            --danger: #dc2626;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 1rem 1.5rem;
+            -webkit-font-smoothing: antialiased;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1rem;
+            border-left: 5px solid var(--primary);
+        }
+        .title-section h1 {
+            margin: 0 0 0.15rem 0;
+            color: var(--text-main);
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+        .title-section p {
+            margin: 0;
+            color: var(--text-light);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .admin-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        button:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+        button:disabled {
+            background-color: #d1d5db;
+            cursor: not-allowed;
+            color: #9ca3af;
+            box-shadow: none;
+        }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
+        
+        .query-builder {
+            background: var(--card-bg);
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1rem;
+        }
+        .query-builder h3 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+            color: var(--text-main);
+            font-weight: 600;
+            border-bottom: 1px solid var(--bg-color);
+            padding-bottom: 0.5rem;
+        }
+        .rule-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #f9fafb;
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+        select, input {
+            padding: 0.4rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            background-color: white;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        select:focus, input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+        }
+        .results-container {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            overflow: hidden; /* cleanly crops table corners */
+        }
+        .results-wrapper {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 75vh;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 1px 0 var(--border);
+        }
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .green { color: var(--success); font-weight: 600; }
+        .red { color: var(--danger); font-weight: 600; }
+
+        /* Full Screen Scan Prompt */
+        .scan-overlay {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 60vh;
+            text-align: center;
+        }
+        .scan-overlay h2 {
+            font-size: 2rem;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+        .scan-overlay p {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        .btn-massive {
+            font-size: 1.25rem;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            box-shadow: 0 10px 25px -5px rgba(220, 38, 38, 0.4);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="title-section">
+            <h1>Custom Screener</h1>
+            <p>Custom Indicator Query Builder</p>
+        </div>
+        <div class="admin-controls" style="display:flex; align-items:center;">
+            <span id="data-status" style="font-weight:bold; color:var(--text-light);">Checking data...</span>
+            <select id="historical-date-picker" onchange="changeDate(this.value)" style="margin-left: 1rem; display:none; padding: 0.3rem; border-radius:4px;"></select>
+            <button id="syncChartBtn" onclick="triggerChartSync()" style="margin-left: 1rem; padding: 0.4rem 0.8rem; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">UPDATE CHARTS</button>
+        </div>
+    </div>
+
+    <!-- SCAN SCREEN (VISIBLE INITIALLY IF NO DATA) -->
+    <div id="scan-screen" class="scan-overlay" style="display:none;">
+        <h2>Action Required</h2>
+        <p>Today's Master Indicators have not been calculated yet.</p>
+        <button id="scanMasterBtn" class="btn-danger btn-massive" onclick="scanMasterIndicators()">SCAN MASTER INDICATORS</button>
+    </div>
+
+    <!-- STOCK CHART MODAL -->
+    <div id="chart-modal" onclick="handleModalClick(event)" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.88); z-index:2000; justify-content:center; align-items:center; overflow-y:auto; padding:1rem; box-sizing:border-box;">
+        <div id="chart-container" style="background:#0f0f1a; border:1px solid #2a2a4a; border-radius:14px; width:100%; max-width:960px; padding:1.5rem; position:relative; box-shadow:0 8px 40px rgba(0,0,0,0.7);">
+            <button onclick="closeChart()" style="position:absolute; top:1rem; right:1rem; background:#ef4444; color:white; border:none; border-radius:50%; width:32px; height:32px; cursor:pointer; font-size:1.3rem; line-height:1; z-index:10;">×</button>
+            <div id="chart-header" style="margin-bottom:1rem;"></div>
+            <canvas id="price-chart" style="width:100%; display:block;"></canvas>
+            <canvas id="volume-chart" style="width:100%; display:block; margin-top:4px;"></canvas>
+            <canvas id="rsi-chart" style="width:100%; display:block; margin-top:4px;"></canvas>
+            <canvas id="dmi-chart" style="width:100%; display:block; margin-top:4px;"></canvas>
+            <div id="chart-legend" style="margin-top:0.6rem; font-size:0.78rem; color:#888; display:flex; gap:1.2rem; flex-wrap:wrap;">
+                <span><span style="display:inline-block;width:18px;height:3px;background:#10b981;vertical-align:middle;"></span> SMA 10</span>
+                <span><span style="display:inline-block;width:18px;height:3px;background:#3b82f6;vertical-align:middle;"></span> SMA 20</span>
+                <span><span style="display:inline-block;width:18px;height:3px;background:#f59e0b;vertical-align:middle;"></span> SMA 50</span>
+                <span><span style="display:inline-block;width:10px;height:10px;background:#22c55e;vertical-align:middle;border-radius:2px;"></span> Bullish</span>
+                <span><span style="display:inline-block;width:10px;height:10px;background:#ef4444;vertical-align:middle;border-radius:2px;"></span> Bearish</span>
+                <span><span style="display:inline-block;width:18px;height:3px;background:#a855f7;vertical-align:middle;"></span> RSI</span>
+                <span><span style="display:inline-block;width:18px;height:3px;background:#22c55e;vertical-align:middle;"></span> +DI &nbsp;<span style="display:inline-block;width:18px;height:3px;background:#ef4444;vertical-align:middle;"></span> -DI &nbsp;<span style="display:inline-block;width:18px;height:3px;background:#facc15;vertical-align:middle;"></span> ADX</span>
+            </div>
+            <div id="chart-tooltip" style="position:fixed; background:#1e1e3a; border:1px solid #3b82f6; color:white; padding:0.5rem 0.8rem; border-radius:6px; font-size:0.75rem; pointer-events:none; display:none; z-index:3000; line-height:1.6;"></div>
+        </div>
+    </div>
+
+    <!-- MAIN APP (HIDDEN UNTIL DATA IS READY) -->
+    <div id="main-app" style="display:none;">
+        <div class="query-builder">
+            <h3>Build Your Custom Scan</h3>
+            <div id="rules-container">
+                <!-- Rules will be injected here -->
+            </div>
+            <div style="margin-top: 1rem; display:flex; gap:1rem;">
+                <button onclick="addRule()">+ Add Rule</button>
+                <button id="runBtn" onclick="applyFilters()" style="background-color: var(--success);">Run Custom Scan</button>
+            </div>
+            <p id="filter-status" style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-light);"></p>
+        </div>
+
+        <div class="results-container">
+            <div style="padding:0.6rem 1rem; display:flex; align-items:center; gap:0.6rem; border-bottom:1px solid var(--border); background:#f9fafb;">
+                <span style="color:var(--text-light); font-size:0.85rem; font-weight:600;">🔍</span>
+                <input type="text" id="symbol-search" placeholder="Search Symbol... (Enter = Open Chart)" oninput="filterTable()" onkeydown="if(event.key==='Enter'){searchAndOpenChart()}" style="flex:1; max-width:280px; padding:0.4rem 0.75rem; border:1px solid #d1d5db; border-radius:6px; font-size:0.85rem; font-family:'Inter',sans-serif; outline:none;">
+                <button onclick="searchAndOpenChart()" style="background:#4f46e5; color:white; border:none; padding:0.35rem 0.8rem; border-radius:6px; font-size:0.8rem; font-weight:600; cursor:pointer;">📈 View Chart</button>
+                <span id="search-count" style="color:var(--text-light); font-size:0.78rem;"></span>
+            </div>
+            <div class="results-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>LTP</th>
+                            <th>RSI 14</th>
+                            <th>MACD</th>
+                            <th>SMA 20</th>
+                            <th>SMA 50</th>
+                            <th>SMA 200</th>
+                            <th>ADX</th>
+                            <th>ADR %</th>
+                            <th>Vol Ratio</th>
+                            <th>Return %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <tr><td colspan="8" style="text-align:center;">No data loaded.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Core URLs
+        const OLD_WORKER_URL = "https://swing-worker.teletechcare.workers.dev"; 
+        const NEW_WORKER_URL = "https://swing-custom-worker.teletechcare-b71.workers.dev"; // Newly deployed worker
+        const HISTORICAL_URL = "https://pub-62be4c3290c44e0d996c0e8514fbeead.r2.dev/historical_data.json";
+        const STATUS_URL     = "https://pub-62be4c3290c44e0d996c0e8514fbeead.r2.dev/status.json";
+        
+        // This is where we will store the fetched or calculated master indicators
+        let masterIndicators = {};
+        let todayDateStr = "";
+        let availableDates = [];
+        let isBacktestMode = false;
+        let pastDateStr = "";
+        let latestLTPData = {};
+        let cachedHistoricalData = null; // Cache for chart data
+
+        // 2026 Official NSE/BSE Trading Holidays List (Global - used everywhere)
+        const stockHolidays2026 = [
+            "2026-01-26", "2026-03-06", "2026-03-27", "2026-04-02", "2026-04-03",
+            "2026-04-14", "2026-05-01", "2026-05-28", "2026-08-15", "2026-09-15",
+            "2026-10-02", "2026-10-20", "2026-11-09", "2026-11-23", "2026-12-25"
+        ];
+
+        function isHolidayOrWeekend(dateStr) {
+            const d = new Date(dateStr);
+            const day = d.getDay();
+            return day === 0 || day === 6 || stockHolidays2026.includes(dateStr);
+        }
+
+        // List of available indicators for the dropdowns
+        const indicatorOptions = `
+            <option value="" disabled selected>-- Select Indicator --</option>
+            <option value="LTP">LTP (Price)</option>
+            <option value="RSI14">RSI (14)</option>
+            <option value="MACD">MACD Line</option>
+            <option value="MACDSignal">MACD Signal</option>
+            <option value="SMA10">SMA 10</option>
+            <option value="SMA20">SMA 20</option>
+            <option value="SMA50">SMA 50</option>
+            <option value="SMA200">SMA 200</option>
+            <option value="EMA9">EMA 9</option>
+            <option value="EMA21">EMA 21</option>
+            <option value="VolRatio">Volume Ratio</option>
+            <option value="BBUpper">Bollinger Upper</option>
+            <option value="BBLower">Bollinger Lower</option>
+            <option value="ADX">ADX</option>
+            <option value="ADR_PCT">ADR %</option>
+        `;
+
+        const priceOnlyOptions = `
+            <option value="LTP">LTP (Price)</option>
+            <option value="SMA10">SMA 10</option>
+            <option value="SMA20">SMA 20</option>
+            <option value="SMA50">SMA 50</option>
+            <option value="SMA200">SMA 200</option>
+            <option value="EMA9">EMA 9</option>
+            <option value="EMA21">EMA 21</option>
+            <option value="BBUpper">Bollinger Upper</option>
+            <option value="BBLower">Bollinger Lower</option>
+        `;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            addRule(); // Add one empty rule by default
+            await checkTodayData();
+        });
+
+        function filterTable() {
+            const query = document.getElementById('symbol-search').value.toUpperCase().trim();
+            const rows = document.querySelectorAll('#table-body tr');
+            let visible = 0, total = 0;
+            rows.forEach(row => {
+                const symbolCell = row.querySelector('td');
+                if (!symbolCell) return;
+                total++;
+                const symbol = symbolCell.textContent.toUpperCase();
+                if (!query || symbol.includes(query)) {
+                    row.style.display = '';
+                    visible++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            const countEl = document.getElementById('search-count');
+            if (query) {
+                countEl.textContent = `${visible} / ${total} results`;
+            } else {
+                countEl.textContent = '';
+            }
+        }
+
+        function searchAndOpenChart() {
+            const input = document.getElementById('symbol-search').value.trim().toUpperCase();
+            if (!input) {
+                alert('Please enter a symbol name (e.g., ABB, RELIANCE, TATAMOTORS)');
+                return;
+            }
+            openChart(input);
+        }
+
+        async function checkTodayData() {
+            try {
+                // Fetch list of available dates from worker (with cache buster)
+                const listRes = await fetch(`${NEW_WORKER_URL}/list-manual?t=${new Date().getTime()}`);
+                if (listRes.ok) {
+                    availableDates = await listRes.json();
+                }
+
+                const statusRes = await fetch(STATUS_URL);
+                const statusData = await statusRes.json();
+                todayDateStr = statusData.last_updated;
+
+                // HARD BLOCK: If todayDateStr is a holiday/weekend, remove it completely
+                if (isHolidayOrWeekend(todayDateStr)) {
+                    availableDates = availableDates.filter(d => d !== todayDateStr);
+                }
+                let defaultDateStr = availableDates.length > 0 ? availableDates[0] : todayDateStr;
+
+                const datePicker = document.getElementById('historical-date-picker');
+                if (availableDates.length > 0) {
+                    datePicker.style.display = 'inline-block';
+                    datePicker.innerHTML = availableDates.map(d => `<option value="${d}">${d === availableDates[0] ? d + ' (Latest Active)' : d}</option>`).join('');
+                    datePicker.value = defaultDateStr; // Default to the latest active trading date!
+                }
+
+                // Default to loading the actual active date
+                await loadDataForDate(defaultDateStr);
+            } catch (err) {
+                document.getElementById('data-status').innerText = "Error checking data.";
+                console.error(err);
+            }
+        }
+
+        async function loadDataForDate(dateStr) {
+            document.getElementById('data-status').innerText = `Checking Master Indicators for ${dateStr}...`;
+            pastDateStr = dateStr;
+            isBacktestMode = (dateStr !== todayDateStr && dateStr !== availableDates[0]);
+
+            // If we are in backtest mode, fetch today's LTP for calculating return %
+            if (isBacktestMode && Object.keys(latestLTPData).length === 0) {
+                try {
+                     let res = await fetch(`${NEW_WORKER_URL}/get-manual/${todayDateStr}`);
+                     if (res.ok) {
+                         let todayInds = await res.json();
+                         for (let s in todayInds) latestLTPData[s] = todayInds[s].LTP;
+                     }
+                } catch(e) {}
+            }
+
+            let manualDataResponse;
+            try {
+                manualDataResponse = await fetch(`${NEW_WORKER_URL}/get-manual/${dateStr}?t=${new Date().getTime()}`);
+            } catch (e) { }
+
+            if (manualDataResponse && manualDataResponse.ok) {
+                masterIndicators = await manualDataResponse.json();
+                document.getElementById('data-status').innerText = `Data Ready: ${dateStr}`;
+                document.getElementById('scan-screen').style.display = "none";
+                document.getElementById('main-app').style.display = "block";
+                document.getElementById('table-body').innerHTML = `<tr><td colspan="11" style="text-align:center;">Data loaded. Build your query and click 'Run Custom Scan' to see results.</td></tr>`;
+                document.getElementById('filter-status').innerText = '';
+            } else {
+                document.getElementById('data-status').innerText = `No Master Data for ${dateStr}`;
+                document.getElementById('scan-screen').style.display = "flex";
+                document.getElementById('main-app').style.display = "none";
+                let btnText = `SCAN MASTER INDICATORS FOR ${dateStr}`;
+                if (availableDates.length <= 1) {
+                    btnText = `SCAN & REBUILD 30 DAYS DATA (Up to ${dateStr})`;
+                }
+                document.getElementById('scanMasterBtn').innerText = btnText;
+                // Set the date context for scanning
+                document.getElementById('scanMasterBtn').onclick = () => scanMasterIndicators(dateStr);
+            }
+        }
+
+        async function changeDate(newDate) {
+            await loadDataForDate(newDate);
+        }
+
+        function addRule() {
+            const container = document.getElementById('rules-container');
+            const row = document.createElement('div');
+            row.className = 'rule-row';
+            row.innerHTML = `
+                <select class="ind-1" onchange="handleInd1Change(this)">
+                    ${indicatorOptions}
+                </select>
+                <select class="condition" onchange="handleConditionChange(this)">
+                    <option value=">">Greater Than (>)</option>
+                    <option value="<">Less Than (<)</option>
+                    <option value="=">Equals (=)</option>
+                </select>
+                <select class="ind-2">
+                    <option value="NUMBER">-- Custom Number --</option>
+                    ${indicatorOptions}
+                </select>
+                <input type="number" step="any" class="val-number" placeholder="Enter Value" style="display:none; margin-left:0.5rem; width:120px;">
+                <span class="vol-suffix" style="display:none; margin-left:0.2rem; font-weight:bold; font-size:0.85rem; color:var(--text-light);">x (times)</span>
+                <button class="btn-danger" style="padding:0.4rem 0.8rem; margin-left:0.5rem;" onclick="this.parentElement.remove()">X</button>
+            `;
+            
+            // Handle Dropdown 2 change to show/hide number input
+            const ind2Select = row.querySelector('.ind-2');
+            const numberInput = row.querySelector('.val-number');
+            ind2Select.addEventListener('change', (e) => {
+                if (e.target.value === 'NUMBER') {
+                    numberInput.style.display = 'inline-block';
+                } else {
+                    numberInput.style.display = 'none';
+                }
+            });
+            // Trigger initially
+            ind2Select.dispatchEvent(new Event('change'));
+
+            container.appendChild(row);
+        }
+
+        function handleInd1Change(selectElem) {
+            const row = selectElem.parentElement;
+            const ind2Select = row.querySelector('.ind-2');
+            const numberInput = row.querySelector('.val-number');
+            const conditionSelect = row.querySelector('.condition');
+            const volSuffix = row.querySelector('.vol-suffix');
+            
+            // Indicators that should ONLY be compared to numbers, not prices
+            const numberOnlyFields = ['RSI14', 'VolRatio', 'ADX', 'MACD', 'MACDSignal', 'ADR_PCT'];
+            const priceFields = ['LTP', 'SMA10', 'SMA20', 'SMA50', 'SMA200', 'EMA9', 'EMA21', 'BBUpper', 'BBLower'];
+            
+            if (numberOnlyFields.includes(selectElem.value)) {
+                ind2Select.value = 'NUMBER';
+                ind2Select.style.display = 'none'; // Hide the second dropdown
+                numberInput.style.display = 'inline-block'; // Force show input
+            } else {
+                ind2Select.style.display = 'inline-block';
+                
+                // Filter by physically rebuilding the HTML options (100% browser proof)
+                const currentValue = ind2Select.value;
+                
+                const tempSelect = document.createElement('select');
+                tempSelect.innerHTML = '<option value="NUMBER">-- Custom Number --</option>' + priceOnlyOptions;
+                
+                // Remove the currently selected indicator from the second dropdown to prevent A > A
+                const duplicateOption = tempSelect.querySelector(`option[value="${selectElem.value}"]`);
+                if (duplicateOption) {
+                    duplicateOption.remove();
+                }
+
+                ind2Select.innerHTML = tempSelect.innerHTML;
+
+                // Check if old value still exists, otherwise reset to NUMBER
+                let optionExists = Array.from(ind2Select.options).some(opt => opt.value === currentValue);
+                ind2Select.value = optionExists ? currentValue : 'NUMBER';
+
+                ind2Select.dispatchEvent(new Event('change'));
+            }
+
+            // Dynamic Text for Volume Ratio & ADR %
+            if (selectElem.value === 'VolRatio') {
+                conditionSelect.options[0].text = "Greater than 20-Day Avg Vol by";
+                conditionSelect.options[1].text = "Less than 20-Day Avg Vol by";
+                conditionSelect.options[2].text = "Exactly 20-Day Avg Vol by";
+                volSuffix.textContent = "x (times)";
+                volSuffix.style.display = 'inline-block';
+            } else if (selectElem.value === 'ADR_PCT') {
+                conditionSelect.options[0].text = "Greater than 20-Day Avg Range by";
+                conditionSelect.options[1].text = "Less than 20-Day Avg Range by";
+                conditionSelect.options[2].text = "Exactly 20-Day Avg Range by";
+                volSuffix.textContent = "% of Price";
+                volSuffix.style.display = 'inline-block';
+            } else {
+                conditionSelect.options[0].text = "Greater Than (>)";
+                conditionSelect.options[1].text = "Less Than (<)";
+                conditionSelect.options[2].text = "Equals (=)";
+                volSuffix.style.display = 'none';
+            }
+        }
+
+        function handleConditionChange(selectElem) {
+            const row = selectElem.parentElement;
+            const ind1Select = row.querySelector('.ind-1');
+            const numberInput = row.querySelector('.val-number');
+            
+            if ((ind1Select.value === 'VolRatio' || ind1Select.value === 'ADR_PCT')) {
+                if (selectElem.value === '=') {
+                    numberInput.value = 1;
+                } else {
+                    numberInput.value = ''; // Make it blank for manual entry
+                }
+            }
+        }
+
+        async function scanMasterIndicators() {
+            const btn = document.getElementById('scanMasterBtn');
+            btn.innerText = "Downloading Historical Data (78MB)...";
+            btn.disabled = true;
+
+            try {
+                // 1. Fetch Historical Data
+                const histRes = await fetch(HISTORICAL_URL);
+                if (!histRes.ok) throw new Error("Failed to load historical data");
+                const historicalData = await histRes.json();
+
+                // Determine last historical date
+                let lastHistDate = '';
+                const sampleSym = Object.keys(historicalData)[0];
+                if (historicalData[sampleSym] && historicalData[sampleSym].length > 0) {
+                    lastHistDate = historicalData[sampleSym][historicalData[sampleSym].length - 1].date || historicalData[sampleSym][historicalData[sampleSym].length - 1].Date;
+                }
+
+                // Holiday list is now global (top of script) — used by isHolidayOrWeekend()
+
+                // Generate dates to fetch daily to fill the gap (Skip weekends and holidays)
+                const dailyDatesToFetch = [];
+                if (lastHistDate && todayDateStr && lastHistDate < todayDateStr) {
+                    let curr = new Date(lastHistDate);
+                    const end = new Date(todayDateStr);
+                    curr.setDate(curr.getDate() + 1);
+                    while (curr <= end) {
+                        const dayOfWeek = curr.getDay(); // 0 = Sunday, 6 = Saturday
+                        const yyyy = curr.getFullYear();
+                        const mm = String(curr.getMonth() + 1).padStart(2, '0');
+                        const dd = String(curr.getDate()).padStart(2, '0');
+                        const dateStr = `${yyyy}-${mm}-${dd}`;
+
+                        // Skip Saturday (6), Sunday (0) and 2026 Official NSE Holidays
+                        if (dayOfWeek !== 0 && dayOfWeek !== 6 && !stockHolidays2026.includes(dateStr)) {
+                            dailyDatesToFetch.push(dateStr);
+                        }
+                        curr.setDate(curr.getDate() + 1);
+                    }
+                }
+
+                // Fetch Daily Data for each generated date
+                btn.innerText = "Downloading Daily Updates...";
+                let dailyDataMap = {};
+                for (let d of dailyDatesToFetch) {
+                    try {
+                        const dr = await fetch(`https://pub-62be4c3290c44e0d996c0e8514fbeead.r2.dev/daily/${d}.json`);
+                        if (dr.ok) dailyDataMap[d] = await dr.json();
+                    } catch(e) {}
+                }
+                
+                let validDailyDates = Object.keys(dailyDataMap).sort();
+
+                // Get all trading dates combined
+                let allTradingDates = [];
+                if (historicalData[sampleSym]) {
+                    allTradingDates = historicalData[sampleSym].map(q => q.date || q.Date);
+                }
+                allTradingDates = allTradingDates.concat(validDailyDates);
+                allTradingDates = [...new Set(allTradingDates)].sort();
+
+                // We want to ensure the last 30 trading days are always in R2
+                const requiredDates = allTradingDates.slice(-30);
+
+                // Fetch the TRUE list of dates currently on the server (with cache buster)
+                let trueSavedDates = [];
+                try {
+                    const listRes = await fetch(`${NEW_WORKER_URL}/list-manual?t=${new Date().getTime()}`);
+                    if (listRes.ok) trueSavedDates = await listRes.json();
+                } catch(e) {}
+
+                // Determine which dates need calculating and uploading
+                let datesToUpload = requiredDates.filter(d => !trueSavedDates.includes(d));
+                
+                // Also ensure todayDateStr is included if it's new — HARD BLOCK holidays
+                if (todayDateStr && !datesToUpload.includes(todayDateStr) && !trueSavedDates.includes(todayDateStr)) {
+                    if (!isHolidayOrWeekend(todayDateStr)) {
+                        datesToUpload.push(todayDateStr);
+                    }
+                }
+                
+                if (datesToUpload.length === 0) {
+                    btn.innerText = "All data is already up to date!";
+                    btn.classList.remove('btn-danger');
+                    btn.classList.add('btn-success');
+                    document.getElementById('data-status').innerText = `Master Data Ready: ${todayDateStr}`;
+                    setTimeout(() => {
+                        document.getElementById('scan-screen').style.display = "none";
+                        document.getElementById('main-app').style.display = "block";
+                        if(Object.keys(masterIndicators).length > 0) displayResults(Object.keys(masterIndicators));
+                    }, 1500);
+                    return;
+                }
+                datesToUpload.sort();
+
+                // 3. Process each stock for each missing date
+                const symbols = Object.keys(historicalData);
+                let postRes;
+
+                for (let uploadDate of datesToUpload) {
+                    btn.innerText = `Calculating Indicators for ${uploadDate}...`;
+                    let calculated = {};
+                    
+                    await new Promise(r => setTimeout(r, 100));
+
+                    for (let sym of symbols) {
+                        let quotes = historicalData[sym];
+                        if (!quotes || quotes.length < 50) continue; 
+
+                        let combinedQuotes = [...quotes].map(q => ({
+                            date: q.date || q.Date,
+                            Open: Number(q.Open || 0),
+                            High: Number(q.High || 0),
+                            Low: Number(q.Low || 0),
+                            Close: Number(q.Close || 0),
+                            Volume: Number(q.Volume || 0)
+                        }));
+
+                        // Sort chronologically BEFORE finding the last historical date to prevent incorrect lastHistDate/duplicates!
+                        combinedQuotes.sort((a, b) => a.date.localeCompare(b.date));
+                        let stockLastHistDate = combinedQuotes[combinedQuotes.length - 1].date;
+
+                        for (let d of validDailyDates) {
+                            if (d > stockLastHistDate && d <= uploadDate) {
+                                if (dailyDataMap[d] && dailyDataMap[d][sym]) {
+                                    let dq = dailyDataMap[d][sym];
+                                    combinedQuotes.push({
+                                        date: d,
+                                        Open: Number(dq.Open || 0),
+                                        High: Number(dq.High || 0),
+                                        Low: Number(dq.Low || 0),
+                                        Close: Number(dq.Close || 0),
+                                        Volume: Number(dq.Volume || 0)
+                                    });
+                                }
+                            }
+                        }
+
+                        // Time machine logic: discard any data that is from AFTER the uploadDate
+                        combinedQuotes = combinedQuotes.filter(q => q.date <= uploadDate);
+
+                        // Sort chronologically
+                        combinedQuotes.sort((a,b) => a.date.localeCompare(b.date));
+
+                        // EXCLUDE HOLIDAYS (Volume <= 0 or dummy rows with 0 volume)
+                        combinedQuotes = combinedQuotes.filter(q => q.Volume > 0);
+
+                        if (combinedQuotes.length < 50) continue;
+
+                        let closes = combinedQuotes.map(q => q.Close);
+                        let volumes = combinedQuotes.map(q => q.Volume);
+                        let highs = combinedQuotes.map(q => q.High);
+                        let lows = combinedQuotes.map(q => q.Low);
+
+                        const ltp = closes[closes.length - 1];
+                        const todayVol = volumes[volumes.length - 1];
+
+                        const getSMA = (arr, period) => {
+                            if (arr.length < period) return null;
+                            const slice = arr.slice(-period);
+                            return slice.reduce((a, b) => a + b, 0) / period;
+                        };
+                        const getEMA = (arr, period) => {
+                            if (arr.length < period) return null;
+                            let k = 2 / (period + 1);
+                            let ema = arr.slice(0, period).reduce((a, b) => a + b, 0) / period;
+                            for (let i = period; i < arr.length; i++) {
+                                ema = (arr[i] - ema) * k + ema;
+                            }
+                            return ema;
+                        };
+                        const getRSI = (arr, period = 14) => {
+                            if (arr.length <= period) return null;
+                            let gains = 0, losses = 0;
+                            for (let i = 1; i <= period; i++) {
+                                let diff = arr[i] - arr[i - 1];
+                                if (diff > 0) gains += diff;
+                                else losses -= diff;
+                            }
+                            let avgGain = gains / period;
+                            let avgLoss = losses / period;
+                            for (let i = period + 1; i < arr.length; i++) {
+                                let diff = arr[i] - arr[i - 1];
+                                let gain = diff > 0 ? diff : 0;
+                                let loss = diff < 0 ? -diff : 0;
+                                avgGain = (avgGain * (period - 1) + gain) / period;
+                                avgLoss = (avgLoss * (period - 1) + loss) / period;
+                            }
+                            if (avgLoss === 0) return 100;
+                            let rs = avgGain / avgLoss;
+                            return 100 - (100 / (1 + rs));
+                        };
+                        const getMACD = (arr) => {
+                            const ema12 = getEMA(arr, 12);
+                            const ema26 = getEMA(arr, 26);
+                            if (!ema12 || !ema26) return { macd: null, signal: null };
+                            return { macd: ema12 - ema26, signal: null };
+                        };
+                        const getADX = (highs, lows, closes, period = 14) => {
+                            if (closes.length <= period * 2) return null;
+                            let trArr = [], plusDMArr = [], minusDMArr = [];
+                            for (let i = 1; i < closes.length; i++) {
+                                let upMove = highs[i] - highs[i-1];
+                                let downMove = lows[i-1] - lows[i];
+                                let plusDM = (upMove > downMove && upMove > 0) ? upMove : 0;
+                                let minusDM = (downMove > upMove && downMove > 0) ? downMove : 0;
+                                let tr = Math.max(highs[i] - lows[i], Math.abs(highs[i] - closes[i-1]), Math.abs(lows[i] - closes[i-1]));
+                                trArr.push(tr);
+                                plusDMArr.push(plusDM);
+                                minusDMArr.push(minusDM);
+                            }
+
+                            let smooth = (val, prev, p) => prev - (prev/p) + val;
+                            let smoothTR = trArr.slice(0, period).reduce((a,b)=>a+b, 0);
+                            let smoothPlusDM = plusDMArr.slice(0, period).reduce((a,b)=>a+b, 0);
+                            let smoothMinusDM = minusDMArr.slice(0, period).reduce((a,b)=>a+b, 0);
+                            
+                            let dxArr = [];
+                            let plusDI_first = (smoothPlusDM / smoothTR) * 100 || 0;
+                            let minusDI_first = (smoothMinusDM / smoothTR) * 100 || 0;
+                            let dx_first = (Math.abs(plusDI_first - minusDI_first) / (plusDI_first + minusDI_first)) * 100 || 0;
+                            dxArr.push(dx_first);
+
+                            for (let i = period; i < trArr.length; i++) {
+                                smoothTR = smooth(trArr[i], smoothTR, period);
+                                smoothPlusDM = smooth(plusDMArr[i], smoothPlusDM, period);
+                                smoothMinusDM = smooth(minusDMArr[i], smoothMinusDM, period);
+                                let plusDI = (smoothPlusDM / smoothTR) * 100 || 0;
+                                let minusDI = (smoothMinusDM / smoothTR) * 100 || 0;
+                                let dx = (Math.abs(plusDI - minusDI) / (plusDI + minusDI)) * 100 || 0;
+                                dxArr.push(dx);
+                            }
+                            if (dxArr.length < period) return null;
+                            let adx = dxArr.slice(0, period).reduce((a,b)=>a+b, 0) / period; 
+                            for (let i = period; i < dxArr.length; i++) {
+                                adx = ((adx * (period - 1)) + dxArr[i]) / period;
+                            }
+                            return adx;
+                        };
+                        const getADRPct = (highs, lows, closes, period = 20) => {
+                            if (highs.length < period) return null;
+                            let rangeSum = 0;
+                            for (let i = highs.length - period; i < highs.length; i++) {
+                                rangeSum += (highs[i] - lows[i]);
+                            }
+                            let avgRange = rangeSum / period;
+                            let lastClose = closes[closes.length - 1];
+                            if (lastClose === 0) return null;
+                            return (avgRange / lastClose) * 100;
+                        };
+
+                        const sma20 = getSMA(closes, 20);
+                        let stdDev = 0;
+                        if (sma20 && closes.length >= 20) {
+                            const slice = closes.slice(-20);
+                            const sqDiffs = slice.map(v => Math.pow(v - sma20, 2));
+                            const avgSqDiff = sqDiffs.reduce((a, b) => a + b, 0) / 20;
+                            stdDev = Math.sqrt(avgSqDiff);
+                        }
+
+                        calculated[sym] = {
+                            LTP: Number(ltp.toFixed(2)),
+                            SMA10: Number(getSMA(closes, 10)?.toFixed(2)),
+                            SMA20: Number(sma20?.toFixed(2)),
+                            SMA50: Number(getSMA(closes, 50)?.toFixed(2)),
+                            SMA200: Number(getSMA(closes, 200)?.toFixed(2)),
+                            EMA9: Number(getEMA(closes, 9)?.toFixed(2)),
+                            EMA21: Number(getEMA(closes, 21)?.toFixed(2)),
+                            RSI14: Number(getRSI(closes)?.toFixed(2)),
+                            MACD: Number(getMACD(closes).macd?.toFixed(2)),
+                            ADX: Number(getADX(highs, lows, closes)?.toFixed(2)),
+                            ADR_PCT: Number(getADRPct(highs, lows, closes)?.toFixed(2)),
+                            BBUpper: Number((sma20 + (stdDev * 2)).toFixed(2)),
+                            BBLower: Number((sma20 - (stdDev * 2)).toFixed(2)),
+                            VolRatio: Number((todayVol / getSMA(volumes, 20))?.toFixed(2))
+                        };
+                    }
+
+                    // Skip saving if it's a holiday (all stocks have Volume = 0 or no quotes for uploadDate)
+                    let totalVolumeOnDate = 0;
+                    for (let sym in calculated) {
+                        // Find volume of this sym on uploadDate
+                        let quotes = historicalData[sym];
+                        if (quotes) {
+                            let q = quotes.find(x => (x.date || x.Date) === uploadDate);
+                            if (q) totalVolumeOnDate += Number(q.Volume || 0);
+                        }
+                        if (dailyDataMap[uploadDate] && dailyDataMap[uploadDate][sym]) {
+                            totalVolumeOnDate += Number(dailyDataMap[uploadDate][sym].Volume || 0);
+                        }
+                    }
+
+                    if (totalVolumeOnDate === 0) {
+                        console.log(`Skipping holiday: ${uploadDate} has 0 total market volume.`);
+                        continue; // Skip uploading this holiday date
+                    }
+
+                    // 4. Save to Worker
+                    btn.innerText = `Saving to R2 (${uploadDate})...`;
+                    postRes = await fetch(`${NEW_WORKER_URL}/save-manual`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            date: uploadDate,
+                            indicators: calculated
+                        })
+                    });
+
+                    if (uploadDate === todayDateStr) {
+                        masterIndicators = calculated;
+                    }
+                }
+
+                // If all dates to upload were skipped holidays, postRes might be undefined. Let's handle it.
+                if (datesToUpload.length > 0 && !postRes) {
+                    // All were skipped holidays
+                    document.getElementById('data-status').innerText = `Master Data Ready: ${todayDateStr} (Skipped holidays)`;
+                    alert("Scan done! Holiday dates skipped successfully.");
+                    document.getElementById('scan-screen').style.display = "none";
+                    document.getElementById('main-app').style.display = "block";
+                    return;
+                }
+
+                if (postRes && postRes.ok) {
+                    document.getElementById('data-status').innerText = `Master Data Ready: ${todayDateStr}`;
+                    alert("Calculation Complete & Saved!");
+                    
+                    // Switch UI
+                    document.getElementById('scan-screen').style.display = "none";
+                    document.getElementById('main-app').style.display = "block";
+                    
+                    displayResults(Object.keys(masterIndicators));
+                } else {
+                    let errText = "Worker rejected the save.";
+                    try { errText = await postRes.text(); } catch(e) {}
+                    throw new Error("Status " + postRes.status + " | Msg: " + errText);
+                }
+
+            } catch (err) {
+                console.error("FULL ERROR DETAILS:", err);
+                btn.innerText = "SCAN FAILED (See Console)";
+                btn.classList.remove('btn-danger');
+                document.getElementById('data-status').innerText = "Error: " + err.message;
+            }
+        }
+
+        function applyFilters() {
+            const rows = document.querySelectorAll('.rule-row');
+            let matchingSymbols = Object.keys(masterIndicators);
+
+            let rulesText = [];
+
+            rows.forEach(row => {
+                const ind1 = row.querySelector('.ind-1').value;
+                const cond = row.querySelector('.condition').value;
+                const ind2Type = row.querySelector('.ind-2').value;
+                const numberVal = parseFloat(row.querySelector('.val-number').value);
+                
+                rulesText.push(`[${ind1}] ${cond} [${ind2Type === 'NUMBER' ? numberVal : ind2Type}]`);
+
+                matchingSymbols = matchingSymbols.filter(sym => {
+                    const data = masterIndicators[sym];
+                    if (!data) return false;
+
+                    const val1 = data[ind1];
+                    if (val1 == null || isNaN(val1)) return false;
+
+                    let val2;
+                    if (ind2Type === 'NUMBER') {
+                        val2 = numberVal;
+                    } else {
+                        val2 = data[ind2Type];
+                    }
+                    if (val2 == null || isNaN(val2)) return false;
+
+                    if (cond === '>') return val1 > val2;
+                    if (cond === '<') return val1 < val2;
+                    if (cond === '=') return val1 === val2;
+                    return false;
+                });
+            });
+
+            document.getElementById('filter-status').innerText = `Found ${matchingSymbols.length} stocks matching: ${rulesText.join(' AND ')}`;
+            displayResults(matchingSymbols);
+        }
+
+        function displayResults(symbols) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            
+            if (symbols.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;">No stocks matched your filters.</td></tr>`;
+                return;
+            }
+
+            // Display up to 200 to prevent browser freezing
+            const toShow = symbols.slice(0, 200);
+
+            toShow.forEach(sym => {
+                const data = masterIndicators[sym];
+                if (!data) return;
+                const tr = document.createElement('tr');
+                
+                // Color formatting
+                const rsiColor = data.RSI14 > 60 ? 'green' : (data.RSI14 < 40 ? 'red' : '');
+                const macdColor = data.MACD > 0 ? 'green' : 'red';
+                const ltpColor = data.LTP > data.SMA20 ? 'green' : 'red';
+
+                let returnHtml = 'N/A';
+                if (isBacktestMode && latestLTPData[sym]) {
+                    const pastPrice = data.LTP;
+                    const todayPrice = latestLTPData[sym];
+                    const retPct = ((todayPrice - pastPrice) / pastPrice) * 100;
+                    const retColor = retPct > 0 ? 'green' : 'red';
+                    returnHtml = `<span class="${retColor}">${retPct.toFixed(2)}%</span> <br><small style="color:gray;">(${todayPrice})</small>`;
+                } else if (!isBacktestMode) {
+                    returnHtml = '-';
+                }
+
+                tr.innerHTML = `
+                    <td style="font-weight:bold;"><span onclick="openChart('${sym}')" style="cursor:pointer; color:#818cf8; text-decoration:underline dotted;" title="Click to view chart">${sym}</span></td>
+                    <td class="${ltpColor}">${data.LTP}</td>
+                    <td class="${rsiColor}">${data.RSI14}</td>
+                    <td class="${macdColor}">${data.MACD}</td>
+                    <td>${data.SMA20 || '-'}</td>
+                    <td>${data.SMA50 || '-'}</td>
+                    <td>${data.SMA200 || '-'}</td>
+                    <td style="font-weight:bold; color:#4f46e5;">${data.ADX || '-'}</td>
+                    <td style="font-weight:bold; color:#d97706;">${data.ADR_PCT ? data.ADR_PCT + '%' : '-'}</td>
+                    <td>${data.VolRatio ? data.VolRatio + 'x' : '-'}</td>
+                    <td style="font-weight:bold;">${returnHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ========== STOCK CHART ==========
+        function handleModalClick(e) {
+            if (e.target.id === 'chart-modal') closeChart();
+        }
+
+        function closeChart() {
+            document.getElementById('chart-modal').style.display = 'none';
+        }
+
+        async function openChart(symbol) {
+            const modal = document.getElementById('chart-modal');
+            modal.style.display = 'flex';
+            document.getElementById('chart-header').innerHTML = `
+                <div style="color:#818cf8; font-size:1.4rem; font-weight:bold;">${symbol}</div>
+                <div style="color:#888; font-size:0.85rem; margin-top:0.2rem;">Loading chart data...</div>`;
+            document.getElementById('price-chart').getContext('2d').clearRect(0,0,9999,9999);
+            document.getElementById('volume-chart').getContext('2d').clearRect(0,0,9999,9999);
+
+            try {
+                // Fetch individual stock data from new split-worker instead of 78MB bulk file
+                const CHART_WORKER_URL = "https://swing-chart-worker.teletechcare-b71.workers.dev";
+                
+                document.getElementById('chart-header').innerHTML = `
+                    <div style="color:#818cf8; font-size:1.4rem; font-weight:bold;">${symbol}</div>
+                    <div style="color:#f59e0b; font-size:0.85rem; margin-top:0.2rem;">⏳ Loading live chart data...</div>`;
+                
+                const res = await fetch(`${CHART_WORKER_URL}/stocks/${symbol}.json`);
+                if (!res.ok) {
+                    throw new Error("No chart data found on server for " + symbol);
+                }
+                let stockData = await res.json();
+                
+                if (stockData.length === 0) {
+                    throw new Error("Empty data array");
+                }
+
+                // Last 90 trading days
+                const chartData = stockData.slice(-90);
+                if (chartData.length === 0) {
+                    document.getElementById('chart-header').innerHTML = `<div style="color:#ef4444;">No chart data available for ${symbol}</div>`;
+                    return;
+                }
+
+                const last = chartData[chartData.length - 1];
+
+                // prevClose = previous entry in chartData (now guaranteed to be true previous trading day)
+                const prevClose = chartData.length > 1 ? chartData[chartData.length - 2].Close : last.Close;
+
+                const change = last.Close - prevClose;
+                const changePct = ((change / prevClose) * 100).toFixed(2);
+                const cc = change >= 0 ? '#22c55e' : '#ef4444';
+                const sign = change >= 0 ? '+' : '';
+
+                // Quick DMI calculation for trend badge
+                const _period = 14;
+                let _trArr=[], _pDMArr=[], _mDMArr=[];
+                for (let i=1; i<chartData.length; i++) {
+                    const up=chartData[i].High-chartData[i-1].High, dn=chartData[i-1].Low-chartData[i].Low;
+                    _pDMArr.push(up>dn&&up>0?up:0); _mDMArr.push(dn>up&&dn>0?dn:0);
+                    _trArr.push(Math.max(chartData[i].High-chartData[i].Low,Math.abs(chartData[i].High-chartData[i-1].Close),Math.abs(chartData[i].Low-chartData[i-1].Close)));
+                }
+                let _sTR=_trArr.slice(0,_period).reduce((a,b)=>a+b,0);
+                let _sPDM=_pDMArr.slice(0,_period).reduce((a,b)=>a+b,0);
+                let _sMDM=_mDMArr.slice(0,_period).reduce((a,b)=>a+b,0);
+                let _lastPDI=(_sTR>0?(_sPDM/_sTR)*100:0), _lastMDI=(_sTR>0?(_sMDM/_sTR)*100:0);
+                let _dxArr=[Math.abs(_lastPDI-_lastMDI)/(_lastPDI+_lastMDI||1)*100];
+                for (let i=_period; i<_trArr.length; i++) {
+                    _sTR=_sTR-_sTR/_period+_trArr[i]; _sPDM=_sPDM-_sPDM/_period+_pDMArr[i]; _sMDM=_sMDM-_sMDM/_period+_mDMArr[i];
+                    _lastPDI=_sTR>0?(_sPDM/_sTR)*100:0; _lastMDI=_sTR>0?(_sMDM/_sTR)*100:0;
+                    _dxArr.push(Math.abs(_lastPDI-_lastMDI)/(_lastPDI+_lastMDI||1)*100);
+                }
+                let _adx=_dxArr.slice(0,_period).reduce((a,b)=>a+b,0)/_period;
+                for (let i=_period; i<_dxArr.length; i++) _adx=(_adx*(_period-1)+_dxArr[i])/_period;
+
+                // Trend Badge logic
+                let trendBadge = '';
+                if (_adx >= 25) {
+                    if (_lastPDI > _lastMDI) trendBadge = `<span style="background:#14532d; color:#4ade80; border:1px solid #4ade80; border-radius:6px; padding:2px 10px; font-size:0.82rem; font-weight:bold; margin-left:0.5rem;">▲ Strong Bullish &nbsp;| ADX: ${_adx.toFixed(1)}</span>`;
+                    else trendBadge = `<span style="background:#450a0a; color:#f87171; border:1px solid #f87171; border-radius:6px; padding:2px 10px; font-size:0.82rem; font-weight:bold; margin-left:0.5rem;">▼ Strong Bearish &nbsp;| ADX: ${_adx.toFixed(1)}</span>`;
+                } else {
+                    if (_lastPDI > _lastMDI) trendBadge = `<span style="background:#1c1917; color:#fbbf24; border:1px solid #fbbf24; border-radius:6px; padding:2px 10px; font-size:0.82rem; font-weight:bold; margin-left:0.5rem;">↗ Weak Bullish &nbsp;| ADX: ${_adx.toFixed(1)}</span>`;
+                    else trendBadge = `<span style="background:#1c1917; color:#fb923c; border:1px solid #fb923c; border-radius:6px; padding:2px 10px; font-size:0.82rem; font-weight:bold; margin-left:0.5rem;">↘ Weak Bearish &nbsp;| ADX: ${_adx.toFixed(1)}</span>`;
+                }
+
+                document.getElementById('chart-header').innerHTML = `
+                    <div style="display:flex; align-items:center; gap:0.8rem; flex-wrap:wrap;">
+                        <span style="color:#c7d2fe; font-size:1.5rem; font-weight:bold;">${symbol}</span>
+                        <span style="color:${cc}; font-size:1.3rem; font-weight:bold;">₹${last.Close.toFixed(2)}</span>
+                        <span style="color:${cc}; font-size:0.95rem;">${sign}${change.toFixed(2)} (${sign}${changePct}%)</span>
+                        ${trendBadge}
+                    </div>
+                    <div style="color:#666; font-size:0.78rem; margin-top:0.3rem;">Last ${chartData.length} Trading Days &nbsp;|&nbsp; O: ${last.Open} &nbsp; H: <span style='color:#22c55e'>${last.High}</span> &nbsp; L: <span style='color:#ef4444'>${last.Low}</span> &nbsp; C: ${last.Close} &nbsp; Vol: ${(last.Volume/100000).toFixed(2)}L &nbsp;| +DI: <span style='color:#4ade80'>${_lastPDI.toFixed(1)}</span> &nbsp;-DI: <span style='color:#f87171'>${_lastMDI.toFixed(1)}</span></div>`;
+
+                // Draw
+                setTimeout(() => {
+                    drawCandlestickChart(document.getElementById('price-chart'), chartData);
+                    drawVolumeChart(document.getElementById('volume-chart'), chartData);
+                    drawRSIChart(document.getElementById('rsi-chart'), chartData);
+                    drawDMIChart(document.getElementById('dmi-chart'), chartData);
+                }, 50);
+
+            } catch(err) {
+                console.error(err);
+                document.getElementById('chart-header').innerHTML = `<div style="color:#ef4444;">Error loading chart for ${symbol}</div>`;
+            }
+        }
+
+        function drawCandlestickChart(canvas, data) {
+            const dpr = window.devicePixelRatio || 1;
+            const W = canvas.parentElement.clientWidth;
+            const H = 360;
+            canvas.width = W * dpr;
+            canvas.height = H * dpr;
+            canvas.style.width = W + 'px';
+            canvas.style.height = H + 'px';
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+
+            const padL=60, padR=15, padT=25, padB=30;
+            const cW = W - padL - padR;
+            const cH = H - padT - padB;
+            const n = data.length;
+            const slotW = cW / n;
+            const candleW = Math.max(1, slotW * 0.65);
+
+            let minP = Infinity, maxP = -Infinity;
+            data.forEach(d => { minP = Math.min(minP, d.Low); maxP = Math.max(maxP, d.High); });
+            const pad = (maxP - minP) * 0.06;
+            const minPad = minP - pad, maxPad = maxP + pad;
+            const range = maxPad - minPad;
+            const toY = p => padT + cH - ((p - minPad) / range) * cH;
+            const toX = i => padL + i * slotW + slotW / 2;
+
+            // Background
+            ctx.fillStyle = '#080812';
+            ctx.fillRect(0, 0, W, H);
+
+            // Grid
+            const gridLines = 6;
+            for (let i = 0; i <= gridLines; i++) {
+                const y = padT + (cH / gridLines) * i;
+                ctx.strokeStyle = '#1a1a2e';
+                ctx.lineWidth = 0.5;
+                ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+                const price = maxPad - (range / gridLines) * i;
+                ctx.fillStyle = '#4a4a6a';
+                ctx.font = `${10 * Math.min(1, W/600)}px monospace`;
+                ctx.textAlign = 'right';
+                ctx.fillText(price.toFixed(0), padL - 4, y + 3);
+            }
+
+            // SMA helper
+            const calcSMA = (period) => data.map((_, i) => {
+                if (i < period - 1) return null;
+                return data.slice(i - period + 1, i + 1).reduce((s, d) => s + d.Close, 0) / period;
+            });
+
+            // Draw SMA lines
+            const drawSMALine = (vals, color) => {
+                ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 1.5; let first = true;
+                vals.forEach((v, i) => {
+                    if (v == null) return;
+                    first ? ctx.moveTo(toX(i), toY(v)) : ctx.lineTo(toX(i), toY(v));
+                    first = false;
+                });
+                ctx.stroke();
+            };
+            drawSMALine(calcSMA(10), '#10b981');
+            drawSMALine(calcSMA(20), '#3b82f6');
+            drawSMALine(calcSMA(50), '#f59e0b');
+
+            // Candles
+            data.forEach((d, i) => {
+                const x = toX(i);
+                const isGreen = d.Close >= d.Open;
+                const color = isGreen ? '#22c55e' : '#ef4444';
+                ctx.strokeStyle = color; ctx.fillStyle = isGreen ? '#22c55e22' : '#ef444422';
+                ctx.lineWidth = 1;
+                // Wick
+                ctx.beginPath(); ctx.moveTo(x, toY(d.High)); ctx.lineTo(x, toY(d.Low)); ctx.strokeStyle = color; ctx.stroke();
+                // Body
+                const bTop = toY(Math.max(d.Open, d.Close));
+                const bBot = toY(Math.min(d.Open, d.Close));
+                const bH = Math.max(1, bBot - bTop);
+                ctx.fillStyle = color;
+                ctx.fillRect(x - candleW/2, bTop, candleW, bH);
+            });
+
+            // Date labels
+            ctx.fillStyle = '#44446a';
+            ctx.textAlign = 'center';
+            ctx.font = '9px monospace';
+            const step = Math.ceil(n / 8);
+            data.forEach((d, i) => {
+                if (i % step === 0) ctx.fillText((d.date||'').slice(5), toX(i), H - 8);
+            });
+
+            // Hover tooltip
+            canvas._chartData = data;
+            canvas._toX = toX; canvas._toY = toY;
+            canvas._padL = padL; canvas._padR = padR; canvas._padT = padT; canvas._padB = padB;
+            canvas._W = W; canvas._H = H; canvas._slotW = slotW; canvas._n = n;
+            canvas._sma20 = calcSMA(20); canvas._sma50 = calcSMA(50);
+
+            canvas.onmousemove = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const mx = (e.clientX - rect.left);
+                const idx = Math.round((mx - padL) / slotW - 0.5);
+                if (idx < 0 || idx >= n) { document.getElementById('chart-tooltip').style.display = 'none'; return; }
+                const d = canvas._chartData[idx];
+                const tip = document.getElementById('chart-tooltip');
+                const chg = idx > 0 ? ((d.Close - canvas._chartData[idx-1].Close) / canvas._chartData[idx-1].Close * 100).toFixed(2) : '0.00';
+                tip.innerHTML = `<b style="color:#c7d2fe">${d.date}</b><br>O: ${d.Open} &nbsp; H: <span style='color:#22c55e'>${d.High}</span> &nbsp; L: <span style='color:#ef4444'>${d.Low}</span> &nbsp; C: <b>${d.Close}</b><br>Chg: <span style='color:${chg>=0?"#22c55e":"#ef4444"}'>${chg}%</span> &nbsp; Vol: ${(d.Volume/100000).toFixed(2)}L<br>SMA20: <span style='color:#3b82f6'>${canvas._sma20[idx]?.toFixed(2)||'-'}</span> &nbsp; SMA50: <span style='color:#f59e0b'>${canvas._sma50[idx]?.toFixed(2)||'-'}</span>`;
+                tip.style.display = 'block';
+                tip.style.left = (e.clientX + 12) + 'px';
+                tip.style.top = (e.clientY - 20) + 'px';
+            };
+            canvas.onmouseleave = () => { document.getElementById('chart-tooltip').style.display = 'none'; };
+        }
+
+        function drawVolumeChart(canvas, data) {
+            const dpr = window.devicePixelRatio || 1;
+            const W = canvas.parentElement.clientWidth;
+            const H = 70;
+            canvas.width = W * dpr;
+            canvas.height = H * dpr;
+            canvas.style.width = W + 'px';
+            canvas.style.height = H + 'px';
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+
+            const padL=60, padR=15, padT=8, padB=5;
+            const cW = W - padL - padR;
+            const cH = H - padT - padB;
+            const n = data.length;
+            const slotW = cW / n;
+            const barW = Math.max(1, slotW * 0.65);
+            const maxVol = Math.max(...data.map(d => d.Volume));
+
+            ctx.fillStyle = '#080812';
+            ctx.fillRect(0, 0, W, H);
+
+            // Vol label
+            ctx.fillStyle = '#44446a'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+            ctx.fillText('Volume', padL + 4, padT + 12);
+
+            data.forEach((d, i) => {
+                const x = padL + i * slotW + slotW / 2;
+                const bH = (d.Volume / maxVol) * cH;
+                ctx.fillStyle = d.Close >= d.Open ? 'rgba(34,197,94,0.45)' : 'rgba(239,68,68,0.45)';
+                ctx.fillRect(x - barW/2, H - padB - bH, barW, bH);
+            });
+        }
+
+        function drawRSIChart(canvas, data) {
+            const dpr = window.devicePixelRatio || 1;
+            const W = canvas.parentElement.clientWidth;
+            const H = 120;
+            canvas.width = W * dpr; canvas.height = H * dpr;
+            canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+            const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+            const padL=60, padR=15, padT=12, padB=22;
+            const cW = W - padL - padR, cH = H - padT - padB;
+            const n = data.length, slotW = cW / n;
+            const toX = i => padL + i * slotW + slotW / 2;
+            const toY = v => padT + cH - ((Math.min(100, Math.max(0, v))) / 100) * cH;
+
+            // Background with subtle gradient
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+            bgGrad.addColorStop(0, '#0d0d1f'); bgGrad.addColorStop(1, '#080812');
+            ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, W, H);
+
+            // Overbought zone fill (red tint above 70)
+            ctx.fillStyle = 'rgba(239,68,68,0.07)';
+            ctx.fillRect(padL, toY(100), cW, toY(70) - toY(100));
+            // Oversold zone fill (green tint below 30)
+            ctx.fillStyle = 'rgba(34,197,94,0.07)';
+            ctx.fillRect(padL, toY(30), cW, toY(0) - toY(30));
+
+            // Grid lines
+            [[70,'#ef4444','70'],[50,'#4a4a7a','50'],[30,'#22c55e','30']].forEach(([v,c,lbl]) => {
+                const y = toY(v);
+                ctx.strokeStyle = c; ctx.lineWidth = v===50 ? 0.5 : 1;
+                ctx.setLineDash(v===50 ? [4,4] : [5,3]);
+                ctx.globalAlpha = v===50 ? 0.4 : 0.7;
+                ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W-padR, y); ctx.stroke();
+                ctx.globalAlpha = 1;
+                ctx.setLineDash([]);
+                ctx.fillStyle = c; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'right';
+                ctx.fillText(lbl, padL-4, y+3);
+            });
+
+            // RSI Label
+            ctx.fillStyle = '#a855f7'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'left';
+            ctx.fillText('RSI 14', padL + 6, padT + 12);
+
+            // Wilder's RSI
+            const closes = data.map(d => d.Close);
+            const period = 14;
+            const rsiVals = Array(n).fill(null);
+            if (n > period) {
+                let avgGain = 0, avgLoss = 0;
+                for (let i = 1; i <= period; i++) {
+                    const d = closes[i] - closes[i-1];
+                    if (d > 0) avgGain += d; else avgLoss -= d;
+                }
+                avgGain /= period; avgLoss /= period;
+                rsiVals[period] = avgLoss === 0 ? 100 : 100 - (100 / (1 + avgGain / avgLoss));
+                for (let i = period + 1; i < n; i++) {
+                    const d = closes[i] - closes[i-1];
+                    avgGain = (avgGain * (period-1) + Math.max(0, d)) / period;
+                    avgLoss = (avgLoss * (period-1) + Math.max(0, -d)) / period;
+                    rsiVals[i] = avgLoss === 0 ? 100 : 100 - (100 / (1 + avgGain / avgLoss));
+                }
+            }
+
+            // Gradient fill under RSI line
+            const firstValid = rsiVals.findIndex(v => v != null);
+            if (firstValid >= 0) {
+                const fillGrad = ctx.createLinearGradient(0, toY(80), 0, toY(20));
+                fillGrad.addColorStop(0, 'rgba(168,85,247,0.0)');
+                fillGrad.addColorStop(1, 'rgba(168,85,247,0.15)');
+                ctx.beginPath();
+                ctx.moveTo(toX(firstValid), toY(50));
+                rsiVals.forEach((v, i) => { if (v != null) ctx.lineTo(toX(i), toY(v)); });
+                ctx.lineTo(toX(n-1), toY(50));
+                ctx.closePath(); ctx.fillStyle = fillGrad; ctx.fill();
+            }
+
+            // RSI Line (thicker, brighter)
+            ctx.beginPath(); ctx.strokeStyle = '#c084fc'; ctx.lineWidth = 2;
+            let first = true;
+            rsiVals.forEach((v, i) => {
+                if (v == null) return;
+                first ? ctx.moveTo(toX(i), toY(v)) : ctx.lineTo(toX(i), toY(v));
+                first = false;
+            });
+            ctx.stroke();
+
+            // Date labels
+            ctx.fillStyle = '#55557a'; ctx.textAlign = 'center'; ctx.font = '9px monospace';
+            const step = Math.ceil(n / 8);
+            data.forEach((d, i) => { if (i % step === 0) ctx.fillText((d.date||'').slice(5), toX(i), H - 5); });
+
+            // Hover
+            canvas._rsiVals = rsiVals; canvas._chartData = data; canvas._slotW = slotW; canvas._n = n; canvas._padL = padL;
+            canvas.onmousemove = (e) => {
+                const mx = e.clientX - canvas.getBoundingClientRect().left;
+                const idx = Math.round((mx - padL) / slotW - 0.5);
+                if (idx < 0 || idx >= n || rsiVals[idx] == null) { document.getElementById('chart-tooltip').style.display='none'; return; }
+                const tip = document.getElementById('chart-tooltip');
+                const rv = rsiVals[idx].toFixed(2);
+                const rvColor = rv > 70 ? '#ef4444' : rv < 30 ? '#22c55e' : '#c084fc';
+                const rvLabel = rv > 70 ? ' ⚠ Overbought' : rv < 30 ? ' ⚠ Oversold' : '';
+                tip.innerHTML = `<b style="color:#c7d2fe">${data[idx].date}</b><br>RSI(14): <b style='color:${rvColor}'>${rv}</b><span style='color:${rvColor}'>${rvLabel}</span>`;
+                tip.style.display='block'; tip.style.left=(e.clientX+12)+'px'; tip.style.top=(e.clientY-20)+'px';
+            };
+            canvas.onmouseleave = () => { document.getElementById('chart-tooltip').style.display='none'; };
+        }
+
+        function drawDMIChart(canvas, data) {
+            const dpr = window.devicePixelRatio || 1;
+            const W = canvas.parentElement.clientWidth;
+            const H = 120;
+            canvas.width = W * dpr; canvas.height = H * dpr;
+            canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+            const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+            const padL=60, padR=15, padT=12, padB=22;
+            const cW = W - padL - padR, cH = H - padT - padB;
+            const n = data.length, slotW = cW / n;
+            const toX = i => padL + i * slotW + slotW / 2;
+
+            // Background
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+            bgGrad.addColorStop(0, '#0d0d1f'); bgGrad.addColorStop(1, '#080812');
+            ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, W, H);
+
+            // Wilder's DMI
+            const period = 14;
+            const plusDI = Array(n).fill(null), minusDI = Array(n).fill(null), adxVals = Array(n).fill(null);
+            if (n > period * 2) {
+                let trArr=[], pDMArr=[], mDMArr=[];
+                for (let i = 1; i < n; i++) {
+                    const up = data[i].High - data[i-1].High, dn = data[i-1].Low - data[i].Low;
+                    pDMArr.push(up > dn && up > 0 ? up : 0);
+                    mDMArr.push(dn > up && dn > 0 ? dn : 0);
+                    trArr.push(Math.max(data[i].High-data[i].Low, Math.abs(data[i].High-data[i-1].Close), Math.abs(data[i].Low-data[i-1].Close)));
+                }
+                let sTR=trArr.slice(0,period).reduce((a,b)=>a+b,0);
+                let sPDM=pDMArr.slice(0,period).reduce((a,b)=>a+b,0);
+                let sMDM=mDMArr.slice(0,period).reduce((a,b)=>a+b,0);
+                const pDI1=sTR>0?(sPDM/sTR)*100:0, mDI1=sTR>0?(sMDM/sTR)*100:0;
+                plusDI[period]=pDI1; minusDI[period]=mDI1;
+                let dxArr=[Math.abs(pDI1-mDI1)/(pDI1+mDI1||1)*100];
+                for (let i=period; i<trArr.length; i++) {
+                    sTR=sTR-sTR/period+trArr[i]; sPDM=sPDM-sPDM/period+pDMArr[i]; sMDM=sMDM-sMDM/period+mDMArr[i];
+                    const pdi=sTR>0?(sPDM/sTR)*100:0, mdi=sTR>0?(sMDM/sTR)*100:0;
+                    plusDI[i+1]=pdi; minusDI[i+1]=mdi;
+                    dxArr.push(Math.abs(pdi-mdi)/(pdi+mdi||1)*100);
+                }
+                let adx=dxArr.slice(0,period).reduce((a,b)=>a+b,0)/period;
+                adxVals[period*2]=adx;
+                for (let i=period; i<dxArr.length; i++) { adx=(adx*(period-1)+dxArr[i])/period; adxVals[i+1]=adx; }
+            }
+
+            const allVals=[...plusDI,...minusDI,...adxVals].filter(v=>v!=null);
+            const maxV=Math.max(60,...allVals);
+            const toY=v=>padT+cH-(Math.min(maxV,Math.max(0,v))/maxV)*cH;
+
+            // Fill between +DI and -DI (green when +DI > -DI, red otherwise)
+            for (let i=1; i<n; i++) {
+                if (plusDI[i]==null||minusDI[i]==null) continue;
+                const x1=toX(i-1), x2=toX(i);
+                const pY1=toY(plusDI[i-1]||0), pY2=toY(plusDI[i]);
+                const mY1=toY(minusDI[i-1]||0), mY2=toY(minusDI[i]);
+                ctx.beginPath();
+                ctx.moveTo(x1,pY1); ctx.lineTo(x2,pY2); ctx.lineTo(x2,mY2); ctx.lineTo(x1,mY1);
+                ctx.closePath();
+                ctx.fillStyle = plusDI[i]>minusDI[i] ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)';
+                ctx.fill();
+            }
+
+            // ADX 25 reference line (brighter)
+            const y25 = toY(25);
+            ctx.strokeStyle = '#6b7280'; ctx.lineWidth = 1; ctx.setLineDash([5,3]);
+            ctx.beginPath(); ctx.moveTo(padL, y25); ctx.lineTo(W-padR, y25); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#9ca3af'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'right';
+            ctx.fillText('25', padL-4, y25+3);
+
+            // Lines (thicker)
+            const drawLine = (vals, color, lw=2) => {
+                ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = lw; let first = true;
+                vals.forEach((v, i) => {
+                    if (v == null) return;
+                    first ? ctx.moveTo(toX(i), toY(v)) : ctx.lineTo(toX(i), toY(v));
+                    first = false;
+                });
+                ctx.stroke();
+            };
+            drawLine(plusDI, '#4ade80', 2);   // bright green
+            drawLine(minusDI, '#f87171', 2);  // bright red
+            drawLine(adxVals, '#fde047', 2.5); // bright yellow
+
+            // DMI Label
+            ctx.fillStyle = '#9ca3af'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'left';
+            ctx.fillText('DMI', padL + 6, padT + 12);
+            ctx.fillStyle = '#4ade80'; ctx.fillText(' +DI', padL + 36, padT + 12);
+            ctx.fillStyle = '#9ca3af'; ctx.fillText(' /', padL + 62, padT + 12);
+            ctx.fillStyle = '#f87171'; ctx.fillText(' -DI', padL + 70, padT + 12);
+            ctx.fillStyle = '#9ca3af'; ctx.fillText(' /', padL + 96, padT + 12);
+            ctx.fillStyle = '#fde047'; ctx.fillText(' ADX', padL + 104, padT + 12);
+
+            // Date labels
+            ctx.fillStyle = '#55557a'; ctx.textAlign = 'center'; ctx.font = '9px monospace';
+            const step = Math.ceil(n / 8);
+            data.forEach((d, i) => { if (i % step === 0) ctx.fillText((d.date||'').slice(5), toX(i), H - 5); });
+
+            // Hover
+            canvas._plusDI=plusDI; canvas._minusDI=minusDI; canvas._adxVals=adxVals;
+            canvas._chartData=data; canvas._slotW=slotW; canvas._n=n; canvas._padL=padL;
+            canvas.onmousemove = (e) => {
+                const mx = e.clientX - canvas.getBoundingClientRect().left;
+                const idx = Math.round((mx - padL) / slotW - 0.5);
+                if (idx < 0 || idx >= n) { document.getElementById('chart-tooltip').style.display='none'; return; }
+                const tip = document.getElementById('chart-tooltip');
+                const pv=plusDI[idx]?.toFixed(2)||'-', mv=minusDI[idx]?.toFixed(2)||'-', av=adxVals[idx]?.toFixed(2)||'-';
+                const trend = plusDI[idx]>minusDI[idx] ? "<span style='color:#4ade80'>▲ Bullish Trend</span>" : "<span style='color:#f87171'>▼ Bearish Trend</span>";
+                tip.innerHTML = `<b style="color:#c7d2fe">${data[idx].date}</b><br>+DI: <b style='color:#4ade80'>${pv}</b> &nbsp; -DI: <b style='color:#f87171'>${mv}</b> &nbsp; ADX: <b style='color:#fde047'>${av}</b><br>${av>=25?trend:'<span style=\'color:#888\'>ADX < 25 (Weak Trend)</span>'}`;
+                tip.style.display='block'; tip.style.left=(e.clientX+12)+'px'; tip.style.top=(e.clientY-20)+'px';
+            };
+            canvas.onmouseleave = () => { document.getElementById('chart-tooltip').style.display='none'; };
+        }
+
+        // --- CHART SYNC LOGIC ---
+        async function triggerChartSync() {
+            const btn = document.getElementById('syncChartBtn');
+            btn.disabled = true;
+            btn.innerText = "Syncing... 0%";
+            btn.style.background = "#f59e0b";
+            
+            try {
+                const total = 2500;
+                const batchSize = 100;
+                for (let i = 0; i < total; i += batchSize) {
+                    btn.innerText = `Syncing... ${Math.round((i/total)*100)}%`;
+                    const res = await fetch(`https://swing-chart-worker.teletechcare-b71.workers.dev/manual-sync?start=${i}&limit=${batchSize}`);
+                    const data = await res.json();
+                    if (data.stats && data.stats.processedSymbols === 0) {
+                        break;
+                    }
+                }
+                btn.innerText = "CHART DATA UPDATED!";
+                btn.style.background = "#10b981";
+                setTimeout(() => {
+                    btn.innerText = "UPDATE CHARTS";
+                    btn.style.background = "#3b82f6";
+                    btn.disabled = false;
+                }, 4000);
+            } catch (err) {
+                btn.innerText = "SYNC FAILED";
+                btn.style.background = "#ef4444";
+                setTimeout(() => {
+                    btn.innerText = "UPDATE CHARTS";
+                    btn.style.background = "#3b82f6";
+                    btn.disabled = false;
+                }, 3000);
+            }
+        }
+        
+    </script>
+</body>
+</html>
