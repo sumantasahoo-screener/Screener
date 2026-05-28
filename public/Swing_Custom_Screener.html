@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom Screener</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='72' font-size='70' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>C</text></svg>">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -198,6 +199,44 @@
             70% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); }
             100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
         }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            body { padding: 0.5rem; }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            .admin-controls {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+                gap: 0.5rem;
+            }
+            .admin-controls button, .admin-controls select, .admin-controls span {
+                margin-left: 0 !important;
+                width: 100%;
+                text-align: center;
+                box-sizing: border-box;
+            }
+            .query-builder { padding: 1rem; }
+            .rule-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .rule-row select, .rule-row input, .rule-row button {
+                width: 100%;
+                box-sizing: border-box;
+            }
+            th, td {
+                padding: 0.5rem;
+                font-size: 0.75rem;
+            }
+            .title-section h1 { font-size: 1.25rem; }
+            #chart-container { padding: 0.75rem; }
+        }
     </style>
 </head>
 <body>
@@ -210,7 +249,9 @@
         <div class="admin-controls" style="display:flex; align-items:center;">
             <span id="data-status" style="font-weight:bold; color:var(--text-light);">Checking data...</span>
             <select id="historical-date-picker" onchange="changeDate(this.value)" style="margin-left: 1rem; display:none; padding: 0.3rem; border-radius:4px;"></select>
+            <button onclick="window.open('https://auth-worker.teletechcare.workers.dev/v/swing_auto', '_blank')" style="margin-left: 1rem; padding: 0.4rem 0.8rem; background: #8b5cf6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">🚀 AUTO SCREENER</button>
             <button id="syncChartBtn" onclick="triggerChartSync()" style="margin-left: 1rem; padding: 0.4rem 0.8rem; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">UPDATE CHARTS</button>
+            <button onclick="forceRebuildData()" style="margin-left: 1rem; padding: 0.4rem 0.8rem; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">REBUILD DATABASE</button>
         </div>
     </div>
 
@@ -259,12 +300,18 @@
             <!-- Quick Scans to fill the empty space usefully -->
             <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed var(--border);">
                 <div style="font-size:0.85rem; color:var(--text-light); font-weight:600; margin-bottom:1rem; text-transform:uppercase; letter-spacing:0.05em;">⚡ Quick Preset Scans</div>
-                <div style="display:flex; gap:0.8rem; flex-wrap:wrap;">
-                    <button onclick="applyQuickScan('uptrend')" style="background:#10b98115; color:#10b981; border:1px solid #10b98144; padding:0.5rem 1rem; border-radius:50px; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#10b98133'" onmouseout="this.style.background='#10b98115'">📈 Strong Uptrend</button>
-                    <button onclick="applyQuickScan('downtrend')" style="background:#ef444415; color:#ef4444; border:1px solid #ef444444; padding:0.5rem 1rem; border-radius:50px; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#ef444433'" onmouseout="this.style.background='#ef444415'">📉 Strong Downtrend</button>
-                    <button onclick="applyQuickScan('oversold')" style="background:#3b82f615; color:#3b82f6; border:1px solid #3b82f644; padding:0.5rem 1rem; border-radius:50px; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#3b82f633'" onmouseout="this.style.background='#3b82f615'">🔥 Oversold Bounce</button>
-                    <button onclick="applyQuickScan('volume')" style="background:#f59e0b15; color:#f59e0b; border:1px solid #f59e0b44; padding:0.5rem 1rem; border-radius:50px; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#f59e0b33'" onmouseout="this.style.background='#f59e0b15'">💥 Volume Breakout</button>
-                    <button onclick="document.getElementById('movers-modal').style.display='flex'" style="background:#8b5cf615; color:#8b5cf6; border:1px solid #8b5cf644; padding:0.5rem 1rem; border-radius:50px; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#8b5cf633'" onmouseout="this.style.background='#8b5cf615'">🏆 View Top 10 Movers</button>
+                <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                    <button onclick="applyQuickScan('uptrend')" style="background:#10b98115; color:#10b981; border:1px solid #10b98144; padding:0.35rem 0.6rem; border-radius:50px; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap;" onmouseover="this.style.background='#10b98133'" onmouseout="this.style.background='#10b98115'">📈 Strong Uptrend</button>
+                    <button onclick="applyQuickScan('downtrend')" style="background:#ef444415; color:#ef4444; border:1px solid #ef444444; padding:0.35rem 0.6rem; border-radius:50px; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap;" onmouseover="this.style.background='#ef444433'" onmouseout="this.style.background='#ef444415'">📉 Strong Downtrend</button>
+                    <button onclick="applyQuickScan('oversold')" style="background:#3b82f615; color:#3b82f6; border:1px solid #3b82f644; padding:0.35rem 0.6rem; border-radius:50px; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap;" onmouseover="this.style.background='#3b82f633'" onmouseout="this.style.background='#3b82f615'">🔥 Oversold Bounce</button>
+                    <button onclick="applyQuickScan('volume')" style="background:#f59e0b15; color:#f59e0b; border:1px solid #f59e0b44; padding:0.35rem 0.6rem; border-radius:50px; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap;" onmouseover="this.style.background='#f59e0b33'" onmouseout="this.style.background='#f59e0b15'">💥 Volume Breakout</button>
+                    <button onclick="document.getElementById('movers-modal').style.display='flex'" style="background:#8b5cf615; color:#8b5cf6; border:1px solid #8b5cf644; padding:0.35rem 0.6rem; border-radius:50px; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap;" onmouseover="this.style.background='#8b5cf633'" onmouseout="this.style.background='#8b5cf615'">🏆 View Top 10 Movers</button>
+                    <button onclick="applyQuickScan('bulleng')" style="background:#22c55e15; color:#22c55e; border:1px solid #22c55e44; padding:0.35rem 0.6rem; border-radius:50px; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap;" onmouseover="this.style.background='#22c55e33'" onmouseout="this.style.background='#22c55e15'">🟢 Bullish Engulfing</button>
+                    <button onclick="applyQuickScan('hammer')" style="background:#10b98115; color:#10b981; border:1px solid #10b98144; padding:0.35rem 0.6rem; border-radius:50px; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap;" onmouseover="this.style.background='#10b98133'" onmouseout="this.style.background='#10b98115'">🔨 Hammer</button>
+                    <button onclick="applyQuickScan('mornstar')" style="background:#05966915; color:#059669; border:1px solid #05966944; padding:0.35rem 0.6rem; border-radius:50px; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap;" onmouseover="this.style.background='#05966933'" onmouseout="this.style.background='#05966915'">🌅 Morning Star</button>
+                    <button onclick="applyQuickScan('beareng')" style="background:#ef444415; color:#ef4444; border:1px solid #ef444444; padding:0.35rem 0.6rem; border-radius:50px; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap;" onmouseover="this.style.background='#ef444433'" onmouseout="this.style.background='#ef444415'">🔴 Bearish Engulfing</button>
+                    <button onclick="applyQuickScan('shootstar')" style="background:#f43f5e15; color:#f43f5e; border:1px solid #f43f5e44; padding:0.35rem 0.6rem; border-radius:50px; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap;" onmouseover="this.style.background='#f43f5e33'" onmouseout="this.style.background='#f43f5e15'">🌠 Shooting Star</button>
+                    <button onclick="applyQuickScan('evestar')" style="background:#be123c15; color:#be123c; border:1px solid #be123c44; padding:0.35rem 0.6rem; border-radius:50px; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap;" onmouseover="this.style.background='#be123c33'" onmouseout="this.style.background='#be123c15'">🌃 Evening Star</button>
                 </div>
             </div>
         </div>
@@ -366,6 +413,14 @@
             <option value="BBLower">Bollinger Lower</option>
             <option value="ADX">ADX</option>
             <option value="ADR_PCT">ADR %</option>
+            <optgroup label="Candlestick Patterns (1 = Yes, 0 = No)">
+                <option value="BullEng">Bullish Engulfing</option>
+                <option value="BearEng">Bearish Engulfing</option>
+                <option value="Hammer">Hammer (Bullish)</option>
+                <option value="ShootStar">Shooting Star (Bearish)</option>
+                <option value="MornStar">Morning Star (Bullish)</option>
+                <option value="EveStar">Evening Star (Bearish)</option>
+            </optgroup>
         `;
 
         const priceOnlyOptions = `
@@ -557,7 +612,7 @@
             const volSuffix = row.querySelector('.vol-suffix');
             
             // Indicators that should ONLY be compared to numbers, not prices
-            const numberOnlyFields = ['RSI14', 'VolRatio', 'ADX', 'MACD', 'MACDSignal', 'ADR_PCT'];
+            const numberOnlyFields = ['RSI14', 'VolRatio', 'ADX', 'MACD', 'MACDSignal', 'ADR_PCT', 'BullEng', 'BearEng', 'Hammer', 'ShootStar', 'MornStar', 'EveStar'];
             const priceFields = ['LTP', 'SMA10', 'SMA20', 'SMA50', 'SMA200', 'EMA9', 'EMA21', 'BBUpper', 'BBLower'];
             
             if (numberOnlyFields.includes(selectElem.value)) {
@@ -601,6 +656,15 @@
                 conditionSelect.options[2].text = "Exactly 20-Day Avg Range by";
                 volSuffix.textContent = "% of Price";
                 volSuffix.style.display = 'inline-block';
+            } else if (['BullEng', 'BearEng', 'Hammer', 'ShootStar', 'MornStar', 'EveStar'].includes(selectElem.value)) {
+                conditionSelect.options[0].text = "Greater than (Not recommended)";
+                conditionSelect.options[1].text = "Less than (Not recommended)";
+                conditionSelect.options[2].text = "Is Present? (Set to 1)";
+                volSuffix.style.display = 'none';
+                
+                // Auto-set the dropdown to '=' and the number to '1'
+                conditionSelect.value = '=';
+                numberInput.value = 1;
             } else {
                 conditionSelect.options[0].text = "Greater Than (>)";
                 conditionSelect.options[1].text = "Less Than (<)";
@@ -614,7 +678,7 @@
             const ind1Select = row.querySelector('.ind-1');
             const numberInput = row.querySelector('.val-number');
             
-            if ((ind1Select.value === 'VolRatio' || ind1Select.value === 'ADR_PCT')) {
+            if (['VolRatio', 'ADR_PCT', 'BullEng', 'BearEng', 'Hammer', 'ShootStar', 'MornStar', 'EveStar'].includes(ind1Select.value)) {
                 if (selectElem.value === '=') {
                     numberInput.value = 1;
                 } else {
@@ -655,13 +719,36 @@
             } else if (type === 'volume') {
                 createRule('VolRatio', '>', 'NUMBER', 2.5);
                 createRule('LTP', '>', 'SMA20', '');
+            } else if (type === 'bulleng') {
+                createRule('BullEng', '=', 'NUMBER', 1);
+            } else if (type === 'beareng') {
+                createRule('BearEng', '=', 'NUMBER', 1);
+            } else if (type === 'hammer') {
+                createRule('Hammer', '=', 'NUMBER', 1);
+            } else if (type === 'mornstar') {
+                createRule('MornStar', '=', 'NUMBER', 1);
+            } else if (type === 'shootstar') {
+                createRule('ShootStar', '=', 'NUMBER', 1);
+            } else if (type === 'evestar') {
+                createRule('EveStar', '=', 'NUMBER', 1);
             }
 
             // Auto run scan
             setTimeout(applyFilters, 100);
         }
 
-        async function scanMasterIndicators() {
+        function forceRebuildData() {
+            document.getElementById('main-app').style.display = "none";
+            document.getElementById('scan-screen').style.display = "flex";
+            const btn = document.getElementById('scanMasterBtn');
+            btn.innerText = "Rebuilding Database from Scratch...";
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-danger');
+            btn.disabled = false;
+            scanMasterIndicators(true); // pass a flag to force
+        }
+
+        async function scanMasterIndicators(force = false) {
             const btn = document.getElementById('scanMasterBtn');
             btn.innerText = "Downloading Historical Data (78MB)...";
             btn.disabled = true;
@@ -738,6 +825,13 @@
                 // Also ensure todayDateStr is included if it's new — HARD BLOCK holidays
                 if (todayDateStr && !datesToUpload.includes(todayDateStr) && !trueSavedDates.includes(todayDateStr)) {
                     if (!isHolidayOrWeekend(todayDateStr)) {
+                        datesToUpload.push(todayDateStr);
+                    }
+                }
+                
+                if (force) {
+                    datesToUpload = requiredDates.slice();
+                    if (todayDateStr && !datesToUpload.includes(todayDateStr) && !isHolidayOrWeekend(todayDateStr)) {
                         datesToUpload.push(todayDateStr);
                     }
                 }
@@ -921,6 +1015,52 @@
                             stdDev = Math.sqrt(avgSqDiff);
                         }
 
+                        // CANDLESTICK PATTERN DETECTION
+                        let opens = combinedQuotes.map(q => q.Open);
+                        const n = closes.length - 1;
+                        let bullEng = 0, bearEng = 0, hammer = 0, shootingStar = 0, mornStar = 0, eveStar = 0;
+                        
+                        if (n >= 1) {
+                            const O0 = opens[n], H0 = highs[n], L0 = lows[n], C0 = closes[n];
+                            const O1 = opens[n-1], H1 = highs[n-1], L1 = lows[n-1], C1 = closes[n-1];
+                            const body0 = Math.abs(C0 - O0);
+                            const body1 = Math.abs(C1 - O1);
+                            
+                            // Engulfing Patterns
+                            if (C1 < O1 && C0 > O0 && C0 >= O1 && O0 <= C1 && body0 > body1) bullEng = 1;
+                            if (C1 > O1 && C0 < O0 && C0 <= O1 && O0 >= C1 && body0 > body1) bearEng = 1;
+                            
+                            // Hammer Pattern (Small body, long lower wick >= 2x body, tiny upper wick)
+                            const lowerShadow0 = Math.min(O0, C0) - L0;
+                            const upperShadow0 = H0 - Math.max(O0, C0);
+                            if (body0 > 0 && lowerShadow0 >= 2 * body0 && upperShadow0 <= 0.2 * body0) hammer = 1;
+                            
+                            // Shooting Star Pattern (Small body, long upper wick >= 2x body, tiny lower wick)
+                            if (body0 > 0 && upperShadow0 >= 2 * body0 && lowerShadow0 <= 0.2 * body0) shootingStar = 1;
+
+                            // 3-Candle Patterns (Requires n >= 2)
+                            if (n >= 2) {
+                                const O2 = opens[n-2], H2 = highs[n-2], L2 = lows[n-2], C2 = closes[n-2];
+                                const body2 = Math.abs(C2 - O2);
+                                
+                                // Morning Star
+                                let isBear2 = C2 < O2 && body2 > (H2-L2)*0.5; // Strong bearish
+                                let isSmall1 = body1 <= (body2 * 0.3) || body1 <= (H1-L1)*0.3; // Doji/Spinning top
+                                let isBull0 = C0 > O0 && body0 > (H0-L0)*0.5; // Strong bullish
+                                if (isBear2 && isSmall1 && isBull0 && Math.min(O1, C1) < C2 && C0 > (C2 + O2) / 2) {
+                                    mornStar = 1;
+                                }
+
+                                // Evening Star
+                                let isBull2 = C2 > O2 && body2 > (H2-L2)*0.5;
+                                let isSmall1_e = body1 <= (body2 * 0.3) || body1 <= (H1-L1)*0.3;
+                                let isBear0 = C0 < O0 && body0 > (H0-L0)*0.5;
+                                if (isBull2 && isSmall1_e && isBear0 && Math.max(O1, C1) > C2 && C0 < (C2 + O2) / 2) {
+                                    eveStar = 1;
+                                }
+                            }
+                        }
+
                         calculated[sym] = {
                             LTP: Number(ltp.toFixed(2)),
                             SMA10: Number(getSMA(closes, 10)?.toFixed(2)),
@@ -935,7 +1075,13 @@
                             ADR_PCT: Number(getADRPct(highs, lows, closes)?.toFixed(2)),
                             BBUpper: Number((sma20 + (stdDev * 2)).toFixed(2)),
                             BBLower: Number((sma20 - (stdDev * 2)).toFixed(2)),
-                            VolRatio: Number((todayVol / getSMA(volumes, 20))?.toFixed(2))
+                            VolRatio: Number((todayVol / getSMA(volumes, 20))?.toFixed(2)),
+                            BullEng: bullEng,
+                            BearEng: bearEng,
+                            Hammer: hammer,
+                            ShootStar: shootingStar,
+                            MornStar: mornStar,
+                            EveStar: eveStar
                         };
                     }
 
@@ -969,9 +1115,8 @@
                         })
                     });
 
-                    if (uploadDate === todayDateStr) {
-                        masterIndicators = calculated;
-                    }
+                    // Update masterIndicators to the latest calculated date in the loop
+                    masterIndicators = calculated;
                 }
 
                 // If all dates to upload were skipped holidays, postRes might be undefined. Let's handle it.
@@ -985,7 +1130,7 @@
                 }
 
                 if (postRes && postRes.ok) {
-                    document.getElementById('data-status').innerText = `Master Data Ready: ${todayDateStr}`;
+                    document.getElementById('data-status').innerText = `Master Data Ready: ${datesToUpload[datesToUpload.length-1] || todayDateStr}`;
                     alert("Calculation Complete & Saved!");
                     
                     // Switch UI
@@ -1082,7 +1227,7 @@
                 }
 
                 tr.innerHTML = `
-                    <td style="font-weight:bold;"><span onclick="openChart('${sym}')" style="cursor:pointer; color:#818cf8; text-decoration:underline dotted;" title="Click to view chart">${sym}</span></td>
+                    <td style="font-weight:bold;"><span onclick="openChart('${sym}')" style="cursor:pointer; color:#2563eb; text-decoration:underline dotted;" title="Click to view chart">${sym}</span></td>
                     <td class="${ltpColor}">${data.LTP}</td>
                     <td class="${rsiColor}">${data.RSI14}</td>
                     <td class="${macdColor}">${data.MACD}</td>
@@ -1111,7 +1256,7 @@
             const modal = document.getElementById('chart-modal');
             modal.style.display = 'flex';
             document.getElementById('chart-header').innerHTML = `
-                <div style="color:#818cf8; font-size:1.4rem; font-weight:bold;">${symbol}</div>
+                <div style="color:#2563eb; font-size:1.4rem; font-weight:bold;">${symbol}</div>
                 <div style="color:#888; font-size:0.85rem; margin-top:0.2rem;">Loading chart data...</div>`;
             document.getElementById('price-chart').getContext('2d').clearRect(0,0,9999,9999);
             document.getElementById('volume-chart').getContext('2d').clearRect(0,0,9999,9999);
@@ -1121,7 +1266,7 @@
                 const CHART_WORKER_URL = "https://swing-chart-worker.teletechcare-b71.workers.dev";
                 
                 document.getElementById('chart-header').innerHTML = `
-                    <div style="color:#818cf8; font-size:1.4rem; font-weight:bold;">${symbol}</div>
+                    <div style="color:#2563eb; font-size:1.4rem; font-weight:bold;">${symbol}</div>
                     <div style="color:#f59e0b; font-size:0.85rem; margin-top:0.2rem;">⏳ Loading live chart data...</div>`;
                 
                 const res = await fetch(`${CHART_WORKER_URL}/stocks/${symbol}.json`);
