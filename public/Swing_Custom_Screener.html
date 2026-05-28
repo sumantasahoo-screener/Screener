@@ -245,7 +245,7 @@
 
     <!-- MAIN APP (HIDDEN UNTIL DATA IS READY) -->
     <div id="main-app" style="display:none;">
-        <div class="query-builder">
+        <div class="query-builder" style="margin-bottom:2rem;">
             <h3>Build Your Custom Scan</h3>
             <div id="rules-container">
                 <!-- Rules will be injected here -->
@@ -255,12 +255,25 @@
                 <button id="runBtn" onclick="applyFilters()" style="background-color: var(--success);">Run Custom Scan</button>
             </div>
             <p id="filter-status" style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-light);"></p>
+            
+            <!-- Quick Scans to fill the empty space usefully -->
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed var(--border);">
+                <div style="font-size:0.85rem; color:var(--text-light); font-weight:600; margin-bottom:1rem; text-transform:uppercase; letter-spacing:0.05em;">⚡ Quick Preset Scans</div>
+                <div style="display:flex; gap:0.8rem; flex-wrap:wrap;">
+                    <button onclick="applyQuickScan('uptrend')" style="background:#10b98115; color:#10b981; border:1px solid #10b98144; padding:0.5rem 1rem; border-radius:50px; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#10b98133'" onmouseout="this.style.background='#10b98115'">📈 Strong Uptrend</button>
+                    <button onclick="applyQuickScan('downtrend')" style="background:#ef444415; color:#ef4444; border:1px solid #ef444444; padding:0.5rem 1rem; border-radius:50px; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#ef444433'" onmouseout="this.style.background='#ef444415'">📉 Strong Downtrend</button>
+                    <button onclick="applyQuickScan('oversold')" style="background:#3b82f615; color:#3b82f6; border:1px solid #3b82f644; padding:0.5rem 1rem; border-radius:50px; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#3b82f633'" onmouseout="this.style.background='#3b82f615'">🔥 Oversold Bounce</button>
+                    <button onclick="applyQuickScan('volume')" style="background:#f59e0b15; color:#f59e0b; border:1px solid #f59e0b44; padding:0.5rem 1rem; border-radius:50px; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#f59e0b33'" onmouseout="this.style.background='#f59e0b15'">💥 Volume Breakout</button>
+                    <button onclick="document.getElementById('movers-modal').style.display='flex'" style="background:#8b5cf615; color:#8b5cf6; border:1px solid #8b5cf644; padding:0.5rem 1rem; border-radius:50px; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#8b5cf633'" onmouseout="this.style.background='#8b5cf615'">🏆 View Top 10 Movers</button>
+                </div>
+            </div>
         </div>
 
         <div class="results-container">
             <div style="padding:0.6rem 1rem; display:flex; align-items:center; gap:0.6rem; border-bottom:1px solid var(--border); background:#f9fafb;">
                 <span style="color:var(--text-light); font-size:0.85rem; font-weight:600;">🔍</span>
-                <input type="text" id="symbol-search" placeholder="Search Symbol... (Enter = Open Chart)" oninput="filterTable()" onkeydown="if(event.key==='Enter'){searchAndOpenChart()}" style="flex:1; max-width:280px; padding:0.4rem 0.75rem; border:1px solid #d1d5db; border-radius:6px; font-size:0.85rem; font-family:'Inter',sans-serif; outline:none;">
+                <input type="text" id="symbol-search" list="symbol-datalist" placeholder="Search Symbol... (Enter = Open Chart)" oninput="filterTable()" onkeydown="if(event.key==='Enter'){searchAndOpenChart()}" style="flex:1; max-width:280px; padding:0.4rem 0.75rem; border:1px solid #d1d5db; border-radius:6px; font-size:0.85rem; font-family:'Inter',sans-serif; outline:none;">
+                <datalist id="symbol-datalist"></datalist>
                 <button onclick="searchAndOpenChart()" style="background:#4f46e5; color:white; border:none; padding:0.35rem 0.8rem; border-radius:6px; font-size:0.8rem; font-weight:600; cursor:pointer;">📈 View Chart</button>
                 <span id="search-count" style="color:var(--text-light); font-size:0.78rem;"></span>
             </div>
@@ -285,6 +298,23 @@
                         <tr><td colspan="8" style="text-align:center;">No data loaded.</td></tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MARKET MOVERS MODAL -->
+    <div id="movers-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:4000; align-items:center; justify-content:center;">
+        <div style="background:var(--card-bg); border-radius:12px; width:400px; max-width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.2); overflow:hidden; display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem; border-bottom:1px solid var(--border); background:#f8fafc;">
+                <h3 style="margin:0; font-size:1.1rem; color:var(--text-main);">🏆 Market Movers</h3>
+                <button onclick="document.getElementById('movers-modal').style.display='none'" style="background:none; border:none; font-size:1.5rem; color:var(--text-light); cursor:pointer;">&times;</button>
+            </div>
+            <div style="display:flex; border-bottom:1px solid var(--border);">
+                <div id="tab-bullish" onclick="switchMoverTab('bullish')" style="flex:1; text-align:center; padding:0.8rem; cursor:pointer; font-weight:600; background:#10b98122; color:#10b981; border-bottom:2px solid #10b981; transition:all 0.2s;">Top 10 Bullish 🚀</div>
+                <div id="tab-bearish" onclick="switchMoverTab('bearish')" style="flex:1; text-align:center; padding:0.8rem; cursor:pointer; font-weight:600; background:transparent; color:var(--text-light); border-bottom:2px solid transparent; transition:all 0.2s;">Top 10 Bearish 🩸</div>
+            </div>
+            <div id="movers-content" style="padding:0; overflow-y:auto; max-height:450px;">
+                <!-- populated via js -->
             </div>
         </div>
     </div>
@@ -355,28 +385,30 @@
             await checkTodayData();
         });
 
+        let currentScanSymbols = [];
+
         function filterTable() {
             const query = document.getElementById('symbol-search').value.toUpperCase().trim();
-            const rows = document.querySelectorAll('#table-body tr');
-            let visible = 0, total = 0;
-            rows.forEach(row => {
-                const symbolCell = row.querySelector('td');
-                if (!symbolCell) return;
-                total++;
-                const symbol = symbolCell.textContent.toUpperCase();
-                if (!query || symbol.includes(query)) {
-                    row.style.display = '';
-                    visible++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
             const countEl = document.getElementById('search-count');
-            if (query) {
-                countEl.textContent = `${visible} / ${total} results`;
-            } else {
-                countEl.textContent = '';
+            
+            if (!query) {
+                if (currentScanSymbols.length > 0) {
+                    displayResults(currentScanSymbols);
+                    countEl.textContent = `${currentScanSymbols.length} results`;
+                } else {
+                    document.getElementById('table-body').innerHTML = `<tr><td colspan="11" style="text-align:center;">Data loaded. Build your query and click 'Run Custom Scan' to see results.</td></tr>`;
+                    countEl.textContent = '';
+                }
+                return;
             }
+
+            let matched = [];
+            for (let sym in masterIndicators) {
+                if (sym.includes(query)) matched.push(sym);
+            }
+            
+            displayResults(matched);
+            countEl.textContent = `${matched.length} matches globally`;
         }
 
         function searchAndOpenChart() {
@@ -429,7 +461,8 @@
             // If we are in backtest mode, fetch today's LTP for calculating return %
             if (isBacktestMode && Object.keys(latestLTPData).length === 0) {
                 try {
-                     let res = await fetch(`${NEW_WORKER_URL}/get-manual/${todayDateStr}`);
+                     let fetchDate = availableDates.length > 0 ? availableDates[0] : todayDateStr;
+                     let res = await fetch(`${NEW_WORKER_URL}/get-manual/${fetchDate}`);
                      if (res.ok) {
                          let todayInds = await res.json();
                          for (let s in todayInds) latestLTPData[s] = todayInds[s].LTP;
@@ -449,6 +482,17 @@
                 document.getElementById('main-app').style.display = "block";
                 document.getElementById('table-body').innerHTML = `<tr><td colspan="11" style="text-align:center;">Data loaded. Build your query and click 'Run Custom Scan' to see results.</td></tr>`;
                 document.getElementById('filter-status').innerText = '';
+                
+                // Populate Autocomplete Search Box
+                const datalist = document.getElementById('symbol-datalist');
+                let optionsHtml = '';
+                for (let sym in masterIndicators) {
+                    optionsHtml += `<option value="${sym}">`;
+                }
+                datalist.innerHTML = optionsHtml;
+                
+                // Calculate Market Movers (Top 10 Bullish/Bearish)
+                calculateMarketMovers();
             } else {
                 document.getElementById('data-status').innerText = `No Master Data for ${dateStr}`;
                 document.getElementById('scan-screen').style.display = "flex";
@@ -577,6 +621,44 @@
                     numberInput.value = ''; // Make it blank for manual entry
                 }
             }
+        }
+
+        // --- QUICK SCANS LOGIC ---
+        function applyQuickScan(type) {
+            const container = document.getElementById('rules-container');
+            container.innerHTML = ''; // clear existing
+            
+            const createRule = (ind1, cond, ind2, val) => {
+                addRule();
+                const rows = container.querySelectorAll('.rule-row');
+                const row = rows[rows.length - 1];
+                
+                const s1 = row.querySelector('.ind-1'); s1.value = ind1; handleInd1Change(s1);
+                const sc = row.querySelector('.condition'); sc.value = cond; handleConditionChange(sc);
+                const s2 = row.querySelector('.ind-2'); s2.value = ind2;
+                if(val !== '') { row.querySelector('.val-number').style.display='inline-block'; row.querySelector('.val-number').value = val; }
+            };
+
+            if (type === 'uptrend') {
+                createRule('LTP', '>', 'SMA20', '');
+                createRule('SMA20', '>', 'SMA50', '');
+                createRule('RSI14', '>', 'NUMBER', 60);
+                createRule('ADX', '>', 'NUMBER', 20);
+            } else if (type === 'downtrend') {
+                createRule('LTP', '<', 'SMA20', '');
+                createRule('SMA20', '<', 'SMA50', '');
+                createRule('RSI14', '<', 'NUMBER', 40);
+                createRule('ADX', '>', 'NUMBER', 20);
+            } else if (type === 'oversold') {
+                createRule('RSI14', '<', 'NUMBER', 35);
+                createRule('LTP', '>', 'SMA200', '');
+            } else if (type === 'volume') {
+                createRule('VolRatio', '>', 'NUMBER', 2.5);
+                createRule('LTP', '>', 'SMA20', '');
+            }
+
+            // Auto run scan
+            setTimeout(applyFilters, 100);
         }
 
         async function scanMasterIndicators() {
@@ -962,6 +1044,7 @@
             });
 
             document.getElementById('filter-status').innerText = `Found ${matchingSymbols.length} stocks matching: ${rulesText.join(' AND ')}`;
+            currentScanSymbols = matchingSymbols; // Save for search clearing
             displayResults(matchingSymbols);
         }
 
@@ -1489,7 +1572,105 @@
             canvas.onmouseleave = () => { document.getElementById('chart-tooltip').style.display='none'; };
         }
 
-        // --- CHART SYNC LOGIC ---
+        // --- MARKET MOVERS LOGIC ---
+        let bullishMovers = [];
+        let bearishMovers = [];
+        let currentMoverTab = 'bullish';
+
+        function calculateMarketMovers() {
+            bullishMovers = [];
+            bearishMovers = [];
+
+            for (let symbol in masterIndicators) {
+                // Ignore ETFs, Bonds, etc
+                if (symbol.endsWith('BEES') || symbol.includes('LIQUID') || symbol.endsWith('SGB') || symbol.endsWith('GSEC') || symbol.includes('ETF')) {
+                    continue;
+                }
+
+                let ind = masterIndicators[symbol];
+                
+                // Extract values safely
+                let adx = ind.ADX || 0;
+                let rsi = ind.RSI14 || 0;
+                let ltp = ind.LTP || 0;
+                let sma20 = ind.SMA20 || 0;
+
+                // BULLISH RULE: ADX > 25 AND RSI > 60 AND LTP > SMA20
+                if (adx > 25 && rsi > 60 && ltp > sma20) {
+                    bullishMovers.push({ symbol, adx, ltp, rsi, type: 'bullish' });
+                }
+
+                // BEARISH RULE: ADX > 25 AND RSI < 40 AND LTP < SMA20
+                if (adx > 25 && rsi < 40 && ltp < sma20) {
+                    bearishMovers.push({ symbol, adx, ltp, rsi, type: 'bearish' });
+                }
+            }
+
+            // Rank by ADX descending to find the absolute strongest trends
+            bullishMovers.sort((a, b) => b.adx - a.adx);
+            bearishMovers.sort((a, b) => b.adx - a.adx);
+
+            // Limit to top 10
+            bullishMovers = bullishMovers.slice(0, 10);
+            bearishMovers = bearishMovers.slice(0, 10);
+
+            renderMovers();
+        }
+
+        function switchMoverTab(tab) {
+            currentMoverTab = tab;
+            const tabBullish = document.getElementById('tab-bullish');
+            const tabBearish = document.getElementById('tab-bearish');
+            
+            if (tab === 'bullish') {
+                tabBullish.style.background = '#10b98122';
+                tabBullish.style.color = '#10b981';
+                tabBullish.style.borderBottom = '2px solid #10b981';
+                tabBearish.style.background = 'transparent';
+                tabBearish.style.color = 'var(--text-light)';
+                tabBearish.style.borderBottom = '2px solid transparent';
+            } else {
+                tabBearish.style.background = '#ef444422';
+                tabBearish.style.color = '#ef4444';
+                tabBearish.style.borderBottom = '2px solid #ef4444';
+                tabBullish.style.background = 'transparent';
+                tabBullish.style.color = 'var(--text-light)';
+                tabBullish.style.borderBottom = '2px solid transparent';
+            }
+            renderMovers();
+        }
+
+        function renderMovers() {
+            const container = document.getElementById('movers-content');
+            let data = currentMoverTab === 'bullish' ? bullishMovers : bearishMovers;
+            
+            if (data.length === 0) {
+                container.innerHTML = `<div style="padding:2rem 1rem; text-align:center; color:var(--text-light); font-size:0.9rem;">No stocks found matching the strong ${currentMoverTab} criteria today.</div>`;
+                return;
+            }
+
+            let html = '';
+            data.forEach((item, index) => {
+                const isBull = currentMoverTab === 'bullish';
+                html += `
+                <div onclick="openChart('${item.symbol}')" style="display:flex; justify-content:space-between; align-items:center; padding:0.8rem 1rem; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    <div style="display:flex; align-items:center; gap:0.6rem;">
+                        <span style="color:var(--text-light); font-size:0.75rem; font-weight:bold; width:16px;">#${index+1}</span>
+                        <div>
+                            <div style="font-weight:700; color:var(--text-main); font-size:0.9rem;">${item.symbol}</div>
+                            <div style="font-size:0.75rem; color:var(--text-light); margin-top:2px;">₹${item.ltp.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:0.85rem; font-weight:bold; color:${isBull ? '#10b981' : '#ef4444'};">ADX: ${item.adx.toFixed(1)}</div>
+                        <div style="font-size:0.7rem; color:var(--text-light); margin-top:2px;">RSI: ${item.rsi.toFixed(1)}</div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // --- CHARTING LOGIC ---
         async function triggerChartSync() {
             const btn = document.getElementById('syncChartBtn');
             btn.disabled = true;
