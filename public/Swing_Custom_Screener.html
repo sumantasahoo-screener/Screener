@@ -645,30 +645,36 @@
 
             // Dynamic Text for Volume Ratio & ADR %
             if (selectElem.value === 'VolRatio') {
-                conditionSelect.options[0].text = "Greater than 20-Day Avg Vol by";
-                conditionSelect.options[1].text = "Less than 20-Day Avg Vol by";
-                conditionSelect.options[2].text = "Exactly 20-Day Avg Vol by";
+                conditionSelect.innerHTML = `
+                    <option value=">">Greater than 20-Day Avg Vol by</option>
+                    <option value="<">Less than 20-Day Avg Vol by</option>
+                    <option value="=">Exactly 20-Day Avg Vol by</option>
+                `;
                 volSuffix.textContent = "x (times)";
                 volSuffix.style.display = 'inline-block';
             } else if (selectElem.value === 'ADR_PCT') {
-                conditionSelect.options[0].text = "Greater than 20-Day Avg Range by";
-                conditionSelect.options[1].text = "Less than 20-Day Avg Range by";
-                conditionSelect.options[2].text = "Exactly 20-Day Avg Range by";
+                conditionSelect.innerHTML = `
+                    <option value=">">Greater than 20-Day Avg Range by</option>
+                    <option value="<">Less than 20-Day Avg Range by</option>
+                    <option value="=">Exactly 20-Day Avg Range by</option>
+                `;
                 volSuffix.textContent = "% of Price";
                 volSuffix.style.display = 'inline-block';
             } else if (['BullEng', 'BearEng', 'Hammer', 'ShootStar', 'MornStar', 'EveStar'].includes(selectElem.value)) {
-                conditionSelect.options[0].text = "Greater than (Not recommended)";
-                conditionSelect.options[1].text = "Less than (Not recommended)";
-                conditionSelect.options[2].text = "Is Present? (Set to 1)";
+                conditionSelect.innerHTML = `
+                    <option value="=">Is Present? (Set to 1)</option>
+                `;
                 volSuffix.style.display = 'none';
                 
                 // Auto-set the dropdown to '=' and the number to '1'
                 conditionSelect.value = '=';
                 numberInput.value = 1;
             } else {
-                conditionSelect.options[0].text = "Greater Than (>)";
-                conditionSelect.options[1].text = "Less Than (<)";
-                conditionSelect.options[2].text = "Equals (=)";
+                conditionSelect.innerHTML = `
+                    <option value=">">Greater Than (>)</option>
+                    <option value="<">Less Than (<)</option>
+                    <option value="=">Equals (=)</option>
+                `;
                 volSuffix.style.display = 'none';
             }
         }
