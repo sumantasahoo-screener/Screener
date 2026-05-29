@@ -311,6 +311,47 @@
 
 <script>
     const BASE_URL = "https://orb-pro-worker.gsmmunna.workers.dev";
+    const RPG_URL = "https://rpg-data-worker.gsmmunna.workers.dev";
+
+    // Fetch and merge hourly RPG chunks into fullDayData format
+    async function fetchRPGChunks(dateStr) {
+        try {
+            const chunkRes = await fetch(`${RPG_URL}/chunks?date=${dateStr}&v=${Date.now()}`);
+            if (!chunkRes.ok) return null;
+            const chunkKeys = await chunkRes.json();
+            if (!chunkKeys || chunkKeys.length === 0) return null;
+
+            const chunkPromises = chunkKeys.map(key =>
+                fetch(`${RPG_URL}/data?path=${key}&v=${Date.now()}`)
+                    .then(r => r.ok ? r.json() : null).catch(() => null)
+            );
+            const chunks = (await Promise.all(chunkPromises)).filter(c => c !== null);
+            if (chunks.length === 0) return null;
+
+            // Merge all chunks into one fullDayData object
+            const merged = {};
+            chunks.forEach(chunk => {
+                for (const sym in chunk) {
+                    if (sym === '_lastProcessedKey') continue;
+                    if (!merged[sym]) merged[sym] = { ltp: 0, t: 0, history: [] };
+                    merged[sym].ltp = chunk[sym].ltp || merged[sym].ltp;
+                    merged[sym].t = chunk[sym].t || merged[sym].t;
+                    if (chunk[sym].open) merged[sym].open = chunk[sym].open;
+                    if (chunk[sym].dayHigh) merged[sym].dayHigh = chunk[sym].dayHigh;
+                    if (chunk[sym].dayLow) merged[sym].dayLow = chunk[sym].dayLow;
+                    merged[sym].history.push(...(chunk[sym].history || []));
+                }
+            });
+            // Sort histories by time
+            for (const sym in merged) {
+                merged[sym].history.sort((a, b) => a.t - b.t);
+            }
+            return merged;
+        } catch (e) {
+            console.error('Failed to fetch RPG chunks:', e);
+            return null;
+        }
+    }
     let chartInstance = null;
     let doughnutChartInstance = null;
     let doughnutChartInstanceDaily = null;
@@ -346,17 +387,16 @@
         if(currentDateFetched === dateStr) return; 
         try {
             let url30 = `${BASE_URL}/data?path=${dateStr}/orb_pro_data.json&v=${Date.now()}`;
-            let urlFull = `${BASE_URL}/data?path=${dateStr}/rpg_full_day_data.json&v=${Date.now()}`;
             
-            const [res30, resFull] = await Promise.all([
+            const [res30, rpgData] = await Promise.all([
                 fetch(url30),
-                fetch(urlFull).catch(e => null)
+                fetchRPGChunks(dateStr)
             ]);
             
             if(!res30.ok) return;
 
             min30Data = await res30.json();
-            fullDayData = (resFull && resFull.ok) ? await resFull.json() : null;
+            fullDayData = rpgData;
             currentDateFetched = dateStr;
             
             const datalist = document.getElementById('symbolList');
@@ -469,17 +509,16 @@
             // Fetch both datasets concurrently if not already loaded for today
             if(currentDateFetched !== dateStr || !min30Data) {
                 let url30 = `${BASE_URL}/data?path=${dateStr}/orb_pro_data.json&v=${Date.now()}`;
-                let urlFull = `${BASE_URL}/data?path=${dateStr}/rpg_full_day_data.json&v=${Date.now()}`;
                 
-                const [res30, resFull] = await Promise.all([
+                const [res30, rpgData] = await Promise.all([
                     fetch(url30),
-                    fetch(urlFull).catch(e => null) // Ignore full day error if not generated
+                    fetchRPGChunks(dateStr)
                 ]);
                 
                 if (!res30.ok) throw new Error(`No data found for this date.`);
                 
                 min30Data = await res30.json();
-                fullDayData = (resFull && resFull.ok) ? await resFull.json() : null;
+                fullDayData = rpgData;
                 currentDateFetched = dateStr;
             }
             
