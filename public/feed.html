@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Flash - Live Stock Updates</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2216%22 fill=%22%231e293b%22/><rect x=%2214%22 y=%2218%22 width=%2272%22 height=%228%22 rx=%224%22 fill=%22%23f8fafc%22/><rect x=%2214%22 y=%2232%22 width=%2244%22 height=%226%22 rx=%223%22 fill=%22%2394a3b8%22/><rect x=%2214%22 y=%2244%22 width=%2250%22 height=%226%22 rx=%223%22 fill=%22%2394a3b8%22/><rect x=%2214%22 y=%2256%22 width=%2238%22 height=%226%22 rx=%223%22 fill=%22%2394a3b8%22/><rect x=%2264%22 y=%2232%22 width=%2222%22 height=%2230%22 rx=%224%22 fill=%22%233b82f6%22/></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #0f172a;
+            min-height: 100vh;
+            padding: 15px 20px;
+        }
+
+        .header {
+            text-align: left;
+            margin-bottom: 15px;
+            max-width: 1400px;
+            width: 95%;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            align-items: baseline;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 95%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .news-row {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px 16px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            gap: 15px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .news-row::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: #3b82f6;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .news-row:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-color: #cbd5e1;
+        }
+        
+        .news-row:hover::before {
+            opacity: 1;
+        }
+
+        .news-content {
+            flex-grow: 1;
+        }
+
+        .news-meta {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .news-badge {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .news-title {
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.4;
+            margin: 0;
+            color: #1e293b;
+        }
+        
+        .news-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+
+        .news-link {
+            display: inline-block;
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .time-ago {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .news-link:hover {
+            color: #4f46e5;
+        }
+        
+        .news-link::after {
+            content: ' →';
+            transition: transform 0.2s;
+            display: inline-block;
+        }
+        
+        .news-link:hover::after {
+            transform: translateX(4px);
+        }
+
+        .loading {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 1.5rem;
+            color: #94a3b8;
+            padding: 50px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #38bdf8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 10px 10px; }
+            .container { width: 100%; }
+            .header { flex-direction: column; align-items: flex-start; gap: 5px; }
+            .news-row { flex-direction: column; align-items: flex-start; gap: 10px; padding: 12px 14px; }
+            .news-right { width: 100%; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 8px; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Market Feed</h1>
+        <p>Latest India Updates</p>
+    </div>
+
+    <div class="container" id="newsContainer">
+        <div class="loading">
+            <div class="spinner"></div>
+            Fetching latest market news...
+        </div>
+    </div>
+
+    <script>
+        const RSS_URLS = [
+            'https://economictimes.indiatimes.com/markets/rssfeeds/2146842.cms',
+            'https://www.moneycontrol.com/rss/MCtopnews.xml',
+            'https://www.moneycontrol.com/rss/results.xml',
+            'https://www.moneycontrol.com/rss/brokerageresearch.xml',
+            'https://www.livemint.com/rss/markets',
+            'https://www.livemint.com/rss/companies',
+            'https://news.google.com/rss/search?q=Indian+Stock+Market+Results&hl=en-IN&gl=IN&ceid=IN:en',
+            'https://in.investing.com/rss/news_301.rss',
+            'https://www.business-standard.com/rss/markets-106.rss',
+            'https://www.financialexpress.com/market/feed/'
+        ];
+
+        const container = document.getElementById('newsContainer');
+
+        async function fetchNews() {
+            try {
+                const fetchPromises = RSS_URLS.map(url => {
+                    const apiLink = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
+                    return fetch(apiLink).then(res => res.json());
+                });
+
+                const responses = await Promise.allSettled(fetchPromises);
+                let allItems = [];
+
+                responses.forEach(response => {
+                    if (response.status === 'fulfilled' && response.value.status === 'ok') {
+                        allItems = allItems.concat(response.value.items);
+                    }
+                });
+
+                if (allItems.length === 0) throw new Error('Failed to fetch data from all sources');
+
+                allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+                const uniqueItems = [];
+                const seenTitles = new Set();
+                allItems.forEach(item => {
+                    if (!seenTitles.has(item.title)) {
+                        seenTitles.add(item.title);
+                        uniqueItems.push(item);
+                    }
+                });
+
+                renderNews(uniqueItems);
+            } catch (error) {
+                container.innerHTML = `<div class="error"><h3>Connection Error</h3><p>Could not load the latest news. Please try again later.</p></div>`;
+            }
+        }
+
+        function renderNews(items) {
+            container.innerHTML = '';
+            const now = new Date();
+            const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+            let displayedCount = 0;
+
+            items.forEach((news) => {
+                if (displayedCount >= 100) return;
+                const pubDate = new Date(news.pubDate);
+                if ((now - pubDate) > TWENTY_FOUR_HOURS_MS) return;
+                displayedCount++;
+
+                const timeStr = pubDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const dateStr = pubDate.toLocaleDateString();
+                const diffMs = now - pubDate;
+                const diffMins = Math.max(0, Math.floor(diffMs / 60000));
+                const diffHours = Math.floor(diffMins / 60);
+                let timeAgoText = diffMins === 0 ? "Just now" : diffMins < 60 ? `${diffMins} min ago` : `${diffHours} hr${diffHours > 1 ? 's' : ''} ago`;
+
+                let sourceName = "Live News";
+                if (news.link.includes('economictimes')) sourceName = "Economic Times";
+                else if (news.link.includes('moneycontrol')) sourceName = "Moneycontrol";
+                else if (news.link.includes('livemint')) sourceName = "LiveMint";
+                else if (news.link.includes('google')) sourceName = "Google News";
+                else if (news.link.includes('investing.com')) sourceName = "Investing.com";
+                else if (news.link.includes('business-standard')) sourceName = "Business Standard";
+                else if (news.link.includes('financialexpress')) sourceName = "Financial Express";
+
+                const card = document.createElement('div');
+                card.className = 'news-row';
+                const animDelay = Math.min(displayedCount * 0.05, 1.5);
+                card.style.animation = `fadeUp 0.5s ease forwards ${animDelay}s`;
+                card.style.opacity = '0';
+                card.innerHTML = `
+                    <div class="news-content">
+                        <div class="news-meta">
+                            <span class="news-badge">${sourceName}</span>
+                            <span>${dateStr} • ${timeStr}</span>
+                        </div>
+                        <h2 class="news-title">${news.title.replace(/&amp;/g, '&')}</h2>
+                    </div>
+                    <div class="news-right">
+                        <div class="time-ago">${timeAgoText}</div>
+                        <a href="${news.link}" target="_blank" class="news-link">Read →</a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            if (displayedCount === 0) {
+                container.innerHTML = `<div class="error" style="background:rgba(56,189,248,0.1);border-color:rgba(56,189,248,0.2);color:#0f172a"><h3>No Recent Updates</h3><p>No new updates in the last 24 hours.</p></div>`;
+            }
+        }
+
+        fetchNews();
+        setInterval(fetchNews, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
