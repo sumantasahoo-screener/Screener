@@ -280,11 +280,16 @@ body{font-family:var(--font-sans);background:var(--bg);color:var(--text);
 
   <!-- LOADING -->
   <div id="stateLoad" class="state-box hidden">
-    <div class="spinner"></div>
-    <h2 id="loadText">Fetching data…</h2>
-    <p style="margin-top:6px;font-size:12px;color:var(--text-faint)">
-      First load may take ~10 s if server is cold-starting
+    <div class="spinner" style="width:52px;height:52px;border-width:4px;margin-bottom:20px"></div>
+    <h2 id="loadText" style="font-size:22px;font-weight:700;letter-spacing:-.02em">Fetching data…</h2>
+    <p id="coldStartMsg" style="margin-top:10px;font-size:14px;color:var(--text-muted);font-weight:500">
+      Server is warming up, please wait…
     </p>
+    <!-- Progress bar -->
+    <div style="width:280px;margin-top:20px;background:var(--border);border-radius:99px;height:6px;overflow:hidden">
+      <div id="loadProgress" style="height:100%;width:0%;background:var(--accent);border-radius:99px;transition:width 0.4s ease"></div>
+    </div>
+    <p id="loadTimer" style="margin-top:10px;font-size:13px;color:var(--text-faint)">0s</p>
   </div>
 
   <!-- ERROR -->
@@ -633,6 +638,30 @@ async function searchStock() {
   document.getElementById('loadText').textContent = `Analyzing ${sym}…`;
   document.getElementById('analyzeBtn').disabled = true;
   showState('load');
+
+  // ── Progress bar + timer ──
+  let elapsed = 0;
+  const progressEl = document.getElementById('loadProgress');
+  const timerEl    = document.getElementById('loadTimer');
+  const msgEl      = document.getElementById('coldStartMsg');
+  progressEl.style.width = '0%';
+  timerEl.textContent = '0s';
+  msgEl.textContent = 'Connecting to server…';
+
+  const MAX_SEC = 15;
+  const ticker = setInterval(() => {
+    elapsed++;
+    timerEl.textContent = `${elapsed}s`;
+    // Progress: fast first 5s, then slow crawl up to 90%
+    const pct = elapsed <= 5
+      ? (elapsed / 5) * 40
+      : 40 + ((elapsed - 5) / (MAX_SEC - 5)) * 50;
+    progressEl.style.width = `${Math.min(pct, 90)}%`;
+    if (elapsed <= 3)  msgEl.textContent = 'Connecting to server…';
+    else if (elapsed <= 8)  msgEl.textContent = 'Server warming up, fetching data…';
+    else msgEl.textContent = 'Almost there, loading charts…';
+  }, 1000);
+
   try {
     const res = await fetch(API_URL + sym);
     if (!res.ok) {
@@ -640,9 +669,23 @@ async function searchStock() {
       throw new Error(err.detail || 'API Error');
     }
     stockData = await res.json();
+
+    // Complete progress bar
+    clearInterval(ticker);
+    progressEl.style.width = '100%';
+    timerEl.textContent = `Done in ${elapsed}s`;
+
     populateUI(stockData);
     showState('content');
+
+    // ── Chart fix: first load charts sometimes don't render because
+    //    canvas is hidden during Chart.js init. Force resize after reveal.
+    setTimeout(() => {
+      Object.values(charts).forEach(ch => { if (ch) ch.resize(); });
+    }, 100);
+
   } catch (e) {
+    clearInterval(ticker);
     document.getElementById('errMsg').textContent = e.message || `Could not fetch ${sym}`;
     showState('err');
   } finally {
