@@ -88,6 +88,22 @@ body{font-family:var(--font-sans);background:var(--bg);color:var(--text);
   cursor:pointer;transition:.2s;font-size:15px}
 .btn-icon:hover{background:var(--surface2)}
 
+/* ─── AUTOCOMPLETE ─────────────────────────────── */
+.autocomplete-items {
+  position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-sm); z-index: 99; max-height: 250px; overflow-y: auto;
+  box-shadow: var(--shadow-md); display: none;
+}
+.autocomplete-item {
+  padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; transition: .2s;
+}
+.autocomplete-item:last-child { border-bottom: none; }
+.autocomplete-item:hover { background: var(--surface2); }
+.ac-sym { font-weight: 700; font-family: var(--font-mono); color: var(--accent); font-size: 13px; }
+.ac-name { font-size: 11px; color: var(--text-muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 /* ─── LAYOUT ───────────────────────────────────── */
 .container{max-width:1240px;margin:0 auto;padding:24px 20px 80px}
 .hidden{display:none!important}
@@ -246,6 +262,7 @@ body{font-family:var(--font-sans);background:var(--bg);color:var(--text);
       placeholder="NSE symbol — TCS, INFY, RELIANCE…" autocomplete="off"
       spellcheck="false">
     <button class="btn-primary" id="analyzeBtn" onclick="searchStock()">Analyze</button>
+    <div id="autocompleteList" class="autocomplete-items"></div>
   </div>
 
   <button class="btn-icon" id="themeToggle" title="Toggle theme">☀️</button>
@@ -504,7 +521,7 @@ body{font-family:var(--font-sans);background:var(--bg);color:var(--text);
 <!-- ─── SCRIPTS ────────────────────────────────── -->
 <script>
 // ── CONFIG ─────────────────────────────────────────
-const API_URL = 'https://web-production-66b91.up.railway.app/stock/';
+const API_URL = 'https://stock-api-i5gs.onrender.com/stock/';
 
 // ── CHART INSTANCES ─────────────────────────────────
 let charts = {};
@@ -557,9 +574,59 @@ function showState(s) {
 }
 
 // ── SEARCH ──────────────────────────────────────────
-document.getElementById('symbolInput').addEventListener('keypress', e => {
-  if (e.key === 'Enter') searchStock();
+const searchInput = document.getElementById('symbolInput');
+const acList = document.getElementById('autocompleteList');
+let acTimeout = null;
+
+searchInput.addEventListener('keypress', e => {
+  if (e.key === 'Enter') {
+    acList.style.display = 'none';
+    searchStock();
+  }
 });
+
+searchInput.addEventListener('input', e => {
+  const val = e.target.value.trim();
+  if (!val) {
+    acList.style.display = 'none';
+    return;
+  }
+  clearTimeout(acTimeout);
+  acTimeout = setTimeout(async () => {
+    try {
+      // Derive search API URL from main API URL
+      const searchUrl = API_URL.replace('/stock/', '/search/') + encodeURIComponent(val);
+      const res = await fetch(searchUrl);
+      const data = await res.json();
+      if (!data || data.length === 0) {
+        acList.style.display = 'none';
+        return;
+      }
+      acList.innerHTML = data.map(item => `
+        <div class="autocomplete-item" onclick="selectSuggestion('${item.symbol}')">
+          <span class="ac-sym">${item.symbol}</span>
+          <span class="ac-name">${item.name}</span>
+        </div>
+      `).join('');
+      acList.style.display = 'block';
+    } catch (e) {
+      console.error('Autocomplete failed', e);
+    }
+  }, 300);
+});
+
+// Hide autocomplete when clicking outside
+document.addEventListener('click', e => {
+  if (e.target !== searchInput && !acList.contains(e.target)) {
+    acList.style.display = 'none';
+  }
+});
+
+function selectSuggestion(symbol) {
+  searchInput.value = symbol;
+  acList.style.display = 'none';
+  searchStock();
+}
 
 async function searchStock() {
   const sym = document.getElementById('symbolInput').value.trim().toUpperCase();
