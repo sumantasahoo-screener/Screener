@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News Flash - Live Stock Updates</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2216%22 fill=%22%231e293b%22/><rect x=%2214%22 y=%2218%22 width=%2272%22 height=%228%22 rx=%224%22 fill=%22%23f8fafc%22/><rect x=%2214%22 y=%2232%22 width=%2244%22 height=%226%22 rx=%223%22 fill=%22%2394a3b8%22/><rect x=%2214%22 y=%2244%22 width=%2250%22 height=%226%22 rx=%223%22 fill=%22%2394a3b8%22/><rect x=%2214%22 y=%2256%22 width=%2238%22 height=%226%22 rx=%223%22 fill=%22%2394a3b8%22/><rect x=%2264%22 y=%2232%22 width=%2222%22 height=%2230%22 rx=%224%22 fill=%22%233b82f6%22/></svg>">
+    <title>Market Feed - Premium</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2216%22 fill=%22%231e293b%22/><rect x=%2214%22 y=%2218%22 width=%2272%22 height=%228%22 rx=%224%22 fill=%22%23f8fafc%22/><rect x=%2214%22 y=%2232%22 width=%2244%22 height=%226%22 rx=%223%22 fill=%22%2394a3b8%22/><rect x=%2264%22 y=%2232%22 width=%2222%22 height=%2230%22 rx=%224%22 fill=%22%233b82f6%22/></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-
         * {
             box-sizing: border-box;
             margin: 0;
@@ -16,46 +15,60 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            background: #f8fafc;
             color: #0f172a;
             min-height: 100vh;
-            padding: 15px 20px;
+            padding: 30px 20px;
         }
 
         .header {
-            text-align: left;
-            margin-bottom: 15px;
             max-width: 1400px;
-            width: 95%;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 0 auto 30px auto;
             display: flex;
-            align-items: baseline;
-            gap: 15px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
         }
 
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin: 0;
-        }
+        .header-title { display: flex; flex-direction: column; gap: 4px; }
+        .header-title h1 { font-size: 1.5rem; font-weight: 600; color: #1e293b; letter-spacing: -0.5px; }
+        .header-title p { color: #64748b; font-size: 0.9rem; font-weight: 400; display: flex; align-items: center; gap: 8px; }
+        .live-indicator { width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; }
 
-        .header p {
-            color: #64748b;
-            font-size: 0.9rem;
+        .header-actions { display: flex; gap: 15px; }
+        .btn {
+            padding: 8px 14px;
+            border-radius: 6px;
             font-weight: 500;
-            margin: 0;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
+        .btn-secondary {
+            background: #ffffff;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+        .btn-secondary:hover { background: #f1f5f9; color: #0f172a; }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        .btn-primary:hover { background: #2563eb; }
 
         .container {
             max-width: 1400px;
-            width: 95%;
             margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            overflow-x: auto;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
         table.news-table {
@@ -73,47 +86,21 @@
             border-bottom: 1px solid #e2e8f0;
             border-right: 1px solid #f1f5f9;
         }
-
+        
         table.news-table th {
             background: #f8fafc;
-            font-weight: 600;
             color: #475569;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            border-bottom: 2px solid #cbd5e1;
-            white-space: nowrap;
-        }
-
-        table.news-table tr {
-            transition: background 0.15s ease;
-        }
-
-        table.news-table tr:hover {
-            background: #f1f5f9;
-        }
-
-        .col-time {
-            width: 120px;
-            white-space: nowrap;
-            color: #64748b;
-        }
-
-        .col-source {
-            width: 130px;
-            white-space: nowrap;
-        }
-        
-        .col-title {
-            color: #1e293b;
             font-weight: 500;
-            line-height: 1.4;
+            font-size: 0.8rem;
         }
-        
-        .col-link {
-            width: 70px;
-            text-align: center;
-        }
+
+        table.news-table tr { transition: background 0.15s ease; background: #ffffff; }
+        table.news-table tr:hover { background: #f8fafc; }
+
+        .col-time { width: 120px; white-space: nowrap; color: #64748b; }
+        .col-source { width: 130px; white-space: nowrap; }
+        .col-title { color: #1e293b; font-weight: 500; line-height: 1.4; }
+        .col-link { width: 70px; text-align: center; }
 
         .news-badge {
             background: #f1f5f9;
@@ -127,215 +114,135 @@
             display: inline-block;
         }
 
-        .news-link {
-            display: inline-block;
+        .badge-red {
+            background: #ef4444 !important;
+            color: white !important;
+            border-color: #ef4444 !important;
+            font-weight: 500;
+        }
+        
+        .badge-orange {
+            background: #f97316 !important;
+            color: white !important;
+            border-color: #f97316 !important;
+            font-weight: 500;
+        }
+
+        .ai-btn {
+            background: #f1f5f9;
+            color: #4f46e5;
+            border: 1px solid #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            text-transform: uppercase;
+            margin-left: 8px;
+            transition: background 0.2s ease;
+            vertical-align: middle;
+        }
+        .ai-btn:hover { background: #e2e8f0; }
+        
+        .ai-content {
+            display: none;
+            margin-top: 8px;
+            padding: 10px;
+            background: #f8fafc;
+            border-left: 2px solid #6366f1;
+            font-size: 0.8rem;
+            color: #475569;
+            line-height: 1.4;
+            font-weight: 400;
+        }
+
+        .open-link {
             color: #3b82f6;
             text-decoration: none;
-            font-weight: 600;
-            font-size: 0.8rem;
+            font-weight: 500;
+            font-size: 0.85rem;
         }
+        .open-link:hover { color: #2563eb; text-decoration: underline; }
 
-        .news-link:hover {
-            color: #4f46e5;
-            text-decoration: underline;
-        }
-
-        .result-row {
-            background: #fef2f2 !important;
-        }
-        
-        .result-row td {
-            border-bottom-color: #fca5a5;
-            border-right-color: #fee2e2;
-        }
-        
-        .commodity-row {
-            background: #fffbeb !important;
-        }
-        
-        .commodity-row td {
-            border-bottom-color: #fde68a;
-            border-right-color: #fef3c7;
-        }
- }
-
-        .loading {
-            grid-column: 1 / -1;
-            text-align: center;
-            font-size: 1.5rem;
-            color: #94a3b8;
-            padding: 50px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-left-color: #38bdf8;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .error {
-            grid-column: 1 / -1;
-            text-align: center;
-            color: #ef4444;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            padding: 20px;
-            border-radius: 12px;
-        }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 768px) {
-            body { padding: 10px 10px; }
-            .container { width: 100%; }
-            .header { flex-direction: column; align-items: flex-start; gap: 5px; }
-            .news-row { flex-direction: column; align-items: flex-start; gap: 10px; padding: 12px 14px; }
-            .news-right { width: 100%; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 8px; gap: 10px; }
-        }
+        .loading { padding: 40px; text-align: center; color: #64748b; font-size: 1rem; }
+        .error { padding: 20px; text-align: center; color: #ef4444; background: #fef2f2; border-bottom: 1px solid #fecaca; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div>
-            <h1>Market Feed</h1>
-            <p>Latest India Updates</p>
+        <div class="header-title">
+            <h1>Market Feed <span style="font-weight:400; color:#94a3b8; font-size:1.1rem;">AI</span></h1>
+            <p><span class="live-indicator"></span> Live Updates</p>
         </div>
-        <div style="margin-left:auto; display:flex; gap:10px; align-items:center;">
-            <a href="https://fnohub.in/" style="background:#f8fafc; color:#475569; border:1px solid #cbd5e1; padding:8px 12px; border-radius:6px; text-decoration:none; font-weight:600; font-size:0.85rem; transition:0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">⬅ Back to Dashboard</a>
-            <button id="notifyBtn" style="background:#3b82f6; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85rem; transition:0.2s;">🔔 Enable Alerts</button>
+        <div class="header-actions">
+            <a href="https://fnohub.in/" class="btn btn-secondary">
+                Dashboard
+            </a>
+            <button id="notifyBtn" class="btn btn-primary">
+                Enable Alerts
+            </button>
         </div>
     </div>
 
     <div class="container" id="newsContainer">
         <div class="loading">
             <div class="spinner"></div>
-            Fetching latest market news...
+            Syncing market data...
         </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px; margin-bottom: 30px;">
+        <button id="loadMoreBtn" class="btn btn-secondary" style="display:none; margin:0 auto;">Load Older Updates</button>
     </div>
 
     <script>
-        const RSS_URLS = [
-            'https://economictimes.indiatimes.com/markets/rssfeeds/2146842.cms',
-            'https://www.moneycontrol.com/rss/MCtopnews.xml',
-            'https://www.moneycontrol.com/rss/brokerageresearch.xml',
-            'https://www.livemint.com/rss/markets',
-            'https://www.livemint.com/rss/companies',
-            'https://in.investing.com/rss/news_301.rss',
-            'https://www.business-standard.com/rss/markets-106.rss',
-            'https://www.financialexpress.com/market/feed/'
-        ];
-
-        const RESULT_RSS_URLS = [
-            'https://www.moneycontrol.com/rss/results.xml',
-            'https://news.google.com/rss/search?q=Indian+Stock+Market+Results&hl=en-IN&gl=IN&ceid=IN:en'
-        ];
-
         const container = document.getElementById('newsContainer');
         const notifyBtn = document.getElementById('notifyBtn');
-        const allCachedNews = new Map(); 
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
         const globalSeenTitles = new Set(); 
         let isInitialLoad = true;
+        let latestItems = [];
+        let showMore = false;
+
+        loadMoreBtn.addEventListener('click', () => { showMore = true; renderNews(); });
 
         function updateBtnState() {
             if (!("Notification" in window)) {
                 notifyBtn.style.display = 'none';
             } else if (Notification.permission === "granted") {
-                notifyBtn.innerText = "🔔 Alerts Active";
-                notifyBtn.style.background = "#10b981";
-                notifyBtn.disabled = true;
-                notifyBtn.style.cursor = "default";
-            } else if (Notification.permission === "denied") {
-                notifyBtn.innerText = "🔕 Alerts Blocked";
-                notifyBtn.style.background = "#ef4444";
+                notifyBtn.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Alerts Active`;
+                notifyBtn.style.background = "#ecfdf5";
+                notifyBtn.style.color = "#059669";
+                notifyBtn.style.boxShadow = "none";
+                notifyBtn.style.border = "1px solid #10b981";
                 notifyBtn.disabled = true;
                 notifyBtn.style.cursor = "default";
             }
         }
         
         notifyBtn.addEventListener('click', () => {
-            if ("Notification" in window) {
-                Notification.requestPermission().then(permission => {
-                    updateBtnState();
-                });
-            }
+            if ("Notification" in window) Notification.requestPermission().then(() => updateBtnState());
         });
         updateBtnState();
 
-        function isRelevantNews(item) {
-            const titleLower = item.title.toLowerCase();
-            
-            // Exclude Global/Crypto
-            const excludeKeywords = [
-                'bitcoin', 'crypto', 'cryptocurrency', 'ethereum', 'binance', 'xrp', 'dogecoin', 
-                'nasdaq', 'dow jones', 's&p 500', 'wall street', 'us market', 'us stocks', 
-                'federal reserve', 'fed rate', 'powell', 'european market', 'asian market', 'hang seng', 'nikkei'
-            ];
-            
-            if (excludeKeywords.some(kw => titleLower.includes(kw))) {
-                return false; 
-            }
-
-            // MCX & Commodity Filter
-            const commodityKeywords = ['mcx', 'commodity', 'commodities', 'metal', 'bullion'];
-            const otherMetals = ['copper', 'zinc', 'lead', 'aluminium', 'nickel', 'cotton', 'mentha'];
-            const allowedCommodities = ['crude', 'natural gas', 'gold', 'silver'];
-            
-            const isCommodityNews = commodityKeywords.some(kw => titleLower.includes(kw)) || 
-                                    otherMetals.some(kw => titleLower.includes(kw)) ||
-                                    allowedCommodities.some(kw => titleLower.includes(kw));
-                                    
-            if (isCommodityNews) {
-                const hasAllowed = allowedCommodities.some(kw => titleLower.includes(kw));
-                // Agar commodity/MCX ki news hai aur usme gold/silver/crude/natural gas mention nahi hai, toh discard karein
-                if (!hasAllowed) {
-                    return false; 
-                }
-            }
-
-            return true; 
-        }
-
-        async function fetchNews(urls) {
+        async function fetchNews() {
             try {
-                const fetchPromises = urls.map(url => {
-                    const apiLink = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}&_t=${new Date().getTime()}`; // Adding timestamp to avoid browser cache
-                    return fetch(apiLink).then(res => res.json());
-                });
-
-                const responses = await Promise.allSettled(fetchPromises);
+                const response = await fetch('https://feed.susanta41012.workers.dev/?t=' + new Date().getTime());
+                const items = await response.json();
                 
-                responses.forEach(response => {
-                    if (response.status === 'fulfilled' && response.value.status === 'ok') {
-                        response.value.items.forEach(item => {
-                            if (!allCachedNews.has(item.title) && isRelevantNews(item)) {
-                                allCachedNews.set(item.title, item);
-                                checkForResultNotification(item);
-                            }
-                        });
-                    }
-                });
-
+                items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+                
+                latestItems = items;
+                items.forEach(item => checkForResultNotification(item));
                 renderNews();
                 isInitialLoad = false;
             } catch (error) {
-                if (allCachedNews.size === 0) {
-                    container.innerHTML = `<div class="error"><h3>Connection Error</h3><p>Could not load the latest news. Please try again later.</p></div>`;
+                if (latestItems.length === 0) {
+                    container.innerHTML = `<div class="error"><h3>Connection Error</h3><p>Could not load the latest news.</p></div>`;
                 }
             }
         }
@@ -343,20 +250,23 @@
         function checkForResultNotification(item) {
             if (!isInitialLoad && !globalSeenTitles.has(item.title)) {
                 globalSeenTitles.add(item.title);
-                
-                const keywords = ['result', 'q1', 'q2', 'q3', 'q4', 'earnings', 'profit', 'loss', 'dividend'];
-                const titleLower = item.title.toLowerCase();
-                
-                const isResultNews = keywords.some(kw => titleLower.includes(kw));
+                const keywords = ['result', 'q1', 'q2', 'q3', 'q4', 'earnings', 'profit', 'dividend'];
+                const searchStr = (item.title + " " + (item.aiSummary||"")).toLowerCase();
+                const isResultNews = keywords.some(kw => searchStr.includes(kw));
                 
                 if (isResultNews && "Notification" in window && Notification.permission === "granted") {
-                    new Notification("Market Result Update", {
-                        body: item.title,
-                        icon: "https://cdn-icons-png.flaticon.com/512/2950/2950938.png"
-                    });
+                    new Notification("Market Result Update", { body: item.simpleTitle || item.title });
                 }
+            } else if (isInitialLoad) {
+                globalSeenTitles.add(item.title);
             }
         }
+
+        window.toggleAI = function(btn) {
+            const content = btn.parentElement.nextElementSibling;
+            const isHidden = content.style.display === 'none' || content.style.display === '';
+            content.style.display = isHidden ? 'block' : 'none';
+        };
 
         function renderNews() {
             container.innerHTML = `
@@ -366,7 +276,7 @@
                             <th class="col-time">Date & Time</th>
                             <th class="col-source">Source</th>
                             <th class="col-title">News Headline</th>
-                            <th class="col-link">Link</th>
+                            <th class="col-link"></th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -375,109 +285,101 @@
             const tbody = document.getElementById('tableBody');
             
             const now = new Date();
-            const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+            const limitMs = showMore ? (48 * 60 * 60 * 1000) : (24 * 60 * 60 * 1000);
             let displayedCount = 0;
+            let hiddenCount = 0;
 
-            let items = Array.from(allCachedNews.values());
-            items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
-            items.forEach((news) => {
+            latestItems.forEach((news) => {
                 const pubDate = new Date(news.pubDate);
-                if ((now - pubDate) > TWENTY_FOUR_HOURS_MS) return;
+                const ageMs = now - pubDate;
+                
+                if (ageMs > limitMs) return; 
+                if (!showMore && ageMs > (24 * 60 * 60 * 1000) && ageMs <= (48 * 60 * 60 * 1000)) {
+                    hiddenCount++;
+                    return;
+                }
                 displayedCount++;
 
-                const timeStr = pubDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                const dateStr = pubDate.toLocaleDateString();
-                const diffMs = now - pubDate;
-                const diffMins = Math.max(0, Math.floor(diffMs / 60000));
-                const diffHours = Math.floor(diffMins / 60);
-                let timeAgoText = diffMins === 0 ? "Just now" : diffMins < 60 ? `${diffMins}m ago` : `${diffHours}h ago`;
+                const formattedTime = pubDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const dateStr = pubDate.toLocaleDateString('en-US');
+                const diffMins = Math.max(0, Math.floor(ageMs / 60000));
+                let timeAgoText = diffMins === 0 ? "Just now" : diffMins < 60 ? `${diffMins}m ago` : `${Math.floor(diffMins/60)}h ago`;
 
-                let sourceName = "Live News";
-                if (news.link.includes('economictimes')) sourceName = "Economic Times";
-                else if (news.link.includes('moneycontrol')) sourceName = "Moneycontrol";
-                else if (news.link.includes('livemint')) sourceName = "LiveMint";
-                else if (news.link.includes('google')) sourceName = "Google News";
-                else if (news.link.includes('investing.com')) sourceName = "Investing.com";
-                else if (news.link.includes('business-standard')) sourceName = "Business Standard";
-                else if (news.link.includes('financialexpress')) sourceName = "Financial Express";
-
-                const row = document.createElement('tr');
-                
+                const sourceName = news.sourceName || "Live News";
                 const titleLower = news.title.toLowerCase();
-                const isResult = ['result', 'q1', 'q2', 'q3', 'q4', 'earnings', 'profit', 'dividend'].some(kw => titleLower.includes(kw));
-                const isCommodity = ['mcx', 'commodity', 'crude', 'natural gas', 'gold', 'silver', 'bullion'].some(kw => titleLower.includes(kw));
+                const resultRegex = /\b(result|q1|q2|q3|q4|earnings|profit|dividend)\b/i;
+                const isResultNews = resultRegex.test(titleLower);
+
+                const commodityRegex = /\b(mcx|commodity|crude|oil|natural gas|gold|silver|bullion|metal|copper|zinc|aluminium)\b/i;
+                const isCommodityNews = commodityRegex.test(titleLower);
+
+                const displayTitle = news.simpleTitle ? news.simpleTitle.replace(/&amp;/g, '&') : news.title.replace(/&amp;/g, '&');
                 
-                if (isResult) {
-                    row.className = 'result-row';
-                } else if (isCommodity) {
-                    row.className = 'commodity-row';
+                let aiBtnHtml = '';
+                let aiContentHtml = '';
+                if (news.aiSummary) {
+                    const summaryHtml = news.aiSummary.replace(/\n/g, '<br/>');
+                    aiBtnHtml = `<button class="ai-btn" onclick="toggleAI(this)">✨ AI SUMMARY</button>`;
+                    aiContentHtml = `<div class="ai-content">${summaryHtml}</div>`;
                 }
 
-                const animDelay = Math.min(displayedCount * 0.02, 1.5);
-                row.style.animation = `fadeUp 0.3s ease forwards ${animDelay}s`;
-                row.style.opacity = '0';
+                const row = document.createElement('tr');
+                if (isResultNews) {
+                    row.style.backgroundColor = '#fff5f5';
+                } else if (isCommodityNews) {
+                    row.style.backgroundColor = '#fffbeb';
+                }
+                
+                let sourceBadgeClass = '';
+                if (isResultNews) sourceBadgeClass = 'badge-red';
+                else if (isCommodityNews) sourceBadgeClass = 'badge-orange';
+
+                let extraTag = '';
+                if (isResultNews) {
+                    extraTag = '<span class="news-badge badge-red" style="margin-left: 10px;">⚡ RESULT</span>';
+                } else if (isCommodityNews) {
+                    extraTag = '<span class="news-badge badge-orange" style="margin-left: 10px;">📦 COMMODITY</span>';
+                }
                 
                 row.innerHTML = `
                     <td class="col-time">
-                        <div style="color:#1e293b;font-weight:500;">${timeStr}</div>
-                        <div style="font-size:0.75rem;">${dateStr} • ${timeAgoText}</div>
+                        <div style="font-size: 0.95rem; font-weight: 400; color: #334155; margin-bottom: 2px;">${formattedTime}</div>
+                        <div style="font-size: 0.75rem; color: #64748b;">${dateStr} &bull; ${timeAgoText}</div>
                     </td>
-                    <td class="col-source"><span class="news-badge" ${isResult ? 'style="background:#ef4444;color:white;border-color:#dc2626;"' : (isCommodity ? 'style="background:#f59e0b;color:white;border-color:#d97706;"' : '')}>${sourceName}</span></td>
+                    <td class="col-source">
+                        <span class="news-badge ${sourceBadgeClass}">${sourceName}</span>
+                    </td>
                     <td class="col-title">
-                        ${news.title.replace(/&amp;/g, '&')}
-                        ${isResult ? '<span style="color:#dc2626;font-weight:700;font-size:0.7rem;margin-left:8px;background:#fee2e2;border:1px solid #fca5a5;padding:2px 6px;border-radius:3px;">🚨 RESULT</span>' : ''}
-                        ${isCommodity && !isResult ? '<span style="color:#d97706;font-weight:700;font-size:0.7rem;margin-left:8px;background:#fef3c7;border:1px solid #fde68a;padding:2px 6px;border-radius:3px;">🛢️ COMMODITY</span>' : ''}
+                        <div>
+                            ${displayTitle}
+                            ${extraTag}
+                            ${aiBtnHtml}
+                        </div>
+                        ${aiContentHtml}
                     </td>
-                    <td class="col-link"><a href="${news.link}" target="_blank" class="news-link">Open ↗</a></td>
+                    <td class="col-link">
+                        <a href="${news.link}" target="_blank" class="open-link">Open ↗</a>
+                    </td>
                 `;
                 tbody.appendChild(row);
             });
 
             if (displayedCount === 0) {
-                container.innerHTML = `<div class="error" style="background:rgba(56,189,248,0.1);border-color:rgba(56,189,248,0.2);color:#0f172a"><h3>No Recent Updates</h3><p>No new updates in the last 24 hours.</p></div>`;
+                container.innerHTML = `<div class="loading" style="padding:60px;">No Recent Updates Found</div>`;
+            }
+
+            if (hiddenCount > 0 && !showMore) {
+                loadMoreBtn.style.display = 'inline-flex';
+                loadMoreBtn.innerText = `Load ${hiddenCount} Older Updates`;
+            } else {
+                loadMoreBtn.style.display = 'none';
             }
         }
 
-        function isMarketHours() {
-            const now = new Date();
-            const istOptions = { timeZone: 'Asia/Kolkata', hour12: false, hour: 'numeric', minute: 'numeric', weekday: 'short' };
-            const formatter = new Intl.DateTimeFormat('en-US', istOptions);
-            const parts = formatter.formatToParts(now);
-            
-            let hour = 0, minute = 0, weekday = '';
-            parts.forEach(part => {
-                if (part.type === 'hour') hour = parseInt(part.value, 10);
-                if (part.type === 'minute') minute = parseInt(part.value, 10);
-                if (part.type === 'weekday') weekday = part.value; 
-            });
-
-            // Market is closed on Saturday and Sunday
-            if (weekday === 'Sat' || weekday === 'Sun') return false;
-
-            const timeInMinutes = hour * 60 + minute;
-            const marketOpen = 9 * 60 + 15; // 9:15 AM IST
-            const marketClose = 15 * 60 + 30; // 3:30 PM IST
-            
-            return timeInMinutes >= marketOpen && timeInMinutes <= marketClose;
-        }
-
-        const ALL_FEEDS = [...RSS_URLS, ...RESULT_RSS_URLS];
-
         function scheduleNextFetch() {
-            const marketOpen = isMarketHours();
-            const delayMinutes = marketOpen ? 1 : 5;
-            
-            setTimeout(() => {
-                fetchNews(ALL_FEEDS).finally(() => {
-                    scheduleNextFetch();
-                });
-            }, delayMinutes * 60 * 1000);
+            setTimeout(() => fetchNews().finally(() => scheduleNextFetch()), 60000);
         }
-
-        fetchNews(ALL_FEEDS).finally(() => {
-            scheduleNextFetch();
-        });
+        fetchNews().finally(() => scheduleNextFetch());
     </script>
 </body>
 </html>
