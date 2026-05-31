@@ -54,113 +54,110 @@
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 4px;
+            overflow-x: auto;
         }
 
-        .news-row {
+        table.news-table {
+            width: 100%;
+            border-collapse: collapse;
             background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 10px 16px;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: relative;
-            overflow: hidden;
-            gap: 15px;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            font-size: 0.85rem;
+            border: 1px solid #e2e8f0;
         }
 
-        .news-row::before {
-            content: '';
-            position: absolute;
+        table.news-table th, table.news-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            border-right: 1px solid #f1f5f9;
+        }
+
+        table.news-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 3px;
-            height: 100%;
-            background: #3b82f6;
-            opacity: 0;
-            transition: opacity 0.2s;
+            z-index: 10;
+            border-bottom: 2px solid #cbd5e1;
+            white-space: nowrap;
         }
 
-        .news-row:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            border-color: #cbd5e1;
+        table.news-table tr {
+            transition: background 0.15s ease;
+        }
+
+        table.news-table tr:hover {
+            background: #f1f5f9;
+        }
+
+        .col-time {
+            width: 120px;
+            white-space: nowrap;
+            color: #64748b;
+        }
+
+        .col-source {
+            width: 130px;
+            white-space: nowrap;
         }
         
-        .news-row:hover::before {
-            opacity: 1;
+        .col-title {
+            color: #1e293b;
+            font-weight: 500;
+            line-height: 1.4;
         }
-
-        .news-content {
-            flex-grow: 1;
-        }
-
-        .news-meta {
-            font-size: 0.85rem;
-            color: #64748b;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        
+        .col-link {
+            width: 70px;
+            text-align: center;
         }
 
         .news-badge {
             background: #f1f5f9;
             color: #475569;
-            padding: 2px 8px;
-            border-radius: 4px;
+            padding: 2px 6px;
+            border-radius: 3px;
             font-weight: 600;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
             border: 1px solid #e2e8f0;
-        }
-
-        .news-title {
-            font-size: 1rem;
-            font-weight: 500;
-            line-height: 1.4;
-            margin: 0;
-            color: #1e293b;
-        }
-        
-        .news-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-shrink: 0;
+            display: inline-block;
         }
 
         .news-link {
             display: inline-block;
             color: #3b82f6;
             text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: color 0.2s;
-        }
-
-        .time-ago {
-            color: #94a3b8;
+            font-weight: 600;
             font-size: 0.8rem;
-            white-space: nowrap;
         }
 
         .news-link:hover {
             color: #4f46e5;
+            text-decoration: underline;
+        }
+
+        .result-row {
+            background: #fef2f2 !important;
         }
         
-        .news-link::after {
-            content: ' →';
-            transition: transform 0.2s;
-            display: inline-block;
+        .result-row td {
+            border-bottom-color: #fca5a5;
+            border-right-color: #fee2e2;
         }
         
-        .news-link:hover::after {
-            transform: translateX(4px);
+        .commodity-row {
+            background: #fffbeb !important;
         }
+        
+        .commodity-row td {
+            border-bottom-color: #fde68a;
+            border-right-color: #fef3c7;
+        }
+ }
 
         .loading {
             grid-column: 1 / -1;
@@ -215,8 +212,14 @@
 <body>
 
     <div class="header">
-        <h1>Market Feed</h1>
-        <p>Latest India Updates</p>
+        <div>
+            <h1>Market Feed</h1>
+            <p>Latest India Updates</p>
+        </div>
+        <div style="margin-left:auto; display:flex; gap:10px; align-items:center;">
+            <a href="https://fnohub.in/" style="background:#f8fafc; color:#475569; border:1px solid #cbd5e1; padding:8px 12px; border-radius:6px; text-decoration:none; font-weight:600; font-size:0.85rem; transition:0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">⬅ Back to Dashboard</a>
+            <button id="notifyBtn" style="background:#3b82f6; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85rem; transition:0.2s;">🔔 Enable Alerts</button>
+        </div>
     </div>
 
     <div class="container" id="newsContainer">
@@ -230,61 +233,155 @@
         const RSS_URLS = [
             'https://economictimes.indiatimes.com/markets/rssfeeds/2146842.cms',
             'https://www.moneycontrol.com/rss/MCtopnews.xml',
-            'https://www.moneycontrol.com/rss/results.xml',
             'https://www.moneycontrol.com/rss/brokerageresearch.xml',
             'https://www.livemint.com/rss/markets',
             'https://www.livemint.com/rss/companies',
-            'https://news.google.com/rss/search?q=Indian+Stock+Market+Results&hl=en-IN&gl=IN&ceid=IN:en',
             'https://in.investing.com/rss/news_301.rss',
             'https://www.business-standard.com/rss/markets-106.rss',
             'https://www.financialexpress.com/market/feed/'
         ];
 
-        const container = document.getElementById('newsContainer');
+        const RESULT_RSS_URLS = [
+            'https://www.moneycontrol.com/rss/results.xml',
+            'https://news.google.com/rss/search?q=Indian+Stock+Market+Results&hl=en-IN&gl=IN&ceid=IN:en'
+        ];
 
-        async function fetchNews() {
+        const container = document.getElementById('newsContainer');
+        const notifyBtn = document.getElementById('notifyBtn');
+        const allCachedNews = new Map(); 
+        const globalSeenTitles = new Set(); 
+        let isInitialLoad = true;
+
+        function updateBtnState() {
+            if (!("Notification" in window)) {
+                notifyBtn.style.display = 'none';
+            } else if (Notification.permission === "granted") {
+                notifyBtn.innerText = "🔔 Alerts Active";
+                notifyBtn.style.background = "#10b981";
+                notifyBtn.disabled = true;
+                notifyBtn.style.cursor = "default";
+            } else if (Notification.permission === "denied") {
+                notifyBtn.innerText = "🔕 Alerts Blocked";
+                notifyBtn.style.background = "#ef4444";
+                notifyBtn.disabled = true;
+                notifyBtn.style.cursor = "default";
+            }
+        }
+        
+        notifyBtn.addEventListener('click', () => {
+            if ("Notification" in window) {
+                Notification.requestPermission().then(permission => {
+                    updateBtnState();
+                });
+            }
+        });
+        updateBtnState();
+
+        function isRelevantNews(item) {
+            const titleLower = item.title.toLowerCase();
+            
+            // Exclude Global/Crypto
+            const excludeKeywords = [
+                'bitcoin', 'crypto', 'cryptocurrency', 'ethereum', 'binance', 'xrp', 'dogecoin', 
+                'nasdaq', 'dow jones', 's&p 500', 'wall street', 'us market', 'us stocks', 
+                'federal reserve', 'fed rate', 'powell', 'european market', 'asian market', 'hang seng', 'nikkei'
+            ];
+            
+            if (excludeKeywords.some(kw => titleLower.includes(kw))) {
+                return false; 
+            }
+
+            // MCX & Commodity Filter
+            const commodityKeywords = ['mcx', 'commodity', 'commodities', 'metal', 'bullion'];
+            const otherMetals = ['copper', 'zinc', 'lead', 'aluminium', 'nickel', 'cotton', 'mentha'];
+            const allowedCommodities = ['crude', 'natural gas', 'gold', 'silver'];
+            
+            const isCommodityNews = commodityKeywords.some(kw => titleLower.includes(kw)) || 
+                                    otherMetals.some(kw => titleLower.includes(kw)) ||
+                                    allowedCommodities.some(kw => titleLower.includes(kw));
+                                    
+            if (isCommodityNews) {
+                const hasAllowed = allowedCommodities.some(kw => titleLower.includes(kw));
+                // Agar commodity/MCX ki news hai aur usme gold/silver/crude/natural gas mention nahi hai, toh discard karein
+                if (!hasAllowed) {
+                    return false; 
+                }
+            }
+
+            return true; 
+        }
+
+        async function fetchNews(urls) {
             try {
-                const fetchPromises = RSS_URLS.map(url => {
-                    const apiLink = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
+                const fetchPromises = urls.map(url => {
+                    const apiLink = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}&_t=${new Date().getTime()}`; // Adding timestamp to avoid browser cache
                     return fetch(apiLink).then(res => res.json());
                 });
 
                 const responses = await Promise.allSettled(fetchPromises);
-                let allItems = [];
-
+                
                 responses.forEach(response => {
                     if (response.status === 'fulfilled' && response.value.status === 'ok') {
-                        allItems = allItems.concat(response.value.items);
+                        response.value.items.forEach(item => {
+                            if (!allCachedNews.has(item.title) && isRelevantNews(item)) {
+                                allCachedNews.set(item.title, item);
+                                checkForResultNotification(item);
+                            }
+                        });
                     }
                 });
 
-                if (allItems.length === 0) throw new Error('Failed to fetch data from all sources');
-
-                allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
-                const uniqueItems = [];
-                const seenTitles = new Set();
-                allItems.forEach(item => {
-                    if (!seenTitles.has(item.title)) {
-                        seenTitles.add(item.title);
-                        uniqueItems.push(item);
-                    }
-                });
-
-                renderNews(uniqueItems);
+                renderNews();
+                isInitialLoad = false;
             } catch (error) {
-                container.innerHTML = `<div class="error"><h3>Connection Error</h3><p>Could not load the latest news. Please try again later.</p></div>`;
+                if (allCachedNews.size === 0) {
+                    container.innerHTML = `<div class="error"><h3>Connection Error</h3><p>Could not load the latest news. Please try again later.</p></div>`;
+                }
             }
         }
 
-        function renderNews(items) {
-            container.innerHTML = '';
+        function checkForResultNotification(item) {
+            if (!isInitialLoad && !globalSeenTitles.has(item.title)) {
+                globalSeenTitles.add(item.title);
+                
+                const keywords = ['result', 'q1', 'q2', 'q3', 'q4', 'earnings', 'profit', 'loss', 'dividend'];
+                const titleLower = item.title.toLowerCase();
+                
+                const isResultNews = keywords.some(kw => titleLower.includes(kw));
+                
+                if (isResultNews && "Notification" in window && Notification.permission === "granted") {
+                    new Notification("Market Result Update", {
+                        body: item.title,
+                        icon: "https://cdn-icons-png.flaticon.com/512/2950/2950938.png"
+                    });
+                }
+            }
+        }
+
+        function renderNews() {
+            container.innerHTML = `
+                <table class="news-table">
+                    <thead>
+                        <tr>
+                            <th class="col-time">Date & Time</th>
+                            <th class="col-source">Source</th>
+                            <th class="col-title">News Headline</th>
+                            <th class="col-link">Link</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            `;
+            const tbody = document.getElementById('tableBody');
+            
             const now = new Date();
             const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
             let displayedCount = 0;
 
+            let items = Array.from(allCachedNews.values());
+            items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
             items.forEach((news) => {
-                if (displayedCount >= 100) return;
                 const pubDate = new Date(news.pubDate);
                 if ((now - pubDate) > TWENTY_FOUR_HOURS_MS) return;
                 displayedCount++;
@@ -294,7 +391,7 @@
                 const diffMs = now - pubDate;
                 const diffMins = Math.max(0, Math.floor(diffMs / 60000));
                 const diffHours = Math.floor(diffMins / 60);
-                let timeAgoText = diffMins === 0 ? "Just now" : diffMins < 60 ? `${diffMins} min ago` : `${diffHours} hr${diffHours > 1 ? 's' : ''} ago`;
+                let timeAgoText = diffMins === 0 ? "Just now" : diffMins < 60 ? `${diffMins}m ago` : `${diffHours}h ago`;
 
                 let sourceName = "Live News";
                 if (news.link.includes('economictimes')) sourceName = "Economic Times";
@@ -305,25 +402,36 @@
                 else if (news.link.includes('business-standard')) sourceName = "Business Standard";
                 else if (news.link.includes('financialexpress')) sourceName = "Financial Express";
 
-                const card = document.createElement('div');
-                card.className = 'news-row';
-                const animDelay = Math.min(displayedCount * 0.05, 1.5);
-                card.style.animation = `fadeUp 0.5s ease forwards ${animDelay}s`;
-                card.style.opacity = '0';
-                card.innerHTML = `
-                    <div class="news-content">
-                        <div class="news-meta">
-                            <span class="news-badge">${sourceName}</span>
-                            <span>${dateStr} • ${timeStr}</span>
-                        </div>
-                        <h2 class="news-title">${news.title.replace(/&amp;/g, '&')}</h2>
-                    </div>
-                    <div class="news-right">
-                        <div class="time-ago">${timeAgoText}</div>
-                        <a href="${news.link}" target="_blank" class="news-link">Read →</a>
-                    </div>
+                const row = document.createElement('tr');
+                
+                const titleLower = news.title.toLowerCase();
+                const isResult = ['result', 'q1', 'q2', 'q3', 'q4', 'earnings', 'profit', 'dividend'].some(kw => titleLower.includes(kw));
+                const isCommodity = ['mcx', 'commodity', 'crude', 'natural gas', 'gold', 'silver', 'bullion'].some(kw => titleLower.includes(kw));
+                
+                if (isResult) {
+                    row.className = 'result-row';
+                } else if (isCommodity) {
+                    row.className = 'commodity-row';
+                }
+
+                const animDelay = Math.min(displayedCount * 0.02, 1.5);
+                row.style.animation = `fadeUp 0.3s ease forwards ${animDelay}s`;
+                row.style.opacity = '0';
+                
+                row.innerHTML = `
+                    <td class="col-time">
+                        <div style="color:#1e293b;font-weight:500;">${timeStr}</div>
+                        <div style="font-size:0.75rem;">${dateStr} • ${timeAgoText}</div>
+                    </td>
+                    <td class="col-source"><span class="news-badge" ${isResult ? 'style="background:#ef4444;color:white;border-color:#dc2626;"' : (isCommodity ? 'style="background:#f59e0b;color:white;border-color:#d97706;"' : '')}>${sourceName}</span></td>
+                    <td class="col-title">
+                        ${news.title.replace(/&amp;/g, '&')}
+                        ${isResult ? '<span style="color:#dc2626;font-weight:700;font-size:0.7rem;margin-left:8px;background:#fee2e2;border:1px solid #fca5a5;padding:2px 6px;border-radius:3px;">🚨 RESULT</span>' : ''}
+                        ${isCommodity && !isResult ? '<span style="color:#d97706;font-weight:700;font-size:0.7rem;margin-left:8px;background:#fef3c7;border:1px solid #fde68a;padding:2px 6px;border-radius:3px;">🛢️ COMMODITY</span>' : ''}
+                    </td>
+                    <td class="col-link"><a href="${news.link}" target="_blank" class="news-link">Open ↗</a></td>
                 `;
-                container.appendChild(card);
+                tbody.appendChild(row);
             });
 
             if (displayedCount === 0) {
@@ -331,8 +439,45 @@
             }
         }
 
-        fetchNews();
-        setInterval(fetchNews, 5 * 60 * 1000);
+        function isMarketHours() {
+            const now = new Date();
+            const istOptions = { timeZone: 'Asia/Kolkata', hour12: false, hour: 'numeric', minute: 'numeric', weekday: 'short' };
+            const formatter = new Intl.DateTimeFormat('en-US', istOptions);
+            const parts = formatter.formatToParts(now);
+            
+            let hour = 0, minute = 0, weekday = '';
+            parts.forEach(part => {
+                if (part.type === 'hour') hour = parseInt(part.value, 10);
+                if (part.type === 'minute') minute = parseInt(part.value, 10);
+                if (part.type === 'weekday') weekday = part.value; 
+            });
+
+            // Market is closed on Saturday and Sunday
+            if (weekday === 'Sat' || weekday === 'Sun') return false;
+
+            const timeInMinutes = hour * 60 + minute;
+            const marketOpen = 9 * 60 + 15; // 9:15 AM IST
+            const marketClose = 15 * 60 + 30; // 3:30 PM IST
+            
+            return timeInMinutes >= marketOpen && timeInMinutes <= marketClose;
+        }
+
+        const ALL_FEEDS = [...RSS_URLS, ...RESULT_RSS_URLS];
+
+        function scheduleNextFetch() {
+            const marketOpen = isMarketHours();
+            const delayMinutes = marketOpen ? 1 : 5;
+            
+            setTimeout(() => {
+                fetchNews(ALL_FEEDS).finally(() => {
+                    scheduleNextFetch();
+                });
+            }, delayMinutes * 60 * 1000);
+        }
+
+        fetchNews(ALL_FEEDS).finally(() => {
+            scheduleNextFetch();
+        });
     </script>
 </body>
 </html>
