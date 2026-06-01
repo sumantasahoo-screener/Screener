@@ -310,8 +310,39 @@
 </div>
 
 <script>
-    const BASE_URL = "https://orb-pro-worker.gsmmunna.workers.dev";
     const RPG_URL = "https://rpg-data-worker.gsmmunna.workers.dev";
+
+    // Slice last 30 minutes of data from fullDayData
+    function sliceLast30Min(fullData) {
+        if (!fullData) return null;
+        const sliced = {};
+        const MARKET_CLOSE_T = 375; // 15:30 IST = 375 mins from 9:15 AM
+        // Find the latest 't' within market hours only (ignore off-hours data)
+        let maxT = 0;
+        for (const sym in fullData) {
+            const hist = fullData[sym].history;
+            if (hist && hist.length > 0) {
+                // Only consider points within market hours
+                for (let i = hist.length - 1; i >= 0; i--) {
+                    if (hist[i].t <= MARKET_CLOSE_T) {
+                        if (hist[i].t > maxT) maxT = hist[i].t;
+                        break;
+                    }
+                }
+            }
+        }
+        if (maxT === 0) return null;
+        const cutoffT = maxT - 30;
+        for (const sym in fullData) {
+            const item = fullData[sym];
+            // Only include market-hours data points
+            const hist30 = (item.history || []).filter(p => p.t >= cutoffT && p.t <= MARKET_CLOSE_T);
+            if (hist30.length === 0) continue;
+            sliced[sym] = { ltp: item.ltp, t: item.t, history: hist30 };
+            if (item.open) sliced[sym].open = item.open;
+        }
+        return sliced;
+    }
 
     // Fetch and merge hourly RPG chunks into fullDayData format
     async function fetchRPGChunks(dateStr) {
@@ -384,31 +415,23 @@
 
     // Pre-fetch data to populate the symbol dropdown list
     async function fetchAndPopulateSymbols(dateStr) {
-        if(currentDateFetched === dateStr) return; 
+        if(currentDateFetched === dateStr && fullDayData) return; 
         try {
-            let url30 = `${BASE_URL}/data?path=${dateStr}/orb_pro_data.json&v=${Date.now()}`;
-            
-            const [res30, rpgData] = await Promise.all([
-                fetch(url30),
-                fetchRPGChunks(dateStr)
-            ]);
-            
-            if(!res30.ok) return;
-
-            min30Data = await res30.json();
+            const rpgData = await fetchRPGChunks(dateStr);
             fullDayData = rpgData;
+            min30Data = sliceLast30Min(fullDayData);
             currentDateFetched = dateStr;
             
+            const sourceData = fullDayData || min30Data;
+            if (!sourceData) return;
+
             const datalist = document.getElementById('symbolList');
             datalist.innerHTML = '';
             
-            let symbols = Object.keys(min30Data).filter(s => {
+            let symbols = Object.keys(sourceData).filter(s => {
                 if (['timestamp', 'ms_timestamp', 'indices'].includes(s)) return false;
-                // Explicitly allow major indices
                 if (s === 'NIFTY 50' || s === 'NIFTY BANK') return true;
-                // Remove Bonds, ETFs, and other indices
                 if (s.includes('NIFTY') || s.includes('BOND') || s.includes('SENSEX') || s.includes('BEES')) return false;
-                // NSE Stocks do not have spaces. Names with spaces are typically Indices.
                 if (s.includes(' ')) return false; 
                 return true;
             });
@@ -420,7 +443,6 @@
                 datalist.appendChild(opt);
             });
             
-            // Pre-calculate the leaderboard as soon as data arrives
             const tf = document.getElementById('timeframeSelect').value;
             const dataToUse = (tf === 'full') ? fullDayData : min30Data;
             let defaultBenchmark = document.getElementById('benchmarkInput').value.trim().toUpperCase() || 'NIFTY 50';
@@ -500,29 +522,20 @@
             document.getElementById('loading').style.display = 'block';
         }
         
-        // Show/hide live indicator based on date
         const isLive = (dateStr === getEffectiveDate());
         document.getElementById('live-indicator').style.display = isLive ? 'flex' : 'none';
 
         try {
             const tf = document.getElementById('timeframeSelect').value;
-            // Fetch both datasets concurrently if not already loaded for today
-            if(currentDateFetched !== dateStr || !min30Data) {
-                let url30 = `${BASE_URL}/data?path=${dateStr}/orb_pro_data.json&v=${Date.now()}`;
-                
-                const [res30, rpgData] = await Promise.all([
-                    fetch(url30),
-                    fetchRPGChunks(dateStr)
-                ]);
-                
-                if (!res30.ok) throw new Error(`No data found for this date.`);
-                
-                min30Data = await res30.json();
+            // Fetch RPG chunks only (no orb-pro-worker dependency)
+            if(currentDateFetched !== dateStr || !fullDayData) {
+                const rpgData = await fetchRPGChunks(dateStr);
+                if (!rpgData) throw new Error(`No RPG data found for this date.`);
                 fullDayData = rpgData;
+                min30Data = sliceLast30Min(fullDayData);
                 currentDateFetched = dateStr;
             }
             
-            // For chart plotting, if data is missing, throw an error to alert the user
             const data = (tf === 'full') ? fullDayData : min30Data;
             if (!data) throw new Error(`Data is not available for the selected timeframe (${tf}).`);
             
@@ -532,7 +545,6 @@
             plotChart(symbol, benchmark, data[symbol].history, data[benchmark].history);
             renderDualRS(symbol, benchmark, min30Data, fullDayData);
             
-            // Generate Leaderboard using selected timeframe data
             updateLeaderboard(data, benchmark);
         } catch (err) {
             if(!isSilent) alert(err.message);
