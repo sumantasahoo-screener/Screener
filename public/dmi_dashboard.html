@@ -199,6 +199,10 @@
                     AUTO SCAN
                 </label>
 
+                <div id="conn-status" style="font-size: 12px; font-weight: 800; padding: 12px 15px; border-radius: 8px; background: var(--surface); color: var(--text-dim); border: 1px solid var(--border); display: flex; align-items: center;">
+                    <span id="conn-dot" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#64748b; margin-right:6px;"></span>
+                    <span id="conn-text">WAITING</span>
+                </div>
                 <div id="status" class="status">Idle</div>
                 <button class="scan-btn" onclick="fetchDMI()">
                     <div class="spinner" id="btn-spinner" style="display:none; width:14px; height:14px; border-width:2px"></div>
@@ -243,7 +247,7 @@
                     ...data[sym],
                     diff: Math.abs(data[sym].pdi - data[sym].mdi)
                 })).filter(s => {
-                    if (s.candles < 15) return false;
+                    if (s.candles < 3) return false;  // Need at least 3 candles
                     if (s.sym === 'NIFTY 50' || s.sym === 'NIFTY BANK') return true;
                     if (s.sym.includes('NIFTY') || s.sym.includes('SENSEX') || s.sym.includes('VIX')) return false;
                     return true;
@@ -279,7 +283,38 @@
                 });
 
                 loading.style.display = "none";
-                status.innerText = `Scanned ${stocks.length} Stocks`;
+                
+                if (stocks.length > 0) {
+                    const dataTimeStr = stocks[0].time; // e.g. "15:55"
+                    const parts = dataTimeStr.split(':');
+                    const dataMins = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                    
+                    const now = new Date();
+                    const istTime = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + (5.5 * 60 * 60 * 1000));
+                    const currentMins = istTime.getHours() * 60 + istTime.getMinutes();
+                    
+                    const diff = currentMins - dataMins;
+                    const isOnline = diff >= 0 && diff <= 5;
+                    
+                    const connDot = document.getElementById('conn-dot');
+                    const connText = document.getElementById('conn-text');
+                    
+                    if (isOnline) {
+                        connDot.style.background = '#10b981';
+                        connDot.style.boxShadow = '0 0 8px #10b981';
+                        connText.innerText = 'ONLINE';
+                        connText.style.color = '#10b981';
+                    } else {
+                        connDot.style.background = '#ef4444';
+                        connDot.style.boxShadow = 'none';
+                        connText.innerText = 'OFFLINE';
+                        connText.style.color = '#ef4444';
+                    }
+                    
+                    status.innerText = `Scanned ${stocks.length} (Last: ${dataTimeStr})`;
+                } else {
+                    status.innerText = `Scanned 0 Stocks`;
+                }
                 renderTable(stocks);
 
             } catch (err) {
@@ -384,7 +419,7 @@
                     <td class="val-pdi">${s.pdi}</td>
                     <td class="val-mdi">${s.mdi}</td>
                     <td>${s.ltp.toFixed(1)}</td>
-                    <td style="color:var(--text-dim)">${s.candles}</td>
+                    <td style="color:var(--text-dim)">${s.candles}${s.partial ? ' <span style="font-size:9px; background:#f97316; color:#fff; padding:1px 4px; border-radius:3px; font-weight:800;">PARTIAL</span>' : ''}</td>
                 </tr>
                 `;
             });
