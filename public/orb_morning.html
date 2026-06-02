@@ -710,8 +710,7 @@
     <div class="container">
         <header>
             <div class="logo-box">
-                <h1>ORB <span>MASTER PRO</span></h1>
-                <span>5M | 15M | 30M BREAKOUTS</span>
+                <h1>ORB</h1>
             </div>
 
             <div class="toolbar">
@@ -744,8 +743,6 @@
                     onclick="showLog()">📜 HISTORY</button>
                 <button class="tool-btn" id="btn-pdh" onclick="manualFetchPDH()"
                     style="display: flex; flex-direction: row; align-items: center; gap: 5px; padding: 6px 12px; white-space: nowrap; height: 32px">🔄 SYNC</button>
-                <button class="action-btn" onclick="runSmartScan()" 
-                    style="background:#f59e0b; color:#fff; box-shadow:0 4px 15px rgba(245,158,11,0.25); display: flex; flex-direction: row; align-items: center; gap: 6px; padding: 6px 14px; font-size: 11px; white-space: nowrap; height: 32px; border-radius: 10px">🛰️ SMART SCAN</button>
                 <button class="action-btn" onclick="forceRefresh()" 
                     style="background:var(--bear); color:#fff; box-shadow:0 4px 15px rgba(225,29,72,0.25); display: flex; flex-direction: row; align-items: center; gap: 6px; padding: 6px 14px; font-size: 11px; white-space: nowrap; height: 32px; border-radius: 10px">⚡ REFRESH</button>
 
@@ -765,7 +762,7 @@
         <div id="ticker-wrap" style="display:flex; align-items:center; background:#ffffff; border:1px solid var(--border); border-radius:12px; margin-bottom:15px; overflow:hidden; position:relative; box-shadow:var(--shadow-md)">
             <div style="background:var(--accent); color:#ffffff; font-weight:900; padding:10px 15px; z-index:2; position:relative; border-right:1px solid var(--border); display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:145px; text-align:center; box-sizing:border-box">
                 <span style="font-size:13px; font-weight:900">🔥 LATEST</span>
-                <span id="last-scan-status" style="font-size:9px; font-weight:800; opacity:0.9; margin-top:2px; letter-spacing:0.5px">SCANNING...</span>
+                <span id="last-scan-status" style="font-size:12px; font-weight:900; margin-top:3px; letter-spacing:0.3px; text-shadow:none">SCANNING...</span>
             </div>
             <div style="flex:1; overflow:hidden; position:relative; padding:10px 0; background:rgba(0,0,0,0.015)">
                 <div id="ticker-content" style="display:flex; gap:40px; white-space:nowrap; padding-left:15px; animation: ticker-scroll 30s linear infinite;">
@@ -850,8 +847,7 @@
 
     <script>
         const SOURCES = [
-            "https://orb-pro-worker.gsmmunna.workers.dev/data",
-            "https://orb-pro-worker.susanta41012.workers.dev/data"
+            "https://orb-pro-worker.gsmmunna.workers.dev/data"
         ];
         const OHLC_API = "https://pd-ohlc-worker.gsmmunna.workers.dev/get-ohlc";
 
@@ -883,6 +879,7 @@
         let pdData = {};
         let liveData = {};
         let lastDataTime = null;
+        let lastFetchTime = null;
         let globalLogs = [];
         let currentFilter = 'ALL';
         let searchQuery = '';
@@ -1228,9 +1225,33 @@
                         if (currentFilter === 'LATEST') renderGrid(); // Refresh if LATEST filter is active
                     }).catch(console.error);
 
-                const fetchPromises = SOURCES.map(url =>
-                    fetch(`${url}?path=${today}/orb_pro_data.json&v=${cacheBust}`, { cache: 'no-store' })
-                        .then(res => res.ok ? res.json() : null).catch(() => null)
+                // Determine IST hour for history files
+                const istMs = Date.now() + new Date().getTimezoneOffset() * 60000 + 5.5 * 3600000;
+                const istDate = new Date(istMs).toISOString().slice(0, 10);
+                let currHour, prevHour;
+                if (today === istDate) {
+                    currHour = String(new Date(istMs).getHours()).padStart(2, '0');
+                    prevHour = String(Math.max(9, parseInt(currHour) - 1)).padStart(2, '0');
+                } else {
+                    currHour = '15'; prevHour = '14';
+                }
+
+                const fetchPromises = SOURCES.map((url, i) =>
+                    Promise.all([
+                        fetch(`${url}?path=${today}/orb_snap.json&v=${cacheBust}`, { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null),
+                        fetch(`${url}?path=${today}/orb_hist_${currHour}.json&v=${cacheBust}`, { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).catch(() => ({})),
+                        fetch(`${url}?path=${today}/orb_hist_${prevHour}.json&v=${cacheBust}`, { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))
+                    ]).then(([snap, histCurr, histPrev]) => {
+                        if (!snap) return null;
+                        const merged = {};
+                        Object.keys(snap).forEach(sym => {
+                            if (sym === '_lastKey') return;
+                            const prevH = (histPrev[sym] || {}).history || [];
+                            const currH = (histCurr[sym] || {}).history || [];
+                            merged[sym] = { ...snap[sym], history: [...prevH, ...currH].slice(-30) };
+                        });
+                        return merged;
+                    }).catch(() => null)
                 );
 
                 const datasets = await Promise.all(fetchPromises.map((p, i) =>
@@ -1268,6 +1289,7 @@
                 }
                 const dataTime = new Date(new Date().setHours(9, 15, 0, 0) + maxT * 60000);
                 lastDataTime = dataTime;
+                lastFetchTime = new Date(); // Track when data was actually fetched
                 updateScanStatus();
 
                 renderGrid();
@@ -1587,23 +1609,26 @@
             const scanStatusEl = document.getElementById('last-scan-status');
             if (!scanStatusEl) return;
 
-            if (!lastDataTime) {
-                scanStatusEl.innerText = "WAITING DATA";
+            if (!lastFetchTime) {
+                scanStatusEl.innerHTML = `<span style="color:rgba(255,255,255,0.8); font-size:11px">⏳ WAITING...</span>`;
                 return;
             }
 
             const now = new Date();
-            const diffMs = now.getTime() - lastDataTime.getTime();
-            const diffMins = diffMs / 60000;
-            const timeStr = lastDataTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
-            
+            const diffMins = (now.getTime() - lastFetchTime.getTime()) / 60000;
+            const scanTimeStr = lastDataTime
+                ? lastDataTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
+                : lastFetchTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
             const topBar = document.getElementById('top-status-bar');
 
-            if (diffMins > 5 || diffMins < -5) {
-                scanStatusEl.innerHTML = `<span style="color:#ef4444; font-weight:900; animation: blinker 1.5s linear infinite;">⚠️ OFFLINE (${timeStr})</span>`;
+            if (diffMins > 6) {
+                // Data older than 6 minutes = OFFLINE
+                scanStatusEl.innerHTML = `<span style="color:#ff6b6b; font-size:12px; font-weight:800; letter-spacing:0.5px">⚠️ OFFLINE (${scanTimeStr})</span>`;
                 if (topBar) topBar.className = 'status-bar-grey';
             } else {
-                scanStatusEl.innerHTML = `<span style="color:#000000; font-weight:800">SCAN: ${timeStr}</span>`;
+                // Data fresh = ONLINE
+                scanStatusEl.innerHTML = `<span style="color:#4ade80; font-size:12px; font-weight:800; letter-spacing:0.5px">⚡ ONLINE (${scanTimeStr})</span>`;
                 if (topBar) topBar.className = 'status-bar-green';
             }
         }
