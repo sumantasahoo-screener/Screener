@@ -1,45 +1,39 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="t1">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VIX Edge | Nifty Tracker</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%230ea5e9'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='40' font-weight='900' font-family='Arial,sans-serif' fill='white'>V</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <style>
-        [data-theme="dark"] {
-            --bg:       #0d1117;
-            --bg2:      #010409;
-            --card:     rgba(22,27,34,0.9);
-            --border:   rgba(255,255,255,0.08);
-            --glass:    rgba(255,255,255,0.04);
-            --text:     #c9d1d9;
-            --dim:      #8b949e;
-            --primary:  #58a6ff;
-            --gold:     #f0b90b;
-            --accent:   #238636;
-            --danger:   #f85149;
-            --green:    #3fb950;
-            --inp:      rgba(0,0,0,0.3);
-            --shadow:   rgba(0,0,0,0.5);
-            --morning:  #a78bfa;
+        /* ── Slate Pro Theme ── */
+        :root {
+            --bg: #f1f5f9; --bg2: #e2e8f0; --card: #ffffff;
+            --border: rgba(100,116,139,0.2); --glass: rgba(100,116,139,0.08);
+            --text: #0f172a; --dim: #475569; --primary: #334155;
+            --gold: #b45309; --accent: #15803d; --danger: #b91c1c;
+            --green: #15803d; --inp: rgba(0,0,0,0.05);
+            --shadow: rgba(0,0,0,0.08); --morning: #7c3aed;
         }
-        [data-theme="light"] {
-            --bg:       #f0f2f5;
-            --bg2:      #ffffff;
-            --card:     rgba(255,255,255,0.97);
-            --border:   rgba(0,0,0,0.09);
-            --glass:    rgba(0,0,0,0.04);
-            --text:     #1a1d23;
-            --dim:      #5c6370;
-            --primary:  #1a73e8;
-            --gold:     #b06000;
-            --accent:   #1a7f37;
-            --danger:   #d93025;
-            --green:    #1a7f37;
-            --inp:      rgba(0,0,0,0.05);
-            --shadow:   rgba(0,0,0,0.1);
-            --morning:  #7c3aed;
+
+        /* Force ALL ApexCharts text to be dark - overrides internal SVG fill */
+        .apexcharts-text,
+        .apexcharts-xaxis-label text,
+        .apexcharts-yaxis-label text,
+        .apexcharts-yaxis text,
+        .apexcharts-xaxis text,
+        .apexcharts-legend-text,
+        .apexcharts-datalabel,
+        .apexcharts-title-text,
+        .apexcharts-subtitle-text,
+        .apexcharts-tooltip-text,
+        text.apexcharts-xaxis-label,
+        text.apexcharts-yaxis-label { 
+            fill: #0f172a !important; 
+            color: #0f172a !important; 
+            font-weight: 700 !important;
         }
 
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -246,17 +240,12 @@
 
         /* ── Morning Snapshot Card ── */
         .snapshot-card {
-            background: linear-gradient(135deg, rgba(167,139,250,0.08) 0%, rgba(22,27,34,0.9) 100%);
-            border: 1px solid rgba(167,139,250,0.25);
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            border: 1px solid rgba(124,58,237,0.2);
             border-radius: 16px;
             padding: 0.9rem 1.1rem;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 12px var(--shadow), 0 0 20px rgba(167,139,250,0.05);
+            box-shadow: 0 2px 12px var(--shadow), 0 0 20px rgba(124,58,237,0.06);
             flex-shrink: 0;
-        }
-        [data-theme="light"] .snapshot-card {
-            background: linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(255,255,255,0.97) 100%);
-            border-color: rgba(124,58,237,0.2);
         }
         .snapshot-header {
             display: flex; align-items: center; justify-content: space-between;
@@ -279,8 +268,8 @@
             gap: 0.4rem;
         }
         .snap-item {
-            background: rgba(167,139,250,0.06);
-            border: 1px solid rgba(167,139,250,0.12);
+            background: rgba(255,255,255,0.8);
+            border: 1px solid rgba(124,58,237,0.15);
             border-radius: 8px;
             padding: 0.45rem 0.6rem;
             display: flex;
@@ -288,10 +277,6 @@
             gap: 0.1rem;
             position: relative;
             overflow: hidden;
-        }
-        [data-theme="light"] .snap-item {
-            background: rgba(124,58,237,0.04);
-            border-color: rgba(124,58,237,0.1);
         }
         .snap-item.full-width { grid-column: 1 / -1; }
 
@@ -380,7 +365,7 @@
             <span id="badge-text">Market Closed</span>
         </div>
         <button class="btn-trigger" id="trigger-btn" onclick="manualTrigger()">⚡ Trigger</button>
-        <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️ Light</button>
+
         <span class="clock" id="clock">00:00:00</span>
     </div>
 </header>
@@ -521,22 +506,8 @@
     });
 
     // ── Theme ──
-    function initTheme() {
-        const saved = localStorage.getItem('vixedge-theme') || 'dark';
-        applyTheme(saved, false);
-    }
-    function toggleTheme() {
-        const cur = document.documentElement.getAttribute('data-theme');
-        applyTheme(cur === 'dark' ? 'light' : 'dark', true);
-    }
-    function applyTheme(theme, rerender) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('vixedge-theme', theme);
-        document.getElementById('theme-btn').textContent = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
-        if (rerender && levelsChart) levelsChart.updateOptions(chartTheme());
-        if (rerender && compareChart) compareChart.updateOptions(chartTheme());
-    }
-    function isDark() { return document.documentElement.getAttribute('data-theme') === 'dark'; }
+    function initTheme() { /* Slate Pro theme fixed */ }
+    function isDark() { return false; }
     function chartTheme() {
         const dark = isDark();
         return {
@@ -653,13 +624,20 @@
             container.innerHTML = '';
             const todayStr = getISTDateStr();
             const pastDates = Array.isArray(dates) ? dates.filter(d => d !== todayStr) : [];
-            pastDates.forEach(date => {
-                container.appendChild(makeDateBtn(date, fmtDate(date), false));
-            });
+            
+            // Append 'Today' button first
             const todayExists = Array.isArray(dates) && dates.includes(todayStr);
             const tb = makeDateBtn('today', 'Today', true);
             if (!todayExists) tb.style.opacity = '0.55';
             container.appendChild(tb);
+
+            // Sort past dates descending (newest past date first)
+            pastDates.sort((a, b) => b.localeCompare(a));
+
+            // Append past dates after 'Today'
+            pastDates.forEach(date => {
+                container.appendChild(makeDateBtn(date, fmtDate(date), false));
+            });
         } catch {
             container.innerHTML = '<span style="color:var(--danger);font-size:0.72rem;">Error loading dates</span>';
         }
@@ -694,10 +672,30 @@
     // ── Fetch Data ──
     async function fetchData() {
         try {
-            const url = selectedDate === 'today' ? API + '/' : API + '/history?date=' + selectedDate;
-            const res = await fetch(url);
-            const data = await res.json();
-            if (data.error) throw new Error(data.error);
+            let url = selectedDate === 'today' ? API + '/' : API + '/history?date=' + selectedDate;
+            let res = await fetch(url);
+            let data = await res.json();
+            
+            let isFallback = false;
+            let fallbackDateStr = '';
+
+            if (data.error) {
+                if (selectedDate === 'today') {
+                    const datesRes = await fetch(API + '/dates');
+                    const datesList = await datesRes.json();
+                    if (Array.isArray(datesList) && datesList.length > 0) {
+                        fallbackDateStr = datesList[0];
+                        res = await fetch(API + '/history?date=' + fallbackDateStr);
+                        data = await res.json();
+                        if (data.error) throw new Error(data.error);
+                        isFallback = true;
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } else {
+                    throw new Error(data.error);
+                }
+            }
 
             const arr = Array.isArray(data) ? data : [data];
             const latest = arr[arr.length - 1];
@@ -730,7 +728,12 @@
 
             updateCompareChart(arr);
             nextRefresh = Date.now() + REFRESH_MS;
-            showMsg('', '');
+            
+            if (isFallback) {
+                showMsg('⚠️ Waiting for market open. Showing previous data from ' + fallbackDateStr);
+            } else {
+                showMsg('', '');
+            }
 
         } catch (err) {
             console.error(err);
@@ -789,10 +792,13 @@
             document.getElementById('lvl-'+k).textContent =
                 L[k === 'pivot' ? 'pivot' : k].toLocaleString('en-IN', { maximumFractionDigits: 0 });
         });
-        levelsChart.updateSeries([{ data: [
+        const dataArr = [
             Math.round(L.r2), Math.round(L.r1), Math.round(L.pivot),
             Math.round(L.s1), Math.round(L.s2)
-        ]}]);
+        ];
+        window.currentLevels = dataArr; // Save real values globally for the labels
+        levelsChart.updateSeries([{ data: [100, 95, 90, 85, 80] }]);
+        levelsChart.updateOptions({ xaxis: { min: 0, max: 100 } });
         if (morningScan) renderMorningScan();
     }
 
@@ -806,12 +812,23 @@
                 background: 'transparent',
                 animations: { enabled: true, easing: 'easeinout', speed: 600 }
             },
-            plotOptions: { bar: { borderRadius: 6, distributed: true, horizontal: true, barHeight: '60%' } },
-            colors: ['#f85149','#ffa39e','#f0b90b','#6abf69','#238636'],
+            plotOptions: { 
+                bar: { 
+                    borderRadius: 4, distributed: true, horizontal: true, barHeight: '85%',
+                    dataLabels: { position: 'center' }
+                } 
+            },
+            colors: ['#f85149', '#ffa39e', '#58a6ff', '#6abf69', '#238636'],
+
             dataLabels: {
                 enabled: true,
-                formatter: v => v ? v.toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '',
-                style: { colors: ['#fff'], fontSize: '12px', fontFamily: 'JetBrains Mono' }
+                formatter: function (val, opts) {
+                    if (window.currentLevels && window.currentLevels[opts.dataPointIndex]) {
+                        return window.currentLevels[opts.dataPointIndex].toLocaleString('en-IN');
+                    }
+                    return '';
+                },
+                style: { colors: ['#fff'], fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 'bold' }
             },
             xaxis: {
                 categories: ['R2 (Top)','R1 (Upper)','Pivot','S1 (Lower)','S2 (Bottom)'],
@@ -827,7 +844,6 @@
 
     // ── Chart 2 ──
     function initCompareChart() {
-        const dark = isDark();
         compareChart = new ApexCharts(document.querySelector('#compare-chart'), {
             series: [
                 { name: 'Nifty 50',  type: 'line', data: [] },
@@ -839,45 +855,45 @@
                 animations: { enabled: true, easing: 'easeinout', speed: 600 }
             },
             stroke: { width: [2.5, 2], curve: 'smooth' },
-            colors: ['#58a6ff','#f0b90b'],
+            colors: ['#1d4ed8','#d97706'],
             markers: { size: 0 },
             xaxis: {
                 categories: [],
                 labels: {
-                    style: { colors: dark ? '#8b949e' : '#5c6370', fontSize: '10px', fontFamily: 'JetBrains Mono' },
+                    style: { colors: '#0f172a', fontSize: '10px', fontFamily: 'JetBrains Mono' },
                     rotate: -30
                 }
             },
             yaxis: [
                 {
                     seriesName: 'Nifty 50',
-                    title: { text: 'N Nifty', style: { color: '#58a6ff', fontSize: '10px', fontFamily: 'Outfit' } },
+                    title: { text: 'N Nifty', style: { color: '#0f172a', fontSize: '10px', fontFamily: 'Outfit' } },
                     labels: {
-                        style: { colors: '#58a6ff', fontFamily: 'JetBrains Mono', fontSize: '10px' },
+                        style: { colors: '#0f172a', fontFamily: 'JetBrains Mono', fontSize: '11px', fontWeight: 700 },
                         formatter: v => v ? v.toLocaleString('en-IN', { maximumFractionDigits: 0 }) : ''
                     },
                     forceNiceScale: true, decimalsInFloat: 0
                 },
                 {
                     seriesName: 'India VIX', opposite: true,
-                    title: { text: 'VIX', style: { color: '#f0b90b', fontSize: '10px', fontFamily: 'Outfit' } },
+                    title: { text: 'VIX', style: { color: '#0f172a', fontSize: '10px', fontFamily: 'Outfit' } },
                     labels: {
-                        style: { colors: '#f0b90b', fontFamily: 'JetBrains Mono', fontSize: '10px' },
+                        style: { colors: '#0f172a', fontFamily: 'JetBrains Mono', fontSize: '11px', fontWeight: 700 },
                         formatter: v => v ? v.toFixed(2) : ''
                     },
                     forceNiceScale: true, decimalsInFloat: 2
                 }
             ],
             legend: {
-                labels: { colors: dark ? '#c9d1d9' : '#1a1d23' },
+                labels: { colors: '#0f172a' },
                 position: 'top', fontSize: '11px'
             },
             grid: {
-                borderColor: dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)',
+                borderColor: 'rgba(0,0,0,0.1)',
                 strokeDashArray: 4
             },
             tooltip: {
-                theme: dark ? 'dark' : 'light', shared: true, intersect: false,
+                theme: 'light', shared: true, intersect: false,
                 y: [
                     { formatter: v => v ? v.toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—' },
                     { formatter: v => v ? v.toFixed(2) : '—' }
@@ -885,7 +901,7 @@
             },
             noData: {
                 text: 'No data — Press ⚡ Trigger to fetch',
-                style: { color: dark ? '#8b949e' : '#5c6370', fontSize: '13px' }
+                style: { color: '#475569', fontSize: '13px' }
             }
         });
         compareChart.render();
@@ -902,6 +918,7 @@
         const vixPad   = (vixMax - vixMin) * 0.1 || 0.5;
         compareChart.updateOptions({
             xaxis: { categories: labels },
+            noData: { text: '' }, // Clears the stuck text
             yaxis: [
                 {
                     seriesName: 'Nifty 50',
