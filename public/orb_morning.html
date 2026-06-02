@@ -776,6 +776,7 @@
                 <thead>
                     <tr style="cursor:pointer; user-select:none">
                         <th style="width:14%" onclick="setSort('sym')">SYMBOL <span id="sort-sym"></span></th>
+                        <th>LATEST EVENT</th>
                         <th onclick="setSort('score')">STRENGTH <span id="sort-score"></span></th>
                         <th onclick="setSort('rsi')">RSI TREND <span id="sort-rsi"></span></th>
                         <th onclick="setSort('orb')">ORB STATUS (5/15/30) <span id="sort-orb"></span></th>
@@ -1437,8 +1438,10 @@
                 
                 const logEntry = globalLogs.find(l => l.symbol === sym);
                 const latestBreakoutT = logEntry ? logEntry.t : -1;
+                const latestEvent = logEntry ? logEntry.event : null;
+                const latestEventTime = logEntry ? logEntry.time : null;
 
-                return { sym, b5, b15, b30, ltp, lastT, pd, score, score5m, sortScore, activeType, isPDHBrk, isPDLBrk, isTrap, trapType, rsi, rsiOld, rsiDir, rsiUTurn, latestBreakoutT };
+                return { sym, b5, b15, b30, ltp, lastT, pd, score, score5m, sortScore, activeType, isPDHBrk, isPDLBrk, isTrap, trapType, rsi, rsiOld, rsiDir, rsiUTurn, latestBreakoutT, latestEvent, latestEventTime };
             });
 
             // Apply Filters
@@ -1536,6 +1539,9 @@
                                 </div>
                                 ${pdhAlert} ${pdlAlert}
                             </div>
+                        </td>
+                        <td style="text-align:center">
+                            ${s.latestEvent ? `<div style="font-size:11px; font-weight:800; color:var(--text); background:rgba(0,0,0,0.02); border:1px solid var(--border); padding:4px 8px; border-radius:6px; display:inline-block">⚡ ${s.latestEventTime}<br><span style="color:var(--accent); font-size:10px">${s.latestEvent}</span></div>` : '<span style="color:var(--text-dim); opacity:0.3; font-size:11px">--</span>'}
                         </td>
                         <td>
                             ${getStrengthDonutSVG(s.sym, s.score, s.score5m, s.isTrap, s.trapType, s.isPDHBrk, s.isPDLBrk, s.rsiUTurn)}
