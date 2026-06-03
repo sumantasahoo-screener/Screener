@@ -1231,8 +1231,10 @@
                 const istDate = new Date(istMs).toISOString().slice(0, 10);
                 let currHour, prevHour;
                 if (today === istDate) {
-                    currHour = String(new Date(istMs).getHours()).padStart(2, '0');
-                    prevHour = String(Math.max(9, parseInt(currHour) - 1)).padStart(2, '0');
+                    let h = new Date(istMs).getHours();
+                    if (h >= 16) h = 15;
+                    currHour = String(h).padStart(2, '0');
+                    prevHour = String(Math.max(9, h - 1)).padStart(2, '0');
                 } else {
                     currHour = '15'; prevHour = '14';
                 }
