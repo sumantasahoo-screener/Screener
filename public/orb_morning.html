@@ -51,7 +51,7 @@
             background: var(--card);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
+            border: 2px solid #eab308;
             border-radius: 16px;
             box-shadow: var(--shadow-lg);
         }
@@ -155,7 +155,7 @@
             background: var(--card);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
+            border: 6px solid #eab308;
             border-radius: 16px;
             box-shadow: var(--shadow-lg);
             overflow-x: auto;
@@ -345,6 +345,7 @@
             gap: 10px;
             align-items: center;
             font-weight: 600;
+            flex-wrap: wrap;
         }
 
         #raw-modal {
@@ -375,6 +376,10 @@
 
         /* Mobile Optimization */
         @media (max-width: 768px) {
+            #pdh-status {
+                justify-content: center;
+                margin-top: 0px;
+            }
             .container {
                 padding: 10px;
             }
@@ -756,13 +761,12 @@
             </div>
         </header>
 
-        <div id="pdh-status">Loading systems...</div>
+        <div id="pdh-status"><span id="pdh-msg">Loading systems...</span><span id="sys-status"></span></div>
 
         <!-- Latest Alerts Ticker -->
-        <div id="ticker-wrap" style="display:flex; align-items:center; background:#ffffff; border:1px solid var(--border); border-radius:12px; margin-bottom:15px; overflow:hidden; position:relative; box-shadow:var(--shadow-md)">
-            <div style="background:var(--accent); color:#ffffff; font-weight:900; padding:10px 15px; z-index:2; position:relative; border-right:1px solid var(--border); display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:145px; text-align:center; box-sizing:border-box">
-                <span style="font-size:13px; font-weight:900">🔥 LATEST</span>
-                <span id="last-scan-status" style="font-size:12px; font-weight:900; margin-top:3px; letter-spacing:0.3px; text-shadow:none">SCANNING...</span>
+        <div id="ticker-wrap" style="display:flex; align-items:center; background:#ffffff; border:3px solid #eab308; border-radius:12px; margin-bottom:15px; overflow:hidden; position:relative; box-shadow:var(--shadow-md)">
+            <div style="background:#eab308; color:#ffffff; font-weight:900; padding:10px 15px; z-index:2; position:relative; border-right:1px solid var(--border); display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:145px; text-align:center; box-sizing:border-box">
+                <span id="last-scan-status" style="font-size:13px; font-weight:900; letter-spacing:0.5px; text-shadow:none">SCANNING...</span>
             </div>
             <div style="flex:1; overflow:hidden; position:relative; padding:10px 0; background:rgba(0,0,0,0.015)">
                 <div id="ticker-content" style="display:flex; gap:40px; white-space:nowrap; padding-left:15px; animation: ticker-scroll 30s linear infinite;">
@@ -1139,13 +1143,13 @@
                     pdData = await response.json();
                     const firstSym = Object.keys(pdData)[0];
                     const sourceInfo = pdData[firstSym]?.source || 'R2';
-                    document.getElementById('pdh-status').innerHTML = `<span style="color:var(--bull)">✅ PREV DAY DATA LOADED (${Object.keys(pdData).length} STOCKS)</span>`;
+                    document.getElementById('pdh-msg').innerHTML = `<span style="color:var(--bull)">✅ PREV DAY DATA LOADED (${Object.keys(pdData).length} STOCKS)</span>`;
                 } else {
-                    document.getElementById('pdh-status').innerHTML = `<span style="color:var(--bear)">❌ PREV DAY DATA MISSING (${prevDate})</span> <button onclick="triggerBackendFetch()" style="margin-left:10px; background:var(--accent); color:#fff; border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:10px; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1)">FORCE GENERATE DATA</button>`;
+                    document.getElementById('pdh-msg').innerHTML = `<span style="color:var(--bear)">❌ PREV DAY DATA MISSING (${prevDate})</span> <button onclick="triggerBackendFetch()" style="margin-left:10px; background:var(--accent); color:#fff; border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:10px; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.1)">FORCE GENERATE DATA</button>`;
                 }
             } catch (error) {
                 console.error(error);
-                document.getElementById('pdh-status').innerHTML = `<span style="color:var(--bear)">❌ FAILED TO FETCH PREV DAY DATA</span>`;
+                document.getElementById('pdh-msg').innerHTML = `<span style="color:var(--bear)">❌ FAILED TO FETCH PREV DAY DATA</span>`;
             }
         }
 
@@ -1615,10 +1619,12 @@
 
         function updateScanStatus() {
             const scanStatusEl = document.getElementById('last-scan-status');
+            const sysStatusEl = document.getElementById('sys-status');
             if (!scanStatusEl) return;
 
             if (!lastFetchTime) {
-                scanStatusEl.innerHTML = `<span style="color:rgba(255,255,255,0.8); font-size:11px">⏳ WAITING...</span>`;
+                scanStatusEl.innerHTML = `WAITING...`;
+                if (sysStatusEl) sysStatusEl.innerHTML = `<span style="color:var(--text-dim)">⏳ Checking System...</span>`;
                 return;
             }
 
@@ -1628,15 +1634,25 @@
                 ? lastDataTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
                 : lastFetchTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
 
+            scanStatusEl.innerHTML = `Last scan ${scanTimeStr}`;
+
             const topBar = document.getElementById('top-status-bar');
 
-            if (diffMins > 6) {
-                // Data older than 6 minutes = OFFLINE
-                scanStatusEl.innerHTML = `<span style="color:#ff6b6b; font-size:12px; font-weight:800; letter-spacing:0.5px">⚠️ OFFLINE (${scanTimeStr})</span>`;
+            const istTime = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + 5.5 * 3600000);
+            const hh = istTime.getHours();
+            const mm = istTime.getMinutes();
+            const timeNum = hh * 100 + mm;
+            const day = istTime.getDay();
+            const isClosed = (day === 0 || day === 6 || timeNum < 915 || timeNum >= 1530);
+
+            if (isClosed) {
+                if (sysStatusEl) sysStatusEl.innerHTML = `<span style="color:#eab308; font-weight:800; letter-spacing:0.5px; background:rgba(234,179,8,0.1); padding:4px 10px; border-radius:6px; border:1px solid rgba(234,179,8,0.3)">🟡 MARKET CLOSED</span>`;
+                if (topBar) topBar.className = 'status-bar-grey';
+            } else if (diffMins > 5) {
+                if (sysStatusEl) sysStatusEl.innerHTML = `<span style="color:#ff6b6b; font-weight:800; letter-spacing:0.5px; background:rgba(255,107,107,0.1); padding:4px 10px; border-radius:6px; border:1px solid rgba(255,107,107,0.3)">🔴 OFFLINE</span>`;
                 if (topBar) topBar.className = 'status-bar-grey';
             } else {
-                // Data fresh = ONLINE
-                scanStatusEl.innerHTML = `<span style="color:#4ade80; font-size:12px; font-weight:800; letter-spacing:0.5px">⚡ ONLINE (${scanTimeStr})</span>`;
+                if (sysStatusEl) sysStatusEl.innerHTML = `<span style="color:#4ade80; font-weight:800; letter-spacing:0.5px; background:rgba(74,222,128,0.1); padding:4px 10px; border-radius:6px; border:1px solid rgba(74,222,128,0.3)">🟢 ONLINE</span>`;
                 if (topBar) topBar.className = 'status-bar-green';
             }
         }
