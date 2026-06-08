@@ -33,18 +33,32 @@
         }
 
         .container {
-            max-width: 1350px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
         .glass-panel {
             background: var(--card);
             backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
+            border: 1px solid transparent;
             border-radius: 20px;
             padding: 25px;
             margin-bottom: 25px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            background-clip: padding-box;
+            position: relative;
+        }
+        .glass-panel::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(56,189,248,0.55) 0%, rgba(99,102,241,0.45) 50%, rgba(16,185,129,0.4) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
         }
 
         .header {
@@ -52,35 +66,68 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 20px;
         }
 
-        .logo-area h1 {
-            margin: 0;
-            font-size: 2.2rem;
+        .logo-area {
+            flex-shrink: 0;
+        }
+
+        .logo-area img {
+            height: 38px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .app-title {
+            font-size: 1.6rem;
+            font-weight: 700;
             letter-spacing: -0.02em;
             background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 700;
             white-space: nowrap;
+            line-height: 1.2;
+        }
+
+        .app-subtitle {
+            font-size: 0.65rem;
+            color: #64748b;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            margin-top: 2px;
         }
 
         .controls {
             display: flex;
-            gap: 12px;
-            align-items: flex-end;
+            gap: 10px;
+            align-items: center;
             flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         @media (max-width: 1024px) {
             .header {
-                flex-direction: column;
+                flex-wrap: wrap;
                 align-items: flex-start;
+            }
+            .header-right {
+                align-items: flex-start;
+                width: 100%;
             }
             .controls {
                 width: 100%;
+                justify-content: flex-start;
             }
             .stats-grid {
                 grid-template-columns: 1fr 1fr !important;
@@ -88,15 +135,17 @@
         }
 
         @media (max-width: 768px) {
-            body { padding: 15px; }
-            .logo-area h1 { font-size: 1.8rem; }
-            .controls { gap: 10px; }
-            .btn { padding: 8px 15px; font-size: 0.8rem; flex: 1; }
-            .field { flex: 1; min-width: 120px; }
-            .field input { width: 100%; box-sizing: border-box; }
+            body { padding: 10px; }
+            .logo-area h1 { font-size: 1.5rem; }
+            .logo-area img { height: 36px !important; }
+            .controls { gap: 8px; }
+            .btn { padding: 8px 12px; font-size: 0.78rem; flex: 1; min-width: 80px; }
+            .field { flex: 1; min-width: 100px; }
+            .field input { width: 100%; box-sizing: border-box; font-size: 0.85rem; }
             .stats-grid { grid-template-columns: 1fr !important; }
             .nifty-bar { flex-wrap: wrap; height: auto; padding: 10px; gap: 10px; }
             .nb-item { border: none; padding: 0; }
+            #chartInfoPanel { font-size: 0.72rem !important; padding: 6px 10px !important; gap: 10px !important; }
 
             /* --- MOBILE GRAPH FIXES --- */
             /* Chart container overflow fix */
@@ -356,32 +405,36 @@
 
     <div class="container">
         <div class="header">
+            <!-- LEFT: Logo only -->
             <div class="logo-area">
-                <h1>Intraday <span style="font-weight: 300; opacity: 0.8; color: #38bdf8; -webkit-text-fill-color: initial;">Signal</span></h1>
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIwAAAAyCAYAAACOADM7AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAABpSSURBVHhe7VoHWFRn1h6kDQh2Udfs/yTZbM0m+fePWddYARGkqxQFxYYoERVEqiCKBWNBbLHGrsTeS4waSwQ1VixRYxfsvWABff/3fHdGR1ZUsrvZ7LPz6pl7Z+ar53tPu4Pu6dOn0ZTJZjHLm4gQZifMMOMNIYRZb7g3w4zXwkwYM8oEM2HMKBPMhDGjTPivIwz3+4KYUTaYPYwZZYKZMGaUCWbCmFEmmAljRplgJowZZYKZMGaUCWbCmFEmmAnzS4I8FjJ5NKTdyusTdVc2aP2k50/pXRrMhPkF4RlX5KbEQ8WiJ09x+tJlbD6wH3M2bsDIRQsxcNYs9P9yOgZNm4XM7PmY9fV6bNy3FycuXsDjEjRRQ2q3/xDMhPkF4xFl44E8JEycjMa9ovFOu1BUaeEPO19vWHt7wsqL0pzi3hyWHu6waNYU5fn5r4MC0bh7FBLHT8CmvfvUOIJiShFpI1R6gTxlYNJ/PWG4/3/5TwVG66aTMNxQSuD+w8e4c68QhY+K1PsdR4/DLzYelT29Uc7TB3aBwajSJhQ127RD7dYioajF979q0xbVA1qjoqcvKnu3gL2HDyq3DIK9jx9smrqhkps7XEmejXt2q3EVWZ7yVYSLMS5JYLw3vld44c1/EGF+6oH+K4nwRjCeAOXJkyd4WqyxpbC4GMtzc9Br7Bh4xvZBvfAu+N9O7VG3W1d4JCTgbRKkoocnaga3gVNIW9RoG4ZfhYahdgjJIu9DQ1GDHqcCPY5Ti1ZI+nIaNh48hFaJyXBs1ASVfXzgFBQEp1YBcGzaDNWdnTF+6TI1999B9GOyzmfqMn5mgp+FMMZD+7cfHlFyLa+TfwSljXH66jV4R8eggrs7rN09YOflhwr0DpW8/ZQ40qNUaxGAmkGtUYOEqdE6BE4kiCZClnYkTyjeDg5Gu4GDsf2Ho4aRgQc84SmrVuOjdu1Q1dcX1UkYJ/FO9Di1vHyRPH0mJq5ahQXbtiLn6A+4cvuWoadhvUJocYXyn+9JcfXPCHMO8zKIfkzl+cXk5iVQitZIIoo24gIPZePe3Zi0YiUGzZoDl+hYODT3QtWQEBVmnILaoFZAMCUINUUCW5MsbZTU4H0tXp0CGWYYnuxIKL0/Q08LP/wpojPiv5yMw2dOcxbOyTAjs67ZvQe+KanK89Qg6ZxaU0i86pxD36w5bJq5Q+/eDFW9vfBhWBi6ZmRg+8E8tVY1hgpZMtKLZBH81xFGWZGJ/BTcLy5C/s1r2HHqKGbs+hb9F03Djh8PKyXLkT1W+QFw/vp19BmViT/ywBy9vGBDz2FFcaT3qMFcpDrzEKdg5iXBbVXoqREcpAhSM1BIxO/5nbyv4dsC7/KwOwwdhsiRmYjIzETQ4AzmMK1RzrkBJix7MdR0HJoBSxdX1ArpwJwnFNXbBKMmvZR4KyFODQMRnZj7VGsZCEcmzjWae2D4V1+xupJtFMsutGsJHZk9jAlENUVU0AMS4mbhPRTcvo69509i2YFcjP12OWIXTkKrKYNQd2QM3u4XBsfYFtBFuqFahCdyLp5UY4iTEbqcu3ULzhHhsKxXFxV8/VA1sA2qiZWrQ2OIoUioMUr1NpR29DgBreBIyy/PA7SlF6jEXKSiuxc+7dQZd9UMGn68eA3v+frD0cMNE9esNXyqoce4MXDw9iEpwzg25wwhYULosdpIeJMwR1KK0PvUolRnm4otW8KpaVNsOXJEjSGUkX2UtCkzYUxB7TxlYlpw+wYGL5uFjxLbo/xnntBFuUPXkxLdHLo+3tD19YdFvwDYpgXDOtYHAZMGGkpXrb9gC/MKh4YN4OjviyqtAvGrliRKAA8vkGQJIjko4l3Ey1RnpeMUEoqqrVogcvw4rN6Ri+XMMZZv34aOw4ZB37AR/tapEy4XPWJZrGH/mbN418cLds4N8cXyVYZPNUSNyYIdvUZ1ei7xKNVIGCcSsgalplFIUk24JnohB5LPycUN248dV2M8UUW4oox6b8QrCSNNjWK8kYumEuM3fy8v//SXCXG5plLMpE9UJci7VgCPMQkkhTf0aYFK7PoFwiGF97za9w+CY6QHxm9ZrnUwxH4JS7eLihA5ajisG37KnMEDlfwDUY1hRRLQmko0C1ehiGSpxWS2Gr3C+OUrtLEMyFy8CNb1G6BeRASuPJaAoWFPwXm87c9yu1F9ZBpCkpyLECpy5EjYu7qiKvOhqpzLSZJnEkPCU62QMF7DSKAwVON7R+ZGtiRXTeZUWYuXKuIXq5BqIAz3Y4rSCSN92FYuIgplPXUjU0z6lXWIfzZMl1RSjG5YsJuhKGBiOirH+sM+3g82Sf70Lh7QxdGqEwz3ST54K7YVtp/XqhSVLHIEif0Cec1e/zW8Y2LxdstWqEDi2Lu6wc6lKfR0/7YU62ZusPZoxvyG4zVogPSZs1RfI1KnTYPuL3/BRyTUNVPCnD/PUrkJdB+8jyHz56vP5KHcQ17D+g+A7sMPUc7VBRaunMPVHXYUWzdWZSSHnsSs5O+PtxmimvSKRuKkidh74oQaQ1u/0E5WL1p5EaUSRpoaOKO9GPrefPgAO04fQ/buzYzrSzFk7Vykr56FoeuyMX7TUszf/S32nj2BB1TaY7E2YahJf8PlF4OS67lZ/BjDVsxFzW4+0HXlgfRhSIpoAuvOzmic0RMzcjdg08nDSFs9B3VSw+HStysKigqVZT//5YZSwjJPXryEdbt3Y/radRizeDE9x0L1eF9kBO+HU4bMm4PvDh6ko2LfYs1T5xw+jJFz52LO6rV4UMRDNJDy8p07mLJkCUbNmYNdx46y+VMUMRw+Zt/1O3chkwls1tKlGEUZs3gJxi9chHGLFmECPdisDRu4lj04mp+PhzKmEbJmCamcw7iTkiidMOwsCzfG5GuPCjFw2Uy8n9IB+hgv6GJcoest4sL43hC67p8yAaSE/xUNB3fHlSePFNtlI2osWYtBh6IK4783gbQyykth8qV2a/zgZaJB1CSHLGszYvOJQ2j4eTR03WRf3GNXFziEuyFoTCo2HT9gaPUcdx4/womCc0yUqWBVWTwfSymcb02Gf2OoB3zq0Ep0lsHE+p889zRGFD8p1khDopUZxrUbuspF1q/eyovhc8FLCSPfy5Jkw7LoG8WPEPoF3Vzo30gUD1gl+cI22Rf2TP7sEn3w3vAuqDcxAY2/SMBH6Z3RdernuG3crhqEIm9EuBJFIPW9avFqGPopXRnE+JlsSg7e6DxFtJfXw7Tt5Qf3Ebd4Cir38mNiy9AQ2xx2cf5oPXkQth47iEJO+vWRvYiak4W20waj85dDETd9NM7cvakNQGhu3Khmo7wCL2siejGR50OVbPgiVFtObdSF4B5J9/nqbIR+ORid5gxHxLwsdJw5HClfTcL1B1JviffXiCnn82zO1+AZYUwbl+yWd6sA1bt5wDLei2TxgS0JY5Pgh4rd3DH6uxXPFmlEkSSOspBXQDhUVhSzk1iR6bE84WdPDI/bjXhQXIzT1y5h+6kjWHogh2HkG0zathrTcr7GvB2bsGrfDtwxWOniPdvw+34d6Bkb0KM44634IETNHY09Z46p7wX9l0yDrnU9hibxpAxTneqjcoem2HzhhKYrw2ZMf6NRYnqvtXw15AwMB1ealAp+ZTQcwQ16DechvbR9xbpBl8gKL7Ix/tAnGKcLr6s2ki4o3yLTGv6VRMlPSg1Jx67mY8SK2Rj8zQK0XzYGFeJ9YZfSAtYpfrDqSw+T4APHXp7otCgLQ9Z/hYzVszFk1WykL5+J7WeOMod5ignfrkDXaSPQc95YxMwdp64RXw7HWh6YqDKHieVoVhjds8eg5aQ0uI1PgPOYPvAYm4TWUwej94IJmLptDQ5cOKstipA4Lc9KlPJMdnP2zk3M2r4eHaZ/jjqfR6JWAsve3lIS84AjGCpF2n8C27AmyFy7EMdvXUXnGSOga8vPg+vg93GhzMe+wvm7zx+VyyKFVt24h3LhrrCmR9WnURJ88U5sEHZefr6uskCW/fdHUwJi9WIM3KcSuZdQZSBnqTB8fZ1U8MpKghV1YD2gFWwGB8KGUeFv6V1w7oHJHt8UhnFLJczyQzlU5MdUNMNQT2dOGkBlBcA+tRXsKPYpAbBKa8XvmMPIYXSldK4Lne8f0HflTBRyDN+xydCF/IU5AS2zayNapzOtswG8pgxAwDweQgwPNLK+lvt0o0SxneRE8QwLveXZB3OJ7i6o0tMHoeP748iV82ptytMYFHeOYSFp/iT8Ji4Ius84fkxTVjLsG8X7Hq5wjOPhprXF+/3C4DWyD7ZdPIVvTh3GnxPaMsR+jA8zIjB52yrszj+NSVvXYMGOjc8OU0rM+5SeU0fAqiMTXxLGnnt2TPTH7xNCsP/eFbr3+/j2yD6MoXEkrJyOzxaOQbd5o9BjwVikrZmNmTs3Yj/HfpZ10A3I4cv7e8w7srdvwNA18zDq6/kYsX4hMnidtXUd7kpFRMKqQMerOCsp+YUwF0jqKRuWYeSmRcjcugRjtizBCBYd6/ZsV2OLp7nOEOmTmQjLWC9Y9+fZpQfBhkZfb2A3FDC7PHfrOhbvy0XGukWIXjAR4TyPzgxdkQvGIGH1DIyjR9547AAu3XmRXKUSZs/Z4/DOiEGzzDjUG9kTDn3pXchUfX9NbAcGwpbK+zArCh7jkuE+NgGuo+PhnB6FubkblbLbMgfQdW0M6wRv6JnrWPb1U0TTxXnzQF3xp4yuCJw6SMXXTnNHwuuLFLyX1p4H3RR28T6oGO+PCixhrXivi2iMT5I74OitS0ohgu9OHMFH8e34HYmW0BxW4v1Y7lYnScJnD8OCfVvonc4g//5tReAL9+6i1+wxKN/RFXWHfIapOeuw9WgehvKQ3k8PJ3FJ0C5N0HlKBm6xGhQIYSKmD4d1h8YozzBcPpmkSfKDU2oQfLMH43cDwpSr13VnyIqkGIkfJ8RtxnDgjuoJLeGSGYP5XI+CoQK6XPwQHyd2pFF9wj3QoLrRWMLq4YPYUJx+eEd5YZXDCmsk1+Ub+WwrQ2HVjhxfjFAKjz4MOZ0+RcDoZLVPaXOThPHNTIJFHxKmH0v6vgGw6+OD2gPawn12f9SmB9Z14no70Cl0qcP5ZQ1/5T4YwmK4jl6usOrhhreSghA8LgXL933HUUsjjCySIusUfH/1NGrG+MEixYdsbQGbAS2gHxiAqrE+WH5il6HVixBFd5wyBBaRLiQLwxkP3ZJXPfu8E90KE3PXsvLSDsUU1wrvYfDKOagQ5aXyJMeklkyuOZ+QlAqdnKM91Txy+xo+SmLu0b2Z8nTWzKv0Pd3xSd8O2HJWe7xtiuycTagTFQLnfl2xaP93z0g3YPEM6Do2ggVDrEMy5+nbkp6yEeIXTVFqEOX3mj0aluHOsCNR7El6W4ZkGxqArvOn+E3fEITMGIKEFV8i+es5+GzJRLiOS0SluBawpSe2ome24tp18Z5cf1OM37xCjakIw0qy4aAoesamyvptuU+bnh5okBaB849uqTbqD54k/MqCDUTbfvkE3unlD9tYhpsU7juVRtXLA2ET0p+dmRDGY0QcLHq4U/8sTugdHSg2NCpdVCNUjPOD7+gkxC6djCGbWd5vWYxE7sF7cgqqJrZQhLFO8qaHorfu4Qybrk3QMzurdA8jCzMqdf+V03grhotK8IKecdA22RuOyX6oxhxmwbFcQytNuUaIhwmfPgzlot1hww3pqWybRD+Ui3BBZ1ZRz6DCC3vKhIYwI7bVcHhPWk9zWnRLOKSQNFS8PSuYkd98pdp8vm0pFe2iFCEWbxPnBVsefDZDgEBcs4x29GIBkqZkov3geKzcn/tsT5rpAieL7qNOSjj0PbxgT8U6JHGfjPsfp4bj4kOhPRA3bzwsP3NV+7AjYfQkp11kU0TOHYULhaa/8GgQPczcuQE1+zB3YN5nRyKIh7b8zA0N0rvjEg9TZi948hANmJhadKeOZA80Rus4T5IoEgX0MAKVqvFFrVZbMnJImP+JJmGoH5tEb4ZKkpfrCx6binv8Xua/8vQh3GRsJvL29DIOJEr5NOqSBttyQn/svXhGjfUyHCw4DT96K+uoZrBloWPLfVszd6soP4u8mjDaCndfOYXafWh9JIldChVKwtgnM2REuWPuka2qjRy28c//BOI7Os4YpnIRqwEtYduP1kPXaMlF9Mr+QrME9pFE7jH7mVYYN/iJ5/gkWDLHEcLYpdJaGQ7t6EE+/0Z7qjls00Imoo3goLyXN8MWXW/nJhj/rfaY/iHHPfjjMcxZuxxbjuw37MRgscwd8Fijzo+05A+Y8NpGUjlUiCjIMsoNdZO74LLBA8Zmj4O1eEoq3Z5r0TOk1o72Q851g9INuYUcrvIGxA3O9DETTF10M5Q3rNGGhJGHfeeKJXDIoT5Ck6HRsKbhyR714r1plI0yuuPCI42sRqhRDZvIvcrzoAFLUq/G5ZollAZmJeM2v5f8SCMMjY55nS09hV1/tqc3+nNqe+Q/0Mgo1iPrlWdtsn51JoY5Tj28jQ9YPUo6YU+iSURxGMQ88U0Is/PySdSO56GTLPo0WkE/PziQdZW50TlHtqk2LF+0B1icXI5CltRu6hAmrk1h2Y+LJWGsGTosY5ojOnvCcwVQtNJOCKM9QLrGpExyIkmK7UkYvbhS9reiR+m/bq7qduTaBfyxd2sqqhHs4nyU97Jh7vLb2GDM27uFsZwjlSi3S+Lk7RtoMzEdduEuKB9NcsoBxDDhblsPg1bNU21E+fL8xSq8MUOSL8pTB+VJrN/FBWOnkTDGabgwI2EuFd/FJwNIGEM+pqfibUjET/qFI79I/IAkpo/hPJyE4bzlGbbs0lvS0/ig7sCu9ELaz5kKBj0ZsYUepmqMr5YbkjB29K66Ls4IYM4ihBGaXxLCDGVZHeUCG3og/QDNS/wmJZQOwKS6k/WKt+UeTLWVd/sS/pAWpkKYHc9cn94KDgNfQxjjGnMv/ojq9DDl6I6tDe6pPPOYKlRc9rEcrZF4CyNb+VYcdRtJeqkwKx54eeYitqmM5zyYGLp4Nb7pJAKSRt5eJWFcRsXSOt0ZJjgnD8qSC7fu5ooBa+YoQgo2nMzD7xJDteSPlik5g6zRih7Ac3xfVj+rsePkDzh19TLyWVmcuXUD++iKl+TlIHbRJLzHykkX7UZC+zG/8oYFrbESyRO7eCLLUiGwMkJ0n50JC3ozPb2qPYlrz4P6bXwQdl2TP1wi2FR0Ln+pX6R6PEVB8W3UkUSaHsZWPDN1oOfBfprBKoVhUPCI7UKnDlahVS9FxEB6U1pzzd5+6Ld4KiuZq8/2KnhYXIwd547Bm0WGDfeozkKei0k+FemMliyj73JM8RTivdwz+zCBZQ7DNet5XlYcX0j2f/3DMYvV4DnqxHR8wfXC+1hxeBfqj4im56LH5RwSKq2ooypMml9BGAkv2mluv3AcFXsxfjFx08ni+tJaUr1RiTF0wXEDYdhUGGpcgFhmm0kDyXBm84zP1nH+PBR/KscNPWZkqRxH2iho05BA2s11WofLCFpHDxdukHMm04KYcFvRitJXzVZzSMUgkBIzeelUVlftYEFvpouW6kTKcrl3ZdLmzSQuELVTQlCzb2s4MpHW9WZVEdOE++FVKhnOU6WPLzwnJmPdD9+rcRU4hczSPXu0eiRg3c8X9v15qNTBu3EByL12SmtncOePZGUS7qiJ/Cd38bdBEbCI9WBSzgOjl7VO8kSj4VGsjugDZGDKtvPHWaK3YYXUGOVY6Vmn0lNSypHI/9OvDZzHxaHFzIHwntEfH43uoZ0BqxhrCfNCGIaZclyXRQ9XhI5Le6ZTKas9suJVHmhLY9OznTXPrVyS/OTB6ii8Pn6d3BrOWXEImDYYgTMy4D45Fb/NCEc5dcZsR5KoRxzUT63evhjNMr5UwsjG5fcRQe6Fo3irpy8q9PZCBTLbjiytnOALJ1YyC38wJL3cvBDGoAflFsMnD4Ftdw84sKysRA9VgZWDQ5dm6DNNI8wjEsTYR65GXOG3PsN6o0KkGxyZsNnTMivw4O07OWPgipmqjeQ9Wuqo4SpL52V7tqLX3Cw0HBaFX/cNVrmG9jyHZSIzfSGTBb2WnpZSJSUIfxwagYCp6Rj1zULknTf+WktwMeItZfeyzk7ThqrS11J+FmF4sevhgXej/LGD1aNagdoAX6SDpjLkP32Auv06K8vXxTdXirdgeKiT1hHnGJLEICX3ERy9WoD4uWPx57T2qEAPrJ4/9WK/7izP5RmV/E4X3VgVDk3HxSN+wyy8lciyOJZk57jWcRw/vCFaj+6r9C6496QInoOYw9AzqmdTogOW0e8PaI/Y9TNRb1h3VOjBfl3qs9pjSd2R5XV4Xc7HsloMjXqrmRSA+iN7IHXhZOTla8ZRuodRCuOm+L/w0UMcuXQOhy6dwRG6dLkeungKebyXB1eiYNGZsFsUIf/kwVr+9asMAWeRd+k825/n9RwOF5xFwY2r6mmtivcU6St6lqvgIT87eeUi9hecYjZ/CgcunlaZ+4H808i/c5PTyY99mmgJmyndNPJdYH6yj5vcfHQ/Vh/IwdJ927A0bzs9yG7sOnMMp69eQuFjkzyBUPPLixBGLobx9589jiW7t2Bl3g6sOrQLa/N2YnPebtw2eSwgW1EhWW44iPxan3vsINYc2Ik1B9mHsmZ/Dr47sgeFrI7kTyDEII1GKbjx8AF2nj6OrziX/I3NyG8WIItWPXnnGqw8tBNHL+UrHUuPrYf2YA3Xs4bhYw2/W7FvK/b9eFitWX4+kR8jvz9+CCu599UHc7AsLxfLv9/Gz7RHDoXc4eHL5/ndLkzNXYORm+Zj+Nq5yGJRMW37Wo77PY5fKcAjMQQTlO5hiBebvgKGhi+0f+POZYcaWl6M8uLtPxdvOOi/bP6fgNeto6SBvRYmA76SMGb8vCh50EYSvo4APyfMhDGjTDATxowywUwYM8oEM2H+Q8Fze0F+LpgJUwL/roN4HX4p6zITxowyQQizw3BvhhmvAfD/RXdgDLK0hWwAAAAASUVORK5CYII=" alt="fnohub" style="height:40px;width:auto;object-fit:contain;">
             </div>
-            <div class="controls">
-                <div class="field">
-                    <label>Symbol</label>
-                    <input type="text" id="symbol" placeholder="Search..." list="symbolList">
-                    <datalist id="symbolList"></datalist>
+            <!-- RIGHT: Title + Controls stacked -->
+            <div class="header-right">
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <span class="app-title">OI-Compare</span>
+                    <span class="app-subtitle" style="margin-top:0;align-self:flex-end;margin-bottom:4px;">+DI / -DI TREND SCANNER</span>
                 </div>
-                <div class="field">
-                    <label>Date</label>
-                    <input type="date" id="date">
+                <div class="controls">
+                    <div class="field">
+                        <label>Symbol</label>
+                        <input type="text" id="symbol" placeholder="Search..." list="symbolList">
+                        <datalist id="symbolList"></datalist>
+                    </div>
+                    <div class="field">
+                        <label>Date</label>
+                        <input type="date" id="date">
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="fetchData()">Analyze</button>
+                    <button type="button" class="btn btn-success" onclick="forceScan()">Force Scan R2</button>
+                    <button type="button" class="btn btn-accent" onclick="viewAllSignals()" style="background: var(--accent); color: #000;">View Signals</button>
+                    <button type="button" class="btn btn-secondary" onclick="exportCSV()" style="background: var(--card); color: #fff; border: 1px solid var(--border);">Export CSV</button>
+                    <button type="button" class="btn btn-primary" onclick="viewOI()" style="background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #34d39955;">OI Status</button>
                 </div>
-                <button type="button" class="btn btn-primary" onclick="fetchData()">Analyze</button>
-                <button type="button" class="btn btn-success" onclick="forceScan()">Force Scan R2</button>
-                <button type="button" class="btn btn-accent" onclick="viewAllSignals()"
-                    style="background: var(--accent); color: #000;">View Signals</button>
-                <button type="button" class="btn btn-secondary" onclick="exportCSV()"
-                    style="background: var(--card); color: #fff; border: 1px solid var(--border); margin-left: 10px;">Export
-                    CSV</button>
-                <button type="button" class="btn btn-primary" onclick="viewOI()" style="background: rgba(16,185,129,0.2); color: #34d399; margin-left: 10px; border: 1px solid #34d39955;">OI Status</button>
             </div>
         </div>
-    </div>
 
-    <!-- Worker URL hidden — hardcoded -->
+        <!-- Worker URL hidden — hardcoded -->
     <input type="hidden" id="worker_url" value="https://oi-graph.susanta41012.workers.dev/">
 
     <!-- NIFTY STATUS BAR -->
@@ -413,7 +466,7 @@
         </div>
         <!-- Fixed Crosshair Info Panel -->
         <div id="chartInfoPanel"
-            style="display:none; position:relative; margin-bottom:8px; background:rgba(15,23,42,0.95); border:1px solid #1e293b; border-radius:10px; padding:10px 18px; font-family:'Outfit',sans-serif; font-size:0.85rem; display:flex; align-items:center; gap:24px; flex-wrap:wrap; min-height:38px;">
+            style="display:flex; position:relative; margin-bottom:8px; background:rgba(15,23,42,0.95); border:1px solid #1e293b; border-radius:10px; padding:10px 18px; font-family:'Outfit',sans-serif; font-size:0.85rem; display:flex; align-items:center; gap:24px; flex-wrap:wrap; min-height:38px;">
             <span id="cipTime" style="color:#64748b; font-size:0.8rem; font-weight:600; min-width:70px;">—</span>
             <span><span style="color:#64748b;font-size:0.75rem">Price</span> <span id="cipPrice"
                     style="color:#38bdf8;font-weight:700">—</span></span>
@@ -1161,7 +1214,6 @@
                 }, { signal: abortSig });
 
                 chartEl.addEventListener('mouseleave', () => {
-                    panel.style.display = 'none';
                     crosshair.style.display = 'none';
                 }, { signal: abortSig });
 
@@ -1174,7 +1226,6 @@
 
                 chartEl.addEventListener('touchend', () => {
                     setTimeout(() => {
-                        panel.style.display = 'none';
                         crosshair.style.display = 'none';
                     }, 1500);
                 }, { signal: abortSig });
@@ -1295,3 +1346,4 @@
 </body>
 
 </html>
+
