@@ -141,7 +141,7 @@
             .logo-area span[style*="font-size: 26px"] { font-size: 20px !important; }
             .app-title { font-size: 1rem !important; }
             .app-subtitle { font-size: 0.55rem !important; }
-            .controls { gap: 8px; justify-content: space-between; }
+            .controls { gap: 8px; justify-content: space-between; align-items: stretch; }
             .btn { padding: 8px 8px; font-size: 0.75rem; flex: 1 1 30%; justify-content: center; min-width: auto; }
             .field { flex: 1 1 45%; min-width: 120px; }
             .field input { width: 100%; box-sizing: border-box; font-size: 0.8rem; padding: 8px 10px; }
@@ -574,7 +574,10 @@
                     updateNiftyBar(d.nBias, d.nPrice, d.nVwap, d.nDetail);
                     // Show age of data
                     const mins = Math.round((Date.now() - d.ts) / 60000);
-                    document.getElementById('nbDetail').textContent = (d.nDetail || '') + (mins > 0 ? `  (${mins} min ago)` : '');
+                    let cleanDetail = (d.nDetail || '').replace(/VWAP ke upar/g, 'Above VWAP')
+                                                       .replace(/VWAP ke neeche/g, 'Below VWAP')
+                                                       .replace(/VWAP ke paas/g, 'Near VWAP');
+                    document.getElementById('nbDetail').textContent = cleanDetail + (mins > 0 ? `  (${mins} min ago)` : '');
                 }
             } catch (e) { }
             await loadSymbols();
@@ -603,9 +606,12 @@
         let chart = null;
 
         function updateNiftyBar(bias, price, vwap, detail) {
+            let cleanDetail = (detail || '').replace(/VWAP ke upar/g, 'Above VWAP')
+                                            .replace(/VWAP ke neeche/g, 'Below VWAP')
+                                            .replace(/VWAP ke paas/g, 'Near VWAP');
             document.getElementById('nbPrice').textContent = price;
             document.getElementById('nbVwap').textContent = parseFloat(vwap || 0).toFixed(2);
-            document.getElementById('nbDetail').textContent = detail;
+            document.getElementById('nbDetail').textContent = cleanDetail;
 
             // Calculate % distance
             const np = parseFloat(price), nv = parseFloat(vwap);
@@ -724,7 +730,10 @@
                         ts: Date.now()
                     }));
                     const now = new Date().toLocaleTimeString();
-                    document.getElementById('nbDetail').textContent = (json.nifty.detail || '') + ` (Auto-Sync: ${now})`;
+                    let cleanDetail = (json.nifty.detail || '').replace(/VWAP ke upar/g, 'Above VWAP')
+                                                               .replace(/VWAP ke neeche/g, 'Below VWAP')
+                                                               .replace(/VWAP ke paas/g, 'Near VWAP');
+                    document.getElementById('nbDetail').textContent = cleanDetail + ` (Auto-Sync: ${now})`;
                 }
             } catch (e) { 
                 if (!isSilent) {
