@@ -334,7 +334,9 @@
       <button class="btn-signal" onclick="openSignalModal()">🎯 Tomorrow's Signals</button>
       <button class="btn-short" id="btn-short" onclick="toggleShort()">📉 Shorting</button>
       <button class="btn-cloud" onclick="publishToCloud()" id="btn-publish">☁️ Publish to Cloud</button>
-      <button class="btn-cloud" onclick="init(true)" style="background:var(--bg2); color:var(--ink); border:1px solid var(--border);" id="btn-refresh">♻️ Fetch NSE Raw</button>
+    <div class="controls" style="display: flex; gap: 8px;">
+      <button class="btn-cloud" onclick="init(false)" style="background:var(--bg2); color:var(--ink); border:1px solid var(--border);" id="btn-refresh">♻️ Fetch KV</button>
+      <button class="btn-cloud" onclick="init(true)" style="background:var(--bg2); color:var(--ink); border:1px solid var(--border);" id="btn-force" title="Redownload all 21 days from scratch">⚠️ Force Fetch</button>
     </div>
   </header>
 
@@ -383,7 +385,7 @@
             <tr>
               <th>Stock Symbol</th>
               <th id="head-trend" style="width:240px;">
-                <div>10-Day Trend</div>
+                <div>20-Day Trend</div>
                 <div class="heatmap" style="margin-top:4px;" id="date-boxes"></div>
               </th>
               <th class="sortable num" id="th-score" onclick="sortBy('score')">Score <span class="sort-icon">⇅</span></th>
@@ -414,20 +416,32 @@
         <button class="btn-close" onclick="closeSignalModal()">&times;</button>
       </div>
       <!-- Tab Buttons -->
-      <div class="signal-tabs">
-        <button class="tab-btn buy-tab active" id="tab-buy" onclick="switchTab('buy')">
-          🟢 BUY Setups <span class="tab-count" id="buy-count">0</span>
+      <div class="signal-tabs" style="flex-wrap: wrap;">
+        <button class="tab-btn buy-tab active" id="tab-rebound" onclick="switchTab('rebound')">
+          🟢 Bull Rebound <span class="tab-count" id="rebound-count">0</span>
         </button>
-        <button class="tab-btn sell-tab" id="tab-sell" onclick="switchTab('sell')">
-          🔴 SELL Setups <span class="tab-count" id="sell-count">0</span>
+        <button class="tab-btn sell-tab" id="tab-reverse" onclick="switchTab('reverse')">
+          🔴 Bear Reversal <span class="tab-count" id="reverse-count">0</span>
+        </button>
+        <button class="tab-btn buy-tab" id="tab-trend-long" onclick="switchTab('trend-long')" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.2);">
+          📈 Trend Long <span class="tab-count" id="trend-long-count">0</span>
+        </button>
+        <button class="tab-btn sell-tab" id="tab-trend-short" onclick="switchTab('trend-short')" style="background: rgba(244, 63, 94, 0.05); border-color: rgba(244, 63, 94, 0.2);">
+          📉 Trend Short <span class="tab-count" id="trend-short-count">0</span>
         </button>
       </div>
       <div class="modal-body">
-        <div class="signal-panel active" id="panel-buy">
-          <div id="buy-trades-list">Loading...</div>
+        <div class="signal-panel active" id="panel-rebound">
+          <div id="rebound-trades-list">Loading...</div>
         </div>
-        <div class="signal-panel" id="panel-sell">
-          <div id="sell-trades-list">Loading...</div>
+        <div class="signal-panel" id="panel-reverse">
+          <div id="reverse-trades-list">Loading...</div>
+        </div>
+        <div class="signal-panel" id="panel-trend-long">
+          <div id="trend-long-trades-list">Loading...</div>
+        </div>
+        <div class="signal-panel" id="panel-trend-short">
+          <div id="trend-short-trades-list">Loading...</div>
         </div>
       </div>
     </div>
@@ -436,6 +450,7 @@
   <script>
     const WORKER_URL = 'https://bhav-data-worker.21aoips3531a1zi.workers.dev/';
     const SIGNAL_SERVER = 'https://mulbhav-signal-server.21aoips3531a1zi.workers.dev/';
+    const TRAP_R2_SERVER = 'https://trap-worker.21aoips3531a1zi.workers.dev/trap_data.json';
 
     const D = {
       dates: [],
@@ -507,38 +522,63 @@
     };
 
     async function init(forceRaw = false) {
-      if (window.isInitializing && !forceRaw) return;
+      if (window.isInitializing) return;
       window.isInitializing = true;
       const status = document.getElementById('status-text');
       try {
+        let loadedFromCloud = false;
         if (!forceRaw) {
           status.innerText = "Checking Cloud Sync...";
-          const cloudSuccess = await loadFromCloud();
-          if (cloudSuccess) {
+          loadedFromCloud = await loadFromCloud();
+          if (loadedFromCloud) {
             status.innerText = "Loaded via High-Speed Cloud Sync.";
             renderDateBoxes();
             renderTable();
-            window.isInitializing = false;
-            return;
           }
         }
+        
         status.innerText = "Fetching date list...";
         const resp = await fetch(WORKER_URL + '?mode=list');
         const listData = await resp.json();
         if (!listData.success) throw new Error("Could not fetch date list");
-        D.dates = listData.dates.slice(0, 11).reverse();
-        D.raw = {};
-        for (let i = 0; i < D.dates.length; i++) {
-          const date = D.dates[i];
-          status.innerText = `Fetching ${date} (${i+1}/${D.dates.length})...`;
+        const targetDates = listData.dates.slice(0, 21).reverse();
+        
+        let datesToFetch = targetDates;
+        if (loadedFromCloud && !forceRaw) {
+          datesToFetch = targetDates.filter(d => !D.dates.includes(d));
+          if (datesToFetch.length === 0) {
+            status.innerText = "Data is already up to date!";
+            window.isInitializing = false;
+            return;
+          }
+        }
+        
+        D.raw = {}; // Will hold ONLY the fetched dates
+        for (let i = 0; i < datesToFetch.length; i++) {
+          const date = datesToFetch[i];
+          status.innerText = `Fetching ${date} (${i+1}/${datesToFetch.length})...`;
           await fetchAndProcess(date);
         }
+        
         status.innerText = "Calculating trends...";
-        calculateContinuation();
+        if (loadedFromCloud && !forceRaw) {
+          appendContinuation(datesToFetch);
+          D.dates = targetDates;
+          trimHistory(targetDates.length);
+        } else {
+          D.dates = targetDates;
+          calculateContinuation();
+        }
+        
         status.innerText = "Ready. (Calculated from Raw Data)";
         if (document.getElementById('hdate')) document.getElementById('hdate').innerText = D.dates[D.dates.length-1];
         renderDateBoxes();
         renderTable();
+
+        if (datesToFetch.length > 0) {
+          status.innerText = "Auto-saving to KV...";
+          setTimeout(() => publishToCloud(), 1000);
+        }
       } catch (err) {
         status.innerText = "Error: " + err.message;
         console.error("Init Error:", err);
@@ -613,8 +653,42 @@
       } catch (e) {
         alert("Error saving: " + e.message);
       } finally {
-        btn.innerText = oldText;
+        // 3. Save Trap Indicator Data (Separated & Filtered for Speed)
+        try {
+          // Calculate which stocks have traps
+          let trapSymbols = new Set();
+          for (const [sym, sData] of Object.entries(D.stocks)) {
+            if (!sData.history || sData.history.length < 2) continue;
+            for (let i = 1; i < sData.history.length; i++) {
+              const cur = sData.history[i];
+              if ((cur.ceWall > 0 && cur.price >= (cur.ceWall * 0.99)) || 
+                  (cur.peWall > 0 && cur.price <= (cur.peWall * 1.01))) {
+                trapSymbols.add(sym);
+                break;
+              }
+            }
+          }
+
+          // Filter only stocks that have at least one trap
+          let filteredStocks = {};
+          trapSymbols.forEach(sym => {
+            filteredStocks[sym] = D.stocks[sym];
+          });
+
+          // Push to TRAP_R2_SERVER
+          const trapPayload = { dates: D.dates, stocks: filteredStocks };
+          await fetch(TRAP_R2_SERVER, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(trapPayload)
+          });
+        } catch(e) {
+          console.error("Failed to push trap data", e);
+        }
+
+        btn.innerText = "Published!";
         btn.classList.remove('loading');
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
       }
     }
 
@@ -719,22 +793,36 @@
           });
           const pcr = cOI > 0 ? pOI / cOI : 0;
           let ceWall = 0, peWall = 0, maxCeOI = 0, maxPeOI = 0;
-          if (date === D.dates[D.dates.length - 1]) {
-            opts.forEach(o => {
-              if ((o.OPTION_TYP === 'CE' || (o.CONTRACT_D||'').includes('CE')) && o.OPEN_INT > maxCeOI) {
-                maxCeOI = o.OPEN_INT; ceWall = parseFloat(o.STRIKE_PR || 0);
-              } else if ((o.OPTION_TYP === 'PE' || (o.CONTRACT_D||'').includes('PE')) && o.OPEN_INT > maxPeOI) {
-                maxPeOI = o.OPEN_INT; peWall = parseFloat(o.STRIKE_PR || 0);
-              }
-            });
-          }
+          // Har date ke liye ceWall/peWall calculate karo (D.raw mein OPT data available hai)
+          opts.forEach(o => {
+            if ((o.OPTION_TYP === 'CE' || (o.CONTRACT_D||'').includes('CE')) && o.OPEN_INT > maxCeOI) {
+              maxCeOI = o.OPEN_INT; ceWall = parseFloat(o.STRIKE_PR || 0);
+            } else if ((o.OPTION_TYP === 'PE' || (o.CONTRACT_D||'').includes('PE')) && o.OPEN_INT > maxPeOI) {
+              maxPeOI = o.OPEN_INT; peWall = parseFloat(o.STRIKE_PR || 0);
+            }
+          });
           history.push({ date, exp: nearExp, pcr, ceWall, peWall, price: near.CLOSE, oi: near.OPEN_INT, change: near.CHG_IN_OI });
         });
         if (history.length < 2) return;
         for (let i = 0; i < history.length; i++) {
           if (i === 0) { history[i].signal = 'neutral'; continue; }
           const cur = history[i], pre = history[i-1];
-          const pD = cur.price - pre.price, oD = cur.oi - pre.oi;
+          let pD = cur.price - pre.price, oD = cur.oi - pre.oi;
+          
+          if (cur.exp !== pre.exp) {
+            // Rollover Fix: Compare cur.exp with the SAME expiry from the previous day
+            const preDayData = D.raw[pre.date] ? D.raw[pre.date][sym] : null;
+            if (preDayData && preDayData.FUT) {
+              const preFutSameExp = preDayData.FUT.find(f => f.EXPIRY_DT === cur.exp);
+              if (preFutSameExp) {
+                pD = cur.price - preFutSameExp.CLOSE;
+                oD = cur.oi - preFutSameExp.OPEN_INT;
+              } else {
+                pD = 0; oD = 0; // Prevent fake spike
+              }
+            }
+          }
+
           if (pD > 0 && oD > 0) cur.signal = 'long';
           else if (pD < 0 && oD > 0) cur.signal = 'short';
           else if (pD > 0 && oD < 0) cur.signal = 'covering';
@@ -777,12 +865,95 @@
       document.getElementById('sc-bear').innerHTML = topBear.map(([s,d]) => mkRow(s,d)).join('');
     }
 
+    function appendContinuation(missingDates) {
+      const allSyms = new Set();
+      missingDates.forEach(date => {
+        if (D.raw[date]) Object.keys(D.raw[date]).forEach(s => allSyms.add(s));
+      });
+      allSyms.forEach(sym => {
+        if (!D.stocks[sym]) D.stocks[sym] = { history: [] };
+        let history = D.stocks[sym].history;
+        missingDates.forEach(date => {
+          const dayMap = D.raw[date] || {};
+          const symData = dayMap[sym];
+          if (!symData || !symData.FUT || symData.FUT.length === 0) return;
+          const todayExps = [...new Set(symData.FUT.map(f => f.EXPIRY_DT))].sort((a,b) => parseDate(a) - parseDate(b));
+          const nearExp = todayExps[0];
+          const near = symData.FUT.find(f => f.EXPIRY_DT === nearExp);
+          const optExps = [...new Set((symData.OPT || []).map(o => o.EXPIRY_DT))].filter(Boolean).sort((a,b) => parseDate(a) - parseDate(b));
+          const nearOptExp = optExps[0] || nearExp;
+          const opts = (symData.OPT || []).filter(o => o.EXPIRY_DT === nearOptExp);
+          let cOI = 0, pOI = 0;
+          opts.forEach(o => {
+            const contract = (o.CONTRACT_D || "").toUpperCase();
+            if (o.OPTION_TYP === 'CE' || contract.includes(nearExp + 'CE')) cOI += o.OPEN_INT;
+            else if (o.OPTION_TYP === 'PE' || contract.includes(nearExp + 'PE')) pOI += o.OPEN_INT;
+          });
+          const pcr = cOI > 0 ? pOI / cOI : 0;
+          let ceWall = 0, peWall = 0, maxCeOI = 0, maxPeOI = 0;
+          // Har missing date ke liye ceWall/peWall calculate karo
+          opts.forEach(o => {
+            if ((o.OPTION_TYP === 'CE' || (o.CONTRACT_D||'').includes('CE')) && o.OPEN_INT > maxCeOI) {
+              maxCeOI = o.OPEN_INT; ceWall = parseFloat(o.STRIKE_PR || 0);
+            } else if ((o.OPTION_TYP === 'PE' || (o.CONTRACT_D||'').includes('PE')) && o.OPEN_INT > maxPeOI) {
+              maxPeOI = o.OPEN_INT; peWall = parseFloat(o.STRIKE_PR || 0);
+            }
+          });
+          history.push({ date, exp: nearExp, pcr, ceWall, peWall, price: near.CLOSE, oi: near.OPEN_INT, change: near.CHG_IN_OI });
+        });
+        history.sort((a,b) => parseDate(a.date) - parseDate(b.date));
+      });
+      // Recalculate signals, scores, etc for all stocks
+      Object.keys(D.stocks).forEach(sym => {
+        let history = D.stocks[sym].history;
+        if (history.length < 2) return;
+        for (let i = Math.max(1, history.length - missingDates.length); i < history.length; i++) {
+          const cur = history[i], pre = history[i-1];
+          let pD = cur.price - pre.price, oD = cur.oi - pre.oi;
+          if (cur.exp !== pre.exp) {
+            const preDayData = D.raw[pre.date] ? D.raw[pre.date][sym] : null;
+            if (preDayData && preDayData.FUT) {
+              const preFutSameExp = preDayData.FUT.find(f => f.EXPIRY_DT === cur.exp);
+              if (preFutSameExp) { pD = cur.price - preFutSameExp.CLOSE; oD = cur.oi - preFutSameExp.OPEN_INT; }
+              else { pD = 0; oD = 0; }
+            }
+          }
+          if (pD > 0 && oD > 0) cur.signal = 'long';
+          else if (pD < 0 && oD > 0) cur.signal = 'short';
+          else if (pD > 0 && oD < 0) cur.signal = 'covering';
+          else if (pD < 0 && oD < 0) cur.signal = 'unwind';
+          else cur.signal = 'neutral';
+        }
+        let score = 0;
+        history.forEach((h, i) => {
+          let w = (i + 1) / history.length;
+          if (h.signal === 'long' || h.signal === 'covering') score += w;
+          if (h.signal === 'short' || h.signal === 'unwind') score -= w;
+        });
+        const last = history[history.length - 1];
+        D.stocks[sym].score = Math.min(10, Math.max(-10, score)).toFixed(1);
+        D.stocks[sym].price = last.price;
+        D.stocks[sym].pcr = last.pcr;
+        D.stocks[sym].pcrSlope = history.length > 2 ? last.pcr - history[history.length - 3].pcr : 0;
+        D.stocks[sym].ceWall = last.ceWall || 0;
+        D.stocks[sym].peWall = last.peWall || 0;
+        D.stocks[sym].oiPct = history.length > 1 ? ((history[history.length-1].oi - history[history.length-2].oi) / history[history.length-2].oi * 100).toFixed(2) : 0;
+      });
+    }
+
+    function trimHistory(limit) {
+      Object.keys(D.stocks).forEach(sym => {
+        let h = D.stocks[sym].history;
+        if (h.length > limit) D.stocks[sym].history = h.slice(h.length - limit);
+      });
+    }
+
     function renderDateBoxes() {
       const container = document.getElementById('date-boxes');
       if (!container) return;
       container.innerHTML = '';
-      const totalBoxes = 10;
-      const filledDays = Math.min(D.dates.length - 1, 10);
+      const totalBoxes = 20;
+      const filledDays = Math.min(D.dates.length - 1, 20);
       const emptyDays = totalBoxes - filledDays;
       for (let i = 0; i < emptyDays; i++) {
         const d = document.createElement('div');
@@ -821,7 +992,7 @@
         const tr = document.createElement('tr');
 
         let heatmap = '<div class="heatmap">';
-        const emptyCount = 10 - data.history.length;
+        const emptyCount = 20 - data.history.length;
         for (let i = 0; i < emptyCount; i++) {
           heatmap += `<div class="box blank" title="No data"></div>`;
         }
@@ -897,32 +1068,45 @@
         generateTomorrowSignals();
         return;
       }
-      const buyList = document.getElementById('buy-trades-list');
-      const sellList = document.getElementById('sell-trades-list');
-      buyList.innerHTML = '<div style="padding:20px; color:var(--muted);">Loading archived signals...</div>';
-      sellList.innerHTML = '';
-      document.getElementById('buy-count').innerText = '...';
-      document.getElementById('sell-count').innerText = '...';
+      const p1 = document.getElementById('rebound-trades-list');
+      const p2 = document.getElementById('reverse-trades-list');
+      const p3 = document.getElementById('trend-long-trades-list');
+      const p4 = document.getElementById('trend-short-trades-list');
+      p1.innerHTML = '<div style="padding:20px; color:var(--muted);">Loading archived signals...</div>';
+      p2.innerHTML = ''; p3.innerHTML = ''; p4.innerHTML = '';
+      
+      document.getElementById('rebound-count').innerText = '...';
+      document.getElementById('reverse-count').innerText = '...';
+      document.getElementById('trend-long-count').innerText = '...';
+      document.getElementById('trend-short-count').innerText = '...';
+      
       try {
         const resp = await fetch(SIGNAL_SERVER + '?key=signals-' + dateVal);
         if (!resp.ok) throw new Error("Not found");
         const archivedData = await resp.json();
-        renderSignalLists(archivedData.buys || [], archivedData.sells || []);
+        renderSignalLists(
+            archivedData.rebound || [], 
+            archivedData.reverse || [], 
+            archivedData.trend_long || archivedData.buys || [], 
+            archivedData.trend_short || archivedData.sells || []
+        );
       } catch (e) {
-        buyList.innerHTML = '<div style="padding:20px; color:var(--bear);">Error loading archive for ' + dateVal + '</div>';
+        p1.innerHTML = '<div style="padding:20px; color:var(--bear);">Error loading archive for ' + dateVal + '</div>';
       }
     }
 
     function switchTab(tab) {
-      document.getElementById('panel-buy').classList.toggle('active', tab === 'buy');
-      document.getElementById('panel-sell').classList.toggle('active', tab === 'sell');
-      document.getElementById('tab-buy').classList.toggle('active', tab === 'buy');
-      document.getElementById('tab-sell').classList.toggle('active', tab === 'sell');
+      ['rebound', 'reverse', 'trend-long', 'trend-short'].forEach(t => {
+        document.getElementById('panel-' + t).classList.toggle('active', tab === t);
+        document.getElementById('tab-' + t).classList.toggle('active', tab === t);
+      });
     }
 
     function generateTomorrowSignals() {
-      let buys = [];
-      let sells = [];
+      let rebound = [];
+      let reverse = [];
+      let trend_long = [];
+      let trend_short = [];
 
       Object.entries(D.stocks).forEach(([sym, data]) => {
         const h = data.history;
@@ -931,7 +1115,6 @@
         const i = h.length - 1;
         const today = h[i];
         
-        // Exact sequences
         const getSeq = (len) => {
             if (i < len - 1) return null;
             return h.slice(i - len + 1, i + 1).map(d => d.signal).join('→');
@@ -939,146 +1122,97 @@
         const seq3 = getSeq(3);
         const seq4 = getSeq(4);
 
-        // PCR calculations
         const pcrNow = today.pcr;
-        const pcrSlope3 = pcrNow - h[Math.max(0, i-2)].pcr;
-        const pcrTrend3 = pcrSlope3 > 0.05 ? 'up' : (pcrSlope3 < -0.05 ? 'down' : 'flat');
+        const pcrSlope = pcrNow - h[Math.max(0, i-2)].pcr;
+        const pcrTrend = pcrSlope > 0.05 ? 'up' : (pcrSlope < -0.05 ? 'down' : 'flat');
 
-        const pcrSlope9 = pcrNow - h[Math.max(0, i-8)].pcr;
-        const pcrTrend9 = pcrSlope9 < -0.1 ? 'down' : 'other'; // For 9D rule
-
-        // OI calculations
-        const oi8dSlope = today.oi - h[Math.max(0, i-7)].oi;
-        const oiTrend8 = oi8dSlope > 0 ? 'up' : 'down';
-
-        // Dominance (Aggregate signals)
-        const getDom = (len) => {
-            if (i < len - 1) return 'Mixed';
-            const slice = h.slice(i - len + 1, i + 1);
+        const dom5 = (() => {
+            if (i < 4) return 'Mixed';
+            const slice = h.slice(i - 4, i + 1);
             const longs = slice.filter(d => d.signal === 'long').length;
             const shorts = slice.filter(d => d.signal === 'short').length;
-            if (longs > len/2) return 'BullDom';
-            if (shorts > len/2) return 'BearDom';
+            if (longs > 2) return 'BullDom';
+            if (shorts > 2) return 'BearDom';
             return 'Mixed';
-        };
-        const dom5 = getDom(5);
+        })();
 
-        // === BUY RULES (Exhaustive Top 7) ===
-        // 1. COMBO_3D: long→short→short + PCR:FLAT (92.3%)
-        if (seq3 === 'long→short→short' && pcrTrend3 === 'flat') {
-            buys.push({ sym, data, prob: 92, type: 'buy', reason: 'L→S→S + Flat PCR (3D)', level: 'high' });
-        }
-        // 2. COMBO_4D: covering→unwind→unwind→unwind + PCR:FLAT (90.9%)
-        else if (seq4 === 'covering→unwind→unwind→unwind' && pcrTrend3 === 'flat') {
-            buys.push({ sym, data, prob: 91, type: 'buy', reason: 'C→U→U→U + Flat PCR (4D)', level: 'high' });
-        }
-        // 3. AGG_5D: BearDom + Today:long (90.0%)
-        else if (dom5 === 'BearDom' && today.signal === 'long') {
-            buys.push({ sym, data, prob: 90, type: 'buy', reason: '5D Bearish → Long', level: 'high' });
-        }
-        // 4. COMBO_3D: unwind→short→long + PCR:FLAT (83.3%)
-        else if (seq3 === 'unwind→short→long' && pcrTrend3 === 'flat') {
-            buys.push({ sym, data, prob: 83, type: 'buy', reason: 'U→S→L + Flat PCR (3D)', level: 'high' });
-        }
-        // 5. OI_8D_TREND: OI_UP + Today:covering (81.0%)
-        else if (i >= 7 && oiTrend8 === 'up' && today.signal === 'covering') {
-            buys.push({ sym, data, prob: 81, type: 'buy', reason: '8D OI Up → Covering', level: 'high' });
-        }
-        // 6. PCR_9D_TREND: DN + Today:unwind (80.0%)
-        else if (i >= 8 && pcrTrend9 === 'down' && today.signal === 'unwind') {
-            buys.push({ sym, data, prob: 80, type: 'buy', reason: '9D PCR Down → Unwind', level: 'high' });
-        }
-        // 7. AGG_5D: BullDom + Today:covering (80.0%)
-        else if (dom5 === 'BullDom' && today.signal === 'covering') {
-            buys.push({ sym, data, prob: 80, type: 'buy', reason: '5D Bullish → Covering', level: 'high' });
+        // 🟢 [REBOUND] Oversold Bounces
+        if (seq3 === 'short→short→short' && pcrNow < 0.5) {
+            rebound.push({ sym, data, prob: 100, type: 'buy', reason: '🔥 3D Short + PCR Oversold (<0.5)', level: 'high' });
+        } else if (seq4 === 'covering→long→unwind→unwind') {
+            rebound.push({ sym, data, prob: 85, type: 'buy', reason: 'Weak Hands (C→L→U→U)', level: 'high' });
+        } else if (seq3 === 'long→unwind→unwind' && pcrTrend === 'down') {
+            rebound.push({ sym, data, prob: 77, type: 'buy', reason: 'L→U→U + Falling PCR', level: 'high' });
         }
 
-        // === SELL RULES (Exhaustive Top 7) ===
-        // 1. COMBO_3D: short→long→long + PCR:FLAT (81.3%)
-        if (seq3 === 'short→long→long' && pcrTrend3 === 'flat') {
-            sells.push({ sym, data, prob: 81, type: 'sell', reason: 'S→L→L + Flat PCR (3D)', level: 'high' });
+        // 🔴 [REVERSAL] Trend Failures
+        if (seq3 === 'unwind→long→unwind' && pcrTrend === 'up') {
+            reverse.push({ sym, data, prob: 100, type: 'sell', reason: '🔥 Breakout Trap (U→L→U + Rising PCR)', level: 'high' });
+        } else if (seq3 === 'covering→unwind→long' && pcrTrend === 'flat') {
+            reverse.push({ sym, data, prob: 100, type: 'sell', reason: '🔥 False Covering (C→U→L)', level: 'high' });
+        } else if (seq3 === 'unwind→long→short' && (pcrNow >= 0.6 && pcrNow <= 1.0)) {
+            reverse.push({ sym, data, prob: 97, type: 'sell', reason: 'Trap (U→L→S + Neutral PCR)', level: 'high' });
+        } else if (seq3 === 'covering→covering→long' && pcrTrend === 'up') {
+            reverse.push({ sym, data, prob: 97, type: 'sell', reason: 'Double False Cover (C→C→L + PCR↑)', level: 'high' });
+        } else if (seq4 === 'covering→covering→unwind→short') {
+            reverse.push({ sym, data, prob: 93, type: 'sell', reason: 'Trend Fail (C→C→U→S)', level: 'high' });
         }
-        // 2. SEQ_3D: unwind→long→unwind (80.0%)
-        else if (seq3 === 'unwind→long→unwind') {
-            sells.push({ sym, data, prob: 80, type: 'sell', reason: 'U→L→U (3D)', level: 'high' });
+
+        // 📈 [TREND LONG] Continuations
+        if (seq4 === 'covering→unwind→unwind→unwind' && pcrTrend === 'flat') {
+            trend_long.push({ sym, data, prob: 91, type: 'buy', reason: 'C→U→U→U + Flat PCR', level: 'high' });
+        } else if (dom5 === 'BearDom' && today.signal === 'long') {
+            trend_long.push({ sym, data, prob: 90, type: 'buy', reason: '5D Bearish → Long (Breakout)', level: 'high' });
+        } else if (seq3 === 'long→short→short' && pcrTrend === 'flat') {
+            trend_long.push({ sym, data, prob: 92, type: 'buy', reason: 'L→S→S + Flat PCR', level: 'high' });
         }
-        // 3. COMBO_3D: short→long→short + PCR:FLAT (80.0%)
-        else if (seq3 === 'short→long→short' && pcrTrend3 === 'flat') {
-            sells.push({ sym, data, prob: 80, type: 'sell', reason: 'S→L→S + Flat PCR (3D)', level: 'high' });
-        }
-        // 4. SEQ_4D: unwind→unwind→long→long (80.0%)
-        else if (seq4 === 'unwind→unwind→long→long') {
-            sells.push({ sym, data, prob: 80, type: 'sell', reason: 'U→U→L→L (4D)', level: 'high' });
-        }
-        // 5. SEQ_4D: long→unwind→covering→covering (80.0%)
-        else if (seq4 === 'long→unwind→covering→covering') {
-            sells.push({ sym, data, prob: 80, type: 'sell', reason: 'L→U→C→C (4D)', level: 'high' });
-        }
-        // 6. SEQ_4D: short→short→covering→unwind (80.0%)
-        else if (seq4 === 'short→short→covering→unwind') {
-            sells.push({ sym, data, prob: 80, type: 'sell', reason: 'S→S→C→U (4D)', level: 'high' });
-        }
-        // 7. SEQ_4D: unwind→short→long→long (80.0%)
-        else if (seq4 === 'unwind→short→long→long') {
-            sells.push({ sym, data, prob: 80, type: 'sell', reason: 'U→S→L→L (4D)', level: 'high' });
+
+        // 📉 [TREND SHORT] Continuations
+        if (seq3 === 'short→long→long' && pcrTrend === 'flat') {
+            trend_short.push({ sym, data, prob: 81, type: 'sell', reason: 'S→L→L + Flat PCR', level: 'high' });
+        } else if (seq3 === 'short→long→short' && pcrTrend === 'flat') {
+            trend_short.push({ sym, data, prob: 80, type: 'sell', reason: 'S→L→S + Flat PCR', level: 'high' });
+        } else if (seq4 === 'unwind→unwind→long→long') {
+            trend_short.push({ sym, data, prob: 80, type: 'sell', reason: 'U→U→L→L', level: 'high' });
         }
       });
 
-      // Deduplicate — keep higher prob side if stock appears in both
-      const sellSyms = new Set(sells.map(s => s.sym));
-      const buySyms  = new Set(buys.map(b => b.sym));
-      buys  = buys.filter(b => !sellSyms.has(b.sym) || b.prob >= (sells.find(s => s.sym === b.sym)?.prob || 0));
-      sells = sells.filter(s => !buySyms.has(s.sym)  || s.prob  > (buys.find(b  => b.sym  === s.sym)?.prob || 0));
+      const sortArr = (arr) => arr.sort((a,b) => b.prob - a.prob);
+      sortArr(rebound); sortArr(reverse); sortArr(trend_long); sortArr(trend_short);
 
-      buys.sort((a,b)  => b.prob - a.prob);
-      sells.sort((a,b) => b.prob - a.prob);
+      window.lastGeneratedSignals = { rebound, reverse, trend_long, trend_short };
 
-      // Store globally for publishToCloud
-      window.lastGeneratedSignals = { buys, sells };
-
-      renderSignalLists(buys, sells);
+      renderSignalLists(rebound, reverse, trend_long, trend_short);
     }
 
-    function renderSignalLists(buys, sells) {
-      const buyList = document.getElementById('buy-trades-list');
-      const sellList = document.getElementById('sell-trades-list');
-      buyList.innerHTML = ''; sellList.innerHTML = '';
+    function renderSignalLists(rebound, reverse, trend_long, trend_short) {
+      const p1 = document.getElementById('rebound-trades-list');
+      const p2 = document.getElementById('reverse-trades-list');
+      const p3 = document.getElementById('trend-long-trades-list');
+      const p4 = document.getElementById('trend-short-trades-list');
+      
+      p1.innerHTML = ''; p2.innerHTML = ''; p3.innerHTML = ''; p4.innerHTML = '';
 
-      document.getElementById('buy-count').innerText  = buys.length;
-      document.getElementById('sell-count').innerText = sells.length;
+      document.getElementById('rebound-count').innerText = rebound.length;
+      document.getElementById('reverse-count').innerText = reverse.length;
+      document.getElementById('trend-long-count').innerText = trend_long.length;
+      document.getElementById('trend-short-count').innerText = trend_short.length;
 
       const renderCard = (trade) => {
         const isBuy      = trade.type === 'buy';
         const badgeClr   = isBuy ? '#059669' : '#e11d48';
         const badgeBg    = isBuy ? '#10b981' : '#f43f5e';
         const badgeTextClr = '#ffffff';
-        const probBg     = isBuy ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)';
         
-        const borderLeft = isBuy ? '4px solid #10b981' : '4px solid #f43f5e';
         const badge      = isBuy ? 'BUY' : 'SELL';
         
-        const cleanReason = trade.reason
-          .replace('C→U→U→U', 'Covering → Unwind (3 Days)')
-          .replace('L→S→S', 'Long → Short (2 Days)')
-          .replace('U→S→L', 'Unwind → Short → Long')
-          .replace('S→L→L', 'Short → Long (2 Days)')
-          .replace('U→L→U', 'Unwind → Long → Unwind')
-          .replace('S→L→S', 'Short → Long → Short')
-          .replace('U→U→L→L', 'Unwind (2 Days) → Long (2 Days)')
-          .replace('L→U→C→C', 'Long → Unwind → Covering (2 Days)')
-          .replace('S→S→C→U', 'Short (2 Days) → Covering → Unwind')
-          .replace('U→S→L→L', 'Unwind → Short → Long (2 Days)')
-          .replace(' (4D)', '')
-          .replace(' (3D)', '');
-
         return `
         <div class="trade-row">
           <div class="sym-block">
             <span>${trade.sym}</span>
-            <span style="font-size: 0.75rem; font-weight: 600; color: ${badgeClr}; margin-left: auto; display: none;" class="mobile-prob">${trade.prob}%</span>
           </div>
-          <div class="prob-block" style="color: ${badgeClr};">${trade.prob}% Win</div>
-          <div class="reason-block">${cleanReason}</div>
+          <div class="prob-block" style="color: ${badgeClr}; font-weight:700;">${trade.prob}% Win</div>
+          <div class="reason-block">${trade.reason}</div>
           <div class="price-block">
             <span class="price-text">₹${trade.data.price.toFixed(2)}</span>
             <span class="action-badge" style="background: ${badgeBg}; color: ${badgeTextClr};">${badge}</span>
@@ -1086,14 +1220,21 @@
         </div>`;
       };
 
-      if (buys.length === 0)  buyList.innerHTML  = '<div style="color:var(--muted);padding:16px">No high-prob buy setups today.</div>';
-      else buys.forEach(t  => buyList.innerHTML  += renderCard(t));
+      const emptyMsg = (msg) => `<div style="color:var(--muted);padding:16px">${msg}</div>`;
 
-      if (sells.length === 0) sellList.innerHTML = '<div style="color:var(--muted);padding:16px">No high-prob sell setups today.</div>';
-      else sells.forEach(t => sellList.innerHTML += renderCard(t));
+      if (rebound.length === 0) p1.innerHTML = emptyMsg('No bull rebound setups today.');
+      else rebound.forEach(t => p1.innerHTML += renderCard(t));
 
-      // Default open to buy tab
-      switchTab('buy');
+      if (reverse.length === 0) p2.innerHTML = emptyMsg('No bear reversal setups today.');
+      else reverse.forEach(t => p2.innerHTML += renderCard(t));
+
+      if (trend_long.length === 0) p3.innerHTML = emptyMsg('No long trend setups today.');
+      else trend_long.forEach(t => p3.innerHTML += renderCard(t));
+
+      if (trend_short.length === 0) p4.innerHTML = emptyMsg('No short trend setups today.');
+      else trend_short.forEach(t => p4.innerHTML += renderCard(t));
+
+      switchTab('rebound');
     }
 
 

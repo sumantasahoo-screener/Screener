@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MulBhav F&O Intelligence</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230f172a'/><rect x='6' y='8' width='3' height='16' rx='1' fill='%23ef4444'/><rect x='4' y='11' width='7' height='8' rx='1.5' fill='%23ef4444'/><rect x='14' y='5' width='3' height='22' rx='1' fill='%23f59e0b'/><rect x='12' y='10' width='7' height='10' rx='1.5' fill='%23f59e0b'/><rect x='22' y='10' width='3' height='14' rx='1' fill='%2310b981'/><rect x='20' y='13' width='7' height='8' rx='1.5' fill='%2310b981'/></svg>">
   <link
     href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
     rel="stylesheet">
@@ -1917,7 +1918,7 @@
         <div class="pcr-explainer">
           <div class="pe-item bull">
             <div class="pe-val bull">PCR &gt; 1.2</div>
-            <div class="pe-desc">🟢 Bullish<br>Zyada puts = support</div>
+            <div class="pe-desc">🟢 Bullish<br>More puts = support</div>
           </div>
           <div class="pe-item neutral">
             <div class="pe-val neutral">0.8 – 1.2</div>
@@ -1925,7 +1926,7 @@
           </div>
           <div class="pe-item bear">
             <div class="pe-val bear">PCR &lt; 0.8</div>
-            <div class="pe-desc">🔴 Bearish<br>Zyada calls = resistance</div>
+            <div class="pe-desc">🔴 Bearish<br>More calls = resistance</div>
           </div>
         </div>
         <div class="tabs">
@@ -1933,19 +1934,19 @@
           <div class="tab" onclick="pcrT('bear',this)">🔴 Bearish (&lt;0.8)</div>
           <div class="tab active" onclick="pcrT('all',this)">All Stocks</div>
         </div>
-        <div class="sw"><input class="si" id="pcrs" placeholder="Symbol search karo..."
+        <div class="sw"><input class="si" id="pcrs" placeholder="🔍 Search symbol..."
             oninput="D.pcrSearch=this.value;rPCR()"></div>
         <div id="pcr-aw"></div>
         <div class="sticky-wrap">
-          <div class="ch g-pcr">
-            <span>Symbol</span>
+          <div class="ch g-pcr" style="cursor:default">
+            <span onclick="pcrSortBy('sym')" style="cursor:pointer" title="Sort by Symbol">Symbol <span id="pcrs-sym"></span></span>
             <span style="display:flex;align-items:center;gap:5px;">
               OI PCR + Vol PCR
               <span class="pcr-tip"
-                title="OI PCR = Open Interest se calculate kiya. Vol PCR = Trading Volume se.&#10;Dono green = Strong Bullish. Dono red = Strong Bearish.&#10;Opposite colors = Mixed signal — wait karo."
+                title="OI PCR = calculated from Open Interest. Vol PCR = calculated from Trading Volume.&#10;Both green = Strong Bullish. Both red = Strong Bearish.&#10;Opposite colors = Mixed signal — wait for clarity."
                 style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);color:var(--blue);font-size:10px;font-weight:700;cursor:help;font-family:serif;flex-shrink:0;">?</span>
             </span>
-            <span style="text-align:right">OI PCR</span>
+            <span onclick="pcrSortBy('oi')" style="cursor:pointer;text-align:right" title="Sort by OI PCR">OI PCR <span id="pcrs-oi">▼</span></span>
             <span style="text-align:right">Signal</span>
           </div>
           <div class="sb" id="pcr-bd"></div>
@@ -2796,10 +2797,16 @@
         pcrVol: (D.ceVol[s] > 0 ? (D.peVol[s] || 0) / D.ceVol[s] : 0)
       })).filter(d => d.pcrOI > 0);
       let fil;
-      if (D.pcrTab === 'bull') fil = data.filter(d => d.pcrOI > 1.2).sort((a, b) => b.pcrOI - a.pcrOI);
-      else if (D.pcrTab === 'bear') fil = data.filter(d => d.pcrOI < 0.8).sort((a, b) => a.pcrOI - b.pcrOI);
-      else fil = [...data].sort((a, b) => b.pcrOI - a.pcrOI);
+      if (D.pcrTab === 'bull') fil = data.filter(d => d.pcrOI > 1.2);
+      else if (D.pcrTab === 'bear') fil = data.filter(d => d.pcrOI < 0.8);
+      else fil = [...data];
       if (q) fil = fil.filter(d => d.s.toLowerCase().includes(q));
+      // Apply column sort
+      const sc = D.pcrSortCol || 'oi', sa = D.pcrSortAsc;
+      fil.sort((a, b) => {
+        if(sc === 'sym') return sa ? a.s.localeCompare(b.s) : b.s.localeCompare(a.s);
+        return sa ? a.pcrOI - b.pcrOI : b.pcrOI - a.pcrOI;
+      });
       D.pcrList = fil; // Save for export
       document.getElementById('pcr-b').textContent = fil.length + ' / ' + data.length + ' stocks';
       const avg = data.length ? data.reduce((s, d) => s + d.pcrOI, 0) / data.length : 0;
@@ -2828,12 +2835,23 @@
           <span style="font-size:.68rem;color:${volBc};font-weight:600;min-width:28px;text-align:right">${d.pcrVol > 0 ? d.pcrVol.toFixed(2) : '—'}</span>
         </div>
       </div>
-      <span class="num muted">${d.pcrOI.toFixed(2)}</span>
       <div style="text-align:right"><span class="tag ${vc}">${vl}</span></div>
     </div>`;
-      }).join('') || '<div class="empty">Koi data nahi</div>';
+      }).join('') || '<div class="empty">No data found</div>';
     }
     function pcrT(t, el) { D.pcrTab = t; el.closest('.tabs').querySelectorAll('.tab').forEach(e => e.classList.remove('active')); el.classList.add('active'); rPCR(); }
+
+    // PCR sort state
+    D.pcrSortCol = 'oi'; D.pcrSortAsc = false;
+    function pcrSortBy(col) {
+      if(D.pcrSortCol === col) D.pcrSortAsc = !D.pcrSortAsc;
+      else { D.pcrSortCol = col; D.pcrSortAsc = col === 'sym'; }
+      ['sym','oi'].forEach(c => {
+        const el = document.getElementById('pcrs-' + c);
+        if(el) el.textContent = (D.pcrSortCol === c) ? (D.pcrSortAsc ? '▲' : '▼') : '';
+      });
+      rPCR();
+    }
 
     function sMP(c) {
       if (D.mpSort.c === c) D.mpSort.d *= -1; else { D.mpSort.c = c; D.mpSort.d = (c === 'sym') ? 1 : -1; }
@@ -2907,12 +2925,12 @@
       </div>
       <div style="background:var(--bear-lt);border:1px solid var(--bear-md);border-radius:8px;padding:10px;text-align:center;">
         <div style="font-size:.72rem;color:var(--ink2);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">CE Wall</div>
-        <div style="font-family:var(--fs);font-size:1.4rem;color:var(--bear)">${d.ceWall}</div>
+        <div style="font-family:var(--fs);font-size:1.4rem;color:var(--bear)">${d.ceW}</div>
         <div style="font-size:.72rem;color:var(--ink2)">Resistance</div>
       </div>
       <div style="background:var(--bull-lt);border:1px solid var(--bull-md);border-radius:8px;padding:10px;text-align:center;">
         <div style="font-size:.72rem;color:var(--ink2);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">PE Wall</div>
-        <div style="font-family:var(--fs);font-size:1.4rem;color:var(--bull)">${d.peWall}</div>
+        <div style="font-family:var(--fs);font-size:1.4rem;color:var(--bull)">${d.peW}</div>
         <div style="font-size:.72rem;color:var(--ink2)">Support</div>
       </div>
     </div>
