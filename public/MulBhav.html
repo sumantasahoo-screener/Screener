@@ -82,7 +82,7 @@
       position: fixed;
       inset: 0;
       z-index: 500;
-      display: flex;
+      display: none;          /* hidden by default — shown only if cloud fails */
       align-items: center;
       justify-content: center;
       background: var(--bg);
@@ -2200,13 +2200,10 @@
         const data = await r.json();
         if (data.success && data.dates.length > 0) {
           LATEST_DATE = data.dates[0];
-          document.getElementById('u-latest-date').innerText = 'Latest: ' + LATEST_DATE;
-          document.getElementById('u-latest-box').style.display = 'block';
-          document.getElementById('u-status').innerText = 'Market data found in Cloud!';
-          
+
           // Populate historical dropdown
           const hl = document.getElementById('h-list');
-          hl.innerHTML = ''; // Start clean
+          hl.innerHTML = '';
           data.dates.forEach(d => {
             const opt = document.createElement('option');
             opt.value = d; opt.innerText = d; hl.appendChild(opt);
@@ -2214,20 +2211,44 @@
           if (CURRENT_LOADED_DATE) hl.value = CURRENT_LOADED_DATE;
           else hl.value = LATEST_DATE;
 
+          // Auto-load immediately — skip landing screen
+          await autoLoad();
         } else {
-          document.getElementById('u-status').innerText = 'No automated data found yet. Please fetch manually.';
+          // No cloud data — show landing so user can ZIP upload
+          showLanding('No automated data found yet. Please load a ZIP file.');
         }
-      } catch (e) { document.getElementById('u-status').innerText = 'Cloud sync pending...'; }
+      } catch (e) {
+        showLanding('Cloud unavailable — please load a ZIP file.');
+      }
     }
+
+    function showLanding(msg) {
+      const us = document.getElementById('uscreen');
+      if (us) us.style.display = 'flex';
+      const st = document.getElementById('u-status');
+      if (st) st.innerText = msg;
+      const lb = document.getElementById('u-latest-box');
+      if (lb) lb.style.display = 'none';
+    }
+
+    async function autoLoad() {
+      // Show a slim progress bar instead of landing screen
+      const us = document.getElementById('uscreen');
+      if (us) us.style.display = 'none';
+      document.getElementById('main').style.display = 'block';
+      // Show loading state in header
+      const hdate = document.getElementById('hdate');
+      if (hdate) hdate.textContent = '⏳ Loading ' + LATEST_DATE + '...';
+      await loadHistorical(LATEST_DATE);
+    }
+
     window.onload = () => { checkLatest(); };
 
     async function goDashboard() {
       if (!LATEST_DATE) return;
-      document.getElementById('u-status').innerText = '🚀 Loading ' + LATEST_DATE + '...';
-      await loadHistorical(LATEST_DATE);
-      document.getElementById('uscreen').classList.add('gone');
-      document.getElementById('main').style.display = 'block';
+      await autoLoad();
     }
+
 
     async function loadHistorical(date) {
       if (!date) return;
