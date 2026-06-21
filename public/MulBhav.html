@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MulBhav F&O Intelligence</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230f172a'/><rect x='6' y='8' width='3' height='16' rx='1' fill='%23ef4444'/><rect x='4' y='11' width='7' height='8' rx='1.5' fill='%23ef4444'/><rect x='14' y='5' width='3' height='22' rx='1' fill='%23f59e0b'/><rect x='12' y='10' width='7' height='10' rx='1.5' fill='%23f59e0b'/><rect x='22' y='10' width='3' height='14' rx='1' fill='%2310b981'/><rect x='20' y='13' width='7' height='8' rx='1.5' fill='%2310b981'/></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z'/><path d='M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z'/><path d='M7 21h10'/><path d='M12 3v18'/><path d='M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2'/></svg>">
   <link
     href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
     rel="stylesheet">
@@ -23,6 +23,15 @@
       --ink: #e8eaf0;
       --ink2: #a0aec0;
       --muted: #5a6a8a;
+
+      /* SAFE HIDE */
+      div[data-panel="p-pcr"],
+      div[data-panel="p-mp"],
+      div[data-panel="p-cwt"],
+      div[data-panel="p-pwt"],
+      #p-pcr, #p-mp, #p-cwt, #p-pwt {
+        display: none !important;
+      }
       --bull: #22c55e;
       --bull-lt: rgba(34, 197, 94, .12);
       --bull-md: rgba(34, 197, 94, .25);
@@ -247,7 +256,7 @@
     header {
       background: rgba(15, 17, 23, .95);
       border-bottom: 1px solid var(--border);
-      padding: 0 28px;
+      padding: 0 30px;
       height: 52px;
       display: flex;
       align-items: center;
@@ -256,6 +265,9 @@
       top: 0;
       z-index: 100;
       backdrop-filter: blur(16px);
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
     }
 
     .logo {
@@ -345,7 +357,7 @@
     /* ── MAIN ── */
     main {
       padding: 20px 30px;
-      max-width: 100%;
+      max-width: 1400px;
       margin: 0 auto;
       display: none;
     }
@@ -1774,7 +1786,8 @@
 
   <header>
     <div class="logo">
-      <div class="ldot"></div>MulBhav F&amp;<em>O</em> Intelligence
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--bull)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
+      MulBhav F&amp;<em>O</em> Intelligence
     </div>
 
     <div class="hdr-r">
@@ -1787,14 +1800,22 @@
       <span id="hexp"
         style="font-size:.63rem;color:var(--gold);background:var(--gold-lt);border:1px solid var(--gold-md);padding:3px 10px;border-radius:12px;display:none;"></span>
 
-      <input type="file" id="fi-ref" accept=".zip" style="display:none;">
-      <button class="hbtn" style="background:var(--gold-lt); color:var(--gold); border-color:var(--gold-md);"
-        onclick="document.getElementById('fi-ref').click()">📂 Local Prev</button>
-      
       <button class="hbtn" id="refetch-btn" style="background:var(--blue-lt); color:var(--blue); border-color:var(--blue-md); font-size: 0.6rem; padding: 4px 8px;"
         onclick="fetchFromNSE()">♻️ Re-fetch</button>
-
-      <button class="hbtn" style="background:var(--purp-lt); color:var(--purp); border-color:var(--purp-md);" onclick="exportMaster()">📥 Master CSV</button>
+      
+      <!-- fnohub Logo (Crimson Red) -->
+      <div class="brand-logo" style="display:flex; align-items:flex-end; font-family:'Inter',sans-serif; font-weight:900; font-size:26px; letter-spacing:-1px; border-left:2px solid var(--border); padding-left:15px; margin-left:5px;">
+        <span style="color:#ef4444;">fn</span>
+        <div style="position:relative; display:inline-block;">
+          <span style="color:#ef4444;">o</span>
+          <svg style="position:absolute; top:-4px; right:-8px; width:22px; height:22px;" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+        </div>
+        <div style="position:relative; display:inline-block; margin-left:4px;">
+          <svg style="position:absolute; top:-16px; right:-2px; width:28px; height:28px;" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path><polyline points="9 15 13 11 15 13 19 9"></polyline><polyline points="15 9 19 9 19 13"></polyline></svg>
+          <span style="color:#ef4444;">hub</span>
+        </div>
+        <span style="font-size:12px; color:var(--muted); margin-left:2px; padding-bottom:4px;">.in</span>
+      </div>
     </div>
   </header>
 
@@ -1821,7 +1842,7 @@
       <div class="sc cpurp" onclick="openModal('unwind')">
         <div class="slbl">Unwinding</div>
         <div class="sval purp" id="s-uwnd">—</div>
-        <div class="ssub">OI gir raha hai</div>
+        <div class="ssub">OI is decreasing</div>
         <div class="click-hint">↗ Click to see list</div>
       </div>
       <div class="sc cgold">
@@ -1875,8 +1896,8 @@
           </div>
         </div>
         <div class="oi-warn" id="oi-warn-banner"><span style="font-size:16px;flex-shrink:0">⚠️</span>
-          <div><strong>Sirf signal — seedha buy mat karo!</strong> Long Build dikhna matlab price abhi upar jayegi, ye
-            pakka nahi. Apna stop-loss aur risk manage karo, tabhi trade lo.</div>
+          <div><strong>Alert - Do not blindly buy!</strong> Long Build doesn't guarantee immediate upside.
+            Always manage risk and use a stop-loss before entering a trade.</div>
         </div>
         <div class="tabs">
           <div class="tab active" onclick="oiT('long',this)">🟢 Long Build</div>
@@ -1972,7 +1993,7 @@
         <div class="tipbox">💡 <strong>Max Pain</strong> = Option sellers minimum loss point. &nbsp;<span
             style="color:var(--bear)">CE Wall</span> = Resistance &nbsp;|&nbsp; <span style="color:var(--bull)">PE
             Wall</span> = Support &nbsp;|&nbsp; Gap% = Spot vs Max Pain distance</div>
-        <div class="sw"><input class="si" id="mps" placeholder="Symbol search karo..." oninput="rMP()"></div>
+        <div class="sw"><input class="si" id="mps" placeholder="Search symbol..." oninput="rMP()"></div>
         <div class="sticky-wrap">
           <div class="ch g-mp">
             <span class="sort-th" id="th-sym" onclick="sMP('sym')">Symbol</span>
@@ -2405,21 +2426,21 @@
 
     // Signal Tooltip Icon
     const SIG_TIPS = {
-      'long_build': { cls: 'bull', icon: '▲', text: '📈 Long Build — Price ↑ + OI ↑<br>Fresh buying ho rahi hai! Bulls naye positions bana rahe hain. Strong uptrend ka signal.' },
-      'short_build': { cls: 'bear', icon: '▼', text: '📉 Short Build — Price ↓ + OI ↑<br>Fresh selling ho rahi hai! Bears naye positions bana rahe hain. Strong downtrend ka signal.' },
-      'short_unwind': { cls: 'warn', icon: '↑', text: '⚠️ Short Unwind — Price ↑ + OI ↓<br>Bears apni short positions band kar rahe hain. Price upar ja sakta hai lekin fresh buying nahi hai — weak move.' },
-      'long_unwind': { cls: 'warn', icon: '↓', text: '⚠️ Long Unwind — Price ↓ + OI ↓<br>Bulls apni long positions band kar rahe hain. Weak market, exit ho raha hai — direction confirm nahi.' },
-      'pcr_bull': { cls: 'bull', icon: 'P', text: '🟢 PCR Bullish (&gt;1.2)<br>Zyada PUT options liye gaye hain vs CALL — Option sellers support de rahe hain. Market girne par buyers aayenge.' },
-      'pcr_bear': { cls: 'bear', icon: 'P', text: '🔴 PCR Bearish (&lt;0.8)<br>Zyada CALL options liye gaye hain vs PUT — Market mein resistance zyada hai. Upar jaana mushkil.' },
-      'pcr_neutral': { cls: 'neutral', icon: 'P', text: '⚪ PCR Neutral (0.8–1.2)<br>PUT aur CALL buying balanced hai — Market sideways ya uncertain direction mein hai.' },
-      'pcr_mixed': { cls: 'warn', icon: '⚠', text: '⚠️ Mixed Signal<br>OI PCR aur Volume PCR alag direction bol rahe hain — Confusing signal, trade carefully!' },
-      'mp_above': { cls: 'bull', icon: 'M', text: '🟢 Max Pain Spot se Upar Hai<br>Option sellers chahte hain price upar jaye. Expiry tak upward pull expected — price Max Pain ki taraf khichega.' },
-      'mp_below': { cls: 'bear', icon: 'M', text: '🔴 Max Pain Spot se Neeche Hai<br>Option sellers chahte hain price neeche jaye. Expiry tak downward pull expected — price Max Pain ki taraf khichega.' },
-      'mp_at': { cls: 'neutral', icon: 'M', text: '🎯 Spot Bilkul Max Pain Pe Hai<br>Option sellers ke liye ideal position. Price yahan stable reh sakta hai — big move ki zyada chances nahi.' },
-      'ce_near': { cls: 'bear', icon: 'C', text: '🔴 CE Wall (Resistance) Ke Paas<br>Yahan bahut saare CALL sellers hain jo price ko upar jaane se rokenge. Strong resistance zone — breakout mushkil.' },
-      'ce_broken': { cls: 'bull', icon: 'C', text: '🚀 CE Wall Toot Gayi! Bullish Breakout<br>Resistance break ho gaya — Strong bullish signal! CALL sellers ko badi loss ho rahi hai. Shorts squeeze possible.' },
-      'pe_near': { cls: 'bull', icon: 'P', text: '🟢 PE Wall (Support) Ke Paas<br>Yahan bahut saare PUT sellers hain jo price ko girane se rokenge. Strong support zone — breakdown mushkil.' },
-      'pe_broken': { cls: 'bear', icon: 'P', text: '💥 PE Wall Toot Gayi! Bearish Breakdown<br>Support break ho gaya — Strong bearish signal! PUT sellers ko badi loss ho rahi hai. Longs squeeze possible.' },
+      'long_build': { cls: 'bull', icon: '▲', text: '📈 Long Build — Price ↑ + OI ↑<br>Fresh buying observed! Bulls are building new positions. Strong uptrend signal.' },
+      'short_build': { cls: 'bear', icon: '▼', text: '📉 Short Build — Price ↓ + OI ↑<br>Fresh selling observed! Bears are building new positions. Strong downtrend signal.' },
+      'short_unwind': { cls: 'warn', icon: '↑', text: '⚠️ Short Unwind — Price ↑ + OI ↓<br>Bears are covering short positions. Price may rise but lacks fresh buying — weak move.' },
+      'long_unwind': { cls: 'warn', icon: '↓', text: '⚠️ Long Unwind — Price ↓ + OI ↓<br>Bulls are exiting long positions. Weak market — direction not confirmed.' },
+      'pcr_bull': { cls: 'bull', icon: 'P', text: '🟢 PCR Bullish (&gt;1.2)<br>More PUT options sold vs CALLs — Option sellers are providing support. Buyers will step in on dips.' },
+      'pcr_bear': { cls: 'bear', icon: 'P', text: '🔴 PCR Bearish (&lt;0.8)<br>More CALL options sold vs PUTs — High resistance in the market. Upside potential is limited.' },
+      'pcr_neutral': { cls: 'neutral', icon: 'P', text: '⚪ PCR Neutral (0.8–1.2)<br>PUT and CALL buying is balanced — Market is sideways or in an uncertain direction.' },
+      'pcr_mixed': { cls: 'warn', icon: '⚠', text: '⚠️ Mixed Signal<br>OI PCR and Volume PCR indicate different directions — Confusing signal, trade carefully!' },
+      'mp_above': { cls: 'bull', icon: 'M', text: '🟢 Max Pain is above Spot<br>Option sellers expect price to rise. Upward pull expected until expiry — price gravitates towards Max Pain.' },
+      'mp_below': { cls: 'bear', icon: 'M', text: '🔴 Max Pain is below Spot<br>Option sellers expect price to fall. Downward pull expected until expiry — price gravitates towards Max Pain.' },
+      'mp_at': { cls: 'neutral', icon: 'M', text: '🎯 Spot is exactly at Max Pain<br>Ideal position for option sellers. Price may remain stable here — low probability of a big move.' },
+      'ce_near': { cls: 'bear', icon: 'C', text: '🔴 Near CE Wall (Resistance)<br>Large presence of CALL sellers preventing upward movement. Strong resistance zone — breakout is difficult.' },
+      'ce_broken': { cls: 'bull', icon: 'C', text: '🚀 CE Wall Broken! Bullish Breakout<br>Resistance broken — Strong bullish signal! CALL sellers facing heavy losses. Short squeeze possible.' },
+      'pe_near': { cls: 'bull', icon: 'P', text: '🟢 Near PE Wall (Support)<br>Large presence of PUT sellers preventing downward movement. Strong support zone — breakdown is difficult.' },
+      'pe_broken': { cls: 'bear', icon: 'P', text: '💥 PE Wall Broken! Bearish Breakdown<br>Support broken — Strong bearish signal! PUT sellers facing heavy losses. Long squeeze possible.' },
     };
     function sigIcon(type) {
       const t = SIG_TIPS[type]; if (!t) return '';
@@ -2507,10 +2528,10 @@
             break;
           }
         }
-        if (!fo) { alert('Reference ZIP mein fo*.csv nahi mili!'); return; }
+        if (!fo) { alert('Reference ZIP does not contain fo*.csv!'); return; }
         const rs = rows(fo);
         const near = getNearExp(getExps(rs, 'FUT'));
-        if (!near) { alert('Expiry theek se match nahi hui.'); return; }
+        if (!near) { alert('Expiry mismatch detected.'); return; }
 
         D.refOi = {};
         let count = 0;
@@ -2805,7 +2826,7 @@
       
       <div style="text-align:right"><span class="tag ${d.sg.c}">${d.sg.l}</span></div>
     </div>`;
-      }).join('') || '<div class="empty">Koi data nahi</div>';
+      }).join('') || '<div class="empty">No data available</div>';
     }
     function oiT(t, el) { D.oiTab = t; D.oiColSort = { c: '', d: -1 };['price', 'pct', 'oi'].forEach(c => { const e = document.getElementById('oith-' + c); if (e) e.textContent = e.textContent.replace(/[↑↓]/g, '').trim(); }); el.closest('.tabs').querySelectorAll('.tab').forEach(e => e.classList.remove('active')); el.classList.add('active'); const wb = document.getElementById('oi-warn-banner'); if (wb) wb.classList.toggle('show', t === 'long'); rOI(); }
 
@@ -2924,7 +2945,7 @@
         <span class="num ${peDistCls}" style="${peBroken ? 'font-size:.7rem;font-weight:700;' : ''}">${peDistTxt}</span>
       </div>
     </div>`;
-      }).join('') || '<div class="empty">Koi data nahi</div>';
+      }).join('') || '<div class="empty">No data available</div>';
     }
 
     function openMPModal(sym) {
@@ -2993,7 +3014,7 @@
       <span class="num ${d.type === 'CE' ? 'bear' : 'bull'}">${(d.oi / 1000).toFixed(1)}K</span>
       <span class="num muted">${(d.vol / 1000).toFixed(1)}K</span>
       <div style="text-align:right"><span class="tag ${d.type === 'CE' ? 'bear' : 'bull'}">${d.type}</span></div>
-    </div>`).join('') || '<div class="empty">Koi data nahi</div>';
+    </div>`).join('') || '<div class="empty">No data available</div>';
     }
     function actT(t, el) { D.actTab = t; el.closest('.tabs').querySelectorAll('.tab').forEach(e => e.classList.remove('active')); el.classList.add('active'); rAct(); }
 
@@ -3085,7 +3106,7 @@
     const us = document.getElementById('uscreen');
     us.addEventListener('dragover', e => { e.preventDefault(); });
     us.addEventListener('dragleave', e => { e.preventDefault(); });
-    us.addEventListener('drop', e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f && f.name.endsWith('.zip')) loadZip(f); else alert('Sirf .zip file drop karo!'); });
+    us.addEventListener('drop', e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f && f.name.endsWith('.zip')) loadZip(f); else alert('Please drop a .zip file only!'); });
     document.addEventListener('dragover', e => e.preventDefault());
     document.addEventListener('drop', e => { e.preventDefault(); if (us.classList.contains('gone')) { const f = e.dataTransfer.files[0]; if (f && f.name.endsWith('.zip')) loadZip(f); } });
 
@@ -3131,7 +3152,7 @@
     }
 
     async function fetchPrevOI() {
-      if (!D.bhavDate) { alert('Pehle current bhavcopy load karo!'); return; }
+      if (!D.bhavDate) { alert('Please load current bhavcopy first!'); return; }
       const btn = document.getElementById('fpbtn');
       btn.innerHTML = '⏳ Fetching...'; btn.disabled = true;
 
@@ -3176,14 +3197,14 @@
           });
           if (count > 0) {
             loaded = true;
-            alert(`✅ Prev OI loaded! Date: ${nseDate} — ${count} stocks\nAb Change in OI show ho raha hai.`);
+            alert(`✅ Prev OI loaded! Date: ${nseDate} — ${count} stocks\nChange in OI is now active.`);
             if (Object.keys(D.fut).length > 0) rOI();
             break;
           }
         } catch (e) { continue; }
       }
 
-      if (!loaded) alert('❌ Previous OI fetch nahi hua.\nNSE pe data unavailable hai ya holiday tha.');
+      if (!loaded) alert('❌ Previous OI fetch failed.\nData unavailable or it was a market holiday.');
       btn.innerHTML = '☁️ Fetch Prev OI'; btn.disabled = false;
     }
 
@@ -3233,8 +3254,8 @@
       <span class="num muted">${D.peOi[d.sym] ? (D.peOi[d.sym] / 1000).toFixed(1) + 'K' : '—'}</span>
     </div>`;
 
-      document.getElementById('cwt-bd').innerHTML = cwt.map(cwtRow).join('') || '<div class="empty">Koi Call Writer Trap nahi mila</div>';
-      document.getElementById('pwt-bd').innerHTML = pwt.map(pwtRow).join('') || '<div class="empty">Koi Put Writer Trap nahi mila</div>';
+      document.getElementById('cwt-bd').innerHTML = cwt.map(cwtRow).join('') || '<div class="empty">No Call Writer Trap found</div>';
+      document.getElementById('pwt-bd').innerHTML = pwt.map(pwtRow).join('') || '<div class="empty">No Put Writer Trap found</div>';
     }
 
     // ─────────────────────────────────────────────
@@ -3355,8 +3376,8 @@
       </div>
     </div>`;
 
-      document.getElementById('sc-long').innerHTML = top5long.map(d => mkRow(d, 'long')).join('') || '<div style="padding:14px;font-size:.75rem;color:var(--muted);text-align:center">Koi data nahi</div>';
-      document.getElementById('sc-short').innerHTML = top5short.map(d => mkRow(d, 'short')).join('') || '<div style="padding:14px;font-size:.75rem;color:var(--muted);text-align:center">Koi data nahi</div>';
+      document.getElementById('sc-long').innerHTML = top5long.map(d => mkRow(d, 'long')).join('') || '<div style="padding:14px;font-size:.75rem;color:var(--muted);text-align:center">No data available</div>';
+      document.getElementById('sc-short').innerHTML = top5short.map(d => mkRow(d, 'short')).join('') || '<div style="padding:14px;font-size:.75rem;color:var(--muted);text-align:center">No data available</div>';
 
       // Market Pulse
       const mpArr = Object.entries(D.mp).map(([sym, v]) => ({ sym, ...v }));
