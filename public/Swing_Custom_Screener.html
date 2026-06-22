@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom Screener</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231e293b'/><text x='50' y='72' font-size='70' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>C</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
         :root {
             --primary: #1e293b; /* Very Dark Slate */
@@ -478,15 +480,20 @@
 
         async function checkTodayData() {
             try {
-                // Fetch list of available dates from worker (with cache buster)
-                const listRes = await fetch(`${NEW_WORKER_URL}/list-manual?t=${new Date().getTime()}`);
-                if (listRes.ok) {
+                // Fetch list and status in parallel for speed
+                const [listRes, statusRes] = await Promise.all([
+                    fetch(`${NEW_WORKER_URL}/list-manual?t=${new Date().getTime()}`).catch(() => null),
+                    fetch(STATUS_URL).catch(() => null)
+                ]);
+
+                if (listRes && listRes.ok) {
                     availableDates = await listRes.json();
                 }
 
-                const statusRes = await fetch(STATUS_URL);
-                const statusData = await statusRes.json();
-                todayDateStr = statusData.last_updated;
+                if (statusRes && statusRes.ok) {
+                    const statusData = await statusRes.json();
+                    todayDateStr = statusData.last_updated;
+                }
 
                 // HARD BLOCK: If todayDateStr is a holiday/weekend, remove it completely
                 if (isHolidayOrWeekend(todayDateStr)) {
@@ -526,40 +533,53 @@
                 } catch(e) {}
             }
 
-            let manualDataResponse;
-            try {
-                manualDataResponse = await fetch(`${NEW_WORKER_URL}/get-manual/${dateStr}?t=${new Date().getTime()}`);
-            } catch (e) { }
+            // Check sessionStorage Cache
+            let cachedData = sessionStorage.getItem('swing_data_' + dateStr);
+            let fetchSuccess = false;
 
-            if (manualDataResponse && manualDataResponse.ok) {
-                masterIndicators = await manualDataResponse.json();
+            if (cachedData) {
+                try {
+                    masterIndicators = JSON.parse(cachedData);
+                    fetchSuccess = true;
+                } catch(e) {}
+            }
+
+            if (!fetchSuccess) {
+                try {
+                    let manualDataResponse = await fetch(`${NEW_WORKER_URL}/get-manual/${dateStr}?t=${new Date().getTime()}`);
+                    if (manualDataResponse && manualDataResponse.ok) {
+                        masterIndicators = await manualDataResponse.json();
+                        fetchSuccess = true;
+                        try { sessionStorage.setItem('swing_data_' + dateStr, JSON.stringify(masterIndicators)); } catch(e) {}
+                    }
+                } catch (e) { }
+            }
+
+            if (fetchSuccess) {
                 document.getElementById('data-status').innerText = `Data Ready: ${dateStr}`;
                 document.getElementById('scan-screen').style.display = "none";
                 document.getElementById('main-app').style.display = "block";
                 document.getElementById('table-body').innerHTML = `<tr><td colspan="11" style="text-align:center;">Data loaded. Build your query and click 'Run Custom Scan' to see results.</td></tr>`;
                 document.getElementById('filter-status').innerText = '';
                 
-                // Populate Autocomplete Search Box
-                const datalist = document.getElementById('symbol-datalist');
-                let optionsHtml = '';
-                for (let sym in masterIndicators) {
-                    optionsHtml += `<option value="${sym}">`;
-                }
-                datalist.innerHTML = optionsHtml;
-                
-                // Calculate Market Movers (Top 10 Bullish/Bearish)
-                calculateMarketMovers();
+                // Non-blocking UI update for Heavy Tasks
+                setTimeout(() => {
+                    // Populate Autocomplete Search Box super fast
+                    const datalist = document.getElementById('symbol-datalist');
+                    datalist.innerHTML = Object.keys(masterIndicators).map(sym => `<option value="${sym}">`).join('');
+                    
+                    // Calculate Market Movers
+                    calculateMarketMovers();
+                }, 0);
             } else {
                 document.getElementById('data-status').innerText = `No Master Data for ${dateStr}`;
                 document.getElementById('scan-screen').style.display = "flex";
                 document.getElementById('main-app').style.display = "none";
-                let btnText = `SCAN MASTER INDICATORS FOR ${dateStr}`;
-                if (availableDates.length <= 1) {
-                    btnText = `SCAN & REBUILD 30 DAYS DATA (Up to ${dateStr})`;
-                }
-                document.getElementById('scanMasterBtn').innerText = btnText;
-                // Set the date context for scanning
-                document.getElementById('scanMasterBtn').onclick = () => scanMasterIndicators(dateStr);
+                document.getElementById('scanMasterBtn').innerText = `Auto-Rebuilding Master Indicators...`;
+                document.getElementById('scanMasterBtn').onclick = () => scanMasterIndicators(false);
+                
+                // AUTO TRIGGER REBUILD (No manual click needed)
+                setTimeout(() => scanMasterIndicators(false), 500);
             }
         }
 
@@ -755,16 +775,62 @@
             scanMasterIndicators(true); // pass a flag to force
         }
 
+        // IndexedDB Helper for 78MB Historical Data
+        const dbPromise = new Promise((resolve, reject) => {
+            const req = indexedDB.open('SwingScreenerDB', 1);
+            req.onupgradeneeded = e => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('cache')) {
+                    db.createObjectStore('cache');
+                }
+            };
+            req.onsuccess = e => resolve(e.target.result);
+            req.onerror = e => reject(e);
+        });
+
+        async function getCachedHistoricalData() {
+            try {
+                const db = await dbPromise;
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction('cache', 'readonly');
+                    const store = tx.objectStore('cache');
+                    const req = store.get('historical_data');
+                    req.onsuccess = e => resolve(e.target.result);
+                    req.onerror = e => reject(e);
+                });
+            } catch(e) { return null; }
+        }
+
+        async function setCachedHistoricalData(data) {
+            try {
+                const db = await dbPromise;
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction('cache', 'readwrite');
+                    const store = tx.objectStore('cache');
+                    const req = store.put(data, 'historical_data');
+                    req.onsuccess = () => resolve();
+                    req.onerror = e => reject(e);
+                });
+            } catch(e) {}
+        }
+
         async function scanMasterIndicators(force = false) {
             const btn = document.getElementById('scanMasterBtn');
-            btn.innerText = "Downloading Historical Data (78MB)...";
+            btn.innerText = "Checking Local Cache...";
             btn.disabled = true;
 
             try {
-                // 1. Fetch Historical Data
-                const histRes = await fetch(HISTORICAL_URL);
-                if (!histRes.ok) throw new Error("Failed to load historical data");
-                const historicalData = await histRes.json();
+                // 1. Fetch Historical Data (IndexedDB or R2)
+                let historicalData = await getCachedHistoricalData();
+                if (!historicalData || force) {
+                    btn.innerText = "Downloading Historical Data (78MB)...";
+                    const histRes = await fetch(HISTORICAL_URL);
+                    if (!histRes.ok) throw new Error("Failed to load historical data");
+                    historicalData = await histRes.json();
+                    
+                    btn.innerText = "Saving to Local Cache...";
+                    await setCachedHistoricalData(historicalData);
+                }
 
                 // Determine last historical date
                 let lastHistDate = '';
@@ -772,8 +838,6 @@
                 if (historicalData[sampleSym] && historicalData[sampleSym].length > 0) {
                     lastHistDate = historicalData[sampleSym][historicalData[sampleSym].length - 1].date || historicalData[sampleSym][historicalData[sampleSym].length - 1].Date;
                 }
-
-                // Holiday list is now global (top of script) — used by isHolidayOrWeekend()
 
                 // Generate dates to fetch daily to fill the gap (Skip weekends and holidays)
                 const dailyDatesToFetch = [];
@@ -788,7 +852,6 @@
                         const dd = String(curr.getDate()).padStart(2, '0');
                         const dateStr = `${yyyy}-${mm}-${dd}`;
 
-                        // Skip Saturday (6), Sunday (0) and 2026 Official NSE Holidays
                         if (dayOfWeek !== 0 && dayOfWeek !== 6 && !stockHolidays2026.includes(dateStr)) {
                             dailyDatesToFetch.push(dateStr);
                         }
@@ -808,7 +871,6 @@
                 
                 let validDailyDates = Object.keys(dailyDataMap).sort();
 
-                // Get all trading dates combined
                 let allTradingDates = [];
                 if (historicalData[sampleSym]) {
                     allTradingDates = historicalData[sampleSym].map(q => q.date || q.Date);
@@ -816,24 +878,18 @@
                 allTradingDates = allTradingDates.concat(validDailyDates);
                 allTradingDates = [...new Set(allTradingDates)].sort();
 
-                // We want to ensure the last 30 trading days are always in R2
                 const requiredDates = allTradingDates.slice(-30);
 
-                // Fetch the TRUE list of dates currently on the server (with cache buster)
                 let trueSavedDates = [];
                 try {
                     const listRes = await fetch(`${NEW_WORKER_URL}/list-manual?t=${new Date().getTime()}`);
                     if (listRes.ok) trueSavedDates = await listRes.json();
                 } catch(e) {}
 
-                // Determine which dates need calculating and uploading
                 let datesToUpload = requiredDates.filter(d => !trueSavedDates.includes(d));
                 
-                // Also ensure todayDateStr is included if it's new — HARD BLOCK holidays
                 if (todayDateStr && !datesToUpload.includes(todayDateStr) && !trueSavedDates.includes(todayDateStr)) {
-                    if (!isHolidayOrWeekend(todayDateStr)) {
-                        datesToUpload.push(todayDateStr);
-                    }
+                    if (!isHolidayOrWeekend(todayDateStr)) datesToUpload.push(todayDateStr);
                 }
                 
                 if (force) {
@@ -857,93 +913,46 @@
                 }
                 datesToUpload.sort();
 
-                // 3. Process each stock for each missing date
+                // 3. Process each stock for each missing date using WEB WORKER
                 const symbols = Object.keys(historicalData);
                 let postRes;
 
-                for (let uploadDate of datesToUpload) {
-                    btn.innerText = `Calculating Indicators for ${uploadDate}...`;
-                    let calculated = {};
-                    
-                    await new Promise(r => setTimeout(r, 100));
+                btn.innerText = `Preparing Web Worker...`;
 
-                    for (let sym of symbols) {
-                        let quotes = historicalData[sym];
-                        if (!quotes || quotes.length < 50) continue; 
-
-                        let combinedQuotes = [...quotes].map(q => ({
-                            date: q.date || q.Date,
-                            Open: Number(q.Open || 0),
-                            High: Number(q.High || 0),
-                            Low: Number(q.Low || 0),
-                            Close: Number(q.Close || 0),
-                            Volume: Number(q.Volume || 0)
-                        }));
-
-                        // Sort chronologically BEFORE finding the last historical date to prevent incorrect lastHistDate/duplicates!
-                        combinedQuotes.sort((a, b) => a.date.localeCompare(b.date));
-                        let stockLastHistDate = combinedQuotes[combinedQuotes.length - 1].date;
-
-                        for (let d of validDailyDates) {
-                            if (d > stockLastHistDate && d <= uploadDate) {
-                                if (dailyDataMap[d] && dailyDataMap[d][sym]) {
-                                    let dq = dailyDataMap[d][sym];
-                                    combinedQuotes.push({
-                                        date: d,
-                                        Open: Number(dq.Open || 0),
-                                        High: Number(dq.High || 0),
-                                        Low: Number(dq.Low || 0),
-                                        Close: Number(dq.Close || 0),
-                                        Volume: Number(dq.Volume || 0)
-                                    });
-                                }
-                            }
-                        }
-
-                        // Time machine logic: discard any data that is from AFTER the uploadDate
-                        combinedQuotes = combinedQuotes.filter(q => q.date <= uploadDate);
-
-                        // Sort chronologically
-                        combinedQuotes.sort((a,b) => a.date.localeCompare(b.date));
-
-                        // EXCLUDE HOLIDAYS (Volume <= 0 or dummy rows with 0 volume)
-                        combinedQuotes = combinedQuotes.filter(q => q.Volume > 0);
-
-                        if (combinedQuotes.length < 50) continue;
-
-                        let closes = combinedQuotes.map(q => q.Close);
-                        let volumes = combinedQuotes.map(q => q.Volume);
-                        let highs = combinedQuotes.map(q => q.High);
-                        let lows = combinedQuotes.map(q => q.Low);
-
-                        const ltp = closes[closes.length - 1];
-                        const todayVol = volumes[volumes.length - 1];
-
+                // Creating Inline Web Worker
+                const workerCode = `
+                    self.onmessage = function(e) {
+                        const { datesToUpload, historicalData, validDailyDates, dailyDataMap, symbols } = e.data;
+                        
+                        // Optimized Math functions
                         const getSMA = (arr, period) => {
                             if (arr.length < period) return null;
-                            const slice = arr.slice(-period);
-                            return slice.reduce((a, b) => a + b, 0) / period;
+                            let sum = 0;
+                            for (let i = arr.length - period; i < arr.length; i++) sum += arr[i];
+                            return sum / period;
                         };
                         const getEMA = (arr, period) => {
                             if (arr.length < period) return null;
                             let k = 2 / (period + 1);
-                            let ema = arr.slice(0, period).reduce((a, b) => a + b, 0) / period;
+                            let ema = 0;
+                            for (let i = 0; i < period; i++) ema += arr[i];
+                            ema /= period;
                             for (let i = period; i < arr.length; i++) {
                                 ema = (arr[i] - ema) * k + ema;
                             }
                             return ema;
                         };
                         const getRSI = (arr, period = 14) => {
-                            if (arr.length <= period) return null;
+                            const n = arr.length;
+                            if (n <= period) return null;
                             let gains = 0, losses = 0;
                             for (let i = 1; i <= period; i++) {
                                 let diff = arr[i] - arr[i - 1];
-                                if (diff > 0) gains += diff;
-                                else losses -= diff;
+                                if (diff > 0) gains += diff; else losses -= diff;
                             }
                             let avgGain = gains / period;
                             let avgLoss = losses / period;
-                            for (let i = period + 1; i < arr.length; i++) {
+                            for (let i = period + 1; i < n; i++) {
                                 let diff = arr[i] - arr[i - 1];
                                 let gain = diff > 0 ? diff : 0;
                                 let loss = diff < 0 ? -diff : 0;
@@ -951,8 +960,7 @@
                                 avgLoss = (avgLoss * (period - 1) + loss) / period;
                             }
                             if (avgLoss === 0) return 100;
-                            let rs = avgGain / avgLoss;
-                            return 100 - (100 / (1 + rs));
+                            return 100 - (100 / (1 + (avgGain / avgLoss)));
                         };
                         const getMACD = (arr) => {
                             const ema12 = getEMA(arr, 12);
@@ -961,41 +969,43 @@
                             return { macd: ema12 - ema26, signal: null };
                         };
                         const getADX = (highs, lows, closes, period = 14) => {
-                            if (closes.length <= period * 2) return null;
-                            let trArr = [], plusDMArr = [], minusDMArr = [];
-                            for (let i = 1; i < closes.length; i++) {
+                            const n = closes.length;
+                            if (n <= period * 2) return null;
+                            
+                            let trArr = new Float64Array(n);
+                            let plusDMArr = new Float64Array(n);
+                            let minusDMArr = new Float64Array(n);
+                            
+                            for (let i = 1; i < n; i++) {
                                 let upMove = highs[i] - highs[i-1];
                                 let downMove = lows[i-1] - lows[i];
-                                let plusDM = (upMove > downMove && upMove > 0) ? upMove : 0;
-                                let minusDM = (downMove > upMove && downMove > 0) ? downMove : 0;
-                                let tr = Math.max(highs[i] - lows[i], Math.abs(highs[i] - closes[i-1]), Math.abs(lows[i] - closes[i-1]));
-                                trArr.push(tr);
-                                plusDMArr.push(plusDM);
-                                minusDMArr.push(minusDM);
+                                plusDMArr[i] = (upMove > downMove && upMove > 0) ? upMove : 0;
+                                minusDMArr[i] = (downMove > upMove && downMove > 0) ? downMove : 0;
+                                trArr[i] = Math.max(highs[i] - lows[i], Math.abs(highs[i] - closes[i-1]), Math.abs(lows[i] - closes[i-1]));
                             }
 
                             let smooth = (val, prev, p) => prev - (prev/p) + val;
-                            let smoothTR = trArr.slice(0, period).reduce((a,b)=>a+b, 0);
-                            let smoothPlusDM = plusDMArr.slice(0, period).reduce((a,b)=>a+b, 0);
-                            let smoothMinusDM = minusDMArr.slice(0, period).reduce((a,b)=>a+b, 0);
+                            let smoothTR = 0, smoothPlusDM = 0, smoothMinusDM = 0;
+                            for(let i=1; i<=period; i++) { smoothTR += trArr[i]; smoothPlusDM += plusDMArr[i]; smoothMinusDM += minusDMArr[i]; }
                             
                             let dxArr = [];
-                            let plusDI_first = (smoothPlusDM / smoothTR) * 100 || 0;
-                            let minusDI_first = (smoothMinusDM / smoothTR) * 100 || 0;
-                            let dx_first = (Math.abs(plusDI_first - minusDI_first) / (plusDI_first + minusDI_first)) * 100 || 0;
-                            dxArr.push(dx_first);
+                            let pDI = (smoothTR>0) ? (smoothPlusDM / smoothTR) * 100 : 0;
+                            let mDI = (smoothTR>0) ? (smoothMinusDM / smoothTR) * 100 : 0;
+                            dxArr.push( (pDI+mDI>0) ? (Math.abs(pDI - mDI) / (pDI + mDI)) * 100 : 0 );
 
-                            for (let i = period; i < trArr.length; i++) {
+                            for (let i = period + 1; i < n; i++) {
                                 smoothTR = smooth(trArr[i], smoothTR, period);
                                 smoothPlusDM = smooth(plusDMArr[i], smoothPlusDM, period);
                                 smoothMinusDM = smooth(minusDMArr[i], smoothMinusDM, period);
-                                let plusDI = (smoothPlusDM / smoothTR) * 100 || 0;
-                                let minusDI = (smoothMinusDM / smoothTR) * 100 || 0;
-                                let dx = (Math.abs(plusDI - minusDI) / (plusDI + minusDI)) * 100 || 0;
-                                dxArr.push(dx);
+                                pDI = (smoothTR>0) ? (smoothPlusDM / smoothTR) * 100 : 0;
+                                mDI = (smoothTR>0) ? (smoothMinusDM / smoothTR) * 100 : 0;
+                                dxArr.push( (pDI+mDI>0) ? (Math.abs(pDI - mDI) / (pDI + mDI)) * 100 : 0 );
                             }
                             if (dxArr.length < period) return null;
-                            let adx = dxArr.slice(0, period).reduce((a,b)=>a+b, 0) / period; 
+                            
+                            let adx = 0;
+                            for(let i=0; i<period; i++) adx += dxArr[i];
+                            adx /= period;
                             for (let i = period; i < dxArr.length; i++) {
                                 adx = ((adx * (period - 1)) + dxArr[i]) / period;
                             }
@@ -1013,89 +1023,153 @@
                             return (avgRange / lastClose) * 100;
                         };
 
-                        const sma20 = getSMA(closes, 20);
-                        let stdDev = 0;
-                        if (sma20 && closes.length >= 20) {
-                            const slice = closes.slice(-20);
-                            const sqDiffs = slice.map(v => Math.pow(v - sma20, 2));
-                            const avgSqDiff = sqDiffs.reduce((a, b) => a + b, 0) / 20;
-                            stdDev = Math.sqrt(avgSqDiff);
-                        }
+                        let finalCalculated = {};
 
-                        // CANDLESTICK PATTERN DETECTION
-                        let opens = combinedQuotes.map(q => q.Open);
-                        const n = closes.length - 1;
-                        let bullEng = 0, bearEng = 0, hammer = 0, shootingStar = 0, mornStar = 0, eveStar = 0;
-                        
-                        if (n >= 1) {
-                            const O0 = opens[n], H0 = highs[n], L0 = lows[n], C0 = closes[n];
-                            const O1 = opens[n-1], H1 = highs[n-1], L1 = lows[n-1], C1 = closes[n-1];
-                            const body0 = Math.abs(C0 - O0);
-                            const body1 = Math.abs(C1 - O1);
+                        for (let uploadDate of datesToUpload) {
+                            self.postMessage({ type: 'progress', msg: \`Calculating Indicators for \${uploadDate}...\` });
+                            let calculated = {};
                             
-                            // Engulfing Patterns
-                            if (C1 < O1 && C0 > O0 && C0 >= O1 && O0 <= C1 && body0 > body1) bullEng = 1;
-                            if (C1 > O1 && C0 < O0 && C0 <= O1 && O0 >= C1 && body0 > body1) bearEng = 1;
-                            
-                            // Hammer Pattern (Small body, long lower wick >= 2x body, tiny upper wick)
-                            const lowerShadow0 = Math.min(O0, C0) - L0;
-                            const upperShadow0 = H0 - Math.max(O0, C0);
-                            if (body0 > 0 && lowerShadow0 >= 2 * body0 && upperShadow0 <= 0.2 * body0) hammer = 1;
-                            
-                            // Shooting Star Pattern (Small body, long upper wick >= 2x body, tiny lower wick)
-                            if (body0 > 0 && upperShadow0 >= 2 * body0 && lowerShadow0 <= 0.2 * body0) shootingStar = 1;
-
-                            // 3-Candle Patterns (Requires n >= 2)
-                            if (n >= 2) {
-                                const O2 = opens[n-2], H2 = highs[n-2], L2 = lows[n-2], C2 = closes[n-2];
-                                const body2 = Math.abs(C2 - O2);
+                            for (let i = 0; i < symbols.length; i++) {
+                                let sym = symbols[i];
+                                if (i % 200 === 0) self.postMessage({ type: 'progress', msg: \`Calculating \${uploadDate}: \${Math.round((i/symbols.length)*100)}%\` });
                                 
-                                // Morning Star
-                                let isBear2 = C2 < O2 && body2 > (H2-L2)*0.5; // Strong bearish
-                                let isSmall1 = body1 <= (body2 * 0.3) || body1 <= (H1-L1)*0.3; // Doji/Spinning top
-                                let isBull0 = C0 > O0 && body0 > (H0-L0)*0.5; // Strong bullish
-                                if (isBear2 && isSmall1 && isBull0 && Math.min(O1, C1) < C2 && C0 > (C2 + O2) / 2) {
-                                    mornStar = 1;
+                                let quotes = historicalData[sym];
+                                if (!quotes || quotes.length < 50) continue;
+
+                                let combinedQuotes = [];
+                                for(let q of quotes) {
+                                    let date = q.date || q.Date;
+                                    if(date <= uploadDate && q.Volume > 0) {
+                                        combinedQuotes.push({
+                                            date: date, Open: Number(q.Open || 0), High: Number(q.High || 0), Low: Number(q.Low || 0), Close: Number(q.Close || 0), Volume: Number(q.Volume || 0)
+                                        });
+                                    }
                                 }
 
-                                // Evening Star
-                                let isBull2 = C2 > O2 && body2 > (H2-L2)*0.5;
-                                let isSmall1_e = body1 <= (body2 * 0.3) || body1 <= (H1-L1)*0.3;
-                                let isBear0 = C0 < O0 && body0 > (H0-L0)*0.5;
-                                if (isBull2 && isSmall1_e && isBear0 && Math.max(O1, C1) > C2 && C0 < (C2 + O2) / 2) {
-                                    eveStar = 1;
+                                combinedQuotes.sort((a, b) => a.date.localeCompare(b.date));
+                                let stockLastHistDate = combinedQuotes.length > 0 ? combinedQuotes[combinedQuotes.length - 1].date : '';
+
+                                for (let d of validDailyDates) {
+                                    if (d > stockLastHistDate && d <= uploadDate) {
+                                        if (dailyDataMap[d] && dailyDataMap[d][sym]) {
+                                            let dq = dailyDataMap[d][sym];
+                                            if (Number(dq.Volume || 0) > 0) {
+                                                combinedQuotes.push({
+                                                    date: d, Open: Number(dq.Open || 0), High: Number(dq.High || 0), Low: Number(dq.Low || 0), Close: Number(dq.Close || 0), Volume: Number(dq.Volume || 0)
+                                                });
+                                            }
+                                        }
+                                    }
                                 }
+
+                                combinedQuotes.sort((a, b) => a.date.localeCompare(b.date));
+
+                                if (combinedQuotes.length < 50) continue;
+
+                                const n = combinedQuotes.length;
+                                let closes = new Float64Array(n);
+                                let volumes = new Float64Array(n);
+                                let highs = new Float64Array(n);
+                                let lows = new Float64Array(n);
+                                let opens = new Float64Array(n);
+                                
+                                for(let j=0; j<n; j++) {
+                                    closes[j] = combinedQuotes[j].Close;
+                                    volumes[j] = combinedQuotes[j].Volume;
+                                    highs[j] = combinedQuotes[j].High;
+                                    lows[j] = combinedQuotes[j].Low;
+                                    opens[j] = combinedQuotes[j].Open;
+                                }
+
+                                const ltp = closes[n - 1];
+                                const todayVol = volumes[n - 1];
+
+                                const sma20 = getSMA(closes, 20);
+                                let stdDev = 0;
+                                if (sma20 && n >= 20) {
+                                    let sqDiffSum = 0;
+                                    for(let j=n-20; j<n; j++) { sqDiffSum += Math.pow(closes[j] - sma20, 2); }
+                                    stdDev = Math.sqrt(sqDiffSum / 20);
+                                }
+
+                                let bullEng = 0, bearEng = 0, hammer = 0, shootingStar = 0, mornStar = 0, eveStar = 0;
+                                
+                                if (n >= 2) {
+                                    const O0 = opens[n-1], H0 = highs[n-1], L0 = lows[n-1], C0 = closes[n-1];
+                                    const O1 = opens[n-2], H1 = highs[n-2], L1 = lows[n-2], C1 = closes[n-2];
+                                    const body0 = Math.abs(C0 - O0);
+                                    const body1 = Math.abs(C1 - O1);
+                                    
+                                    if (C1 < O1 && C0 > O0 && C0 >= O1 && O0 <= C1 && body0 > body1) bullEng = 1;
+                                    if (C1 > O1 && C0 < O0 && C0 <= O1 && O0 >= C1 && body0 > body1) bearEng = 1;
+                                    
+                                    const lowerShadow0 = Math.min(O0, C0) - L0;
+                                    const upperShadow0 = H0 - Math.max(O0, C0);
+                                    if (body0 > 0 && lowerShadow0 >= 2 * body0 && upperShadow0 <= 0.2 * body0) hammer = 1;
+                                    if (body0 > 0 && upperShadow0 >= 2 * body0 && lowerShadow0 <= 0.2 * body0) shootingStar = 1;
+
+                                    if (n >= 3) {
+                                        const O2 = opens[n-3], H2 = highs[n-3], L2 = lows[n-3], C2 = closes[n-3];
+                                        const body2 = Math.abs(C2 - O2);
+                                        
+                                        let isBear2 = C2 < O2 && body2 > (H2-L2)*0.5;
+                                        let isSmall1 = body1 <= (body2 * 0.3) || body1 <= (H1-L1)*0.3;
+                                        let isBull0 = C0 > O0 && body0 > (H0-L0)*0.5;
+                                        if (isBear2 && isSmall1 && isBull0 && Math.min(O1, C1) < C2 && C0 > (C2 + O2) / 2) mornStar = 1;
+
+                                        let isBull2 = C2 > O2 && body2 > (H2-L2)*0.5;
+                                        let isSmall1_e = body1 <= (body2 * 0.3) || body1 <= (H1-L1)*0.3;
+                                        let isBear0 = C0 < O0 && body0 > (H0-L0)*0.5;
+                                        if (isBull2 && isSmall1_e && isBear0 && Math.max(O1, C1) > C2 && C0 < (C2 + O2) / 2) eveStar = 1;
+                                    }
+                                }
+
+                                calculated[sym] = {
+                                    LTP: Number(ltp.toFixed(2)),
+                                    SMA10: Number(getSMA(closes, 10)?.toFixed(2)),
+                                    SMA20: Number(sma20?.toFixed(2)),
+                                    SMA50: Number(getSMA(closes, 50)?.toFixed(2)),
+                                    SMA200: Number(getSMA(closes, 200)?.toFixed(2)),
+                                    EMA9: Number(getEMA(closes, 9)?.toFixed(2)),
+                                    EMA21: Number(getEMA(closes, 21)?.toFixed(2)),
+                                    RSI14: Number(getRSI(closes)?.toFixed(2)),
+                                    MACD: Number(getMACD(closes).macd?.toFixed(2)),
+                                    ADX: Number(getADX(highs, lows, closes)?.toFixed(2)),
+                                    ADR_PCT: Number(getADRPct(highs, lows, closes)?.toFixed(2)),
+                                    BBUpper: Number((sma20 + (stdDev * 2)).toFixed(2)),
+                                    BBLower: Number((sma20 - (stdDev * 2)).toFixed(2)),
+                                    VolRatio: Number((todayVol / getSMA(volumes, 20))?.toFixed(2)),
+                                    BullEng: bullEng, BearEng: bearEng, Hammer: hammer, ShootStar: shootingStar, MornStar: mornStar, EveStar: eveStar
+                                };
                             }
+                            finalCalculated[uploadDate] = calculated;
                         }
+                        self.postMessage({ type: 'done', finalCalculated });
+                    };
+                `;
+                
+                const blob = new Blob([workerCode], { type: 'application/javascript' });
+                const worker = new Worker(URL.createObjectURL(blob));
 
-                        calculated[sym] = {
-                            LTP: Number(ltp.toFixed(2)),
-                            SMA10: Number(getSMA(closes, 10)?.toFixed(2)),
-                            SMA20: Number(sma20?.toFixed(2)),
-                            SMA50: Number(getSMA(closes, 50)?.toFixed(2)),
-                            SMA200: Number(getSMA(closes, 200)?.toFixed(2)),
-                            EMA9: Number(getEMA(closes, 9)?.toFixed(2)),
-                            EMA21: Number(getEMA(closes, 21)?.toFixed(2)),
-                            RSI14: Number(getRSI(closes)?.toFixed(2)),
-                            MACD: Number(getMACD(closes).macd?.toFixed(2)),
-                            ADX: Number(getADX(highs, lows, closes)?.toFixed(2)),
-                            ADR_PCT: Number(getADRPct(highs, lows, closes)?.toFixed(2)),
-                            BBUpper: Number((sma20 + (stdDev * 2)).toFixed(2)),
-                            BBLower: Number((sma20 - (stdDev * 2)).toFixed(2)),
-                            VolRatio: Number((todayVol / getSMA(volumes, 20))?.toFixed(2)),
-                            BullEng: bullEng,
-                            BearEng: bearEng,
-                            Hammer: hammer,
-                            ShootStar: shootingStar,
-                            MornStar: mornStar,
-                            EveStar: eveStar
-                        };
-                    }
+                const finalCalculatedData = await new Promise((resolve, reject) => {
+                    worker.onmessage = function(e) {
+                        if (e.data.type === 'progress') {
+                            btn.innerText = e.data.msg;
+                        } else if (e.data.type === 'done') {
+                            resolve(e.data.finalCalculated);
+                        }
+                    };
+                    worker.onerror = function(e) { reject(e.message); };
+                    worker.postMessage({ datesToUpload, historicalData, validDailyDates, dailyDataMap, symbols });
+                });
 
-                    // Skip saving if it's a holiday (all stocks have Volume = 0 or no quotes for uploadDate)
+                worker.terminate();
+
+                for (let uploadDate of datesToUpload) {
+                    let calculated = finalCalculatedData[uploadDate];
+
                     let totalVolumeOnDate = 0;
                     for (let sym in calculated) {
-                        // Find volume of this sym on uploadDate
                         let quotes = historicalData[sym];
                         if (quotes) {
                             let q = quotes.find(x => (x.date || x.Date) === uploadDate);
@@ -1108,10 +1182,9 @@
 
                     if (totalVolumeOnDate === 0) {
                         console.log(`Skipping holiday: ${uploadDate} has 0 total market volume.`);
-                        continue; // Skip uploading this holiday date
+                        continue; 
                     }
 
-                    // 4. Save to Worker
                     btn.innerText = `Saving to R2 (${uploadDate})...`;
                     postRes = await fetch(`${NEW_WORKER_URL}/save-manual`, {
                         method: 'POST',
@@ -1122,15 +1195,11 @@
                         })
                     });
 
-                    // Update masterIndicators to the latest calculated date in the loop
                     masterIndicators = calculated;
                 }
 
-                // If all dates to upload were skipped holidays, postRes might be undefined. Let's handle it.
                 if (datesToUpload.length > 0 && !postRes) {
-                    // All were skipped holidays
                     document.getElementById('data-status').innerText = `Master Data Ready: ${todayDateStr} (Skipped holidays)`;
-                    alert("Scan done! Holiday dates skipped successfully.");
                     document.getElementById('scan-screen').style.display = "none";
                     document.getElementById('main-app').style.display = "block";
                     return;
@@ -1138,17 +1207,18 @@
 
                 if (postRes && postRes.ok) {
                     document.getElementById('data-status').innerText = `Master Data Ready: ${datesToUpload[datesToUpload.length-1] || todayDateStr}`;
-                    alert("Calculation Complete & Saved!");
                     
-                    // Switch UI
                     document.getElementById('scan-screen').style.display = "none";
                     document.getElementById('main-app').style.display = "block";
                     
                     displayResults(Object.keys(masterIndicators));
+
+                    // AUTO TRIGGER CHART SYNC
+                    setTimeout(triggerChartSync, 1000);
                 } else {
                     let errText = "Worker rejected the save.";
                     try { errText = await postRes.text(); } catch(e) {}
-                    throw new Error("Status " + postRes.status + " | Msg: " + errText);
+                    throw new Error("Status " + (postRes ? postRes.status : 'Unknown') + " | Msg: " + errText);
                 }
 
             } catch (err) {
