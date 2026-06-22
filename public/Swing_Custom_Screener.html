@@ -9,251 +9,144 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        
         :root {
-            --primary: #1e293b; /* Very Dark Slate */
-            --primary-hover: #0f172a;
-            --bg-color: #97a69d; /* User Requested Green-Grey Background */
-            --card-bg: #e8ece9; /* Soft complimentary card background */
-            --text-main: #0f172a;
-            --text-light: #334155;
-            --border: #64748b; /* Strong Grey Border */
-            --success: #059669;
+            /* Theme 3 (Retro Soft Brutalism) */
+            --bg: #F4F1DE; 
+            --card-bg: #FFFFFF; 
+            --border: #3D405B; 
+            --text: #3D405B; 
+            --accent: #E07A5F; 
+            --th-bg: #F2CC8F; 
+            --box-shadow: 10px 10px 0 #E07A5F;
+            --font-main: 'Inter', sans-serif;
+            
+            --success: #008000;
             --danger: #dc2626;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
-            --radius: 12px;
         }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 1rem 1.5rem;
-            -webkit-font-smoothing: antialiased;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--card-bg);
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-md);
-            margin-bottom: 1rem;
-            border-left: 5px solid var(--primary);
-        }
-        .title-section h1 {
-            margin: 0 0 0.15rem 0;
-            color: var(--text-main);
-            font-size: 1.4rem;
-            font-weight: 700;
-            letter-spacing: -0.025em;
-        }
-        .title-section p {
-            margin: 0;
-            color: var(--text-light);
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-        .admin-controls {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-        button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: var(--shadow-sm);
-        }
-        button:hover:not(:disabled) {
-            background-color: var(--primary-hover);
-            transform: translateY(-1px);
-        }
-        button:disabled {
-            background-color: #d1d5db;
-            cursor: not-allowed;
-            color: #9ca3af;
-            box-shadow: none;
-        }
-        .btn-danger { background-color: var(--danger); }
-        .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
-        
-        .query-builder {
-            background: var(--card-bg);
-            padding: 1rem 1.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-md);
-            margin-bottom: 1rem;
-        }
-        .query-builder h3 {
-            margin-top: 0;
-            margin-bottom: 0.75rem;
-            font-size: 1.1rem;
-            color: var(--text-main);
-            font-weight: 600;
-            border-bottom: 1px solid var(--bg-color);
-            padding-bottom: 0.5rem;
-        }
-        .rule-row {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            align-items: center;
-            flex-wrap: wrap;
-            background: #e2e8f0; /* Slightly lighter grey than card for inputs */
-            padding: 0.5rem;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-        }
-        select, input {
-            padding: 0.4rem 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 0.85rem;
-            font-family: 'Inter', sans-serif;
-            color: var(--text-main);
-            background-color: #e2e8f0; /* Grey inputs, not white */
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        select:focus, input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
-        }
-        .results-container {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-md);
-            overflow: hidden; /* cleanly crops table corners */
-        }
-        .results-wrapper {
-            overflow-x: auto;
-            overflow-y: auto;
-            max-height: 75vh;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-        }
-        th, td {
-            padding: 0.75rem 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-        th {
-            background-color: #e2e8f0; /* Grey table header */
-            font-weight: 600;
-            color: var(--text-light);
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            box-shadow: 0 1px 0 var(--border);
-        }
-        tbody tr:hover {
-            background-color: #94a3b8; /* Darker grey hover */
-        }
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-        .green { color: var(--success); font-weight: 600; }
-        .red { color: var(--danger); font-weight: 600; }
-
-        /* Full Screen Scan Prompt */
-        .scan-overlay {
+            font-family: var(--font-main);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 30px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 60vh;
-            text-align: center;
-        }
-        .scan-overlay h2 {
-            font-size: 2rem;
-            color: var(--text-main);
-            margin-bottom: 1rem;
-        }
-        .scan-overlay p {
-            color: var(--text-light);
-            margin-bottom: 2rem;
-            font-size: 1.1rem;
-        }
-        .btn-massive {
-            font-size: 1.25rem;
-            padding: 1rem 3rem;
-            border-radius: 50px;
-            box-shadow: 0 10px 25px -5px rgba(220, 38, 38, 0.4);
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
-            70% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
         }
 
-        /* Mobile Responsiveness */
+        .app-container {
+            width: 100%;
+            max-width: 1400px;
+            background: var(--card-bg);
+            border: 4px solid var(--border);
+            box-shadow: var(--box-shadow);
+        }
+
+        .header-nav {
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+            padding: 20px 24px; border-bottom: 4px solid var(--border);
+        }
+        
+        .logo { display:flex; align-items:center; gap:10px; flex-wrap: wrap; }
+        .brand-title { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px; text-transform: uppercase; }
+
+        .admin-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-weight: 700; }
+        .admin-controls select {
+            padding: 6px 12px; border: 2px solid var(--border); background: #fff; font-family: inherit; font-size: 12px; font-weight: 700;
+        }
+
+        button {
+            background-color: var(--border);
+            color: white;
+            border: 2px solid var(--border);
+            padding: 8px 14px;
+            font-weight: 800;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+        button:hover:not(:disabled) { background-color: var(--accent); color: #fff; border-color: var(--border); }
+        button:disabled { background-color: #ccc; cursor: not-allowed; border-color: #999; color: #666; }
+        
+        .btn-danger { background-color: var(--danger) !important; }
+        .btn-danger:hover:not(:disabled) { background-color: #b91c1c !important; }
+        .btn-success { background-color: var(--success) !important; }
+        .btn-massive { font-size: 1.25rem; padding: 1rem 3rem; }
+        
+        .query-builder { padding: 12px 16px; border-bottom: 4px solid var(--border); }
+        .query-builder h3 { margin-bottom: 10px; font-size: 1rem; font-weight: 900; text-transform: uppercase; }
+        .rule-row {
+            display: flex; gap: 6px; margin-bottom: 6px; align-items: center; flex-wrap: wrap;
+            background: #f9f9f9; padding: 6px 10px; border: 2px solid var(--border);
+        }
+        select, input {
+            padding: 4px 8px; border: 2px solid var(--border); font-size: 12px; font-family: inherit; font-weight: 700;
+            background-color: #fff; outline: none;
+        }
+        select:focus, input:focus { background-color: #fffde7; }
+        
+        .results-container { padding: 24px; }
+        .results-wrapper { border: 3px solid var(--border); overflow-x: auto; max-height: 75vh; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th {
+            padding: 10px 14px; background: var(--th-bg); border-bottom: 3px solid var(--border);
+            font-weight: 900; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;
+            position: sticky; top: 0; z-index: 10;
+        }
+        td { padding: 8px 14px; font-weight: 700; font-size: 12px; border-bottom: 1px solid var(--border); }
+        tbody tr:hover td { background: rgba(0,0,0,0.05); }
+
+        .green { color: var(--success); font-weight: 900; }
+        .red { color: var(--danger); font-weight: 900; }
+
+        .scan-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; text-align: center; }
+        .scan-overlay h2 { font-size: 2rem; font-weight: 900; margin-bottom: 1rem; }
+        .scan-overlay p { margin-bottom: 2rem; font-size: 1.1rem; font-weight: 700; }
+
         @media (max-width: 768px) {
-            body { padding: 0.5rem; }
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-                padding: 1rem;
-            }
-            .admin-controls {
-                flex-direction: column;
-                align-items: stretch;
-                width: 100%;
-                gap: 0.5rem;
-            }
-            .admin-controls button, .admin-controls select, .admin-controls span {
-                margin-left: 0 !important;
-                width: 100%;
-                text-align: center;
-                box-sizing: border-box;
-            }
-            .query-builder { padding: 1rem; }
-            .rule-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .rule-row select, .rule-row input, .rule-row button {
-                width: 100%;
-                box-sizing: border-box;
-            }
-            th, td {
-                padding: 0.5rem;
-                font-size: 0.75rem;
-            }
-            .title-section h1 { font-size: 1.25rem; }
-            #chart-container { padding: 0.75rem; }
+            body { padding: 10px; }
+            .app-container { width: auto; margin: 0; }
+            .header-nav { flex-direction: column; align-items: flex-start; }
+            .admin-controls { width: 100%; flex-direction: column; align-items: stretch; gap: 8px; }
+            .admin-controls button, .admin-controls select, .admin-controls span { width: 100%; text-align: center; }
+            .rule-row { flex-direction: column; align-items: stretch; padding: 8px; gap: 6px; }
+            .rule-row select, .rule-row input, .rule-row button { width: 100%; padding: 6px; font-size: 12px; }
+            .query-builder, .results-container { padding: 10px; }
+            .results-wrapper { margin: 0; }
+            th, td { padding: 8px; font-size: 11px; }
+            #chart-container { padding: 0.75rem !important; }
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="title-section">
-            <h1>Custom Screener</h1>
-            <p>Custom Indicator Query Builder</p>
+<div class="app-container">
+    <div class="header-nav">
+        <div class="logo">
+            <div class="brand-title">SWING SCREENER</div>
+            
+            <div class="brand-logo" style="display:flex; align-items:flex-end; font-family:'Inter',sans-serif; font-weight:900; font-size:26px; letter-spacing:-1px; border-left:3px solid var(--border); padding-left:16px; margin-left:16px;">
+                <span style="color:var(--text);">fn</span>
+                <div style="position:relative; display:inline-block;">
+                    <span style="color:var(--text);">o</span>
+                    <svg style="position:absolute; top:-4px; right:-8px; width:22px; height:22px;" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                </div>
+                <div style="position:relative; display:inline-block; margin-left:4px;">
+                    <svg style="position:absolute; top:-16px; right:-2px; width:28px; height:28px;" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path><polyline points="9 15 13 11 15 13 19 9"></polyline><polyline points="15 9 19 9 19 13"></polyline></svg>
+                    <span style="color:var(--text);">hub</span>
+                </div>
+                <span style="font-size:12px; color:var(--text); opacity: 0.6; margin-left:2px; padding-bottom:4px; font-weight:800;">.in</span>
+            </div>
         </div>
-        <div class="admin-controls" style="display:flex; align-items:center;">
-            <span id="data-status" style="font-weight:bold; color:var(--text-light);">Checking data...</span>
-            <select id="historical-date-picker" onchange="changeDate(this.value)" style="margin-left: 1rem; display:none; padding: 0.3rem; border-radius:4px;"></select>
-            <button onclick="window.open('https://auth-worker.teletechcare.workers.dev/v/swing_auto', '_blank')" style="margin-left: 1rem; padding: 0.4rem 0.8rem; background: #8b5cf6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">🚀 AUTO SCREENER</button>
-            <button id="syncChartBtn" onclick="triggerChartSync()" style="margin-left: 1rem; padding: 0.4rem 0.8rem; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">UPDATE CHARTS</button>
-            <button onclick="forceRebuildData()" style="margin-left: 1rem; padding: 0.4rem 0.8rem; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">REBUILD DATABASE</button>
+        <div class="admin-controls">
+            <span id="data-status" style="background:var(--th-bg); padding:6px 12px; border:2px solid var(--border);">Checking data...</span>
+            <select id="historical-date-picker" onchange="changeDate(this.value)" style="display:none;"></select>
+            <button onclick="window.open('https://auth-worker.teletechcare.workers.dev/v/swing_auto', '_blank')" style="background:#8b5cf6;">🚀 AUTO SCREENER</button>
+            <button id="syncChartBtn" onclick="triggerChartSync()" style="background:#3b82f6;">UPDATE CHARTS</button>
+            <button onclick="forceRebuildData()" class="btn-danger">REBUILD DATABASE</button>
         </div>
     </div>
 
@@ -2011,5 +1904,6 @@
         }
         
     </script>
+</div>
 </body>
 </html>
