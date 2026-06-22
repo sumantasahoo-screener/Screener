@@ -508,6 +508,16 @@
                     datePicker.value = defaultDateStr; // Default to the latest active trading date!
                 }
 
+                // Check if the latest trading day is missing from the compiled list
+                if (!isHolidayOrWeekend(todayDateStr) && !availableDates.includes(todayDateStr)) {
+                    document.getElementById('data-status').innerText = `Missing Master Data for ${todayDateStr}. Auto-Rebuilding...`;
+                    document.getElementById('scan-screen').style.display = "flex";
+                    document.getElementById('main-app').style.display = "none";
+                    document.getElementById('scanMasterBtn').innerText = `Auto-Rebuilding Master Indicators...`;
+                    scanMasterIndicators(false);
+                    return;
+                }
+
                 // Default to loading the actual active date
                 await loadDataForDate(defaultDateStr);
             } catch (err) {
@@ -822,10 +832,20 @@
             try {
                 // 1. Fetch Historical Data (IndexedDB or R2)
                 let historicalData = await getCachedHistoricalData();
+                let fetchedFromOriginal = false;
                 if (!historicalData || force) {
-                    btn.innerText = "Downloading Historical Data (78MB)...";
-                    const histRes = await fetch(HISTORICAL_URL);
+                    btn.innerText = "Downloading Historical Data (Your R2)...";
+                    
+                    // SEPARATE R2 THEORY: Fetch from our own worker first
+                    let histRes = await fetch(`${NEW_WORKER_URL}/get-historical`);
+                    if (histRes.status === 404) {
+                        // Day 1 Fallback: Our R2 is empty, fetch from original source ONCE
+                        btn.innerText = "Downloading Historical Data (Original)...";
+                        histRes = await fetch(HISTORICAL_URL);
+                        fetchedFromOriginal = true;
+                    }
                     if (!histRes.ok) throw new Error("Failed to load historical data");
+                    
                     historicalData = await histRes.json();
                     
                     btn.innerText = "Saving to Local Cache...";
@@ -1215,6 +1235,15 @@
 
                     // AUTO TRIGGER CHART SYNC
                     setTimeout(triggerChartSync, 1000);
+
+                    // --- SEPARATE R2 THEORY: Update historical data on our R2 ---
+                    if (datesToUpload.length > 0 || fetchedFromOriginal) {
+                        fetch(`${NEW_WORKER_URL}/update-historical`, {
+                            method: 'POST',
+                            body: JSON.stringify(historicalData),
+                            headers: { 'Content-Type': 'application/json' }
+                        }).catch(e => console.error("Failed to update separate R2:", e));
+                    }
                 } else {
                     let errText = "Worker rejected the save.";
                     try { errText = await postRes.text(); } catch(e) {}
