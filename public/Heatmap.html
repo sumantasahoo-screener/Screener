@@ -5,26 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Heatmap</title>
 
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230a84ff'/><text x='16' y='22' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' font-size='14' fill='white'>MT</text></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect x='64' y='64' width='160' height='160' rx='40' fill='%2310b981'/%3E%3Crect x='288' y='64' width='160' height='160' rx='40' fill='%23047857'/%3E%3Crect x='64' y='288' width='160' height='160' rx='40' fill='%23ef4444'/%3E%3Crect x='288' y='288' width='160' height='160' rx='40' fill='%23b91c1c'/%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@500;600&display=swap" rel="stylesheet"/>
 <style>
 /* -- Theme Tokens -- */
 :root {
-  --bg: #f4f5f7; --surface: #ffffff; --surface2: #f0f1f4; --border: #e3e5ea;
-  --text: #0f1923; --text2: #4a5568; --text3: #9aa5b4;
-  --accent: #0052cc; --up: #0a7c42; --up-bg: #e3f5ec;
-  --down: #c0392b; --down-bg: #fdecea; --hero-bg: #ffffff;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-  --radius: 12px;
+  --bg: #f4f4f4; --surface: #ffffff; --surface2: #ffffff; --border: #000000;
+  --text: #000000; --text2: #000000; --text3: #444444;
+  --accent: #0000ff; --up: #009900; --up-bg: #e6ffe6;
+  --down: #ff0000; --down-bg: #ffe6e6; --hero-bg: #ffffff;
+  --shadow-sm: 4px 4px 0px rgba(0,0,0,1); --shadow-md: 6px 6px 0px rgba(0,0,0,1);
+  --radius: 0px;
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;transition:background 0.25s, color 0.25s;overflow-y:scroll;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;transition:background 0.25s, color 0.25s;overflow-y:scroll;display:flex;justify-content:center;padding:30px;}
+.app-container{background:var(--surface);width:100%;max-width:1400px;border:2.5px solid var(--border);position:relative;box-shadow:10px 0px 0px #ffff00, 10px 0px 0px 2.5px var(--border);margin:0 auto;display:flex;flex-direction:column;}
 a{text-decoration:none;}
 
 /* -- Header -- */
-header{background:var(--surface);border-bottom:1px solid var(--border);height:60px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm)}
-.hinner{max-width:1400px;margin:0 auto;padding:0 20px;height:100%;display:flex;align-items:center;justify-content:space-between;gap:12px}
+header{background:var(--surface);border-bottom:2.5px solid var(--border);height:60px;position:sticky;top:0;z-index:100;}
+.hinner{max-width:100%;margin:0 auto;padding:0 20px;height:100%;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .logo{display:flex;align-items:center;gap:10px}
 .logo-mark{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center}
 .logo-mark svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
@@ -56,7 +57,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);height:60
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 
 /* -- Main Layout -- */
-main{max-width:1400px;margin:0 auto;padding:24px 20px 48px}
+main{max-width:100%;margin:0 auto;padding:24px 20px 48px;width:100%;}
 .tabs-wrap{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
 .tabs{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:10px;}
 .tab{padding:8px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text2);transition:0.2s;white-space:nowrap}
@@ -407,11 +408,17 @@ main{max-width:1400px;margin:0 auto;padding:24px 20px 48px}
 </head>
 <body>
 
+<div class="app-container">
 <header>
   <div class="hinner">
-    <div class="logo">
-      <div class="logo-mark"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
-      <div class="logo-text">HEAT <span>MAP</span></div>
+    <div class="logo" style="gap:12px;">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:3px; width:28px; height:28px;">
+         <div style="background-color:#10b981; border-radius:4px;"></div>
+         <div style="background-color:#047857; border-radius:4px;"></div>
+         <div style="background-color:#ef4444; border-radius:4px;"></div>
+         <div style="background-color:#b91c1c; border-radius:4px;"></div>
+      </div>
+      <div class="logo-text" style="font-size:20px; font-weight:700; color:var(--text); letter-spacing:-0.5px;">Heatmap</div>
     </div>
     <div class="mobile-status">
       <span class="market-pill market-closed" id="mbadge-m"><span class="dot" id="mdot-m"></span><span id="mtxt-m">...</span></span>
@@ -1585,6 +1592,7 @@ if(graphCanvas && hoverInfo) {
 
 fetchData();
 </script>
+</div>
 </body>
 </html>
 
