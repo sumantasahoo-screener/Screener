@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FOVOLT Dashboard — Options & Intraday</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23E76F51' stroke='%23000' stroke-width='4'/%3E%3Cpath d='M 18 16 L 32 46 L 46 16' fill='none' stroke='%23000' stroke-width='8' stroke-linecap='square' stroke-linejoin='miter' /%3E%3C/svg%3E" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -215,15 +216,25 @@
       </button>
     </div>
 
-    <div class="info-banner">
+    <div class="info-banner" onclick="toggleGuide()">
       <div>📖 HOW TO READ THIS DASHBOARD? <span class="sub">[STRATEGY GUIDE — CLICK TO EXPAND]</span></div>
-      <div>▼</div>
+      <div id="guide-arrow">▼</div>
+    </div>
+    
+    <div id="strategy-guide" style="display: none; border: 2px solid #000; background: #fff; padding: 20px; margin-bottom: 20px; box-shadow: 4px 4px 0px var(--shadow-color), 4px 4px 0px 2.5px var(--border-color);">
+      <h3 style="margin-bottom: 10px; font-weight: 800;">💡 FOVOLT TRADING STRATEGY</h3>
+      <ul style="margin-left: 20px; line-height: 1.6; font-size: 13px; font-weight: 600;">
+        <li><strong>OPTIONS BUY ZONE (Vol &lt; 30%):</strong> In stocks ki implied volatility kam hoti hai. Inme Options buying (Call/Put) karna sasta aur safe hota hai. Trend aane par achha profit mil sakta hai.</li>
+        <li><strong>CAUTION ZONE (Vol 30% - 50%):</strong> Ye medium volatility wale stocks hain. Inme trade kar sakte hain lekin tight stop-loss ke sath, kyunki premium decay aur spikes ka risk hota hai.</li>
+        <li><strong>AVOID BUYING (Vol &gt; 50%):</strong> In stocks me options bohot mehenge hote hain (high IV). Inko buy karne par Volatility Crush ka bada risk hota hai. Option selling ke liye ye acche ho sakte hain.</li>
+        <li><strong>INTRADAY PICKS (Vol 35% - 65%):</strong> Inme din ke dauran achha momentum (swing) milta hai. Ye intraday traders ke liye best hote hain jo chote time frame me trade karte hain.</li>
+      </ul>
     </div>
 
     <div class="section-banner">TODAY'S VOLATILITY FLOW</div>
 
     <div class="stats-grid">
-      <div class="stat-card c-green">
+      <div class="stat-card c-green" style="cursor: pointer;" onclick="document.getElementById('tab-buy').click()">
         <div class="stat-header">OPTIONS BUY ZONE <br><span style="font-size:10px;color:#666;font-weight:600;">Vol &lt; 30%</span></div>
         <div class="stat-body">
           <div class="stat-desc">Stocks suitable for buying</div>
@@ -232,7 +243,7 @@
         </div>
       </div>
 
-      <div class="stat-card c-yellow">
+      <div class="stat-card c-yellow" style="cursor: pointer;" onclick="document.getElementById('tab-caution').click()">
         <div class="stat-header">CAUTION ZONE <br><span style="font-size:10px;color:#666;font-weight:600;">Vol 30% - 50%</span></div>
         <div class="stat-body">
           <div class="stat-desc">Requires tight stop loss</div>
@@ -241,7 +252,7 @@
         </div>
       </div>
 
-      <div class="stat-card c-red">
+      <div class="stat-card c-red" style="cursor: pointer;" onclick="document.getElementById('tab-avoid').click()">
         <div class="stat-header">AVOID BUYING <br><span style="font-size:10px;color:#666;font-weight:600;">Vol &gt; 50%</span></div>
         <div class="stat-body">
           <div class="stat-desc">Options are too costly</div>
@@ -250,7 +261,7 @@
         </div>
       </div>
 
-      <div class="stat-card c-blue">
+      <div class="stat-card c-blue" style="cursor: pointer;" onclick="document.getElementById('tab-intraday').click()">
         <div class="stat-header">INTRADAY PICKS <br><span style="font-size:10px;color:#666;font-weight:600;">Vol 35% - 65%</span></div>
         <div class="stat-body">
           <div class="stat-desc">High momentum expected</div>
@@ -272,11 +283,11 @@
     </div>
 
     <div class="tabs">
-      <div class="tab active" onclick="filterTable('all', this)">ALL STOCKS</div>
-      <div class="tab" onclick="filterTable('buy', this)">✅ BUY OPTIONS</div>
-      <div class="tab" onclick="filterTable('intraday', this)">📈 INTRADAY</div>
-      <div class="tab" onclick="filterTable('caution', this)">⚠️ CAUTION</div>
-      <div class="tab" onclick="filterTable('avoid', this)">🚫 AVOID</div>
+      <div class="tab active" id="tab-all" onclick="filterTable('all', this)">ALL STOCKS</div>
+      <div class="tab" id="tab-buy" onclick="filterTable('buy', this)">✅ BUY OPTIONS</div>
+      <div class="tab" id="tab-intraday" onclick="filterTable('intraday', this)">📈 INTRADAY</div>
+      <div class="tab" id="tab-caution" onclick="filterTable('caution', this)">⚠️ CAUTION</div>
+      <div class="tab" id="tab-avoid" onclick="filterTable('avoid', this)">🚫 AVOID</div>
     </div>
 
     <div class="table-card">
@@ -526,6 +537,17 @@ window.addEventListener('DOMContentLoaded', () => {
     loadFromCloudflare();
 });
 
+function toggleGuide() {
+  const guide = document.getElementById('strategy-guide');
+  const arrow = document.getElementById('guide-arrow');
+  if (guide.style.display === 'none') {
+    guide.style.display = 'block';
+    arrow.textContent = '▲';
+  } else {
+    guide.style.display = 'none';
+    arrow.textContent = '▼';
+  }
+}
 </script>
 </body>
 </html>
