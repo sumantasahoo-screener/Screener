@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Option Triggers Intelligence</title>
+    <!-- Favicon SVG -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23F84F4F' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'><path d='M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z'/><polyline points='8 13 12 9 15 12 19 8'/><polyline points='15 8 19 8 19 12'/></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-body: #0F1219;
+            --bg-panel: #1A1F2B;
+            --bg-card: #202634;
+            --border-light: rgba(255, 255, 255, 0.1);
+            --border-focus: rgba(255, 255, 255, 0.3);
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+            
+            /* Theme colors instead of Quantsapp colors */
+            --green: #10B981;
+            --red: #EF4444;
+            --yellow: #EAB308;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 20px;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            border: 2px solid var(--text-main);
+            border-radius: 4px;
+            padding: 20px;
+            background-color: var(--bg-panel);
+        }
+
+        /* Top Header */
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .logo-section i {
+            color: var(--green);
+        }
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 13px;
+        }
+        .control-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-light);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        /* Inner Panel */
+        .inner-panel {
+            border: 2px solid white;
+            border-radius: 8px;
+            padding: 20px;
+            background: var(--bg-card);
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--green);
+        }
+        .panel-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: 26px;
+        }
+
+        /* Search */
+        .search-box {
+            width: 100%;
+            background: var(--bg-body);
+            border: 1px solid var(--border-light);
+            color: var(--text-main);
+            padding: 12px 15px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: var(--border-focus);
+        }
+
+        /* Data Table */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: center;
+        }
+        
+        /* Group Headers */
+        .super-header th {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-light);
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .super-header .calls-head {
+            color: var(--green);
+        }
+        .super-header .symbol-head {
+            color: var(--text-main);
+            border-left: 1px solid var(--border-light);
+            border-right: 1px solid var(--border-light);
+            line-height: 1.2;
+        }
+        .super-header .puts-head {
+            color: var(--red);
+        }
+
+        /* Column Headers */
+        .data-table .col-header th {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s;
+            user-select: none;
+        }
+        .data-table .col-header th:hover {
+            color: var(--white);
+            background: rgba(255,255,255,0.05);
+        }
+        .data-table .col-header .symbol-col {
+            border-left: 1px solid var(--border-light);
+            border-right: 1px solid var(--border-light);
+        }
+
+        /* Table Body Cells */
+        .data-table td {
+            padding: 14px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-weight: 500;
+        }
+        .data-table tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .symbol-cell {
+            font-weight: 700;
+            color: var(--white);
+            border-left: 1px solid var(--border-light);
+            border-right: 1px solid var(--border-light);
+            background: rgba(0,0,0,0.2);
+            line-height: 1.4;
+        }
+
+        .text-green { color: var(--green); }
+        .text-red { color: var(--red); }
+        .text-neutral { color: var(--text-main); }
+        .text-bold { font-weight: 700; }
+        
+        /* Custom FnoHub Logo CSS */
+        .custom-logo {
+            position: relative;
+            display: flex;
+            align-items: baseline;
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            color: #F84F4F;
+            font-size: 26px;
+            letter-spacing: -1px;
+            margin-left: 20px;
+            user-select: none;
+            line-height: 1;
+        }
+        .custom-logo .o-arrow {
+            position: relative;
+        }
+        .custom-logo .o-arrow i {
+            position: absolute;
+            top: -2px;
+            right: -8px;
+            font-size: 13px;
+            font-weight: 900;
+            color: #F84F4F;
+        }
+        .custom-logo .text-in {
+            font-size: 14px;
+            color: #8892B0;
+            margin-left: 1px;
+            letter-spacing: 0;
+            font-weight: 700;
+        }
+        .custom-logo .cloud-icon {
+            position: absolute;
+            top: -22px;
+            right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .custom-logo .cloud-svg {
+            width: 34px;
+            height: 34px;
+            stroke: #F84F4F;
+            fill: none;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <!-- Top Header -->
+    <div class="top-header">
+        <div class="logo-section">
+            <i class="fa-solid fa-chart-line"></i>
+            Option Triggers Intelligence
+        </div>
+        <div class="header-controls">
+            <div style="color: var(--text-muted);">23/06/2026</div>
+            <button class="control-btn" style="color: var(--green); background: transparent; border: 1px solid var(--border-light);" onclick="location.reload()">
+                <i class="fa-solid fa-rotate-right"></i> Refresh
+            </button>
+            <div class="custom-logo">
+                <div class="cloud-icon">
+                    <svg class="cloud-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+                        <polyline points="8 13 12 9 15 12 19 8"/>
+                        <polyline points="15 8 19 8 19 12"/>
+                    </svg>
+                </div>
+                <span>fn</span>
+                <span class="o-arrow">o<i class="fa-solid fa-arrow-up-right"></i></span>
+                <span>hub</span>
+                <span class="text-in">.in</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inner Panel -->
+    <div class="inner-panel">
+        <div class="panel-header">
+            <div>
+                <div class="panel-title">
+                    <i class="fa-solid fa-layer-group"></i> Highest Calls & Puts
+                </div>
+                <div class="panel-subtitle">Change in OI and Price analysis</div>
+            </div>
+        </div>
+
+        <input type="text" class="search-box" placeholder="Search Symbol (e.g., RELIANCE, NIFTY...)...">
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr class="super-header">
+                        <th colspan="4" class="calls-head"><i class="fa-solid fa-arrow-trend-up"></i> HIGHEST CALLS</th>
+                        <th colspan="1" class="symbol-head">
+                            SYMBOL<br>
+                            <span style="font-size: 10px; color: var(--text-muted); font-weight: 400; text-transform: none;">Future Price</span><br>
+                            <span style="font-size: 9px; color: var(--text-muted); font-weight: 400; text-transform: none; opacity: 0.7;">Spot Price</span>
+                        </th>
+                        <th colspan="4" class="puts-head">HIGHEST PUTS <i class="fa-solid fa-arrow-trend-down"></i></th>
+                    </tr>
+                    <tr class="col-header">
+                        <th data-sort="c_chg">Chg In OI <span class="sort-icon"></span></th>
+                        <th data-sort="c_oi">OI <span class="sort-icon"></span></th>
+                        <th data-sort="c_diff">Call Diff <span class="sort-icon"></span></th>
+                        <th data-sort="c_strike">Strike <span class="sort-icon"></span></th>
+                        
+                        <th class="symbol-col" data-sort="symbol">Symbol <span class="sort-icon"></span></th>
+                        
+                        <th data-sort="p_strike">Strike <span class="sort-icon"></span></th>
+                        <th data-sort="p_diff">Put Diff <span class="sort-icon"></span></th>
+                        <th data-sort="p_oi">OI <span class="sort-icon"></span></th>
+                        <th data-sort="p_chg">Chg In OI <span class="sort-icon"></span></th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Mock Data Injected via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Mock Data based on Quantsapp format with Spot Price included
+    let mockData = [];
+
+    const formatNum = (num) => new Intl.NumberFormat('en-IN').format(num);
+    
+    const formatPct = (val) => {
+        const sign = val > 0 ? '+' : '';
+        return `${sign}${val}%`;
+    };
+
+    const getColorClass = (val) => {
+        if (val > 0) return 'text-green';
+        if (val < 0) return 'text-red';
+        return 'text-neutral';
+    };
+
+    const tbody = document.getElementById('tableBody');
+    let currentSort = { key: 'c_oi', asc: false };
+
+    const renderTable = (data) => {
+        tbody.innerHTML = '';
+        data.forEach(row => {
+            const tr = document.createElement('tr');
+            
+            // Determine Future and Spot display
+            const futDisplay = (row.future && row.future > 0) ? formatNum(row.future) : "N/A";
+            const spotDisplay = formatNum(row.spot);
+            const baseFlag = row.base === 'F' ? '<span style="color:#A0AABF; font-size:10px;">(F)</span>' : '<span style="color:#A0AABF; font-size:10px;">(S)</span>';
+            
+            tr.innerHTML = `
+                <td class="${getColorClass(row.c_chg)} text-bold">${formatPct(row.c_chg)}</td>
+                <td class="text-neutral">${formatNum(row.c_oi)}</td>
+                <td class="${getColorClass(row.c_diff)}">${formatPct(row.c_diff)} ${baseFlag}</td>
+                <td class="text-neutral text-bold">${formatNum(row.c_strike)}</td>
+                
+                <td class="symbol-cell">
+                    <div>${row.symbol}</div>
+                    <div style="font-size: 12px; color: var(--white); margin-top: 2px;">${futDisplay}</div>
+                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 1px; opacity: 0.7;">${spotDisplay}</div>
+                </td>
+                
+                <td class="text-neutral text-bold">${formatNum(row.p_strike)}</td>
+                <td class="${getColorClass(row.p_diff)}">${formatPct(row.p_diff)} ${baseFlag}</td>
+                <td class="text-neutral">${formatNum(row.p_oi)}</td>
+                <td class="${getColorClass(row.p_chg)} text-bold">${formatPct(row.p_chg)}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    };
+
+    const sortData = (key) => {
+        if (currentSort.key === key) {
+            currentSort.asc = !currentSort.asc;
+        } else {
+            currentSort.key = key;
+            currentSort.asc = false; // default to descending for new sort
+        }
+
+        mockData.sort((a, b) => {
+            let valA = a[key];
+            let valB = b[key];
+            if (typeof valA === 'string') valA = valA.toLowerCase();
+            if (typeof valB === 'string') valB = valB.toLowerCase();
+            
+            if (valA < valB) return currentSort.asc ? -1 : 1;
+            if (valA > valB) return currentSort.asc ? 1 : -1;
+            return 0;
+        });
+
+        // Update headers visual
+        document.querySelectorAll('.col-header th').forEach(th => {
+            const icon = th.querySelector('.sort-icon');
+            if (icon) icon.innerHTML = '';
+            if (th.dataset.sort === key && icon) {
+                icon.innerHTML = currentSort.asc ? '▲' : '▼';
+            }
+        });
+
+        renderTable(mockData);
+    };
+
+    // Attach click events
+    document.querySelectorAll('.col-header th[data-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+            sortData(th.dataset.sort);
+        });
+    });
+
+    // Fetch data from R2 / local JSON
+    const fetchData = async () => {
+        try {
+            // Assumes option_triggers.json is hosted in the same directory on R2
+            const response = await fetch('option_triggers.json');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            mockData = await response.json();
+            // Initial render and sort by Highest Call OI descending
+            sortData('c_oi');
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            // Optionally, you can show an error message in the table
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 20px;">Error loading data</td></tr>';
+        }
+    };
+
+    fetchData();
+    // Refresh data every 1 minute (60000 ms)
+    setInterval(fetchData, 60000);
+</script>
+
+</body>
+</html>
