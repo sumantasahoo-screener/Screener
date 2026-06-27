@@ -1016,22 +1016,21 @@
 
       // Filter and Sort based on type
       if (type === 'sniper') {
-        // Exclude distribution trap from normal momentum
-        list = list.filter(s => s.pctChg > 2.0 && s.delivPct >= 40 && s.turnoverCr >= 15 && !(s.pctChg >= 5.0 && s.delivPct >= 70))
+        list = list.filter(s => s.pctChg >= 3.0 && s.delivPct >= 60 && s.turnoverCr >= 5)
                    .sort((a, b) => b.turnoverCr - a.turnoverCr).slice(0, 10);
-        title = '🚀 Top 10 Fast Momentum (Intraday Buy for Tomorrow)'; tColor = '#059669';
+        title = '🚀 Top 10 Fast Momentum (Optimized Intraday Buy for Tomorrow)'; tColor = '#059669';
       } else if (type === 'trap') {
-        list = list.filter(s => s.pctChg > 1.5 && s.delivPct <= 30 && s.turnoverCr >= 5)
+        list = list.filter(s => s.pctChg >= 3.0 && s.delivPct <= 35 && s.turnoverCr >= 5)
                    .sort((a, b) => b.intraCr - a.intraCr).slice(0, 10);
-        title = '🚨 Top 10 Operator Traps (Retail Trapped - Look to Short Gap Up)'; tColor = '#dc2626';
+        title = '🚨 Top 10 Operator Traps (Retail Trapped - Look to Short)'; tColor = '#dc2626';
       } else if (type === 'bottom') {
         list = list.filter(s => s.pctChg <= -5.0 && s.delivPct >= 70 && s.turnoverCr >= 2)
                    .sort((a, b) => b.turnoverCr - a.turnoverCr).slice(0, 10);
         title = '💎 Extreme Crash Reversals (Guaranteed Bounce / Bottom Fishing)'; tColor = '#2563eb';
       } else if (type === 'dist') {
-        list = list.filter(s => s.pctChg >= 5.0 && s.delivPct >= 70 && s.turnoverCr >= 2)
+        list = list.filter(s => s.pctChg <= -3.0 && s.delivPct >= 50 && s.turnoverCr >= 15)
                    .sort((a, b) => b.turnoverCr - a.turnoverCr).slice(0, 10);
-        title = '💀 Extreme Distribution Tops (Operator Dumping - Short It!)'; tColor = '#0f172a';
+        title = '💀 Institutional Distribution (Confirmed Operator Dumping - Short It!)'; tColor = '#0f172a';
       }
 
       let html = `
