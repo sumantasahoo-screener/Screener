@@ -52,7 +52,8 @@
         .logo { display:flex; align-items:center; gap:10px; flex-wrap: wrap; }
         .brand-title { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px; text-transform: uppercase; }
 
-        .admin-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-weight: 700; }
+        .admin-controls { display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 12px; font-weight: 700; }
+        .admin-controls p { margin: 0; font-size: 12px; }
         .admin-controls select {
             padding: 6px 12px; border: 2px solid var(--border); background: #fff; font-family: inherit; font-size: 12px; font-weight: 700;
         }
@@ -146,7 +147,10 @@
             </div>
         </div>
         <div class="admin-controls">
-            <span id="data-status" style="background:var(--th-bg); padding:6px 12px; border:2px solid var(--border);">Checking data...</span>
+            <p style="font-weight: 600; color: var(--text-main); font-size: 0.9rem; border: 2px solid var(--border); padding: 4px 10px; background: var(--th-bg);">Date: <span id="data-date">Loading...</span></p>
+            <p id="data-status" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;">Checking status...</p>
+            <button class="sync-btn" id="sync-btn" onclick="manualSync()" style="display: none;">⚙️ Manual Sync</button>
+            <button onclick="window.location.href='Swing_auto.html'" style="background:var(--accent);">⚙️ PRESET SCANS</button>
             <select id="historical-date-picker" onchange="changeDate(this.value)" style="display:none;"></select>
             <button onclick="window.open('https://auth-worker.teletechcare.workers.dev/v/swing_auto', '_blank')" style="background:#8b5cf6;">🚀 AUTO SCREENER</button>
             <button id="syncChartBtn" onclick="triggerChartSync()" style="background:#3b82f6;">UPDATE CHARTS</button>
@@ -217,7 +221,11 @@
         </div>
 
         <div class="results-container">
-            <div style="padding:0.6rem 1rem; display:flex; align-items:center; gap:0.6rem; border-bottom:1px solid var(--border); background:#f9fafb;">
+            <div style="padding:0.6rem 1rem; display:flex; align-items:center; gap:0.6rem; border-bottom:1px solid var(--border); background:#f9fafb; flex-wrap:wrap;">
+                <div style="display:flex; gap:0.4rem; align-items:center; border-right:2px solid var(--border); padding-right:0.8rem; margin-right:0.2rem;">
+                    <button id="btn-seg-all" onclick="setSegment('all')" style="background:#4f46e5; color:white; border:none; padding:0.35rem 0.75rem; border-radius:6px; font-size:0.75rem; font-weight:700; cursor:pointer;">🌟 ALL STOCKS</button>
+                    <button id="btn-seg-fno" onclick="setSegment('fno')" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:0.35rem 0.75rem; border-radius:6px; font-size:0.75rem; font-weight:700; cursor:pointer; transition:all 0.2s;">⚡ F&O ONLY</button>
+                </div>
                 <span style="color:var(--text-light); font-size:0.85rem; font-weight:600;">🔍</span>
                 <input type="text" id="symbol-search" list="symbol-datalist" placeholder="Search Symbol... (Enter = Open Chart)" oninput="filterTable()" onkeydown="if(event.key==='Enter'){searchAndOpenChart()}" style="flex:1; max-width:280px; padding:0.4rem 0.75rem; border:1px solid #d1d5db; border-radius:6px; font-size:0.85rem; font-family:'Inter',sans-serif; outline:none;">
                 <datalist id="symbol-datalist"></datalist>
@@ -281,6 +289,54 @@
         let pastDateStr = "";
         let latestLTPData = {};
         let cachedHistoricalData = null; // Cache for chart data
+
+        // NSE F&O List (Top Stocks)
+        const FNO_STOCKS = new Set([
+            "AARTIIND", "ABB", "ABBOTINDIA", "ABCAPITAL", "ABFRL", "ACC", "ADANIENT", "ADANIPORTS", "ALKEM", 
+            "AMBUJACEM", "APOLLOHOSP", "APOLLOTYRE", "ASHOKLEY", "ASIANPAINT", "ASTRAL", "ATUL", "AUBANK", 
+            "AUROPHARMA", "AXISBANK", "BAJAJ-AUTO", "BAJFINANCE", "BAJAJFINSV", "BALKRISIND", "BALRAMCHIN", 
+            "BANDHANBNK", "BANKBARODA", "BATAINDIA", "BEL", "BERGEPAINT", "BHARATFORG", "BHARTIARTL", "BHEL", 
+            "BIOCON", "BOSCHLTD", "BPCL", "BRITANNIA", "CANBK", "CANFINHOME", "CHAMBLFERT", "CHOLAFIN", "CIPLA", 
+            "COALINDIA", "COFORGE", "COLPAL", "CONCOR", "COROMANDEL", "CROMPTON", "CUB", "CUMMINSIND", "DABUR", 
+            "DALBHARAT", "DEEPAKNTR", "DELTACORP", "DIVISLAB", "DIXON", "DLF", "DRREDDY", "EICHERMOT", "ESCORTS", 
+            "EXIDEIND", "FEDERALBNK", "FSL", "GAIL", "GLENMARK", "GMRINFRA", "GNFC", "GODREJCP", "GODREJPROP", 
+            "GRANULES", "GRASIM", "GUJGASLTD", "HAL", "HAVELLS", "HCLTECH", "HDFCAMC", "HDFCBANK", "HDFCLIFE", 
+            "HEROMOTOCO", "HINDALCO", "HINDCOPPER", "HINDPETRO", "HINDUNILVR", "ICICIBANK", "ICICIGI", "ICICIPRULI", 
+            "IDEA", "IDFC", "IDFCFIRSTB", "IEX", "IGL", "INDHOTEL", "INDIACEM", "INDIAMART", "INDIGO", "INDUSINDBK", 
+            "INDUSTOWER", "INFY", "INTELLECT", "IOC", "IPCALAB", "IRCTC", "ITC", "JINDALSTEL", "JKCEMENT", "JSWSTEEL", 
+            "JUBLFOOD", "KOTAKBANK", "L&TFH", "LALPATHLAB", "LAURUSLABS", "LICHSGFIN", "LT", "LTIM", "LTTS", "LUPIN", 
+            "M&M", "M&MFIN", "MANAPPURAM", "MARICO", "MARUTI", "MCDOWELL-N", "MCX", "METROPOLIS", "MFSL", "MGL", 
+            "MOTHERSON", "MPHASIS", "MRF", "MUTHOOTFIN", "NATIONALUM", "NAUKRI", "NAVINFLUOR", "NESTLEIND", "NMDC", 
+            "NTPC", "OBEROIRLTY", "OFSS", "ONGC", "PAGEIND", "PEL", "PERSISTENT", "PETRONET", "PFC", "PIDILITIND", 
+            "PIIND", "PNB", "POLYCAB", "POWERGRID", "PVRINOX", "RAMCOCEM", "RBLBANK", "RECLTD", "RELIANCE", "SAIL", 
+            "SBICARD", "SBILIFE", "SBIN", "SHREECEM", "SIEMENS", "SRF", "SUNTV", "SYNGENE", "TATACHEM", "TATACOMM", 
+            "TATACONSUM", "TATAMOTORS", "TATAPOWER", "TATASTEEL", "TCS", "TECHM", "TITAN", "TORNTPHARM", "TRENT", 
+            "TVSMOTOR", "UBL", "ULTRACEMCO", "UPL", "VEDL", "VOLTAS", "WIPRO", "ZEEL", "ZYDUSLIFE"
+        ]);
+
+        let currentSegment = 'all';
+
+        function setSegment(seg) {
+            currentSegment = seg;
+            const btnAll = document.getElementById('btn-seg-all');
+            const btnFno = document.getElementById('btn-seg-fno');
+            if (seg === 'all') {
+                btnAll.style.background = '#4f46e5';
+                btnAll.style.color = 'white';
+                btnAll.style.border = 'none';
+                btnFno.style.background = '#f1f5f9';
+                btnFno.style.color = '#475569';
+                btnFno.style.border = '1px solid #cbd5e1';
+            } else {
+                btnFno.style.background = '#8b5cf6';
+                btnFno.style.color = 'white';
+                btnFno.style.border = 'none';
+                btnAll.style.background = '#f1f5f9';
+                btnAll.style.color = '#475569';
+                btnAll.style.border = '1px solid #cbd5e1';
+            }
+            filterTable();
+        }
 
         // 2026 Official NSE/BSE Trading Holidays List (Global - used everywhere)
         const stockHolidays2026 = [
@@ -349,7 +405,12 @@
             if (!query) {
                 if (currentScanSymbols.length > 0) {
                     displayResults(currentScanSymbols);
-                    countEl.textContent = `${currentScanSymbols.length} results`;
+                    const segText = currentSegment === 'fno' ? '⚡ F&O ' : '';
+                    countEl.textContent = `${segText}${currentScanSymbols.length} scan results`;
+                } else if (currentSegment === 'fno') {
+                    const fnoOnly = Object.keys(masterIndicators).filter(sym => FNO_STOCKS.has(sym));
+                    displayResults(fnoOnly);
+                    countEl.textContent = `⚡ F&O: ${fnoOnly.length} stocks`;
                 } else {
                     document.getElementById('table-body').innerHTML = `<tr><td colspan="11" style="text-align:center;">Data loaded. Build your query and click 'Run Custom Scan' to see results.</td></tr>`;
                     countEl.textContent = '';
@@ -363,7 +424,8 @@
             }
             
             displayResults(matched);
-            countEl.textContent = `${matched.length} matches globally`;
+            const segText = currentSegment === 'fno' ? '⚡ F&O ' : '';
+            countEl.textContent = `${matched.length} ${segText}matches globally`;
         }
 
         function searchAndOpenChart() {
@@ -407,7 +469,9 @@
 
                 // Check if the latest trading day is missing from the compiled list
                 if (!isHolidayOrWeekend(todayDateStr) && !availableDates.includes(todayDateStr)) {
-                    document.getElementById('data-status').innerText = `Missing Master Data for ${todayDateStr}. Auto-Rebuilding...`;
+                    if (document.getElementById('data-date') && todayDateStr) document.getElementById('data-date').innerText = todayDateStr;
+                    const statusEl = document.getElementById('data-status');
+                    if (statusEl) statusEl.innerText = `Missing Master Data for ${todayDateStr}. Auto-Rebuilding...`;
                     document.getElementById('scan-screen').style.display = "flex";
                     document.getElementById('main-app').style.display = "none";
                     document.getElementById('scanMasterBtn').innerText = `Auto-Rebuilding Master Indicators...`;
@@ -418,13 +482,16 @@
                 // Default to loading the actual active date
                 await loadDataForDate(defaultDateStr);
             } catch (err) {
-                document.getElementById('data-status').innerText = "Error checking data.";
+                const statusEl = document.getElementById('data-status');
+                if (statusEl) statusEl.innerText = "Error checking data.";
                 console.error(err);
             }
         }
 
         async function loadDataForDate(dateStr) {
-            document.getElementById('data-status').innerText = `Checking Master Indicators for ${dateStr}...`;
+            if (document.getElementById('data-date') && dateStr) document.getElementById('data-date').innerText = dateStr;
+            const statusEl = document.getElementById('data-status');
+            if (statusEl) statusEl.innerText = `Checking Master Indicators for ${dateStr}...`;
             pastDateStr = dateStr;
             isBacktestMode = (dateStr !== todayDateStr && dateStr !== availableDates[0]);
 
@@ -1200,13 +1267,18 @@
             const tbody = document.getElementById('table-body');
             tbody.innerHTML = '';
             
-            if (symbols.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;">No stocks matched your filters.</td></tr>`;
+            let filteredSymbols = symbols;
+            if (currentSegment === 'fno') {
+                filteredSymbols = symbols.filter(sym => FNO_STOCKS.has(sym));
+            }
+
+            if (filteredSymbols.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;">No stocks matched your filters${currentSegment === 'fno' ? ' in F&O segment' : ''}.</td></tr>`;
                 return;
             }
 
             // Display up to 200 to prevent browser freezing
-            const toShow = symbols.slice(0, 200);
+            const toShow = filteredSymbols.slice(0, 200);
 
             toShow.forEach(sym => {
                 const data = masterIndicators[sym];
@@ -1217,6 +1289,9 @@
                 const rsiColor = data.RSI14 > 60 ? 'green' : (data.RSI14 < 40 ? 'red' : '');
                 const macdColor = data.MACD > 0 ? 'green' : 'red';
                 const ltpColor = data.LTP > data.SMA20 ? 'green' : 'red';
+
+                const isFno = FNO_STOCKS.has(sym);
+                const fnoBadge = isFno ? `<span style="background:#8b5cf6;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:bold;margin-left:6px;display:inline-block;vertical-align:middle;">⚡ F&O</span>` : '';
 
                 let returnHtml = 'N/A';
                 if (isBacktestMode && latestLTPData[sym]) {
@@ -1230,7 +1305,7 @@
                 }
 
                 tr.innerHTML = `
-                    <td style="font-weight:bold;"><span onclick="openChart('${sym}')" style="cursor:pointer; color:#2563eb; text-decoration:underline dotted;" title="Click to view chart">${sym}</span></td>
+                    <td style="font-weight:bold;"><span onclick="openChart('${sym}')" style="cursor:pointer; color:#2563eb; text-decoration:underline dotted;" title="Click to view chart">${sym}</span>${fnoBadge}</td>
                     <td class="${ltpColor}">${data.LTP}</td>
                     <td class="${rsiColor}">${data.RSI14}</td>
                     <td class="${macdColor}">${data.MACD}</td>
