@@ -464,23 +464,34 @@
                 if (availableDates.length > 0) {
                     datePicker.style.display = 'inline-block';
                     datePicker.innerHTML = availableDates.map(d => `<option value="${d}">${d === availableDates[0] ? d + ' (Latest Active)' : d}</option>`).join('');
-                    datePicker.value = defaultDateStr; // Default to the latest active trading date!
+                    datePicker.value = defaultDateStr;
                 }
 
-                // Check if the latest trading day is missing from the compiled list
-                if (!isHolidayOrWeekend(todayDateStr) && !availableDates.includes(todayDateStr)) {
-                    if (document.getElementById('data-date') && todayDateStr) document.getElementById('data-date').innerText = todayDateStr;
-                    const statusEl = document.getElementById('data-status');
-                    if (statusEl) statusEl.innerText = `Missing Master Data for ${todayDateStr}. Auto-Rebuilding...`;
-                    document.getElementById('scan-screen').style.display = "flex";
-                    document.getElementById('main-app').style.display = "none";
-                    document.getElementById('scanMasterBtn').innerText = `Auto-Rebuilding Master Indicators...`;
-                    scanMasterIndicators(false);
+                // ✅ FIX 1: FAST PATH — Agar koi bhi date available hai toh seedha load karo
+                // Naya din ka data background mein silently rebuild hoga, UI BLOCK nahi hogi
+                if (availableDates.length > 0) {
+                    // Load the latest available date immediately (could be yesterday's data)
+                    await loadDataForDate(defaultDateStr);
+
+                    // Agar aaj ka data genuinely missing hai → background mein silently rebuild
+                    if (!isHolidayOrWeekend(todayDateStr) && !availableDates.includes(todayDateStr)) {
+                        const statusEl = document.getElementById('data-status');
+                        if (statusEl) statusEl.innerHTML = `<span style="color:#f59e0b">⏳ Showing ${defaultDateStr} data. Today's data (${todayDateStr}) is being prepared in background...</span>`;
+                        // Non-blocking: background rebuild without freezing UI
+                        setTimeout(() => scanMasterIndicators(false), 500);
+                    }
                     return;
                 }
 
-                // Default to loading the actual active date
-                await loadDataForDate(defaultDateStr);
+                // Koi bhi date nahi → Full rebuild required (first time / empty R2)
+                if (document.getElementById('data-date') && todayDateStr) document.getElementById('data-date').innerText = todayDateStr;
+                const statusEl = document.getElementById('data-status');
+                if (statusEl) statusEl.innerText = `No data found. Building for the first time...`;
+                document.getElementById('scan-screen').style.display = "flex";
+                document.getElementById('main-app').style.display = "none";
+                document.getElementById('scanMasterBtn').innerText = `Auto-Building Master Indicators...`;
+                scanMasterIndicators(false);
+
             } catch (err) {
                 const statusEl = document.getElementById('data-status');
                 if (statusEl) statusEl.innerText = "Error checking data.";
@@ -789,22 +800,30 @@
         }
 
         async function scanMasterIndicators(force = false) {
+            // If scan-screen is not visible (background rebuild mode), use status bar only
+            const isSilentMode = document.getElementById('scan-screen').style.display === 'none';
             const btn = document.getElementById('scanMasterBtn');
-            btn.innerText = "Checking Local Cache...";
-            btn.disabled = true;
+            const statusEl = document.getElementById('data-status');
+
+            const setProgress = (msg) => {
+                if (!isSilentMode) btn.innerText = msg;
+                if (statusEl) statusEl.innerHTML = `<span style="color:#f59e0b">⏳ ${msg}</span>`;
+            };
+
+            if (!isSilentMode) { btn.innerText = "Checking Local Cache..."; btn.disabled = true; }
 
             try {
                 // 1. Fetch Historical Data (IndexedDB or R2)
                 let historicalData = await getCachedHistoricalData();
                 let fetchedFromOriginal = false;
                 if (!historicalData || force) {
-                    btn.innerText = "Downloading Historical Data (Your R2)...";
+                    setProgress("Downloading Historical Data (Your R2)...");
                     
                     // SEPARATE R2 THEORY: Fetch from our own worker first
                     let histRes = await fetch(`${NEW_WORKER_URL}/get-historical`);
                     if (histRes.status === 404) {
                         // Day 1 Fallback: Our R2 is empty, fetch from original source ONCE
-                        btn.innerText = "Downloading Historical Data (Original)...";
+                        setProgress("Downloading Historical Data (78MB — First Time Only)...");
                         histRes = await fetch(HISTORICAL_URL);
                         fetchedFromOriginal = true;
                     }
@@ -812,7 +831,7 @@
                     
                     historicalData = await histRes.json();
                     
-                    btn.innerText = "Saving to Local Cache...";
+                    setProgress("Saving to Local Cache...");
                     await setCachedHistoricalData(historicalData);
                 }
 
@@ -1135,16 +1154,26 @@
                 const blob = new Blob([workerCode], { type: 'application/javascript' });
                 const worker = new Worker(URL.createObjectURL(blob));
 
+                // ✅ FIX 3: Trim historical data to last 250 rows per stock before sending to worker
+                // This reduces data transfer size ~5x and speeds up worker calculations significantly
+                const trimmedHistoricalData = {};
+                for (let sym of symbols) {
+                    if (historicalData[sym]) {
+                        trimmedHistoricalData[sym] = historicalData[sym].slice(-250);
+                    }
+                }
+
                 const finalCalculatedData = await new Promise((resolve, reject) => {
                     worker.onmessage = function(e) {
                         if (e.data.type === 'progress') {
-                            btn.innerText = e.data.msg;
+                            setProgress(e.data.msg);
                         } else if (e.data.type === 'done') {
                             resolve(e.data.finalCalculated);
                         }
                     };
                     worker.onerror = function(e) { reject(e.message); };
-                    worker.postMessage({ datesToUpload, historicalData, validDailyDates, dailyDataMap, symbols });
+                    // Send trimmed data to worker (not full 78MB object)
+                    worker.postMessage({ datesToUpload, historicalData: trimmedHistoricalData, validDailyDates, dailyDataMap, symbols });
                 });
 
                 worker.terminate();
@@ -1190,17 +1219,35 @@
                 }
 
                 if (postRes && postRes.ok) {
-                    document.getElementById('data-status').innerText = `Master Data Ready: ${datesToUpload[datesToUpload.length-1] || todayDateStr}`;
+                    const finalDate = datesToUpload[datesToUpload.length-1] || todayDateStr;
+                    if (statusEl) statusEl.innerHTML = `<span style="color:#10b981">✅ Data Ready: ${finalDate}</span>`;
+                    if (document.getElementById('data-date')) document.getElementById('data-date').innerText = finalDate;
                     
                     document.getElementById('scan-screen').style.display = "none";
                     document.getElementById('main-app').style.display = "block";
-                    
-                    displayResults(Object.keys(masterIndicators));
 
-                    // AUTO TRIGGER CHART SYNC
-                    setTimeout(triggerChartSync, 1000);
+                    // ✅ FIX 2: Auto triggerChartSync REMOVED — saves 25+ unnecessary API calls
+                    // User can manually click "UPDATE CHARTS" button when needed
 
-                    // --- SEPARATE R2 THEORY: Update historical data on our R2 ---
+                    // Update the date picker with latest dates
+                    try {
+                        const newListRes = await fetch(`${NEW_WORKER_URL}/list-manual?t=${new Date().getTime()}`);
+                        if (newListRes.ok) {
+                            availableDates = await newListRes.json();
+                            const datePicker = document.getElementById('historical-date-picker');
+                            if (datePicker && availableDates.length > 0) {
+                                datePicker.style.display = 'inline-block';
+                                datePicker.innerHTML = availableDates.map(d => `<option value="${d}">${d === availableDates[0] ? d + ' (Latest Active)' : d}</option>`).join('');
+                                datePicker.value = availableDates[0];
+                            }
+                        }
+                    } catch(e) {}
+
+                    if (Object.keys(masterIndicators).length > 0) {
+                        displayResults(Object.keys(masterIndicators));
+                    }
+
+                    // --- SEPARATE R2 THEORY: Update historical data on our R2 (fire & forget) ---
                     if (datesToUpload.length > 0 || fetchedFromOriginal) {
                         fetch(`${NEW_WORKER_URL}/update-historical`, {
                             method: 'POST',
@@ -1216,9 +1263,11 @@
 
             } catch (err) {
                 console.error("FULL ERROR DETAILS:", err);
-                btn.innerText = "SCAN FAILED (See Console)";
-                btn.classList.remove('btn-danger');
-                document.getElementById('data-status').innerText = "Error: " + err.message;
+                if (!isSilentMode) {
+                    btn.innerText = "SCAN FAILED (See Console)";
+                    btn.classList.remove('btn-danger');
+                }
+                if (statusEl) statusEl.innerHTML = `<span style="color:#ef4444">❌ Rebuild Error: ${err.message}</span>`;
             }
         }
 
