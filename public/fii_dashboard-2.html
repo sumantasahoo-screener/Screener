@@ -6,6 +6,7 @@
 <title>FII · DII Intelligence</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%233D405B'/%3E%3Crect x='20' y='55' width='16' height='25' rx='4' fill='%23F2CC8F'/%3E%3Crect x='42' y='35' width='16' height='45' rx='4' fill='%23F4F1DE'/%3E%3Crect x='64' y='15' width='16' height='65' rx='4' fill='%23E07A5F'/%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 /* ════════════════════════════════
    LIGHT THEME — Retro Soft Brutalism
@@ -217,7 +218,7 @@ main{padding:28px 32px;}
 }
 
 /* ── CHART ── */
-.chart-body{padding:16px 20px;height:230px;}
+.chart-body{padding:16px 20px;height:230px;border-top:3px solid var(--border);}
 
 /* ── TWO COL ── */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;}
@@ -607,6 +608,31 @@ main{padding:28px 32px;}
     </div>
   </div>
 
+  <!-- NET FLOW HISTORY -->
+  <div class="section-title">Net Flow History <span style="font-size:.7rem;font-style:normal;font-family:Inter;margin-left:6px;color:var(--muted)">(R2 se fetch hoga — har roz save hota hai)</span></div>
+  <div class="g2">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-head-l">
+          <div class="panel-icon">📊</div>
+          <div><div class="panel-title">FII Net Flow</div><div class="panel-sub">Daily ₹ Cr — R2 history</div></div>
+        </div>
+        <span class="badge" id="fii-badge">0 days</span>
+      </div>
+      <div class="chart-body"><canvas id="fii-chart"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-head-l">
+          <div class="panel-icon">📊</div>
+          <div><div class="panel-title">DII Net Flow</div><div class="panel-sub">Daily ₹ Cr — R2 history</div></div>
+        </div>
+        <span class="badge" id="dii-badge">0 days</span>
+      </div>
+      <div class="chart-body"><canvas id="dii-chart"></canvas></div>
+    </div>
+  </div>
+
 </main>
 </div>
 
@@ -791,10 +817,64 @@ function renderSentiment(fii,dii){
     <div class="sent-stat">Combined: <strong style="color:${(fn+dn)>=0?'var(--bull-text)':'var(--bear-text)'}">${fmtS(fn+dn)}</strong></div>`;
 }
 
-// ── HISTORY ──────────────────────────────────
+// ── HISTORY + CHARTS (R2) ────────────────────
+let CH = { fii: null, dii: null };
 
+function gc(){
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    grid: dark ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.07)',
+    tick: dark ? '#9aa3bc' : '#3D405B',
+    bull: dark ? 'rgba(74,222,128,.85)'  : 'rgba(0,128,0,.85)',
+    bear: dark ? 'rgba(248,113,113,.85)' : 'rgba(220,38,38,.8)',
+    blue: dark ? 'rgba(96,165,250,.85)'  : 'rgba(37,99,235,.8)',
+  };
+}
 
+async function renderHistory(){
+  try {
+    const res = await fetch(WORKER + '?mode=history');
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) return;
 
+    const days = data.slice(-30);
+    const cc   = gc();
+    const labels = days.map(d => {
+      const p = (d.date || '').split('-');
+      return p.length === 3 ? p[0] + '/' + p[1] : d.date;
+    });
+    const fiiN = days.map(d => d.fii ? +d.fii.netValue : 0);
+    const diiN = days.map(d => d.dii ? +d.dii.netValue : 0);
+
+    document.getElementById('fii-badge').textContent = days.length + ' days';
+    document.getElementById('dii-badge').textContent = days.length + ' days';
+
+    const base = {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false,
+        callbacks: { label: c => '\u20B9' + (+c.raw).toFixed(0) + ' Cr' } } },
+      scales: {
+        x: { grid: { color: cc.grid }, ticks: { color: cc.tick, font: { family: 'Inter', size: 10 } } },
+        y: { grid: { color: cc.grid }, ticks: { color: cc.tick, font: { family: 'Inter', size: 10 },
+          callback: v => Math.abs(v) >= 10000 ? (v/1000).toFixed(0) + 'K' : v } }
+      }
+    };
+
+    const mkBar = (id, data, inst, pc, nc) => {
+      if (inst) inst.destroy();
+      return new Chart(document.getElementById(id), {
+        type: 'bar',
+        data: { labels, datasets: [{ data, backgroundColor: data.map(v => v >= 0 ? pc : nc), borderRadius: 0, borderSkipped: false }] },
+        options: base
+      });
+    };
+
+    CH.fii = mkBar('fii-chart', fiiN, CH.fii, cc.bull, cc.bear);
+    CH.dii = mkBar('dii-chart', diiN, CH.dii, cc.blue, cc.bear);
+  } catch(e) {
+    console.error('History fetch failed:', e);
+  }
+}
 
 // ── DEALS ────────────────────────────────────
 function detectSignal(clientName){
@@ -1074,6 +1154,7 @@ function toggleHowto(){
 document.addEventListener('DOMContentLoaded',()=>{
   updateMarketPill();
   fetchAll();
+  renderHistory();
   // Auto-open howto guide for first time visitors
   if(!localStorage.getItem('howto_seen')){
     document.getElementById('howto-body').style.display='block';
